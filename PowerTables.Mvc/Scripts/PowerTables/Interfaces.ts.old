@@ -1,0 +1,215 @@
+// THIS FILE IS AUTO-GENERATED
+// DO NOT MODIFY IT MANUALLY
+
+module PowerTables.Filters.Range {
+    export interface IRangeFilterClientConfig {
+        FromPlaceholder: string;
+        ToPlaceholder: string;
+        InputDelay: number;
+        FromValue: string;
+        ToValue: string;
+    }
+
+}
+module PowerTables.Filters.Select {
+    export interface ISelectFilterClientConfig {
+        SelectedValue: string;
+        AllowSelectNothing: boolean;
+        IsMultiple: boolean;
+        NothingText: string;
+        Items: ISelectListItem[];
+    }
+    export interface ISelectListItem {
+        Disabled: boolean;
+        Selected: boolean;
+        Text: string;
+        Value: string;
+    }
+
+}
+module PowerTables.Plugins.Formwatch {
+    export interface IFormwatchClientConfiguration {
+        FieldsConfiguration: PowerTables.Plugins.Formwatch.IFormwatchFieldData[];
+    }
+    export interface IFormwatchFieldData {
+        FieldJsonName: string;
+        FieldSelector: string;
+        FieldValueFunction: () => any;
+        TriggerSearchOnEvents: string[];
+        ConstantValue: string;
+        SearchTriggerDelay: number;		
+        SetConstantIfNotSupplied:boolean;
+    }
+
+}
+module PowerTables.Filters.Value {
+    export interface IValueFilterClientConfig {
+        Placeholder: string;
+        InputDelay: number;
+        DefaultValue: string;
+    }
+
+}
+module PowerTables.Plugins.Hideout {
+    export interface IHideoutCellConfiguration {
+        Hidden: boolean;
+    }
+    export interface IHideoutClientConfiguration {
+        ShowMenu: boolean;
+        HidebleColumnsNames: string[];
+        ReloadTableOnChangeHidden: boolean;
+    }
+
+}
+module PowerTables.Plugins.Ordering {
+    export interface IOrderableConfiguration {
+        DefaultOrdering: PowerTables.Ordering;
+    }
+
+}
+module PowerTables.Plugins.Paging {
+    export interface IPagingClientConfiguration {
+        ArrowsMode: boolean;
+        PreviousText: string;
+        NextText: string;
+        UsePeriods: boolean;
+        PagesToHideUnderPeriod: number;
+        UseFirstLastPage: boolean;
+        UseGotoPage: boolean;
+    }
+
+}
+module PowerTables.Plugins.Checkboxify {
+    export interface ICheckboxifyClientConfig {
+        SelectionColumnName: string;
+        ResetOnReload: boolean;
+        EnableSelectAll: boolean;
+        SelectAllSelectsUndisplayedData: boolean;
+        SelectedRowClass: string;
+        SelectAllOnlyIfAllData: boolean;
+        CheckboxifyColumnName: string;
+        SelectAllLocation: PowerTables.Plugins.Checkboxify.SelectAllLocation;
+    }
+    export enum SelectAllLocation {
+        FiltersHeader = 0,
+        ColumnHeader = 1
+    }
+
+}
+module PowerTables.Plugins.ResponseInfo {
+    export interface IResponseInfoClientConfiguration {
+        TemplateText: string;
+        ResponseObjectOverride: boolean;
+    }
+
+}
+module PowerTables.Plugins.Toolbar {
+    export interface IToolbarButtonsClientConfiguration {
+        Buttons: PowerTables.Plugins.Toolbar.IToolbarButtonClientConfiguration[];
+    }
+    export interface IToolbarButtonClientConfiguration {
+        Id: string;
+        Css: string;
+        Style: string;	
+        HtmlContent: string;
+        Command: string;
+        BlackoutWhileCommand: boolean;
+        Title: string;
+        DisableIfNothingChecked: boolean;
+        CommandCallbackFunction: (table: PowerTables.PowerTable, response: IPowerTablesResponse) => void;
+        OnClick: (table: PowerTables.PowerTable, menuElement: any) => void;
+        ConfirmationFunction: (continuation: (queryModifier?: (a: IQuery) => void) => void) => void;
+        Submenu: PowerTables.Plugins.Toolbar.IToolbarButtonClientConfiguration[];
+        HasSubmenu: boolean;
+        IsMenu: boolean;
+        Separator: boolean;
+        TempId: string;
+    }
+
+}
+module PowerTables.Plugins.Total {
+    export interface ITotalClientConfiguration {
+        ShowOnTop: boolean;
+        ColumnsValueFunctions: { [key: string]: (a: any) => string };
+    }
+    export interface ITotalResponse {
+        TotalsForColumns: { [key: string]: string };
+    }
+
+}
+module PowerTables.Configuration.Json {
+    export interface ITableConfiguration {
+        TableRootId: string;
+        OperationalAjaxUrl: string;
+        DefaultCellElement: string;
+        DefaultRowElement: string;
+        LoadImmediately: boolean;
+        ServerDateTimeFormat: string;
+        ClientDateTimeFormat: string;
+        DatePickerFunction: (e: any, format: string) => void;
+        Columns: IColumnConfiguration[];
+        PluginsConfiguration: { [key: string]: IPluginConfiguration };
+        StaticData: string;
+        RawColumnNames: string[];
+    }
+    export interface IColumnConfiguration {
+        Title: string;
+        RawColumnName: string;
+        Filter: IColumnFilterConfiguration;
+        CellRenderingTemplateId: string;
+        CellRenderingHtmlFunction: (a: any) => string;
+        CellRenderingValueFunction: (a: any) => string;
+        CellPluginsConfiguration: { [key: string]: any };
+        ColumnType: string;
+    }
+    export interface IColumnFilterConfiguration {
+        FilterKey: string;
+        FilterConfiguration: any;
+    }
+    export interface IPluginConfiguration {
+        PluginId: string;
+        Placement: string;
+        Configuration: any;
+    }
+
+}
+module PowerTables {
+    export interface IPowerTableRequest {
+        Command: string;
+        Query: IQuery;
+    }
+    export interface IQuery {
+        Paging: IPaging;
+        Orderings: { [key: string]: Ordering };
+        Filterings: { [key: string]: string };
+        AdditionalData: { [key: string]: string };
+        StaticDataJson: string;
+    }
+    export interface IPaging {
+        PageIndex: number;
+        PageSize: number;
+    }
+    export enum Ordering {
+        Ascending = 0,
+        Descending = 1,
+        Neutral = 2
+    }
+    export interface IPowerTablesResponse {
+        ResultsCount: number;
+        PageIndex: number;
+        Data: any[];
+        AdditionalData: { [key: string]: any };
+        Success: boolean;
+        Message: string;
+    }
+
+}
+module PowerTables.Plugins.Limit {
+    export interface ILimitClientConfiguration {
+        DefaultValue: string;
+        LimitValues: number[];
+        LimitLabels: string[];
+        ReloadTableOnLimitChange: boolean;
+    }
+
+}

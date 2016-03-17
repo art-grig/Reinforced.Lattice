@@ -1,0 +1,324 @@
+﻿<script type="text/javascript">
+    $(document).ready(function () {
+        Handlebars.registerPartial('pt-hideout-visibleColumn', $('#pt-hideout-visibleColumn').html());
+        Handlebars.registerPartial('pt-hideout-hiddenColumn', $('#pt-hideout-hiddenColumn').html());
+        Handlebars.registerHelper('equal', function (lvalue, rvalue, options) {
+            if (arguments.length < 3)
+                throw new Error("Handlebars Helper equal needs 2 parameters");
+            if (lvalue != rvalue) {
+                return options.inverse(this);
+            } else {
+                return options.fn(this);
+            }
+        });
+    });
+</script>
+<script id="pt-layout" type="text/x-handlebars-template">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6 col-sm-6 col-xs-6 col-lg-6" data-placeholder="ltPlugins">
+                
+                <div class="btn-group" data-placeholder="ltPlugins_toolbar" style="margin-bottom:10px"></div>
+                <br />
+            </div>
+            <div class="col-md-6 col-sm-6 col-xs-6 col-lg-6 text-right" data-placeholder="rtPlugins">
+                <div class="btn-group" data-placeholder="rtPlugins_toolbar" style="padding-bottom:10px"></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12 col-lg-12">
+                <hr />
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <table class="table table-striped table-condensed table-bordered" data-placeholder="tableItself">
+                    <thead style="display: table-header-group;">
+                        <tr data-placeholder="headers"></tr>
+                        <tr data-placeholder="filters"></tr>
+                    </thead>
+                    <tbody data-placeholder="body"></tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" data-placeholder="lbPlugins">
+                <div class="btn-group" data-placeholder="lbPlugins_toolbar"></div>
+            </div>
+            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 text-right" data-placeholder="rbPlugins" style="float:right;">
+                <div class="btn-group" data-placeholder="rbPlugins_toolbar"></div>
+            </div>
+        </div>
+    </div>
+</script>
+<script id="pt-pluginPlaceholder" type="text/x-handlebars-template">
+    {{#if lt}}
+    <span></span>
+    {{/if}}
+    {{#if lb}}
+    <div style="float:left;"></div>
+    {{/if}}
+    {{#if rt}}
+    <div style="float:right;"></div>
+    {{/if}}
+    {{#if rb}}
+    <div style="float:right;"></div>
+    {{/if}}
+</script>
+<script id="pt-noresults" type="text/x-handlebars-template">
+    <tr class="info">
+        <td colspan="{{Columns}}"><h4 class="text-center text-info bg-info"><span class="glyphicon glyphicon-eye-close"></span>  No data found</h4></td>
+    </tr>
+</script>
+<script id="pt-loading" type="text/x-handlebars-template">
+    <tr class="info">
+        <td colspan="{{Columns}}"><h4 class="text-center text-info bg-info"><span class="glyphicon glyphicon-refresh"></span>  Loading</h4></td>
+    </tr>
+</script>
+<script id="pt-error" type="text/x-handlebars-template">
+    <tr class="danger">
+        <td colspan="{{Columns}}">
+            <h4 class="text-center"><span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>  Error occured</h4>
+            <p style="margin-left:25px;margin-right:25px">
+                {{{ErrorText}}}
+            </p>
+        </td>
+    </tr>
+</script>
+<script id="pt-columnheader" type="text/x-handlebars-template">
+    <th>
+        <span><strong>{{Configuration.Title}} </strong></span>
+    </th>
+</script>
+<script id="pt-rawcolumnheader" type="text/x-handlebars-template">
+    <th>
+        {{{.}}}
+    </th>
+</script>
+<script id="pt-row" type="text/x-handlebars-template">
+    <tr data-index="{{.}}"></tr>
+</script>
+<script id="pt-rawcell" type="text/x-handlebars-template">
+    <td>
+        {{{.}}}
+    </td>
+</script>
+<script id="pt-ordering" type="text/x-handlebars-template">
+    <span><strong>{{Title}}  </strong></span>
+    {{#if IsNeutral}}
+    <span class="glyphicon glyphicon-th-large" style="color:#bac5d3;float:right;"></span>
+    {{/if}}
+    {{#if IsAscending}}
+    <span class="glyphicon glyphicon-chevron-up" style="color:#bac5d3;float:right;"></span>
+    {{/if}}
+    {{#if IsDescending}}
+    <span class="glyphicon glyphicon-chevron-down" style="color:#bac5d3;float:right;"></span>
+    {{/if}}
+
+</script>
+<!-- Filters -->
+<script id="pt-emptyfilter" type="text/x-handlebars-template">
+    <th></th>
+</script>
+<script id="pt-valuefilter" type="text/x-handlebars-template">
+    <th>
+        <input type="text" data-for="{{Column.RawName}}" style="margin:0;width:100%;max-width:100%;" class="form-control input-md" placeholder="{{Configuration.Placeholder}}" />
+    </th>
+</script>
+
+<script id="pt-rangefilter" type="text/x-handlebars-template">
+    <th>
+        <input type="text" data-for="{{Column.RawName}}" data-rng="from" class=" form-control input-md" style="margin:0;width:100%;max-width:100%;" placeholder="{{Configuration.FromPlaceholder}}"><br />
+        <input type="text" data-for="{{Column.RawName}}" data-rng="to" class="form-control input-md" style="margin:0;width:100%;max-width:100%;" placeholder="{{Configuration.ToPlaceholder}}">
+    </th>
+</script>
+<script id="pt-selectfilter" type="text/x-handlebars-template">
+    <th>
+        <select class="form-control input-md" style="margin:0;width:100%;max-width:100%;" data-for="{{Column.RawName}}" {{#if Configuration.IsMultiple}} multiple="multiple" {{/if}}>
+            {{#each Configuration.Items}}
+            <option {{#if Disabled}} disabled="disabled" {{/if}} value="{{Value}}" {{#if Selected}} selected {{/if}}>{{Text}}</option>
+            {{/each}}
+        </select>
+    </th>
+</script>
+<!-- /Filters -->
+<!--Hideout-->
+<script id="pt-hideout" type="text/x-handlebars-template">
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Show/Hide Columns
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+            {{#each ColumnsStates}}
+            {{#if Visible}}
+            <li data-showhide="{{RawName}}">{{> pt-hideout-visibleColumn }}</li>
+            {{/if}}
+            {{#unless Visible}}
+            <li data-showhide="{{RawName}}">{{> pt-hideout-hiddenColumn }}</li>
+            {{/unless}}
+            {{/each}}
+        </ul>
+    </div>
+</script>
+<script id="pt-hideout-visibleColumn" type="text/x-handlebars-template">
+    <a style="cursor:pointer;"><span class="glyphicon glyphicon-eye-open" style="float:left"></span>{{Name}}</a>
+</script>
+<script id="pt-hideout-hiddenColumn" type="text/x-handlebars-template">
+    <a style="cursor:pointer;"><span class="glyphicon glyphicon-eye-close" style="float:left"></span>{{Name}}</a>
+</script>
+
+<!--/Hideout-->
+<!-- Checkboxify-->
+<script id="pt-checkboxify-all" type="text/x-handlebars-template">
+    {{#if NeedsColumn}}
+    <th>    
+        <input type="checkbox" data-target="checkboxify" />    
+    </th> 
+    {{/if}}
+
+    {{#unless NeedsColumn}}
+        <input type="checkbox" data-target="checkboxify" />    
+    {{/unless}}
+</script>
+<script id="pt-checkboxify-check" type="text/x-handlebars-template">
+    <td>
+        <input type="checkbox" data-target="checkboxify" data-colvalue="{{Value}}" {{#if Checked }} checked="checked" {{/if}} />
+    </td>
+</script>
+<!-- /Checkboxify-->
+<script id="pt-plugin-limit" type="text/x-handlebars-template">
+    <div class="btn-group">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            Results: <span class="_selectedLabel">{{DefaultLabel}}</span>
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" role="menu">
+            {{#each Sizes}}
+            {{#if Separator}}
+            <li class="divider"></li>
+            {{else}}
+            <li><a href="#" class="_limitSelect" data-size="{{Value}}">{{Label}}</a></li>
+            {{/if}}
+            {{/each}}
+        </ul>
+    </div>
+</script>
+
+<script id="pt-responseinfo" type="text/x-handlebars-template">
+    <p>Total <strong>{{ResultsCount}}</strong> records found</p>
+</script>
+
+<script id="pt-plugin-pager" type="text/x-handlebars-template">
+    {{#if Shown}}
+    
+    {{#if Configuration.ArrowsMode}}
+    <nav style="margin:0;width:100px;margin-left:auto;">
+        <ul class="pager">
+            {{#if PrevArrow}}
+            <li>
+                <a data-action="prev">
+                    {{{Configuration.PreviousText}}}
+                    {{#unless  Configuration.PreviousText}}
+                    <span class="glyphicon glyphicon-chevron-left"></span>
+                    {{/unless}}
+                </a>
+            </li>{{/if}}
+            {{#if NextArrow}}
+            <li>
+                <a data-action="next">
+                    {{{Configuration.NextText}}}
+                    {{#unless  Configuration.NextText}}
+                    <span class="glyphicon glyphicon-chevron-right"></span>
+                    {{/unless}}
+                </a>
+            </li>{{/if}}
+        </ul>
+    </nav>
+    {{else}}
+
+    <ul class="pagination" style="margin:0;">
+        {{#each Pages}}
+        {{#if First}}
+        <li class="first"><a style="cursor:pointer" data-action="page" data-page="{{Page}}"><span class="glyphicon glyphicon-fast-backward"></span></a></li>{{/if}}
+        {{#if Prev}}
+        <li class="prev"><a style="cursor:pointer" data-action="prev"><span class="glyphicon glyphicon-chevron-left"></span></a></li>{{/if}}
+        {{#if Period}}
+        <li><span>. . .</span></li>{{/if}}
+        {{#if ActivePage}}
+        <li class="active"><span>{{DisPage}}</span></li>{{/if}}
+        {{#if InActivePage}}
+        <li><a style="cursor:pointer" data-action="page" data-page="{{Page}}">{{DisPage}}</a></li>{{/if}}
+        {{#if Next}}
+        <li class="next"><a style="cursor:pointer" data-action="next"><span class="glyphicon glyphicon-chevron-right"></span></a></li>{{/if}}
+        {{#if Last}}
+        <li class="last"><a style="cursor:pointer" data-action="page" data-page="{{Page}}"><span class="glyphicon glyphicon-fast-forward"></span></a></li>{{/if}}
+        {{/each}}
+    </ul>
+
+    {{/if}}
+    {{#if Configuration.UseGotoPage}}
+    <div class="input-group _gotoPanel">
+        <input type="text" class="form-control" data-action="pageInput" style="width:60px;" placeholder="Page">
+        <span class="input-group-btn">
+            <button class="btn btn-default" type="button" data-action="navg"><span class="glyphicon glyphicon-circle-arrow-right"></span></button>
+        </span>
+    </div>
+    {{/if}}
+
+    {{/if}}
+</script>
+
+<script id="pt-plugin-loading" type="text/x-handlebars-template">
+    <div style="display:block;height:10px;margin:10px;margin-top:5px;">
+        <div class="badge _loading"><span class="glyphicon glyphicon-refresh"></span> Loading</div>
+    </div>
+</script>
+
+
+<!--Toolbar-->
+<script id="pt-toolbar" type="text/x-handlebars-template">
+    {{#each Configuration.Buttons}}
+    {{#unless HasSubmenu}}
+    <button type="button" data-role="toolbar-btn" class="btn btn-default {{Css}}" title="{{Title}}" id="{{Id}}" data-idx="{{TempId}}">
+        {{{HtmlContent}}}
+    </button>
+    {{/unless}}
+    {{#if HasSubmenu}}
+    {{#if IsMenu}}
+    <div class="btn-group">
+        <div class="btn-group" role="group">
+            <button type="button" id="{{Id}}" class="btn {{Css}} dropdown-toggle" title="{{Title}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                {{{HtmlContent}}}
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                {{#each Submenu}}
+                {{#if Separator }}
+                <li role="separator" class="divider"></li> {{/if}}
+                {{#unless Separator }}
+                <li data-idx="{{TempId}}" style="cursor:pointer" data-role="toolbar-btn" class="{{Css}}" id="{{Id}}"><a title="{{Title}}">{{{HtmlContent}}}</a></li>{{/unless}}
+                {{/each}}
+            </ul>
+        </div>
+    </div>
+    {{/if}}
+    {{#unless IsMenu}}
+    <div class="btn-group">
+        <button type="button" data-idx="{{TempId}}" data-role="toolbar-btn" title="{{Title}}" class="btn {{Css}}" id="{{Id}}">{{{HtmlContent}}}</button>
+        <button type="button" class="btn {{Css}} dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="caret"></span>
+            <span class="sr-only">Toggle Dropdown</span>
+        </button>
+        <ul class="dropdown-menu">
+            {{#each Submenu}}
+            {{#if Separator }}
+            <li role="separator" class="divider"></li> {{/if}}
+            {{#unless Separator }}
+            <li style="cursor:pointer" data-idx="{{TempId}}" data-role="toolbar-btn" class="{{Css}}" id="{{Id}}"><a title="{{Title}}">{{{HtmlContent}}}</a></li>{{/unless}}
+            {{/each}}
+        </ul>
+    </div>
+    {{/unless}}
+    {{/if}}
+    {{/each}}
+</script>
+<!--/Toolbar-->

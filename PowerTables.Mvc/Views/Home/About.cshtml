@@ -1,0 +1,39 @@
+﻿@using PowerTables.Mvc.Models
+@model PowerTables.Mvc.Models.AboutViewModel
+@{
+    ViewBag.Title = "About";
+}
+<h2>@ViewBag.Title.</h2>
+
+<div class="container-fluid">
+    @Html.Partial("AdditionalSearchDataView", new AdditionalSearchData()
+{
+    ValuesForIcloudlock = new[]
+    {
+        new SelectListItem(){Text = "On",Value = "On"},
+        new SelectListItem(){Text = "Off",Value = "Off"},
+        new SelectListItem(){Text = "Not matter",Value = "Notmatter"},
+    },
+    Types = EnumHelper.GetSelectList(typeof(SomeType))
+})
+    <div id="mytable"></div>
+</div>
+@{Html.RenderPartial("PowerTables_Templates");}
+<script id="rangeValue" type="text/x-handlebars-template">
+    <td>
+        {{#if Red}}
+        <div style="background-color:red">{{Value}}</div>
+        {{/if}}
+        {{#if Orange}}
+        <div style="background-color:yellow">{{Value}}</div>
+        {{/if}}
+        {{#if Green}}
+        <div style="background-color:green">{{Value}}</div>
+        {{/if}}
+    </td>
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        @Model.Configuration.InitializationCode("mytable","tbl",Model.Statics)
+    });
+</script>
