@@ -121,7 +121,7 @@ namespace PowerTables.FrequentlyUsed
             bool isOpenQuote = false;
             for (int i = 0; i < expression.Length; i++)
             {
-                if (expression[i] == '\'') sb.Append("\\\'");
+                if (expression[i] == '\'' && !isOpenQuote) sb.Append("\\\'");
                 else if (expression[i] == '{' && (i < expression.Length - 2 && char.IsLetter(expression[i + 1])))
                 {
                     sb.Append("' + v.");
