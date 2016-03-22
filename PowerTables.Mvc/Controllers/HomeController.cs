@@ -102,6 +102,7 @@ namespace PowerTables.Mvc.Controllers
                 _sourceData[i].IcloudLock = r.Next(0, 10) > 3;
                 _sourceData[i].ItemsCount = r.Next(10, 500);
                 _sourceData[i].Cost = r.NextDouble() * 1000;
+                _sourceData[i].Delay = 0 - r.Next(0, 30);
             }
             #endregion
         }

@@ -14,7 +14,7 @@ namespace PowerTables
         /// <summary>
         /// Total results count
         /// </summary>
-        public int ResultsCount { get; set; }
+        public long ResultsCount { get; set; }
 
         /// <summary>
         /// Current data page index 

@@ -26,7 +26,7 @@ namespace PowerTables
         /// <param name="pageIndex">Resulting page index (if total data count is less than requested)</param>
         /// <param name="resultsOnPage">Results count on current page</param>
         /// <returns>Paged source set</returns>
-        IQueryable<TSourceData> ApplyPaging(IQueryable<TSourceData> source, Query request, out int totalCount, out int pageIndex);
+        IQueryable<TSourceData> ApplyPaging(IQueryable<TSourceData> source, Query request, out long totalCount, out int pageIndex);
 
         /// <summary>
         /// Applies ordering to source set

@@ -47,7 +47,7 @@ namespace PowerTables
         /// <summary>
         /// Total results count. Similar to "Ordered".Count()
         /// </summary>
-        public int ResultsCount { get; private set; }
+        public long ResultsCount { get; private set; }
 
         /// <summary>
         /// Current data page index
@@ -77,7 +77,7 @@ namespace PowerTables
         /// </summary>
         internal object _OriginalLazy;
 
-        public PowerTablesData(IQueryable source, IQueryable filtered, IQueryable ordered, IQueryable paged, Lazy<object[]> mapped, IConfigurator configuration, PowerTableRequest request, int resultsCount, int currentPage)
+        public PowerTablesData(IQueryable source, IQueryable filtered, IQueryable ordered, IQueryable paged, Lazy<object[]> mapped, IConfigurator configuration, PowerTableRequest request, long resultsCount, int currentPage)
         {
             Source = source;
             Filtered = filtered;
@@ -127,7 +127,7 @@ namespace PowerTables
         /// <summary>
         /// Total results count. Similar to "Ordered".Count()
         /// </summary>
-        public int ResultsCount { get; private set; }
+        public long ResultsCount { get; private set; }
         /// <summary>
         /// Current data page index
         /// </summary>

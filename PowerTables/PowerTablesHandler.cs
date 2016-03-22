@@ -76,7 +76,7 @@ namespace PowerTables
                 //gather data
                 var filtered = _queryHandler.ApplyFiltering(source, request.Query);
                 var ordered = _queryHandler.ApplyOrdering(filtered, request.Query);
-                int count = 0;
+                long count = 0;
                 int page = 0;
                
 

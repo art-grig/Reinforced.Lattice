@@ -287,5 +287,6 @@ namespace PowerTables.Configuration
         {
             conf.ColumnConfiguration.IsDataOnly = true;
         }
+        
     }
 }

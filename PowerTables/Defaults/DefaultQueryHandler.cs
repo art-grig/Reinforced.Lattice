@@ -41,7 +41,7 @@ namespace PowerTables.Defaults
             _configuration = configurator;
         }
 
-        protected virtual IQueryable<T> ApplyPagingCore<T>(IQueryable<T> source, Query request, out int totalCount,out int pageIndex)
+        protected virtual IQueryable<T> ApplyPagingCore<T>(IQueryable<T> source, Query request, out long totalCount,out int pageIndex)
         {
             totalCount = 0;
             pageIndex = 0;
@@ -49,7 +49,7 @@ namespace PowerTables.Defaults
             if (request.Paging == null) return source;
             if (request.Paging.PageSize == 0) return source;
 
-            totalCount = source.Count();
+            totalCount = TotalCount(source);
             var startingElement = request.Paging.PageSize * request.Paging.PageIndex + 1;
             pageIndex = request.Paging.PageIndex;
             if (startingElement > totalCount)
@@ -62,9 +62,14 @@ namespace PowerTables.Defaults
             return result;
         }
 
-        public virtual IQueryable<TSourceData> ApplyPaging(IQueryable<TSourceData> source, Query request, out int totalCount, out int pageIndex)
+        public virtual IQueryable<TSourceData> ApplyPaging(IQueryable<TSourceData> source, Query request, out long totalCount, out int pageIndex)
         {
             return ApplyPagingCore(source, request, out totalCount, out pageIndex);
+        }
+
+        protected virtual long TotalCount<T>(IQueryable<T> source)
+        {
+            return source.LongCount();
         }
 
         public virtual IQueryable<TSourceData> ApplyOrdering(IQueryable<TSourceData> source, Query request)

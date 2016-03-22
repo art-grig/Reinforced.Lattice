@@ -428,5 +428,7 @@ namespace PowerTables.Configuration
             }
             return tableData;
         }
+
+        internal Func<int> CustomTotalCountFunction { get; set; }
     }
 }

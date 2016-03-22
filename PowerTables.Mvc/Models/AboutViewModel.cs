@@ -27,6 +27,8 @@ namespace PowerTables.Mvc.Models
         public DateTime CurrentDate { get; set; }
 
         public DateTime? NullableDate { get; set; }
+
+        public int Delay { get; set; }
     }
 
     public class SomeBehind
@@ -69,7 +71,7 @@ namespace PowerTables.Mvc.Models
     {
         public string QueryTime { get; set; }
 
-        public int TotalRecords { get; set; }
+        public long TotalRecords { get; set; }
 
         public int Shown { get; set; }
 
