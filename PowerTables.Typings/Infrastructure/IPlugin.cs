@@ -7,8 +7,9 @@ using PowerTables.Configuration.Json;
 
 namespace PowerTables.Typings.Infrastructure
 {
-    internal interface IPlugin : IRenderableComponent
+    internal interface IPlugin : IRenderable
     {
+        PluginConfiguration Configuration { get; }
         void Init(IPowerTable table, PluginConfiguration pluginConfiguration);
         bool IsToolbarPlugin { get; set; }
         bool IsQueryModifier { get; set; }

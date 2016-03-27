@@ -5,8 +5,26 @@
 /// <reference path="../../PowerTables.Mvc/Scripts/typings/jquery/jquery.d.ts"/>
 
 module PowerTables {
+	/** Renderable entity */
+	export interface IRenderable
+	{
+		/**
+		* Renders whole element to string using templates provider
+		*
+		* @param templatesProvider Cached templates provider
+		* @returns String containing HTML code for element
+		*/
+		renderElement(templatesProvider: PowerTables.ITemplatesProvider) : string;
+		/**
+		* Renders element to HTML string using templates provider
+		*
+		* @param templatesProvider Cached templates provider
+		* @returns String containing HTML code for element
+		*/
+		renderContent(templatesProvider: PowerTables.ITemplatesProvider) : string;
+	}
 	/** Cell object */
-	export interface ICell
+	export interface ICell extends PowerTables.IRenderable
 	{
 		/** Associated row */
 		Row: PowerTables.IRow;
@@ -16,10 +34,6 @@ module PowerTables {
 		Data: any;
 		/** Whole data object associated with this specific cell */
 		DataObject: any;
-		/** Cell element */
-		Element: any;
-		/** Denotes fake cell without data */
-		Fake: boolean;
 	}
 	/**
 	* Interface of checkboxify plugin. 
@@ -60,28 +74,35 @@ module PowerTables {
 		Configuration: PowerTables.Configuration.Json.IColumnConfiguration;
 		MasterTable: PowerTables.IPowerTable;
 		Filter: PowerTables.IFilter;
-		Elements: any;
-		HeaderElement: any;
-		Fake: boolean;
+		Header: PowerTables.IColumnHeader;
+	}
+	export interface IColumnHeader extends PowerTables.IRenderable
+	{
+		Column: PowerTables.IColumn;
 	}
 	export interface IQueryPartProvider
 	{
 		modifyQuery(query: PowerTables.IQuery) : void;
 	}
-	export interface IRenderableComponent
-	{
-		Element: any;
-		render(context?: any) : string;
-		subscribeEvents(parentElement: JQuery) : void;
-		setTemplateId(templateId?: string) : void;
-		renderTo(parentElement: JQuery, context?: any) : any;
-	}
-	export interface IFilter extends PowerTables.IQueryPartProvider, PowerTables.IRenderableComponent
+	export interface IFilter extends PowerTables.IQueryPartProvider, PowerTables.IRenderable
 	{
 		reset() : void;
 	}
-	export interface IPlugin extends PowerTables.IRenderableComponent
+	export interface ITemplatesProvider
 	{
+		/** Current handlebars.js engine instance */
+		HandlebarsInstance: any;
+		/**
+		* Retrieves cached template handlebars function
+		*
+		* @param templateId Template id
+		* @returns Handlebars function
+		*/
+		getCachedTemplate(templateId: string) : (arg: any) => string;
+	}
+	export interface IPlugin extends PowerTables.IRenderable
+	{
+		Configuration: PowerTables.Configuration.Json.IPluginConfiguration;
 		IsToolbarPlugin: boolean;
 		IsQueryModifier: boolean;
 		IsRenderable: boolean;
@@ -100,14 +121,16 @@ module PowerTables {
 		getColumnNames() : string[];
 		registerQueryPartProvider(provider: PowerTables.IQueryPartProvider) : void;
 	}
-	export interface IRow
+	/** Row object */
+	export interface IRow extends PowerTables.IRenderable
 	{
+		/** Data object for row */
 		DataObject: any;
+		/** Zero-based row idnex */
 		Index: number;
+		/** Table reference */
 		MasterTable: PowerTables.IPowerTable;
-		Elements: any;
-		Element: any;
-		Fake: boolean;
+		Cells: { [key:string]: PowerTables.ICell };
 	}
 	/**
 	* The respons that is being sent to client script. 
@@ -176,9 +199,12 @@ module PowerTables {
 	}
 }
 module PowerTables.Configuration.Json {
+	/** Configuration JSON object for whole table */
 	export interface ITableConfiguration
 	{
+		/** Root ID */
 		TableRootId: string;
+		/** URL for table requests (relative to website root) */
 		OperationalAjaxUrl: string;
 		DefaultCellElement: string;
 		DefaultRowElement: string;

@@ -161,6 +161,17 @@
     <Compile Include="ResponseProcessing\IResponseModifiersApplier.cs" />
     <Compile Include="ResponseProcessing\JsonNetResult.cs" />
     <Compile Include="SerializationSettings.cs" />
+    <Compile Include="Templating\BasicRegions.cs" />
+    <Compile Include="Templating\HbExtensions.cs" />
+    <Compile Include="Templating\HbTagRegion.cs" />
+    <Compile Include="Templating\Interfaces.cs" />
+    <Compile Include="Templating\LatticeTemplatesViewModel.cs" />
+    <Compile Include="Templating\ModeledTemplateRegion.cs" />
+    <Compile Include="Templating\OverrideHbFieldNameAttribute.cs" />
+    <Compile Include="Templating\ParametrizedHbTagRegion.cs" />
+    <Compile Include="Templating\TemplateRegion.cs" />
+    <Compile Include="Templating\TemplatesPageBase.cs" />
+    <Compile Include="Templating\TemplatingExtensions.cs" />
     <Compile Include="TokenStorage.cs" />
     <Compile Include="ValueConverter.cs" />
   </ItemGroup>

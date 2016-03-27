@@ -14,10 +14,6 @@ namespace PowerTables.Typings.Infrastructure
         ColumnConfiguration Configuration { get; set; }
         IPowerTable MasterTable { get; set; }
         IFilter Filter { get; set; }
-        [TsProperty(Type = "JQuery[]")]
-        object Elements { get; set; }
-        [TsProperty(Type = "JQuery")]
-        object HeaderElement { get; set; }
-        bool Fake { get; set; }
+        IColumnHeader Header { get; set; }
     }
 }

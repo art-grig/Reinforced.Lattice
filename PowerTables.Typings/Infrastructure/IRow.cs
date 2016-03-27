@@ -7,17 +7,26 @@ using Reinforced.Typings.Attributes;
 
 namespace PowerTables.Typings.Infrastructure
 {
-    interface IRow
+    /// <summary>
+    /// Row object
+    /// </summary>
+    interface IRow : IRenderable
     {
+        /// <summary>
+        /// Data object for row
+        /// </summary>
         object DataObject { get; set; }
+
+        /// <summary>
+        /// Zero-based row idnex
+        /// </summary>
         int Index { get; set; }
+
+        /// <summary>
+        /// Table reference
+        /// </summary>
         IPowerTable MasterTable { get; set; }
-        [TsProperty(Type = "JQuery[]")]
-        object Elements { get; set; }
 
-        [TsProperty(Type = "JQuery")]
-        object Element { get; set; }
-
-        bool Fake { get; set; }
+        Dictionary<string, ICell> Cells { get; set; }
     }
 }

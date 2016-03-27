@@ -1,6 +1,6 @@
 ﻿namespace PowerTables.Typings.Infrastructure
 {
-    interface IFilter : IQueryPartProvider, IRenderableComponent
+    interface IFilter : IQueryPartProvider, IRenderable
     {
         void Reset();
     }

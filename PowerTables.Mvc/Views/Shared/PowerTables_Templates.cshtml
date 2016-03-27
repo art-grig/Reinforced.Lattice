@@ -1,7 +1,14 @@
-﻿<script type="text/javascript">
+﻿@using System.Activities.Statements
+@using System.Web.UI.WebControls
+@using PowerTables.Configuration
+@using PowerTables.Templating
+
+@inherits PowerTables.Templating.TemplatesPageBase
+
+<script type="text/javascript">
     $(document).ready(function () {
-        Handlebars.registerPartial('pt-hideout-visibleColumn', $('#pt-hideout-visibleColumn').html());
-        Handlebars.registerPartial('pt-hideout-hiddenColumn', $('#pt-hideout-hiddenColumn').html());
+        Handlebars.registerPartial('lt-hideout-visibleColumn', $('#lt-hideout-visibleColumn').html());
+        Handlebars.registerPartial('lt-hideout-hiddenColumn', $('#lt-hideout-hiddenColumn').html());
         Handlebars.registerHelper('equal', function (lvalue, rvalue, options) {
             if (arguments.length < 3)
                 throw new Error("Handlebars Helper equal needs 2 parameters");
@@ -13,16 +20,24 @@
         });
     });
 </script>
-<script id="pt-layout" type="text/x-handlebars-template">
+
+@*
+    Lattice common layout template
+    See available helpers in scope variable "t"
+*@
+
+@using (var t = Layout())
+{
     <div class="container-fluid">
         <div class="row">
-            <div class="col-md-6 col-sm-6 col-xs-6 col-lg-6" data-placeholder="ltPlugins">
-                
-                <div class="btn-group" data-placeholder="ltPlugins_toolbar" style="margin-bottom:10px"></div>
+            <div class="col-md-6 col-sm-6 col-xs-6 col-lg-6">
+                @t.Plugins(PluginPosition.LeftTop)
+                <div class="btn-group" style="margin-bottom:10px">@t.ToolbarPlugins(PluginPosition.LeftTop)</div>
                 <br />
             </div>
-            <div class="col-md-6 col-sm-6 col-xs-6 col-lg-6 text-right" data-placeholder="rtPlugins">
-                <div class="btn-group" data-placeholder="rtPlugins_toolbar" style="padding-bottom:10px"></div>
+            <div class="col-md-6 col-sm-6 col-xs-6 col-lg-6 text-right">
+                @t.Plugins(PluginPosition.RightTop)
+                <div class="btn-group" style="padding-bottom:10px">@t.ToolbarPlugins(PluginPosition.RightTop)</div>
             </div>
         </div>
         <div class="row">
@@ -30,50 +45,106 @@
                 <hr />
             </div>
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <table class="table table-striped table-condensed table-bordered" data-placeholder="tableItself">
+                <table class="table table-striped table-condensed table-bordered">
                     <thead style="display: table-header-group;">
-                        <tr data-placeholder="headers"></tr>
-                        <tr data-placeholder="filters"></tr>
+                        <tr>@t.Headers</tr>
+                        <tr>@t.Filters</tr>
                     </thead>
-                    <tbody data-placeholder="body"></tbody>
+                    <tbody>@t.Body</tbody>
                 </table>
             </div>
         </div>
         <div class="row">
-            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" data-placeholder="lbPlugins">
-                <div class="btn-group" data-placeholder="lbPlugins_toolbar"></div>
+            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                @t.Plugins(PluginPosition.LeftBottom)
+                <div class="btn-group">@t.ToolbarPlugins(PluginPosition.LeftBottom)</div>
             </div>
-            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 text-right" data-placeholder="rbPlugins" style="float:right;">
-                <div class="btn-group" data-placeholder="rbPlugins_toolbar"></div>
+            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 text-right" style="float:right;">
+                @t.Plugins(PluginPosition.RightBottom)
+                <div class="btn-group">@t.ToolbarPlugins(PluginPosition.RightBottom)</div>
             </div>
         </div>
     </div>
-</script>
-<script id="pt-pluginPlaceholder" type="text/x-handlebars-template">
-    {{#if lt}}
-    <span></span>
-    {{/if}}
-    {{#if lb}}
-    <div style="float:left;"></div>
-    {{/if}}
-    {{#if rt}}
-    <div style="float:right;"></div>
-    {{/if}}
-    {{#if rb}}
-    <div style="float:right;"></div>
-    {{/if}}
-</script>
-<script id="pt-noresults" type="text/x-handlebars-template">
+}
+
+
+@*
+    Plugin wrapper template. This template is being wrapped around each plugin
+*@
+@using (var t = PluginWrapper())
+{
+    <text>
+        @using (t.If(c => c.IsLeftTop))
+        {
+            <span @t.Track()> @t.Content() </span>
+        }
+
+        @using (t.If(c => c.IsLeftBottom))
+        {
+            <div style="float: left;" @t.Track()> @t.Content() </div>
+        }
+
+        @using (t.If(c => c.IsRightTop))
+        {
+            <div style="float: right;" @t.Track()> @t.Content() </div>
+        }
+
+        @using (t.If(c => c.IsRightBottom))
+        {
+            <div style="float: right;" @t.Track()> @t.Content() </div>
+        }
+    </text>
+}
+
+
+@*
+    Column header wrapper template.
+*@
+@using (var t = HeaderWrapper())
+{
+    <th @t.Track()>@t.Content()</th>
+}
+
+@*
+    Column filter wrapper template.
+*@
+@using (var t = FilterWrapper())
+{
+    <th @t.Track()>@t.Content()</th>
+}
+
+@*
+    Row wrapper template.
+    Following HTML is being wrapped around each data row    
+*@
+@using (Template(RowWrapper))
+{
+    <tr @Track>{{{Cells}}}</tr>
+}
+
+@*
+    Cell wrapper template.
+    Following HTML is being wrapped around each data cell
+    Model: data cell of type ICell
+    Available handlebars helpers:
+        Content: renders cell content
+*@
+@using (Template(CellWrapper))
+{
+    <td @Track>@Content</td>
+}
+
+<script id="lt-noresults" type="text/x-handlebars-template">
     <tr class="info">
         <td colspan="{{Columns}}"><h4 class="text-center text-info bg-info"><span class="glyphicon glyphicon-eye-close"></span>  No data found</h4></td>
     </tr>
 </script>
-<script id="pt-loading" type="text/x-handlebars-template">
+<script id="lt-loading" type="text/x-handlebars-template">
     <tr class="info">
         <td colspan="{{Columns}}"><h4 class="text-center text-info bg-info"><span class="glyphicon glyphicon-refresh"></span>  Loading</h4></td>
     </tr>
 </script>
-<script id="pt-error" type="text/x-handlebars-template">
+<script id="lt-error" type="text/x-handlebars-template">
     <tr class="danger">
         <td colspan="{{Columns}}">
             <h4 class="text-center"><span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>  Error occured</h4>
@@ -83,109 +154,94 @@
         </td>
     </tr>
 </script>
-<script id="pt-columnheader" type="text/x-handlebars-template">
-    <th>
-        <span><strong>{{Configuration.Title}} </strong></span>
-    </th>
-</script>
-<script id="pt-rawcolumnheader" type="text/x-handlebars-template">
-    <th>
-        {{{.}}}
-    </th>
-</script>
-<script id="pt-row" type="text/x-handlebars-template">
-    <tr data-index="{{.}}"></tr>
-</script>
-<script id="pt-rawcell" type="text/x-handlebars-template">
-    <td>
-        {{{.}}}
-    </td>
-</script>
-<script id="pt-ordering" type="text/x-handlebars-template">
-    <span><strong>{{Title}}  </strong></span>
-    {{#if IsNeutral}}
-    <span class="glyphicon glyphicon-th-large" style="color:#bac5d3;float:right;"></span>
-    {{/if}}
-    {{#if IsAscending}}
-    <span class="glyphicon glyphicon-chevron-up" style="color:#bac5d3;float:right;"></span>
-    {{/if}}
-    {{#if IsDescending}}
-    <span class="glyphicon glyphicon-chevron-down" style="color:#bac5d3;float:right;"></span>
-    {{/if}}
 
-</script>
+@using (Template("ordering"))
+{
+    <span><strong>{{Title}}</strong></span>
+    using (If("IsNeutral"))
+    {
+        <span class="glyphicon glyphicon-th-large" style="color:#bac5d3;float:right;"></span>
+    }
+    using (If("IsAscending"))
+    {
+        <span class="glyphicon glyphicon-chevron-up" style="color:#bac5d3;float:right;"></span>
+    }
+    using (If("IsDescending"))
+    {
+        <span class="glyphicon glyphicon-chevron-down" style="color:#bac5d3;float:right;"></span>
+    }
+}
+
+
 <!-- Filters -->
-<script id="pt-emptyfilter" type="text/x-handlebars-template">
-    <th></th>
-</script>
-<script id="pt-valuefilter" type="text/x-handlebars-template">
-    <th>
-        <input type="text" data-for="{{Column.RawName}}" style="margin:0;width:100%;max-width:100%;" class="form-control input-md" placeholder="{{Configuration.Placeholder}}" />
-    </th>
+@using (Template("valuefilter"))
+{
+    <input type="text" {{BindEvent "handleValueChanged" "add,keyup"}} style="margin: 0; width: 100%; max-width: 100%;" class="form-control input-md" placeholder="{{Configuration.Placeholder}}" />
+}
+
+<script id="lt-rangefilter" type="text/x-handlebars-template">
+    <input type="text" {{BindEvent "handleFromValueChanged" "add,keyup"}} class="form-control input-md" style="margin:0;width:100%;max-width:100%;" placeholder="{{Configuration.FromPlaceholder}}">
+    <br />
+    <input type="text" {{BindEvent "handleToValueChanged" "add,keyup"}} class="form-control input-md" style="margin:0;width:100%;max-width:100%;" placeholder="{{Configuration.ToPlaceholder}}">
 </script>
 
-<script id="pt-rangefilter" type="text/x-handlebars-template">
-    <th>
-        <input type="text" data-for="{{Column.RawName}}" data-rng="from" class=" form-control input-md" style="margin:0;width:100%;max-width:100%;" placeholder="{{Configuration.FromPlaceholder}}"><br />
-        <input type="text" data-for="{{Column.RawName}}" data-rng="to" class="form-control input-md" style="margin:0;width:100%;max-width:100%;" placeholder="{{Configuration.ToPlaceholder}}">
-    </th>
-</script>
-<script id="pt-selectfilter" type="text/x-handlebars-template">
-    <th>
-        <select class="form-control input-md" style="margin:0;width:100%;max-width:100%;" data-for="{{Column.RawName}}" {{#if Configuration.IsMultiple}} multiple="multiple" {{/if}}>
-            {{#each Configuration.Items}}
-            <option {{#if Disabled}} disabled="disabled" {{/if}} value="{{Value}}" {{#if Selected}} selected {{/if}}>{{Text}}</option>
-            {{/each}}
-        </select>
-    </th>
+<script id="lt-selectfilter" type="text/x-handlebars-template">
+    <select class="form-control input-md" style="margin:0;width:100%;max-width:100%;" {{BindEvent "handleValueChanged" "change"}} {{#if Configuration.IsMultiple}} multiple="multiple" {{/if}}>
+        {{#each Configuration.Items}}
+        <option {{#if Disabled}} disabled="disabled" {{/if}} value="{{Value}}" {{#if Selected}} selected {{/if}}>{{Text}}</option>
+        {{/each}}
+    </select>
 </script>
 <!-- /Filters -->
 <!--Hideout-->
-<script id="pt-hideout" type="text/x-handlebars-template">
+<script id="lt-hideout" type="text/x-handlebars-template">
     <div class="btn-group" role="group">
         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Show/Hide Columns
             <span class="caret"></span>
         </button>
         <ul class="dropdown-menu">
-            {{#each ColumnsStates}}
-            {{#if Visible}}
-            <li data-showhide="{{RawName}}">{{> pt-hideout-visibleColumn }}</li>
-            {{/if}}
-            {{#unless Visible}}
-            <li data-showhide="{{RawName}}">{{> pt-hideout-hiddenColumn }}</li>
-            {{/unless}}
-            {{/each}}
+            @using (Each("ColumnsStates"))
+            {
+                using (If("Visible"))
+                {
+                    <li data-showhide="{{RawName}}">{{> lt-hideout-visibleColumn}}</li>
+                }
+                using (Unless("Visible"))
+                {
+                    <li data-showhide="{{RawName}}">{{> lt-hideout-hiddenColumn}}</li>
+                }
+            }
         </ul>
     </div>
 </script>
-<script id="pt-hideout-visibleColumn" type="text/x-handlebars-template">
+
+<script id="lt-hideout-visibleColumn" type="text/x-handlebars-template">
     <a style="cursor:pointer;"><span class="glyphicon glyphicon-eye-open" style="float:left"></span>{{Name}}</a>
 </script>
-<script id="pt-hideout-hiddenColumn" type="text/x-handlebars-template">
+<script id="lt-hideout-hiddenColumn" type="text/x-handlebars-template">
     <a style="cursor:pointer;"><span class="glyphicon glyphicon-eye-close" style="float:left"></span>{{Name}}</a>
 </script>
 
 <!--/Hideout-->
 <!-- Checkboxify-->
-<script id="pt-checkboxify-all" type="text/x-handlebars-template">
+<script id="lt-checkboxify-all" type="text/x-handlebars-template">
     {{#if NeedsColumn}}
-    <th>    
-        <input type="checkbox" data-target="checkboxify" />    
-    </th> 
+    <th>
+        <input type="checkbox" data-target="checkboxify" />
+    </th>
     {{/if}}
 
     {{#unless NeedsColumn}}
-        <input type="checkbox" data-target="checkboxify" />    
+    <input type="checkbox" data-target="checkboxify" />
     {{/unless}}
 </script>
-<script id="pt-checkboxify-check" type="text/x-handlebars-template">
-    <td>
-        <input type="checkbox" data-target="checkboxify" data-colvalue="{{Value}}" {{#if Checked }} checked="checked" {{/if}} />
-    </td>
+<script id="lt-checkboxify-check" type="text/x-handlebars-template">
+    <input type="checkbox" data-target="checkboxify" data-colvalue="{{Value}}" {{#if Checked}} checked="checked" {{/if}} />
 </script>
 <!-- /Checkboxify-->
-<script id="pt-plugin-limit" type="text/x-handlebars-template">
+<!-- Limit -->
+<script id="lt-plugin-limit" type="text/x-handlebars-template">
     <div class="btn-group">
         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
             Results: <span class="_selectedLabel">{{DefaultLabel}}</span>
@@ -202,14 +258,16 @@
         </ul>
     </div>
 </script>
-
-<script id="pt-responseinfo" type="text/x-handlebars-template">
+<!-- /Limit -->
+<!-- ResponseInfo -->
+<script id="lt-responseinfo" type="text/x-handlebars-template">
     <p>Total <strong>{{ResultsCount}}</strong> records found</p>
 </script>
+<!-- /ResponseInfo -->
 
-<script id="pt-plugin-pager" type="text/x-handlebars-template">
+<script id="lt-plugin-pager" type="text/x-handlebars-template">
     {{#if Shown}}
-    
+
     {{#if Configuration.ArrowsMode}}
     <nav style="margin:0;width:100px;margin-left:auto;">
         <ul class="pager">
@@ -267,7 +325,7 @@
     {{/if}}
 </script>
 
-<script id="pt-plugin-loading" type="text/x-handlebars-template">
+<script id="lt-plugin-loading" type="text/x-handlebars-template">
     <div style="display:block;height:10px;margin:10px;margin-top:5px;">
         <div class="badge _loading"><span class="glyphicon glyphicon-refresh"></span> Loading</div>
     </div>
@@ -275,7 +333,7 @@
 
 
 <!--Toolbar-->
-<script id="pt-toolbar" type="text/x-handlebars-template">
+<script id="lt-toolbar" type="text/x-handlebars-template">
     {{#each Configuration.Buttons}}
     {{#unless HasSubmenu}}
     <button type="button" data-role="toolbar-btn" class="btn btn-default {{Css}}" title="{{Title}}" id="{{Id}}" data-idx="{{TempId}}">
@@ -292,9 +350,9 @@
             </button>
             <ul class="dropdown-menu">
                 {{#each Submenu}}
-                {{#if Separator }}
+                {{#if Separator}}
                 <li role="separator" class="divider"></li> {{/if}}
-                {{#unless Separator }}
+                {{#unless Separator}}
                 <li data-idx="{{TempId}}" style="cursor:pointer" data-role="toolbar-btn" class="{{Css}}" id="{{Id}}"><a title="{{Title}}">{{{HtmlContent}}}</a></li>{{/unless}}
                 {{/each}}
             </ul>
@@ -310,9 +368,9 @@
         </button>
         <ul class="dropdown-menu">
             {{#each Submenu}}
-            {{#if Separator }}
+            {{#if Separator}}
             <li role="separator" class="divider"></li> {{/if}}
-            {{#unless Separator }}
+            {{#unless Separator}}
             <li style="cursor:pointer" data-idx="{{TempId}}" data-role="toolbar-btn" class="{{Css}}" id="{{Id}}"><a title="{{Title}}">{{{HtmlContent}}}</a></li>{{/unless}}
             {{/each}}
         </ul>

@@ -10,7 +10,7 @@ namespace PowerTables.Typings.Infrastructure
     /// <summary>
     /// Cell object
     /// </summary>
-    interface ICell
+    interface ICell : IRenderable
     {
         /// <summary>
         /// Associated row
@@ -32,16 +32,7 @@ namespace PowerTables.Typings.Infrastructure
         /// </summary>
         object DataObject { get; set; }
 
-        /// <summary>
-        /// Cell element
-        /// </summary>
-        [TsProperty(Type = "JQuery")]
-        object Element { get; set; }
-
-        /// <summary>
-        /// Denotes fake cell without data
-        /// </summary>
-        bool Fake { get; set; }
+        
 
     }
 }
