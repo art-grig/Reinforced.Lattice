@@ -12,6 +12,9 @@ namespace PowerTables.Templating
 
     public interface IProvidesTracking : ITemplateRegion
     {
+        /// <summary>
+        /// True, when @Track() method was used at least once, false otherwise
+        /// </summary>
         bool IsTrackSet { get; set; }
     }
 

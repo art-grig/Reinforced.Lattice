@@ -13,7 +13,7 @@ namespace PowerTables.Plugins.Toolbar
     {
         public const string PluginId = "Toolbar";
 
-        public static T Toolbar<T>(this T conf,PluginPosition position,Action<ToolbarBuilder> toolbar) where T : IConfigurator
+        public static T Toolbar<T>(this T conf, string position, Action<ToolbarBuilder> toolbar) where T : IConfigurator
         {
             ToolbarBuilder tb = new ToolbarBuilder();
             toolbar(tb);

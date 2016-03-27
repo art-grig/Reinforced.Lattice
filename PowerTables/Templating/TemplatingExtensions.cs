@@ -55,19 +55,9 @@ namespace PowerTables.Templating
         /// </summary>
         /// <param name="position">Plugin position</param>
         /// <returns>Placeholder template entry</returns>
-        public static MvcHtmlString Plugins(this LayoutTemplateRegion t, PluginPosition position)
+        public static MvcHtmlString Plugins(this LayoutTemplateRegion t, string position = null)
         {
-            return MvcHtmlString.Create(string.Format("{{{{Plugins \"{0}\"}}}}", position.ToJsFriendly()));
-        }
-
-        /// <summary>
-        /// Placeholder for toolbar plugins at specific position
-        /// </summary>
-        /// <param name="position">Plugin position</param>
-        /// <returns>Placeholder template entry</returns>
-        public static MvcHtmlString ToolbarPlugins(this LayoutTemplateRegion t, PluginPosition position)
-        {
-            return MvcHtmlString.Create(string.Format("{{{{ToolbarPlugins \"{0}\"}}}}", position.ToJsFriendly()));
+            return MvcHtmlString.Create(string.Format("{{{{Plugins \"{0}\"}}}}", position));
         }
 
         /// <summary>

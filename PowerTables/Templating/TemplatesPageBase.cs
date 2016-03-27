@@ -1,9 +1,16 @@
-﻿using System.Web.Mvc;
+﻿using System.IO;
+using System.Web.Mvc;
 
 namespace PowerTables.Templating
 {
     public abstract class TemplatesPageBase : WebViewPage<LatticeTemplatesViewModel>
     {
+        public override void InitHelpers()
+        {
+            base.InitHelpers();
+            Plugin = new PluginsClassifier(GetOutputWriter(), Model);
+        }
+
         /// <summary>
         /// Declares raw template region
         /// </summary>
@@ -29,12 +36,12 @@ namespace PowerTables.Templating
         /// <returns></returns>
         public PluignWrapperTemplateRegion PluginWrapper()
         {
-            return new PluignWrapperTemplateRegion(Model.Prefix,GetOutputWriter());
+            return new PluignWrapperTemplateRegion(Model.Prefix, GetOutputWriter());
         }
 
         public ColumnParametrizedTemplateRegion HeaderWrapper()
         {
-            return new ColumnParametrizedTemplateRegion(Model.Prefix, "headerWrapper",GetOutputWriter());
+            return new ColumnParametrizedTemplateRegion(Model.Prefix, "headerWrapper", GetOutputWriter());
         }
 
         public FilterParametrizedTemplateRegion FilterWrapper()
@@ -42,10 +49,29 @@ namespace PowerTables.Templating
             return new FilterParametrizedTemplateRegion(Model.Prefix, "filterWrapper", GetOutputWriter());
         }
 
-        
+
         public const string RowWrapper = "rowWrapper";
 
         public const string CellWrapper = "cellWrapper";
-        
+
+        /// <summary>
+        /// Templates for particular plugins
+        /// </summary>
+        public IViewPlugins Plugin { get; private set; }
+
+        private class PluginsClassifier : IViewPlugins
+        {
+            public PluginsClassifier(TextWriter writer, LatticeTemplatesViewModel model)
+            {
+                Writer = writer;
+                Model = model;
+            }
+
+            public TextWriter Writer { get; private set; }
+            public LatticeTemplatesViewModel Model { get; private set; }
+        }
+
     }
+
+
 }

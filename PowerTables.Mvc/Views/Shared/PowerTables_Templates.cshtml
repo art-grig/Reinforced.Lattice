@@ -1,6 +1,7 @@
 ﻿@using System.Activities.Statements
 @using System.Web.UI.WebControls
 @using PowerTables.Configuration
+@using PowerTables.Plugins
 @using PowerTables.Templating
 
 @inherits PowerTables.Templating.TemplatesPageBase
@@ -31,13 +32,13 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-6 col-sm-6 col-xs-6 col-lg-6">
-                @t.Plugins(PluginPosition.LeftTop)
-                <div class="btn-group" style="margin-bottom:10px">@t.ToolbarPlugins(PluginPosition.LeftTop)</div>
+                @t.Plugins("lt")
+                <div class="btn-group" style="margin-bottom:10px">@t.Plugins("lt-toolbar")</div>
                 <br />
             </div>
             <div class="col-md-6 col-sm-6 col-xs-6 col-lg-6 text-right">
-                @t.Plugins(PluginPosition.RightTop)
-                <div class="btn-group" style="padding-bottom:10px">@t.ToolbarPlugins(PluginPosition.RightTop)</div>
+                @t.Plugins("rt")
+                <div class="btn-group" style="padding-bottom:10px">@t.Plugins("rt-toolbar")</div>
             </div>
         </div>
         <div class="row">
@@ -56,12 +57,12 @@
         </div>
         <div class="row">
             <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-                @t.Plugins(PluginPosition.LeftBottom)
-                <div class="btn-group">@t.ToolbarPlugins(PluginPosition.LeftBottom)</div>
+                @t.Plugins("lb")
+                <div class="btn-group">@t.Plugins("lb-toolbar")</div>
             </div>
             <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 text-right" style="float:right;">
-                @t.Plugins(PluginPosition.RightBottom)
-                <div class="btn-group">@t.ToolbarPlugins(PluginPosition.RightBottom)</div>
+                @t.Plugins("rb")
+                <div class="btn-group">@t.Plugins("rb-toolbar")</div>
             </div>
         </div>
     </div>
@@ -74,24 +75,24 @@
 @using (var t = PluginWrapper())
 {
     <text>
-        @using (t.If(c => c.IsLeftTop))
+        @using (t.IfStrEquals(c => c.Configuration.Placement, "lt"))
         {
-            <span @t.Track()> @t.Content() </span>
+            <span> @t.Content() </span>
         }
 
-        @using (t.If(c => c.IsLeftBottom))
+        @using (t.IfStrEquals(c => c.Configuration.Placement, "lb"))
         {
-            <div style="float: left;" @t.Track()> @t.Content() </div>
+            <div style="float: left;"> @t.Content() </div>
         }
 
-        @using (t.If(c => c.IsRightTop))
+        @using (t.IfStrEquals(c => c.Configuration.Placement, "rt"))
         {
-            <div style="float: right;" @t.Track()> @t.Content() </div>
+            <div style="float: right;"> @t.Content() </div>
         }
 
-        @using (t.If(c => c.IsRightBottom))
+        @using (t.IfStrEquals(c => c.Configuration.Placement, "rb"))
         {
-            <div style="float: right;" @t.Track()> @t.Content() </div>
+            <div style="float: right;"> @t.Content() </div>
         }
     </text>
 }
@@ -115,7 +116,7 @@
 
 @*
     Row wrapper template.
-    Following HTML is being wrapped around each data row    
+    Following HTML is being wrapped around each data row
 *@
 @using (Template(RowWrapper))
 {
@@ -325,11 +326,12 @@
     {{/if}}
 </script>
 
-<script id="lt-plugin-loading" type="text/x-handlebars-template">
-    <div style="display:block;height:10px;margin:10px;margin-top:5px;">
+@using (var t = Plugin.Loading())
+{
+    <div style="display:block;height:10px;margin:10px;margin-top:5px;" @t.Track()>
         <div class="badge _loading"><span class="glyphicon glyphicon-refresh"></span> Loading</div>
     </div>
-</script>
+}
 
 
 <!--Toolbar-->

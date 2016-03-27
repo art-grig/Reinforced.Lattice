@@ -8,17 +8,29 @@ using PowerTables.Configuration;
 
 namespace PowerTables.Plugins
 {
+    /// <summary>
+    /// Helper builder used to specify required columns
+    /// </summary>
+    /// <typeparam name="TSourceData"></typeparam>
+    /// <typeparam name="TTableData"></typeparam>
     public class ColumnListBuilder<TSourceData, TTableData> where TTableData : new()
     {
-        private Configurator<TSourceData, TTableData> _configurator;
+        private readonly Configurator<TSourceData, TTableData> _configurator;
         private readonly List<string> _colNames;
         private readonly IReadOnlyCollection<string> _colNamesRo;
 
+        /// <summary>
+        /// Required columns names
+        /// </summary>
         public IReadOnlyCollection<string> Names
         {
             get { return _colNamesRo; }
         }
 
+        /// <summary>
+        /// Constructs new columns list helper builder
+        /// </summary>
+        /// <param name="configurator"></param>
         public ColumnListBuilder(Configurator<TSourceData, TTableData> configurator)
         {
             _configurator = configurator;
@@ -26,6 +38,12 @@ namespace PowerTables.Plugins
             _colNamesRo = _colNames.AsReadOnly();
         }
 
+        /// <summary>
+        /// Include specified column
+        /// </summary>
+        /// <typeparam name="TTableColumn"></typeparam>
+        /// <param name="column">Column to include</param>
+        /// <returns>Fluent</returns>
         public ColumnListBuilder<TSourceData, TTableData> Include<TTableColumn>(
             Expression<Func<TTableData, TTableColumn>> column)
         {
@@ -35,12 +53,22 @@ namespace PowerTables.Plugins
             return this;
         }
 
+        /// <summary>
+        /// Include all columns
+        /// </summary>
+        /// <returns>Fluent</returns>
         public ColumnListBuilder<TSourceData, TTableData> IncludeAll()
         {
             _colNames.AddRange(_configurator.TableColumnsDictionary.Select(c => c.Key));
             return this;
         }
 
+        /// <summary>
+        /// Exclude specified column
+        /// </summary>
+        /// <typeparam name="TTableColumn"></typeparam>
+        /// <param name="column">Column</param>
+        /// <returns>Fluent</returns>
         public ColumnListBuilder<TSourceData, TTableData> Except<TTableColumn>(
             Expression<Func<TTableData, TTableColumn>> column)
         {

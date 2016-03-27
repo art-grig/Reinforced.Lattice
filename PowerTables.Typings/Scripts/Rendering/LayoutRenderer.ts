@@ -1,4 +1,5 @@
-﻿/// <reference path="../../PowerTables.Mvc/Scripts/typings/handlebars/handlebars.d.ts" />
+﻿/// <reference path="../../../PowerTables.Mvc/Scripts/typings/handlebars/handlebars.d.ts" />
+/// <reference path="../ExternalTypings.d.ts"/>
 /// <reference path="RenderingStack.ts"/>
 
 module PowerTables.Rendering {
@@ -14,17 +15,16 @@ module PowerTables.Rendering {
         private _stack: RenderingStack;
         private _plugins: { [key: string]: { [key: string]: IPlugin } } = {};
         private _toolbarPlugins: { [key: string]: { [key: string]: IPlugin } } = {};
+        private _columns: { [key: string]: IColumn } = {};
 
-        constructor(templates: ITemplatesProvider) {
+        constructor(templates: ITemplatesProvider,stack:RenderingStack) {
             this._hb = templates.HandlebarsInstance;
             this._templatesProvider = templates;
-            this._stack = new RenderingStack();
+            this._stack = stack;
 
             this._hb.registerHelper('Body', this.bodyHelper);
             this._hb.registerHelper('Plugin', this.pluginHelper.bind(this));
             this._hb.registerHelper('Plugins', this.pluginsHelper.bind(this));
-            this._hb.registerHelper('ToolbarPlugin', this.toolbarPluginHelper.bind(this));
-            this._hb.registerHelper('ToolbarPlugins', this.toolbarPluginsHelper.bind(this));
             this._hb.registerHelper('Header', this.headerHelper.bind(this));
             this._hb.registerHelper('Headers', this.headersHelper.bind(this));
             this._hb.registerHelper('ColumnFilter', this.columFilterHelper.bind(this));
@@ -70,14 +70,10 @@ module PowerTables.Rendering {
                 throw new Error(`Table does not have plugin ${id} on position ${position}`);
             return p[id];
         }
-
-        private getToolbarPlugin(position: string, id: string) {
-            if (!this._toolbarPlugins.hasOwnProperty(position))
-                throw new Error(`Table does not have toolbar plugins on position ${position}`);
-            var p = this._toolbarPlugins[position];
-            if (!p.hasOwnProperty(id))
-                throw new Error(`Table does not have toolbar plugin ${id} on position ${position}`);
-            return p[id];
+        private getColumn(columnName: string): IColumn {
+            if (!this._columns.hasOwnProperty(columnName))
+                throw new Error(`Column ${columnName} not found for rendering`);
+            return this._columns[columnName];
         }
         //#endregion
 
@@ -117,35 +113,56 @@ module PowerTables.Rendering {
         }
         //#endregion
 
-        //#region Toolbar plugins helpers
-        //#endregion
-        private toolbarPluginHelper(pluginPosition: string, pluginId: string): string {
-            var plugin = this.getToolbarPlugin(pluginPosition, pluginId);
-            return this.toolbarPluginHelperInner(plugin);;
+        // #region headers helper
+        private headerHelper(columnName: string): string {
+            return this.headerHelperInner(this.getColumn(columnName));
         }
 
-        private toolbarPluginsHelper(pluginPosition: string): string {
-            var plugins = this._toolbarPlugins[pluginPosition];
-            if (!plugins) return '';
-            var result = '';
+        private headerHelperInner(column: IColumn): string {
+            this._stack.push(RenderingContextType.Header,column.Header,column.RawName);
+            var result = this._templatesProvider.getCachedTemplate('headerWrapper')(column.Header);
+            this._stack.popContext();
+            return result;
+        }
 
-            for (var a in plugins) {
-                if (plugins.hasOwnProperty(a)) {
-                    var v = plugins[a];
-                    result += this.toolbarPluginHelperInner(v);
+        private headersHelper(): string {
+            var columns = this._columns;
+            var result = '';
+            for (var a in columns) {
+                if (columns.hasOwnProperty(a)) {
+                    var v = columns[a];
+                    result += this.headerHelperInner(v);
                 }
             }
             return result;
         }
+        //#endregion
 
-        private toolbarPluginHelperInner(plugin: IPlugin): string {
-            if (plugin.renderElement) return plugin.renderElement(this._templatesProvider);
-            if (!plugin.renderContent) return plugin.renderContent(this._templatesProvider);
-            this._stack.push(RenderingContextType.Plugin, plugin);
-            var result = plugin.renderContent(this._templatesProvider);
+        //#region filter helper
+        private columFilterHelper(columnName: string): string {
+            return this.columnFilterHelperInner(this.getColumn(columnName));
+        }
+
+        private columnFilterHelperInner(column: IColumn): string {
+            this._stack.push(RenderingContextType.Filter, column.Filter, column.RawName);
+            var result = this._templatesProvider.getCachedTemplate('filterWrapper')(column.Filter);
             this._stack.popContext();
             return result;
         }
+
+        private columFiltersHelper(): string {
+            var columns = this._columns;
+            var result = '';
+            for (var a in columns) {
+                if (columns.hasOwnProperty(a)) {
+                    var v = columns[a];
+                    result += this.columnFilterHelperInner(v);
+                }
+            }
+            return result;
+        }
+        //#endregion
+        
         //#region
     }
 

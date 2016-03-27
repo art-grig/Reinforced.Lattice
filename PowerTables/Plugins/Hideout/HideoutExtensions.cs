@@ -31,7 +31,7 @@ namespace PowerTables.Plugins.Hideout
 
             if (exConf == null)
             {
-                column.Configurator.TableConfiguration.ReplacePluginConfig(PluginId,new HideoutClientConfiguration(){ShowMenu = false},PluginPosition.LeftBottom );
+                column.Configurator.TableConfiguration.ReplacePluginConfig(PluginId,new HideoutClientConfiguration(){ShowMenu = false});
             }
 
             column.ColumnConfiguration.ReplacePluginConfig(PluginId,new HideoutCellConfiguration(){Hidden = true});
@@ -56,7 +56,7 @@ namespace PowerTables.Plugins.Hideout
             this Configurator<TSourceData, TTableData> conf, 
             Action<ColumnListBuilder<TSourceData,TTableData>> columns,
             bool showMenu = true,
-            PluginPosition position = PluginPosition.RightTop,
+            string position = null,
             bool reloadTableOnHide = false
             ) where TTableData : new()
         {

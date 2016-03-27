@@ -27,7 +27,7 @@ namespace PowerTables.Plugins.Total
                 ShowOnTop = showOnTop,
                 ColumnsValueFunctions = calc.ValueFunctions.ToDictionary(c => c.Key, v => v.Value != null ? new JRaw(v.Value) : null)
             };
-            conf.TableConfiguration.ReplacePluginConfig(PluginId, tcc, PluginPosition.LeftBottom);
+            conf.TableConfiguration.ReplacePluginConfig(PluginId, tcc);
             var trr = new TotalResponseModifier<TSourceData,TTableData>(calc);
             conf.RegisterResponseModifier(trr);
             return conf;

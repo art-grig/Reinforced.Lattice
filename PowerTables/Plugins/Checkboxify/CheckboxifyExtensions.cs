@@ -112,7 +112,7 @@ namespace PowerTables.Plugins.Checkboxify
                     break;
             }
             ccc.SelectAllLocation = selectAllLocation;
-            conf.TableConfiguration.ReplacePluginConfig(PluginId, ccc, PluginPosition.LeftBottom);
+            conf.TableConfiguration.ReplacePluginConfig(PluginId, ccc);
             return conf;
         }
     }

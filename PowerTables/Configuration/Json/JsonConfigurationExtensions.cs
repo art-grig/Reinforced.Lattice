@@ -31,12 +31,13 @@ namespace PowerTables.Configuration.Json
             conf.CellPluginsConfiguration[pluginId] = pluginConfig;
         }
 
-        public static void ReplacePluginConfig(this TableConfiguration conf, string pluginId, object pluginConfig, PluginPosition placement)
+        public static void ReplacePluginConfig(this TableConfiguration conf, string pluginId, object pluginConfig, string placement = null)
         {
-            conf.PluginsConfiguration[placement.GeneratePluginId(pluginId)] = new PluginConfiguration(pluginId)
+            var key = string.IsNullOrEmpty(placement) ? pluginId : String.Concat(placement, "-", pluginId);
+            conf.PluginsConfiguration[key] = new PluginConfiguration(pluginId)
             {
                 Configuration = pluginConfig,
-                Placement = placement.ToJsFriendly()
+                Placement = placement
             };
         }
 

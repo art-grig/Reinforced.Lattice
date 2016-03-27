@@ -105,7 +105,7 @@ namespace PowerTables.Plugins.Formwatch
         {
             var builder = new FormWatchBuilder<T>(configurator);
             formWatchConfig(builder);
-            configurator.TableConfiguration.ReplacePluginConfig(PluginId, builder.ClientConfig, PluginPosition.LeftBottom);
+            configurator.TableConfiguration.ReplacePluginConfig(PluginId, builder.ClientConfig);
         }
     }
 }

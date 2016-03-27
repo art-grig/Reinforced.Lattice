@@ -29,7 +29,7 @@ namespace PowerTables.Plugins.Ordering
         {
             column.Configurator.RegisterOrderingExpression(column.ColumnProperty, expresion);
             column.ColumnConfiguration.ReplacePluginConfig(PluginId, new OrderableConfiguration() { DefaultOrdering = defaultOrdering });
-            column.Configurator.TableConfiguration.ReplacePluginConfig(PluginId, null, PluginPosition.LeftBottom);
+            column.Configurator.TableConfiguration.ReplacePluginConfig(PluginId, null);
             return column;
         }
     }

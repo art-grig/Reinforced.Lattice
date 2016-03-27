@@ -30,7 +30,7 @@ namespace PowerTables.Plugins.Limit
         /// </param>
         /// <param name="position">Visual limit menu position</param>
         /// <returns></returns>
-        public static T Limit<T>(this T configurator, string[] values, string defaultValue = null, bool reloadTableOnLimitChange = true, PluginPosition position = PluginPosition.RightTop) 
+        public static T Limit<T>(this T configurator, string[] values, string defaultValue = null, bool reloadTableOnLimitChange = true, string position = null) 
             where T : IConfigurator
         {
             if (values == null || values.Length == 0)

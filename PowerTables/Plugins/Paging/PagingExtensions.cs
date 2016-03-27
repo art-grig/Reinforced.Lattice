@@ -27,7 +27,7 @@ namespace PowerTables.Plugins.Paging
         /// <returns></returns>
         public static Configurator<TSourceData, TTableData> PagingWithArrows<TSourceData, TTableData>(
             this Configurator<TSourceData, TTableData> conf,
-            PluginPosition position = PluginPosition.RightBottom,
+            string position = null,
             string previousHtml = null,
             string nextHtml = null,
             bool useGotoPage = false
@@ -63,7 +63,7 @@ namespace PowerTables.Plugins.Paging
         /// <returns></returns>
         public static Configurator<TSourceData, TTableData> PagingWithPeriods<TSourceData, TTableData>(
             this Configurator<TSourceData, TTableData> conf,
-            PluginPosition position = PluginPosition.RightBottom,
+            string position = null,
             int hidePages = 3,
             bool useGotoPage = false,
             bool useFirstLasPage = false
@@ -96,7 +96,7 @@ namespace PowerTables.Plugins.Paging
         /// <returns></returns>
         public static Configurator<TSourceData, TTableData> PagingSimple<TSourceData, TTableData>(
             this Configurator<TSourceData, TTableData> conf,
-            PluginPosition position = PluginPosition.RightBottom,
+            string position = null,
             bool useGotoPage = false,
             bool useFirstLasPage = false
             ) where TTableData : new()

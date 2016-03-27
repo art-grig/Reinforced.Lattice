@@ -7,17 +7,13 @@ namespace PowerTables.Plugins.ResponseInfo
     public static class ResponseInfoExtensions
     {
         public const string PluginId = "ResponseInfo";
-        public static T WithResponseInfo<T>(this T c, string templateText = null, PluginPosition pos = PluginPosition.LeftBottom) where T : IConfigurator
+        public static T WithResponseInfo<T>(this T c, string templateText = null, string position = null) where T : IConfigurator
         {
             ResponseInfoClientConfiguration pc = new ResponseInfoClientConfiguration()
             {
                 TemplateText = templateText
             };
-            c.TableConfiguration.PluginsConfiguration.Add(PluginId, new PluginConfiguration(PluginId)
-            {
-                Placement = pos.ToJsFriendly(),
-                Configuration = pc
-            });
+            c.TableConfiguration.ReplacePluginConfig(PluginId, pc, position);
             return c;
         }
 
@@ -25,7 +21,7 @@ namespace PowerTables.Plugins.ResponseInfo
             (this Configurator<TSourceData, TTableData> conf,
             Func<PowerTablesData<TSourceData, TTableData>, TResponseData> responseDataEvaluator,
             string templateText = null,
-            PluginPosition pos = PluginPosition.LeftBottom)
+            string position = null)
             where TTableData : new()
         {
             var arm = new ActionBasedResponseModifier<TSourceData, TTableData>((a, r) =>
@@ -38,11 +34,7 @@ namespace PowerTables.Plugins.ResponseInfo
                 TemplateText = templateText,
                 ResponseObjectOverride = true
             };
-            conf.TableConfiguration.PluginsConfiguration.Add(PluginId, new PluginConfiguration(PluginId)
-            {
-                Placement = pos.ToJsFriendly(),
-                Configuration = pc
-            });
+            conf.TableConfiguration.ReplacePluginConfig(PluginId, pc, position);
             return conf;
         }
     }
