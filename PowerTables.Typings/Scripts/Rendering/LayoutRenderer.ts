@@ -176,6 +176,21 @@ module PowerTables.Rendering {
             this._eventsQueue.push(ed);
             return `data-be=${index}`;
         }
+
+        public renderContent(columnName?: string):string {
+            switch (this._stack.Current.Type) {
+                case RenderingContextType.Header:
+                    break;
+                case RenderingContextType.Plugin:
+                    // if we are here then plugin's renderContent is not 
+                    // overriden
+                    throw new Error("It is required to override renderContent for plugin");
+                case RenderingContextType.Filter:
+                    break;
+            }
+            return '';
+        }
+
     }
 
 

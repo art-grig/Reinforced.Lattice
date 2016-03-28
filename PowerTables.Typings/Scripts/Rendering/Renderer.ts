@@ -4,7 +4,7 @@
         private _bodyElement: HTMLElement;
         private _layoutRenderer: LayoutRenderer;
         private _contentRenderer: ContentRenderer;
-        private _renderingStack: RenderingStack;
+        private _stack: RenderingStack;
         private _datepickerFunction: (e: HTMLElement) => void;
         private _templatesCache: { [key: string]: HandlebarsTemplateDelegate } = {};
 
@@ -49,23 +49,49 @@
 
         body(rows: IRow[]): void {
             this.clearBody();
-            var result = '';
-            var wrapper = this.getCachedTemplate('rowWrapper');
-            for (var i = 0; i < rows.length; i++) {
-                var rw = rows[i];
-                this._currentRow = rw;
-                if (rw.renderElement) {
-                    result += rw.renderElement(this);
-                } else {
-                    result += wrapper(rw);
-                }
-            }
-            this._bodyElement.innerHTML = result;
-            this.bindEventsQueue(this._bodyElement);
+            this._bodyElement.innerHTML = this._contentRenderer.renderBody(rows);
         }
 
         clearBody(): void {
             this._bodyElement.innerHTML = '';
+        }
+
+        public contentHelper(columnName?: string): string {
+            if (this._stack.Current.Object.renderContent) {
+                return this._stack.Current.Object.renderContent(this);
+            } else {
+                switch (this._stack.Current.Type) {
+                    case RenderingContextType.Header:
+                    case RenderingContextType.Plugin:
+                    case RenderingContextType.Filter:
+                        return this._layoutRenderer.renderContent(columnName);
+                    case RenderingContextType.Row:
+                    case RenderingContextType.Cell:
+                        return this._contentRenderer.renderContent(columnName);
+                    default:
+                        throw new Error("Unknown rendering context type");
+
+                }
+            }
+        }
+
+        private trackHelper(): string {
+            var trk = this._stack.Current.CurrentTrack;
+            if (trk.length === 0) return '';
+            return `data-track="${trk}"`;
+        }
+
+        private datepickerHelper(): string {
+            if (this._currentContext.Type === RenderingContextType.Filter) {
+                if (Helpers.isDateTime(this._columns[this._currentContext.ColumnName])) {
+                    return 'data-dp="true"';
+                } else {
+                    return '';
+                }
+
+            } else {
+                return '';
+            }
         }
     }
 } 
