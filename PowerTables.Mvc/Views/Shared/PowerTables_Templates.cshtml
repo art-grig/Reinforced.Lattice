@@ -1,6 +1,5 @@
 ﻿@using System.Activities.Statements
 @using System.Web.UI.WebControls
-@using PowerTables.Configuration
 @using PowerTables.Plugins
 @using PowerTables.Templating
 
@@ -68,7 +67,6 @@
     </div>
 }
 
-
 @*
     Plugin wrapper template. This template is being wrapped around each plugin
 *@
@@ -97,7 +95,6 @@
     </text>
 }
 
-
 @*
     Column header wrapper template.
 *@
@@ -118,7 +115,7 @@
     Row wrapper template.
     Following HTML is being wrapped around each data row
 *@
-@using (Template(RowWrapper))
+@using (var t = RowWrapper())
 {
     <tr @Track>{{{Cells}}}</tr>
 }

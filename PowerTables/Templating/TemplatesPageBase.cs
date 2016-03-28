@@ -49,9 +49,11 @@ namespace PowerTables.Templating
             return new FilterParametrizedTemplateRegion(Model.Prefix, "filterWrapper", GetOutputWriter());
         }
 
-
-        public const string RowWrapper = "rowWrapper";
-
+        public TemplateRegion RowWrapper()
+        {
+            return new TemplateRegion(Model.Prefix, "rowWrapper",GetOutputWriter());
+        }
+        
         public const string CellWrapper = "cellWrapper";
 
         /// <summary>

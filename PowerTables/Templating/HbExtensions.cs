@@ -66,7 +66,7 @@ namespace PowerTables.Templating
         }
 
         /// <summary>
-        /// Renders handlebars "if" directive in region
+        /// Renders custom Lattice handlebars "if" helper that compares property and string
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="t"></param>

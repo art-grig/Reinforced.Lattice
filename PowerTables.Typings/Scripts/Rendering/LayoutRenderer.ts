@@ -29,10 +29,11 @@ module PowerTables.Rendering {
             this._hb.registerHelper('Headers', this.headersHelper.bind(this));
             this._hb.registerHelper('ColumnFilter', this.columFilterHelper.bind(this));
             this._hb.registerHelper('ColumnFilters', this.columFiltersHelper.bind(this));
+            this._hb.registerHelper('BindEvent', this.bindEventHelper.bind(this));
         }
 
 
-        private bindEventsQueue(parentElement: HTMLElement): void {
+        public bindEventsQueue(parentElement: HTMLElement): void {
             // bind plugins/filters events
             var sources = parentElement.querySelectorAll('[data-be]');
             for (var i = 0; i < sources.length; i++) {
@@ -164,6 +165,17 @@ module PowerTables.Rendering {
         //#endregion
         
         //#region
+
+        private bindEventHelper(commaSeparatedFunctions: string, commaSeparatedEvents: string): string {
+            var ed = <IEventDescriptor>{
+                Target: this._stack.Current.Object,
+                Functions: commaSeparatedFunctions.split(','),
+                Events: commaSeparatedEvents.split(',')
+            };
+            var index = this._eventsQueue.length;
+            this._eventsQueue.push(ed);
+            return `data-be=${index}`;
+        }
     }
 
 
