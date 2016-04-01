@@ -27,7 +27,6 @@ namespace PowerTables.Typings
         public static void ConfigureTypings(ConfigurationBuilder builder)
         {
             builder.TryLookupDocumentationForAssembly(typeof(TableConfiguration).Assembly);
-            builder.AddReference("../../PowerTables.Mvc/Scripts/typings/jquery/jquery.d.ts");
             var infrastructureTypes =
                 typeof(TypingsConfiguration).Assembly.GetTypes()
                     .Where(c => c.Namespace.Contains("PowerTables.Typings.Infrastructure"));

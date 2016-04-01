@@ -1,10 +1,18 @@
 ﻿module PowerTables {
     export class Loader {
-        private _queryPartProviders: IQueryPartProvider[] = [];
+        private _queryPartProviders: PowerTables.IQueryPartProvider[] = [];
         private _previousRequest: XMLHttpRequest;
-        private _rawColumnNames: string[]; // from ctor
-        private _staticData: any; // from ctor
-        private _operationalAjaxUrl: string; //from ctor
+        private _rawColumnNames: string[];                  // from ctor
+        private _staticData: any;                           // from ctor
+        private _operationalAjaxUrl: string;                // from ctor
+        private _errorCallback: (message: string) => any;   // from ctor
+        private _events: EventsManager;                     // from ctor
+
+        /**
+         * Current loaded data
+         */
+        public Data: any[];
+
         public registerQueryPartProvider(provider: IQueryPartProvider): void {
             this._queryPartProviders.push(provider);
         }
@@ -20,11 +28,11 @@
                 AdditionalData: {},
                 StaticDataJson: this._staticData
         };
-            this.Events.BeforeFilterGathering.invoke(this, [a]);
+            this._events.BeforeFilterGathering.invoke(this, a);
             for (var i = 0; i < this._queryPartProviders.length; i++) {
                 this._queryPartProviders[i].modifyQuery(a);
             }
-            this.Events.AfterFilterGathering.invoke(this, [a]);
+            this._events.AfterFilterGathering.invoke(this, a);
             return a;
         }
 
@@ -53,7 +61,7 @@
         /*
          * Parses response from server and turns it to objects array
          */
-        private parseResponse(response: IPowerTablesResponse): any[] {
+        private parseResponse(response: IPowerTablesResponse) {
             var data = [];
             var obj = {};
             var currentColIndex = 0;
@@ -77,7 +85,7 @@
                 }
                 currentCol = this._rawColumnNames[currentColIndex];
             }
-            return data;
+            this.Data = data;
         }
 
         public requestServer(command: string, callback: (data: any) => void, queryModifier?: (a: IQuery) => IQuery): void {
@@ -109,10 +117,10 @@
                         var json = JSON.parse(req.responseText);
                         if (command === 'query') {
                             if (json['Success'] != undefined && !json.Success) {
-                                this.Renderer.showError(json.Message);
+                                this._errorCallback(json.Message);
                             } else {
                                 this.Events.DataReceived.invoke(this, [json]);
-                                // todo parse and store data here
+                                this.parseResponse(json);
                                 callback(json);
                             }
                         } else {
@@ -130,7 +138,7 @@
                     }
                 } else {
                     if (req.status === 0) return false; // for IE
-                    this.Renderer.showError('Network error');
+                    this._errorCallback('Network error');
                 }
                 this.Events.AfterLoading.invoke(this, [this]);
             });

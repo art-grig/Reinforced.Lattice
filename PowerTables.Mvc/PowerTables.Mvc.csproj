@@ -266,12 +266,8 @@
     <None Include="Project_Readme.html" />
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="..\PowerTables.Typings\Scripts\Interfaces.ts">
-      <Link>Scripts\PowerTables\Interfaces.ts</Link>
-    </TypeScriptCompile>
     <TypeScriptCompile Include="Scripts\PowerTables\ComponentsContainer.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\RenderableComponent.ts" />
-    <None Include="Scripts\PowerTables\Interfaces.ts.old" />
     <TypeScriptCompile Include="Scripts\PowerTables\Data\DataHolder.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\EventsManager.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Renderer.ts" />
@@ -318,7 +314,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TypeScriptOutFile>Scripts/powertables.js</TypeScriptOutFile>
-    <TypeScriptGeneratesDeclarations>True</TypeScriptGeneratesDeclarations>
+    <TypeScriptGeneratesDeclarations>False</TypeScriptGeneratesDeclarations>
+    <TypeScriptSourceMap>False</TypeScriptSourceMap>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
   <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />

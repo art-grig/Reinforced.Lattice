@@ -12,6 +12,7 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>85b5e528</NuGetPackageImportStamp>
+    <TypeScriptToolsVersion>1.5</TypeScriptToolsVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -105,6 +106,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="Scripts\Events.ts" />
+    <TypeScriptCompile Include="Scripts\Loader.ts" />
     <TypeScriptCompile Include="Scripts\Rendering\ContentRenderer.ts" />
     <TypeScriptCompile Include="Scripts\ExternalTypings.d.ts" />
     <TypeScriptCompile Include="Scripts\Interfaces.ts" />
@@ -112,6 +115,8 @@
     <TypeScriptCompile Include="Scripts\Rendering\Renderer.ts" />
     <TypeScriptCompile Include="Scripts\Rendering\RenderingStack.ts" />
     <TypeScriptCompile Include="Scripts\Rendering\TrackHelper.ts" />
+    <TypeScriptCompile Include="Scripts\typings\handlebars\handlebars-1.0.0.d.ts" />
+    <TypeScriptCompile Include="Scripts\typings\handlebars\handlebars.d.ts" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

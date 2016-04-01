@@ -1,4 +1,4 @@
-﻿/// <reference path="../../PowerTables.Mvc/Scripts/typings/handlebars/handlebars.d.ts" />
+﻿
 declare module Handlebars {
     export interface IHandlebars {
         registerHelper(name: string, fn: Function, inverse?: boolean): void;

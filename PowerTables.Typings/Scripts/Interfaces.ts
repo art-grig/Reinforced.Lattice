@@ -2,7 +2,6 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-/// <reference path="../../PowerTables.Mvc/Scripts/typings/jquery/jquery.d.ts"/>
 
 module PowerTables {
 	/** Renderable entity */
