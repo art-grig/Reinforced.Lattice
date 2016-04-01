@@ -26,11 +26,6 @@ namespace PowerTables.Configuration.Json
             return tconf.Filter as TFilterConfig;
         }
 
-        public static void ReplacePluginConfig(this ColumnConfiguration conf, string pluginId, object pluginConfig)
-        {
-            conf.CellPluginsConfiguration[pluginId] = pluginConfig;
-        }
-
         public static void ReplacePluginConfig(this TableConfiguration conf, string pluginId, object pluginConfig, string placement = null)
         {
             var key = string.IsNullOrEmpty(placement) ? pluginId : String.Concat(placement, "-", pluginId);
