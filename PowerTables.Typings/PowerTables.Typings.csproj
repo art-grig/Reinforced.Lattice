@@ -108,6 +108,7 @@
   <ItemGroup>
     <TypeScriptCompile Include="Scripts\Events.ts" />
     <TypeScriptCompile Include="Scripts\Loader.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables.ts" />
     <TypeScriptCompile Include="Scripts\Rendering\ContentRenderer.ts" />
     <TypeScriptCompile Include="Scripts\ExternalTypings.d.ts" />
     <TypeScriptCompile Include="Scripts\Interfaces.ts" />

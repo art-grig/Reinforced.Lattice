@@ -5,7 +5,6 @@
         private _rawColumnNames: string[];                  // from ctor
         private _staticData: any;                           // from ctor
         private _operationalAjaxUrl: string;                // from ctor
-        private _errorCallback: (message: string) => any;   // from ctor
         private _events: EventsManager;                     // from ctor
 
         /**
@@ -27,7 +26,7 @@
                 Filterings: {},
                 AdditionalData: {},
                 StaticDataJson: this._staticData
-        };
+            };
             this._events.BeforeFilterGathering.invoke(this, a);
             for (var i = 0; i < this._queryPartProviders.length; i++) {
                 this._queryPartProviders[i].modifyQuery(a);
@@ -88,8 +87,18 @@
             this.Data = data;
         }
 
+        /**
+         * Sends specified request to server and lets table handle it. 
+         * Always use this method to invoke table's server functionality because this method 
+         * correctly rises all events, handles errors etc
+         * 
+         * @param command Query command
+         * @param callback Callback that will be invoked after data received
+         * @param queryModifier Inline query modifier for in-place query modification
+         * @returns {} 
+         */
         public requestServer(command: string, callback: (data: any) => void, queryModifier?: (a: IQuery) => IQuery): void {
-            this.Events.BeforeLoading.invoke(this, [this]);
+
             var query = this.gatherQuery();
 
             if (queryModifier) queryModifier(query);
@@ -117,7 +126,11 @@
                         var json = JSON.parse(req.responseText);
                         if (command === 'query') {
                             if (json['Success'] != undefined && !json.Success) {
-                                this._errorCallback(json.Message);
+                                this._events.LoadingError.invoke(this, {
+                                    Request: data,
+                                    XMLHttp: req,
+                                    Reason: json.Message
+                                });
                             } else {
                                 this.Events.DataReceived.invoke(this, [json]);
                                 this.parseResponse(json);
@@ -131,14 +144,23 @@
                         if (ctype && ctype.indexOf('lattice/service') >= 0) {
                             if (req.responseText.indexOf('$Token=') === 0) {
                                 var token = req.responseText.substr(7, req.responseText.length - 7);
-                                this.Events.AfterLoading.invoke(this, [this]);
+                                this._events.DeferredDataReceived.invoke(this, {
+                                    Request: data,
+                                    XMLHttp: req,
+                                    Token: token,
+                                    DataUrl: this._operationalAjaxUrl + '?q=' + token
+                                });
                                 callback({ $isDeferred: true, $url: this._operationalAjaxUrl + '?q=' + token, $token: token });
                             }
                         }
                     }
                 } else {
                     if (req.status === 0) return false; // for IE
-                    this._errorCallback('Network error');
+                    this._events.LoadingError.invoke(this, {
+                        Request: data,
+                        XMLHttp: req,
+                        Reason: 'Network error'
+                    });
                 }
                 this.Events.AfterLoading.invoke(this, [this]);
             });
@@ -148,6 +170,10 @@
             
             //failTimeout = setTimeout(() => { req.abort(); this.Renderer.showError('Network error: network unreacheable'); }, 10000);
 
+            this._events.BeforeLoading.invoke(this, {
+                Request: data,
+                XMLHttp: req
+            });
             req.send(dataText);
         }
     }

@@ -76,6 +76,40 @@
          * @this Master table
          */
         public AfterFilterGathering: TableEvent<IQuery> = new TableEvent();
+
+        /**
+         * "Before Loading" event.
+         * Occurs every time right before calling XMLHttpRequest.send and
+         * passing gathered filters to server
+         * 
+         * @this Master table
+         */
+        public BeforeLoading: TableEvent<ILoadingEventArgs> = new TableEvent();
+
+        /**
+         * "Deferred Data Received" event. 
+         * Occurs every time when server has answered to particular query with 
+         * with reference to deferred query. It means that server has memorized particular 
+         * request with specified token and will proceed data selection/other operations 
+         * when you query it by Operatioal AJAX URL + "?q=$Token$". 
+         * 
+         * This feature is usable when it is necessary e.g. to generate file (excel, PDF) 
+         * using current table filters
+         * 
+         * @this Master table
+         */
+        public DeferredDataReceived: TableEvent<IDeferredDataEventArgs> = new TableEvent();
+
+        /**
+         * "Loading Error" event. 
+         * Occurs every time when Loader encounters loading error. 
+         * It may be caused by server error or network (XMLHttp) error. 
+         * Anyway, error text/cause/stacktrace will be supplied as Reason 
+         * field of event args
+         * 
+         * @this Master table
+         */
+        public LoadingError: TableEvent<ILoadingErrorEventArgs> = new TableEvent();
     }
 
     /**
@@ -85,11 +119,37 @@
         /**
          * Query to be sent to server
          */
-        Query: IQuery;
+        Request: IPowerTableRequest;
 
         /**
          * Request object to be used while sending to server
          */
-        Request:XMLHttpRequest;
+        XMLHttp: XMLHttpRequest;
+    }
+
+    /**
+     * Event args for loading error event
+     */
+    export interface ILoadingErrorEventArgs extends ILoadingEventArgs {
+        /**
+         * Error text
+         */
+        Reason:string;
+    }
+
+    /**
+     * Event args for deferred data received event
+     */
+    export interface IDeferredDataEventArgs extends ILoadingEventArgs {
+        
+        /**
+         * Token to obtain deferred data
+         */
+        Token: string;
+
+        /**
+         * URL that should be queries to obtain request result
+         */
+        DataUrl:string;
     }
 } 

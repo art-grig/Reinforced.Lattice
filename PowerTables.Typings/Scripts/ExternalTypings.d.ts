@@ -20,6 +20,19 @@ declare module Handlebars {
         templates: HandlebarsTemplates;
     }
     export function create(): IHandlebars;
-} 
+}
 
+
+declare module PowerTables {
+
+    /**
+     * Main table interface for breaking additional dependencies
+     */
+    export interface IInternalTable {
+        /**
+        * Events manager - entry point for raising and handling various table events
+        */
+        Events: EventsManager;
+    }
+}
  

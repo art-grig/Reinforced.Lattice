@@ -120,7 +120,7 @@ namespace PowerTables.Mvc.Models
 
             conf.Column(c => c.ItemsCount)
                 .Title("Items count")
-                .HtmlFunction(@"
+                .ValueFunction(@"
                     function(a) { 
                         var  templ = null;
     

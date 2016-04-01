@@ -75,30 +75,6 @@ namespace PowerTables.Configuration
         }
 
         /// <summary>
-        /// Set cell element. The default is "td". Without parentheses
-        /// </summary>
-        /// <param name="c">Table configurator</param>
-        /// <param name="cellElement">Cell HTML tag</param>
-        /// <returns>Fluent</returns>
-        public static Configurator<TSourceData, TTableData> Cell<TSourceData, TTableData>(this Configurator<TSourceData, TTableData> c, string cellElement) where TTableData : new()
-        {
-            c.TableConfiguration.DefaultCellElement = cellElement;
-            return c;
-        }
-
-        /// <summary>
-        /// Set row element. The default is "tr". Without parentheses
-        /// </summary>
-        /// <param name="c">Table configurator</param>
-        /// <param name="rowElement">Row HTML tag</param>
-        /// <returns>Fluent</returns>
-        public static Configurator<TSourceData, TTableData> Row<TSourceData, TTableData>(this Configurator<TSourceData, TTableData> c, string rowElement) where TTableData : new()
-        {
-            c.TableConfiguration.DefaultRowElement = rowElement;
-            return c;
-        }
-
-        /// <summary>
         /// Sets main operational URL of whole table. 
         /// Usually this URL should point to controller action that will return result of .HandleResponse/ await .HandleResponseAsync of table handler
         /// </summary>
@@ -195,32 +171,11 @@ namespace PowerTables.Configuration
         /// <returns>Fluent</returns>
         public static ColumnUsage<TSourceData, TTableData, TTableColumn> TemplateId<TSourceData, TTableData, TTableColumn>(this ColumnUsage<TSourceData, TTableData, TTableColumn> conf, string templateId) where TTableData : new()
         {
-            if (
-                (conf.ColumnConfiguration.CellRenderingHtmlFunction != null)
-                || (conf.ColumnConfiguration.CellRenderingValueFunction != null))
+            if ((conf.ColumnConfiguration.CellRenderingValueFunction != null))
             {
-                throw new Exception("Column has already specified HTML or value function. TemplateId is redundant. Please remove it.");
+                throw new Exception("Column has already specified value function. TemplateId is redundant. Please remove it.");
             }
             conf.ColumnConfiguration.CellRenderingTemplateId = templateId;
-            return conf;
-        }
-
-        /// <summary>
-        /// Specifies function that should return HTML string to be inserted to resulting table
-        /// </summary>
-        /// <param name="conf">Column</param>
-        /// <param name="function">JS function text. Like "function(v){ ... }"</param>
-        /// <returns>Fluent</returns>
-        public static ColumnUsage<TSourceData, TTableData, TTableColumn> HtmlFunction<TSourceData, TTableData, TTableColumn>(this ColumnUsage<TSourceData, TTableData, TTableColumn> conf, string function) where TTableData : new()
-        {
-
-            if (
-                !string.IsNullOrEmpty(conf.ColumnConfiguration.CellRenderingTemplateId)
-                || (conf.ColumnConfiguration.CellRenderingValueFunction != null))
-            {
-                throw new Exception("Column has already specified TempalteId or value function. HTML function is redundant. Please remove it.");
-            }
-            conf.ColumnConfiguration.CellRenderingHtmlFunction = new JRaw(function);
             return conf;
         }
 
@@ -234,11 +189,9 @@ namespace PowerTables.Configuration
             (this ColumnUsage<TSourceData, TTableData, TTableColumn> conf, string function) where TTableData : new()
         {
 
-            if (
-                (conf.ColumnConfiguration.CellRenderingHtmlFunction != null)
-                || !string.IsNullOrEmpty(conf.ColumnConfiguration.CellRenderingTemplateId))
+            if (!string.IsNullOrEmpty(conf.ColumnConfiguration.CellRenderingTemplateId))
             {
-                throw new Exception("Column has already specified TemplateId or HTML function. ValueFunction is redundant. Please remove it.");
+                throw new Exception("Column has already specified TemplateId. ValueFunction is redundant. Please remove it.");
             }
             conf.ColumnConfiguration.CellRenderingValueFunction = new JRaw(function);
             return conf;
