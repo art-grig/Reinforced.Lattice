@@ -22,7 +22,7 @@ namespace PowerTables.Filters.Multi
             var filter = MultiColumnFilter<TSourceData, TSourceColumn>.Create(column.ColumnProperty,column.Configurator,sourceColumn);
             var configurator = column;
             configurator.ThrowIfFilterPresents();
-            SelectFilterClientConfig cc = new SelectFilterClientConfig()
+            SelectFilterUiConfig cc = new SelectFilterUiConfig()
             {
                 AllowSelectNothing = false,
                 Items = selectListItems.ToList(),

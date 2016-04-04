@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.Razor.Tokenizer;
 using PowerTables.Configuration;
 using PowerTables.Configuration.Json;
 
@@ -13,15 +8,21 @@ namespace PowerTables.Plugins.Toolbar
     {
         public const string PluginId = "Toolbar";
 
+        /// <summary>
+        /// Adds toolbar to table
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="conf">Table configurator</param>
+        /// <param name="position">Toolbar position</param>
+        /// <param name="toolbar">Toolbar confguration action</param>
+        /// <returns>Fluent</returns>
         public static T Toolbar<T>(this T conf, string position, Action<ToolbarBuilder> toolbar) where T : IConfigurator
         {
-            ToolbarBuilder tb = new ToolbarBuilder();
-            toolbar(tb);
-            var btnsConfig =  new ToolbarButtonsClientConfiguration()
+            conf.TableConfiguration.UpdatePluginConfig<ToolbarButtonsClientConfiguration>(PluginId, c =>
             {
-                Buttons = tb.Buttons.ToList()
-            };
-            conf.TableConfiguration.ReplacePluginConfig(PluginId,btnsConfig,position);
+                ToolbarBuilder tb = new ToolbarBuilder(c.Buttons);
+                toolbar(tb);
+            }, position);
             return conf;
         }
     }

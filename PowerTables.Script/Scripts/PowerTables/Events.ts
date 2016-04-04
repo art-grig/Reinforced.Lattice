@@ -50,7 +50,7 @@
         }
     }
 
-    /*
+    /**
      * Events manager for table. 
      * Contains all available events
      */

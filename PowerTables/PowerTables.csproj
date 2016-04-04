@@ -99,8 +99,9 @@
     <Compile Include="Filters\Range\RangeFilterClientConfig.cs" />
     <Compile Include="Filters\Range\RangeFilterExtensions.cs" />
     <Compile Include="Filters\Range\RangeTuple.cs" />
-    <Compile Include="Filters\Select\SelectFilterClientConfig.cs" />
+    <Compile Include="Filters\Select\SelectFilterUiConfig.cs" />
     <Compile Include="Filters\Select\SelectFilterExtensions.cs" />
+    <Compile Include="Filters\Select\SelectFilterUiConfigExtensions.cs" />
     <Compile Include="Filters\Value\ValueColumnFilter.cs" />
     <Compile Include="Filters\Value\ValueFilterClientConfig.cs" />
     <Compile Include="Filters\Value\ValueFilterExtensions.cs" />
@@ -160,7 +161,6 @@
     <Compile Include="ResponseProcessing\IResponseModifiersApplier.cs" />
     <Compile Include="ResponseProcessing\JsonNetResult.cs" />
     <Compile Include="SerializationSettings.cs" />
-    <Compile Include="Templating\Default\FilterParametrizedTemplateRegion.cs" />
     <Compile Include="Templating\Default\ColumnParametrizedTemplateRegion.cs" />
     <Compile Include="Templating\HbExtensions.cs" />
     <Compile Include="Templating\HbTagRegion.cs" />

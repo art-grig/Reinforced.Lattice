@@ -83,11 +83,6 @@ namespace PowerTables.Configuration.Json
         public string RawColumnName { get; set; }
 
         /// <summary>
-        /// Column filter settings
-        /// </summary>
-        public ColumnFilterConfiguration Filter { get; set; }
-
-        /// <summary>
         /// Handlebars template ID for rendering
         /// </summary>
         public string CellRenderingTemplateId { get; set; }
@@ -107,11 +102,6 @@ namespace PowerTables.Configuration.Json
         /// Is column data-only (never being displayed actually)
         /// </summary>
         public bool IsDataOnly { get; set; }
-    }
-    public class ColumnFilterConfiguration
-    {
-        public string FilterKey { get; set; }
-        public object FilterConfiguration { get; set; }
     }
     
     public class PluginConfiguration

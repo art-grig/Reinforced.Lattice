@@ -100,24 +100,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Reinforced.Typings.settings.xml" />
-    <Content Include="Scripts\_references.js" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="Scripts\Events.ts" />
-    <TypeScriptCompile Include="Scripts\Loader.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables.ts" />
-    <TypeScriptCompile Include="Scripts\Rendering\ContentRenderer.ts" />
-    <TypeScriptCompile Include="Scripts\ExternalTypings.d.ts" />
     <TypeScriptCompile Include="Scripts\Interfaces.ts" />
-    <TypeScriptCompile Include="Scripts\Rendering\LayoutRenderer.ts" />
-    <TypeScriptCompile Include="Scripts\Rendering\Renderer.ts" />
-    <TypeScriptCompile Include="Scripts\Rendering\RenderingStack.ts" />
-    <TypeScriptCompile Include="Scripts\Rendering\TrackHelper.ts" />
-    <TypeScriptCompile Include="Scripts\typings\handlebars\handlebars-1.0.0.d.ts" />
-    <TypeScriptCompile Include="Scripts\typings\handlebars\handlebars.d.ts" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

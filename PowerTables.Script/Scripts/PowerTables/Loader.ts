@@ -1,4 +1,8 @@
 ﻿module PowerTables {
+
+    /**
+     * Component that is responsible for querying server
+     */
     export class Loader {
         private _queryPartProviders: PowerTables.IQueryPartProvider[] = [];
         private _previousRequest: XMLHttpRequest;
@@ -12,6 +16,13 @@
          */
         public Data: any[];
 
+        /**
+         * Registers new query part provider to be used while collecting 
+         * query data before sending it to server.
+         * 
+         * @param provider instance implementing IQueryPartProvider interface
+         * @returns {} 
+         */
         public registerQueryPartProvider(provider: IQueryPartProvider): void {
             this._queryPartProviders.push(provider);
         }
@@ -57,7 +68,7 @@
             return xmlhttp;
         }
 
-        /*
+        /**
          * Parses response from server and turns it to objects array
          */
         private parseResponse(response: IPowerTablesResponse) {

@@ -47,7 +47,6 @@ namespace PowerTables.Typings
                 .WithProperty(c => c.CellRenderingValueFunction, c => c.Type("(a:any) => string"))
                 ;
 
-            builder.ExportAsInterface<ColumnFilterConfiguration>().WithPublicProperties();
             builder.ExportAsInterface<PluginConfiguration>().WithPublicProperties();
             builder.ExportAsInterface<CheckboxifyClientConfig>().WithPublicProperties();
             builder.ExportAsEnum<SelectAllLocation>();
@@ -55,7 +54,6 @@ namespace PowerTables.Typings
             builder.ExportAsInterface<FormwatchFieldData>().WithPublicProperties()
                 .WithProperty(c => c.FieldValueFunction, a => a.Type<Func<object>>())
                 .WithProperty(c => c.Key, a => a.Ignore());
-            builder.ExportAsInterface<HideoutCellConfiguration>().WithPublicProperties();
             builder.ExportAsInterface<HideoutClientConfiguration>().WithPublicProperties();
             builder.ExportAsInterface<RangeFilterClientConfig>().WithPublicProperties();
             builder.ExportAsInterface<ValueFilterClientConfig>().WithPublicProperties();
@@ -64,14 +62,13 @@ namespace PowerTables.Typings
                 .WithPublicProperties()
                 .WithProperty(c=>c.Group,c=>c.Ignore()); //todo use mvc
 
-            builder.ExportAsInterface<SelectFilterClientConfig>().WithPublicProperties();
+            builder.ExportAsInterface<SelectFilterUiConfig>().WithPublicProperties();
 
             builder.ExportAsInterface<LimitClientConfiguration>()
                 .WithPublicProperties();
 
-            builder.ExportAsInterface<OrderableConfiguration>()
-                .WithPublicProperties()
-                .WithProperty(c => c.DefaultOrdering, c => c.Type("PowerTables.Ordering"));
+            builder.ExportAsInterface<OrderingConfiguration>()
+                .WithPublicProperties();
 
             builder.ExportAsInterface<PagingClientConfiguration>().WithPublicProperties();
             builder.ExportAsInterface<PowerTablesResponse>()

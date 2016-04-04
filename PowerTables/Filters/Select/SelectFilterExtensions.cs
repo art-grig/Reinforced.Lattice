@@ -18,24 +18,34 @@ namespace PowerTables.Filters.Select
         public static ValueColumnFilter<TSourceData, TSourceColumn> FilterSelect<TSourceData, TTableData, TTableColumn, TSourceColumn>(
             this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
             Expression<Func<TSourceData, TSourceColumn>> sourceColumn,
-            IEnumerable<SelectListItem> selectListItems,
-            bool allowSelectNothing = true,
-            string nothingText = null,
-            string defaultValue = null) where TTableData : new()
+            Action<SelectFilterUiConfig> ui = null) where TTableData : new()
+        {
+            
+            FilterSelectNoUi(column,sourceColumn);
+
+            
+        }
+
+        public static ValueColumnFilter<TSourceData, TSourceColumn> FilterSelectNoUi<TSourceData, TTableData, TTableColumn, TSourceColumn>(
+            this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
+            Expression<Func<TSourceData, TSourceColumn>> sourceColumn) where TTableData : new()
         {
             var filter = ValueColumnFilter<TSourceData, TSourceColumn>.Create(column.ColumnProperty, column.Configurator, sourceColumn);
             var configurator = column;
             configurator.ThrowIfFilterPresents();
-            SelectFilterClientConfig cc = new SelectFilterClientConfig()
-            {
-                AllowSelectNothing = allowSelectNothing,
-                Items = selectListItems.ToList(),
-                NothingText = nothingText,
-                SelectedValue = defaultValue
-            };
+            configurator.TableConfigurator.RegisterFilter(filter);
+            return filter;
+        }
+
+        public static void FilterSelectUi<TSourceData, TTableData, TTableColumn>(this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
+           Action<SelectFilterUiConfig> ui) where TTableData : new()
+        {
+            SelectFilterUiConfig cc = new SelectFilterUiConfig();
+            if (ui != null) ui(cc);
+
             filter.ClientConfig = cc;
             configurator.ColumnConfiguration.ReplaceFilterConfig(PluginId, cc);
-            configurator.TableConfigurator.RegisterFilter(filter);
+
             return filter;
         }
 
@@ -52,7 +62,7 @@ namespace PowerTables.Filters.Select
             configurator.TableConfigurator.RegisterFilter(filter);
 
             var col = column.ColumnConfiguration;
-            SelectFilterClientConfig newCc = new SelectFilterClientConfig()
+            SelectFilterUiConfig newCc = new SelectFilterUiConfig()
             {
                 AllowSelectNothing = allowSelectNothing,
                 Items = selectListItems().ToList(),

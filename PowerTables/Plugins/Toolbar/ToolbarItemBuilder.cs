@@ -7,10 +7,16 @@ using Newtonsoft.Json.Linq;
 
 namespace PowerTables.Plugins.Toolbar
 {
+    /// <summary>
+    /// Builder for toolbar item (button or submenu)
+    /// </summary>
     public class ToolbarItemBuilder
     {
         private readonly ToolbarButtonClientConfiguration _configuration;
 
+        /// <summary>
+        /// JSON toolbar button configuration
+        /// </summary>
         public ToolbarButtonClientConfiguration Configuration
         {
             get { return _configuration; }

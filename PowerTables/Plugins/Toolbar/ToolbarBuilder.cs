@@ -9,23 +9,31 @@ namespace PowerTables.Plugins.Toolbar
 {
     public class ToolbarBuilder
     {
-        public ToolbarBuilder(List<ToolbarButtonClientConfiguration> existing)
+        internal ToolbarBuilder(List<ToolbarButtonClientConfiguration> existing)
         {
             _buttons = existing;
         }
 
-        public ToolbarBuilder()
+        internal ToolbarBuilder()
         {
             _buttons = new List<ToolbarButtonClientConfiguration>();
         }
 
         private readonly List<ToolbarButtonClientConfiguration> _buttons;
 
+        /// <summary>
+        /// Existing toolbar buttons
+        /// </summary>
         public IReadOnlyCollection<ToolbarButtonClientConfiguration> Buttons
         {
             get { return _buttons; }
         }
 
+        /// <summary>
+        /// Adds simple HTML button to toolbar
+        /// </summary>
+        /// <param name="htmlContent">Direct HTML content of button</param>
+        /// <returns>Fluent</returns>
         public ToolbarItemBuilder AddSimpleButton(string htmlContent)
         {
             var conf = new ToolbarButtonClientConfiguration(){HtmlContent = htmlContent};
@@ -33,6 +41,15 @@ namespace PowerTables.Plugins.Toolbar
             return new ToolbarItemBuilder(conf);
         }
 
+        /// <summary>
+        /// Adds button invoking specified table command
+        /// </summary>
+        /// <param name="htmlContent">HTML button content</param>
+        /// <param name="command">Command that button initiates</param>
+        /// <param name="disableWhileCommand">When true, button will be disabled while command is executing</param>
+        /// <param name="callbackFunction">Javascript function containing callback after command execution</param>
+        /// <param name="confirmationFunction">Javascript function that is being called before command execution</param>
+        /// <returns></returns>
         public ToolbarItemBuilder AddCommandButton(string htmlContent, string command,
             bool disableWhileCommand = true, string callbackFunction = null,string confirmationFunction = null)
         {
@@ -48,6 +65,12 @@ namespace PowerTables.Plugins.Toolbar
             return new ToolbarItemBuilder(conf);
         }
 
+        /// <summary>
+        /// Adds button with nested toolbar (assumed that button is only opening toobar)
+        /// </summary>
+        /// <param name="htmlContent">Button HTML content</param>
+        /// <param name="submenu">Toolbar menu</param>
+        /// <returns>Fluent</returns>
         public ToolbarItemBuilder AddMenu(string htmlContent, Action<ToolbarSubmenuBuilder> submenu)
         {
             var conf = new ToolbarButtonClientConfiguration()
@@ -61,6 +84,17 @@ namespace PowerTables.Plugins.Toolbar
             return new ToolbarItemBuilder(conf);
         }
 
+
+        /// <summary>
+        /// Adds button with nested menu (assumed that button is active and invoking command)
+        /// </summary>
+        /// <param name="htmlContent">HTML button content</param>
+        /// <param name="command">Command that is being executed by pressing button</param>
+        /// <param name="submenu">Submenu builder</param>
+        /// <param name="disableWhileCommand">When true, button will be disabled while command is executing</param>
+        /// <param name="callbackFunction">Javascript function containing callback after command execution</param>
+        /// <param name="confirmationFunction">Javascript function that is being called before command execution</param>
+        /// <returns></returns>
         public ToolbarItemBuilder AddMenuButton(string htmlContent, string command,
             Action<ToolbarSubmenuBuilder> submenu,
             bool disableWhileCommand = true, string callbackFunction = null,

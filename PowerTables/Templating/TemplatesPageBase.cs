@@ -44,11 +44,6 @@ namespace PowerTables.Templating
             return new ColumnParametrizedTemplateRegion(Model.Prefix, "headerWrapper", GetOutputWriter());
         }
 
-        public FilterParametrizedTemplateRegion FilterWrapper()
-        {
-            return new FilterParametrizedTemplateRegion(Model.Prefix, "filterWrapper", GetOutputWriter());
-        }
-
         public TemplateRegion RowWrapper()
         {
             return new TemplateRegion(Model.Prefix, "rowWrapper",GetOutputWriter());

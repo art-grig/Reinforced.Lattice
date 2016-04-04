@@ -63,7 +63,7 @@ namespace PowerTables.Filters.Value
                 fc.DefaultValue = value;
                 return columnFilter;
             }
-            var lfc = columnFilter.ClientConfig as SelectFilterClientConfig;
+            var lfc = columnFilter.ClientConfig as SelectFilterUiConfig;
             if (lfc != null)
             {
                 lfc.Items.ForEach(c => c.Selected = false);

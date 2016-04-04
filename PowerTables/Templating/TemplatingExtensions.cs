@@ -24,7 +24,7 @@ namespace PowerTables.Templating
 
         private static readonly MvcHtmlString _body = MvcHtmlString.Create("{{Body}}");
         private static readonly MvcHtmlString _headers = MvcHtmlString.Create("{{Headers}}");
-        private static readonly MvcHtmlString _filters = MvcHtmlString.Create("{{ColumnFilters}}");
+        private static readonly MvcHtmlString _filters = MvcHtmlString.Create("{{{Plugins \"filter\"}}}");
 
         /// <summary>
         /// Placeholder for table body (cells and rows)

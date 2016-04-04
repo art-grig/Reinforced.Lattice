@@ -7,8 +7,20 @@ using System.Threading.Tasks;
 
 namespace PowerTables.Plugins.Hideout
 {
-    public class HideoutCellConfiguration 
+    /// <summary>
+    /// Client hideout plugin configuration
+    /// </summary>
+    public class HideoutPluginConfiguration
     {
-        public bool Hidden { get; set; }
+        /// <summary>
+        /// Columns hidout settings
+        /// Key = column RawName, Value = true when hidden, false when shown
+        /// </summary>
+        public Dictionary<string,bool> HiddenColumns { get; set; }
+
+        public HideoutPluginConfiguration()
+        {
+            HiddenColumns = new Dictionary<string, bool>();
+        }
     }
 }

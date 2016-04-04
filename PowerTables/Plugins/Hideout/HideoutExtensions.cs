@@ -27,14 +27,10 @@ namespace PowerTables.Plugins.Hideout
             <TSourceData, TTableData, TTableColumn>(
             this ColumnUsage<TSourceData, TTableData, TTableColumn> column) where TTableData : new()
         {
-            var exConf = column.Configurator.TableConfiguration.GetPluginConfig<HideoutClientConfiguration>(PluginId);
-
-            if (exConf == null)
+            column.Configurator.TableConfiguration.UpdatePluginConfig<HideoutPluginConfiguration>(PluginId, c =>
             {
-                column.Configurator.TableConfiguration.ReplacePluginConfig(PluginId,new HideoutClientConfiguration(){ShowMenu = false});
-            }
-
-            column.ColumnConfiguration.ReplacePluginConfig(PluginId,new HideoutCellConfiguration(){Hidden = true});
+                c.HiddenColumns[column.ColumnProperty.Name] = true;
+            });
             return column;
         }
 
