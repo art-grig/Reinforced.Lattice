@@ -10,6 +10,7 @@
         private _staticData: any;                           // from ctor
         private _operationalAjaxUrl: string;                // from ctor
         private _events: EventsManager;                     // from ctor
+        private _isFirstTimeLoading: boolean = false;
 
         /**
          * Current loaded data

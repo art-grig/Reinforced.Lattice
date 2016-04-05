@@ -83,7 +83,6 @@
     <Compile Include="Infrastructure\ICheckboxifyPlugin.cs" />
     <Compile Include="Infrastructure\IColumn.cs" />
     <Compile Include="Infrastructure\IColumnHeader.cs" />
-    <Compile Include="Infrastructure\IFilter.cs" />
     <Compile Include="Infrastructure\IRenderable.cs" />
     <Compile Include="Infrastructure\ITemplatesProvider.cs" />
     <Compile Include="Infrastructure\IPlugin.cs" />

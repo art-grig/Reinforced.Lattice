@@ -21,12 +21,7 @@ namespace PowerTables.Filters.Range
     {
         private readonly LambdaExpression _sourceExpression;
         private bool _inclusive;
-
-        /// <summary>
-        /// Filter client configuration for internal purposes
-        /// </summary>
-        internal RangeFilterClientConfig ClientConfig { get; set; }
-
+       
         protected RangeColumnFilter(string columnName, IConfigurator conf, LambdaExpression sourceExpression)
             : base(columnName, conf)
         {

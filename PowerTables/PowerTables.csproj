@@ -96,14 +96,15 @@
     <Compile Include="Filters\Multi\MultiColumnFilter.cs" />
     <Compile Include="Filters\Multi\MultiFilterExtensions.cs" />
     <Compile Include="Filters\Range\RangeColumnFilter.cs" />
-    <Compile Include="Filters\Range\RangeFilterClientConfig.cs" />
+    <Compile Include="Filters\Range\RangeFilterUiConfig.cs" />
     <Compile Include="Filters\Range\RangeFilterExtensions.cs" />
     <Compile Include="Filters\Range\RangeTuple.cs" />
+    <Compile Include="Filters\Range\RangeFilterUiConfigExtensions.cs" />
     <Compile Include="Filters\Select\SelectFilterUiConfig.cs" />
     <Compile Include="Filters\Select\SelectFilterExtensions.cs" />
     <Compile Include="Filters\Select\SelectFilterUiConfigExtensions.cs" />
     <Compile Include="Filters\Value\ValueColumnFilter.cs" />
-    <Compile Include="Filters\Value\ValueFilterClientConfig.cs" />
+    <Compile Include="Filters\Value\ValueFilterUiConfig.cs" />
     <Compile Include="Filters\Value\ValueFilterExtensions.cs" />
     <Compile Include="FilterTuple.cs" />
     <Compile Include="FrequentlyUsed\FrequentlyUsedExtensions.cs" />

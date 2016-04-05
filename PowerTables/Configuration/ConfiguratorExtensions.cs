@@ -197,19 +197,7 @@ namespace PowerTables.Configuration
             return conf;
         }
 
-        /// <summary>
-        /// Throws exception if column already contains filter instance. 
-        /// This method is only left for plugins development.
-        /// </summary>
-        /// <param name="conf">Column</param>
-        public static void ThrowIfFilterPresents<TSourceData, TTableData, TTableColumn>(this ColumnUsage<TSourceData, TTableData, TTableColumn> conf) where TTableData : new()
-        {
-            if (conf.ColumnConfiguration.Filter != null)
-            {
-                throw new Exception(String.Format("there is already defined filter {0} on column {1}", conf.ColumnConfiguration.Filter.FilterKey, conf.ColumnProperty.Name));
-            }
-        }
-
+        
         /// <summary>
         /// Sets up ordering fallback. 
         /// Some frameworks are not working if no OrderBy supplied (like EF). 

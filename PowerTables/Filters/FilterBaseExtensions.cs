@@ -40,18 +40,25 @@ namespace PowerTables.Filters
             return columnFilter;
         }
 
-        public static string ConvertDefaultValue<TSourceColumn>(this IConfigurator configurator, TSourceColumn value)
+        /// <summary>
+        /// Converts any instance to string friendly for filter defaul value
+        /// </summary>
+        /// <param name="configurator">Table configuration</param>
+        /// <param name="value">Filter value</param>
+        /// <returns>Filter-friendly string represending default value</returns>
+        public static string ToFilterDefaultString(this IConfigurator configurator, object value)
         {
             if (value == null) return null;
             var s = value.ToString();
-            if (typeof(TSourceColumn) == typeof(DateTime))
+            var type = value.GetType();
+            if (type == typeof(DateTime))
             {
                 if (!string.IsNullOrEmpty(configurator.TableConfiguration.ServerDateTimeFormat))
                 {
                     s = ((DateTime)(object)value).ToString(configurator.TableConfiguration.ServerDateTimeFormat);
                 }
             }
-            if (typeof(TSourceColumn) == typeof(DateTime?))
+            if (type == typeof(DateTime?))
             {
                 var t = value as DateTime?;
                 if (t != null)

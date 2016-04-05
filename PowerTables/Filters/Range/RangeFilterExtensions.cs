@@ -11,6 +11,9 @@ namespace PowerTables.Filters.Range
     /// </summary>
     public static class RangeFilterExtensions
     {
+        /// <summary>
+        /// Range filter plugin ID
+        /// </summary>
         public const string PluginId = "RangeFilter";
 
         /// <summary>
@@ -21,29 +24,16 @@ namespace PowerTables.Filters.Range
         /// </summary>
         /// <param name="column">Column</param>
         /// <param name="sourceColumn">Matching source column to be filtered</param>
-        /// <param name="fromPlaceholder">Placeholder for "from" box. Default is "From"</param>
-        /// <param name="toPlaceholder">Placeholder for "to" box. Default is "To"</param>
-        /// <param name="inputDelay">Delay between typing to filter and request being sent to server</param>
+        /// <param name="ui">Filter UI builder</param>
         /// <returns>Fluent</returns>
         public static RangeColumnFilter<TSourceData, TSourceColumn> FilterRange<TSourceData, TTableData, TTableColumn, TSourceColumn>(
             this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
             Expression<Func<TSourceData, TSourceColumn>> sourceColumn,
-            string fromPlaceholder = "From",
-            string toPlaceholder = "To",
-            int inputDelay = 500
+            Action<RangeFilterUiConfig> ui = null
             ) where TTableData : new()
         {
-            column.ThrowIfFilterPresents();
-            var filter = RangeColumnFilter<TSourceData, TSourceColumn>.Create(column.ColumnProperty, column.Configurator, sourceColumn);
-            RangeFilterClientConfig clientConfig = new RangeFilterClientConfig
-            {
-                FromPlaceholder = fromPlaceholder,
-                ToPlaceholder = toPlaceholder,
-                InputDelay = inputDelay
-            };
-            filter.ClientConfig = clientConfig;
-            column.Configurator.RegisterFilter(filter);
-            column.ColumnConfiguration.ReplaceFilterConfig(PluginId, clientConfig);
+            var filter = FilterRangeNoUi(column, sourceColumn);
+            FilterRangeUi(column,ui);
             return filter;
         }
 
@@ -55,90 +45,69 @@ namespace PowerTables.Filters.Range
         /// </summary>
         /// <param name="column">Column</param>
         /// <param name="filterDelegate">Filtering delegate</param>
-        /// <param name="fromPlaceholder">Placeholder for "from" box. Default is "From"</param>
-        /// <param name="toPlaceholder">Placeholder for "to" box. Default is "To"</param>
-        /// <param name="inputDelay">Delay between typing to filter and request being sent to server</param>
+        /// <param name="ui">Filter UI builder</param>
         /// <returns>Fluent</returns>
         public static RangeColumnFilter<TSourceData, TTableColumn> FilterRange<TSourceData, TTableData, TTableColumn>(
             this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
             Func<IQueryable<TSourceData>, RangeTuple<TTableColumn>, IQueryable<TSourceData>> filterDelegate,
-            string fromPlaceholder = "From",
-            string toPlaceholder = "To",
-            int inputDelay = 500
+            Action<RangeFilterUiConfig> ui = null
             ) where TTableData : new()
         {
-            column.ThrowIfFilterPresents();
-            var filter = RangeColumnFilter<TSourceData, TTableColumn>.Create(column.ColumnProperty, column.Configurator, filterDelegate);
-            RangeFilterClientConfig clientConfig = new RangeFilterClientConfig
-            {
-                FromPlaceholder = fromPlaceholder,
-                ToPlaceholder = toPlaceholder,
-                InputDelay = inputDelay
-            };
-            filter.ClientConfig = clientConfig;
-            column.Configurator.RegisterFilter(filter);
-            column.ColumnConfiguration.ReplaceFilterConfig(PluginId, clientConfig);
+            var filter = FilterRangeNoUi(column, filterDelegate);
+            FilterRangeUi(column, ui);
             return filter;
         }
 
         /// <summary>
-        /// Specifies raw default values for filter. This methods acts like .Default but consumes raw string 
-        /// that will be put to filter box without any conversion. 
+        /// Attaches Range filter to specified column. 
+        /// Range column filter supports 2 values (min. and max.) to be specified. 
+        /// This filter filters out source query leaving records that are having value denoted by column that is in specified range (between min. and max.) 
         /// </summary>
-        /// <param name="columnFilter">Filter</param>
-        /// <param name="from">Raw value string for "from" box</param>
-        /// <param name="to">Raw value for "to" box</param>
+        /// <param name="column">Column</param>
+        /// <param name="sourceColumn">Matching source column to be filtered</param>
         /// <returns>Fluent</returns>
-        public static RangeColumnFilter<TSourceData, TSourceColumn> RawDefault<TSourceData, TSourceColumn>(
-            this RangeColumnFilter<TSourceData, TSourceColumn> columnFilter, string from = null, string to = null)
+        public static RangeColumnFilter<TSourceData, TSourceColumn> FilterRangeNoUi<TSourceData, TTableData, TTableColumn, TSourceColumn>(
+            this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
+            Expression<Func<TSourceData, TSourceColumn>> sourceColumn
+            ) where TTableData : new()
         {
-            columnFilter.ClientConfig.FromValue = from;
-            columnFilter.ClientConfig.ToValue = to;
-            return columnFilter;
+            var filter = RangeColumnFilter<TSourceData, TSourceColumn>.Create(column.ColumnProperty, column.Configurator, sourceColumn);
+            column.Configurator.RegisterFilter(filter);
+            return filter;
         }
 
         /// <summary>
-        /// Sets default value for ValueFilter. This value will be converted to string.
-        /// This value will be set initially after table loading and used for filtering
+        /// Attaches Range filter to specified column without UI
+        /// Range column filter supports 2 values (min. and max.) to be specified. 
+        /// This filter filters out source query leaving records that are having value denoted by column that is in specified range (between min. and max.) 
         /// </summary>
-        /// <param name="columnFilter">Filter</param>
-        /// <param name="from">Default value object for "from" box</param>
-        /// <param name="to">Default value object for "to" box</param>
+        /// <param name="column">Column</param>
+        /// <param name="filterDelegate">Filtering delegate</param>
         /// <returns>Fluent</returns>
-        public static RangeColumnFilter<TSourceData, TSourceColumn> Default<TSourceData, TSourceColumn>(
-            this RangeColumnFilter<TSourceData, TSourceColumn> columnFilter, TSourceColumn from = null, TSourceColumn to = null) where TSourceColumn : class
+        public static RangeColumnFilter<TSourceData, TTableColumn> FilterRangeNoUi<TSourceData, TTableData, TTableColumn>(
+            this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
+            Func<IQueryable<TSourceData>, RangeTuple<TTableColumn>, IQueryable<TSourceData>> filterDelegate) where TTableData : new()
         {
-            if (from != null)
-            {
-                columnFilter.ClientConfig.FromValue = columnFilter.Configurator.ConvertDefaultValue(from);
-            }
-            if (to != null)
-            {
-                columnFilter.ClientConfig.ToValue = columnFilter.Configurator.ConvertDefaultValue(to);
-            }
-            return columnFilter;
+            var filter = RangeColumnFilter<TSourceData, TTableColumn>.Create(column.ColumnProperty, column.Configurator, filterDelegate);
+            column.Configurator.RegisterFilter(filter);
+            return filter;
         }
 
         /// <summary>
-        /// Sets default value for ValueFilter. This value will be converted to string.
-        /// This value will be set initially after table loading and used for filtering
+        /// Attaches UI for Range filter to specified column. 
+        /// UI frontend for this filter (by default) is 2 text inputs specifying min and max value. 
         /// </summary>
-        /// <param name="columnFilter">Filter</param>
-        /// <param name="from">Default value object for "from" box</param>
-        /// <param name="to">Default value object for "to" box</param>
+        /// <param name="column">Column</param>
+        /// <param name="ui">Filter UI builder</param>
         /// <returns>Fluent</returns>
-        public static RangeColumnFilter<TSourceData, TSourceColumn> Default<TSourceData, TSourceColumn>(
-            this RangeColumnFilter<TSourceData, TSourceColumn> columnFilter, TSourceColumn? from = null, TSourceColumn? to = null) where TSourceColumn : struct
+        public static void FilterRangeUi<TSourceData, TTableData, TTableColumn>(
+            this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
+            Action<RangeFilterUiConfig> ui = null
+            ) where TTableData : new()
         {
-            if (from.HasValue)
-            {
-                columnFilter.ClientConfig.FromValue = columnFilter.Configurator.ConvertDefaultValue(from.Value);
-            }
-            if (to.HasValue)
-            {
-                columnFilter.ClientConfig.ToValue = columnFilter.Configurator.ConvertDefaultValue(to.Value);
-            }
-            return columnFilter;
+            RangeFilterUiConfig clientConfig = new RangeFilterUiConfig();
+            if (ui != null) ui(clientConfig);
+            column.ReplaceFilterConfig(PluginId, clientConfig);
         }
     }
 }

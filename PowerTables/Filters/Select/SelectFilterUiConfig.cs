@@ -9,8 +9,7 @@ using System.Web.Mvc;
 namespace PowerTables.Filters.Select
 {
     /// <summary>
-    /// Client configuration for select filter. 
-    /// See <see cref="SelectFilterExtensions"/>
+    /// UI configuration for select filter 
     /// </summary>
     public class SelectFilterUiConfig
     {

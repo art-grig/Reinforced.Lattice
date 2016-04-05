@@ -7,7 +7,8 @@ namespace PowerTables.Templating
     public class PluignWrapperTemplateRegion : 
         ModeledTemplateRegion<PluignWrapperTemplateRegion.PluginWrapperModel>, 
         IProvidesEventsBinding,
-        IProvidesContent
+        IProvidesContent,
+        IProvidesTracking
     {
         public PluignWrapperTemplateRegion(string prefix, TextWriter writer)
             : base(prefix, "pluginWrapper", writer)

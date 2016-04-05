@@ -55,15 +55,12 @@ namespace PowerTables.Configuration.Json
         /// </summary>
         public string StaticData { get; set; }
 
-        public TableConfiguration(string[] rawColumnNames)
+        public TableConfiguration()
         {
-            RawColumnNames = rawColumnNames;
             Columns = new List<ColumnConfiguration>();
             PluginsConfiguration = new Dictionary<string, PluginConfiguration>();
             LoadImmediately = true;
         }
-
-        public string[] RawColumnNames { get; set; }
         
     }
 
@@ -104,6 +101,9 @@ namespace PowerTables.Configuration.Json
         public bool IsDataOnly { get; set; }
     }
     
+    /// <summary>
+    /// Plugin JSON configuration
+    /// </summary>
     public class PluginConfiguration
     {
         public PluginConfiguration(string pluginId)
@@ -111,8 +111,19 @@ namespace PowerTables.Configuration.Json
             PluginId = pluginId;
         }
 
+        /// <summary>
+        /// Plugin ID
+        /// </summary>
         public string PluginId { get; set; }
+
+        /// <summary>
+        /// Plugin placement
+        /// </summary>
         public string Placement { get; set; }
+
+        /// <summary>
+        /// Plugin configuration itself
+        /// </summary>
         public object Configuration { get; set; }
         
     }

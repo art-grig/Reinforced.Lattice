@@ -55,8 +55,8 @@ namespace PowerTables.Typings
                 .WithProperty(c => c.FieldValueFunction, a => a.Type<Func<object>>())
                 .WithProperty(c => c.Key, a => a.Ignore());
             builder.ExportAsInterface<HideoutClientConfiguration>().WithPublicProperties();
-            builder.ExportAsInterface<RangeFilterClientConfig>().WithPublicProperties();
-            builder.ExportAsInterface<ValueFilterClientConfig>().WithPublicProperties();
+            builder.ExportAsInterface<RangeFilterUiConfig>().WithPublicProperties();
+            builder.ExportAsInterface<ValueFilterUiConfig>().WithPublicProperties();
             builder.ExportAsInterface<ResponseInfoClientConfiguration>().WithPublicProperties();
             builder.ExportAsInterface<SelectListItem>()
                 .WithPublicProperties()

@@ -13,7 +13,6 @@ namespace PowerTables.Typings.Infrastructure
         string RawName { get; set; }
         ColumnConfiguration Configuration { get; set; }
         IPowerTable MasterTable { get; set; }
-        IFilter Filter { get; set; }
         IColumnHeader Header { get; set; }
     }
 }

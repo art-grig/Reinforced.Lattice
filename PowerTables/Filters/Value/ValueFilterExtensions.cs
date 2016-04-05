@@ -33,10 +33,9 @@ namespace PowerTables.Filters.Value
             Expression<Func<TSourceData, TSourceColumn>> sourceColumn, string placeholder = null, int inputDelay = 500
             ) where TTableData : new()
         {
-            column.ThrowIfFilterPresents();
             if (string.IsNullOrEmpty(placeholder)) placeholder = column.ColumnConfiguration.Title;
             var filter = ValueColumnFilter<TSourceData, TSourceColumn>.Create(column.ColumnProperty, column.Configurator, sourceColumn);
-            ValueFilterClientConfig clientConfig = new ValueFilterClientConfig
+            ValueFilterUiConfig clientConfig = new ValueFilterUiConfig
             {
                 Placeholder = placeholder,
                 InputDelay = inputDelay
@@ -57,7 +56,7 @@ namespace PowerTables.Filters.Value
         public static ValueColumnFilter<TSourceData, TSourceColumn> RawDefault<TSourceData, TSourceColumn>(
             this ValueColumnFilter<TSourceData, TSourceColumn> columnFilter, string value)
         {
-            var fc = columnFilter.ClientConfig as ValueFilterClientConfig;
+            var fc = columnFilter.ClientConfig as ValueFilterUiConfig;
             if (fc != null)
             {
                 fc.DefaultValue = value;

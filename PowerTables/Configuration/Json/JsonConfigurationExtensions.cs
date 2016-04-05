@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace PowerTables.Configuration.Json
 {
+    /// <summary>
+    /// Set of extensions for working with JSON configuration
+    /// </summary>
     public static class JsonConfigurationExtensions
     {
         public static ColumnConfiguration Column(this TableConfiguration tconf, PropertyInfo property)
@@ -16,9 +19,15 @@ namespace PowerTables.Configuration.Json
             return idx;
         }
 
-        public static void ReplaceFilterConfig(this ColumnConfiguration tconf, TableConfiguration table, string key, object filterConfig)
+        /// <summary>
+        /// Replaces filter configuration for specified column
+        /// </summary>
+        /// <param name="column">Column usage</param>
+        /// <param name="pluginId">Filter plugin ID</param>
+        /// <param name="filterConfig">Filter configuration</param>
+        public static void ReplaceFilterConfig(this IColumnConfigurator column, string pluginId, object filterConfig)
         {
-            ReplacePluginConfig(table, string.Format("{0}-{1}", key, tconf.RawColumnName), filterConfig, "filter");
+            ReplacePluginConfig(column.TableConfigurator.TableConfiguration, string.Format("{0}-{1}", pluginId, column.ColumnConfiguration.RawColumnName), filterConfig, "filter");
         }
 
         /// <summary>

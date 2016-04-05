@@ -75,22 +75,26 @@
     <text>
         @using (t.IfStrEquals(c => c.Configuration.Placement, "lt"))
         {
-            <span> @t.Content() </span>
+            <span @t.Track()> @t.Content() </span>
         }
 
         @using (t.IfStrEquals(c => c.Configuration.Placement, "lb"))
         {
-            <div style="float: left;"> @t.Content() </div>
+            <div style="float: left;" @t.Track()> @t.Content() </div>
         }
 
         @using (t.IfStrEquals(c => c.Configuration.Placement, "rt"))
         {
-            <div style="float: right;"> @t.Content() </div>
+            <div style="float: right;" @t.Track()> @t.Content() </div>
         }
 
         @using (t.IfStrEquals(c => c.Configuration.Placement, "rb"))
         {
-            <div style="float: right;"> @t.Content() </div>
+            <div style="float: right;" @t.Track()> @t.Content() </div>
+        }
+        @using (t.IfStrEquals(c => c.Configuration.Placement, "filter"))
+        {
+            <th @t.Track()>@t.Content()</th>
         }
     </text>
 }
@@ -99,14 +103,6 @@
     Column header wrapper template.
 *@
 @using (var t = HeaderWrapper())
-{
-    <th @t.Track()>@t.Content()</th>
-}
-
-@*
-    Column filter wrapper template.
-*@
-@using (var t = FilterWrapper())
 {
     <th @t.Track()>@t.Content()</th>
 }

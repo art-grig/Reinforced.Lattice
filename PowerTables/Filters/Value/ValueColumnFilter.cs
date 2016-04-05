@@ -14,11 +14,7 @@ namespace PowerTables.Filters.Value
     /// </summary>
     public class ValueColumnFilter<TSourceData, TFilteringKey> : ColumnFilterBase<TSourceData, TFilteringKey>
     {
-        /// <summary>
-        /// Filter client configuration for internal purposes
-        /// </summary>
-        internal object ClientConfig { get; set; }
-
+        
         protected ValueColumnFilter(string columnName, IConfigurator conf, LambdaExpression sourceColumn)
             : base(columnName, conf)
         {

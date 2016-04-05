@@ -27,6 +27,13 @@ namespace PowerTables.Filters.Multi
             FilterFunction = DefaultFilter;
         }
 
+        protected MultiColumnFilter(string columnName, IConfigurator conf, Func<IQueryable<TSourceData>, IEnumerable<TVal>, IQueryable<TSourceData>> filterDelegate)
+            : base(columnName, conf)
+        {
+            FilterFunction = filterDelegate;
+            ParseFunction = Parse;
+        }
+
         protected override IEnumerable<TVal> Parse(string filterArgument)
         {
             string[] filterArguments = filterArgument.Split('|');
@@ -45,6 +52,13 @@ namespace PowerTables.Filters.Multi
             columnProp = conf.CheckTableColum(columnProp);
             var ex = LambdaHelpers.FixNullableColumn(column);
             var instance = new MultiColumnFilter<TSourceData, TVal>(columnProp.Name, conf, ex);
+            return instance;
+        }
+
+        public static MultiColumnFilter<TSourceData, TVal> Create(PropertyInfo columnProp, IConfigurator conf, Func<IQueryable<TSourceData>, IEnumerable<TVal>, IQueryable<TSourceData>> filterDelegate)
+        {
+            columnProp = conf.CheckTableColum(columnProp);
+            var instance = new MultiColumnFilter<TSourceData, TVal>(columnProp.Name, conf, filterDelegate);
             return instance;
         }
     }
