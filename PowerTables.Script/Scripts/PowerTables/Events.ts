@@ -110,6 +110,14 @@
          * @this Master table
          */
         public LoadingError: TableEvent<ILoadingErrorEventArgs> = new TableEvent();
+
+        /**
+         * "Columns Creation" event.
+         * Occurs when full columns list formed and available for 
+         * modifying. Addition/removal/columns modification is acceptable
+         */
+        public ColumnsCreation: TableEvent<{ [key: string]: IColumn }> = new TableEvent();
+
     }
 
     /**
@@ -152,4 +160,6 @@
          */
         DataUrl:string;
     }
+
+    
 } 

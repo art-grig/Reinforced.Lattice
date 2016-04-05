@@ -17,24 +17,108 @@
          */
         public Plugins: { [key: string]: IPlugin };
 
+        /**
+         * Events manager
+         */
+        private _events: EventsManager;
+
+        /**
+         * Table configuration
+         */
         public Configuration: TableConfiguration;
 
         private initColumns() {
             for (var i = 0; i < this.Configuration.Columns.length; i++) {
                 var c: IColumn = {
                     Configuration: this.Configuration.Columns[i],
-                    MasterTable: this,
                     RawName: this.Configuration.Columns[i].RawColumnName,
-                    Elements: [],
-                    HeaderElement: null,
-                    Fake: false
-                }
-                this.Events.BeforeColumnHeaderRender.invoke(this, [c]);
-                if (!c.Configuration.IsDataOnly) c.HeaderElement = this.Renderer.renderColumnHeader(c);
+                    MasterTable: null,
+                    Header: null,
+                    Order: i
+                };
+                c.Header = {
+                    Column: c,
+                    renderContent: null,
+                    renderElement: null
+                };
                 this.Columns[c.RawName] = c;
-                this.Events.AfterColumnHeaderRender.invoke(this, [c]);
             }
-            this.Events.AfterColumnsRender.invoke(this, [this]);
+            this._events.ColumnsCreation.invoke(this, this.Columns);
+        }
+
+        private initPlugins() {
+            var pluginsConfiguration = this.Configuration.PluginsConfiguration;
+
+            for (var pluginId in pluginsConfiguration) {
+                if (pluginsConfiguration.hasOwnProperty(pluginId)) {
+                    var conf = pluginsConfiguration[pluginId];
+                    var plugin = ComponentsContainer.resolveComponent<IPlugin>(conf.PluginId);
+                    plugin.init(this, conf);
+                    this.Plugins[pluginId] = plugin;
+                }
+            }
+        }
+
+        /**
+         * Reteives plugin at specified placement
+         * @param pluginId Plugin ID 
+         * @param placement Pluign placement
+         * @returns {} 
+         */
+        public getPlugin<TPlugin>(pluginId: string, placement?: string): TPlugin {
+            if (!placement) placement = 'lt';
+            if (this.Plugins[pluginId + '-' + placement]) return <any>(this.Plugins[pluginId + '$' + placement]);
+            else {
+                for (var k in this.Plugins) {
+                    var kp = k.substring(0, pluginId.length);
+                    if (kp === pluginId) return <any>this.Plugins[k];
+                }
+            }
+            return null;
+        }
+
+        /**
+         * Reteives plugin at specified placement
+         * @param pluginId Plugin ID 
+         * @param placement Pluign placement
+         * @returns {} 
+         */
+        public getFilter<TPlugin>(columnName:string): TPlugin {
+            var placement = 'filter';
+            if (this.Plugins[pluginId + '-' + placement]) return <any>(this.Plugins[pluginId + '$' + placement]);
+            else {
+                for (var k in this.Plugins) {
+                    var kp = k.substring(0, pluginId.length);
+                    if (kp === pluginId) return <any>this.Plugins[k];
+                }
+            }
+            return null;
+        }
+
+        /**
+         * Determines is column of DateTime type or not
+         * @param columnName Column name
+         * @returns {} 
+         */
+        public isDateTime(columnName: string): boolean {
+            var tpn = this.Columns[columnName].Configuration.ColumnType;
+            return ((tpn === 'DateTime') || (tpn === 'DateTime?'));
+        }
+
+        /**
+         * Retrieves sequential columns names in particular order
+         * @returns {} 
+         */
+        public getColumnNames(): string[] {
+            var columnsOrder = this.Configuration.RawColumnNames; // todo!
+            var newOrder = [];
+
+            this.Events.ColumnsOrdering.invoke(this, [this, newOrder]);
+
+            if (newOrder.length > 0) {
+                columnsOrder = newOrder;
+            }
+            return columnsOrder;
         }
     }
 } 

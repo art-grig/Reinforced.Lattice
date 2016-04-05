@@ -69,10 +69,16 @@ module PowerTables {
 	}
 	export interface IColumn
 	{
+		/** Raw column name */
 		RawName: string;
+		/** Column configuration */
 		Configuration: PowerTables.Configuration.Json.IColumnConfiguration;
+		/** Reference to master table */
 		MasterTable: PowerTables.IPowerTable;
+		/** Column header */
 		Header: PowerTables.IColumnHeader;
+		/** Column order (left-to-right) */
+		Order: number;
 	}
 	export interface IColumnHeader extends PowerTables.IRenderable
 	{
@@ -93,9 +99,6 @@ module PowerTables {
 	export interface IPlugin extends PowerTables.IRenderable
 	{
 		Configuration: PowerTables.Configuration.Json.IPluginConfiguration;
-		IsToolbarPlugin: boolean;
-		IsQueryModifier: boolean;
-		IsRenderable: boolean;
 		PluginId: string;
 		init(table: PowerTables.IPowerTable, pluginConfiguration: PowerTables.Configuration.Json.IPluginConfiguration) : void;
 	}

@@ -7,13 +7,25 @@ using PowerTables.Configuration.Json;
 
 namespace PowerTables.Typings.Infrastructure
 {
+    /// <summary>
+    /// Plugin interface
+    /// </summary>
     internal interface IPlugin : IRenderable
     {
+        /// <summary>
+        /// Plugin configuration
+        /// </summary>
         PluginConfiguration Configuration { get; }
+
+        /// <summary>
+        /// Initialization point of plugin
+        /// </summary>
+        /// <param name="table">Table reference</param>
+        /// <param name="pluginConfiguration">Plugin configuration</param>
         void Init(IPowerTable table, PluginConfiguration pluginConfiguration);
-        bool IsToolbarPlugin { get; set; }
-        bool IsQueryModifier { get; set; }
-        bool IsRenderable { get; set; }
+
+        void RegisterHandlebarsHelpers(object handlebarsInstance);
+        
         string PluginId { get; set; }
     }
 }

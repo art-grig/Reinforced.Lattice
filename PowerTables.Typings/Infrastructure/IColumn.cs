@@ -10,9 +10,29 @@ namespace PowerTables.Typings.Infrastructure
 {
     interface IColumn
     {
+        /// <summary>
+        /// Raw column name
+        /// </summary>
         string RawName { get; set; }
+
+        /// <summary>
+        /// Column configuration
+        /// </summary>
         ColumnConfiguration Configuration { get; set; }
+
+        /// <summary>
+        /// Reference to master table
+        /// </summary>
         IPowerTable MasterTable { get; set; }
+
+        /// <summary>
+        /// Column header
+        /// </summary>
         IColumnHeader Header { get; set; }
+
+        /// <summary>
+        /// Column order (left-to-right)
+        /// </summary>
+        int Order { get; set; }
     }
 }
