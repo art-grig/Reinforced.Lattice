@@ -8,7 +8,6 @@ namespace PowerTables.Typings.Infrastructure
     interface IPowerTable
     {
         Dictionary<string, IColumn> Columns { get; }
-        Dictionary<string, IFilter> Filters { get; }
         TableConfiguration Configuration { get; }
         TPlugin GetPlugin<TPlugin>(string pluginId, string placement = null);
         void Reload();

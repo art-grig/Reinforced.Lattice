@@ -111,7 +111,7 @@ namespace PowerTables.Configuration
             ReflectionCache.GetCachedProperties<TTableData>(out _tableColumns, out _tableColumnsDictionary);
             ReflectionCache.GetCachedProperties<TSourceData>(out sourceColumns, out _sourceColumnsDictionary);
 
-            _tableConfiguration = new TableConfiguration(_tableColumns.Select(c => c.Name).ToArray());
+            _tableConfiguration = new TableConfiguration();
             InitializeColumnsConfiguration();
             RegisterCommandHandler<DefaultCommandHandler>(DefaultCommandHandler.CommandId);
         }

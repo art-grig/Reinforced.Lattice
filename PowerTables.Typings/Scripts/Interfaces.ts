@@ -72,20 +72,11 @@ module PowerTables {
 		RawName: string;
 		Configuration: PowerTables.Configuration.Json.IColumnConfiguration;
 		MasterTable: PowerTables.IPowerTable;
-		Filter: PowerTables.IFilter;
 		Header: PowerTables.IColumnHeader;
 	}
 	export interface IColumnHeader extends PowerTables.IRenderable
 	{
 		Column: PowerTables.IColumn;
-	}
-	export interface IQueryPartProvider
-	{
-		modifyQuery(query: PowerTables.IQuery) : void;
-	}
-	export interface IFilter extends PowerTables.IQueryPartProvider, PowerTables.IRenderable
-	{
-		reset() : void;
 	}
 	export interface ITemplatesProvider
 	{
@@ -111,7 +102,6 @@ module PowerTables {
 	export interface IPowerTable
 	{
 		Columns: { [key:string]: PowerTables.IColumn };
-		Filters: { [key:string]: PowerTables.IFilter };
 		Configuration: PowerTables.Configuration.Json.ITableConfiguration;
 		getPlugin<TPlugin>(pluginId: string, placement?: string) : TPlugin;
 		reload() : void;
@@ -119,6 +109,10 @@ module PowerTables {
 		isDateTime(columnName: string) : boolean;
 		getColumnNames() : string[];
 		registerQueryPartProvider(provider: PowerTables.IQueryPartProvider) : void;
+	}
+	export interface IQueryPartProvider
+	{
+		modifyQuery(query: PowerTables.IQuery) : void;
 	}
 	/** Row object */
 	export interface IRow extends PowerTables.IRenderable
@@ -205,39 +199,48 @@ module PowerTables.Configuration.Json {
 		TableRootId: string;
 		/** URL for table requests (relative to website root) */
 		OperationalAjaxUrl: string;
-		DefaultCellElement: string;
-		DefaultRowElement: string;
+		/** When true, table data will be loaded immediately after initialization */
 		LoadImmediately: boolean;
+		/** DateTime format used on server to parse dates from client */
 		ServerDateTimeFormat: string;
+		/** JS-Date format used as literal on client-side */
 		ClientDateTimeFormat: string;
+		/** Function that turns input element to datapicker */
 		DatePickerFunction: (e:any, format:string) => void;
+		/** Table columns */
 		Columns: PowerTables.Configuration.Json.IColumnConfiguration[];
+		/** Custom plugins configuration. Key: pluginId, Value: configuration */
 		PluginsConfiguration: { [key:string]: PowerTables.Configuration.Json.IPluginConfiguration };
-		/** Not cloneable! */
+		/** Static data that will be embedded into table and sent within each request */
 		StaticData: string;
-		RawColumnNames: string[];
 	}
+	/** Table column JSON configuration */
 	export interface IColumnConfiguration
 	{
+		/** Column title */
 		Title: string;
+		/** Raw column name */
 		RawColumnName: string;
-		Filter: PowerTables.Configuration.Json.IColumnFilterConfiguration;
+		/** Handlebars template ID for rendering */
 		CellRenderingTemplateId: string;
-		CellRenderingHtmlFunction: (a:any) => string;
+		/**
+		* Inline JS function that takes table row data object (TTableData) and 
+		*             turns it into HTML content that will be placed inside wrapper
+		*/
 		CellRenderingValueFunction: (a:any) => string;
-		CellPluginsConfiguration: { [key:string]: any };
+		/** CLR column type */
 		ColumnType: string;
+		/** Is column data-only (never being displayed actually) */
 		IsDataOnly: boolean;
 	}
-	export interface IColumnFilterConfiguration
-	{
-		FilterKey: string;
-		FilterConfiguration: any;
-	}
+	/** Plugin JSON configuration */
 	export interface IPluginConfiguration
 	{
+		/** Plugin ID */
 		PluginId: string;
+		/** Plugin placement */
 		Placement: string;
+		/** Plugin configuration itself */
 		Configuration: any;
 	}
 }
@@ -279,10 +282,6 @@ module PowerTables.Plugins.Formwatch {
 	}
 }
 module PowerTables.Plugins.Hideout {
-	export interface IHideoutCellConfiguration
-	{
-		Hidden: boolean;
-	}
 	/**
 	* Client configuration for Hideout plugin. 
 	*             See <see cref="T:PowerTables.Plugins.Hideout.HideoutExtensions" />
@@ -295,20 +294,30 @@ module PowerTables.Plugins.Hideout {
 	}
 }
 module PowerTables.Filters.Range {
-	export interface IRangeFilterClientConfig
+	/** UI configuration for range filterr */
+	export interface IRangeFilterUiConfig
 	{
+		/** Place holder for "From" field */
 		FromPlaceholder: string;
+		/** Placeholder for "To" field */
 		ToPlaceholder: string;
+		/** Delay between field change and request processing begins */
 		InputDelay: number;
+		/** "From" box preselected value */
 		FromValue: string;
+		/** "To" box preselected value */
 		ToValue: string;
 	}
 }
 module PowerTables.Filters.Value {
-	export interface IValueFilterClientConfig
+	/** UI configuration for value filter */
+	export interface IValueFilterUiConfig
 	{
+		/** Placeholder text */
 		Placeholder: string;
+		/** Delay between field change and request processing begins */
 		InputDelay: number;
+		/** Preselected value */
 		DefaultValue: string;
 	}
 }
@@ -330,16 +339,18 @@ module System.Web.Mvc {
 	}
 }
 module PowerTables.Filters.Select {
-	/**
-	* Client configuration for select filter. 
-	*             See <see cref="T:PowerTables.Filters.Select.SelectFilterExtensions" />
-	*/
-	export interface ISelectFilterClientConfig
+	/** UI configuration for select filter */
+	export interface ISelectFilterUiConfig
 	{
+		/** Preselected filter value */
 		SelectedValue: string;
+		/** When true, option to select "Any" entry will be added to filter */
 		AllowSelectNothing: boolean;
+		/** When true, ability to select multiple possible values will be available */
 		IsMultiple: boolean;
+		/** Text for "Any" select option */
 		NothingText: string;
+		/** Select filter value list */
 		Items: System.Web.Mvc.ISelectListItem[];
 	}
 }
@@ -361,9 +372,10 @@ module PowerTables.Plugins.Ordering {
 	* Client per-column configuration for ordering. 
 	*             See <see cref="T:PowerTables.Plugins.Ordering.OrderingExtensions" />
 	*/
-	export interface IOrderableConfiguration
+	export interface IOrderingConfiguration
 	{
-		DefaultOrdering: PowerTables.Ordering;
+		/** Default orderings for columns. Key - column RawName, Value - ordering direction */
+		DefaultOrderingsForColumns: { [key:string]: PowerTables.Ordering };
 	}
 }
 module PowerTables.Plugins.Paging {
