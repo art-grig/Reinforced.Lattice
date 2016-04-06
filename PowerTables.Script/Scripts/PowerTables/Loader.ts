@@ -69,35 +69,7 @@
             return xmlhttp;
         }
 
-        /**
-         * Parses response from server and turns it to objects array
-         */
-        private parseResponse(response: IPowerTablesResponse) {
-            var data = [];
-            var obj = {};
-            var currentColIndex = 0;
-            var currentCol = this._rawColumnNames[currentColIndex];
-
-            for (var i = 0; i < response.Data.length; i++) {
-                if (this.isDateTime(currentCol)) {
-                    if (response.Data[i]) {
-                        obj[currentCol] = Date.parse(response.Data[i]);
-                    } else {
-                        obj[currentCol] = null;
-                    }
-                } else {
-                    obj[currentCol] = response.Data[i];
-                }
-                currentColIndex++;
-                if (currentColIndex >= this._rawColumnNames.length) {
-                    currentColIndex = 0;
-                    data.push(obj);
-                    obj = {};
-                }
-                currentCol = this._rawColumnNames[currentColIndex];
-            }
-            this.Data = data;
-        }
+       
 
         /**
          * Sends specified request to server and lets table handle it. 

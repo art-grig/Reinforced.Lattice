@@ -5,8 +5,28 @@
     export class PowerTable implements IInternalTable {
 
         /**
-         * Events manager - entry point for raising and handling various table events
+         * API for raising and handling various table events
          */
-        public Events: EventsManager = new EventsManager();
+        public Events: EventsManager;
+
+        /**
+         * API for managing local data
+         */
+        public DataHolder: DataHolder;
+
+        /**
+         * API for data loading
+         */
+        public Loader: Loader;
+
+        /**
+         * API for rendering functionality
+         */
+        public Renderer: Rendering.Renderer;
+
+        /**
+         * API for locating instances of different components
+         */
+        public InstanceManager: InstanceManager;
     }
 } 

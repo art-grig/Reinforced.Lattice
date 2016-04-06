@@ -83,14 +83,11 @@
          * @param placement Pluign placement
          * @returns {} 
          */
-        public getFilter<TPlugin>(columnName:string): TPlugin {
-            var placement = 'filter';
-            if (this.Plugins[pluginId + '-' + placement]) return <any>(this.Plugins[pluginId + '$' + placement]);
-            else {
-                for (var k in this.Plugins) {
-                    var kp = k.substring(0, pluginId.length);
-                    if (kp === pluginId) return <any>this.Plugins[k];
-                }
+        public getColumnFilter<TPlugin>(columnName: string): TPlugin {
+            var filterId = 'filter-' + columnName;
+            for (var k in this.Plugins) {
+                var kp = k.substring(0, filterId.length);
+                if (kp === filterId) return <any>this.Plugins[k];
             }
             return null;
         }

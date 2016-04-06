@@ -34,5 +34,42 @@ declare module PowerTables {
         */
         Events: EventsManager;
     }
+
+    /**
+     * Client filter interface. 
+     * This interface is registerable in the DataHolder as 
+     * one of the part of filtering pipeline
+     */
+    export interface IClientFilter {
+        
+        /**
+         * Predicate function that must return 'true' for 
+         * row that is actually suitable to be displayed according to 
+         * implementor's settings
+         * 
+         * @param rowObject Row table object
+         * @param query Data query
+         * @returns True if row is suitable to be shown. False otherwise
+         */
+        filterPredicate(rowObject: any, query: IQuery): boolean;
+    }
+
+    /**
+     * Interface for modifying of source data set on client side
+     */
+    export interface IClientTruncator {
+        /**
+         * This method should consume source 
+         * data set and produce resulting set. 
+         * Here you can truncate results e.g. apply paging.
+         * 
+         * By technical reasons it can be only one client selector registered on table. 
+         * 
+         * 
+         * @param sourceDataSet Array of data objects received from server
+         * @param query Data query
+         */
+        selectData(sourceDataSet: any[], query: IQuery): any[];
+    }
 }
  

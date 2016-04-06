@@ -39,7 +39,7 @@ namespace PowerTables.Configuration.Json
         /// <param name="placement">Plugin placement</param>
         public static void ReplacePluginConfig(this TableConfiguration conf, string pluginId, object pluginConfig, string placement = null)
         {
-            var key = string.IsNullOrEmpty(placement) ? pluginId : String.Concat(placement, "-", pluginId);
+            var key = string.IsNullOrEmpty(placement) ? pluginId : String.Concat(pluginId, "-", placement);
             conf.PluginsConfiguration[key] = new PluginConfiguration(pluginId)
             {
                 Configuration = pluginConfig,
@@ -59,7 +59,7 @@ namespace PowerTables.Configuration.Json
             where TConfig : new()
         {
 
-            var key = string.IsNullOrEmpty(placement) ? pluginId : String.Concat(placement, "-", pluginId);
+            var key = string.IsNullOrEmpty(placement) ? pluginId : String.Concat(pluginId, "-", placement);
             PluginConfiguration config = null;
             if (!conf.PluginsConfiguration.ContainsKey(key))
             {
@@ -87,7 +87,7 @@ namespace PowerTables.Configuration.Json
         /// <returns></returns>
         public static TConfig GetPluginConfig<TConfig>(this TableConfiguration conf, string pluginId, string placement = null) where TConfig : class
         {
-            var key = string.IsNullOrEmpty(placement) ? pluginId : String.Concat(placement, "-", pluginId);
+            var key = string.IsNullOrEmpty(placement) ? pluginId : String.Concat(pluginId, "-", placement);
 
             if (!conf.PluginsConfiguration.ContainsKey(key)) return null;
             var config = conf.PluginsConfiguration[key];

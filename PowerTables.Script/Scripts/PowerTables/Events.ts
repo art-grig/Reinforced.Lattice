@@ -3,7 +3,10 @@
      * Wrapper for table event with ability to subscribe/unsubscribe
      */
     export class TableEvent<TEventArgs> {
-        private _handlers: { [key: string]: ((e: TEventArgs) => any)[] } = {};
+        constructor(masterTable: any) { this._masterTable = masterTable; }
+        private _masterTable; //todo
+
+        private _handlers: { [key: string]: ((e: ITableEventArgs<TEventArgs>) => any)[] } = {};
         
         /**
          * Invokes event with overridden this arg and specified event args
@@ -12,13 +15,17 @@
          * @param eventArgs Event args will be passed to callee
          */
         public invoke(thisArg: any, eventArgs: TEventArgs): void {
+            var ea: ITableEventArgs<TEventArgs> = {
+                MasterTable: this._masterTable,
+                EventArgs: eventArgs
+            };
             var hndlrs = this._handlers;
             var i = 0;
             for (var k in hndlrs) {
                 if (hndlrs.hasOwnProperty(k)) {
                     var kHandlers = hndlrs[k];
                     for (i = 0; i < kHandlers.length; i++) {
-                        (<any>kHandlers[i]).apply(thisArg, eventArgs);
+                        (<any>kHandlers[i]).apply(thisArg, ea);
                     }
                     i = 0;
                 }
@@ -33,7 +40,7 @@
          * @param handler Event handler to subscribe
          * @param subscriber Subscriber key to associate with handler
          */
-        public subscribe(handler: (e: TEventArgs) => any, subscriber: string) {
+        public subscribe(handler: (e: ITableEventArgs<TEventArgs>) => any, subscriber: string) {
             if (!this._handlers[subscriber]) {
                 this._handlers[subscriber] = [];
             }
@@ -55,6 +62,17 @@
      * Contains all available events
      */
     export class EventsManager {
+        private _masterTable: any; //todo
+
+        constructor(masterTable: any) {
+            this._masterTable = masterTable;
+            this.BeforeFilterGathering = new TableEvent(masterTable);
+            this.AfterFilterGathering = new TableEvent(masterTable);
+            this.BeforeLoading = new TableEvent(masterTable);
+            this.LoadingError = new TableEvent(masterTable);
+            this.ColumnsCreation = new TableEvent(masterTable);
+        }
+
         /**
          * "Before Filter Gathering" event. 
          * Occurs every time before sending request to server via Loader before 
@@ -64,7 +82,7 @@
          * 
          * @this Master table
          */
-        public BeforeFilterGathering: TableEvent<IQuery> = new TableEvent();
+        public BeforeFilterGathering: TableEvent<IQuery>;
 
         /**
          * "After Filter Gathering" event. 
@@ -75,7 +93,7 @@
          * 
          * @this Master table
          */
-        public AfterFilterGathering: TableEvent<IQuery> = new TableEvent();
+        public AfterFilterGathering: TableEvent<IQuery>;
 
         /**
          * "Before Loading" event.
@@ -84,7 +102,7 @@
          * 
          * @this Master table
          */
-        public BeforeLoading: TableEvent<ILoadingEventArgs> = new TableEvent();
+        public BeforeLoading: TableEvent<ILoadingEventArgs>;
 
         /**
          * "Deferred Data Received" event. 
@@ -98,7 +116,7 @@
          * 
          * @this Master table
          */
-        public DeferredDataReceived: TableEvent<IDeferredDataEventArgs> = new TableEvent();
+        public DeferredDataReceived: TableEvent<IDeferredDataEventArgs>;
 
         /**
          * "Loading Error" event. 
@@ -109,15 +127,44 @@
          * 
          * @this Master table
          */
-        public LoadingError: TableEvent<ILoadingErrorEventArgs> = new TableEvent();
+        public LoadingError: TableEvent<ILoadingErrorEventArgs>;
 
         /**
          * "Columns Creation" event.
          * Occurs when full columns list formed and available for 
          * modifying. Addition/removal/columns modification is acceptable
          */
-        public ColumnsCreation: TableEvent<{ [key: string]: IColumn }> = new TableEvent();
+        public ColumnsCreation: TableEvent<{ [key: string]: IColumn }>;
 
+        /**
+         * Registers new event for events manager. 
+         * This method is to be used by plugins to provide their 
+         * own events. 
+         * 
+         * Events being added should be described in plugin's .d.ts file 
+         * as extensions to Events manager
+         * @param eventName Event name
+         * @returns {} 
+         */
+        public registerEvent<TEventArgs>(eventName: string) {
+            this[eventName] = new TableEvent(this._masterTable);
+        }
+
+    }
+
+    /**
+     * Event args wrapper for table
+     */
+    export interface ITableEventArgs<T> {
+        /**
+         * Reverence to master table
+         */
+        MasterTable: any; //todo
+
+        /**
+         * Event arguments
+         */
+        EventArgs: T;
     }
 
     /**
@@ -142,7 +189,7 @@
         /**
          * Error text
          */
-        Reason:string;
+        Reason: string;
     }
 
     /**
@@ -158,8 +205,8 @@
         /**
          * URL that should be queries to obtain request result
          */
-        DataUrl:string;
+        DataUrl: string;
     }
 
-    
+
 } 
