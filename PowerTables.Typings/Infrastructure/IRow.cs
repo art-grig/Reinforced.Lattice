@@ -25,7 +25,8 @@ namespace PowerTables.Typings.Infrastructure
         /// <summary>
         /// Table reference
         /// </summary>
-        IPowerTable MasterTable { get; set; }
+         [TsProperty(Type = "PowerTables.IPowerTable")]
+        object MasterTable { get; set; }
 
         Dictionary<string, ICell> Cells { get; set; }
     }

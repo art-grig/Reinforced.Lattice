@@ -1,18 +1,33 @@
 ﻿module PowerTables.Rendering {
+
+    /**
+     * Part of renderer that is responsible for rendering of dynamically loaded content
+     */
     export class ContentRenderer {
+        constructor(hb: Handlebars.IHandlebars, templatesProvider: ITemplatesProvider, stack: PowerTables.Rendering.RenderingStack, instances: InstanceManager) {
+            this._hb = hb;
+            this._templatesProvider = templatesProvider;
+            this._stack = stack;
+            this._instances = instances;
+        }
+
         private _hb: Handlebars.IHandlebars;
         private _templatesProvider: ITemplatesProvider;
         private _columnsRenderFunctions: { [key: string]: (x: ICell) => string };
         private _stack: RenderingStack;
+        private _instances: InstanceManager;
 
-        private _currentRow:IRow;
-
+        /**
+         * Renders supplied table rows to string
+         * 
+         * @param rows Table rows
+         * @returns String containing HTML of table rows
+         */
         public renderBody(rows: IRow[]): string {
             var result = '';
             var wrapper = this._templatesProvider.getCachedTemplate('rowWrapper');
             for (var i = 0; i < rows.length; i++) {
                 var rw = rows[i];
-                this._currentRow = rw;
                 if (rw.renderElement) {
                     result += rw.renderElement(this._templatesProvider);
                 } else {
@@ -23,14 +38,25 @@
         }
 
         public renderContent(columnName?: string) {
+            var result = '';
             switch (this._stack.Current.Type) {
                 case RenderingContextType.Row:
-                    break;//todo
+                    var row = <IRow> this._stack.Current.Object;
+                    var columns = this._instances.getUiColumns();
+                    var cellWrapper = this._templatesProvider.getCachedTemplate('cellWrapper');
+                    for (var i = 0; i < columns.length; i++) {
+                        var cell = row.Cells[columns[i].RawName];
+                        this._stack.push(RenderingContextType.Cell, cell, columns[i].RawName);
+                        result += cellWrapper(cell);
+                        this._stack.popContext();
+                    }
+                    break;
                 case RenderingContextType.Cell:
-                    break; //todo
-                
+                    var tmpl = this._columnsRenderFunctions[(<ICell>this._stack.Current.Object).Column.RawName];
+                    result += tmpl((<ICell>this._stack.Current.Object));
+                    break;
             }
-            return '';
+            return result;
         }
 
         private cacheColumnRenderers(columns: { [key: string]: IColumn }) {

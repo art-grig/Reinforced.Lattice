@@ -74,7 +74,7 @@ module PowerTables {
 		/** Column configuration */
 		Configuration: PowerTables.Configuration.Json.IColumnConfiguration;
 		/** Reference to master table */
-		MasterTable: PowerTables.IPowerTable;
+		MasterTable: any;
 		/** Column header */
 		Header: PowerTables.IColumnHeader;
 		/** Column order (left-to-right) */
@@ -96,23 +96,6 @@ module PowerTables {
 		*/
 		getCachedTemplate(templateId: string) : (arg: any) => string;
 	}
-	export interface IPlugin extends PowerTables.IRenderable
-	{
-		Configuration: PowerTables.Configuration.Json.IPluginConfiguration;
-		PluginId: string;
-		init(table: PowerTables.IPowerTable, pluginConfiguration: PowerTables.Configuration.Json.IPluginConfiguration) : void;
-	}
-	export interface IPowerTable
-	{
-		Columns: { [key:string]: PowerTables.IColumn };
-		Configuration: PowerTables.Configuration.Json.ITableConfiguration;
-		getPlugin<TPlugin>(pluginId: string, placement?: string) : TPlugin;
-		reload() : void;
-		requestServer(command: string, callback: (arg: any) => void, queryModifier?: (arg: PowerTables.IQuery) => PowerTables.IQuery) : void;
-		isDateTime(columnName: string) : boolean;
-		getColumnNames() : string[];
-		registerQueryPartProvider(provider: PowerTables.IQueryPartProvider) : void;
-	}
 	export interface IQueryPartProvider
 	{
 		modifyQuery(query: PowerTables.IQuery) : void;
@@ -125,7 +108,7 @@ module PowerTables {
 		/** Zero-based row idnex */
 		Index: number;
 		/** Table reference */
-		MasterTable: PowerTables.IPowerTable;
+		MasterTable: any;
 		Cells: { [key:string]: PowerTables.ICell };
 	}
 	/**

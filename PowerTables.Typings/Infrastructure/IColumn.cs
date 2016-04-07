@@ -23,7 +23,8 @@ namespace PowerTables.Typings.Infrastructure
         /// <summary>
         /// Reference to master table
         /// </summary>
-        IPowerTable MasterTable { get; set; }
+        [TsProperty(Type = "PowerTables.IPowerTable")]
+        object MasterTable { get; set; }
 
         /// <summary>
         /// Column header

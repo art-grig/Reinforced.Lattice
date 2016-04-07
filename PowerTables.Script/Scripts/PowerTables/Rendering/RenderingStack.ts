@@ -114,15 +114,11 @@ module PowerTables.Rendering {
          */
         Header,
         /**
-         * Column filter (2)
-         */
-        Filter,
-        /**
-         * Row (containing cells) (3)
+         * Row (containing cells) (2)
          */
         Row,
         /**
-         * Cell (belonging to row and column) (4)
+         * Cell (belonging to row and column) (3)
          */
         Cell
         

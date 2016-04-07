@@ -1,5 +1,4 @@
-﻿/// <reference path="../../../PowerTables.Mvc/Scripts/typings/handlebars/handlebars.d.ts" />
-/// <reference path="../ExternalTypings.d.ts"/>
+﻿/// <reference path="../ExternalTypings.d.ts"/>
 /// <reference path="RenderingStack.ts"/>
 
 module PowerTables.Rendering {
@@ -9,26 +8,24 @@ module PowerTables.Rendering {
      * Is responsive for common layout rendering (with plugins, columns, etc)
      */
     export class LayoutRenderer {
+
+        private _instances: InstanceManager;
         private _templatesProvider: ITemplatesProvider;
         private _hb: Handlebars.IHandlebars;
         private _eventsQueue: IEventDescriptor[];
         private _stack: RenderingStack;
-        private _plugins: { [key: string]: { [key: string]: IPlugin } } = {};
-        private _toolbarPlugins: { [key: string]: { [key: string]: IPlugin } } = {};
-        private _columns: { [key: string]: IColumn } = {};
 
-        constructor(templates: ITemplatesProvider,stack:RenderingStack) {
+        constructor(templates: ITemplatesProvider, stack: RenderingStack, instances:InstanceManager) {
             this._hb = templates.HandlebarsInstance;
             this._templatesProvider = templates;
             this._stack = stack;
+            this._instances = instances;
 
             this._hb.registerHelper('Body', this.bodyHelper);
             this._hb.registerHelper('Plugin', this.pluginHelper.bind(this));
             this._hb.registerHelper('Plugins', this.pluginsHelper.bind(this));
             this._hb.registerHelper('Header', this.headerHelper.bind(this));
             this._hb.registerHelper('Headers', this.headersHelper.bind(this));
-            this._hb.registerHelper('ColumnFilter', this.columFilterHelper.bind(this));
-            this._hb.registerHelper('ColumnFilters', this.columFiltersHelper.bind(this));
             this._hb.registerHelper('BindEvent', this.bindEventHelper.bind(this));
         }
 
@@ -62,22 +59,6 @@ module PowerTables.Rendering {
             }
         }
 
-        //#region Useful getter shortcuts
-        private getPlugin(position: string, id: string) {
-            if (!this._plugins.hasOwnProperty(position))
-                throw new Error(`Table does not have plugins on position ${position}`);
-            var p = this._plugins[position];
-            if (!p.hasOwnProperty(id))
-                throw new Error(`Table does not have plugin ${id} on position ${position}`);
-            return p[id];
-        }
-        private getColumn(columnName: string): IColumn {
-            if (!this._columns.hasOwnProperty(columnName))
-                throw new Error(`Column ${columnName} not found for rendering`);
-            return this._columns[columnName];
-        }
-        //#endregion
-
         //#region Handlebars helpers
 
         private bodyHelper(): string {
@@ -86,12 +67,12 @@ module PowerTables.Rendering {
 
         //#region Plugin helpers
         private pluginHelper(pluginPosition: string, pluginId: string): string {
-            var plugin = this.getPlugin(pluginPosition, pluginId);
+            var plugin = this._instances.getPlugin(pluginId, pluginPosition);
             return this.pluginHelperInner(plugin);
         }
 
         private pluginsHelper(pluginPosition: string): string {
-            var plugins = this._plugins[pluginPosition];
+            var plugins = this._instances.getPlugins(pluginPosition);
             if (!plugins) return '';
             var result = '';
 
@@ -116,48 +97,23 @@ module PowerTables.Rendering {
 
         // #region headers helper
         private headerHelper(columnName: string): string {
-            return this.headerHelperInner(this.getColumn(columnName));
+            return this.headerHelperInner(this._instances.getColumn(columnName));
         }
 
         private headerHelperInner(column: IColumn): string {
-            this._stack.push(RenderingContextType.Header,column.Header,column.RawName);
+            this._stack.push(RenderingContextType.Header, column.Header, column.RawName);
             var result = this._templatesProvider.getCachedTemplate('headerWrapper')(column.Header);
             this._stack.popContext();
             return result;
         }
 
         private headersHelper(): string {
-            var columns = this._columns;
+            var columns = this._instances.getUiColumns();
             var result = '';
             for (var a in columns) {
                 if (columns.hasOwnProperty(a)) {
                     var v = columns[a];
                     result += this.headerHelperInner(v);
-                }
-            }
-            return result;
-        }
-        //#endregion
-
-        //#region filter helper
-        private columFilterHelper(columnName: string): string {
-            return this.columnFilterHelperInner(this.getColumn(columnName));
-        }
-
-        private columnFilterHelperInner(column: IColumn): string {
-            this._stack.push(RenderingContextType.Filter, column.Filter, column.RawName);
-            var result = this._templatesProvider.getCachedTemplate('filterWrapper')(column.Filter);
-            this._stack.popContext();
-            return result;
-        }
-
-        private columFiltersHelper(): string {
-            var columns = this._columns;
-            var result = '';
-            for (var a in columns) {
-                if (columns.hasOwnProperty(a)) {
-                    var v = columns[a];
-                    result += this.columnFilterHelperInner(v);
                 }
             }
             return result;
@@ -177,16 +133,16 @@ module PowerTables.Rendering {
             return `data-be=${index}`;
         }
 
-        public renderContent(columnName?: string):string {
+        public renderContent(columnName?: string): string {
             switch (this._stack.Current.Type) {
                 case RenderingContextType.Header:
-                    break;
+                    return (<IColumnHeader>this._stack.Current.Object).Column.Configuration.Title
+                        || (<IColumnHeader>this._stack.Current.Object).Column.RawName;
+
                 case RenderingContextType.Plugin:
                     // if we are here then plugin's renderContent is not 
                     // overriden
                     throw new Error("It is required to override renderContent for plugin");
-                case RenderingContextType.Filter:
-                    break;
             }
             return '';
         }

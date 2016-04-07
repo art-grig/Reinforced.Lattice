@@ -1,8 +1,9 @@
-﻿module PowerTables {
+﻿
+module PowerTables {
     /**
      * Main entry point for all tables functionality
      */
-    export class PowerTable implements IInternalTable {
+    export class PowerTable implements IMasterTable {
 
         /**
          * API for raising and handling various table events

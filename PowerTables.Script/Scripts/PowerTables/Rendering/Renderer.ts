@@ -1,17 +1,31 @@
 ﻿module PowerTables.Rendering {
+
+    /**
+     * Enity responsible for displaying table
+     */
     export class Renderer implements ITemplatesProvider {
-        private _rootElement: HTMLElement;
-        private _bodyElement: HTMLElement;
+        /**
+         * Parent element for whole table
+         */
+        public RootElement: HTMLElement;
+
+        /**
+         * Parent element for table entries
+         */
+        public BodyElement: HTMLElement;
+
+        /**
+        * Current handlebars.js engine instance
+        */
+        public HandlebarsInstance: Handlebars.IHandlebars;
+
+        private _isColumnDateTimeFunc: (s: string) => boolean; //todo from ctror
+
         private _layoutRenderer: LayoutRenderer;
         private _contentRenderer: ContentRenderer;
         private _stack: RenderingStack;
         private _datepickerFunction: (e: HTMLElement) => void;
         private _templatesCache: { [key: string]: HandlebarsTemplateDelegate } = {};
-
-        /**
-         * Current handlebars.js engine instance
-         */
-        public HandlebarsInstance: Handlebars.IHandlebars;
 
         private cacheTemplates(templatesPrefix: string): void {
             var selector = `script[type="text/x-handlebars-template"][id^="${templatesPrefix}-"]`;
@@ -34,26 +48,33 @@
             return this._templatesCache[templateId];
         }
 
-        layout(): void {
-            // Layout renderer is indirectly called here
+        /**
+         * Perform table layout inside specified root element         
+         */
+        public layout(): void {
             var rendered = this.getCachedTemplate('layout')(null);
-            // Browser rendering occurs here
-            this._rootElement.innerHTML = rendered;
+            this.RootElement.innerHTML = rendered;
 
-            var bodyMarker = this._rootElement.querySelector('[data-track="tableBodyHere"]');
+            var bodyMarker = this.RootElement.querySelector('[data-track="tableBodyHere"]');
             if (!bodyMarker) throw new Error('{{Body}} placeholder is missing in table layout template');
-            this._bodyElement = bodyMarker.parentElement;
-            this._bodyElement.removeChild(bodyMarker);
-            this._layoutRenderer.bindEventsQueue(this._rootElement);
+            this.BodyElement = bodyMarker.parentElement;
+            this.BodyElement.removeChild(bodyMarker);
+            this._layoutRenderer.bindEventsQueue(this.RootElement);
         }
 
-        body(rows: IRow[]): void {
+        /**
+         * Clear dynamically loaded table content and replace it with new one
+         * 
+         * @param rows Set of table rows         
+         */
+        public body(rows: IRow[]): void {
             this.clearBody();
-            this._bodyElement.innerHTML = this._contentRenderer.renderBody(rows);
+            this.BodyElement.innerHTML = this._contentRenderer.renderBody(rows);
         }
 
-        clearBody(): void {
-            this._bodyElement.innerHTML = '';
+
+        public clearBody(): void {
+            this.BodyElement.innerHTML = '';
         }
 
         public contentHelper(columnName?: string): string {
@@ -63,7 +84,6 @@
                 switch (this._stack.Current.Type) {
                     case RenderingContextType.Header:
                     case RenderingContextType.Plugin:
-                    case RenderingContextType.Filter:
                         return this._layoutRenderer.renderContent(columnName);
                     case RenderingContextType.Row:
                     case RenderingContextType.Cell:
@@ -82,13 +102,12 @@
         }
 
         private datepickerHelper(): string {
-            if (this._currentContext.Type === RenderingContextType.Filter) {
-                if (Helpers.isDateTime(this._columns[this._currentContext.ColumnName])) {
+            if (this._stack.Current.Type === RenderingContextType.Plugin) {
+                if (this._isColumnDateTimeFunc(this._stack.Current.ColumnName)) {
                     return 'data-dp="true"';
                 } else {
                     return '';
                 }
-
             } else {
                 return '';
             }
