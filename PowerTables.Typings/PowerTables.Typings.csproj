@@ -85,7 +85,6 @@
     <Compile Include="Infrastructure\IColumnHeader.cs" />
     <Compile Include="Infrastructure\IRenderable.cs" />
     <Compile Include="Infrastructure\ITemplatesProvider.cs" />
-    <Compile Include="Infrastructure\IQueryPartProvider.cs" />
     <Compile Include="Infrastructure\IRow.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

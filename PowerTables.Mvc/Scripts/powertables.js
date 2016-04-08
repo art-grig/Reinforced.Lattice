@@ -166,7 +166,7 @@ var PowerTables;
             this.BeforeResponseDrawing = new TableEvent();
             this.ResponseDrawing = new TableEvent();
             this.ColumnsOrdering = new TableEvent();
-            this.BeforeFilterGathering = new TableEvent();
+            this.BeforeQueryGathering = new TableEvent();
             this.AfterFilterGathering = new TableEvent();
             this.BeforeRowDraw = new TableEvent();
             this.AfterRowDraw = new TableEvent();
@@ -652,7 +652,7 @@ var PowerTables;
                 AdditionalData: {},
                 StaticDataJson: this.Configuration.StaticData
             };
-            this.Events.BeforeFilterGathering.invoke(this, [a]);
+            this.Events.BeforeQueryGathering.invoke(this, [a]);
             for (var i = 0; i < this._queryPartProviders.length; i++) {
                 this._queryPartProviders[i].modifyQuery(a);
             }

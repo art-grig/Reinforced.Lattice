@@ -327,11 +327,11 @@
                 AdditionalData: {},
                 StaticDataJson: this.Configuration.StaticData
             };
-            this.Events.BeforeFilterGathering.invoke(this, [a]);
+            this.Events.BeforeQueryGathering.invoke(this, [a]);
             for (var i = 0; i < this._queryPartProviders.length; i++) {
                 this._queryPartProviders[i].modifyQuery(a);
             }
-            this.Events.AfterFilterGathering.invoke(this, [a]);
+            this.Events.AfterQueryGathering.invoke(this, [a]);
             return a;
         }
 

@@ -55,8 +55,8 @@
 
         public ColumnsOrdering: TableEvent<(table: PowerTable, columnOrder: string[]) => void> = new TableEvent<(table: PowerTable, columnOrder: string[]) => void>();
 
-        public BeforeFilterGathering: TableEvent<(query: IQuery) => void> = new TableEvent<(query: IQuery) => void>();
-        public AfterFilterGathering: TableEvent<(query: IQuery) => void> = new TableEvent<(query: IQuery) => void>();
+        public BeforeQueryGathering: TableEvent<(query: IQuery) => void> = new TableEvent<(query: IQuery) => void>();
+        public AfterQueryGathering: TableEvent<(query: IQuery) => void> = new TableEvent<(query: IQuery) => void>();
 
         public BeforeRowDraw: TableEvent<(table: PowerTable, row: IRow) => void> = new TableEvent<(table: PowerTable, row: IRow) => void>();
         public AfterRowDraw: TableEvent<(table: PowerTable, row: IRow) => void> = new TableEvent<(table: PowerTable, row: IRow) => void>();

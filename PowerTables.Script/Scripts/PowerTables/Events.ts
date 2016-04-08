@@ -66,11 +66,13 @@
 
         constructor(masterTable: any) {
             this._masterTable = masterTable;
-            this.BeforeFilterGathering = new TableEvent(masterTable);
-            this.AfterFilterGathering = new TableEvent(masterTable);
+            this.BeforeQueryGathering = new TableEvent(masterTable);
+            this.AfterQueryGathering = new TableEvent(masterTable);
             this.BeforeLoading = new TableEvent(masterTable);
             this.LoadingError = new TableEvent(masterTable);
             this.ColumnsCreation = new TableEvent(masterTable);
+            this.DataReceived = new TableEvent(masterTable);
+            this.AfterLoading = new TableEvent(masterTable);
         }
 
         /**
@@ -79,10 +81,8 @@
          * filtering information is being gathered. Here you can add your own 
          * additional data to prepared query that will be probably overridden by 
          * other query providers. 
-         * 
-         * @this Master table
          */
-        public BeforeFilterGathering: TableEvent<IQuery>;
+        public BeforeQueryGathering: TableEvent<IQueryGatheringEventArgs>;
 
         /**
          * "After Filter Gathering" event. 
@@ -90,17 +90,13 @@
          * filtering information is being gathered. Here you can add your own 
          * additional data to prepared query that will probably override parameters 
          * set by another query providers. 
-         * 
-         * @this Master table
          */
-        public AfterFilterGathering: TableEvent<IQuery>;
+        public AfterQueryGathering: TableEvent<IQueryGatheringEventArgs>;
 
         /**
          * "Before Loading" event.
          * Occurs every time right before calling XMLHttpRequest.send and
          * passing gathered filters to server
-         * 
-         * @this Master table
          */
         public BeforeLoading: TableEvent<ILoadingEventArgs>;
 
@@ -113,8 +109,6 @@
          * 
          * This feature is usable when it is necessary e.g. to generate file (excel, PDF) 
          * using current table filters
-         * 
-         * @this Master table
          */
         public DeferredDataReceived: TableEvent<IDeferredDataEventArgs>;
 
@@ -123,9 +117,7 @@
          * Occurs every time when Loader encounters loading error. 
          * It may be caused by server error or network (XMLHttp) error. 
          * Anyway, error text/cause/stacktrace will be supplied as Reason 
-         * field of event args
-         * 
-         * @this Master table
+         * field of event args         
          */
         public LoadingError: TableEvent<ILoadingErrorEventArgs>;
 
@@ -135,6 +127,20 @@
          * modifying. Addition/removal/columns modification is acceptable
          */
         public ColumnsCreation: TableEvent<{ [key: string]: IColumn }>;
+
+        /**
+         * "Data Received" event. 
+         * Occurs EVERY time when something is being received from server side. 
+         * Event argument is deserialized JSON data from server. 
+         */
+        public DataReceived: TableEvent<IDataEventArgs>;
+
+        /**
+         * "After Loading" event.
+         * Occurs every time after EVERY operation connected to server response handling 
+         * has been finished
+         */
+        public AfterLoading: TableEvent<ILoadingEventArgs>;
 
         /**
          * Registers new event for events manager. 
@@ -206,6 +212,32 @@
          * URL that should be queries to obtain request result
          */
         DataUrl: string;
+    }
+
+    /**
+     * Event args for data received event
+     */
+    export interface IDataEventArgs extends ILoadingEventArgs {
+        
+        /**
+         * Deserialized JSON data that is received from server
+         */
+        Data: any;
+    }
+
+    /**
+     * Event args for query gathering process
+     */
+    export interface IQueryGatheringEventArgs {
+        /**
+         * Query is being gathered
+         */
+        Query: IQuery;
+
+        /**
+         * Query scope that is used
+         */
+        Scope: QueryScope;
     }
 
 

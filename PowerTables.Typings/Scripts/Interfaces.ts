@@ -96,10 +96,6 @@ module PowerTables {
 		*/
 		getCachedTemplate(templateId: string) : (arg: any) => string;
 	}
-	export interface IQueryPartProvider
-	{
-		modifyQuery(query: PowerTables.IQuery) : void;
-	}
 	/** Row object */
 	export interface IRow extends PowerTables.IRenderable
 	{

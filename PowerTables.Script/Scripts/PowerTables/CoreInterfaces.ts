@@ -1,4 +1,5 @@
 ﻿module PowerTables {
+
     import PluginConfiguration = PowerTables.Configuration.Json.IPluginConfiguration; 
     
     /**
@@ -39,7 +40,8 @@
     }
 
     /**
-     * Plugin interface
+     * Plugin interface. 
+     * Leave both render functions null to obtain non-displaying plugin
      */
     export interface IPlugin extends IRenderable {
 
@@ -67,9 +69,9 @@
      * Main table interface for breaking additional dependencies
      */
     export interface IMasterTable {
-         /**
-         * API for raising and handling various table events
-         */
+        /**
+        * API for raising and handling various table events
+        */
         Events: EventsManager;
 
         /**
@@ -91,5 +93,52 @@
          * API for locating instances of different components
          */
         InstanceManager: InstanceManager;
+    }
+
+    /**
+     * This enumeration distinguishes which way 
+     * underlying query will be used
+     */
+    export enum QueryScope {
+        /**
+         * Mentioned query will be sent to server to obtain 
+         * data (probably) for further local filtration. 
+         * All locally filtered fields should be excluded from 
+         * underlying query
+         */
+        Server,
+
+        /**
+         * Mentioned query will be used for local data filtration. 
+         * To gain performance, please exclude all data settings that were 
+         * applied during server request
+         */
+        Client,
+
+        /**
+         * This query should contain both data for client and server filtering. 
+         * Transboundary queries are used to obtain query settings 
+         * that will be used on server side to retrieve data set that 
+         * will be used for server command handling, so server needs all filtering settings
+         */
+        Transboundary
+    }
+
+    /**
+     * Interface for classes that are available to modify data query
+     */
+    export interface IQueryPartProvider {
+
+        /**
+         * This method is called every time when master table needs 
+         * data query for its reasons. You will receive existing query part in 
+         * 'query' parameter and query scope denoting which this query will be used for 
+         * in 'scope' parameter
+         * 
+         * @param query Existing query part
+         * @param scope Query scope
+         * @returns {} 
+         */
+        modifyQuery(query: PowerTables.IQuery, scope: QueryScope): void;
     }
 }

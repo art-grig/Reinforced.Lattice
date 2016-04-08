@@ -37,7 +37,7 @@
             } else {
                 this._pageSize = 0;
             }
-            table.Events.AfterFilterGathering.subscribe(this.addLimits.bind(this), 'limit');
+            table.Events.AfterQueryGathering.subscribe(this.addLimits.bind(this), 'limit');
         }
 
         private addLimits(query: IQuery) {

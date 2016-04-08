@@ -39,7 +39,7 @@
 
         init(table: PowerTable, configuration: PowerTables.Configuration.Json.IPluginConfiguration): void {
             super.init(table, configuration);
-            table.Events.AfterFilterGathering.subscribe(this.onFilterGathered.bind(this), 'paging');
+            table.Events.AfterQueryGathering.subscribe(this.onFilterGathered.bind(this), 'paging');
             table.Events.ResponseDrawing.subscribe(this.onResponse.bind(this), 'paging');
         }
         private onFilterGathered(query: IQuery) {
