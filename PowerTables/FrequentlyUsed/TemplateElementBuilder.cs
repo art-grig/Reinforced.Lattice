@@ -56,15 +56,15 @@ namespace PowerTables.FrequentlyUsed
 
         /// <summary>
         /// Specifies in-element content
+        /// Supports {- and `-syntax
         /// </summary>
         /// <param name="content">Raw HTML content</param>
         /// <returns></returns>
         public TemplateElementBuilder Inside(string content)
         {
-            _content = content;
+            _content = content; ;
             return this;
         }
-
 
         /// <summary>
         /// Specifies in-element content

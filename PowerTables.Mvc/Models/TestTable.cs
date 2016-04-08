@@ -147,15 +147,7 @@ namespace PowerTables.Mvc.Models
             conf.Column(c => c.NullableValue).FilterRange(c => c.NullableValue ?? 0);
             conf.Column(c => c.NullableDate).FormatDateWithDateformatJs().FilterRange(c => c.NullableDate.GetValueOrDefault());
 
-            conf.Column(c => c.SomeCustomTemplate).Template(tmpl =>
-            {
-                tmpl.ReturnsIf("{GroupName} == 'Alpha'",
-                    el =>
-                        el.Tag("button")
-                            .Class("btn btn-sm")
-                            .Inside(icon => icon.Tag("span").Class("glyphicon glyphicon-time").After("Show GroupName"))
-                            .OnClick("alert('{GroupName}');"));
-            });
+           
             return conf;
         }
     }

@@ -1,7 +1,18 @@
-﻿@using PowerTables.Mvc.Models
+﻿@using PowerTables.FrequentlyUsed
+@using PowerTables.Mvc.Models
 @model PowerTables.Mvc.Models.AboutViewModel
 @{
     ViewBag.Title = "About";
+
+    Model.Configuration.Column(c => c.SomeCustomTemplate).Template(tmpl =>
+    {
+        tmpl.ReturnsIf("{GroupName} == 'Alpha'",
+            el =>
+                el.Tag("button")
+                    .Class("btn btn-sm")
+                    .Inside(icon => icon.Tag("span").Class("glyphicon glyphicon-time").Inside("`{GroupName} + '%'`"))
+                    .OnClick("alert('{GroupName}');"));
+    });
 }
 <h2>@ViewBag.Title.</h2>
 
