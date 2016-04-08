@@ -22,6 +22,9 @@
          * @returns {} 
          */
         public static resolveComponent<T>(key: string, args?: any[]): T {
+            if (!this._components[key])
+                throw new Error(`Component ${key} is not registered. Please ensure that you have connected all the additional scripts`);
+
             if (!args) return new this._components[key];
             else {
                 var ctor = this._components[key];
