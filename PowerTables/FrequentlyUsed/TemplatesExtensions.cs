@@ -13,7 +13,10 @@ namespace PowerTables.FrequentlyUsed
     public static class TemplatesExtensions
     {
         /// <summary>
-        /// Renders configured template in specified column
+        /// Renders configured template in specified column. 
+        /// You can use {field} syntax to include specific table column value.
+        /// Use `{field} + 10` to embed JS expression inside template. Code in `'s will 
+        /// be included to template without chages
         /// </summary>
         /// <typeparam name="TSourceData"></typeparam>
         /// <typeparam name="TTableData"></typeparam>

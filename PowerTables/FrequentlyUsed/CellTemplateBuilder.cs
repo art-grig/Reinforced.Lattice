@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -39,7 +40,7 @@ namespace PowerTables.FrequentlyUsed
         /// <returns></returns>
         public CellTemplateBuilder EmptyIf(string expression)
         {
-            _lines.Add(string.Format("if ({0}) return '';", ConvertParenthesis(expression)));
+            _lines.Add(string.Format("if ({0}) return '';", ConvertSimpleExpression(expression)));
             return this;
         }
 
@@ -54,7 +55,7 @@ namespace PowerTables.FrequentlyUsed
             TemplateElementBuilder e = new TemplateElementBuilder();
             elment(e);
             var text = ConvertParenthesisToConcat(e.Build());
-            _lines.Add(string.Format("if ({0}) return '{1}';", ConvertParenthesis(expression), text));
+            _lines.Add(string.Format("if ({0}) return '{1}';", ConvertSimpleExpression(expression), text));
             return this;
         }
 
@@ -74,7 +75,7 @@ namespace PowerTables.FrequentlyUsed
             TemplateElementBuilder ee = new TemplateElementBuilder();
             elseElment(ee);
             var textElse = ConvertParenthesisToConcat(ee.Build());
-            _lines.Add(string.Format("if ({0}) {{ return '{1}'; }} else {{ return '{2}';}}", ConvertParenthesis(expression), textIf, textElse));
+            _lines.Add(string.Format("if ({0}) {{ return '{1}'; }} else {{ return '{2}';}}", ConvertSimpleExpression(expression), textIf, textElse));
             return this;
         }
 
@@ -92,20 +93,20 @@ namespace PowerTables.FrequentlyUsed
             return this;
         }
 
-        private string ConvertParenthesis(string expression)
+        private static string ConvertSimpleExpression(string expression)
         {
             StringBuilder sb = new StringBuilder();
-            bool isOpenQuote = false;
+            bool isOpenFieldReference = false;
             for (int i = 0; i < expression.Length; i++)
             {
                 if (expression[i] == '{' && (i < expression.Length - 2 && char.IsLetter(expression[i + 1])))
                 {
                     sb.Append("v.");
-                    isOpenQuote = true;
+                    isOpenFieldReference = true;
                 }
-                else if (expression[i] == '}' && isOpenQuote)
+                else if (expression[i] == '}' && isOpenFieldReference)
                 {
-                    isOpenQuote = false;
+                    isOpenFieldReference = false;
                 }
                 else
                 {
@@ -115,22 +116,38 @@ namespace PowerTables.FrequentlyUsed
             return sb.ToString();
         }
 
-        private string ConvertParenthesisToConcat(string expression)
+        private static string ConvertParenthesisToConcat(string expression)
         {
             StringBuilder sb = new StringBuilder();
-            bool isOpenQuote = false;
+            bool isOpenFieldReference = false;
+            bool isOpenExpression = false;
             for (int i = 0; i < expression.Length; i++)
             {
-                if (expression[i] == '\'' && !isOpenQuote) sb.Append("\\\'");
+                if (expression[i] == '`')
+                {
+                    if (isOpenExpression)
+                    {
+                        sb.Append(" + '");
+                    }
+                    else
+                    {
+                        sb.Append("' + ");
+                    }
+                    isOpenExpression = !isOpenExpression;
+                    continue;
+                }
+
+                if (expression[i] == '\'' && !isOpenFieldReference && !isOpenExpression) sb.Append("\\\'");
                 else if (expression[i] == '{' && (i < expression.Length - 2 && char.IsLetter(expression[i + 1])))
                 {
-                    sb.Append("' + v.");
-                    isOpenQuote = true;
+                    if (isOpenExpression) sb.Append("v.");
+                    else sb.Append("' + v.");
+                    isOpenFieldReference = true;
                 }
-                else if (expression[i] == '}' && isOpenQuote)
+                else if (expression[i] == '}' && isOpenFieldReference)
                 {
-                    sb.Append(" + '");
-                    isOpenQuote = false;
+                    if (!isOpenExpression) sb.Append(" + '");
+                    isOpenFieldReference = false;
                 }
                 else
                 {
