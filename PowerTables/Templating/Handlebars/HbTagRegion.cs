@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace PowerTables.Templating
+namespace PowerTables.Templating.Handlebars
 {
     public class HbTagRegion: IDisposable
     {

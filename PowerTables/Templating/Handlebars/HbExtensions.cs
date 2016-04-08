@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Web.Mvc;
 
-namespace PowerTables.Templating
+namespace PowerTables.Templating.Handlebars
 {
     /// <summary>
     /// Set of extension methods to interact with handlebars.js
@@ -107,6 +107,19 @@ namespace PowerTables.Templating
         }
 
         /// <summary>
+        /// Renders handlebars "each" directive in region
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="t"></param>
+        /// <param name="condition"></param>
+        /// <returns></returns>
+        public static ParametrizedHbTagRegion<TElement> Each<T, TElement>(this IModelProvider<T> t, Expression<Func<T, IHbArray<TElement>>> condition)
+        {
+            var proname = TraversePropertyLambda(condition);
+            return new ParametrizedHbTagRegion<TElement>("each", proname, t.Writer);
+        }
+
+        /// <summary>
         /// Outputs placeholder for handlebars value
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -134,7 +147,13 @@ namespace PowerTables.Templating
             return MvcHtmlString.Create(string.Concat("{{{", proname, "}}}"));
         }
 
-        public static MvcHtmlString Content<T,TModel,TData>(this T t, Expression<Func<TModel,TData>> parameter )
+        /// <summary>
+        /// Outputs ambience's HTML content supplying model value as parameter
+        /// </summary>
+        /// <param name="t">Template region</param>
+        /// <param name="parameter">Parameter to be read as column name</param>
+        /// <returns></returns>
+        public static MvcHtmlString HtmlContent<T,TModel,TData>(this T t, Expression<Func<TModel,TData>> parameter )
             where T:IProvidesColumnContent,IModelProvider<TModel>
         {
             return MvcHtmlString.Create(string.Format("{{{{{{Content {0}}}}}}}", TraversePropertyLambda(parameter)));

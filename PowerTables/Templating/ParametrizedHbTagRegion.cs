@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using PowerTables.Templating.Handlebars;
 
 namespace PowerTables.Templating
 {

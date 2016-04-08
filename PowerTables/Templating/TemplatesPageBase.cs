@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Web.Mvc;
+using PowerTables.Templating.BuiltIn;
 
 namespace PowerTables.Templating
 {
@@ -20,36 +21,6 @@ namespace PowerTables.Templating
         {
             return new TemplateRegion(Model.Prefix, id, this.GetOutputWriter());
         }
-
-        /// <summary>
-        /// Declares template region for table layout
-        /// </summary>
-        /// <returns>Template region</returns>
-        public LayoutTemplateRegion Layout()
-        {
-            return new LayoutTemplateRegion(Model.Prefix, GetOutputWriter());
-        }
-
-        /// <summary>
-        /// Declares template region for plugin wrapper
-        /// </summary>
-        /// <returns></returns>
-        public PluignWrapperTemplateRegion PluginWrapper()
-        {
-            return new PluignWrapperTemplateRegion(Model.Prefix, GetOutputWriter());
-        }
-
-        public ColumnParametrizedTemplateRegion HeaderWrapper()
-        {
-            return new ColumnParametrizedTemplateRegion(Model.Prefix, "headerWrapper", GetOutputWriter());
-        }
-
-        public TemplateRegion RowWrapper()
-        {
-            return new TemplateRegion(Model.Prefix, "rowWrapper",GetOutputWriter());
-        }
-        
-        public const string CellWrapper = "cellWrapper";
 
         /// <summary>
         /// Templates for particular plugins

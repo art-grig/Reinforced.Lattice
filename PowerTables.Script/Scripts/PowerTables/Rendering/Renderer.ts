@@ -4,6 +4,24 @@
      * Enity responsible for displaying table
      */
     export class Renderer implements ITemplatesProvider {
+        constructor(rootId: string, prefix: string, isColumnDateTimeFunc: (s: string) => boolean, instances: InstanceManager) {
+            this._isColumnDateTimeFunc = isColumnDateTimeFunc;
+            this._instances = instances;
+            this._stack = new RenderingStack();
+            this.RootElement = document.getElementById(rootId);
+            this.HandlebarsInstance = Handlebars.create();
+
+            this._layoutRenderer = new LayoutRenderer(this, this._stack, this._instances);
+            this._contentRenderer = new ContentRenderer(this, this._stack, this._instances);
+
+            this.HandlebarsInstance.registerHelper("ifq", this.ifqHelper);
+            this.HandlebarsInstance.registerHelper('Content', this.contentHelper.bind(this));
+            this.HandlebarsInstance.registerHelper('Track', this.trackHelper.bind(this));
+            this.HandlebarsInstance.registerHelper('Datepicker', this.datepickerHelper.bind(this));
+
+            this.cacheTemplates(prefix);
+        } 
+        
         /**
          * Parent element for whole table
          */
@@ -19,14 +37,15 @@
         */
         public HandlebarsInstance: Handlebars.IHandlebars;
 
-        private _isColumnDateTimeFunc: (s: string) => boolean; //todo from ctror
-
+        private _isColumnDateTimeFunc: (s: string) => boolean;
+        private _instances: InstanceManager;
         private _layoutRenderer: LayoutRenderer;
         private _contentRenderer: ContentRenderer;
         private _stack: RenderingStack;
         private _datepickerFunction: (e: HTMLElement) => void;
         private _templatesCache: { [key: string]: HandlebarsTemplateDelegate } = {};
 
+        //#region Templates caching
         private cacheTemplates(templatesPrefix: string): void {
             var selector = `script[type="text/x-handlebars-template"][id^="${templatesPrefix}-"]`;
             var templates = document.querySelectorAll(selector);
@@ -48,6 +67,9 @@
             return this._templatesCache[templateId];
         }
 
+        //#endregion
+
+        //#region Public methods
         /**
          * Perform table layout inside specified root element         
          */
@@ -76,7 +98,9 @@
         public clearBody(): void {
             this.BodyElement.innerHTML = '';
         }
+        //#endregion
 
+        //#region Helpers
         public contentHelper(columnName?: string): string {
             if (this._stack.Current.Object.renderContent) {
                 return this._stack.Current.Object.renderContent(this);
@@ -112,5 +136,13 @@
                 return '';
             }
         }
+
+        private ifqHelper(a: any, b: any, opts: any) {
+            if (a == b)
+                return opts.fn(this);
+            else
+                return opts.inverse(this);
+        }
+        //#endregion
     }
 } 

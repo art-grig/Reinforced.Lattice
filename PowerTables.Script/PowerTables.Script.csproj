@@ -38,6 +38,7 @@
     <TypeScriptCompile Include="Scripts\PowerTables\CoreInterfaces.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\DataHolder.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Events.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\CellEventDelegator.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\ExternalTypings.d.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\InstanceManager.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Loader.ts" />

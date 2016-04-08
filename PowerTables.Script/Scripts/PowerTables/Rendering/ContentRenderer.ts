@@ -4,8 +4,8 @@
      * Part of renderer that is responsible for rendering of dynamically loaded content
      */
     export class ContentRenderer {
-        constructor(hb: Handlebars.IHandlebars, templatesProvider: ITemplatesProvider, stack: PowerTables.Rendering.RenderingStack, instances: InstanceManager) {
-            this._hb = hb;
+        constructor(templatesProvider: ITemplatesProvider, stack: PowerTables.Rendering.RenderingStack, instances: InstanceManager) {
+            this._hb = templatesProvider.HandlebarsInstance;
             this._templatesProvider = templatesProvider;
             this._stack = stack;
             this._instances = instances;

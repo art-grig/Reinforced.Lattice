@@ -2,6 +2,8 @@
 @using System.Web.UI.WebControls
 @using PowerTables.Plugins
 @using PowerTables.Templating
+@using PowerTables.Templating.BuiltIn
+@using PowerTables.Templating.Handlebars
 
 @inherits PowerTables.Templating.TemplatesPageBase
 
@@ -26,7 +28,7 @@
     See available helpers in scope variable "t"
 *@
 
-@using (var t = Layout())
+@using (var t = this.Layout())
 {
     <div class="container-fluid">
         <div class="row">
@@ -47,10 +49,10 @@
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                 <table class="table table-striped table-condensed table-bordered">
                     <thead style="display: table-header-group;">
-                        <tr>@t.Headers</tr>
-                        <tr>@t.Filters</tr>
+                        <tr>@t.Headers()</tr>
+                        <tr>@t.Filters()</tr>
                     </thead>
-                    <tbody>@t.Body</tbody>
+                    <tbody>@t.Body()</tbody>
                 </table>
             </div>
         </div>
@@ -70,29 +72,29 @@
 @*
     Plugin wrapper template. This template is being wrapped around each plugin
 *@
-@using (var t = PluginWrapper())
+@using (var t = this.PluginWrapper())
 {
     <text>
-        @using (t.IfStrEquals(c => c.Configuration.Placement, "lt"))
+        @using (t.IfStrEquals(c => c.PluginLocation, "lt"))
         {
             <span @t.Track()> @t.Content() </span>
         }
 
-        @using (t.IfStrEquals(c => c.Configuration.Placement, "lb"))
+        @using (t.IfStrEquals(c => c.PluginLocation, "lb"))
         {
             <div style="float: left;" @t.Track()> @t.Content() </div>
         }
 
-        @using (t.IfStrEquals(c => c.Configuration.Placement, "rt"))
+        @using (t.IfStrEquals(c => c.PluginLocation, "rt"))
         {
             <div style="float: right;" @t.Track()> @t.Content() </div>
         }
 
-        @using (t.IfStrEquals(c => c.Configuration.Placement, "rb"))
+        @using (t.IfStrEquals(c => c.PluginLocation, "rb"))
         {
             <div style="float: right;" @t.Track()> @t.Content() </div>
         }
-        @using (t.IfStrEquals(c => c.Configuration.Placement, "filter"))
+        @using (t.IfStrEquals(c => c.PluginLocation, "filter"))
         {
             <th @t.Track()>@t.Content()</th>
         }
@@ -102,7 +104,7 @@
 @*
     Column header wrapper template.
 *@
-@using (var t = HeaderWrapper())
+@using (var t = this.HeaderWrapper())
 {
     <th @t.Track()>@t.Content()</th>
 }
@@ -111,9 +113,9 @@
     Row wrapper template.
     Following HTML is being wrapped around each data row
 *@
-@using (var t = RowWrapper())
+@using (var t = this.RowWrapper())
 {
-    <tr @t.Track()>{{{Cells}}}</tr>
+    <tr @t.Track()>@t.Content()</tr>
 }
 
 @*

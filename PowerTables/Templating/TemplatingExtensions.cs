@@ -1,5 +1,6 @@
 ﻿using System.Web.Mvc;
 using PowerTables.Configuration;
+using PowerTables.Templating.BuiltIn;
 
 namespace PowerTables.Templating
 {
@@ -18,68 +19,10 @@ namespace PowerTables.Templating
         public static MvcHtmlString BindEvent(this IProvidesEventsBinding t, string commaSeparatedFunction, string commaSeparatedEvents)
         {
             return
-                MvcHtmlString.Create(string.Format("{{{{ BindEvent \"{0}\" \"{1}\" }}}}", commaSeparatedFunction,
+                MvcHtmlString.Create(string.Format("{{{{BindEvent \"{0}\" \"{1}\" }}}}", commaSeparatedFunction,
                     commaSeparatedEvents));
         }
-
-        private static readonly MvcHtmlString _body = MvcHtmlString.Create("{{Body}}");
-        private static readonly MvcHtmlString _headers = MvcHtmlString.Create("{{Headers}}");
-        private static readonly MvcHtmlString _filters = MvcHtmlString.Create("{{{Plugins \"filter\"}}}");
-
-        /// <summary>
-        /// Placeholder for table body (cells and rows)
-        /// </summary>
-        public static MvcHtmlString Body(this LayoutTemplateRegion t)
-        {
-            return _body;
-        }
-
-        /// <summary>
-        /// Placeholder for table headers
-        /// </summary>
-        public static MvcHtmlString Headers(this LayoutTemplateRegion t)
-        {
-            return _headers;
-        }
-
-        /// <summary>
-        /// Placeholder for column filters
-        /// </summary>
-        public static MvcHtmlString Filters(this LayoutTemplateRegion t)
-        {
-            return _filters;
-        }
-
-        /// <summary>
-        /// Placeholder for plugins at specific position
-        /// </summary>
-        /// <param name="position">Plugin position</param>
-        /// <returns>Placeholder template entry</returns>
-        public static MvcHtmlString Plugins(this LayoutTemplateRegion t, string position = null)
-        {
-            return MvcHtmlString.Create(string.Format("{{{{Plugins \"{0}\"}}}}", position));
-        }
-
-        /// <summary>
-        /// Placeholder for column header
-        /// </summary>
-        /// <param name="columnName">Column name</param>
-        /// <returns>Placeholder template entry</returns>
-        public static MvcHtmlString Header(this LayoutTemplateRegion t, string columnName)
-        {
-            return MvcHtmlString.Create(string.Format("{{{{Header \"{0}\"}}}}", columnName));
-        }
-
-        /// <summary>
-        /// Placeholder for column filter
-        /// </summary>
-        /// <param name="columnName">Column name</param>
-        /// <returns>Placeholder template entry</returns>
-        public static MvcHtmlString Filter(this LayoutTemplateRegion t, string columnName)
-        {
-            return MvcHtmlString.Create(string.Format("{{{{ColumnFilter \"{0}\"}}}}", columnName));
-        }
-
+       
         private static readonly MvcHtmlString _track = MvcHtmlString.Create("{{Track}}");
         
         /// <summary>
