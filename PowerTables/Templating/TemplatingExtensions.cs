@@ -1,4 +1,6 @@
 ﻿using System.Web.Mvc;
+using System.Web.Mvc.Html;
+using JetBrains.Annotations;
 using PowerTables.Configuration;
 using PowerTables.Templating.BuiltIn;
 
@@ -47,6 +49,9 @@ namespace PowerTables.Templating
             return MvcHtmlString.Create(string.Format("{{{{{{Content \"{0}\"}}}}}}", columnName));
         }
 
+       
         
     }
+
+
 }

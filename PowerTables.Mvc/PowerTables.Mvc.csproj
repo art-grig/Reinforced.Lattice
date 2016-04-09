@@ -119,6 +119,7 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\TestsController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -129,10 +130,16 @@
     </Compile>
     <Compile Include="Models\AboutViewModel.cs" />
     <Compile Include="Models\AdditionalSearchData.cs" />
+    <Compile Include="Models\Data.cs" />
+    <Compile Include="Models\TargetData.cs" />
+    <Compile Include="Models\TestsModel.cs" />
     <Compile Include="Models\TestTable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\PowerTables.Script\Scripts\powertables.js">
+      <Link>Scripts\powertables.js</Link>
+    </Content>
     <Content Include="Content\bootstrap-datepicker.css" />
     <Content Include="Content\bootstrap-datepicker.min.css" />
     <Content Include="Content\bootstrap-datepicker.standalone.css" />
@@ -234,7 +241,6 @@
     <Content Include="Scripts\locales\bootstrap-datepicker.vi.min.js" />
     <Content Include="Scripts\locales\bootstrap-datepicker.zh-TW.min.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
-    <Content Include="Scripts\powertables.js" />
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Scripts\_references.js" />
@@ -254,6 +260,7 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Shared\PowerTables_Templates.cshtml" />
     <Content Include="Views\Shared\AdditionalSearchDataView.cshtml" />
+    <Content Include="Views\Tests\Test1.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -266,27 +273,6 @@
     <None Include="Project_Readme.html" />
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="Scripts\PowerTables\ComponentsContainer.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\RenderableComponent.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Data\DataHolder.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\EventsManager.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Renderer.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\PowerTable.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Filters\FilterBase.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Filters\SelectFilter.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Filters\ValueFilter.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Filters\RangeFilter.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\PluginBase.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Limit.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Loading.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Paging.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Ordering.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Hideout.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Checkboxify.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\ResponseInfo.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Total.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Toolbar.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Formwatch.ts" />
     <TypeScriptCompile Include="Scripts\typings\handlebars\handlebars.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\handlebars_ext.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\jquery\jquery.d.ts" />

@@ -43,16 +43,13 @@ module PowerTables.Rendering {
 
         private getTrack(elementType: RenderingContextType, element: IRenderable): string {
             
-            var trk = null;
+            var trk;
             switch (elementType) {
             case RenderingContextType.Plugin:
                 trk = TrackHelper.getPluginTrack(<IPlugin>element);
                 break;
             case RenderingContextType.Header:
                 trk = TrackHelper.getHeaderTrack((<IColumnHeader>element));
-                break;
-            case RenderingContextType.Filter:
-                trk = TrackHelper.getFilterTrack((<IFilter>element));
                 break;
             case RenderingContextType.Cell:
                 trk = TrackHelper.getCellTrack(<any>element);

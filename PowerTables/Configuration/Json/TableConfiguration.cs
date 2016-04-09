@@ -11,6 +11,11 @@ namespace PowerTables.Configuration.Json
     public class TableConfiguration
     {
         /// <summary>
+        /// Templates prefix. It is used to distinguish several templates sets on single page from each other
+        /// </summary>
+        public string Prefix { get; set; }
+
+        /// <summary>
         /// Root ID
         /// </summary>
         public string TableRootId { get; set; }
@@ -60,6 +65,7 @@ namespace PowerTables.Configuration.Json
             Columns = new List<ColumnConfiguration>();
             PluginsConfiguration = new Dictionary<string, PluginConfiguration>();
             LoadImmediately = true;
+            Prefix = "lt";
         }
         
     }

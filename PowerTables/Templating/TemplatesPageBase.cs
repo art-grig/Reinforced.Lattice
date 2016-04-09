@@ -6,6 +6,11 @@ namespace PowerTables.Templating
 {
     public abstract class TemplatesPageBase : WebViewPage<LatticeTemplatesViewModel>
     {
+        /// <summary>
+        /// Default templates view. Used for shortening .RenderTemplates calls
+        /// </summary>
+        public static string DefaultTemplatesView;
+
         public override void InitHelpers()
         {
             base.InitHelpers();

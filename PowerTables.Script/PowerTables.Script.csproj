@@ -19,10 +19,10 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="Scripts\_references.js" />
+    <Content Include="Scripts\powertables.js" />
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="packages.config" />
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>
@@ -48,8 +48,6 @@
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\Renderer.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\RenderingStack.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\TrackHelper.ts" />
-    <TypeScriptCompile Include="Scripts\typings\handlebars\handlebars-1.0.0.d.ts" />
-    <TypeScriptCompile Include="Scripts\typings\handlebars\handlebars.d.ts" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Scripts\PowerTables\Plugins\" />
@@ -85,8 +83,10 @@
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-    <TypeScriptRemoveComments>true</TypeScriptRemoveComments>
+    <TypeScriptRemoveComments>False</TypeScriptRemoveComments>
     <TypeScriptSourceMap>false</TypeScriptSourceMap>
+    <TypeScriptGeneratesDeclarations>True</TypeScriptGeneratesDeclarations>
+    <TypeScriptOutFile>Scripts/powertables.js</TypeScriptOutFile>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
 </Project>

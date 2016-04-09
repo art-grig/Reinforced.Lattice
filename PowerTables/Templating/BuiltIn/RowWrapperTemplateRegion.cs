@@ -15,10 +15,20 @@ namespace PowerTables.Templating.BuiltIn
         public bool IsTrackSet { get; set; }
     }
 
+    /// <summary>
+    /// Model interface for table row
+    /// </summary>
+    /// <typeparam name="TRow">Data object type</typeparam>
     public interface IRowModel<TRow>
     {
+        /// <summary>
+        /// Data object 
+        /// </summary>
         TRow DataObject { get; }
 
+        /// <summary>
+        /// Row index
+        /// </summary>
         int Index { get; }
     }
 

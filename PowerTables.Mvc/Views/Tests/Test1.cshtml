@@ -1,0 +1,15 @@
+﻿@using PowerTables
+@model PowerTables.Configuration.Configurator<PowerTables.Mvc.Models.SourceData, PowerTables.Mvc.Models.TargetData>
+@{
+    ViewBag.Title = "View";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h2>Test 1</h2>
+<div class="container-fluid">
+    <div id="mytable"></div>
+</div>
+@section Scripts {
+    @{ Html.RenderDefaultTemplates(); }
+
+    @Model.InitializationScript("mytable","window.$$table")
+}

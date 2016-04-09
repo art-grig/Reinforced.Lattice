@@ -111,6 +111,7 @@
     <Compile Include="FrequentlyUsed\TemplateElementBuilder.cs" />
     <Compile Include="FrequentlyUsed\CellTemplateBuilder.cs" />
     <Compile Include="FrequentlyUsed\TemplatesExtensions.cs" />
+    <Compile Include="InitializationExtensions.cs" />
     <Compile Include="IQueryHandler.cs" />
     <Compile Include="Plugins\Checkboxify\CheckboxifyExtensions.cs" />
     <Compile Include="Plugins\Checkboxify\CheckboxifyCommandHandler.cs" />
@@ -162,7 +163,8 @@
     <Compile Include="ResponseProcessing\IResponseModifiersApplier.cs" />
     <Compile Include="ResponseProcessing\JsonNetResult.cs" />
     <Compile Include="SerializationSettings.cs" />
-    <Compile Include="Templating\BuiltIn\HeaderTemplateRegion.cs" />
+    <Compile Include="Templating\BuiltIn\CellWrapperTemplateRegion.cs" />
+    <Compile Include="Templating\BuiltIn\HeaderWrapperTemplateRegion.cs" />
     <Compile Include="Templating\Handlebars\IHbArray.cs" />
     <Compile Include="Templating\Handlebars\IHbDictionary.cs" />
     <Compile Include="Templating\BuiltIn\RowWrapperTemplateRegion.cs" />
@@ -177,6 +179,7 @@
     <Compile Include="Templating\ParametrizedHbTagRegion.cs" />
     <Compile Include="Templating\PluginTemplateRegion.cs" />
     <Compile Include="Templating\BuiltIn\PluignWrapperTemplateRegion.cs" />
+    <Compile Include="Templating\ResharperAnnotations.cs" />
     <Compile Include="Templating\TemplateRegion.cs" />
     <Compile Include="Templating\TemplatesPageBase.cs" />
     <Compile Include="Templating\TemplatingExtensions.cs" />

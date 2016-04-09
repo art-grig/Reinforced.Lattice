@@ -92,5 +92,24 @@ namespace PowerTables.Configuration
         /// </summary>
         Type TableType { get; }
 
+        /// <summary>
+        /// Returns MvcHtmlString that contains JSON table configuration that is used to construct
+        /// Javascript PowerTables object. 
+        /// PowerTables client-side is highly dependant on large JSON configuration. 
+        /// So <see cref="Configurator{TSourceData,TTableData}"/> is initially set of helper methods 
+        /// helping to build this JSON configuration. 
+        /// This overload of JsonConfig consumes "static data". Static data is data class that 
+        /// is well-known before table initialization and is being sent within every request. 
+        /// You are not able to change it during request handling but can use it to store any payload 
+        /// that is known before table construction.
+        /// </summary>
+        /// <typeparam name="TStaticData">Static data type</typeparam>
+        /// <param name="rootId">Id of an HTML element that will contain table</param>
+        /// <param name="staticData">Static data instance</param>
+        /// <param name="prefix">Templates prefix. It is used to distinguish several templates sets on single page from each other</param>
+        /// <returns>String containing javascript initialization code</returns>
+        string JsonConfig<TStaticData>(string rootId, TStaticData staticData = null, string prefix = "lt")
+            where TStaticData : class;
+
     }
 }

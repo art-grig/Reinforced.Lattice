@@ -318,87 +318,20 @@ namespace PowerTables.Configuration
         }
         #endregion
 
-        #region Initialization code
 
-        /// <summary>
-        /// Returns MvcHtmlString that contains JSON table configuration that is used to construct
-        /// Javascript PowerTables object. 
-        /// PowerTables client-side is highly dependant on large JSON configuration. 
-        /// So <see cref="Configurator{TSourceData,TTableData}"/> is initially set of helper methods 
-        /// helping to build this JSON configuration. 
-        /// This overload of JsonConfig consumes "static data". Static data is data class that 
-        /// is well-known before table initialization and is being sent within every request. 
-        /// You are not able to change it during request handling but can use it to store any payload 
-        /// that is known before table construction.
-        /// </summary>
-        /// <typeparam name="TStaticData">Static data type</typeparam>
-        /// <param name="rootId">Id of an HTML element that will contain table</param>
-        /// <param name="staticData">Static data instance</param>
-        /// <returns>MvcHtmlString containing javascript initialization code</returns>
-        public MvcHtmlString JsonConfig<TStaticData>(string rootId, TStaticData staticData = null) where TStaticData : class
+        
+        public string JsonConfig<TStaticData>(string rootId, TStaticData staticData = null, string prefix = "lt") where TStaticData : class
         {
             TableConfiguration tc = TableConfiguration;
             tc.TableRootId = rootId;
+            tc.Prefix = prefix;
             if (staticData != null)
             {
                 tc.StaticData = JsonConvert.SerializeObject(staticData);
             }
             string json = JsonConvert.SerializeObject(tc, SerializationSettings.ConfigSerializationSettings);
-            return MvcHtmlString.Create(json);
+            return json;
         }
-
-        /// <summary>
-        /// Returns MvcHtmlString that contains JSON table configuration that is used to construct
-        /// Javascript PowerTables object. 
-        /// PowerTables client-side is highly dependant on large JSON configuration. 
-        /// So <see cref="Configurator{TSourceData,TTableData}"/> is initially set of helper methods 
-        /// helping to build this JSON configuration. 
-        /// </summary>
-        /// <param name="rootId">Id of an HTML element that will contain table</param>
-        /// <returns>MvcHtmlString containing javascript initialization code</returns>
-        public MvcHtmlString JsonConfig(string rootId)
-        {
-            return JsonConfig<object>(rootId);
-        }
-
-        /// <summary>
-        /// Returns MvcHtmlString that contains Javascript initialization code (not only config) 
-        /// for table. 
-        /// PowerTables client-side is highly dependant on large JSON configuration. 
-        /// So <see cref="Configurator{TSourceData,TTableData}"/> is initially set of helper methods 
-        /// helping to build this JSON configuration. 
-        /// This overload of InitializationCode consumes "static data". Static data is data class that 
-        /// is well-known before table initialization and is being sent within every request. 
-        /// You are not able to change it during request handling but can use it to store any payload 
-        /// that is known before table construction.
-        /// </summary>
-        /// <typeparam name="TStaticData">Static data type</typeparam>
-        /// <param name="rootId">Id of an HTML element that will contain table</param>
-        /// <param name="variableName">Expression that new PowerTables javascript object will be assigned to</param>
-        /// <param name="staticData">Static data instance</param>
-        /// <returns>MvcHtmlString containing javascript initialization code</returns>
-        public MvcHtmlString InitializationCode<TStaticData>(string rootId, string variableName, TStaticData staticData) where TStaticData : class
-        {
-            var jsonConfig = JsonConfig(rootId, staticData);
-            const string codeTemplate = "{0} = new PowerTables.PowerTable({1});";
-            return MvcHtmlString.Create(String.Format(codeTemplate, variableName, jsonConfig));
-        }
-
-        /// <summary>
-        /// Returns MvcHtmlString that contains Javascript initialization code (not only config) 
-        /// for table. 
-        /// PowerTables client-side is highly dependant on large JSON configuration. 
-        /// So <see cref="Configurator{TSourceData,TTableData}"/> is initially set of helper methods 
-        /// helping to build this JSON configuration. 
-        /// </summary>
-        /// <param name="rootId">Id of an HTML element that will contain table</param>
-        /// <param name="variableName">Expression that new PowerTables javascript object will be assigned to</param>
-        /// <returns>MvcHtmlString containing javascript initialization code</returns>
-        public MvcHtmlString InitializationCode(string rootId, string variableName)
-        {
-            return InitializationCode<object>(rootId, variableName, null);
-        }
-        #endregion
 
         /// <summary>
         /// Converts source data entry to table row according to mapping functions and property names

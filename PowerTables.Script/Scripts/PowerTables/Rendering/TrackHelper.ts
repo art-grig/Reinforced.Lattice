@@ -1,5 +1,4 @@
-﻿/// <reference path="../Interfaces.ts"/>
-
+﻿
 module PowerTables.Rendering {
     /**
     * Helper class for producing track ids
@@ -15,24 +14,17 @@ module PowerTables.Rendering {
         }
 
         /*
-         * Returns string track ID for row
+         * Returns string track ID for plugin
          */
         public static getPluginTrack(plugin: IPlugin): string {
-            return '';// `p-${plugin.Position}-${plugin.PluginId}`; todo
+            return `p-${plugin.PluginLocation}`; //todo
         }
 
         /*
-         * Returns string track ID for row
+         * Returns string track ID for header
          */
         public static getHeaderTrack(header: IColumnHeader): string {
             return `h-${header.Column.RawName}`;
-        }
-
-        /*
-         * Returns string track ID for row
-         */
-        public static getFilterTrack(filter: IFilter): string {
-            return '' // `f-${filter.Tag}`; todo
         }
 
         /*
@@ -71,11 +63,6 @@ module PowerTables.Rendering {
          */
         public static getRowCellsElements(body: HTMLElement, row: IRow): NodeList {
             return body.querySelectorAll(`[data-track^="c-r${row.Index}-"]`);
-        }
-
-        public static getFilterElement(table: HTMLElement, filter: IFilter): HTMLElement {
-            var track = this.getFilterTrack(filter);
-            return <HTMLElement>table.querySelector(`[data-track="${track}"]`);
         }
 
         public static getHeaderElement(table: HTMLElement, header: IColumnHeader): HTMLElement {

@@ -52,6 +52,29 @@ namespace PowerTables.Templating.Handlebars
             return new HbTagRegion("if", proname, t.Writer);
         }
 
+
+        /// <summary>
+        /// Else helper
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="t"></param>
+        /// <returns>{{else}} keyword</returns>
+        public static MvcHtmlString Else<T>(this IModelProvider<T> t)
+        {
+            return MvcHtmlString.Create("{{else}}");
+        }
+
+        /// <summary>
+        /// Else helper
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="t"></param>
+        /// <returns>{{else}} keyword</returns>
+        public static MvcHtmlString This<T>(this IModelProvider<T> t)
+        {
+            return MvcHtmlString.Create("{{this}}");
+        }
+
         /// <summary>
         /// Renders handlebars "if" directive in region
         /// </summary>

@@ -177,6 +177,8 @@ module PowerTables.Configuration.Json {
 	/** Configuration JSON object for whole table */
 	export interface ITableConfiguration
 	{
+		/** Templates prefix. It is used to distinguish several templates sets on single page from each other */
+		Prefix: string;
 		/** Root ID */
 		TableRootId: string;
 		/** URL for table requests (relative to website root) */

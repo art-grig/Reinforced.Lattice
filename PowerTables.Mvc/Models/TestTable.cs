@@ -55,9 +55,9 @@ namespace PowerTables.Mvc.Models
 
             conf
                 .DatePicker("function(v,f){ v.datepicker({ format: f, weekStart: 1 }); }", "mm/dd/yyyy", "MM/dd/yyyy")
-                .Limit(new[] { "Every", "-", "5", "10", "-", "50", "100" }, "10", position: PluginPosition.LeftTop)
+                .Limit(new[] { "Every", "-", "5", "10", "-", "50", "100" }, "10", position: "lt")
                 .PagingSimple(useFirstLasPage: true, useGotoPage: true)
-                .Toolbar(PluginPosition.RightTop, a =>
+                .Toolbar("rt-toolbar", a =>
                 {
                     //a.AddSimpleButton("filter".GlyphIcon() + "Toggle filters")
                     //    .Id("btnHideFilters")
@@ -116,7 +116,11 @@ namespace PowerTables.Mvc.Models
 
             conf.Column(c => c.Cost).ValueFunction("function (a) {return a.Cost + ' EUR';}")
                 .Orderable(c => c.Cost, Ordering.Descending)
-                .FilterRange(c => c.Cost, "Min. Cost", "Max. Cost");
+                .FilterRange(c => c.Cost, ui =>
+                {
+                    ui.FromPlaceholder = "Min. Cost";
+                    ui.ToPlaceholder = "Max. Cost";
+                });
 
             conf.Column(c => c.ItemsCount)
                 .Title("Items count")
@@ -131,17 +135,24 @@ namespace PowerTables.Mvc.Models
                         var template = Handlebars.compile($('#rangeValue').html());
                         return template(templ);
                     }")
-                .FilterValue(c => c.ItemsCount, "Minimum cost").Default(50)
+                .FilterValue(c => c.ItemsCount, ui =>
+                {
+                    ui.Placeholder = "Minimum cost";
+                    ui.DefaultValue = conf.ToFilterDefaultString(50);
+                })
                 .By((a, v) => a.Where(c => c.Cost >= v));
 
             conf.Column(c => c.GroupName)
                 .Orderable(c => c.VeryName)
-                .FilterValue(c => c.VeryName).Default("Alpha");
+                .FilterValue(c => c.VeryName, ui =>
+                {
+                    ui.DefaultValue = conf.ToFilterDefaultString("Alpha");
+                });
 
             conf.Column(c => c.EnumValue)
                 .Hide()
                 .FormatEnumWithDisplayAttribute()
-                .FilterMultiSelect(c => c.GroupType, EnumHelper.GetSelectList(typeof(SomeEnum)))
+                .FilterMultiSelect(c => c.GroupType, ui=> ui.SelectItems(EnumHelper.GetSelectList(typeof(SomeEnum))))
                 ;
             conf.Column(c => c.CurrentDate).FormatDateWithDateformatJs().FilterValue(c => c.CurrentDate);
             conf.Column(c => c.NullableValue).FilterRange(c => c.NullableValue ?? 0);
