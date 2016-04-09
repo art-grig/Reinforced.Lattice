@@ -830,6 +830,22 @@ var PowerTables;
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
+    /**
+     * Base class for creating new plugins
+     */
+    var PluginBase = (function () {
+        function PluginBase() {
+        }
+        PluginBase.prototype.init = function (masterTable, configuration) {
+        };
+        PluginBase.prototype.renderElement = function (templatesProvider) { throw new Error("Not implemented"); };
+        PluginBase.prototype.renderContent = function (templatesProvider) { throw new Error("Not implemented"); };
+        return PluginBase;
+    })();
+    PowerTables.PluginBase = PluginBase;
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
     var PowerTable = (function () {
         function PowerTable(configuration) {
             this._configuration = configuration;
