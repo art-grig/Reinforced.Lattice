@@ -141,4 +141,69 @@
          */
         modifyQuery(query: PowerTables.IQuery, scope: QueryScope): void;
     }
+
+    /** Renderable entity */
+    export interface IRenderable {
+		/**
+		* Renders whole element to string using templates provider
+		*
+		* @param templatesProvider Cached templates provider
+		* @returns String containing HTML code for element
+		*/
+        renderElement?: (templatesProvider: PowerTables.ITemplatesProvider) => string;
+		/**
+		* Renders element to HTML string using templates provider
+		*
+		* @param templatesProvider Cached templates provider
+		* @returns String containing HTML code for element
+		*/
+        renderContent?: (templatesProvider: PowerTables.ITemplatesProvider) => string;
+    }
+
+    /** Cell object */
+    export interface ICell extends PowerTables.IRenderable {
+        /** Associated row */
+        Row: PowerTables.IRow;
+        /** Associated column */
+        Column: PowerTables.IColumn;
+        /** Data for this specific cell */
+        Data: any;
+        /** Whole data object associated with this specific cell */
+        DataObject: any;
+    }
+
+    /**
+     * Colun header rendering object
+     */
+    export interface IColumnHeader extends PowerTables.IRenderable {
+        /**
+         * Reference to containing column
+         */
+        Column: PowerTables.IColumn;
+    }
+
+    /** 
+     * Row object
+     */
+    export interface IRow extends PowerTables.IRenderable {
+        /** 
+         * Data object for row 
+         */
+        DataObject: any;
+        /** 
+         * Displaying index. 
+         * You can obtain data for this particular row from DataHolder 
+         * using localLookupCurrentlyDisplaying method
+         */
+        Index: number;
+        /** 
+         * Reference to table object this row belongs to
+         */
+        MasterTable: any;
+
+        /**
+         * Cells collection for this particular row
+         */
+        Cells: { [key: string]: PowerTables.ICell };
+    }
 }

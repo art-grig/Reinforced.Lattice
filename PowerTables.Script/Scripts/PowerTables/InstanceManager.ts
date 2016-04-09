@@ -73,6 +73,7 @@
                     var conf = pluginsConfiguration[pluginId];
                     var plugin = ComponentsContainer.resolveComponent<IPlugin>(conf.PluginId);
                     plugin.init(this._masterTable, conf);
+                    plugin.PluginLocation = conf.Placement;
                     this.Plugins[pluginId] = plugin;
                 }
             }

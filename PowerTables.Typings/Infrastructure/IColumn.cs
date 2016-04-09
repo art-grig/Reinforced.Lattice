@@ -29,7 +29,8 @@ namespace PowerTables.Typings.Infrastructure
         /// <summary>
         /// Column header
         /// </summary>
-        IColumnHeader Header { get; set; }
+        [TsProperty(Type = "PowerTables.IColumnHeader")]
+        object Header { get; set; }
 
         /// <summary>
         /// Column order (left-to-right)

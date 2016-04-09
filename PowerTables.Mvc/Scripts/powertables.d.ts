@@ -1,33 +1,5 @@
 /// <reference path="../../PowerTables.Script/Scripts/PowerTables/ExternalTypings.d.ts" />
 declare module PowerTables {
-    /** Renderable entity */
-    interface IRenderable {
-        /**
-        * Renders whole element to string using templates provider
-        *
-        * @param templatesProvider Cached templates provider
-        * @returns String containing HTML code for element
-        */
-        renderElement(templatesProvider: PowerTables.ITemplatesProvider): string;
-        /**
-        * Renders element to HTML string using templates provider
-        *
-        * @param templatesProvider Cached templates provider
-        * @returns String containing HTML code for element
-        */
-        renderContent(templatesProvider: PowerTables.ITemplatesProvider): string;
-    }
-    /** Cell object */
-    interface ICell extends PowerTables.IRenderable {
-        /** Associated row */
-        Row: PowerTables.IRow;
-        /** Associated column */
-        Column: PowerTables.IColumn;
-        /** Data for this specific cell */
-        Data: any;
-        /** Whole data object associated with this specific cell */
-        DataObject: any;
-    }
     /**
     * Interface of checkboxify plugin.
     *             Plugin id is "Checkboxify"
@@ -68,12 +40,9 @@ declare module PowerTables {
         /** Reference to master table */
         MasterTable: any;
         /** Column header */
-        Header: PowerTables.IColumnHeader;
+        Header: any;
         /** Column order (left-to-right) */
         Order: number;
-    }
-    interface IColumnHeader extends PowerTables.IRenderable {
-        Column: PowerTables.IColumn;
     }
     interface ITemplatesProvider {
         /** Current handlebars.js engine instance */
@@ -85,18 +54,6 @@ declare module PowerTables {
         * @returns Handlebars function
         */
         getCachedTemplate(templateId: string): (arg: any) => string;
-    }
-    /** Row object */
-    interface IRow extends PowerTables.IRenderable {
-        /** Data object for row */
-        DataObject: any;
-        /** Zero-based row idnex */
-        Index: number;
-        /** Table reference */
-        MasterTable: any;
-        Cells: {
-            [key: string]: PowerTables.ICell;
-        };
     }
     /**
     * The respons that is being sent to client script.
@@ -270,6 +227,8 @@ declare module PowerTables.Plugins.Hideout {
 declare module PowerTables.Filters.Range {
     /** UI configuration for range filterr */
     interface IRangeFilterUiConfig {
+        /** Column name this filter associated with */
+        ColumnName: string;
         /** Place holder for "From" field */
         FromPlaceholder: string;
         /** Placeholder for "To" field */
@@ -291,6 +250,8 @@ declare module PowerTables.Filters.Value {
         InputDelay: number;
         /** Preselected value */
         DefaultValue: string;
+        /** Column name this filter associated with */
+        ColumnName: string;
     }
 }
 declare module PowerTables.Plugins.ResponseInfo {
@@ -319,6 +280,8 @@ declare module PowerTables.Filters.Select {
         IsMultiple: boolean;
         /** Text for "Any" select option */
         NothingText: string;
+        /** Column name this filter associated with */
+        ColumnName: string;
         /** Select filter value list */
         Items: System.Web.Mvc.ISelectListItem[];
     }
@@ -441,14 +404,31 @@ declare module PowerTables {
     class Controller {
         private _masterTable;
         private _rootSelector;
+        private _domEvents;
+        private _cellDomSubscriptions;
+        private _rowDomSubscriptions;
+        private _attachFn;
         /**
          * Initializes full reloading cycle
          * @returns {}
          */
         reload(): void;
         private redrawCurrentlyDisplayingObjects();
-        subscribeCellEvent(eventId: string, selector: string, subscriptionId: string, handler: (e: ICellEventArgs) => any): void;
-        subscribeRowEvent(eventId: string, selector: string, subscriptionId: string, handler: (e: ICellEventArgs) => any): void;
+        /**
+         * Subscribe handler to any DOM event happening on particular table cell
+         *
+         * @param subscription Event subscription
+         */
+        subscribeCellEvent(subscription: IUiSubscription<ICellEventArgs>): void;
+        /**
+         * Subscribe handler to any DOM event happening on particular table row.
+         * Note that handler will fire even if particular table cell event happened
+         *
+         * @param subscription Event subscription
+         */
+        subscribeRowEvent(subscription: IUiSubscription<IRowEventArgs>): void;
+        private ensureEventSubscription(eventId);
+        private onTableEvent(e);
         insertLocalRow(object: any, index: number): void;
         deleteLocalRow(index: number): void;
         updateLocalRow(index: number, updateFn: (object: any) => void): void;
@@ -481,6 +461,32 @@ declare module PowerTables {
          * Row index
          */
         Index: number;
+    }
+    interface ISubscription {
+        /**
+         * Event Id
+         */
+        EventId: string;
+        /**
+         * Selector of element
+         */
+        Selector?: string;
+        /**
+         * Subscription ID (for easier unsubscribe)
+         */
+        SubscriptionId: string;
+        Handler: any;
+    }
+    /**
+     * Information about UI subscription
+     */
+    interface IUiSubscription<TEventArgs> extends ISubscription {
+        /**
+         * Event handler
+         *
+         * @param e Event arguments
+         */
+        Handler: (e: TEventArgs) => any;
     }
 }
 declare module PowerTables {
@@ -606,6 +612,68 @@ declare module PowerTables {
          * @returns {}
          */
         modifyQuery(query: PowerTables.IQuery, scope: QueryScope): void;
+    }
+    /** Renderable entity */
+    interface IRenderable {
+        /**
+        * Renders whole element to string using templates provider
+        *
+        * @param templatesProvider Cached templates provider
+        * @returns String containing HTML code for element
+        */
+        renderElement?: (templatesProvider: PowerTables.ITemplatesProvider) => string;
+        /**
+        * Renders element to HTML string using templates provider
+        *
+        * @param templatesProvider Cached templates provider
+        * @returns String containing HTML code for element
+        */
+        renderContent?: (templatesProvider: PowerTables.ITemplatesProvider) => string;
+    }
+    /** Cell object */
+    interface ICell extends PowerTables.IRenderable {
+        /** Associated row */
+        Row: PowerTables.IRow;
+        /** Associated column */
+        Column: PowerTables.IColumn;
+        /** Data for this specific cell */
+        Data: any;
+        /** Whole data object associated with this specific cell */
+        DataObject: any;
+    }
+    /**
+     * Colun header rendering object
+     */
+    interface IColumnHeader extends PowerTables.IRenderable {
+        /**
+         * Reference to containing column
+         */
+        Column: PowerTables.IColumn;
+    }
+    /**
+     * Row object
+     */
+    interface IRow extends PowerTables.IRenderable {
+        /**
+         * Data object for row
+         */
+        DataObject: any;
+        /**
+         * Displaying index.
+         * You can obtain data for this particular row from DataHolder
+         * using localLookupCurrentlyDisplaying method
+         */
+        Index: number;
+        /**
+         * Reference to table object this row belongs to
+         */
+        MasterTable: any;
+        /**
+         * Cells collection for this particular row
+         */
+        Cells: {
+            [key: string]: PowerTables.ICell;
+        };
     }
 }
 declare module PowerTables {
@@ -811,6 +879,14 @@ declare module PowerTables {
          */
         AfterLoading: TableEvent<ILoadingEventArgs>;
         /**
+         * "Before Client Rows Rendering" event.
+         *
+         * Occurs every time after after rows set for client-side was
+         * modified but not rendered yet. Here you can add/remove/modify render for
+         * particular rows
+         */
+        BeforeClientRowsRendering: TableEvent<IRow[]>;
+        /**
          * Registers new event for events manager.
          * This method is to be used by plugins to provide their
          * own events.
@@ -1015,14 +1091,57 @@ declare module PowerTables {
 }
 declare module PowerTables {
     /**
-     * Base class for creating new plugins
+     * Base class for creating filters
+     */
+    class FilterBase<T> extends PluginBase<T> implements IQueryPartProvider, IClientFilter, IClientTruncator {
+        modifyQuery(query: IQuery, scope: QueryScope): void;
+        init(masterTable: IMasterTable, configuration: PowerTables.Configuration.Json.IPluginConfiguration): void;
+        /**
+         * Call this method inside init and override filterPredicate method to make this filter
+         * participate in client-side filtering
+         */
+        protected itIsClientFilter(): void;
+        /**
+         * Call this method inside init and override selectData method to make this filter
+         * participate in client-side data truncation
+         */
+        protected itIsClientDataTruncator(): void;
+        filterPredicate(rowObject: any, query: IQuery): boolean;
+        selectData(sourceDataSet: any[], query: IQuery): any[];
+    }
+}
+declare module PowerTables {
+    /**
+     * Base class for plugins.
+     * It contains necessary infrastructure for convinence of plugins creation
      */
     class PluginBase<TConfiguration> implements IPlugin {
         init(masterTable: IMasterTable, configuration: PowerTables.Configuration.Json.IPluginConfiguration): void;
-        renderElement(templatesProvider: ITemplatesProvider): string;
-        renderContent(templatesProvider: ITemplatesProvider): string;
         Configuration: PowerTables.Configuration.Json.IPluginConfiguration;
         PluginLocation: string;
+        /**
+         * Plugin configuration object
+         */
+        protected PluginConfiguration: TConfiguration;
+        /**
+         * Reference to master table this plugin belongs to
+         */
+        protected MasterTable: IMasterTable;
+        /**
+         * Events subscription method.
+         * In derived class here should be subscription to various events
+         *
+         * @param e Events manager
+         */
+        protected subscribe(e: EventsManager): void;
+        /**
+         * In this method you can register any additional Handlebars.js helpers in case of your
+         * templates needs ones
+         *
+         * @param hb Handlebars instance
+         * @returns {}
+         */
+        protected registerAdditionalHelpers(hb: Handlebars.IHandlebars): void;
     }
 }
 declare module PowerTables {

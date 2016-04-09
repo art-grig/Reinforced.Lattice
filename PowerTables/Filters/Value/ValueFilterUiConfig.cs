@@ -27,6 +27,11 @@ namespace PowerTables.Filters.Value
         /// </summary>
         public string DefaultValue { get; set; }
 
+        /// <summary>
+        /// Column name this filter associated with
+        /// </summary>
+        public string ColumnName { get; set; }
+
         public ValueFilterUiConfig()
         {
             InputDelay = 500;

@@ -143,6 +143,15 @@
         public AfterLoading: TableEvent<ILoadingEventArgs>;
 
         /**
+         * "Before Client Rows Rendering" event.
+         * 
+         * Occurs every time after after rows set for client-side was 
+         * modified but not rendered yet. Here you can add/remove/modify render for 
+         * particular rows
+         */
+        public BeforeClientRowsRendering: TableEvent<IRow[]>;
+
+        /**
          * Registers new event for events manager. 
          * This method is to be used by plugins to provide their 
          * own events. 

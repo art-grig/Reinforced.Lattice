@@ -4,36 +4,6 @@
 
 
 module PowerTables {
-	/** Renderable entity */
-	export interface IRenderable
-	{
-		/**
-		* Renders whole element to string using templates provider
-		*
-		* @param templatesProvider Cached templates provider
-		* @returns String containing HTML code for element
-		*/
-		renderElement(templatesProvider: PowerTables.ITemplatesProvider) : string;
-		/**
-		* Renders element to HTML string using templates provider
-		*
-		* @param templatesProvider Cached templates provider
-		* @returns String containing HTML code for element
-		*/
-		renderContent(templatesProvider: PowerTables.ITemplatesProvider) : string;
-	}
-	/** Cell object */
-	export interface ICell extends PowerTables.IRenderable
-	{
-		/** Associated row */
-		Row: PowerTables.IRow;
-		/** Associated column */
-		Column: PowerTables.IColumn;
-		/** Data for this specific cell */
-		Data: any;
-		/** Whole data object associated with this specific cell */
-		DataObject: any;
-	}
 	/**
 	* Interface of checkboxify plugin. 
 	*             Plugin id is "Checkboxify"
@@ -76,13 +46,9 @@ module PowerTables {
 		/** Reference to master table */
 		MasterTable: any;
 		/** Column header */
-		Header: PowerTables.IColumnHeader;
+		Header: any;
 		/** Column order (left-to-right) */
 		Order: number;
-	}
-	export interface IColumnHeader extends PowerTables.IRenderable
-	{
-		Column: PowerTables.IColumn;
 	}
 	export interface ITemplatesProvider
 	{
@@ -95,17 +61,6 @@ module PowerTables {
 		* @returns Handlebars function
 		*/
 		getCachedTemplate(templateId: string) : (arg: any) => string;
-	}
-	/** Row object */
-	export interface IRow extends PowerTables.IRenderable
-	{
-		/** Data object for row */
-		DataObject: any;
-		/** Zero-based row idnex */
-		Index: number;
-		/** Table reference */
-		MasterTable: any;
-		Cells: { [key:string]: PowerTables.ICell };
 	}
 	/**
 	* The respons that is being sent to client script. 
@@ -281,6 +236,8 @@ module PowerTables.Filters.Range {
 	/** UI configuration for range filterr */
 	export interface IRangeFilterUiConfig
 	{
+		/** Column name this filter associated with */
+		ColumnName: string;
 		/** Place holder for "From" field */
 		FromPlaceholder: string;
 		/** Placeholder for "To" field */
@@ -303,6 +260,8 @@ module PowerTables.Filters.Value {
 		InputDelay: number;
 		/** Preselected value */
 		DefaultValue: string;
+		/** Column name this filter associated with */
+		ColumnName: string;
 	}
 }
 module PowerTables.Plugins.ResponseInfo {
@@ -334,6 +293,8 @@ module PowerTables.Filters.Select {
 		IsMultiple: boolean;
 		/** Text for "Any" select option */
 		NothingText: string;
+		/** Column name this filter associated with */
+		ColumnName: string;
 		/** Select filter value list */
 		Items: System.Web.Mvc.ISelectListItem[];
 	}

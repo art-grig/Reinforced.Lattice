@@ -111,6 +111,7 @@ namespace PowerTables.Filters.Value
             ) where TTableData : new()
         {
             ValueFilterUiConfig clientConfig = new ValueFilterUiConfig();
+            clientConfig.ColumnName = column.ColumnProperty.Name;
             if (ui != null) ui(clientConfig);
             column.ReplaceFilterConfig(PluginId,clientConfig);
         }

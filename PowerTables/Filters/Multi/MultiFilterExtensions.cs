@@ -99,6 +99,8 @@ namespace PowerTables.Filters.Multi
             ) where TTableData : new()
         {
             SelectFilterUiConfig cc = new SelectFilterUiConfig();
+            cc.ColumnName = column.ColumnProperty.Name;
+
             if (ui != null) ui(cc);
             
             cc.AllowSelectNothing = false;

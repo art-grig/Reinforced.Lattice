@@ -34,6 +34,11 @@ namespace PowerTables.Filters.Select
         public string NothingText { get; set; }
 
         /// <summary>
+        /// Column name this filter associated with
+        /// </summary>
+        public string ColumnName { get; set; }
+
+        /// <summary>
         /// Select filter value list
         /// </summary>
         public List<SelectListItem> Items { get; set; }

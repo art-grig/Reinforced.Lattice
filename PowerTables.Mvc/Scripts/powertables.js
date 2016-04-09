@@ -89,18 +89,44 @@ var PowerTables;
      */
     var Controller = (function () {
         function Controller() {
+            this._domEvents = {};
+            this._cellDomSubscriptions = {};
+            this._rowDomSubscriptions = {};
         }
         /**
          * Initializes full reloading cycle
          * @returns {}
          */
         Controller.prototype.reload = function () {
+            var _this = this;
+            this._masterTable.Loader.requestServer('query', function (a) {
+                _this.redrawCurrentlyDisplayingObjects();
+            });
         };
         Controller.prototype.redrawCurrentlyDisplayingObjects = function () {
+            var rows = this.produceRows();
+            this._masterTable.Renderer.body(rows);
         };
-        Controller.prototype.subscribeCellEvent = function (eventId, selector, subscriptionId, handler) {
+        /**
+         * Subscribe handler to any DOM event happening on particular table cell
+         *
+         * @param subscription Event subscription
+         */
+        Controller.prototype.subscribeCellEvent = function (subscription) {
         };
-        Controller.prototype.subscribeRowEvent = function (eventId, selector, subscriptionId, handler) {
+        /**
+         * Subscribe handler to any DOM event happening on particular table row.
+         * Note that handler will fire even if particular table cell event happened
+         *
+         * @param subscription Event subscription
+         */
+        Controller.prototype.subscribeRowEvent = function (subscription) {
+        };
+        Controller.prototype.ensureEventSubscription = function (eventId) {
+            var fn = this.onTableEvent.bind(this);
+            this._masterTable.Renderer.BodyElement.addEventListener("a", fn);
+        };
+        Controller.prototype.onTableEvent = function (e) {
         };
         Controller.prototype.insertLocalRow = function (object, index) {
         };
@@ -535,6 +561,7 @@ var PowerTables;
                     var conf = pluginsConfiguration[pluginId];
                     var plugin = PowerTables.ComponentsContainer.resolveComponent(conf.PluginId);
                     plugin.init(this._masterTable, conf);
+                    plugin.PluginLocation = conf.Placement;
                     this.Plugins[pluginId] = plugin;
                 }
             }
@@ -828,18 +855,78 @@ var PowerTables;
     })();
     PowerTables.Loader = Loader;
 })(PowerTables || (PowerTables = {}));
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 var PowerTables;
 (function (PowerTables) {
     /**
-     * Base class for creating new plugins
+     * Base class for creating filters
+     */
+    var FilterBase = (function (_super) {
+        __extends(FilterBase, _super);
+        function FilterBase() {
+            _super.apply(this, arguments);
+        }
+        FilterBase.prototype.modifyQuery = function (query, scope) { };
+        FilterBase.prototype.init = function (masterTable, configuration) {
+            _super.prototype.init.call(this, masterTable, configuration);
+            this.MasterTable.Loader.registerQueryPartProvider(this);
+        };
+        /**
+         * Call this method inside init and override filterPredicate method to make this filter
+         * participate in client-side filtering
+         */
+        FilterBase.prototype.itIsClientFilter = function () {
+            this.MasterTable.DataHolder.registerClientFilter(this);
+        };
+        /**
+         * Call this method inside init and override selectData method to make this filter
+         * participate in client-side data truncation
+         */
+        FilterBase.prototype.itIsClientDataTruncator = function () {
+            this.MasterTable.DataHolder.Selector = this;
+        };
+        FilterBase.prototype.filterPredicate = function (rowObject, query) { throw new Error("Please override this method"); };
+        FilterBase.prototype.selectData = function (sourceDataSet, query) { throw new Error("Please override this method"); };
+        return FilterBase;
+    })(PowerTables.PluginBase);
+    PowerTables.FilterBase = FilterBase;
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    /**
+     * Base class for plugins.
+     * It contains necessary infrastructure for convinence of plugins creation
      */
     var PluginBase = (function () {
         function PluginBase() {
         }
         PluginBase.prototype.init = function (masterTable, configuration) {
+            if (configuration)
+                this.Configuration = configuration.Configuration;
+            this.MasterTable = masterTable;
+            this.subscribe(masterTable.Events);
+            this.registerAdditionalHelpers(masterTable.Renderer.HandlebarsInstance);
         };
-        PluginBase.prototype.renderElement = function (templatesProvider) { throw new Error("Not implemented"); };
-        PluginBase.prototype.renderContent = function (templatesProvider) { throw new Error("Not implemented"); };
+        /**
+         * Events subscription method.
+         * In derived class here should be subscription to various events
+         *
+         * @param e Events manager
+         */
+        PluginBase.prototype.subscribe = function (e) { };
+        /**
+         * In this method you can register any additional Handlebars.js helpers in case of your
+         * templates needs ones
+         *
+         * @param hb Handlebars instance
+         * @returns {}
+         */
+        PluginBase.prototype.registerAdditionalHelpers = function (hb) { };
         return PluginBase;
     })();
     PowerTables.PluginBase = PluginBase;

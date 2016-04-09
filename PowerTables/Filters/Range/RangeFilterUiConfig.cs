@@ -15,6 +15,11 @@ namespace PowerTables.Filters.Range
     public class RangeFilterUiConfig
     {
         /// <summary>
+        /// Column name this filter associated with
+        /// </summary>
+        public string ColumnName { get; set; }
+
+        /// <summary>
         /// Place holder for "From" field
         /// </summary>
         public string FromPlaceholder { get; set; }

@@ -92,6 +92,8 @@ namespace PowerTables.Filters.Select
            Action<SelectFilterUiConfig> ui = null) where TTableData : new()
         {
             SelectFilterUiConfig cc = new SelectFilterUiConfig();
+            cc.ColumnName = column.ColumnProperty.Name;
+
             if (ui != null) ui(cc);
             column.ReplaceFilterConfig(PluginId, cc);
         }

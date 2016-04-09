@@ -7,13 +7,13 @@
         constructor(bodyElement: HTMLElement, rootElement: HTMLElement, rootId: string) {
             this._bodyElement = bodyElement;
             this._rootElement = rootElement;
-            this._rootIdPrefix = `#${rootId} `;
+            this._rootIdPrefix = `#${rootId}`;
         }
 
         private _bodyElement: HTMLElement;
         private _rootElement: HTMLElement;
         private _rootIdPrefix: string;
-
+        
         /**
          * Retrieves cell element from supplied body
          * 
@@ -22,7 +22,7 @@
          */
         public getCellElement(cell: ICell): HTMLElement {
             var track = TrackHelper.getCellTrack(cell);
-            return <HTMLElement>this._bodyElement.querySelector(`[data-track="${track}"]`);
+            return <HTMLElement>this._bodyElement.querySelector(`${this._rootIdPrefix} [data-track="${track}"]`);
         }
 
         /**
@@ -33,7 +33,7 @@
          */
         public getRowElement(row: IRow): HTMLElement {
             var track = TrackHelper.getRowTrack(row);
-            return <HTMLElement>this._bodyElement.querySelector(`[data-track="${track}"]`);
+            return <HTMLElement>this._bodyElement.querySelector(`${this._rootIdPrefix} [data-track="${track}"]`);
         }
 
         /**
@@ -44,7 +44,7 @@
          */
         public getColumnCellsElements(column: IColumn): NodeList {
             var colIdx = column.MasterTable.getColumnNames().indexOf(column.RawName);
-            return this._bodyElement.querySelectorAll(`[data-track$="-c${colIdx}"]`);
+            return this._bodyElement.querySelectorAll(`${this._rootIdPrefix} [data-track$="-c${colIdx}"]`);
         }
 
         /**
@@ -63,8 +63,8 @@
          * @param row Row with data cells
          * @returns NodeList containing results 
          */
-        public getRowCellsElementsByIndex(rowDisplayingIndex:number): NodeList {
-            return this._bodyElement.querySelectorAll(`[data-track^="c-r${rowDisplayingIndex}-"]`);
+        public getRowCellsElementsByIndex(rowDisplayingIndex: number): NodeList {
+            return this._bodyElement.querySelectorAll(`${this._rootIdPrefix} [data-track^="c-r${rowDisplayingIndex}-"]`);
         }
 
         /**
@@ -75,7 +75,7 @@
          */
         public getHeaderElement(header: IColumnHeader): HTMLElement {
             var track = TrackHelper.getHeaderTrack(header);
-            return <HTMLElement>this._rootElement.querySelector(`[data-track="${track}"]`);
+            return <HTMLElement>this._rootElement.querySelector(`${this._rootIdPrefix} [data-track="${track}"]`);
         }
 
         /**
@@ -86,9 +86,36 @@
          */
         public getPluginElement(plugin: IPlugin): HTMLElement {
             var track = TrackHelper.getPluginTrack(plugin);
-            return <HTMLElement>this._rootElement.querySelector(`[data-track="${track}"]`);
+            return <HTMLElement>this._rootElement.querySelector(`${this._rootIdPrefix} [data-track="${track}"]`);
         }
 
-        
+        /**
+         * Determines if supplied element is table row
+         * 
+         * @param e Testing element
+         * @returns {boolean} True when supplied element is row, false otherwise
+         */
+        public isRow(e: HTMLElement): boolean {
+            if (!e) return false;
+            if (!e.getAttribute) return false;
+            var trk = e.getAttribute('data-track');
+            return (trk.charAt(0) === 'r') && (trk.charAt(1) === '-');
+        }
+
+        /**
+         * Determines if supplied element is table cell
+         * 
+         * @param e Testing element
+         * @returns {boolean} True when supplied element is cell, false otherwise
+         */
+        public isCell(e: HTMLElement): boolean {
+            if (!e) return false;
+            if (!e.getAttribute) return false;
+            var trk = e.getAttribute('data-track');
+            return (trk.charAt(0) === 'c')
+                && (trk.charAt(1) === '-')
+                && (trk.charAt(2) === 'r');
+        }
+
     }
 } 

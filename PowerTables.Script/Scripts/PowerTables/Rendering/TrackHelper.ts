@@ -10,13 +10,13 @@ module PowerTables.Rendering {
         public static getCellTrack(cell: ICell): string {
             var colIdx = cell.Column.MasterTable.getColumnNames().indexOf(cell.Column.RawName);
             var rowIdx = cell.Row.Index;
-            return this.getCellTrackByIndexes(rowIdx,colIdx);
+            return this.getCellTrackByIndexes(rowIdx, colIdx);
         }
 
         /*
          * Returns string track ID for cell
          */
-        public static getCellTrackByIndexes(rowIndex:number,columnIndex:number): string {
+        public static getCellTrackByIndexes(rowIndex: number, columnIndex: number): string {
             return `c-r${rowIndex}-c${columnIndex}`;
         }
 
@@ -62,6 +62,49 @@ module PowerTables.Rendering {
             return `r-${index}`;
         }
 
-        
+        /**
+         * Parses cell track to retrieve column and row index
+         * 
+         * @param e HTML element containing cell with wrapper
+         * @returns {ICellLocation} Cell location
+         */
+        public static getCellLocation(e: HTMLElement): ICellLocation {
+            if (!e) return null;
+            if (!e.getAttribute) return null;
+            var trk = e.getAttribute('data-track').substring(2).split('-c');
+            return {
+                RowIndex: parseInt(trk[0]),
+                ColumnIndex: parseInt(trk[1])
+            };
+        }
+
+        /**
+         * Parses row track to retrieve row index
+         * 
+         * @param e HTML element containing row with wrapper
+         * @returns {number} Row index
+         */
+        public static getRowIndex(e: HTMLElement): number {
+            if (!e) return null;
+            if (!e.getAttribute) return null;
+            var trk = e.getAttribute('data-track').substring(1);
+            return parseInt(trk);
+        }
+
+    }
+
+    /**
+     * Interface describing cell location
+     */
+    export interface ICellLocation {
+        /**
+         * Row index
+         */
+        RowIndex: number;
+
+        /**
+         * Column index
+         */
+        ColumnIndex: number;
     }
 }

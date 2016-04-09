@@ -106,6 +106,8 @@ namespace PowerTables.Filters.Range
             ) where TTableData : new()
         {
             RangeFilterUiConfig clientConfig = new RangeFilterUiConfig();
+            clientConfig.ColumnName = column.ColumnProperty.Name;
+
             if (ui != null) ui(clientConfig);
             column.ReplaceFilterConfig(PluginId, clientConfig);
         }
