@@ -4,6 +4,10 @@ var PowerTables;
 (function (PowerTables) {
     var Rendering;
     (function (Rendering) {
+        /**
+         * Layout renderer
+         * Is responsive for common layout rendering (with plugins, columns, etc)
+         */
         var LayoutRenderer = (function () {
             function LayoutRenderer(templates, stack, instances) {
                 this._hb = templates.HandlebarsInstance;
@@ -18,6 +22,7 @@ var PowerTables;
                 this._hb.registerHelper('BindEvent', this.bindEventHelper.bind(this));
             }
             LayoutRenderer.prototype.bindEventsQueue = function (parentElement) {
+                // bind plugins/filters events
                 var sources = parentElement.querySelectorAll('[data-be]');
                 for (var i = 0; i < sources.length; i++) {
                     var evSource = sources.item(i);
@@ -41,9 +46,11 @@ var PowerTables;
                     evSource.removeAttribute('data-be');
                 }
             };
+            //#region Handlebars helpers
             LayoutRenderer.prototype.bodyHelper = function () {
                 return '<input type="hidden" data-track="tableBodyHere" style="display:none;"/>';
             };
+            //#region Plugin helpers
             LayoutRenderer.prototype.pluginHelper = function (pluginPosition, pluginId) {
                 var plugin = this._instances.getPlugin(pluginId, pluginPosition);
                 return this.pluginHelperInner(plugin);
@@ -71,6 +78,8 @@ var PowerTables;
                 this._stack.popContext();
                 return result;
             };
+            //#endregion
+            // #region headers helper
             LayoutRenderer.prototype.headerHelper = function (columnName) {
                 return this.headerHelperInner(this._instances.getColumn(columnName));
             };
@@ -91,6 +100,8 @@ var PowerTables;
                 }
                 return result;
             };
+            //#endregion
+            //#region
             LayoutRenderer.prototype.bindEventHelper = function (commaSeparatedFunctions, commaSeparatedEvents) {
                 var ed = {
                     Target: this._stack.Current.Object,
@@ -107,6 +118,8 @@ var PowerTables;
                         return this._stack.Current.Object.Column.Configuration.Title
                             || this._stack.Current.Object.Column.RawName;
                     case Rendering.RenderingContextType.Plugin:
+                        // if we are here then plugin's renderContent is not 
+                        // overriden
                         throw new Error("It is required to override renderContent for plugin");
                 }
                 return '';
@@ -116,3 +129,4 @@ var PowerTables;
         Rendering.LayoutRenderer = LayoutRenderer;
     })(Rendering = PowerTables.Rendering || (PowerTables.Rendering = {}));
 })(PowerTables || (PowerTables = {}));
+//# sourceMappingURL=LayoutRenderer.js.map

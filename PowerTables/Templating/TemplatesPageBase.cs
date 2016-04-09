@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Web.Mvc;
+using System.Web.WebPages;
 using PowerTables.Templating.BuiltIn;
 
 namespace PowerTables.Templating
@@ -10,11 +11,11 @@ namespace PowerTables.Templating
         /// Default templates view. Used for shortening .RenderTemplates calls
         /// </summary>
         public static string DefaultTemplatesView;
-
-        public override void InitHelpers()
+        
+        public override HelperResult RenderPage(string path, params object[] data)
         {
-            base.InitHelpers();
             Plugin = new PluginsClassifier(GetOutputWriter(), Model);
+            return base.RenderPage(path, data);
         }
 
         /// <summary>

@@ -10,14 +10,28 @@ module PowerTables.Rendering {
         public static getCellTrack(cell: ICell): string {
             var colIdx = cell.Column.MasterTable.getColumnNames().indexOf(cell.Column.RawName);
             var rowIdx = cell.Row.Index;
-            return `c-r${rowIdx}-c${colIdx}`;
+            return this.getCellTrackByIndexes(rowIdx,colIdx);
+        }
+
+        /*
+         * Returns string track ID for cell
+         */
+        public static getCellTrackByIndexes(rowIndex:number,columnIndex:number): string {
+            return `c-r${rowIndex}-c${columnIndex}`;
         }
 
         /*
          * Returns string track ID for plugin
          */
         public static getPluginTrack(plugin: IPlugin): string {
-            return `p-${plugin.PluginLocation}`; //todo
+            return `p-${plugin.PluginLocation}`;
+        }
+
+        /*
+         * Returns string track ID for plugin
+         */
+        public static getPluginTrackByLocation(pluginLocation: string): string {
+            return `p-${pluginLocation}`;
         }
 
         /*
@@ -28,51 +42,26 @@ module PowerTables.Rendering {
         }
 
         /*
+         * Returns string track ID for header
+         */
+        public static getHeaderTrackByColumnName(columnName: string): string {
+            return `h-${columnName}`;
+        }
+
+        /*
          * Returns string track ID for row
          */
         public static getRowTrack(row: IRow): string {
-            return `r-${row.Index}`;
+            return this.getRowTrackByIndex(row.Index);
         }
 
         /*
-         * Retrieves cell element from supplied body
+         * Returns string track ID for row
          */
-        public static getCellElement(body: HTMLElement, cell: ICell): HTMLElement {
-            var track = this.getCellTrack(cell);
-            return <HTMLElement>body.querySelector(`[data-track="${track}"]`);
+        public static getRowTrackByIndex(index: number): string {
+            return `r-${index}`;
         }
 
-        /*
-         * Retrieves row element from supplied body
-         */
-        public static getRowElement(body: HTMLElement, row: IRow): HTMLElement {
-            var track = this.getRowTrack(row);
-            return <HTMLElement>body.querySelector(`[data-track="${track}"]`);
-        }
-
-        /*
-         * Retrieves cells for each column
-         */
-        public static getColumnCellsElements(body: HTMLElement, column: IColumn): NodeList {
-            var colIdx = column.MasterTable.getColumnNames().indexOf(column.RawName);
-            return body.querySelectorAll(`[data-track$="-c${colIdx}"]`);
-        }
-
-        /*
-         * Retrieves cells for each column
-         */
-        public static getRowCellsElements(body: HTMLElement, row: IRow): NodeList {
-            return body.querySelectorAll(`[data-track^="c-r${row.Index}-"]`);
-        }
-
-        public static getHeaderElement(table: HTMLElement, header: IColumnHeader): HTMLElement {
-            var track = this.getHeaderTrack(header);
-            return <HTMLElement>table.querySelector(`[data-track="${track}"]`);
-        }
-
-        public static getPluginElement(table: HTMLElement, plugin: IPlugin): HTMLElement {
-            var track = this.getPluginTrack(plugin);
-            return <HTMLElement>table.querySelector(`[data-track="${track}"]`);
-        }
+        
     }
 }

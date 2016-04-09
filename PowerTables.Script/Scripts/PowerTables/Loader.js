@@ -1,5 +1,8 @@
 var PowerTables;
 (function (PowerTables) {
+    /**
+     * Component that is responsible for querying server
+     */
     var Loader = (function () {
         function Loader(staticData, operationalAjaxUrl, events, dataHolder) {
             this._queryPartProviders = [];
@@ -9,6 +12,13 @@ var PowerTables;
             this._events = events;
             this._dataHolder = dataHolder;
         }
+        /**
+         * Registers new query part provider to be used while collecting
+         * query data before sending it to server.
+         *
+         * @param provider instance implementing IQueryPartProvider interface
+         * @returns {}
+         */
         Loader.prototype.registerQueryPartProvider = function (provider) {
             this._queryPartProviders.push(provider);
         };
@@ -64,7 +74,7 @@ var PowerTables;
             req.open('POST', this._operationalAjaxUrl, 1);
             req.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
             req.setRequestHeader('Content-type', 'application/json');
-            var reqEvent = req.onload ? 'onload' : 'onreadystatechange';
+            var reqEvent = req.onload ? 'onload' : 'onreadystatechange'; // for IE
             req[reqEvent] = (function () {
                 if (req.readyState != 4)
                     return false;
@@ -98,7 +108,7 @@ var PowerTables;
                                 Request: data,
                                 XMLHttp: req,
                                 Data: json
-                            });
+                            }); //?
                             callback(json);
                         }
                     }
@@ -119,7 +129,7 @@ var PowerTables;
                 }
                 else {
                     if (req.status === 0)
-                        return false;
+                        return false; // for IE
                     _this._events.LoadingError.invoke(_this, {
                         Request: data,
                         XMLHttp: req,
@@ -131,8 +141,22 @@ var PowerTables;
                     XMLHttp: req
                 });
             });
+            //req.onabort = (e => {
+            //    this.Events.AfterLoading.invoke(this, [this]);
+            //});
+            //failTimeout = setTimeout(() => { req.abort(); this.Renderer.showError('Network error: network unreacheable'); }, 10000);
             req.send(dataText);
         };
+        /**
+         * Sends specified request to server and lets table handle it.
+         * Always use this method to invoke table's server functionality because this method
+         * correctly rises all events, handles errors etc
+         *
+         * @param command Query command
+         * @param callback Callback that will be invoked after data received
+         * @param queryModifier Inline query modifier for in-place query modification
+         * @returns {}
+         */
         Loader.prototype.requestServer = function (command, callback, queryModifier) {
             var scope = PowerTables.QueryScope.Transboundary;
             if (command === 'query')
@@ -162,3 +186,4 @@ var PowerTables;
     })();
     PowerTables.Loader = Loader;
 })(PowerTables || (PowerTables = {}));
+//# sourceMappingURL=Loader.js.map

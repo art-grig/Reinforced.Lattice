@@ -1,26 +1,51 @@
 var PowerTables;
 (function (PowerTables) {
+    /**
+     * Class that is responsible for holding and managing data loaded from server
+     */
     var DataHolder = (function () {
         function DataHolder(rawColumnNames, isColumnDateTimeFunc, events) {
             this._comparators = {};
             this._filters = [];
             this._anyClientFiltration = false;
+            /**
+             * Selector of source data on client-side
+             */
             this.Selector = null;
             this._rawColumnNames = rawColumnNames;
             this._isColumnDateTimeFunc = isColumnDateTimeFunc;
             this._events = events;
         }
+        /**
+         * Registers client filter
+         *
+         * @param filter Client filter
+         */
         DataHolder.prototype.registerClientFilter = function (filter) {
             this._anyClientFiltration = true;
             this._filters.push(filter);
         };
+        /**
+         * Registers new client ordering comparer function
+         *
+         * @param dataField Field for which this comparator is applicable
+         * @param comparator Comparator fn that should return 0 if entries are equal, -1 if a<b, +1 if a>b
+         * @returns {}
+         */
         DataHolder.prototype.registerClientOrdering = function (dataField, comparator) {
             this._anyClientFiltration = true;
             this._comparators[dataField] = comparator;
         };
+        /**
+         * Is there any client filtration pending
+         * @returns True if there are any actions to be performed on query after loading, false otherwise
+         */
         DataHolder.prototype.isClientFiltrationPending = function () {
             return ((!(!this.Selector)) || this._anyClientFiltration);
         };
+        /**
+        * Parses response from server and turns it to objects array
+        */
         DataHolder.prototype.storeResponse = function (response, clientQuery) {
             var data = [];
             var obj = {};
@@ -51,6 +76,12 @@ var PowerTables;
                 this.filterRecentData(clientQuery);
             }
         };
+        /**
+         * Filter recent data and store it to currently displaying data
+         *
+         * @param query Table query
+         * @returns {}
+         */
         DataHolder.prototype.filterRecentData = function (query) {
             if (this.isClientFiltrationPending() && (!(!query))) {
                 if (this._filters.length === 0) {
@@ -106,3 +137,4 @@ var PowerTables;
     })();
     PowerTables.DataHolder = DataHolder;
 })(PowerTables || (PowerTables = {}));
+//# sourceMappingURL=DataHolder.js.map

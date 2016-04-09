@@ -7,9 +7,12 @@
      * plugins instances, variable ways to query them and accessing their properties
      */
     export class InstanceManager {
-        constructor(configuration: Configuration.Json.ITableConfiguration, masterTable: IMasterTable) {
+        constructor(configuration: Configuration.Json.ITableConfiguration, masterTable: IMasterTable,events:EventsManager) {
             this.Configuration = configuration;
             this._masterTable = masterTable;
+            this._events = events;
+            this.initColumns();
+            this.initPlugins();
         } 
         
         /**

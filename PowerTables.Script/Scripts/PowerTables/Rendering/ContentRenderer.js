@@ -2,6 +2,9 @@ var PowerTables;
 (function (PowerTables) {
     var Rendering;
     (function (Rendering) {
+        /**
+         * Part of renderer that is responsible for rendering of dynamically loaded content
+         */
         var ContentRenderer = (function () {
             function ContentRenderer(templatesProvider, stack, instances) {
                 this._hb = templatesProvider.HandlebarsInstance;
@@ -9,6 +12,12 @@ var PowerTables;
                 this._stack = stack;
                 this._instances = instances;
             }
+            /**
+             * Renders supplied table rows to string
+             *
+             * @param rows Table rows
+             * @returns String containing HTML of table rows
+             */
             ContentRenderer.prototype.renderBody = function (rows) {
                 var result = '';
                 var wrapper = this._templatesProvider.getCachedTemplate('rowWrapper');
@@ -72,3 +81,4 @@ var PowerTables;
         Rendering.ContentRenderer = ContentRenderer;
     })(Rendering = PowerTables.Rendering || (PowerTables.Rendering = {}));
 })(PowerTables || (PowerTables = {}));
+//# sourceMappingURL=ContentRenderer.js.map

@@ -2,6 +2,9 @@ var PowerTables;
 (function (PowerTables) {
     var Rendering;
     (function (Rendering) {
+        /**
+         * Enity responsible for displaying table
+         */
         var Renderer = (function () {
             function Renderer(rootId, prefix, isColumnDateTimeFunc, instances) {
                 this._templatesCache = {};
@@ -18,6 +21,7 @@ var PowerTables;
                 this.HandlebarsInstance.registerHelper('Datepicker', this.datepickerHelper.bind(this));
                 this.cacheTemplates(prefix);
             }
+            //#region Templates caching
             Renderer.prototype.cacheTemplates = function (templatesPrefix) {
                 var selector = "script[type=\"text/x-handlebars-template\"][id^=\"" + templatesPrefix + "-\"]";
                 var templates = document.querySelectorAll(selector);
@@ -27,11 +31,21 @@ var PowerTables;
                     this._templatesCache[key] = this.HandlebarsInstance.compile(item.innerHTML);
                 }
             };
+            /**
+             * Retrieves cached template handlebars function
+             * @param Template Id
+             * @returns Handlebars function
+             */
             Renderer.prototype.getCachedTemplate = function (templateId) {
                 if (!this._templatesCache.hasOwnProperty(templateId))
                     throw new Error("Cannot find template " + templateId);
                 return this._templatesCache[templateId];
             };
+            //#endregion
+            //#region Public methods
+            /**
+             * Perform table layout inside specified root element
+             */
             Renderer.prototype.layout = function () {
                 var rendered = this.getCachedTemplate('layout')(null);
                 this.RootElement.innerHTML = rendered;
@@ -42,6 +56,11 @@ var PowerTables;
                 this.BodyElement.removeChild(bodyMarker);
                 this._layoutRenderer.bindEventsQueue(this.RootElement);
             };
+            /**
+             * Clear dynamically loaded table content and replace it with new one
+             *
+             * @param rows Set of table rows
+             */
             Renderer.prototype.body = function (rows) {
                 this.clearBody();
                 this.BodyElement.innerHTML = this._contentRenderer.renderBody(rows);
@@ -49,6 +68,8 @@ var PowerTables;
             Renderer.prototype.clearBody = function () {
                 this.BodyElement.innerHTML = '';
             };
+            //#endregion
+            //#region Helpers
             Renderer.prototype.contentHelper = function (columnName) {
                 if (this._stack.Current.Object.renderContent) {
                     return this._stack.Current.Object.renderContent(this);
@@ -96,3 +117,4 @@ var PowerTables;
         Rendering.Renderer = Renderer;
     })(Rendering = PowerTables.Rendering || (PowerTables.Rendering = {}));
 })(PowerTables || (PowerTables = {}));
+//# sourceMappingURL=Renderer.js.map

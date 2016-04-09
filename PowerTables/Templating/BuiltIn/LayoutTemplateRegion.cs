@@ -29,7 +29,7 @@ namespace PowerTables.Templating.BuiltIn
         /// <returns>Placeholder template entry</returns>
         public static MvcHtmlString Plugins(this LayoutTemplateRegion t, string position = null)
         {
-            return MvcHtmlString.Create(string.Format("{{{{Plugins \"{0}\"}}}}", position));
+            return MvcHtmlString.Create(string.Format("{{{{{{Plugins \"{0}\"}}}}}}", position));
         }
 
         private static readonly MvcHtmlString _body = MvcHtmlString.Create("{{{Body}}}");

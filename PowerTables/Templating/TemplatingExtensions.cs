@@ -25,7 +25,7 @@ namespace PowerTables.Templating
                     commaSeparatedEvents));
         }
        
-        private static readonly MvcHtmlString _track = MvcHtmlString.Create("{{Track}}");
+        private static readonly MvcHtmlString _track = MvcHtmlString.Create("{{{Track}}}");
         
         /// <summary>
         /// Placeholder for tracking ticket. It is necessary for some complonents

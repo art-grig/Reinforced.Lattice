@@ -43,7 +43,7 @@ var PowerTables;
         PowerTable.prototype.initialize = function () {
             this._isReady = true;
             this.Events = new PowerTables.EventsManager(this);
-            this.InstanceManager = new PowerTables.InstanceManager(this._configuration, this);
+            this.InstanceManager = new PowerTables.InstanceManager(this._configuration, this, this.Events);
             var isDt = this.InstanceManager.isDateTime.bind(this.InstanceManager);
             this.DataHolder = new PowerTables.DataHolder(this.InstanceManager.getColumnNames(), isDt, this.Events);
             this.Loader = new PowerTables.Loader(this._configuration.StaticData, this._configuration.OperationalAjaxUrl, this.Events, this.DataHolder);
@@ -54,3 +54,4 @@ var PowerTables;
     })();
     PowerTables.PowerTable = PowerTable;
 })(PowerTables || (PowerTables = {}));
+//# sourceMappingURL=PowerTables.js.map

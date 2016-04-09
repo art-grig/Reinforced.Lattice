@@ -9,6 +9,8 @@
             this._instances = instances;
             this._stack = new RenderingStack();
             this.RootElement = document.getElementById(rootId);
+            this._rootId = rootId;
+
             this.HandlebarsInstance = Handlebars.create();
 
             this._layoutRenderer = new LayoutRenderer(this, this._stack, this._instances);
@@ -37,6 +39,11 @@
         */
         public HandlebarsInstance: Handlebars.IHandlebars;
 
+        /**
+         * Locator of particular table parts in DOM
+         */
+        public Locator: DOMLocator;
+
         private _isColumnDateTimeFunc: (s: string) => boolean;
         private _instances: InstanceManager;
         private _layoutRenderer: LayoutRenderer;
@@ -44,6 +51,7 @@
         private _stack: RenderingStack;
         private _datepickerFunction: (e: HTMLElement) => void;
         private _templatesCache: { [key: string]: HandlebarsTemplateDelegate } = {};
+        private _rootId: string;
 
         //#region Templates caching
         private cacheTemplates(templatesPrefix: string): void {
@@ -82,6 +90,7 @@
             this.BodyElement = bodyMarker.parentElement;
             this.BodyElement.removeChild(bodyMarker);
             this._layoutRenderer.bindEventsQueue(this.RootElement);
+            this.Locator = new DOMLocator(this.BodyElement, this.RootElement, this._rootId);
         }
 
         /**
@@ -94,7 +103,52 @@
             this.BodyElement.innerHTML = this._contentRenderer.renderBody(rows);
         }
 
+        /**
+         * Redraws specified plugin refreshing all its graphical state 
+         * 
+         * @param plugin Plugin to redraw
+         * @returns {} 
+         */
+        public redrawPlugin(plugin: IPlugin) :void {
+            this._stack.clear();
+            var newPluginElement = this.createElement(this._layoutRenderer.renderPlugin(plugin));
+            var oldPluginElement = this.Locator.getPluginElement(plugin);
+            var parent = oldPluginElement.parentElement;
+            parent.replaceChild(newPluginElement, oldPluginElement);
+        }
 
+        private createElement(html: string): HTMLElement {
+            var tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            return <HTMLElement>tempDiv.childNodes.item(0);
+        }
+
+        /**
+         * Redraws specified row refreshing all its graphical state
+         * 
+         * @param row 
+         * @returns {} 
+         */
+        public redrawRow(row: IRow):void {
+            this._stack.clear();
+            var wrapper = this.getCachedTemplate('rowWrapper');
+            var html;
+            if (row.renderElement) {
+                html = row.renderElement(this);
+            } else {
+                html = wrapper(row);
+            }
+            var newRowElement = this.createElement(html);
+            var oldElement = this.Locator.getRowElement(row);
+            var parent = oldElement.parentElement;
+            parent.replaceChild(newRowElement, oldElement);
+        }
+
+        /**
+         * Removes all dynamically loaded content in table
+         * 
+         * @returns {} 
+         */
         public clearBody(): void {
             this.BodyElement.innerHTML = '';
         }
@@ -144,5 +198,8 @@
                 return opts.inverse(this);
         }
         //#endregion
+
+
+        
     }
 } 

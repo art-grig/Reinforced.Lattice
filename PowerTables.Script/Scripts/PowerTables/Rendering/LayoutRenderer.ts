@@ -68,7 +68,7 @@ module PowerTables.Rendering {
         //#region Plugin helpers
         private pluginHelper(pluginPosition: string, pluginId: string): string {
             var plugin = this._instances.getPlugin(pluginId, pluginPosition);
-            return this.pluginHelperInner(plugin);
+            return this.renderPlugin(plugin);
         }
 
         private pluginsHelper(pluginPosition: string): string {
@@ -79,13 +79,18 @@ module PowerTables.Rendering {
             for (var a in plugins) {
                 if (plugins.hasOwnProperty(a)) {
                     var v = plugins[a];
-                    result += this.pluginHelperInner(v);
+                    result += this.renderPlugin(v);
                 }
             }
             return result;
         }
-
-        private pluginHelperInner(plugin: IPlugin): string {
+        /**
+         * Renders specified plugin into string including its wrapper
+         * 
+         * @param plugin Plugin interface
+         * @returns {} 
+         */
+        public  renderPlugin(plugin: IPlugin): string {
             if (plugin.renderElement) return plugin.renderElement(this._templatesProvider);
             if (!plugin.renderContent) return '';
             this._stack.push(RenderingContextType.Plugin, plugin);

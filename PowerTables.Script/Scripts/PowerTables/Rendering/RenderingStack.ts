@@ -9,6 +9,16 @@ module PowerTables.Rendering {
         private _contextStack: IRenderingContext[] = [];
 
         /**
+         * Clears rendering stack 
+         * @returns {} 
+         */
+        public clear() {
+            this.Current = null;
+            if (this._contextStack.length === 0) return;
+            this._contextStack = [];
+        }
+
+        /**
          * Current rendering context
          */
         public Current: IRenderingContext = null;
