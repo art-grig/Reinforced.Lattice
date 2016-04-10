@@ -13,6 +13,8 @@ module PowerTables.Rendering {
         private _templatesProvider: ITemplatesProvider;
         private _hb: Handlebars.IHandlebars;
         private _eventsQueue: IEventDescriptor[] = [];
+        private _markQueue: IMarkDescriptor[] = [];
+
         private _stack: RenderingStack;
 
         constructor(templates: ITemplatesProvider, stack: RenderingStack, instances: InstanceManager) {
@@ -27,6 +29,7 @@ module PowerTables.Rendering {
             this._hb.registerHelper('Header', this.headerHelper.bind(this));
             this._hb.registerHelper('Headers', this.headersHelper.bind(this));
             this._hb.registerHelper('BindEvent', this.bindEventHelper.bind(this));
+            this._hb.registerHelper('Mark', this.markHelper.bind(this));
         }
 
         /**
@@ -36,6 +39,13 @@ module PowerTables.Rendering {
          * @returns {} 
          */
         public bindEventsQueue(parentElement: HTMLElement): void {
+            var marked = parentElement.querySelectorAll('[data-mrk]');
+            for (var l = 0; l < marked.length; l++) {
+                var markedElement = <HTMLElement>marked.item(l);
+                var markTrack = parseInt(markedElement.getAttribute('data-mrk'));
+                var markdescription = this._markQueue[markTrack];
+                markdescription.ElementReceiver[markdescription.FieldName] = markedElement;
+            }
             // bind plugins/filters events
             var sources = parentElement.querySelectorAll('[data-be]');
             for (var i = 0; i < sources.length; i++) {
@@ -176,6 +186,16 @@ module PowerTables.Rendering {
             return `data-be=${index}`;
         }
 
+        private markHelper(fieldName): string {
+            var index = this._eventsQueue.length;
+            var md = <IMarkDescriptor>{
+                ElementReceiver: this._stack.Current.Object,
+                FieldName: fieldName
+            };
+            this._markQueue.push(md);
+            return `data-mrk=${index}`;
+        }
+
         public renderContent(columnName?: string): string {
             switch (this._stack.Current.Type) {
                 case RenderingContextType.Header:
@@ -190,6 +210,11 @@ module PowerTables.Rendering {
             return '';
         }
 
+    }
+
+    interface IMarkDescriptor {
+        ElementReceiver: any;
+        FieldName: string;
     }
 
     /**

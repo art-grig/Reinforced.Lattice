@@ -15,10 +15,6 @@ namespace PowerTables.Plugins.Paging
     {
         public bool ArrowsMode { get; set; }
 
-        public string PreviousText { get; set; } //todo remove! leave to templates
-
-        public string NextText { get; set; } //todo remove! leave to templates
-
         public bool UsePeriods { get; set; }
 
         public int PagesToHideUnderPeriod { get; set; }

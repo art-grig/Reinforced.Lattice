@@ -26,6 +26,20 @@ namespace PowerTables.Templating
                 commaSeparatedEvents, arguments.Length == 0 ? null : string.Join(" ", arguments)));
         }
 
+        /// <summary>
+        /// Marks specified element and provides plugin with it further. 
+        /// After plugin rendering, marked element will be put to plugin/header instance 
+        /// into filed denoted with fieldName
+        /// </summary>
+        /// <param name="t"></param>
+        /// <param name="fieldName">Where to put HTMLElement</param>
+        /// <returns></returns>
+        public static MvcHtmlString Mark(this IProvidesMarking t, string fieldName)
+        {
+            return
+                MvcHtmlString.Create(string.Format("{{{{Mark \"{0}\"}}}}", fieldName));
+        }
+
         private static readonly MvcHtmlString _track = MvcHtmlString.Create("{{{Track}}}");
 
         /// <summary>

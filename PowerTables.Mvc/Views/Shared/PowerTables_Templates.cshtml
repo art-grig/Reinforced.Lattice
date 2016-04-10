@@ -5,6 +5,7 @@
 @using PowerTables.Plugins.Limit
 @using PowerTables.Plugins.Loading
 @using PowerTables.Plugins.Ordering
+@using PowerTables.Plugins.Paging
 @using PowerTables.Templating
 @using PowerTables.Templating.BuiltIn
 @using PowerTables.Templating.Handlebars
@@ -202,4 +203,70 @@
             }
         </ul>
     </div>
+}
+
+@using (var t = Plugin.Paging())
+{
+    using (t.If(c => c.Shown))
+    {
+        using (var m = t.ArrowsMode())
+        {
+            <nav style="margin:0;width:100px;margin-left:auto;">
+                <ul class="pager">
+                    @using (m.If(c => c.PrevArrow))
+                    {
+                        <li>
+                            <a><span class="glyphicon glyphicon-chevron-left"></span></a>
+                        </li>
+                    }
+                    @using (m.If(c => c.NextArrow))
+                    {
+                        <li>
+                            <a><span class="glyphicon glyphicon-chevron-right"></span></a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        }
+
+        using (var m = t.PeriodsMode())
+        {
+            <ul class="pagination" style="margin: 0;">
+                @using (var pg = m.Each(c => c.Pages))
+                {
+                    using (pg.If(c => c.First))
+                    {
+                        <li class="first"><a style="cursor:pointer" data-action="page" data-page="{{Page}}"><span class="glyphicon glyphicon-fast-backward"></span></a></li>
+                    }
+
+                    using (pg.If(c => c.Prev))
+                    {
+                        <li class="prev"><a style="cursor:pointer" data-action="prev"><span class="glyphicon glyphicon-chevron-left"></span></a></li>
+                    }
+
+                    using (pg.If(c => c.Period)) { <li><span>. . .</span></li> }
+                    using (pg.If(c => c.ActivePage)) { <li class="active"><span>@pg.Value(c=>c.PageNumber)</span></li> }
+                    using (pg.If(c => c.InActivePage)) { <li class="active"><span>@pg.Value(c=>c.PageNumber)</span></li> }
+                    using (pg.If(c => c.Next))
+                    {
+                        <li class="next"><a style="cursor:pointer" data-action="next"><span class="glyphicon glyphicon-chevron-right"></span></a></li>
+                    }
+                    using (pg.If(c => c.Last))
+                    {
+                        <li class="last"><a style="cursor:pointer" data-action="page" data-page="{{Page}}"><span class="glyphicon glyphicon-fast-forward"></span></a></li>
+                    }
+                }
+            </ul>
+        }
+
+        using (var m = t.GotoPage())
+        {
+            <div class="input-group">
+                <input type="text" class="form-control" data-action="pageInput" style="width:60px;" placeholder="Page">
+                <span class="input-group-btn">
+                    <button class="btn btn-default" type="button" data-action="navg"><span class="glyphicon glyphicon-circle-arrow-right"></span></button>
+                </span>
+            </div>
+        }
+    }
 }

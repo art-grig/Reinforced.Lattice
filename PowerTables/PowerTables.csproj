@@ -133,6 +133,7 @@
     <Compile Include="Plugins\Ordering\OrderingUiConfigurationBuilder.cs" />
     <Compile Include="Plugins\Paging\PagingClientConfiguration.cs" />
     <Compile Include="Plugins\Paging\PagingExtensions.cs" />
+    <Compile Include="Plugins\Paging\PagingTemplateRegion.cs" />
     <Compile Include="Plugins\ResponseInfo\ActionBasedResponseModifier.cs" />
     <Compile Include="Plugins\Checkboxify\CheckboxifyClientConfig.cs" />
     <Compile Include="Plugins\ResponseInfo\ResponseInfoClientConfiguration.cs" />

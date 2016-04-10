@@ -21,4 +21,6 @@ namespace PowerTables.Templating
     public interface IProvidesColumnContent : ITemplateRegion { }
 
     public interface IModelProvider<T> : ITemplateRegion { }
+
+    public interface IProvidesMarking : ITemplateRegion { }
 }
