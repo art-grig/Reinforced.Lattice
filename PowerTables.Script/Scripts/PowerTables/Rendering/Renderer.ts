@@ -120,17 +120,11 @@
             this._stack.clear();
             var oldPluginElement = this.Locator.getPluginElement(plugin);
             var parent = oldPluginElement.parentElement;
-            var newPluginElement = this.createElement(this._layoutRenderer.renderPlugin(plugin), parent);
+            var parser = new PowerTables.Rendering.Html2Dom.HtmlParser();
+            var newPluginElement = parser.html2Dom(this._layoutRenderer.renderPlugin(plugin));
 
             parent.replaceChild(newPluginElement, oldPluginElement);
             this._layoutRenderer.bindEventsQueue(newPluginElement);
-        }
-
-        private createElement(html: string, parent: HTMLElement): HTMLElement {
-            parent.innerHTML += html;
-            var e = <HTMLElement>parent.lastElementChild;
-            e.style.display = 'none';
-            return e;
         }
 
         /**
@@ -149,7 +143,7 @@
                 html = wrapper(row);
             }
             var oldElement = this.Locator.getRowElement(row);
-            this.replaceElement(oldElement,html);
+            this.replaceElement(oldElement, html);
         }
 
         /**
@@ -168,7 +162,7 @@
                 html = wrapper(row);
             }
             var referenceNode = this.Locator.getRowElementByIndex(afterRowAtIndex);
-            var newRowElement = this.createElement(html,<HTMLElement>referenceNode.parentNode);
+            var newRowElement = this.createElement(html);
             referenceNode.parentNode.insertBefore(newRowElement, referenceNode.nextSibling);
         }
 
@@ -192,13 +186,17 @@
             this._stack.clear();
             var html = this._layoutRenderer.renderHeader(column);
             var oldHeaderElement = this.Locator.getHeaderElement(column.Header);
-            var newElement = this.replaceElement(oldHeaderElement,html);
+            var newElement = this.replaceElement(oldHeaderElement, html);
             this._layoutRenderer.bindEventsQueue(newElement.parentElement);
         }
 
-        private replaceElement(element: HTMLElement, html: string):HTMLElement {
+        private createElement(html: string): HTMLElement {
             var parser = new PowerTables.Rendering.Html2Dom.HtmlParser();
-            var node = parser.html2Dom(html);
+            return parser.html2Dom(html);
+        }
+
+        private replaceElement(element: HTMLElement, html: string): HTMLElement {
+            var node = this.createElement(html);
             element.parentElement.replaceChild(node, element);
             return node;
         }

@@ -76,6 +76,22 @@
             }
         }
 
+        private makeDefaultOrderingFunction(fieldName:string) {
+            var self = this;
+            return (function (field) {
+                return function(a, b) {
+                    var x = a[field], y = b[field];
+                    if (x === y) return 0;
+                    if (x == null || x == undefined) return -1;
+                    if (y == null || y == undefined) return 1;
+                    if (typeof x === "string") {
+                        return x.localeCompare(y);
+                    }
+                    return (x > y) ? 1 : -1;
+                }
+            })(fieldName);
+        }
+
         init(masterTable: IMasterTable): void {
             super.init(masterTable);
             var hasClientOrderings = false;
@@ -86,8 +102,7 @@
 
                     fn = this.Configuration.ClientSortableColumns[cls];
                     if (!fn) {
-                        var col = this.MasterTable.InstanceManager.Columns[cls];
-                        fn = (a: any, b: any) => this.defaultClientSortingFunction(a, b, col);
+                        fn = this.makeDefaultOrderingFunction(cls);
                         this.Configuration.ClientSortableColumns[cls] = fn;
                     }
                     this.MasterTable.DataHolder.registerClientOrdering(cls, fn);
@@ -98,25 +113,14 @@
                 // if we have at least 1 client ordering then we have to reorder whole 
                 // received data on client
                 // to avoid client ordering priority
-                for (var leftOrdering in this.Configuration.DefaultOrderingsForColumns) {
-                    if (this.Configuration.ClientSortableColumns.hasOwnProperty(leftOrdering)) continue;
-                    var leftColumn = this.MasterTable.InstanceManager.Columns[leftOrdering];
-                    fn = (a: any, b: any) => this.defaultClientSortingFunction(a, b, leftColumn);
-                    this.MasterTable.DataHolder.registerClientOrdering(leftOrdering, fn);
+                for (var serverColumn in this.Configuration.DefaultOrderingsForColumns) {
+                    if (this.isClient(serverColumn)) continue;
+                    fn = this.makeDefaultOrderingFunction(serverColumn);
+                    this.MasterTable.DataHolder.registerClientOrdering(serverColumn, fn);
                 }
             }
         }
-
-        private defaultClientSortingFunction(a: any, b: any, column: IColumn): number {
-            var x = a[column.RawName], y = b[column.RawName];
-            if (x === y) return 0;
-            if (x == null || x == undefined) return -1;
-            if (y == null || y == undefined) return 1;
-            if (typeof x === "string") {
-                return x.localeCompare(y);
-            }
-            return (x > y) ? 1 : -1;
-        }
+        
         private mixinOrderings(orderingsCollection: { [key: string]: PowerTables.Ordering }, query: IQuery) {
             for (var clo in orderingsCollection) {
                 if (orderingsCollection.hasOwnProperty(clo)) {
