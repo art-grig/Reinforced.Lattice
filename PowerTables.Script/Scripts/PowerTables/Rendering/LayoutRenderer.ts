@@ -187,7 +187,7 @@ module PowerTables.Rendering {
         }
 
         private markHelper(fieldName): string {
-            var index = this._eventsQueue.length;
+            var index = this._markQueue.length;
             var md = <IMarkDescriptor>{
                 ElementReceiver: this._stack.Current.Object,
                 FieldName: fieldName

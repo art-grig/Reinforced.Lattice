@@ -16,7 +16,7 @@ namespace PowerTables.Mvc.Models.Tutorial
                 "-",              // dash will be interpreted as separator
                 "5", "10", "-", "50", "100"
             }, "10", position: "lt", enableCientLimiting: true);
-            conf.PagingWithPeriods(position: "lb", useGotoPage: true, useFirstLasPage: true);
+            conf.PagingWithPeriods(position: "lb", useGotoPage: true, useFirstLasPage: true, enableClientPaging: true);
             return conf;
         }
     }

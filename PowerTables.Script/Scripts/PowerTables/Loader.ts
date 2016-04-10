@@ -41,11 +41,21 @@
                 AdditionalData: {},
                 StaticDataJson: this._staticData
             };
-            this._events.BeforeQueryGathering.invoke(this, { Query: a, Scope: queryScope });
+            if (queryScope === QueryScope.Client) {
+                this._events.BeforeClientQueryGathering.invoke(this, { Query: a, Scope: queryScope });
+            } else {
+                this._events.BeforeQueryGathering.invoke(this, { Query: a, Scope: queryScope });
+            }
+
             for (var i = 0; i < this._queryPartProviders.length; i++) {
                 this._queryPartProviders[i].modifyQuery(a, queryScope);
             }
-            this._events.AfterQueryGathering.invoke(this, { Query: a, Scope: queryScope });
+
+            if (queryScope === QueryScope.Client) {
+                this._events.AfterClientQueryGathering.invoke(this, { Query: a, Scope: queryScope });
+            } else {
+                this._events.AfterQueryGathering.invoke(this, { Query: a, Scope: queryScope });
+            }
             return a;
         }
 

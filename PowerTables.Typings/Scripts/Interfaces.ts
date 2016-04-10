@@ -318,12 +318,11 @@ module PowerTables.Plugins.Paging {
 	export interface IPagingClientConfiguration
 	{
 		ArrowsMode: boolean;
-		PreviousText: string;
-		NextText: string;
 		UsePeriods: boolean;
 		PagesToHideUnderPeriod: number;
 		UseFirstLastPage: boolean;
 		UseGotoPage: boolean;
+		EnableClientPaging: boolean;
 	}
 }
 module PowerTables.Plugins.Toolbar {

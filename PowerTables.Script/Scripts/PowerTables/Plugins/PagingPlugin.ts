@@ -8,7 +8,7 @@
         public NextArrow: boolean;
         public PrevArrow: boolean;
 
-        private _selectedPage: number;
+        private _selectedPage: number = 0;
         private _totalPages: number;
         private _pageSize: number;
 
@@ -19,12 +19,35 @@
         private onFilterGathered(e: ITableEventArgs<IQueryGatheringEventArgs>) {
             this._pageSize = e.EventArgs.Query.Paging.PageSize;
         }
+        private onColumnsCreation() {
+            if (this.Configuration.EnableClientPaging && !this.MasterTable.DataHolder.EnableClientTake) {
+                var limit = null;
+                try {
+                    limit = this.MasterTable.InstanceManager.getPlugin('Limit');
+                } catch (a) { }
+                if (limit != null)
+                    throw new Error('Paging ang Limit plugins must both work locally or both remote. Please enable client limiting');
+            }
+        }
 
         private onResponse(e: ITableEventArgs<IDataEventArgs>) {
             this._selectedPage = e.EventArgs.Data.PageIndex;
             var tp = e.EventArgs.Data.ResultsCount / this._pageSize;
             if (tp !== parseInt(<any>tp)) {
                 tp = parseInt(<any>tp) + 1;
+            }
+            this._totalPages = tp;
+            this.MasterTable.Renderer.redrawPlugin(this);
+        }
+
+        private onClientDataProcessing(e:ITableEventArgs<IQuery>) {
+            var tp = this.MasterTable.DataHolder.StoredData.length / this._pageSize;
+            if (tp !== parseInt(<any>tp)) {
+                tp = parseInt(<any>tp) + 1;
+            }
+            if (tp < this._selectedPage) {
+                this._selectedPage = 0;
+                e.EventArgs.Paging.PageIndex = 0;
             }
             this._totalPages = tp;
             this.MasterTable.Renderer.redrawPlugin(this);
@@ -121,13 +144,32 @@
         }
 
         modifyQuery(query: IQuery, scope: QueryScope): void {
-            
+            if (this.Configuration.EnableClientPaging && scope===QueryScope.Client) {
+                query.Paging.PageIndex = this._selectedPage;
+            }
+
+            if ((!this.Configuration.EnableClientPaging) && scope !== QueryScope.Client) {
+                query.Paging.PageIndex = this._selectedPage;
+            }
         }
 
         init(masterTable: IMasterTable): void {
             super.init(masterTable);
-            this.MasterTable.Events.AfterQueryGathering.subscribe(this.onFilterGathered.bind(this),'paging');
-            this.MasterTable.Events.DataReceived.subscribe(this.onResponse.bind(this),'paging');
+            if (!this.Configuration.EnableClientPaging) {
+                this.MasterTable.Events.AfterQueryGathering.subscribe(this.onFilterGathered.bind(this), 'paging');
+            } else {
+                this.MasterTable.Events.AfterClientQueryGathering.subscribe(this.onFilterGathered.bind(this), 'paging');
+            }
+            if (!this.Configuration.EnableClientPaging) {
+                this.MasterTable.Events.DataReceived.subscribe(this.onResponse.bind(this), 'paging');
+            } else {
+                this.MasterTable.Events.BeforeClientDataProcessing.subscribe(this.onClientDataProcessing.bind(this), 'paging');
+            }
+            this.MasterTable.Events.ColumnsCreation.subscribe(this.onColumnsCreation.bind(this), 'paging');
+
+            if (this.Configuration.EnableClientPaging) {
+                this.MasterTable.DataHolder.EnableClientSkip = true;
+            }
         }
     }
 

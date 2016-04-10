@@ -68,6 +68,8 @@
             this._masterTable = masterTable;
             this.BeforeQueryGathering = new TableEvent(masterTable);
             this.AfterQueryGathering = new TableEvent(masterTable);
+            this.BeforeClientQueryGathering = new TableEvent(masterTable);
+            this.AfterClientQueryGathering = new TableEvent(masterTable);
             this.BeforeLoading = new TableEvent(masterTable);
             this.LoadingError = new TableEvent(masterTable);
             this.ColumnsCreation = new TableEvent(masterTable);
@@ -75,6 +77,7 @@
             this.AfterLoading = new TableEvent(masterTable);
             this.BeforeLayoutDrawn = new TableEvent(masterTable);
             this.AfterLayoutDrawn = new TableEvent(masterTable);
+            this.BeforeClientDataProcessing = new TableEvent(masterTable);
         }
 
         /**
@@ -97,6 +100,7 @@
          * other query providers. 
          */
         public BeforeQueryGathering: TableEvent<IQueryGatheringEventArgs>;
+        public BeforeClientQueryGathering: TableEvent<IQueryGatheringEventArgs>;
 
         /**
          * "After Filter Gathering" event. 
@@ -106,6 +110,7 @@
          * set by another query providers. 
          */
         public AfterQueryGathering: TableEvent<IQueryGatheringEventArgs>;
+        public AfterClientQueryGathering: TableEvent<IQueryGatheringEventArgs>;
 
         /**
          * "Before Loading" event.
@@ -148,7 +153,8 @@
          * Event argument is deserialized JSON data from server. 
          */
         public DataReceived: TableEvent<IDataEventArgs>;
-
+        
+        public BeforeClientDataProcessing: TableEvent<IQuery>;
 
         /**
          * "After Loading" event.

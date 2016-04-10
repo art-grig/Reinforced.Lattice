@@ -308,12 +308,11 @@ declare module PowerTables.Plugins.Paging {
     */
     interface IPagingClientConfiguration {
         ArrowsMode: boolean;
-        PreviousText: string;
-        NextText: string;
         UsePeriods: boolean;
         PagesToHideUnderPeriod: number;
         UseFirstLastPage: boolean;
         UseGotoPage: boolean;
+        EnableClientPaging: boolean;
     }
 }
 declare module PowerTables.Plugins.Toolbar {
@@ -646,6 +645,7 @@ declare module PowerTables {
          * other query providers.
          */
         BeforeQueryGathering: TableEvent<IQueryGatheringEventArgs>;
+        BeforeClientQueryGathering: TableEvent<IQueryGatheringEventArgs>;
         /**
          * "After Filter Gathering" event.
          * Occurs every time before sending request to server via Loader AFTER
@@ -654,6 +654,7 @@ declare module PowerTables {
          * set by another query providers.
          */
         AfterQueryGathering: TableEvent<IQueryGatheringEventArgs>;
+        AfterClientQueryGathering: TableEvent<IQueryGatheringEventArgs>;
         /**
          * "Before Loading" event.
          * Occurs every time right before calling XMLHttpRequest.send and
@@ -693,6 +694,7 @@ declare module PowerTables {
          * Event argument is deserialized JSON data from server.
          */
         DataReceived: TableEvent<IDataEventArgs>;
+        BeforeClientDataProcessing: TableEvent<IQuery>;
         /**
          * "After Loading" event.
          * Occurs every time after EVERY operation connected to server response handling
@@ -1891,6 +1893,7 @@ declare module PowerTables.Plugins {
         Sizes: ILimitSize[];
         modifyQuery(query: IQuery, scope: QueryScope): void;
         init(masterTable: IMasterTable): void;
+        private onColumnsCreation();
     }
     /**
      * Size entry for limit plugin
@@ -1936,7 +1939,9 @@ declare module PowerTables.Plugins {
         GotoBtn: HTMLElement;
         GotoInput: HTMLInputElement;
         private onFilterGathered(e);
+        private onColumnsCreation();
         private onResponse(e);
+        private onClientDataProcessing(e);
         private pageClick(page);
         gotoPageClick(e: TemplateBoundEvent<PagingPlugin>): void;
         navigateToPage(e: TemplateBoundEvent<PagingPlugin>): void;

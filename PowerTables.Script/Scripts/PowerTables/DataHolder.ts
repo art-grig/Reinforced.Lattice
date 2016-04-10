@@ -180,6 +180,8 @@
          * @returns {} 
          */
         public filterStoredData(query: IQuery) {
+            this._events.BeforeClientDataProcessing.invoke(this, query);
+
             this.DisplayedData = this.StoredData;
             this.RecentClientQuery = query;
 
@@ -191,7 +193,7 @@
                 var startingIndex = query.Paging.PageIndex * query.Paging.PageSize;
                 var take = query.Paging.PageSize;
                 if (this.EnableClientSkip && this.EnableClientTake) {
-                    selected = ordered.slice(startingIndex, take === 0 ? null : take);
+                    selected = ordered.slice(startingIndex, take === 0 ? null : (startingIndex + take));
                 } else {
                     if (this.EnableClientSkip) {
                         selected = ordered.slice(startingIndex);

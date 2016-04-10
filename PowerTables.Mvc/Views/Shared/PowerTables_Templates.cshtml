@@ -261,10 +261,10 @@
 
         using (var m = t.GotoPage())
         {
-            <div class="input-group">
-                <input type="text" class="form-control" data-action="pageInput" style="width:60px;" placeholder="Page">
+            <div class="input-group" @m.ThisIsGotoPanel()>
+                <input type="text" class="form-control" @m.ThisIsGotoPageTextbox() style="width:60px;" placeholder="Page">
                 <span class="input-group-btn">
-                    <button class="btn btn-default" type="button" data-action="navg"><span class="glyphicon glyphicon-circle-arrow-right"></span></button>
+                    <button class="btn btn-default" type="button" @m.ThisIsGotoPageButton()><span class="glyphicon glyphicon-circle-arrow-right"></span></button>
                 </span>
             </div>
         }

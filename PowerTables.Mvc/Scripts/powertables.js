@@ -164,6 +164,8 @@ var PowerTables;
             this._masterTable = masterTable;
             this.BeforeQueryGathering = new TableEvent(masterTable);
             this.AfterQueryGathering = new TableEvent(masterTable);
+            this.BeforeClientQueryGathering = new TableEvent(masterTable);
+            this.AfterClientQueryGathering = new TableEvent(masterTable);
             this.BeforeLoading = new TableEvent(masterTable);
             this.LoadingError = new TableEvent(masterTable);
             this.ColumnsCreation = new TableEvent(masterTable);
@@ -171,6 +173,7 @@ var PowerTables;
             this.AfterLoading = new TableEvent(masterTable);
             this.BeforeLayoutDrawn = new TableEvent(masterTable);
             this.AfterLayoutDrawn = new TableEvent(masterTable);
+            this.BeforeClientDataProcessing = new TableEvent(masterTable);
         }
         /**
          * Registers new event for events manager.
@@ -635,6 +638,7 @@ var PowerTables;
          * @returns {}
          */
         DataHolder.prototype.filterStoredData = function (query) {
+            this._events.BeforeClientDataProcessing.invoke(this, query);
             this.DisplayedData = this.StoredData;
             this.RecentClientQuery = query;
             if (this.isClientFiltrationPending() && (!(!query))) {
@@ -645,7 +649,7 @@ var PowerTables;
                 var startingIndex = query.Paging.PageIndex * query.Paging.PageSize;
                 var take = query.Paging.PageSize;
                 if (this.EnableClientSkip && this.EnableClientTake) {
-                    selected = ordered.slice(startingIndex, take === 0 ? null : take);
+                    selected = ordered.slice(startingIndex, take === 0 ? null : (startingIndex + take));
                 }
                 else {
                     if (this.EnableClientSkip) {
@@ -956,11 +960,21 @@ var PowerTables;
                 AdditionalData: {},
                 StaticDataJson: this._staticData
             };
-            this._events.BeforeQueryGathering.invoke(this, { Query: a, Scope: queryScope });
+            if (queryScope === PowerTables.QueryScope.Client) {
+                this._events.BeforeClientQueryGathering.invoke(this, { Query: a, Scope: queryScope });
+            }
+            else {
+                this._events.BeforeQueryGathering.invoke(this, { Query: a, Scope: queryScope });
+            }
             for (var i = 0; i < this._queryPartProviders.length; i++) {
                 this._queryPartProviders[i].modifyQuery(a, queryScope);
             }
-            this._events.AfterQueryGathering.invoke(this, { Query: a, Scope: queryScope });
+            if (queryScope === PowerTables.QueryScope.Client) {
+                this._events.AfterClientQueryGathering.invoke(this, { Query: a, Scope: queryScope });
+            }
+            else {
+                this._events.AfterQueryGathering.invoke(this, { Query: a, Scope: queryScope });
+            }
             return a;
         };
         Loader.prototype.getXmlHttp = function () {
@@ -1670,7 +1684,7 @@ var PowerTables;
                 return "data-be=" + index;
             };
             LayoutRenderer.prototype.markHelper = function (fieldName) {
-                var index = this._eventsQueue.length;
+                var index = this._markQueue.length;
                 var md = {
                     ElementReceiver: this._stack.Current.Object,
                     FieldName: fieldName
@@ -2568,6 +2582,18 @@ var PowerTables;
                 if (this.Configuration.EnableClientLimiting) {
                     this.MasterTable.DataHolder.EnableClientTake = true;
                 }
+                this.MasterTable.Events.ColumnsCreation.subscribe(this.onColumnsCreation.bind(this), 'paging');
+            };
+            LimitPlugin.prototype.onColumnsCreation = function () {
+                if (this.Configuration.EnableClientLimiting && !this.MasterTable.DataHolder.EnableClientSkip) {
+                    var paging = null;
+                    try {
+                        paging = this.MasterTable.InstanceManager.getPlugin('Paging');
+                    }
+                    catch (a) { }
+                    if (paging != null)
+                        throw new Error('Limit ang paging plugin must both work locally or both remote. Please enable client paging');
+                }
             };
             return LimitPlugin;
         })(Plugins.FilterBase);
@@ -2583,15 +2609,39 @@ var PowerTables;
             __extends(PagingPlugin, _super);
             function PagingPlugin() {
                 _super.apply(this, arguments);
+                this._selectedPage = 0;
             }
             PagingPlugin.prototype.onFilterGathered = function (e) {
                 this._pageSize = e.EventArgs.Query.Paging.PageSize;
+            };
+            PagingPlugin.prototype.onColumnsCreation = function () {
+                if (this.Configuration.EnableClientPaging && !this.MasterTable.DataHolder.EnableClientTake) {
+                    var limit = null;
+                    try {
+                        limit = this.MasterTable.InstanceManager.getPlugin('Limit');
+                    }
+                    catch (a) { }
+                    if (limit != null)
+                        throw new Error('Paging ang Limit plugins must both work locally or both remote. Please enable client limiting');
+                }
             };
             PagingPlugin.prototype.onResponse = function (e) {
                 this._selectedPage = e.EventArgs.Data.PageIndex;
                 var tp = e.EventArgs.Data.ResultsCount / this._pageSize;
                 if (tp !== parseInt(tp)) {
                     tp = parseInt(tp) + 1;
+                }
+                this._totalPages = tp;
+                this.MasterTable.Renderer.redrawPlugin(this);
+            };
+            PagingPlugin.prototype.onClientDataProcessing = function (e) {
+                var tp = this.MasterTable.DataHolder.StoredData.length / this._pageSize;
+                if (tp !== parseInt(tp)) {
+                    tp = parseInt(tp) + 1;
+                }
+                if (tp < this._selectedPage) {
+                    this._selectedPage = 0;
+                    e.EventArgs.Paging.PageIndex = 0;
                 }
                 this._totalPages = tp;
                 this.MasterTable.Renderer.redrawPlugin(this);
@@ -2688,11 +2738,31 @@ var PowerTables;
                 }
             };
             PagingPlugin.prototype.modifyQuery = function (query, scope) {
+                if (this.Configuration.EnableClientPaging && scope === PowerTables.QueryScope.Client) {
+                    query.Paging.PageIndex = this._selectedPage;
+                }
+                if ((!this.Configuration.EnableClientPaging) && scope !== PowerTables.QueryScope.Client) {
+                    query.Paging.PageIndex = this._selectedPage;
+                }
             };
             PagingPlugin.prototype.init = function (masterTable) {
                 _super.prototype.init.call(this, masterTable);
-                this.MasterTable.Events.AfterQueryGathering.subscribe(this.onFilterGathered.bind(this), 'paging');
-                this.MasterTable.Events.DataReceived.subscribe(this.onResponse.bind(this), 'paging');
+                if (!this.Configuration.EnableClientPaging) {
+                    this.MasterTable.Events.AfterQueryGathering.subscribe(this.onFilterGathered.bind(this), 'paging');
+                }
+                else {
+                    this.MasterTable.Events.AfterClientQueryGathering.subscribe(this.onFilterGathered.bind(this), 'paging');
+                }
+                if (!this.Configuration.EnableClientPaging) {
+                    this.MasterTable.Events.DataReceived.subscribe(this.onResponse.bind(this), 'paging');
+                }
+                else {
+                    this.MasterTable.Events.BeforeClientDataProcessing.subscribe(this.onClientDataProcessing.bind(this), 'paging');
+                }
+                this.MasterTable.Events.ColumnsCreation.subscribe(this.onColumnsCreation.bind(this), 'paging');
+                if (this.Configuration.EnableClientPaging) {
+                    this.MasterTable.DataHolder.EnableClientSkip = true;
+                }
             };
             return PagingPlugin;
         })(Plugins.FilterBase);

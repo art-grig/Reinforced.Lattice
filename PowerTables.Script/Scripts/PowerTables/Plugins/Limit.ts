@@ -74,6 +74,20 @@
             if (this.Configuration.EnableClientLimiting) {
                 this.MasterTable.DataHolder.EnableClientTake = true;
             }
+
+            this.MasterTable.Events.ColumnsCreation.subscribe(this.onColumnsCreation.bind(this), 'paging');
+
+        }
+
+        private onColumnsCreation() {
+            if (this.Configuration.EnableClientLimiting && !this.MasterTable.DataHolder.EnableClientSkip) {
+                var paging = null;
+                try {
+                    paging = this.MasterTable.InstanceManager.getPlugin('Paging');
+                } catch (a) { }
+                if (paging != null)
+                    throw new Error('Limit ang paging plugin must both work locally or both remote. Please enable client paging');
+            }
         }
     }
 

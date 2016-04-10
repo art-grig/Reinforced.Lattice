@@ -139,12 +139,12 @@ namespace PowerTables.Plugins.Paging
 
         public static MvcHtmlString ThisIsGotoPageButton(this PagingGotoPageTemplate t)
         {
-            return MvcHtmlString.Create(t.Mark("GotoBtn") + " " + t.BindEvent("click", "gotoPageClick"));
+            return MvcHtmlString.Create(t.Mark("GotoBtn") + " " + t.BindEvent("gotoPageClick", "click"));
         }
 
         public static MvcHtmlString ThisIsGotoPageTextbox(this PagingGotoPageTemplate t)
         {
-            return MvcHtmlString.Create(t.Mark("GotoInput") + " " + t.BindEvent("keyup", "validateGotopage"));
+            return MvcHtmlString.Create(t.Mark("GotoInput") + " " + t.BindEvent("validateGotopage", "keyup"));
         }
 
     }
