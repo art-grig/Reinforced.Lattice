@@ -4,7 +4,7 @@
      * Enity responsible for displaying table
      */
     export class Renderer implements ITemplatesProvider {
-        constructor(rootId: string, prefix: string, isColumnDateTimeFunc: (s: string) => boolean, instances: InstanceManager,events:EventsManager) {
+        constructor(rootId: string, prefix: string, isColumnDateTimeFunc: (s: string) => boolean, instances: InstanceManager, events: EventsManager) {
             this._isColumnDateTimeFunc = isColumnDateTimeFunc;
             this._instances = instances;
             this._stack = new RenderingStack();
@@ -54,7 +54,7 @@
         private _datepickerFunction: (e: HTMLElement) => void;
         private _templatesCache: { [key: string]: HandlebarsTemplateDelegate } = {};
         private _rootId: string;
-        private _events:EventsManager;
+        private _events: EventsManager;
 
         //#region Templates caching
         private cacheTemplates(templatesPrefix: string): void {
@@ -118,17 +118,19 @@
          */
         public redrawPlugin(plugin: IPlugin): void {
             this._stack.clear();
-            var newPluginElement = this.createElement(this._layoutRenderer.renderPlugin(plugin));
             var oldPluginElement = this.Locator.getPluginElement(plugin);
             var parent = oldPluginElement.parentElement;
+            var newPluginElement = this.createElement(this._layoutRenderer.renderPlugin(plugin), parent);
+
             parent.replaceChild(newPluginElement, oldPluginElement);
             this._layoutRenderer.bindEventsQueue(newPluginElement);
         }
 
-        private createElement(html: string): HTMLElement {
-            var tempDiv = document.createElement('div');
-            tempDiv.innerHTML = html.trim();
-            return <HTMLElement>tempDiv.firstChild;
+        private createElement(html: string, parent: HTMLElement): HTMLElement {
+            parent.innerHTML += html;
+            var e = <HTMLElement>parent.lastElementChild;
+            e.style.display = 'none';
+            return e;
         }
 
         /**
@@ -146,10 +148,8 @@
             } else {
                 html = wrapper(row);
             }
-            var newRowElement = this.createElement(html);
             var oldElement = this.Locator.getRowElement(row);
-            var parent = oldElement.parentElement;
-            parent.replaceChild(newRowElement, oldElement);
+            this.replaceElement(oldElement,html);
         }
 
         /**
@@ -167,8 +167,8 @@
             } else {
                 html = wrapper(row);
             }
-            var newRowElement = this.createElement(html);
             var referenceNode = this.Locator.getRowElementByIndex(afterRowAtIndex);
+            var newRowElement = this.createElement(html,<HTMLElement>referenceNode.parentNode);
             referenceNode.parentNode.insertBefore(newRowElement, referenceNode.nextSibling);
         }
 
@@ -188,17 +188,20 @@
          * 
          * @param column Column which header is to be redrawn         
          */
-        public redrawHeader(column: IColumn) :void {
+        public redrawHeader(column: IColumn): void {
             this._stack.clear();
             var html = this._layoutRenderer.renderHeader(column);
-            //var newHeaderElement = this.createElement(html);
             var oldHeaderElement = this.Locator.getHeaderElement(column.Header);
-            oldHeaderElement.innerHTML = html;
-            //var parent = oldHeaderElement.parentElement;
-            //parent.replaceChild(newHeaderElement, oldHeaderElement);
-            this._layoutRenderer.bindEventsQueue(oldHeaderElement);
+            var newElement = this.replaceElement(oldHeaderElement,html);
+            this._layoutRenderer.bindEventsQueue(newElement.parentElement);
         }
 
+        private replaceElement(element: HTMLElement, html: string):HTMLElement {
+            var parser = new PowerTables.Rendering.Html2Dom.HtmlParser();
+            var node = parser.html2Dom(html);
+            element.parentElement.replaceChild(node, element);
+            return node;
+        }
         /**
          * Removes all dynamically loaded content in table
          * 

@@ -129,7 +129,7 @@
                     if (insertion.RedrawBehavior === RedrawBehavior.RedrawVisible) this.localRedrawVisible();
                     else if (insertion.RedrawBehavior === RedrawBehavior.LocalVisibleReorder) this.localVisibleReorder();
                     else if (insertion.RedrawBehavior === RedrawBehavior.ParticularRowUpdate) {
-                        var row = this.produceRow(insertion.DataObject, this._masterTable.InstanceManager.getUiColumns(), insertion.DisplayRowIndex);
+                        var row = this.produceRow(insertion.DataObject, insertion.DisplayRowIndex);
                         this._masterTable.Renderer.appendRow(row, insertion.DisplayRowIndex);
                     }
                 }
@@ -181,7 +181,7 @@
                     if (update.RedrawBehavior === RedrawBehavior.RedrawVisible) this.localRedrawVisible();
                     else if (update.RedrawBehavior === RedrawBehavior.LocalVisibleReorder) this.localVisibleReorder();
                     else if (update.RedrawBehavior === RedrawBehavior.ParticularRowUpdate) {
-                        var row = this.produceRow(object, this._masterTable.InstanceManager.getUiColumns(), update.DisplayRowIndex);
+                        var row = this.produceRow(object, update.DisplayRowIndex);
                         this._masterTable.Renderer.redrawRow(row);
                     }
                 }
@@ -199,11 +199,13 @@
             this.localRedrawVisible();
         }
 
-        public produceRow(dataObject: any, columns: IColumn[], idx: number): IRow {
+        
+        public produceRow(dataObject: any, idx: number, columns?: IColumn[]): IRow {
             if (!dataObject) return null;
+            if (!columns) columns = this._masterTable.InstanceManager.getUiColumns();
 
             var rw = <IRow>{
-                DataObject: dataObject[idx],
+                DataObject: dataObject,
                 Index: idx,
                 MasterTable: this._masterTable
             }
@@ -230,7 +232,7 @@
             var columns = this._masterTable.InstanceManager.getUiColumns();
 
             for (var i = 0; i < this._masterTable.DataHolder.DisplayedData.length; i++) {
-                var row = this.produceRow(this._masterTable.DataHolder.DisplayedData[i], columns, i);
+                var row = this.produceRow(this._masterTable.DataHolder.DisplayedData[i], i, columns);
                 if (!row) continue;
                 result.push(row);
             }

@@ -294,7 +294,7 @@ declare module PowerTables {
         updateLocalRow(update: IUpdateRequest): void;
         private localFullRefresh();
         private localVisibleReorder();
-        produceRow(dataObject: any, columns: IColumn[], idx: number): IRow;
+        produceRow(dataObject: any, idx: number, columns?: IColumn[]): IRow;
         private produceRows();
     }
     interface IRowEventArgs {
@@ -1365,6 +1365,51 @@ declare module PowerTables.Rendering {
         isCell(e: HTMLElement): boolean;
     }
 }
+declare module PowerTables.Rendering.Html2Dom {
+    class HtmlParserDefinitions {
+        static startTag: RegExp;
+        static endTag: RegExp;
+        static attr: RegExp;
+        static empty: {
+            [key: string]: boolean;
+        };
+        static block: {
+            [key: string]: boolean;
+        };
+        static inline: {
+            [key: string]: boolean;
+        };
+        static closeSelf: {
+            [key: string]: boolean;
+        };
+        static fillAttrs: {
+            [key: string]: boolean;
+        };
+        static special: {
+            [key: string]: boolean;
+        };
+        private static makeMap(str);
+    }
+    /**
+     * Small HTML parser to turn user's HTMl to DOM
+     * Thanks to John Resig, co-author of jQuery
+     * http://ejohn.org/blog/pure-javascript-html-parser/
+     */
+    class HtmlParser {
+        constructor();
+        private _stack;
+        private parse(html);
+        private parseStartTag(tag, tagName, rest, unary);
+        private parseEndTag(tag?, tagName?);
+        private _curParentNode;
+        private _elems;
+        private _topNodes;
+        private start(tagName, attrs, unary);
+        private end(tag);
+        private chars(text);
+        html2Dom(html: string): HTMLElement;
+    }
+}
 declare module PowerTables.Rendering {
     /**
      * Rendering stack class. Provives common helper
@@ -1559,7 +1604,7 @@ declare module PowerTables.Rendering {
          * @returns {}
          */
         redrawPlugin(plugin: IPlugin): void;
-        private createElement(html);
+        private createElement(html, parent);
         /**
          * Redraws specified row refreshing all its graphical state
          *
@@ -1587,6 +1632,7 @@ declare module PowerTables.Rendering {
          * @param column Column which header is to be redrawn
          */
         redrawHeader(column: IColumn): void;
+        private replaceElement(element, html);
         /**
          * Removes all dynamically loaded content in table
          *

@@ -20,30 +20,36 @@ namespace PowerTables.Templating.BuiltIn
         public bool IsTrackSet { get; set; }
     }
 
-    /// <summary>
-    /// Model interface for cell wrapper
-    /// </summary>
-    public interface ICellModel<T>
+    public interface ICellModel
     {
-        /// <summary>
-        /// Row related to cell
-        /// </summary>
-        IRowModel<T> Row { get; }
-
         /// <summary>
         /// Column related to cell
         /// </summary>
         IColumn Column { get; }
 
         /// <summary>
-        /// Data object
-        /// </summary>
-        T DataObject { get; }
-
-        /// <summary>
         /// Data for this particular cell
         /// </summary>
         object Data { get; }
+    }
+
+    /// <summary>
+    /// Model interface for cell wrapper
+    /// </summary>
+    public interface ICellModel<T> : ICellModel
+    {
+        /// <summary>
+        /// Row related to cell
+        /// </summary>
+        IRowModel<T> Row { get; }
+
+        
+
+        /// <summary>
+        /// Data object
+        /// </summary>
+        T DataObject { get; }
+        
     }
 
     public static class CellWrapperExtensions

@@ -43,6 +43,7 @@
     <TypeScriptCompile Include="Scripts\PowerTables\InstanceManager.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Loader.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\ContentRenderer.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Rendering\HtmlToDom.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\LayoutRenderer.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\DOMLocator.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\Renderer.ts" />

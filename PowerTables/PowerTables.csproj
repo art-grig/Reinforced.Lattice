@@ -168,6 +168,7 @@
     <Compile Include="ResponseProcessing\JsonNetResult.cs" />
     <Compile Include="SerializationSettings.cs" />
     <Compile Include="Templating\BuiltIn\CellWrapperTemplateRegion.cs" />
+    <Compile Include="Templating\BuiltIn\MessageWrapperTemplateRegion.cs" />
     <Compile Include="Templating\BuiltIn\HeaderWrapperTemplateRegion.cs" />
     <Compile Include="Templating\Handlebars\IHbArray.cs" />
     <Compile Include="Templating\Handlebars\IHbDictionary.cs" />

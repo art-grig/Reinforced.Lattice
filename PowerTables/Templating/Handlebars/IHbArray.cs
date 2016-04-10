@@ -14,6 +14,7 @@ namespace PowerTables.Templating.Handlebars
         /// <summary>
         /// Array length
         /// </summary>
+        [OverrideHbFieldName("length")]
         int Length { get; }
 
         /// <summary>

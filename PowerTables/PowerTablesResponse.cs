@@ -44,6 +44,12 @@ namespace PowerTables
         /// </summary>
         public string Message { get; set; }
 
+
+        /// <summary>
+        /// Exception stack trace (if exists)
+        /// </summary>
+        public string ExceptionStackTrace { get; set; }
+
         public void FormatException(Exception ex)
         {
             Success = false;
@@ -52,7 +58,8 @@ namespace PowerTables
             {
                 st = ex.InnerException.StackTrace;
             }
-            Message = String.Format("{0}\n____________________\n{1}", ex.Message, st);
+            ExceptionStackTrace = st;
+            Message = ex.Message;
         }
     }
 }

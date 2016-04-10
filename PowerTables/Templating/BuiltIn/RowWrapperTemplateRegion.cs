@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using PowerTables.Templating.Handlebars;
 
 namespace PowerTables.Templating.BuiltIn
 {
@@ -30,6 +31,11 @@ namespace PowerTables.Templating.BuiltIn
         /// Row index
         /// </summary>
         int Index { get; }
+
+        /// <summary>
+        /// Row cells
+        /// </summary>
+        IHbArray<dynamic> Cells { get; }
     }
 
     public static class RowWrapperExtensions

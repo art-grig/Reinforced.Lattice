@@ -20,23 +20,23 @@
         <div class="row">
             <div class="col-md-6 col-sm-6 col-xs-6 col-lg-6">
                 @t.Plugins("lt")
-                <div class="btn-group" style="margin-bottom:10px">@t.Plugins("lt-toolbar")</div>
-                <br />
+                <div class="btn-group" style="margin-bottom: 10px">@t.Plugins("lt-toolbar")</div>
+                <br/>
             </div>
             <div class="col-md-6 col-sm-6 col-xs-6 col-lg-6 text-right">
                 @t.Plugins("rt")
-                <div class="btn-group" style="padding-bottom:10px">@t.Plugins("rt-toolbar")</div>
+                <div class="btn-group" style="padding-bottom: 10px">@t.Plugins("rt-toolbar")</div>
             </div>
         </div>
         <div class="row">
             <div class="col-md-12 col-sm-12 col-xs-12 col-lg-12">
-                <hr />
+                <hr/>
             </div>
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                 <table class="table table-striped table-condensed table-bordered">
                     <thead style="display: table-header-group;">
-                        <tr>@t.Headers()</tr>
-                        <tr>@t.Filters()</tr>
+                    <tr>@t.Headers()</tr>
+                    <tr>@t.Filters()</tr>
                     </thead>
                     <tbody>@t.Body()</tbody>
                 </table>
@@ -47,12 +47,14 @@
                 @t.Plugins("lb")
                 <div class="btn-group">@t.Plugins("lb-toolbar")</div>
             </div>
-            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 text-right" style="float:right;">
+            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 text-right" style="float: right;">
                 @t.Plugins("rb")
                 <div class="btn-group">@t.Plugins("rb-toolbar")</div>
             </div>
         </div>
     </div>
+    
+    <div style="display: none" id="_constructor"></div>
 }
 
 @*
@@ -113,6 +115,44 @@
     <td @t.Track()>@t.Content()</td>
 }
 
+@using (var t = this.MessagesWrapper())
+{
+    using (t.IfStrEquals(c => c.MessageType, "error"))
+    {
+        <tr class="danger" @t.Track()>
+            <td colspan="@t.Value(c=>c.UiColumnsCount)">
+                <h4 class="text-center"><span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>  Error occured</h4>
+                <p style="margin-left:25px;margin-right:25px">
+                    @t.Value(c => c.Message)
+                    <hr />
+                    @t.Value(c => c.AdditionalData)
+                </p>
+            </td>
+        </tr>
+    }
+
+    using (t.IfStrEquals(c => c.MessageType, "noresults"))
+    {
+        <tr class="info" @t.Track()>
+            <td colspan="@t.Value(c => c.UiColumnsCount)">
+                <h4 class="text-center text-info bg-info">
+                    <span class="glyphicon glyphicon-eye-close"></span>  No data found
+                </h4>
+            </td>
+        </tr>
+    }
+
+    using (t.IfStrEquals(c => c.MessageType, "initial"))
+    {
+        <tr class="warning" @t.Track()>
+            <td colspan="@t.Value(c => c.UiColumnsCount)">
+                <h4 class="text-center text-info bg-info">
+                    <span class="glyphicon glyphicon-search"></span>  Please change filter settings to get search results
+                </h4>
+            </td>
+        </tr>
+    }
+}
 
 @using (var t = Plugin.Loading())
 {
@@ -126,8 +166,7 @@
 @using (var t = Plugin.Ordering())
 {
     <th @t.Track() @t.BindSwitchOrdering("click") style="cursor: pointer">
-        
-        <span><strong>@t.Content()</strong></span>
+        <span><strong>@t.HtmlValue(c => c.Column.Configuration.Title)</strong></span>
         @using (t.If(c => c.IsNeutral))
         {
             <span class="glyphicon glyphicon-th-large" style="color: #bac5d3; float: right;"></span>
