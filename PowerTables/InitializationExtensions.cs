@@ -146,7 +146,7 @@ namespace PowerTables
         /// <returns>MvcHtmlString containing javascript initialization code</returns>
         public static MvcHtmlString InitializationScript(this IConfigurator conf, string rootId, string variableName, string prefix = "lt")
         {
-            var jsonConfig = conf.JsonConfig(rootId, prefix);
+            var jsonConfig = conf.JsonConfig<object>(rootId, null, prefix);
             const string codeTemplate = @" 
 <script type=""text/javascript"" >
 {0} = new PowerTables.PowerTable({1});

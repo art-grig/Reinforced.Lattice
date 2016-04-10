@@ -113,8 +113,8 @@
         public filterSet(objects: any[], query: IQuery): any[] {
             var result = [];
             if (this._filters.length !== 0) {
-                for (var i = 0; i < this.StoredData.length; i++) {
-                    var obj = this.StoredData[i];
+                for (var i = 0; i < objects.length; i++) {
+                    var obj = objects[i];
                     var acceptable: boolean = true;
                     for (var j = 0; j < this._filters.length; j++) {
                         var filter = this._filters[j];
@@ -126,7 +126,7 @@
                 }
                 return result;
             }
-            return null;
+            return objects;
         }
 
          /**
@@ -149,20 +149,21 @@
                         if (!this._comparators[orderingKey]) continue;
                         var negate = orderingDirection === Ordering.Descending;
 
-                        sortFn += `cc = f${orderFns.length}(a,b); `;
+                        sortFn += `cc=f${orderFns.length}(a,b); `;
                         comparersArg += `f${orderFns.length},`;
                         orderFns.push(this._comparators[orderingKey]);
                         sortFn += `if (cc!=0) return ${negate ? '-cc' : 'cc'}; `;
                     }
                 }
+                if (sortFn.length === 0) return objects;
                 comparersArg = comparersArg.substr(0, comparersArg.length - 1);
 
-                sortFn = `function(${comparersArg}){ return function (a,b) { var cc = 0; ${sortFn} return 0; } }`;
+                sortFn = `(function(${comparersArg}){ return (function (a,b) { var cc = 0; ${sortFn} return 0; }); })`;
                 var sortFunction = eval(sortFn).apply(null, orderFns);
                 var ordered = objects.sort(sortFunction);
                 return ordered;
             }
-            return null;
+            return objects;
         }
 
         /**
@@ -176,14 +177,14 @@
             this.RecentClientQuery = query;
 
             if (this.isClientFiltrationPending() && (!(!query))) {
-                var filtered = this.filterSet(this.DisplayedData, query);
-                if (filtered) this.DisplayedData = filtered;
-                var ordered = this.orderSet(this.DisplayedData, query);
-                if (ordered) this.DisplayedData = ordered;
-
+                var copy = this.StoredData.slice();
+                var filtered = this.filterSet(copy, query);
+                var ordered = this.orderSet(filtered, query);
+                var selected = ordered;
                 if (this.Selector) {
-                    this.DisplayedData = this.Selector.selectData(this.DisplayedData, query);
+                    selected = this.Selector.selectData(ordered, query);
                 }
+                this.DisplayedData = selected;
             }
         }
 

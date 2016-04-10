@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Web.Mvc;
 using PowerTables.Configuration;
 using PowerTables.Mvc.Models;
@@ -102,6 +103,7 @@ namespace PowerTables.Mvc.Controllers
             var t = Table();
             config(t);
             var handler = new PowerTablesHandler<SourceData, TargetData>(t);
+            Thread.Sleep(500); // simulate working
             return handler.Handle(Data.SourceData.AsQueryable(), ControllerContext);
         }
         #endregion

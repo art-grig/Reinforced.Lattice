@@ -78,14 +78,31 @@
 
         init(masterTable: IMasterTable): void {
             super.init(masterTable);
+            var hasClientOrderings = false;
+            var fn;
             for (var cls in this.Configuration.ClientSortableColumns) {
                 if (this.Configuration.ClientSortableColumns.hasOwnProperty(cls)) {
-                    var fn = this.Configuration.ClientSortableColumns[cls];
+                    hasClientOrderings = true;
+
+                    fn = this.Configuration.ClientSortableColumns[cls];
                     if (!fn) {
                         var col = this.MasterTable.InstanceManager.Columns[cls];
                         fn = (a: any, b: any) => this.defaultClientSortingFunction(a, b, col);
+                        this.Configuration.ClientSortableColumns[cls] = fn;
                     }
                     this.MasterTable.DataHolder.registerClientOrdering(cls, fn);
+                }
+            }
+
+            if (hasClientOrderings) {
+                // if we have at least 1 client ordering then we have to reorder whole 
+                // received data on client
+                // to avoid client ordering priority
+                for (var leftOrdering in this.Configuration.DefaultOrderingsForColumns) {
+                    if (this.Configuration.ClientSortableColumns.hasOwnProperty(leftOrdering)) continue;
+                    var leftColumn = this.MasterTable.InstanceManager.Columns[leftOrdering];
+                    fn = (a: any, b: any) => this.defaultClientSortingFunction(a, b, leftColumn);
+                    this.MasterTable.DataHolder.registerClientOrdering(leftOrdering, fn);
                 }
             }
         }
@@ -100,22 +117,18 @@
             }
             return (x > y) ? 1 : -1;
         }
-
-        modifyQuery(query: IQuery, scope: QueryScope): void {
-            if (scope === QueryScope.Client || scope === QueryScope.Transboundary) {
-                for (var clo in this._clientOrderings) {
-                    if (this._clientOrderings.hasOwnProperty(clo)) {
-                        query.Orderings[clo] = this._clientOrderings[clo];
-                    }
+        private mixinOrderings(orderingsCollection: { [key: string]: PowerTables.Ordering }, query: IQuery) {
+            for (var clo in orderingsCollection) {
+                if (orderingsCollection.hasOwnProperty(clo)) {
+                    query.Orderings[clo] = orderingsCollection[clo];
                 }
             }
+        }
 
-            if (scope === QueryScope.Server || scope === QueryScope.Transboundary) {
-                for (var clo in this._serverOrderings) {
-                    if (this._serverOrderings.hasOwnProperty(clo)) {
-                        query.Orderings[clo] = this._serverOrderings[clo];
-                    }
-                }
+        modifyQuery(query: IQuery, scope: QueryScope): void {
+            this.mixinOrderings(this._serverOrderings, query);
+            if (scope === QueryScope.Client || scope === QueryScope.Transboundary) {
+               this.mixinOrderings(this._clientOrderings,query);
             }
         }
     }
