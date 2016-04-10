@@ -24,22 +24,20 @@ namespace PowerTables.Plugins.Paging
         /// When true, adds visual element that consists of small textbox and "go" button 
         /// to make it easier to navigate to page specified
         /// </param>
+        /// <param name="enableClientPaging">When true, paging requests will not be passed to server. Client will load unpaged data and page it manually on client-side</param>
         /// <returns></returns>
         public static Configurator<TSourceData, TTableData> PagingWithArrows<TSourceData, TTableData>(
             this Configurator<TSourceData, TTableData> conf,
             string position = null,
-            string previousHtml = null,
-            string nextHtml = null,
-            bool useGotoPage = false
+            bool useGotoPage = false,
+            bool enableClientPaging = false
             ) where TTableData : new()
         {
             PagingClientConfiguration pcf = new PagingClientConfiguration
             {
                 ArrowsMode = true,
-                PreviousText = previousHtml,
-                NextText = nextHtml,
-                UseGotoPage = useGotoPage
-
+                UseGotoPage = useGotoPage,
+                EnableClientPaging = enableClientPaging
             };
             conf.TableConfiguration.ReplacePluginConfig(PluginId, pcf, position);
             return conf;
@@ -60,13 +58,15 @@ namespace PowerTables.Plugins.Paging
         /// to make it easier to navigate to page specified
         /// </param>
         /// <param name="useFirstLasPage">Display buttons for quick navigation to first and last page</param>
+        /// <param name="enableClientPaging">When true, paging requests will not be passed to server. Client will load unpaged data and page it manually on client-side</param>
         /// <returns></returns>
         public static Configurator<TSourceData, TTableData> PagingWithPeriods<TSourceData, TTableData>(
             this Configurator<TSourceData, TTableData> conf,
             string position = null,
             int hidePages = 3,
             bool useGotoPage = false,
-            bool useFirstLasPage = false
+            bool useFirstLasPage = false,
+            bool enableClientPaging = false
             ) where TTableData : new()
         {
             PagingClientConfiguration pcf = new PagingClientConfiguration
@@ -75,7 +75,8 @@ namespace PowerTables.Plugins.Paging
                 UsePeriods = true,
                 PagesToHideUnderPeriod = hidePages,
                 UseGotoPage = useGotoPage,
-                UseFirstLastPage = useFirstLasPage
+                UseFirstLastPage = useFirstLasPage, 
+                EnableClientPaging = enableClientPaging
             };
             conf.TableConfiguration.ReplacePluginConfig(PluginId, pcf, position);
             return conf;
@@ -93,12 +94,14 @@ namespace PowerTables.Plugins.Paging
         /// to make it easier to navigate to page specified
         /// </param>
         /// <param name="useFirstLasPage">Display buttons for quick navigation to first and last page</param>
+        /// <param name="enableClientPaging">When true, paging requests will not be passed to server. Client will load unpaged data and page it manually on client-side</param>
         /// <returns></returns>
         public static Configurator<TSourceData, TTableData> PagingSimple<TSourceData, TTableData>(
             this Configurator<TSourceData, TTableData> conf,
             string position = null,
             bool useGotoPage = false,
-            bool useFirstLasPage = false
+            bool useFirstLasPage = false,
+            bool enableClientPaging = false
             ) where TTableData : new()
         {
             PagingClientConfiguration pcf = new PagingClientConfiguration
@@ -106,7 +109,8 @@ namespace PowerTables.Plugins.Paging
                 ArrowsMode = false,
                 UsePeriods = false,
                 UseGotoPage = useGotoPage,
-                UseFirstLastPage = useFirstLasPage
+                UseFirstLastPage = useFirstLasPage,
+                EnableClientPaging = enableClientPaging
             };
             conf.TableConfiguration.ReplacePluginConfig(PluginId, pcf, position);
             return conf;

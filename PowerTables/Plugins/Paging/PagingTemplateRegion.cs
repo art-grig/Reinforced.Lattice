@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Mvc;
 using PowerTables.Plugins.Limit;
 using PowerTables.Templating;
 using PowerTables.Templating.Handlebars;
@@ -36,7 +37,7 @@ namespace PowerTables.Plugins.Paging
         }
     }
 
-    public class PagingGotoPageTemplate : HbTagRegion
+    public class PagingGotoPageTemplate : HbTagRegion, IProvidesMarking, IProvidesEventsBinding
     {
         public PagingGotoPageTemplate(TextWriter writer)
             : base("if", "Configuration.UseGotoPage", writer)
@@ -82,7 +83,9 @@ namespace PowerTables.Plugins.Paging
 
         bool Last { get; }
 
-        int PageNumber { get; }
+        int Page { get; }
+
+        string DisPage { get; }
     }
 
     public static class PagingTeplatesExtensions
@@ -106,6 +109,42 @@ namespace PowerTables.Plugins.Paging
         public static PagingGotoPageTemplate GotoPage(this PagingTemplateRegion pr)
         {
             return new PagingGotoPageTemplate(pr.Writer);
+        }
+
+        public static MvcHtmlString BindNextPage(this PagingTemplateRegion t, string eventId)
+        {
+            return t.BindEvent("nextClick", eventId);
+        }
+
+        public static MvcHtmlString BindPreviousPage(this PagingTemplateRegion t, string eventId)
+        {
+            return t.BindEvent("previousClick", eventId);
+        }
+
+        public static MvcHtmlString BindNavigateToPage(this PagingTemplateRegion t, string eventId, string pageNumber)
+        {
+            return t.BindEvent("navigateToPage", eventId, pageNumber);
+        }
+
+        public static MvcHtmlString BindNavigateToPage<T>(this T t, string eventId)
+            where T : IModelProvider<IPageViewModel>, IProvidesEventsBinding
+        {
+            return t.BindEvent<T, IPageViewModel, int>("navigateToPage", eventId, c => c.Page);
+        }
+
+        public static MvcHtmlString ThisIsGotoPanel(this PagingGotoPageTemplate t)
+        {
+            return t.Mark("GotoPanel");
+        }
+
+        public static MvcHtmlString ThisIsGotoPageButton(this PagingGotoPageTemplate t)
+        {
+            return MvcHtmlString.Create(t.Mark("GotoBtn") + " " + t.BindEvent("click", "gotoPageClick"));
+        }
+
+        public static MvcHtmlString ThisIsGotoPageTextbox(this PagingGotoPageTemplate t)
+        {
+            return MvcHtmlString.Create(t.Mark("GotoInput") + " " + t.BindEvent("keyup", "validateGotopage"));
         }
 
     }

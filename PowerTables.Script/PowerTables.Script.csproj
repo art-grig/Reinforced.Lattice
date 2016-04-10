@@ -41,8 +41,7 @@
     <TypeScriptCompile Include="Scripts\PowerTables\Controller.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\DataHolder.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\InstanceManager.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Loader.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\PagingPlugin.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Loader.ts" />    
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\ContentRenderer.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\HtmlToDom.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\LayoutRenderer.ts" />
@@ -56,6 +55,7 @@
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Loading.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Ordering.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Limit.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\PagingPlugin.ts" />
   </ItemGroup>
   <ItemGroup />
   <PropertyGroup>

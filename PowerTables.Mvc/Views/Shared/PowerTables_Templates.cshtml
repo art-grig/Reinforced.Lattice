@@ -216,13 +216,13 @@
                     @using (m.If(c => c.PrevArrow))
                     {
                         <li>
-                            <a><span class="glyphicon glyphicon-chevron-left"></span></a>
+                            <a @t.BindPreviousPage("click") ><span class="glyphicon glyphicon-chevron-left"></span></a>
                         </li>
                     }
                     @using (m.If(c => c.NextArrow))
                     {
                         <li>
-                            <a><span class="glyphicon glyphicon-chevron-right"></span></a>
+                            <a @t.BindNextPage("click")><span class="glyphicon glyphicon-chevron-right"></span></a>
                         </li>
                     }
                 </ul>
@@ -236,24 +236,24 @@
                 {
                     using (pg.If(c => c.First))
                     {
-                        <li class="first"><a style="cursor:pointer" data-action="page" data-page="{{Page}}"><span class="glyphicon glyphicon-fast-backward"></span></a></li>
+                        <li class="first"><a style="cursor:pointer" @pg.BindNavigateToPage("click")><span class="glyphicon glyphicon-fast-backward"></span></a></li>
                     }
 
                     using (pg.If(c => c.Prev))
                     {
-                        <li class="prev"><a style="cursor:pointer" data-action="prev"><span class="glyphicon glyphicon-chevron-left"></span></a></li>
+                        <li class="prev"><a style="cursor:pointer" @t.BindPreviousPage("click")><span class="glyphicon glyphicon-chevron-left"></span></a></li>
                     }
 
                     using (pg.If(c => c.Period)) { <li><span>. . .</span></li> }
-                    using (pg.If(c => c.ActivePage)) { <li class="active"><span>@pg.Value(c=>c.PageNumber)</span></li> }
-                    using (pg.If(c => c.InActivePage)) { <li class="active"><span>@pg.Value(c=>c.PageNumber)</span></li> }
+                    using (pg.If(c => c.ActivePage)) { <li class="active"><span>@pg.Value(c => c.DisPage)</span></li> }
+                    using (pg.If(c => c.InActivePage)) { <li><a @pg.BindNavigateToPage("click") style="cursor:pointer">@pg.Value(c => c.DisPage)</a></li> }
                     using (pg.If(c => c.Next))
                     {
-                        <li class="next"><a style="cursor:pointer" data-action="next"><span class="glyphicon glyphicon-chevron-right"></span></a></li>
+                        <li class="next"><a style="cursor:pointer" @t.BindNextPage("click")><span class="glyphicon glyphicon-chevron-right"></span></a></li>
                     }
                     using (pg.If(c => c.Last))
                     {
-                        <li class="last"><a style="cursor:pointer" data-action="page" data-page="{{Page}}"><span class="glyphicon glyphicon-fast-forward"></span></a></li>
+                        <li class="last"><a style="cursor:pointer" @pg.BindNavigateToPage("click")><span class="glyphicon glyphicon-fast-forward"></span></a></li>
                     }
                 }
             </ul>

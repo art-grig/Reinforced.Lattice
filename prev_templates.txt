@@ -1,41 +1,8 @@
-
-<script id="lt-noresults" type="text/x-handlebars-template">
-    <tr class="info">
-        <td colspan="{{Columns}}"><h4 class="text-center text-info bg-info"><span class="glyphicon glyphicon-eye-close"></span>  No data found</h4></td>
-    </tr>
-</script>
 <script id="lt-loading" type="text/x-handlebars-template">
     <tr class="info">
         <td colspan="{{Columns}}"><h4 class="text-center text-info bg-info"><span class="glyphicon glyphicon-refresh"></span>  Loading</h4></td>
     </tr>
 </script>
-<script id="lt-error" type="text/x-handlebars-template">
-    <tr class="danger">
-        <td colspan="{{Columns}}">
-            <h4 class="text-center"><span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>  Error occured</h4>
-            <p style="margin-left:25px;margin-right:25px">
-                {{{ErrorText}}}
-            </p>
-        </td>
-    </tr>
-</script>
-
-@using (Template("ordering"))
-{
-    <span><strong>{{Title}}</strong></span>
-    using (If("IsNeutral"))
-    {
-        <span class="glyphicon glyphicon-th-large" style="color:#bac5d3;float:right;"></span>
-    }
-    using (If("IsAscending"))
-    {
-        <span class="glyphicon glyphicon-chevron-up" style="color:#bac5d3;float:right;"></span>
-    }
-    using (If("IsDescending"))
-    {
-        <span class="glyphicon glyphicon-chevron-down" style="color:#bac5d3;float:right;"></span>
-    }
-}
 
 
 <!-- Filters -->
@@ -105,25 +72,7 @@
     <input type="checkbox" data-target="checkboxify" data-colvalue="{{Value}}" {{#if Checked}} checked="checked" {{/if}} />
 </script>
 <!-- /Checkboxify-->
-<!-- Limit -->
-<script id="lt-plugin-limit" type="text/x-handlebars-template">
-    <div class="btn-group">
-        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-            Results: <span class="_selectedLabel">{{DefaultLabel}}</span>
-            <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu" role="menu">
-            {{#each Sizes}}
-            {{#if Separator}}
-            <li class="divider"></li>
-            {{else}}
-            <li><a href="#" class="_limitSelect" data-size="{{Value}}">{{Label}}</a></li>
-            {{/if}}
-            {{/each}}
-        </ul>
-    </div>
-</script>
-<!-- /Limit -->
+
 <!-- ResponseInfo -->
 <script id="lt-responseinfo" type="text/x-handlebars-template">
     <p>Total <strong>{{ResultsCount}}</strong> records found</p>
@@ -189,14 +138,6 @@
 
     {{/if}}
 </script>
-
-@using (var t = Plugin.Loading())
-{
-    <div style="display:block;height:10px;margin:10px;margin-top:5px;" @t.Track()>
-        <div class="badge _loading"><span class="glyphicon glyphicon-refresh"></span> Loading</div>
-    </div>
-}
-
 
 <!--Toolbar-->
 <script id="lt-toolbar" type="text/x-handlebars-template">

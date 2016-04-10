@@ -149,6 +149,7 @@
          */
         public DataReceived: TableEvent<IDataEventArgs>;
 
+
         /**
          * "After Loading" event.
          * Occurs every time after EVERY operation connected to server response handling 
@@ -211,6 +212,13 @@
         XMLHttp: XMLHttpRequest;
     }
 
+    export interface ILoadingResponseEventArgs extends ILoadingEventArgs {
+        /**
+         * Response received from server
+         */
+        Response: IPowerTablesResponse;
+    }
+
     /**
      * Event args for loading error event
      */
@@ -223,7 +231,7 @@
         /**
          * Stack trace (if any)
          */
-        StackTrace:string;
+        StackTrace: string;
     }
 
     /**
@@ -248,9 +256,9 @@
     export interface IDataEventArgs extends ILoadingEventArgs {
         
         /**
-         * Deserialized JSON data that is received from server
+         * Query response
          */
-        Data: any;
+        Data: IPowerTablesResponse;
     }
 
     /**

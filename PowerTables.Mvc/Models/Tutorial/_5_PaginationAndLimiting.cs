@@ -1,5 +1,6 @@
 ﻿using PowerTables.Configuration;
 using PowerTables.Plugins.Limit;
+using PowerTables.Plugins.Paging;
 
 namespace PowerTables.Mvc.Models.Tutorial
 {
@@ -15,7 +16,7 @@ namespace PowerTables.Mvc.Models.Tutorial
                 "-",              // dash will be interpreted as separator
                 "5", "10", "-", "50", "100"
             }, "10", position: "lt", enableCientLimiting: true);
-
+            conf.PagingWithPeriods(position: "lb", useGotoPage: true, useFirstLasPage: true);
             return conf;
         }
     }

@@ -191,8 +191,8 @@ namespace PowerTables.Templating.Handlebars
         /// <param name="commaSeparatedEvents">Comma-separated events list to be bound</param>
         /// <param name="eventArguments">Event arguments</param>
         /// <returns></returns>
-        public static MvcHtmlString BindEvent<T, TModel>(this T t, string commaSeparatedFunction, string commaSeparatedEvents, 
-            params Expression<Func<TModel,object>>[] eventArguments)
+        public static MvcHtmlString BindEvent<T, TModel,TData>(this T t, string commaSeparatedFunction, string commaSeparatedEvents, 
+            params Expression<Func<TModel,TData>>[] eventArguments)
             where T:IProvidesEventsBinding,IModelProvider<TModel>
         {
             var args = eventArguments.Select(TraversePropertyLambda).ToArray();

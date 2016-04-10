@@ -22,5 +22,7 @@ namespace PowerTables.Plugins.Paging
         public bool UseFirstLastPage { get; set; }
 
         public bool UseGotoPage { get; set; }
+
+        public bool EnableClientPaging { get; set; }
     }
 }

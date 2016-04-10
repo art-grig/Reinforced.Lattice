@@ -70,6 +70,128 @@ var PowerTables;
 var PowerTables;
 (function (PowerTables) {
     /**
+     * This enumeration distinguishes which way
+     * underlying query will be used
+     */
+    (function (QueryScope) {
+        /**
+         * Mentioned query will be sent to server to obtain
+         * data (probably) for further local filtration.
+         * All locally filtered fields should be excluded from
+         * underlying query
+         */
+        QueryScope[QueryScope["Server"] = 0] = "Server";
+        /**
+         * Mentioned query will be used for local data filtration.
+         * To gain performance, please exclude all data settings that were
+         * applied during server request
+         */
+        QueryScope[QueryScope["Client"] = 1] = "Client";
+        /**
+         * This query should contain both data for client and server filtering.
+         * Transboundary queries are used to obtain query settings
+         * that will be used on server side to retrieve data set that
+         * will be used for server command handling, so server needs all filtering settings
+         */
+        QueryScope[QueryScope["Transboundary"] = 2] = "Transboundary";
+    })(PowerTables.QueryScope || (PowerTables.QueryScope = {}));
+    var QueryScope = PowerTables.QueryScope;
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    /**
+     * Wrapper for table event with ability to subscribe/unsubscribe
+     */
+    var TableEvent = (function () {
+        function TableEvent(masterTable) {
+            this._handlers = {};
+            this._masterTable = masterTable;
+        }
+        /**
+         * Invokes event with overridden this arg and specified event args
+         *
+         * @param thisArg "this" argument to be substituted to callee
+         * @param eventArgs Event args will be passed to callee
+         */
+        TableEvent.prototype.invoke = function (thisArg, eventArgs) {
+            var ea = {
+                MasterTable: this._masterTable,
+                EventArgs: eventArgs
+            };
+            var hndlrs = this._handlers;
+            var i = 0;
+            for (var k in hndlrs) {
+                if (hndlrs.hasOwnProperty(k)) {
+                    var kHandlers = hndlrs[k];
+                    for (i = 0; i < kHandlers.length; i++) {
+                        kHandlers[i].apply(thisArg, [ea]);
+                    }
+                    i = 0;
+                }
+            }
+        };
+        /**
+         * Subscribes specified function to event with supplied string key.
+         * Subscriber key is needed to have an ability to unsubscribe from event
+         * and should reflect entity that has been subscriben
+         *
+         * @param handler Event handler to subscribe
+         * @param subscriber Subscriber key to associate with handler
+         */
+        TableEvent.prototype.subscribe = function (handler, subscriber) {
+            if (!this._handlers[subscriber]) {
+                this._handlers[subscriber] = [];
+            }
+            this._handlers[subscriber].push(handler);
+        };
+        /**
+         * Unsubscribes specified addressee from event
+         * @param subscriber Subscriber key associated with handler
+         */
+        TableEvent.prototype.unsubscribe = function (subscriber) {
+            this._handlers[subscriber] = null;
+            delete this._handlers[subscriber];
+        };
+        return TableEvent;
+    })();
+    PowerTables.TableEvent = TableEvent;
+    /**
+     * Events manager for table.
+     * Contains all available events
+     */
+    var EventsManager = (function () {
+        function EventsManager(masterTable) {
+            this._masterTable = masterTable;
+            this.BeforeQueryGathering = new TableEvent(masterTable);
+            this.AfterQueryGathering = new TableEvent(masterTable);
+            this.BeforeLoading = new TableEvent(masterTable);
+            this.LoadingError = new TableEvent(masterTable);
+            this.ColumnsCreation = new TableEvent(masterTable);
+            this.DataReceived = new TableEvent(masterTable);
+            this.AfterLoading = new TableEvent(masterTable);
+            this.BeforeLayoutDrawn = new TableEvent(masterTable);
+            this.AfterLayoutDrawn = new TableEvent(masterTable);
+        }
+        /**
+         * Registers new event for events manager.
+         * This method is to be used by plugins to provide their
+         * own events.
+         *
+         * Events being added should be described in plugin's .d.ts file
+         * as extensions to Events manager
+         * @param eventName Event name
+         * @returns {}
+         */
+        EventsManager.prototype.registerEvent = function (eventName) {
+            this[eventName] = new TableEvent(this._masterTable);
+        };
+        return EventsManager;
+    })();
+    PowerTables.EventsManager = EventsManager;
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    /**
      * This entity is responsible for integration of data between storage and rendere.
      * Also it provides functionality for table events subscription and
      * elements location
@@ -372,36 +494,6 @@ var PowerTables;
 var PowerTables;
 (function (PowerTables) {
     /**
-     * This enumeration distinguishes which way
-     * underlying query will be used
-     */
-    (function (QueryScope) {
-        /**
-         * Mentioned query will be sent to server to obtain
-         * data (probably) for further local filtration.
-         * All locally filtered fields should be excluded from
-         * underlying query
-         */
-        QueryScope[QueryScope["Server"] = 0] = "Server";
-        /**
-         * Mentioned query will be used for local data filtration.
-         * To gain performance, please exclude all data settings that were
-         * applied during server request
-         */
-        QueryScope[QueryScope["Client"] = 1] = "Client";
-        /**
-         * This query should contain both data for client and server filtering.
-         * Transboundary queries are used to obtain query settings
-         * that will be used on server side to retrieve data set that
-         * will be used for server command handling, so server needs all filtering settings
-         */
-        QueryScope[QueryScope["Transboundary"] = 2] = "Transboundary";
-    })(PowerTables.QueryScope || (PowerTables.QueryScope = {}));
-    var QueryScope = PowerTables.QueryScope;
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    /**
      * Class that is responsible for holding and managing data loaded from server
      */
     var DataHolder = (function () {
@@ -645,98 +737,6 @@ var PowerTables;
         return DataHolder;
     })();
     PowerTables.DataHolder = DataHolder;
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    /**
-     * Wrapper for table event with ability to subscribe/unsubscribe
-     */
-    var TableEvent = (function () {
-        function TableEvent(masterTable) {
-            this._handlers = {};
-            this._masterTable = masterTable;
-        }
-        /**
-         * Invokes event with overridden this arg and specified event args
-         *
-         * @param thisArg "this" argument to be substituted to callee
-         * @param eventArgs Event args will be passed to callee
-         */
-        TableEvent.prototype.invoke = function (thisArg, eventArgs) {
-            var ea = {
-                MasterTable: this._masterTable,
-                EventArgs: eventArgs
-            };
-            var hndlrs = this._handlers;
-            var i = 0;
-            for (var k in hndlrs) {
-                if (hndlrs.hasOwnProperty(k)) {
-                    var kHandlers = hndlrs[k];
-                    for (i = 0; i < kHandlers.length; i++) {
-                        kHandlers[i].apply(thisArg, [ea]);
-                    }
-                    i = 0;
-                }
-            }
-        };
-        /**
-         * Subscribes specified function to event with supplied string key.
-         * Subscriber key is needed to have an ability to unsubscribe from event
-         * and should reflect entity that has been subscriben
-         *
-         * @param handler Event handler to subscribe
-         * @param subscriber Subscriber key to associate with handler
-         */
-        TableEvent.prototype.subscribe = function (handler, subscriber) {
-            if (!this._handlers[subscriber]) {
-                this._handlers[subscriber] = [];
-            }
-            this._handlers[subscriber].push(handler);
-        };
-        /**
-         * Unsubscribes specified addressee from event
-         * @param subscriber Subscriber key associated with handler
-         */
-        TableEvent.prototype.unsubscribe = function (subscriber) {
-            this._handlers[subscriber] = null;
-            delete this._handlers[subscriber];
-        };
-        return TableEvent;
-    })();
-    PowerTables.TableEvent = TableEvent;
-    /**
-     * Events manager for table.
-     * Contains all available events
-     */
-    var EventsManager = (function () {
-        function EventsManager(masterTable) {
-            this._masterTable = masterTable;
-            this.BeforeQueryGathering = new TableEvent(masterTable);
-            this.AfterQueryGathering = new TableEvent(masterTable);
-            this.BeforeLoading = new TableEvent(masterTable);
-            this.LoadingError = new TableEvent(masterTable);
-            this.ColumnsCreation = new TableEvent(masterTable);
-            this.DataReceived = new TableEvent(masterTable);
-            this.AfterLoading = new TableEvent(masterTable);
-            this.BeforeLayoutDrawn = new TableEvent(masterTable);
-            this.AfterLayoutDrawn = new TableEvent(masterTable);
-        }
-        /**
-         * Registers new event for events manager.
-         * This method is to be used by plugins to provide their
-         * own events.
-         *
-         * Events being added should be described in plugin's .d.ts file
-         * as extensions to Events manager
-         * @param eventName Event name
-         * @returns {}
-         */
-        EventsManager.prototype.registerEvent = function (eventName) {
-            this[eventName] = new TableEvent(this._masterTable);
-        };
-        return EventsManager;
-    })();
-    PowerTables.EventsManager = EventsManager;
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
@@ -1111,511 +1111,6 @@ var PowerTables;
     })();
     PowerTables.Loader = Loader;
 })(PowerTables || (PowerTables = {}));
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
-var PowerTables;
-(function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        /**
-         * Base class for creating filters
-         */
-        var FilterBase = (function (_super) {
-            __extends(FilterBase, _super);
-            function FilterBase() {
-                _super.apply(this, arguments);
-            }
-            FilterBase.prototype.modifyQuery = function (query, scope) { };
-            FilterBase.prototype.init = function (masterTable) {
-                _super.prototype.init.call(this, masterTable);
-                this.MasterTable.Loader.registerQueryPartProvider(this);
-            };
-            /**
-             * Call this method inside init and override filterPredicate method to make this filter
-             * participate in client-side filtering
-             */
-            FilterBase.prototype.itIsClientFilter = function () {
-                this.MasterTable.DataHolder.registerClientFilter(this);
-            };
-            FilterBase.prototype.filterPredicate = function (rowObject, query) { throw new Error("Please override this method"); };
-            FilterBase.prototype.selectData = function (sourceDataSet, query) { throw new Error("Please override this method"); };
-            return FilterBase;
-        })(Plugins.PluginBase);
-        Plugins.FilterBase = FilterBase;
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        var LimitPlugin = (function (_super) {
-            __extends(LimitPlugin, _super);
-            function LimitPlugin() {
-                _super.apply(this, arguments);
-                this._limitSize = 0;
-                this.Sizes = [];
-            }
-            LimitPlugin.prototype.renderContent = function (templatesProvider) {
-                return templatesProvider.getCachedTemplate('limit')(this);
-            };
-            LimitPlugin.prototype.changeLimitHandler = function (e) {
-                var limit = parseInt(e.EventArguments[0]);
-                if (isNaN(limit))
-                    limit = 0;
-                this.changeLimit(limit);
-            };
-            LimitPlugin.prototype.changeLimit = function (limit) {
-                var changed = this._limitSize !== limit;
-                if (!changed)
-                    return;
-                this._limitSize = limit;
-                var labelPair = null;
-                for (var i = 0; i < this.Sizes.length; i++) {
-                    labelPair = this.Sizes[i];
-                    if (labelPair.Value === limit) {
-                        break;
-                    }
-                }
-                if (labelPair != null)
-                    this.SelectedValue = labelPair.Label;
-                this.MasterTable.Renderer.redrawPlugin(this);
-                if (this.Configuration.ReloadTableOnLimitChange)
-                    this.MasterTable.Controller.reload();
-            };
-            LimitPlugin.prototype.modifyQuery = function (query, scope) {
-                var client = this.Configuration.EnableClientLimiting;
-                if (client && (scope === PowerTables.QueryScope.Client || scope === PowerTables.QueryScope.Transboundary)) {
-                    query.Paging.PageSize = this._limitSize;
-                }
-                if (!client && (scope === PowerTables.QueryScope.Server || scope === PowerTables.QueryScope.Transboundary)) {
-                    query.Paging.PageSize = this._limitSize;
-                }
-            };
-            LimitPlugin.prototype.init = function (masterTable) {
-                _super.prototype.init.call(this, masterTable);
-                var def = null;
-                for (var i = 0; i < this.Configuration.LimitValues.length; i++) {
-                    var a = {
-                        Value: this.Configuration.LimitValues[i],
-                        Label: this.Configuration.LimitLabels[i],
-                        IsSeparator: this.Configuration.LimitLabels[i] === '-'
-                    };
-                    this.Sizes.push(a);
-                    if (a.Label === this.Configuration.DefaultValue) {
-                        def = a;
-                    }
-                }
-                if (def) {
-                    this.SelectedValue = def.Label;
-                    this._limitSize = def.Value;
-                }
-                else {
-                    this._limitSize = 0;
-                }
-                if (this.Configuration.EnableClientLimiting) {
-                    this.MasterTable.DataHolder.EnableClientTake = true;
-                }
-            };
-            return LimitPlugin;
-        })(Plugins.FilterBase);
-        Plugins.LimitPlugin = LimitPlugin;
-        PowerTables.ComponentsContainer.registerComponent('Limit', LimitPlugin);
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        var LoadingPlugin = (function (_super) {
-            __extends(LoadingPlugin, _super);
-            function LoadingPlugin() {
-                _super.apply(this, arguments);
-            }
-            LoadingPlugin.prototype.subscribe = function (e) {
-                var _this = this;
-                e.BeforeLoading.subscribe(function () { return _this.showLoadingIndicator(); }, "loading");
-                e.AfterLoading.subscribe(function () { return _this.hideLoadingIndicator(); }, "loading");
-                e.AfterLayoutDrawn.subscribe(function () {
-                    var me = _this.MasterTable.Renderer.Locator.getPluginElement(_this);
-                    _this._blinkElement = me.querySelector('[data-blink]');
-                    _this.hideLoadingIndicator();
-                }, 'loading');
-            };
-            LoadingPlugin.prototype.showLoadingIndicator = function () {
-                this._blinkElement.style.visibility = 'visible';
-            };
-            LoadingPlugin.prototype.hideLoadingIndicator = function () {
-                this._blinkElement.style.visibility = 'collapse';
-            };
-            LoadingPlugin.prototype.renderContent = function (templatesProvider) {
-                return templatesProvider.getCachedTemplate('loading')(null);
-            };
-            LoadingPlugin.Id = 'Loading';
-            return LoadingPlugin;
-        })(Plugins.PluginBase);
-        Plugins.LoadingPlugin = LoadingPlugin;
-        PowerTables.ComponentsContainer.registerComponent('Loading', LoadingPlugin);
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        var Ordering;
-        (function (Ordering) {
-            var OrderingPlugin = (function (_super) {
-                __extends(OrderingPlugin, _super);
-                function OrderingPlugin() {
-                    _super.apply(this, arguments);
-                    this._clientOrderings = {};
-                    this._serverOrderings = {};
-                }
-                OrderingPlugin.prototype.subscribe = function (e) {
-                    var _this = this;
-                    e.ColumnsCreation.subscribe(function (v) {
-                        _this.overrideHeadersTemplates(v.EventArgs);
-                    }, 'ordering');
-                };
-                OrderingPlugin.prototype.overrideHeadersTemplates = function (columns) {
-                    var _this = this;
-                    var handler = function (e) {
-                        _this.switchOrderingForColumn(e.Receiver.Column.RawName);
-                    };
-                    for (var ck in columns) {
-                        if (columns.hasOwnProperty(ck)) {
-                            var ordering = this.Configuration.DefaultOrderingsForColumns[ck];
-                            if (!ordering)
-                                continue;
-                            var newHeader = {
-                                Column: columns[ck],
-                                switchOrdering: handler,
-                                IsClientOrdering: this.isClient(ck)
-                            };
-                            this.updateOrdering(ck, ordering);
-                            (function (hdr) {
-                                hdr.renderElement = function (tp) {
-                                    return tp.getCachedTemplate('ordering')(hdr);
-                                };
-                            })(newHeader);
-                            this.specifyOrdering(newHeader, ordering);
-                            columns[ck].Header = newHeader;
-                        }
-                    }
-                };
-                OrderingPlugin.prototype.updateOrdering = function (columnName, ordering) {
-                    if (this.isClient(columnName))
-                        this._clientOrderings[columnName] = ordering;
-                    else
-                        this._serverOrderings[columnName] = ordering;
-                };
-                OrderingPlugin.prototype.specifyOrdering = function (object, ordering) {
-                    object.IsNeutral = object.IsDescending = object.IsAscending = false;
-                    switch (ordering) {
-                        case PowerTables.Ordering.Neutral:
-                            object.IsNeutral = true;
-                            break;
-                        case PowerTables.Ordering.Descending:
-                            object.IsDescending = true;
-                            break;
-                        case PowerTables.Ordering.Ascending:
-                            object.IsAscending = true;
-                            break;
-                    }
-                };
-                OrderingPlugin.prototype.isClient = function (columnName) {
-                    return this.Configuration.ClientSortableColumns.hasOwnProperty(columnName);
-                };
-                OrderingPlugin.prototype.switchOrderingForColumn = function (columnName) {
-                    if (!this.Configuration.DefaultOrderingsForColumns[columnName])
-                        throw new Error("Ordering is not configured for column " + columnName);
-                    var coolHeader = this.MasterTable.InstanceManager.Columns[columnName].Header;
-                    var orderingsCollection = this.isClient(columnName) ? this._clientOrderings : this._serverOrderings;
-                    var next = this.nextOrdering(orderingsCollection[columnName]);
-                    this.specifyOrdering(coolHeader, next);
-                    this.updateOrdering(columnName, next);
-                    this.MasterTable.Renderer.redrawHeader(coolHeader.Column);
-                    this.MasterTable.Controller.reload();
-                };
-                OrderingPlugin.prototype.nextOrdering = function (currentOrdering) {
-                    switch (currentOrdering) {
-                        case PowerTables.Ordering.Neutral: return PowerTables.Ordering.Ascending;
-                        case PowerTables.Ordering.Descending: return PowerTables.Ordering.Neutral;
-                        case PowerTables.Ordering.Ascending: return PowerTables.Ordering.Descending;
-                    }
-                };
-                OrderingPlugin.prototype.makeDefaultOrderingFunction = function (fieldName) {
-                    var self = this;
-                    return (function (field) {
-                        return function (a, b) {
-                            var x = a[field], y = b[field];
-                            if (x === y)
-                                return 0;
-                            if (x == null || x == undefined)
-                                return -1;
-                            if (y == null || y == undefined)
-                                return 1;
-                            if (typeof x === "string") {
-                                return x.localeCompare(y);
-                            }
-                            return (x > y) ? 1 : -1;
-                        };
-                    })(fieldName);
-                };
-                OrderingPlugin.prototype.init = function (masterTable) {
-                    _super.prototype.init.call(this, masterTable);
-                    var hasClientOrderings = false;
-                    var fn;
-                    for (var cls in this.Configuration.ClientSortableColumns) {
-                        if (this.Configuration.ClientSortableColumns.hasOwnProperty(cls)) {
-                            hasClientOrderings = true;
-                            fn = this.Configuration.ClientSortableColumns[cls];
-                            if (!fn) {
-                                fn = this.makeDefaultOrderingFunction(cls);
-                                this.Configuration.ClientSortableColumns[cls] = fn;
-                            }
-                            this.MasterTable.DataHolder.registerClientOrdering(cls, fn);
-                        }
-                    }
-                    if (hasClientOrderings) {
-                        // if we have at least 1 client ordering then we have to reorder whole 
-                        // received data on client
-                        // to avoid client ordering priority
-                        for (var serverColumn in this.Configuration.DefaultOrderingsForColumns) {
-                            if (this.isClient(serverColumn))
-                                continue;
-                            fn = this.makeDefaultOrderingFunction(serverColumn);
-                            this.MasterTable.DataHolder.registerClientOrdering(serverColumn, fn);
-                        }
-                    }
-                };
-                OrderingPlugin.prototype.mixinOrderings = function (orderingsCollection, query) {
-                    for (var clo in orderingsCollection) {
-                        if (orderingsCollection.hasOwnProperty(clo)) {
-                            query.Orderings[clo] = orderingsCollection[clo];
-                        }
-                    }
-                };
-                OrderingPlugin.prototype.modifyQuery = function (query, scope) {
-                    this.mixinOrderings(this._serverOrderings, query);
-                    if (scope === PowerTables.QueryScope.Client || scope === PowerTables.QueryScope.Transboundary) {
-                        this.mixinOrderings(this._clientOrderings, query);
-                    }
-                };
-                return OrderingPlugin;
-            })(Plugins.FilterBase);
-            Ordering.OrderingPlugin = OrderingPlugin;
-            PowerTables.ComponentsContainer.registerComponent('Ordering', OrderingPlugin);
-        })(Ordering = Plugins.Ordering || (Plugins.Ordering = {}));
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        var PagingPlugin = (function (_super) {
-            __extends(PagingPlugin, _super);
-            function PagingPlugin() {
-                _super.apply(this, arguments);
-            }
-            PagingPlugin.prototype.onFilterGathered = function (query) {
-                this._pageSize = query.Paging.PageSize;
-            };
-            PagingPlugin.prototype.onResponse = function (response) {
-                this._selectedPage = response.PageIndex;
-                var tp = response.ResultsCount / this._pageSize;
-                if (tp !== parseInt(tp)) {
-                    tp = parseInt(tp) + 1;
-                }
-                this._totalPages = tp;
-                this.MasterTable.Renderer.redrawPlugin(this);
-            };
-            PagingPlugin.prototype.gotoPageClick = function (e) {
-            };
-            PagingPlugin.prototype.navigateToPage = function (e) {
-            };
-            PagingPlugin.prototype.nextClick = function (e) {
-            };
-            PagingPlugin.prototype.previousClick = function (e) {
-            };
-            PagingPlugin.prototype.constructPagesElements = function () {
-                var a = [];
-                var total = this._totalPages;
-                var cur = this._selectedPage;
-                var pdiff = this.Configuration.PagesToHideUnderPeriod;
-                if (total > 1) {
-                    this.Shown = true;
-                    if (!this.Configuration.ArrowsMode) {
-                        if (this.Configuration.UseFirstLastPage)
-                            a.push({ Page: 0, First: true });
-                        if (cur > 0)
-                            a.push({ Page: 0, Prev: true });
-                        if (this.Configuration.UsePeriods) {
-                            if (cur - 1 >= pdiff)
-                                a.push({ Page: 0, Period: true });
-                            if (cur - 1 > 0)
-                                a.push({ Page: cur - 1, InActivePage: true });
-                            a.push({ Page: cur, ActivePage: true });
-                            if (cur + 1 < total)
-                                a.push({ Page: cur + 1, InActivePage: true });
-                            if (total - (cur + 1) >= pdiff)
-                                a.push({ Page: 0, Period: true });
-                        }
-                        else {
-                            for (var i = 0; i < total; i++) {
-                                if (cur === i) {
-                                    a.push({ Page: i, ActivePage: true });
-                                }
-                                else {
-                                    a.push({ Page: i, InActivePage: true });
-                                }
-                            }
-                        }
-                        if (cur < total - 1)
-                            a.push({ Page: 0, Next: true });
-                        if (this.Configuration.UseFirstLastPage)
-                            a.push({ Page: total - 1, Last: true });
-                        var disFunction = function () { return this.Page + 1; };
-                        for (var j = 0; j < a.length; j++) {
-                            a[j].DisPage = disFunction;
-                        }
-                        this.Pages = a;
-                    }
-                    else {
-                        this.NextArrow = cur < total - 1;
-                        this.PrevArrow = cur > 0;
-                    }
-                }
-                else {
-                    this.Shown = false;
-                }
-            };
-            PagingPlugin.prototype.renderContent = function (templatesProvider) {
-                this.constructPagesElements();
-                return templatesProvider.getCachedTemplate('paging')(this);
-            };
-            return PagingPlugin;
-        })(Plugins.FilterBase);
-        Plugins.PagingPlugin = PagingPlugin;
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        /**
-         * Base class for plugins.
-         * It contains necessary infrastructure for convinence of plugins creation
-         */
-        var PluginBase = (function () {
-            function PluginBase() {
-            }
-            PluginBase.prototype.init = function (masterTable) {
-                this.MasterTable = masterTable;
-                this.subscribe(masterTable.Events);
-                this.registerAdditionalHelpers(masterTable.Renderer.HandlebarsInstance);
-                this.Configuration = this.RawConfig.Configuration;
-            };
-            /**
-             * Events subscription method.
-             * In derived class here should be subscription to various events
-             *
-             * @param e Events manager
-             */
-            PluginBase.prototype.subscribe = function (e) { };
-            /**
-             * In this method you can register any additional Handlebars.js helpers in case of your
-             * templates needs ones
-             *
-             * @param hb Handlebars instance
-             * @returns {}
-             */
-            PluginBase.prototype.registerAdditionalHelpers = function (hb) { };
-            return PluginBase;
-        })();
-        Plugins.PluginBase = PluginBase;
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var PowerTable = (function () {
-        function PowerTable(configuration) {
-            this._configuration = configuration;
-            this.bindReady();
-        }
-        PowerTable.prototype.bindReady = function () {
-            var _self = this;
-            if (document.addEventListener) {
-                document.addEventListener("DOMContentLoaded", function () {
-                    document.removeEventListener("DOMContentLoaded", arguments.callee, false);
-                    _self.initialize();
-                }, false);
-            }
-            else if (document.attachEvent) {
-                document.attachEvent("onreadystatechange", function () {
-                    if (document.readyState === "complete") {
-                        document.detachEvent("onreadystatechange", arguments.callee);
-                        _self.initialize();
-                    }
-                });
-                if (document.documentElement.doScroll && window == window.top)
-                    (function () {
-                        if (_self._isReady)
-                            return;
-                        try {
-                            document.documentElement.doScroll("left");
-                        }
-                        catch (error) {
-                            setTimeout(arguments.callee, 0);
-                            return;
-                        }
-                        _self.initialize();
-                    })();
-            }
-            window.addEventListener('load', function (e) {
-                if (_self._isReady)
-                    return;
-                _self.initialize();
-            });
-        };
-        PowerTable.prototype.initialize = function () {
-            this._isReady = true;
-            this.Events = new PowerTables.EventsManager(this);
-            this.InstanceManager = new PowerTables.InstanceManager(this._configuration, this, this.Events);
-            var isDt = this.InstanceManager.isDateTime.bind(this.InstanceManager);
-            this.DataHolder = new PowerTables.DataHolder(this.InstanceManager.getColumnNames(), isDt, this.Events, this.InstanceManager);
-            this.Loader = new PowerTables.Loader(this._configuration.StaticData, this._configuration.OperationalAjaxUrl, this.Events, this.DataHolder);
-            this.Renderer = new PowerTables.Rendering.Renderer(this._configuration.TableRootId, this._configuration.Prefix, isDt, this.InstanceManager, this.Events);
-            this.Controller = new PowerTables.Controller(this);
-            this.InstanceManager.initPlugins();
-            this.Renderer.layout();
-            if (this._configuration.LoadImmediately) {
-                this.Controller.reload();
-            }
-            else {
-                this.Controller.showTableMessage({
-                    MessageType: 'initial',
-                    Message: 'No filtering specified',
-                    AdditionalData: 'To retrieve query results please specify several filters'
-                });
-            }
-        };
-        /**
-         * Reloads table content.
-         * This method is left for backward compatibility
-         *
-         * @returns {}
-         */
-        PowerTable.prototype.reload = function () {
-            this.Controller.reload();
-        };
-        return PowerTable;
-    })();
-    PowerTables.PowerTable = PowerTable;
-})(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
     var Rendering;
@@ -1704,151 +1199,6 @@ var PowerTables;
             return ContentRenderer;
         })();
         Rendering.ContentRenderer = ContentRenderer;
-    })(Rendering = PowerTables.Rendering || (PowerTables.Rendering = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var Rendering;
-    (function (Rendering) {
-        /**
-         * This module allows you to locate particular elements in table's DOM
-         */
-        var DOMLocator = (function () {
-            function DOMLocator(bodyElement, rootElement, rootId) {
-                this._bodyElement = bodyElement;
-                this._rootElement = rootElement;
-                this._rootIdPrefix = "#" + rootId;
-            }
-            /**
-             * Retrieves cell element by cell object
-             *
-             * @param cell Cell element
-             * @returns {HTMLElement} Element containing cell (with wrapper)
-             */
-            DOMLocator.prototype.getCellElement = function (cell) {
-                var track = PowerTables.TrackHelper.getCellTrack(cell);
-                return this._bodyElement.querySelector(this._rootIdPrefix + " [data-track=\"" + track + "\"]");
-            };
-            /**
-             * Retrieves cell element using supplied coordinates
-             *
-             * @param cell Cell element
-             * @returns {HTMLElement} Element containing cell (with wrapper)
-             */
-            DOMLocator.prototype.getCellElementByIndex = function (rowDisplayIndex, columnIndex) {
-                var track = PowerTables.TrackHelper.getCellTrackByIndexes(rowDisplayIndex, columnIndex);
-                return this._bodyElement.querySelector(this._rootIdPrefix + " [data-track=\"" + track + "\"]");
-            };
-            /**
-             * Retrieves row element (including wrapper)
-             *
-             * @param row Row
-             * @returns HTML element
-             */
-            DOMLocator.prototype.getRowElement = function (row) {
-                var track = PowerTables.TrackHelper.getRowTrack(row);
-                return this._bodyElement.querySelector(this._rootIdPrefix + " [data-track=\"" + track + "\"]");
-            };
-            /**
-            * Retrieves row element (including wrapper) by specified row index
-            *
-            * @param row Row
-            * @returns HTML element
-            */
-            DOMLocator.prototype.getRowElementByIndex = function (rowDisplayingIndex) {
-                var track = PowerTables.TrackHelper.getRowTrackByIndex(rowDisplayingIndex);
-                return this._bodyElement.querySelector(this._rootIdPrefix + " [data-track=\"" + track + "\"]");
-            };
-            /**
-             * Retrieves data cells for specified column (including wrappers)
-             *
-             * @param column Column desired data cells belongs to
-             * @returns HTML NodeList containing results
-             */
-            DOMLocator.prototype.getColumnCellsElements = function (column) {
-                var colIdx = column.MasterTable.InstanceManager.getUiColumnNames().indexOf(column.RawName);
-                return this._bodyElement.querySelectorAll(this._rootIdPrefix + " [data-track$=\"-c" + colIdx + "\"]");
-            };
-            /**
-             * Retrieves data cells for specified column (including wrappers) by column index
-             *
-             * @param column Column desired data cells belongs to
-             * @returns HTML NodeList containing results
-             */
-            DOMLocator.prototype.getColumnCellsElementsByColumnIndex = function (columnIndex) {
-                return this._bodyElement.querySelectorAll(this._rootIdPrefix + " [data-track$=\"-c" + columnIndex + "\"]");
-            };
-            /**
-             * Retrieves data cells for whole row (including wrapper)
-             *
-             * @param row Row with data cells
-             * @returns NodeList containing results
-             */
-            DOMLocator.prototype.getRowCellsElements = function (row) {
-                return this.getRowCellsElementsByIndex(row.Index);
-            };
-            /**
-             * Retrieves data cells for whole row (including wrapper)
-             *
-             * @param row Row with data cells
-             * @returns NodeList containing results
-             */
-            DOMLocator.prototype.getRowCellsElementsByIndex = function (rowDisplayingIndex) {
-                return this._bodyElement.querySelectorAll(this._rootIdPrefix + " [data-track^=\"c-r" + rowDisplayingIndex + "-\"]");
-            };
-            /**
-             * Retrieves HTML element for column header (including wrapper)
-             *
-             * @param header Column header
-             * @returns HTML element
-             */
-            DOMLocator.prototype.getHeaderElement = function (header) {
-                var track = PowerTables.TrackHelper.getHeaderTrack(header);
-                return this._rootElement.querySelector(this._rootIdPrefix + " [data-track=\"" + track + "\"]");
-            };
-            /**
-             * Retrieves HTML element for plugin (including wrapper)
-             *
-             * @param plugin Plugin
-             * @returns HTML element
-             */
-            DOMLocator.prototype.getPluginElement = function (plugin) {
-                var track = PowerTables.TrackHelper.getPluginTrack(plugin);
-                return this._rootElement.querySelector(this._rootIdPrefix + " [data-track=\"" + track + "\"]");
-            };
-            /**
-             * Determines if supplied element is table row
-             *
-             * @param e Testing element
-             * @returns {boolean} True when supplied element is row, false otherwise
-             */
-            DOMLocator.prototype.isRow = function (e) {
-                if (!e)
-                    return false;
-                if (!e.getAttribute)
-                    return false;
-                var trk = e.getAttribute('data-track');
-                return (trk.charAt(0) === 'r') && (trk.charAt(1) === '-');
-            };
-            /**
-             * Determines if supplied element is table cell
-             *
-             * @param e Testing element
-             * @returns {boolean} True when supplied element is cell, false otherwise
-             */
-            DOMLocator.prototype.isCell = function (e) {
-                if (!e)
-                    return false;
-                if (!e.getAttribute)
-                    return false;
-                var trk = e.getAttribute('data-track');
-                return (trk.charAt(0) === 'c')
-                    && (trk.charAt(1) === '-')
-                    && (trk.charAt(2) === 'r');
-            };
-            return DOMLocator;
-        })();
-        Rendering.DOMLocator = DOMLocator;
     })(Rendering = PowerTables.Rendering || (PowerTables.Rendering = {}));
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
@@ -2350,6 +1700,151 @@ var PowerTables;
     var Rendering;
     (function (Rendering) {
         /**
+         * This module allows you to locate particular elements in table's DOM
+         */
+        var DOMLocator = (function () {
+            function DOMLocator(bodyElement, rootElement, rootId) {
+                this._bodyElement = bodyElement;
+                this._rootElement = rootElement;
+                this._rootIdPrefix = "#" + rootId;
+            }
+            /**
+             * Retrieves cell element by cell object
+             *
+             * @param cell Cell element
+             * @returns {HTMLElement} Element containing cell (with wrapper)
+             */
+            DOMLocator.prototype.getCellElement = function (cell) {
+                var track = PowerTables.TrackHelper.getCellTrack(cell);
+                return this._bodyElement.querySelector(this._rootIdPrefix + " [data-track=\"" + track + "\"]");
+            };
+            /**
+             * Retrieves cell element using supplied coordinates
+             *
+             * @param cell Cell element
+             * @returns {HTMLElement} Element containing cell (with wrapper)
+             */
+            DOMLocator.prototype.getCellElementByIndex = function (rowDisplayIndex, columnIndex) {
+                var track = PowerTables.TrackHelper.getCellTrackByIndexes(rowDisplayIndex, columnIndex);
+                return this._bodyElement.querySelector(this._rootIdPrefix + " [data-track=\"" + track + "\"]");
+            };
+            /**
+             * Retrieves row element (including wrapper)
+             *
+             * @param row Row
+             * @returns HTML element
+             */
+            DOMLocator.prototype.getRowElement = function (row) {
+                var track = PowerTables.TrackHelper.getRowTrack(row);
+                return this._bodyElement.querySelector(this._rootIdPrefix + " [data-track=\"" + track + "\"]");
+            };
+            /**
+            * Retrieves row element (including wrapper) by specified row index
+            *
+            * @param row Row
+            * @returns HTML element
+            */
+            DOMLocator.prototype.getRowElementByIndex = function (rowDisplayingIndex) {
+                var track = PowerTables.TrackHelper.getRowTrackByIndex(rowDisplayingIndex);
+                return this._bodyElement.querySelector(this._rootIdPrefix + " [data-track=\"" + track + "\"]");
+            };
+            /**
+             * Retrieves data cells for specified column (including wrappers)
+             *
+             * @param column Column desired data cells belongs to
+             * @returns HTML NodeList containing results
+             */
+            DOMLocator.prototype.getColumnCellsElements = function (column) {
+                var colIdx = column.MasterTable.InstanceManager.getUiColumnNames().indexOf(column.RawName);
+                return this._bodyElement.querySelectorAll(this._rootIdPrefix + " [data-track$=\"-c" + colIdx + "\"]");
+            };
+            /**
+             * Retrieves data cells for specified column (including wrappers) by column index
+             *
+             * @param column Column desired data cells belongs to
+             * @returns HTML NodeList containing results
+             */
+            DOMLocator.prototype.getColumnCellsElementsByColumnIndex = function (columnIndex) {
+                return this._bodyElement.querySelectorAll(this._rootIdPrefix + " [data-track$=\"-c" + columnIndex + "\"]");
+            };
+            /**
+             * Retrieves data cells for whole row (including wrapper)
+             *
+             * @param row Row with data cells
+             * @returns NodeList containing results
+             */
+            DOMLocator.prototype.getRowCellsElements = function (row) {
+                return this.getRowCellsElementsByIndex(row.Index);
+            };
+            /**
+             * Retrieves data cells for whole row (including wrapper)
+             *
+             * @param row Row with data cells
+             * @returns NodeList containing results
+             */
+            DOMLocator.prototype.getRowCellsElementsByIndex = function (rowDisplayingIndex) {
+                return this._bodyElement.querySelectorAll(this._rootIdPrefix + " [data-track^=\"c-r" + rowDisplayingIndex + "-\"]");
+            };
+            /**
+             * Retrieves HTML element for column header (including wrapper)
+             *
+             * @param header Column header
+             * @returns HTML element
+             */
+            DOMLocator.prototype.getHeaderElement = function (header) {
+                var track = PowerTables.TrackHelper.getHeaderTrack(header);
+                return this._rootElement.querySelector(this._rootIdPrefix + " [data-track=\"" + track + "\"]");
+            };
+            /**
+             * Retrieves HTML element for plugin (including wrapper)
+             *
+             * @param plugin Plugin
+             * @returns HTML element
+             */
+            DOMLocator.prototype.getPluginElement = function (plugin) {
+                var track = PowerTables.TrackHelper.getPluginTrack(plugin);
+                return this._rootElement.querySelector(this._rootIdPrefix + " [data-track=\"" + track + "\"]");
+            };
+            /**
+             * Determines if supplied element is table row
+             *
+             * @param e Testing element
+             * @returns {boolean} True when supplied element is row, false otherwise
+             */
+            DOMLocator.prototype.isRow = function (e) {
+                if (!e)
+                    return false;
+                if (!e.getAttribute)
+                    return false;
+                var trk = e.getAttribute('data-track');
+                return (trk.charAt(0) === 'r') && (trk.charAt(1) === '-');
+            };
+            /**
+             * Determines if supplied element is table cell
+             *
+             * @param e Testing element
+             * @returns {boolean} True when supplied element is cell, false otherwise
+             */
+            DOMLocator.prototype.isCell = function (e) {
+                if (!e)
+                    return false;
+                if (!e.getAttribute)
+                    return false;
+                var trk = e.getAttribute('data-track');
+                return (trk.charAt(0) === 'c')
+                    && (trk.charAt(1) === '-')
+                    && (trk.charAt(2) === 'r');
+            };
+            return DOMLocator;
+        })();
+        Rendering.DOMLocator = DOMLocator;
+    })(Rendering = PowerTables.Rendering || (PowerTables.Rendering = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Rendering;
+    (function (Rendering) {
+        /**
          * Enity responsible for displaying table
          */
         var Renderer = (function () {
@@ -2665,4 +2160,544 @@ var PowerTables;
     })();
     PowerTables.TrackHelper = TrackHelper;
 })(PowerTables || (PowerTables = {}));
-//# sourceMappingURL=../PowerTables.Mvc/Scripts/powertables.js.map
+var PowerTables;
+(function (PowerTables) {
+    var PowerTable = (function () {
+        function PowerTable(configuration) {
+            this._configuration = configuration;
+            this.bindReady();
+        }
+        PowerTable.prototype.bindReady = function () {
+            var _self = this;
+            if (document.addEventListener) {
+                document.addEventListener("DOMContentLoaded", function () {
+                    document.removeEventListener("DOMContentLoaded", arguments.callee, false);
+                    _self.initialize();
+                }, false);
+            }
+            else if (document.attachEvent) {
+                document.attachEvent("onreadystatechange", function () {
+                    if (document.readyState === "complete") {
+                        document.detachEvent("onreadystatechange", arguments.callee);
+                        _self.initialize();
+                    }
+                });
+                if (document.documentElement.doScroll && window == window.top)
+                    (function () {
+                        if (_self._isReady)
+                            return;
+                        try {
+                            document.documentElement.doScroll("left");
+                        }
+                        catch (error) {
+                            setTimeout(arguments.callee, 0);
+                            return;
+                        }
+                        _self.initialize();
+                    })();
+            }
+            window.addEventListener('load', function (e) {
+                if (_self._isReady)
+                    return;
+                _self.initialize();
+            });
+        };
+        PowerTable.prototype.initialize = function () {
+            this._isReady = true;
+            this.Events = new PowerTables.EventsManager(this);
+            this.InstanceManager = new PowerTables.InstanceManager(this._configuration, this, this.Events);
+            var isDt = this.InstanceManager.isDateTime.bind(this.InstanceManager);
+            this.DataHolder = new PowerTables.DataHolder(this.InstanceManager.getColumnNames(), isDt, this.Events, this.InstanceManager);
+            this.Loader = new PowerTables.Loader(this._configuration.StaticData, this._configuration.OperationalAjaxUrl, this.Events, this.DataHolder);
+            this.Renderer = new PowerTables.Rendering.Renderer(this._configuration.TableRootId, this._configuration.Prefix, isDt, this.InstanceManager, this.Events);
+            this.Controller = new PowerTables.Controller(this);
+            this.InstanceManager.initPlugins();
+            this.Renderer.layout();
+            if (this._configuration.LoadImmediately) {
+                this.Controller.reload();
+            }
+            else {
+                this.Controller.showTableMessage({
+                    MessageType: 'initial',
+                    Message: 'No filtering specified',
+                    AdditionalData: 'To retrieve query results please specify several filters'
+                });
+            }
+        };
+        /**
+         * Reloads table content.
+         * This method is left for backward compatibility
+         *
+         * @returns {}
+         */
+        PowerTable.prototype.reload = function () {
+            this.Controller.reload();
+        };
+        return PowerTable;
+    })();
+    PowerTables.PowerTable = PowerTable;
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        /**
+         * Base class for plugins.
+         * It contains necessary infrastructure for convinence of plugins creation
+         */
+        var PluginBase = (function () {
+            function PluginBase() {
+            }
+            PluginBase.prototype.init = function (masterTable) {
+                this.MasterTable = masterTable;
+                this.subscribe(masterTable.Events);
+                this.registerAdditionalHelpers(masterTable.Renderer.HandlebarsInstance);
+                this.Configuration = this.RawConfig.Configuration;
+            };
+            /**
+             * Events subscription method.
+             * In derived class here should be subscription to various events
+             *
+             * @param e Events manager
+             */
+            PluginBase.prototype.subscribe = function (e) { };
+            /**
+             * In this method you can register any additional Handlebars.js helpers in case of your
+             * templates needs ones
+             *
+             * @param hb Handlebars instance
+             * @returns {}
+             */
+            PluginBase.prototype.registerAdditionalHelpers = function (hb) { };
+            return PluginBase;
+        })();
+        Plugins.PluginBase = PluginBase;
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        /**
+         * Base class for creating filters
+         */
+        var FilterBase = (function (_super) {
+            __extends(FilterBase, _super);
+            function FilterBase() {
+                _super.apply(this, arguments);
+            }
+            FilterBase.prototype.modifyQuery = function (query, scope) { };
+            FilterBase.prototype.init = function (masterTable) {
+                _super.prototype.init.call(this, masterTable);
+                this.MasterTable.Loader.registerQueryPartProvider(this);
+            };
+            /**
+             * Call this method inside init and override filterPredicate method to make this filter
+             * participate in client-side filtering
+             */
+            FilterBase.prototype.itIsClientFilter = function () {
+                this.MasterTable.DataHolder.registerClientFilter(this);
+            };
+            FilterBase.prototype.filterPredicate = function (rowObject, query) { throw new Error("Please override this method"); };
+            FilterBase.prototype.selectData = function (sourceDataSet, query) { throw new Error("Please override this method"); };
+            return FilterBase;
+        })(Plugins.PluginBase);
+        Plugins.FilterBase = FilterBase;
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var LoadingPlugin = (function (_super) {
+            __extends(LoadingPlugin, _super);
+            function LoadingPlugin() {
+                _super.apply(this, arguments);
+            }
+            LoadingPlugin.prototype.subscribe = function (e) {
+                var _this = this;
+                e.BeforeLoading.subscribe(function () { return _this.showLoadingIndicator(); }, "loading");
+                e.AfterLoading.subscribe(function () { return _this.hideLoadingIndicator(); }, "loading");
+                e.AfterLayoutDrawn.subscribe(function () {
+                    var me = _this.MasterTable.Renderer.Locator.getPluginElement(_this);
+                    _this._blinkElement = me.querySelector('[data-blink]');
+                    _this.hideLoadingIndicator();
+                }, 'loading');
+            };
+            LoadingPlugin.prototype.showLoadingIndicator = function () {
+                this._blinkElement.style.visibility = 'visible';
+            };
+            LoadingPlugin.prototype.hideLoadingIndicator = function () {
+                this._blinkElement.style.visibility = 'collapse';
+            };
+            LoadingPlugin.prototype.renderContent = function (templatesProvider) {
+                return templatesProvider.getCachedTemplate('loading')(null);
+            };
+            LoadingPlugin.Id = 'Loading';
+            return LoadingPlugin;
+        })(Plugins.PluginBase);
+        Plugins.LoadingPlugin = LoadingPlugin;
+        PowerTables.ComponentsContainer.registerComponent('Loading', LoadingPlugin);
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var Ordering;
+        (function (Ordering) {
+            var OrderingPlugin = (function (_super) {
+                __extends(OrderingPlugin, _super);
+                function OrderingPlugin() {
+                    _super.apply(this, arguments);
+                    this._clientOrderings = {};
+                    this._serverOrderings = {};
+                }
+                OrderingPlugin.prototype.subscribe = function (e) {
+                    var _this = this;
+                    e.ColumnsCreation.subscribe(function (v) {
+                        _this.overrideHeadersTemplates(v.EventArgs);
+                    }, 'ordering');
+                };
+                OrderingPlugin.prototype.overrideHeadersTemplates = function (columns) {
+                    var _this = this;
+                    var handler = function (e) {
+                        _this.switchOrderingForColumn(e.Receiver.Column.RawName);
+                    };
+                    for (var ck in columns) {
+                        if (columns.hasOwnProperty(ck)) {
+                            var ordering = this.Configuration.DefaultOrderingsForColumns[ck];
+                            if (!ordering)
+                                continue;
+                            var newHeader = {
+                                Column: columns[ck],
+                                switchOrdering: handler,
+                                IsClientOrdering: this.isClient(ck)
+                            };
+                            this.updateOrdering(ck, ordering);
+                            (function (hdr) {
+                                hdr.renderElement = function (tp) {
+                                    return tp.getCachedTemplate('ordering')(hdr);
+                                };
+                            })(newHeader);
+                            this.specifyOrdering(newHeader, ordering);
+                            columns[ck].Header = newHeader;
+                        }
+                    }
+                };
+                OrderingPlugin.prototype.updateOrdering = function (columnName, ordering) {
+                    if (this.isClient(columnName))
+                        this._clientOrderings[columnName] = ordering;
+                    else
+                        this._serverOrderings[columnName] = ordering;
+                };
+                OrderingPlugin.prototype.specifyOrdering = function (object, ordering) {
+                    object.IsNeutral = object.IsDescending = object.IsAscending = false;
+                    switch (ordering) {
+                        case PowerTables.Ordering.Neutral:
+                            object.IsNeutral = true;
+                            break;
+                        case PowerTables.Ordering.Descending:
+                            object.IsDescending = true;
+                            break;
+                        case PowerTables.Ordering.Ascending:
+                            object.IsAscending = true;
+                            break;
+                    }
+                };
+                OrderingPlugin.prototype.isClient = function (columnName) {
+                    return this.Configuration.ClientSortableColumns.hasOwnProperty(columnName);
+                };
+                OrderingPlugin.prototype.switchOrderingForColumn = function (columnName) {
+                    if (!this.Configuration.DefaultOrderingsForColumns[columnName])
+                        throw new Error("Ordering is not configured for column " + columnName);
+                    var coolHeader = this.MasterTable.InstanceManager.Columns[columnName].Header;
+                    var orderingsCollection = this.isClient(columnName) ? this._clientOrderings : this._serverOrderings;
+                    var next = this.nextOrdering(orderingsCollection[columnName]);
+                    this.specifyOrdering(coolHeader, next);
+                    this.updateOrdering(columnName, next);
+                    this.MasterTable.Renderer.redrawHeader(coolHeader.Column);
+                    this.MasterTable.Controller.reload();
+                };
+                OrderingPlugin.prototype.nextOrdering = function (currentOrdering) {
+                    switch (currentOrdering) {
+                        case PowerTables.Ordering.Neutral: return PowerTables.Ordering.Ascending;
+                        case PowerTables.Ordering.Descending: return PowerTables.Ordering.Neutral;
+                        case PowerTables.Ordering.Ascending: return PowerTables.Ordering.Descending;
+                    }
+                };
+                OrderingPlugin.prototype.makeDefaultOrderingFunction = function (fieldName) {
+                    var self = this;
+                    return (function (field) {
+                        return function (a, b) {
+                            var x = a[field], y = b[field];
+                            if (x === y)
+                                return 0;
+                            if (x == null || x == undefined)
+                                return -1;
+                            if (y == null || y == undefined)
+                                return 1;
+                            if (typeof x === "string") {
+                                return x.localeCompare(y);
+                            }
+                            return (x > y) ? 1 : -1;
+                        };
+                    })(fieldName);
+                };
+                OrderingPlugin.prototype.init = function (masterTable) {
+                    _super.prototype.init.call(this, masterTable);
+                    var hasClientOrderings = false;
+                    var fn;
+                    for (var cls in this.Configuration.ClientSortableColumns) {
+                        if (this.Configuration.ClientSortableColumns.hasOwnProperty(cls)) {
+                            hasClientOrderings = true;
+                            fn = this.Configuration.ClientSortableColumns[cls];
+                            if (!fn) {
+                                fn = this.makeDefaultOrderingFunction(cls);
+                                this.Configuration.ClientSortableColumns[cls] = fn;
+                            }
+                            this.MasterTable.DataHolder.registerClientOrdering(cls, fn);
+                        }
+                    }
+                    if (hasClientOrderings) {
+                        // if we have at least 1 client ordering then we have to reorder whole 
+                        // received data on client
+                        // to avoid client ordering priority
+                        for (var serverColumn in this.Configuration.DefaultOrderingsForColumns) {
+                            if (this.isClient(serverColumn))
+                                continue;
+                            fn = this.makeDefaultOrderingFunction(serverColumn);
+                            this.MasterTable.DataHolder.registerClientOrdering(serverColumn, fn);
+                        }
+                    }
+                };
+                OrderingPlugin.prototype.mixinOrderings = function (orderingsCollection, query) {
+                    for (var clo in orderingsCollection) {
+                        if (orderingsCollection.hasOwnProperty(clo)) {
+                            query.Orderings[clo] = orderingsCollection[clo];
+                        }
+                    }
+                };
+                OrderingPlugin.prototype.modifyQuery = function (query, scope) {
+                    this.mixinOrderings(this._serverOrderings, query);
+                    if (scope === PowerTables.QueryScope.Client || scope === PowerTables.QueryScope.Transboundary) {
+                        this.mixinOrderings(this._clientOrderings, query);
+                    }
+                };
+                return OrderingPlugin;
+            })(Plugins.FilterBase);
+            Ordering.OrderingPlugin = OrderingPlugin;
+            PowerTables.ComponentsContainer.registerComponent('Ordering', OrderingPlugin);
+        })(Ordering = Plugins.Ordering || (Plugins.Ordering = {}));
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var LimitPlugin = (function (_super) {
+            __extends(LimitPlugin, _super);
+            function LimitPlugin() {
+                _super.apply(this, arguments);
+                this._limitSize = 0;
+                this.Sizes = [];
+            }
+            LimitPlugin.prototype.renderContent = function (templatesProvider) {
+                return templatesProvider.getCachedTemplate('limit')(this);
+            };
+            LimitPlugin.prototype.changeLimitHandler = function (e) {
+                var limit = parseInt(e.EventArguments[0]);
+                if (isNaN(limit))
+                    limit = 0;
+                this.changeLimit(limit);
+            };
+            LimitPlugin.prototype.changeLimit = function (limit) {
+                var changed = this._limitSize !== limit;
+                if (!changed)
+                    return;
+                this._limitSize = limit;
+                var labelPair = null;
+                for (var i = 0; i < this.Sizes.length; i++) {
+                    labelPair = this.Sizes[i];
+                    if (labelPair.Value === limit) {
+                        break;
+                    }
+                }
+                if (labelPair != null)
+                    this.SelectedValue = labelPair.Label;
+                this.MasterTable.Renderer.redrawPlugin(this);
+                if (this.Configuration.ReloadTableOnLimitChange)
+                    this.MasterTable.Controller.reload();
+            };
+            LimitPlugin.prototype.modifyQuery = function (query, scope) {
+                var client = this.Configuration.EnableClientLimiting;
+                if (client && (scope === PowerTables.QueryScope.Client || scope === PowerTables.QueryScope.Transboundary)) {
+                    query.Paging.PageSize = this._limitSize;
+                }
+                if (!client && (scope === PowerTables.QueryScope.Server || scope === PowerTables.QueryScope.Transboundary)) {
+                    query.Paging.PageSize = this._limitSize;
+                }
+            };
+            LimitPlugin.prototype.init = function (masterTable) {
+                _super.prototype.init.call(this, masterTable);
+                var def = null;
+                for (var i = 0; i < this.Configuration.LimitValues.length; i++) {
+                    var a = {
+                        Value: this.Configuration.LimitValues[i],
+                        Label: this.Configuration.LimitLabels[i],
+                        IsSeparator: this.Configuration.LimitLabels[i] === '-'
+                    };
+                    this.Sizes.push(a);
+                    if (a.Label === this.Configuration.DefaultValue) {
+                        def = a;
+                    }
+                }
+                if (def) {
+                    this.SelectedValue = def.Label;
+                    this._limitSize = def.Value;
+                }
+                else {
+                    this._limitSize = 0;
+                }
+                if (this.Configuration.EnableClientLimiting) {
+                    this.MasterTable.DataHolder.EnableClientTake = true;
+                }
+            };
+            return LimitPlugin;
+        })(Plugins.FilterBase);
+        Plugins.LimitPlugin = LimitPlugin;
+        PowerTables.ComponentsContainer.registerComponent('Limit', LimitPlugin);
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var PagingPlugin = (function (_super) {
+            __extends(PagingPlugin, _super);
+            function PagingPlugin() {
+                _super.apply(this, arguments);
+            }
+            PagingPlugin.prototype.onFilterGathered = function (e) {
+                this._pageSize = e.EventArgs.Query.Paging.PageSize;
+            };
+            PagingPlugin.prototype.onResponse = function (e) {
+                this._selectedPage = e.EventArgs.Data.PageIndex;
+                var tp = e.EventArgs.Data.ResultsCount / this._pageSize;
+                if (tp !== parseInt(tp)) {
+                    tp = parseInt(tp) + 1;
+                }
+                this._totalPages = tp;
+                this.MasterTable.Renderer.redrawPlugin(this);
+            };
+            PagingPlugin.prototype.pageClick = function (page) {
+                this._selectedPage = parseInt(page);
+                this.MasterTable.Controller.reload();
+            };
+            PagingPlugin.prototype.gotoPageClick = function (e) {
+                if (this.GotoInput) {
+                    var v = this.GotoInput.value;
+                    v = (parseInt(v) - 1).toString();
+                    this.pageClick(v);
+                }
+            };
+            PagingPlugin.prototype.navigateToPage = function (e) {
+                this.pageClick(e.EventArguments[0]);
+            };
+            PagingPlugin.prototype.nextClick = function (e) {
+                if (this._selectedPage < this._totalPages)
+                    this.pageClick((this._selectedPage + 1).toString());
+            };
+            PagingPlugin.prototype.previousClick = function (e) {
+                if (this._selectedPage > 0)
+                    this.pageClick((this._selectedPage - 1).toString());
+            };
+            PagingPlugin.prototype.constructPagesElements = function () {
+                var a = [];
+                var total = this._totalPages;
+                var cur = this._selectedPage;
+                var pdiff = this.Configuration.PagesToHideUnderPeriod;
+                if (total > 1) {
+                    this.Shown = true;
+                    if (!this.Configuration.ArrowsMode) {
+                        if (this.Configuration.UseFirstLastPage)
+                            a.push({ Page: 0, First: true });
+                        if (cur > 0)
+                            a.push({ Page: 0, Prev: true });
+                        if (this.Configuration.UsePeriods) {
+                            if (cur - 1 >= pdiff)
+                                a.push({ Page: 0, Period: true });
+                            if (cur - 1 > 0)
+                                a.push({ Page: cur - 1, InActivePage: true });
+                            a.push({ Page: cur, ActivePage: true });
+                            if (cur + 1 < total)
+                                a.push({ Page: cur + 1, InActivePage: true });
+                            if (total - (cur + 1) >= pdiff)
+                                a.push({ Page: 0, Period: true });
+                        }
+                        else {
+                            for (var i = 0; i < total; i++) {
+                                if (cur === i) {
+                                    a.push({ Page: i, ActivePage: true });
+                                }
+                                else {
+                                    a.push({ Page: i, InActivePage: true });
+                                }
+                            }
+                        }
+                        if (cur < total - 1)
+                            a.push({ Page: 0, Next: true });
+                        if (this.Configuration.UseFirstLastPage)
+                            a.push({ Page: total - 1, Last: true });
+                        var disFunction = function () { return this.Page + 1; };
+                        for (var j = 0; j < a.length; j++) {
+                            a[j].DisPage = disFunction;
+                        }
+                        this.Pages = a;
+                    }
+                    else {
+                        this.NextArrow = cur < total - 1;
+                        this.PrevArrow = cur > 0;
+                    }
+                }
+                else {
+                    this.Shown = false;
+                }
+            };
+            PagingPlugin.prototype.renderContent = function (templatesProvider) {
+                this.constructPagesElements();
+                return templatesProvider.getCachedTemplate('paging')(this);
+            };
+            PagingPlugin.prototype.validateGotopage = function () {
+                var v = this.GotoInput.value;
+                var i = parseInt(v);
+                var valid = !isNaN(i) && (i > 0) && (i <= this._totalPages);
+                if (valid) {
+                    this.GotoPanel.classList.remove('has-error');
+                    this.GotoBtn.removeAttribute('disabled');
+                }
+                else {
+                    this.GotoPanel.classList.add('has-error');
+                    this.GotoBtn.setAttribute('disabled', 'disabled');
+                }
+            };
+            PagingPlugin.prototype.modifyQuery = function (query, scope) {
+            };
+            PagingPlugin.prototype.init = function (masterTable) {
+                _super.prototype.init.call(this, masterTable);
+                this.MasterTable.Events.AfterQueryGathering.subscribe(this.onFilterGathered.bind(this), 'paging');
+                this.MasterTable.Events.DataReceived.subscribe(this.onResponse.bind(this), 'paging');
+            };
+            return PagingPlugin;
+        })(Plugins.FilterBase);
+        Plugins.PagingPlugin = PagingPlugin;
+        PowerTables.ComponentsContainer.registerComponent('Paging', PagingPlugin);
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+//# sourceMappingURL=powertables.js.map
