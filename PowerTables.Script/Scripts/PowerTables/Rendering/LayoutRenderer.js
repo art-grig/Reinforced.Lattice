@@ -21,6 +21,12 @@ var PowerTables;
                 this._hb.registerHelper('Headers', this.headersHelper.bind(this));
                 this._hb.registerHelper('BindEvent', this.bindEventHelper.bind(this));
             }
+            /**
+             * Applies binding of events left in events queue
+             *
+             * @param parentElement Parent element to lookup for event binding attributes
+             * @returns {}
+             */
             LayoutRenderer.prototype.bindEventsQueue = function (parentElement) {
                 // bind plugins/filters events
                 var sources = parentElement.querySelectorAll('[data-be]');
@@ -53,7 +59,7 @@ var PowerTables;
             //#region Plugin helpers
             LayoutRenderer.prototype.pluginHelper = function (pluginPosition, pluginId) {
                 var plugin = this._instances.getPlugin(pluginId, pluginPosition);
-                return this.pluginHelperInner(plugin);
+                return this.renderPlugin(plugin);
             };
             LayoutRenderer.prototype.pluginsHelper = function (pluginPosition) {
                 var plugins = this._instances.getPlugins(pluginPosition);
@@ -63,12 +69,18 @@ var PowerTables;
                 for (var a in plugins) {
                     if (plugins.hasOwnProperty(a)) {
                         var v = plugins[a];
-                        result += this.pluginHelperInner(v);
+                        result += this.renderPlugin(v);
                     }
                 }
                 return result;
             };
-            LayoutRenderer.prototype.pluginHelperInner = function (plugin) {
+            /**
+             * Renders specified plugin into string including its wrapper
+             *
+             * @param plugin Plugin interface
+             * @returns {}
+             */
+            LayoutRenderer.prototype.renderPlugin = function (plugin) {
                 if (plugin.renderElement)
                     return plugin.renderElement(this._templatesProvider);
                 if (!plugin.renderContent)

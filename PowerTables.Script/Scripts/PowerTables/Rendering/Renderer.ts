@@ -115,6 +115,7 @@
             var oldPluginElement = this.Locator.getPluginElement(plugin);
             var parent = oldPluginElement.parentElement;
             parent.replaceChild(newPluginElement, oldPluginElement);
+            this._layoutRenderer.bindEventsQueue(newPluginElement);
         }
 
         private createElement(html: string): HTMLElement {
@@ -229,8 +230,5 @@
                 return opts.inverse(this);
         }
         //#endregion
-
-
-        
     }
 } 

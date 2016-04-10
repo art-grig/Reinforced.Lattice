@@ -1,4 +1,4 @@
-﻿module PowerTables {
+﻿module PowerTables.Plugins {
     /**
      * Base class for plugins. 
      * It contains necessary infrastructure for convinence of plugins creation

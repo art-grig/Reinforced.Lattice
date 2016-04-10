@@ -29,7 +29,12 @@ module PowerTables.Rendering {
             this._hb.registerHelper('BindEvent', this.bindEventHelper.bind(this));
         }
 
-
+        /**
+         * Applies binding of events left in events queue
+         * 
+         * @param parentElement Parent element to lookup for event binding attributes
+         * @returns {} 
+         */
         public bindEventsQueue(parentElement: HTMLElement): void {
             // bind plugins/filters events
             var sources = parentElement.querySelectorAll('[data-be]');

@@ -118,8 +118,9 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\HandleTutorial.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\TestsController.cs" />
+    <Compile Include="Controllers\TutorialController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -134,7 +135,10 @@
     <Compile Include="Models\TargetData.cs" />
     <Compile Include="Models\TestsModel.cs" />
     <Compile Include="Models\TestTable.cs" />
+    <Compile Include="Models\Tutorial\Basic.cs" />
+    <Compile Include="Models\Tutorial\ProjectionTitlesAndDataOnly.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TutorialAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap-datepicker.css" />
@@ -147,6 +151,7 @@
     <Content Include="Content\bootstrap-datepicker3.standalone.min.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\prism.css" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
@@ -239,6 +244,7 @@
     <Content Include="Scripts\locales\bootstrap-datepicker.zh-TW.min.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
     <Content Include="Scripts\powertables.js" />
+    <Content Include="Scripts\prism.js" />
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Scripts\_references.js" />
@@ -258,7 +264,9 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Shared\PowerTables_Templates.cshtml" />
     <Content Include="Views\Shared\AdditionalSearchDataView.cshtml" />
-    <Content Include="Views\Tests\Test1.cshtml" />
+    <Content Include="Views\Tutorial\Basic.cshtml" />
+    <Content Include="Views\Tutorial\ProjectionTitlesAndDataOnly.cshtml" />
+    <Content Include="Views\Shared\TutorialsLayout.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

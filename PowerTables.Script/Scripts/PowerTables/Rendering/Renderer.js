@@ -12,6 +12,7 @@ var PowerTables;
                 this._instances = instances;
                 this._stack = new Rendering.RenderingStack();
                 this.RootElement = document.getElementById(rootId);
+                this._rootId = rootId;
                 this.HandlebarsInstance = Handlebars.create();
                 this._layoutRenderer = new Rendering.LayoutRenderer(this, this._stack, this._instances);
                 this._contentRenderer = new Rendering.ContentRenderer(this, this._stack, this._instances);
@@ -55,6 +56,7 @@ var PowerTables;
                 this.BodyElement = bodyMarker.parentElement;
                 this.BodyElement.removeChild(bodyMarker);
                 this._layoutRenderer.bindEventsQueue(this.RootElement);
+                this.Locator = new Rendering.DOMLocator(this.BodyElement, this.RootElement, this._rootId);
             };
             /**
              * Clear dynamically loaded table content and replace it with new one
@@ -65,6 +67,81 @@ var PowerTables;
                 this.clearBody();
                 this.BodyElement.innerHTML = this._contentRenderer.renderBody(rows);
             };
+            /**
+             * Redraws specified plugin refreshing all its graphical state
+             *
+             * @param plugin Plugin to redraw
+             * @returns {}
+             */
+            Renderer.prototype.redrawPlugin = function (plugin) {
+                this._stack.clear();
+                var newPluginElement = this.createElement(this._layoutRenderer.renderPlugin(plugin));
+                var oldPluginElement = this.Locator.getPluginElement(plugin);
+                var parent = oldPluginElement.parentElement;
+                parent.replaceChild(newPluginElement, oldPluginElement);
+                this._layoutRenderer.bindEventsQueue(newPluginElement);
+            };
+            Renderer.prototype.createElement = function (html) {
+                var tempDiv = document.createElement('div');
+                tempDiv.innerHTML = html;
+                return tempDiv.childNodes.item(0);
+            };
+            /**
+             * Redraws specified row refreshing all its graphical state
+             *
+             * @param row
+             * @returns {}
+             */
+            Renderer.prototype.redrawRow = function (row) {
+                this._stack.clear();
+                var wrapper = this.getCachedTemplate('rowWrapper');
+                var html;
+                if (row.renderElement) {
+                    html = row.renderElement(this);
+                }
+                else {
+                    html = wrapper(row);
+                }
+                var newRowElement = this.createElement(html);
+                var oldElement = this.Locator.getRowElement(row);
+                var parent = oldElement.parentElement;
+                parent.replaceChild(newRowElement, oldElement);
+            };
+            /**
+             * Redraws specified row refreshing all its graphical state
+             *
+             * @param row
+             * @returns {}
+             */
+            Renderer.prototype.appendRow = function (row, afterRowAtIndex) {
+                this._stack.clear();
+                var wrapper = this.getCachedTemplate('rowWrapper');
+                var html;
+                if (row.renderElement) {
+                    html = row.renderElement(this);
+                }
+                else {
+                    html = wrapper(row);
+                }
+                var newRowElement = this.createElement(html);
+                var referenceNode = this.Locator.getRowElementByIndex(afterRowAtIndex);
+                referenceNode.parentNode.insertBefore(newRowElement, referenceNode.nextSibling);
+            };
+            /**
+             * Removes referenced row by its index
+             *
+             * @param rowDisplayIndex
+             * @returns {}
+             */
+            Renderer.prototype.removeRowByIndex = function (rowDisplayIndex) {
+                var referenceNode = this.Locator.getRowElementByIndex(rowDisplayIndex);
+                referenceNode.parentElement.removeChild(referenceNode);
+            };
+            /**
+             * Removes all dynamically loaded content in table
+             *
+             * @returns {}
+             */
             Renderer.prototype.clearBody = function () {
                 this.BodyElement.innerHTML = '';
             };

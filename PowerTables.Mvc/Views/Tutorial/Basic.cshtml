@@ -1,0 +1,18 @@
+﻿@using PowerTables
+@using PowerTables.Configuration
+@model PowerTables.Configuration.Configurator<PowerTables.Mvc.Models.SourceData, PowerTables.Mvc.Models.TargetData>
+@{
+    Layout = "~/Views/Shared/TutorialsLayout.cshtml";
+}
+
+@section Result{
+    <div class="container-fluid">
+        <div id="mytable"></div>
+    </div>
+}
+
+@section Scripts {
+    @{ Html.RenderDefaultTemplates(); }
+
+    @Model.InitializationScript("mytable", "window.$$table")
+}

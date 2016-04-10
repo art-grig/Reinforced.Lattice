@@ -1,4 +1,4 @@
-﻿module PowerTables {
+﻿module PowerTables.Plugins {
 
     /**
      * Base class for creating filters

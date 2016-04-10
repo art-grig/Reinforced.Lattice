@@ -1,6 +1,4 @@
 ﻿module PowerTables {
-    import TrackHelper = Rendering.TrackHelper; 
-    
     /**
      * This entity is responsible for integration of data between storage and rendere. 
      * Also it provides functionality for table events subscription and 

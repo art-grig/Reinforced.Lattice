@@ -23,12 +23,14 @@ var PowerTables;
                 var wrapper = this._templatesProvider.getCachedTemplate('rowWrapper');
                 for (var i = 0; i < rows.length; i++) {
                     var rw = rows[i];
+                    this._stack.push(Rendering.RenderingContextType.Row, rw);
                     if (rw.renderElement) {
                         result += rw.renderElement(this._templatesProvider);
                     }
                     else {
                         result += wrapper(rw);
                     }
+                    this._stack.popContext();
                 }
                 return result;
             };

@@ -1,4 +1,3 @@
-/// <reference path="TrackHelper.ts"/>
 var PowerTables;
 (function (PowerTables) {
     var Rendering;
@@ -15,6 +14,16 @@ var PowerTables;
                  */
                 this.Current = null;
             }
+            /**
+             * Clears rendering stack
+             * @returns {}
+             */
+            RenderingStack.prototype.clear = function () {
+                this.Current = null;
+                if (this._contextStack.length === 0)
+                    return;
+                this._contextStack = [];
+            };
             /**
              * Pushes rendering context into stack
              * @param ctx
@@ -46,16 +55,16 @@ var PowerTables;
                 var trk;
                 switch (elementType) {
                     case RenderingContextType.Plugin:
-                        trk = Rendering.TrackHelper.getPluginTrack(element);
+                        trk = PowerTables.TrackHelper.getPluginTrack(element);
                         break;
                     case RenderingContextType.Header:
-                        trk = Rendering.TrackHelper.getHeaderTrack(element);
+                        trk = PowerTables.TrackHelper.getHeaderTrack(element);
                         break;
                     case RenderingContextType.Cell:
-                        trk = Rendering.TrackHelper.getCellTrack(element);
+                        trk = PowerTables.TrackHelper.getCellTrack(element);
                         break;
                     case RenderingContextType.Row:
-                        trk = Rendering.TrackHelper.getRowTrack(element);
+                        trk = PowerTables.TrackHelper.getRowTrack(element);
                         break;
                     default:
                         throw new Error("Invalid context element type");

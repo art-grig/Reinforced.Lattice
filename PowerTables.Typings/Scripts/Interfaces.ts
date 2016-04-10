@@ -37,31 +37,6 @@ module PowerTables {
 		*/
 		selectItem(itemId: string, selected: boolean) : void;
 	}
-	export interface IColumn
-	{
-		/** Raw column name */
-		RawName: string;
-		/** Column configuration */
-		Configuration: PowerTables.Configuration.Json.IColumnConfiguration;
-		/** Reference to master table */
-		MasterTable: any;
-		/** Column header */
-		Header: any;
-		/** Column order (left-to-right) */
-		Order: number;
-	}
-	export interface ITemplatesProvider
-	{
-		/** Current handlebars.js engine instance */
-		HandlebarsInstance: any;
-		/**
-		* Retrieves cached template handlebars function
-		*
-		* @param templateId Template id
-		* @returns Handlebars function
-		*/
-		getCachedTemplate(templateId: string) : (arg: any) => string;
-	}
 	/**
 	* The respons that is being sent to client script. 
 	*             This entity contains query results to be shown in table and also additional data

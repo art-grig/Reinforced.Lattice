@@ -46,7 +46,7 @@
                 var c: IColumn = {
                     Configuration: this.Configuration.Columns[i],
                     RawName: this.Configuration.Columns[i].RawColumnName,
-                    MasterTable: null,
+                    MasterTable: this._masterTable,
                     Header: null,
                     Order: i
                 };
@@ -153,6 +153,19 @@
          */
         public getColumnNames(): string[] {
             return this._rawColumnNames;
+        }
+
+        /**
+         * Retrieves sequential columns names in corresponding order
+         * @returns {} 
+         */
+        public getUiColumnNames(): string[] {
+            var result = [];
+            var uiCol = this.getUiColumns();
+            for (var i = 0; i < uiCol.length; i++) {
+                result.push(uiCol[i].RawName);
+            }
+            return result;
         }
 
         /**

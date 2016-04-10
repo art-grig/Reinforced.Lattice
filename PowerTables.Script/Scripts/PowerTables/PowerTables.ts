@@ -51,12 +51,23 @@ module PowerTables {
             this.DataHolder = new DataHolder(this.InstanceManager.getColumnNames(), isDt, this.Events, this.InstanceManager);
             this.Loader = new Loader(this._configuration.StaticData, this._configuration.OperationalAjaxUrl, this.Events, this.DataHolder);
             this.Renderer = new Rendering.Renderer(this._configuration.TableRootId, this._configuration.Prefix, isDt, this.InstanceManager);
-            this.Controller = new Controller();
+            this.Controller = new Controller(this);
             this.Renderer.layout();
             if (this._configuration.LoadImmediately) {
                 this.Controller.reload();
             }
         }
+
+        /**
+         * Reloads table content. 
+         * This method is left for backward compatibility
+         * 
+         * @returns {} 
+         */
+        public reload(): void {
+            this.Controller.reload();
+        }
+
         /**
          * API for raising and handling various table events
          */

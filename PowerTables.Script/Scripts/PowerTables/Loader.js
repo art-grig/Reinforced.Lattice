@@ -178,7 +178,7 @@ var PowerTables;
                 this.doServerQuery(data, clientQuery, callback);
             }
             else {
-                this._dataHolder.filterRecentData(clientQuery);
+                this._dataHolder.filterStoredData(clientQuery);
                 callback(null);
             }
         };

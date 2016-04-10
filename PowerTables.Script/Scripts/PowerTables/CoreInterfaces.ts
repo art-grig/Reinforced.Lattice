@@ -199,11 +199,36 @@
         /** 
          * Reference to table object this row belongs to
          */
-        MasterTable: any;
+        MasterTable: IMasterTable;
 
         /**
          * Cells collection for this particular row
          */
         Cells: { [key: string]: PowerTables.ICell };
+    }
+
+    export interface ITemplatesProvider {
+        /** Current handlebars.js engine instance */
+        HandlebarsInstance: Handlebars.IHandlebars;
+		/**
+		* Retrieves cached template handlebars function
+		*
+		* @param templateId Template id
+		* @returns Handlebars function
+		*/
+        getCachedTemplate(templateId: string): (arg: any) => string;
+    }
+
+    export interface IColumn {
+        /** Raw column name */
+        RawName: string;
+        /** Column configuration */
+        Configuration: PowerTables.Configuration.Json.IColumnConfiguration;
+        /** Reference to master table */
+        MasterTable: IMasterTable;
+        /** Column header */
+        Header: IColumnHeader;
+        /** Column order (left-to-right) */
+        Order: number;
     }
 }

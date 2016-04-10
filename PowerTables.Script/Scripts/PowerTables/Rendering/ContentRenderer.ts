@@ -9,11 +9,12 @@
             this._templatesProvider = templatesProvider;
             this._stack = stack;
             this._instances = instances;
+            this.cacheColumnRenderers(this._instances.Columns);
         }
 
         private _hb: Handlebars.IHandlebars;
         private _templatesProvider: ITemplatesProvider;
-        private _columnsRenderFunctions: { [key: string]: (x: ICell) => string };
+        private _columnsRenderFunctions: { [key: string]: (x: ICell) => string } = {};
         private _stack: RenderingStack;
         private _instances: InstanceManager;
 
@@ -28,11 +29,14 @@
             var wrapper = this._templatesProvider.getCachedTemplate('rowWrapper');
             for (var i = 0; i < rows.length; i++) {
                 var rw = rows[i];
+                this._stack.push(RenderingContextType.Row, rw);
                 if (rw.renderElement) {
                     result += rw.renderElement(this._templatesProvider);
                 } else {
+                    
                     result += wrapper(rw);
                 }
+                this._stack.popContext();
             }
             return result;
         }

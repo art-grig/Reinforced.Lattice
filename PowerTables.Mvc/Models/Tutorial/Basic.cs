@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using PowerTables.Configuration;
+﻿using PowerTables.Configuration;
 
-namespace PowerTables.Mvc.Models
+namespace PowerTables.Mvc.Models.Tutorial
 {
-    public static class TestTables
+    public static partial class Tutorial
     {
         public static Configurator<SourceData, TargetData> Basic(this Configurator<SourceData, TargetData> conf)
         {
@@ -14,7 +10,5 @@ namespace PowerTables.Mvc.Models
                 .DatePicker("function(v,f){ v.datepicker({ format: f, weekStart: 1 }); }", "mm/dd/yyyy", "MM/dd/yyyy");
             return conf;
         }
-
-        
     }
 }

@@ -55,6 +55,7 @@ var PowerTables;
                     var conf = pluginsConfiguration[pluginId];
                     var plugin = PowerTables.ComponentsContainer.resolveComponent(conf.PluginId);
                     plugin.init(this._masterTable, conf);
+                    plugin.PluginLocation = conf.Placement;
                     this.Plugins[pluginId] = plugin;
                 }
             }

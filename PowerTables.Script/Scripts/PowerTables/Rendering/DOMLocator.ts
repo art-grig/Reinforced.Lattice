@@ -65,7 +65,7 @@
          * @returns HTML NodeList containing results
          */
         public getColumnCellsElements(column: IColumn): NodeList {
-            var colIdx = column.MasterTable.getColumnNames().indexOf(column.RawName);
+            var colIdx = column.MasterTable.InstanceManager.getUiColumnNames().indexOf(column.RawName);
             return this._bodyElement.querySelectorAll(`${this._rootIdPrefix} [data-track$="-c${colIdx}"]`);
         }
 

@@ -1,5 +1,4 @@
-﻿/// <reference path="TrackHelper.ts"/>
-
+﻿
 module PowerTables.Rendering {
     /**
      * Rendering stack class. Provives common helper 

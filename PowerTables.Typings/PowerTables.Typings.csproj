@@ -80,8 +80,6 @@
   <ItemGroup>
     <Compile Include="ConfigureTypings.cs" />
     <Compile Include="Infrastructure\ICheckboxifyPlugin.cs" />
-    <Compile Include="Infrastructure\IColumn.cs" />
-    <Compile Include="Infrastructure\ITemplatesProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
