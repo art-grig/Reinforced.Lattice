@@ -3,9 +3,13 @@
 //     the code is regenerated.
 var PowerTables;
 (function (PowerTables) {
+    /** Ordering */
     (function (Ordering) {
+        /** Ascending */
         Ordering[Ordering["Ascending"] = 0] = "Ascending";
+        /** Descending */
         Ordering[Ordering["Descending"] = 1] = "Descending";
+        /** Ordering is not applied */
         Ordering[Ordering["Neutral"] = 2] = "Neutral";
     })(PowerTables.Ordering || (PowerTables.Ordering = {}));
     var Ordering = PowerTables.Ordering;
@@ -205,7 +209,15 @@ var PowerTables;
                 var p = el.prototype;
                 return (p.matches || p.matchesSelector || p.webkitMatchesSelector || p.mozMatchesSelector || p.msMatchesSelector || p.oMatchesSelector);
             }(Element));
+            this._masterTable.Events.LoadingError.subscribe(this.onLoadingError.bind(this), 'controller');
         }
+        Controller.prototype.onLoadingError = function (e) {
+            this.showTableMessage({
+                Message: e.EventArgs.Reason,
+                MessageType: 'error',
+                AdditionalData: e.EventArgs.StackTrace
+            });
+        };
         /**
          * Initializes full reloading cycle
          * @returns {}
@@ -219,6 +231,18 @@ var PowerTables;
         Controller.prototype.localRedrawVisible = function () {
             var rows = this.produceRows();
             this._masterTable.Renderer.body(rows);
+        };
+        /**
+         * Shows full-width table message
+         * @param tableMessage Message of type ITableMessage
+         * @returns {}
+         */
+        Controller.prototype.showTableMessage = function (tableMessage) {
+            tableMessage.UiColumnsCount = this._masterTable.InstanceManager.getUiColumns().length;
+            this._masterTable.DataHolder.DisplayedData = [tableMessage];
+            var row = this.produceRow(tableMessage, -1);
+            row.renderElement = function (hb) { return hb.getCachedTemplate('messages')(tableMessage); };
+            this._masterTable.Renderer.body([row]);
         };
         /**
          * Subscribe handler to any DOM event happening on particular table cell
@@ -477,10 +501,6 @@ var PowerTables;
             this._comparators = {};
             this._filters = [];
             this._anyClientFiltration = false;
-            /**
-             * Selector of source data on client-side
-             */
-            this.Selector = null;
             this._rawColumnNames = rawColumnNames;
             this._isColumnDateTimeFunc = isColumnDateTimeFunc;
             this._events = events;
@@ -511,7 +531,7 @@ var PowerTables;
          * @returns True if there are any actions to be performed on query after loading, false otherwise
          */
         DataHolder.prototype.isClientFiltrationPending = function () {
-            return ((!(!this.Selector)) || this._anyClientFiltration);
+            return (this.EnableClientSkip || this.EnableClientTake || this._anyClientFiltration);
         };
         /**
         * Parses response from server and turns it to objects array
@@ -583,7 +603,8 @@ var PowerTables;
                 var sortFn = '';
                 var comparersArg = '';
                 var orderFns = [];
-                for (var orderingKey in query.Orderings) {
+                for (var i = 0; i < this._rawColumnNames.length; i++) {
+                    var orderingKey = this._rawColumnNames[i];
                     if (query.Orderings.hasOwnProperty(orderingKey)) {
                         var orderingDirection = query.Orderings[orderingKey];
                         if (orderingDirection === PowerTables.Ordering.Neutral)
@@ -594,7 +615,7 @@ var PowerTables;
                         sortFn += "cc=f" + orderFns.length + "(a,b); ";
                         comparersArg += "f" + orderFns.length + ",";
                         orderFns.push(this._comparators[orderingKey]);
-                        sortFn += "if (cc!=0) return " + (negate ? '-cc' : 'cc') + "; ";
+                        sortFn += "if (cc!==0) return " + (negate ? '-cc' : 'cc') + "; ";
                     }
                 }
                 if (sortFn.length === 0)
@@ -621,8 +642,20 @@ var PowerTables;
                 var filtered = this.filterSet(copy, query);
                 var ordered = this.orderSet(filtered, query);
                 var selected = ordered;
-                if (this.Selector) {
-                    selected = this.Selector.selectData(ordered, query);
+                var startingIndex = query.Paging.PageIndex * query.Paging.PageSize;
+                var take = query.Paging.PageSize;
+                if (this.EnableClientSkip && this.EnableClientTake) {
+                    selected = ordered.slice(startingIndex, take === 0 ? null : take);
+                }
+                else {
+                    if (this.EnableClientSkip) {
+                        selected = ordered.slice(startingIndex);
+                    }
+                    else if (this.EnableClientTake) {
+                        if (take !== 0) {
+                            selected = ordered.slice(0, query.Paging.PageSize);
+                        }
+                    }
                 }
                 this.DisplayedData = selected;
             }
@@ -979,7 +1012,8 @@ var PowerTables;
                                 _this._events.LoadingError.invoke(_this, {
                                     Request: data,
                                     XMLHttp: req,
-                                    Reason: json.Message
+                                    Reason: json.Message,
+                                    StackTrace: json['ExceptionStackTrace']
                                 });
                             }
                             else {
@@ -1023,7 +1057,8 @@ var PowerTables;
                     _this._events.LoadingError.invoke(_this, {
                         Request: data,
                         XMLHttp: req,
-                        Reason: 'Network error'
+                        Reason: 'Network error',
+                        StackTrace: 'Unable to connect to server to complete query'
                     });
                 }
                 _this._events.AfterLoading.invoke(_this, {
@@ -1188,9 +1223,9 @@ var PowerTables;
                 // Empty Elements - HTML 4.01
                 HtmlParserDefinitions.empty = HtmlParserDefinitions.makeMap("area,base,basefont,br,col,frame,hr,img,input,isindex,link,meta,param,embed");
                 // Block Elements - HTML 4.01
-                HtmlParserDefinitions.block = HtmlParserDefinitions.makeMap("address,applet,blockquote,button,center,dd,del,dir,div,dl,dt,fieldset,form,frameset,hr,iframe,ins,isindex,li,map,menu,noframes,noscript,object,ol,p,pre,script,table,tbody,td,tfoot,th,thead,tr,ul");
+                HtmlParserDefinitions.block = HtmlParserDefinitions.makeMap("address,applet,blockquote,button,center,dd,del,dir,div,dl,dt,fieldset,form,frameset,hr,iframe,ins,isindex,li,map,menu,noframes,noscript,object,ol,p,pre,script,table,tbody,td,tfoot,th,thead,tr,ul,span");
                 // Inline Elements - HTML 4.01
-                HtmlParserDefinitions.inline = HtmlParserDefinitions.makeMap("a,abbr,acronym,applet,b,basefont,bdo,big,br,button,cite,code,del,dfn,em,font,i,iframe,img,input,ins,kbd,label,map,object,q,s,samp,script,select,small,span,strike,strong,sub,sup,textarea,tt,u,var");
+                HtmlParserDefinitions.inline = HtmlParserDefinitions.makeMap("a,abbr,acronym,applet,b,basefont,bdo,big,br,button,cite,code,del,dfn,em,font,i,iframe,img,input,ins,kbd,label,map,object,q,s,samp,script,select,small,strike,strong,sub,sup,textarea,tt,u,var");
                 // Elements that you can, intentionally, leave open
                 // (and which close themselves)
                 HtmlParserDefinitions.closeSelf = HtmlParserDefinitions.makeMap("colgroup,dd,dt,li,options,p,td,tfoot,th,thead,tr");
@@ -1275,11 +1310,11 @@ var PowerTables;
                 };
                 HtmlParser.prototype.parseStartTag = function (tag, tagName, rest, unary) {
                     tagName = tagName.toLowerCase();
-                    if (HtmlParserDefinitions.block[tagName]) {
-                        while (this._stack.last() && HtmlParserDefinitions.inline[this._stack.last()]) {
-                            this.parseEndTag("", this._stack.last());
-                        }
-                    }
+                    //if (HtmlParserDefinitions.block[tagName]) {
+                    //    while (this._stack.last() && HtmlParserDefinitions.inline[this._stack.last()]) {
+                    //        this.parseEndTag("", this._stack.last());
+                    //    }
+                    //}
                     if (HtmlParserDefinitions.closeSelf[tagName] && this._stack.last() === tagName) {
                         this.parseEndTag("", tagName);
                     }
@@ -1343,6 +1378,9 @@ var PowerTables;
                 HtmlParser.prototype.chars = function (text) {
                     if (text.length === 0)
                         return;
+                    if (!this._curParentNode) {
+                        throw new Error("Html2Dom error");
+                    }
                     this._curParentNode.appendChild(document.createTextNode(text));
                 };
                 //#endregion
@@ -1517,9 +1555,15 @@ var PowerTables;
                             handler = eval(bindFn);
                         }
                         for (var k = 0; k < subscription.Events.length; k++) {
-                            (function (receiver, domSource, handler, eventId) {
-                                domSource.addEventListener(eventId, function (evt) { return handler.apply(receiver, [{ Element: domSource, EventObject: evt, Receiver: receiver }]); });
-                            })(subscription.EventReceiver, domSource, handler, subscription.Events[k]);
+                            (function (receiver, domSource, handler, eventId, eventArguments) {
+                                domSource.addEventListener(eventId, function (evt) { return handler.apply(receiver, [
+                                    {
+                                        Element: domSource,
+                                        EventObject: evt,
+                                        Receiver: receiver,
+                                        EventArguments: eventArguments
+                                    }]); });
+                            })(subscription.EventReceiver, domSource, handler, subscription.Events[k], subscription.EventArguments);
                         }
                     }
                     domSource.removeAttribute('data-be');
@@ -1597,11 +1641,20 @@ var PowerTables;
             };
             //#endregion
             //#region
-            LayoutRenderer.prototype.bindEventHelper = function (commaSeparatedFunctions, commaSeparatedEvents) {
+            LayoutRenderer.prototype.bindEventHelper = function () {
+                var commaSeparatedFunctions = arguments[0];
+                var commaSeparatedEvents = arguments[1];
+                var eventArgs = [];
+                if (arguments.length > 3) {
+                    for (var i = 2; i <= arguments.length - 2; i++) {
+                        eventArgs.push(arguments[i]);
+                    }
+                }
                 var ed = {
                     EventReceiver: this._stack.Current.Object,
                     Functions: commaSeparatedFunctions.split(','),
-                    Events: commaSeparatedEvents.split(',')
+                    Events: commaSeparatedEvents.split(','),
+                    EventArguments: eventArgs
                 };
                 var index = this._eventsQueue.length;
                 this._eventsQueue.push(ed);
@@ -2145,6 +2198,13 @@ var PowerTables;
             if (this._configuration.LoadImmediately) {
                 this.Controller.reload();
             }
+            else {
+                this.Controller.showTableMessage({
+                    MessageType: 'initial',
+                    Message: 'No filtering specified',
+                    AdditionalData: 'To retrieve query results please specify several filters'
+                });
+            }
         };
         /**
          * Reloads table content.
@@ -2225,13 +2285,6 @@ var PowerTables;
              */
             FilterBase.prototype.itIsClientFilter = function () {
                 this.MasterTable.DataHolder.registerClientFilter(this);
-            };
-            /**
-             * Call this method inside init and override selectData method to make this filter
-             * participate in client-side data truncation
-             */
-            FilterBase.prototype.itIsClientDataTruncator = function () {
-                this.MasterTable.DataHolder.Selector = this;
             };
             FilterBase.prototype.filterPredicate = function (rowObject, query) { throw new Error("Please override this method"); };
             FilterBase.prototype.selectData = function (sourceDataSet, query) { throw new Error("Please override this method"); };
@@ -2424,6 +2477,84 @@ var PowerTables;
             Ordering.OrderingPlugin = OrderingPlugin;
             PowerTables.ComponentsContainer.registerComponent('Ordering', OrderingPlugin);
         })(Ordering = Plugins.Ordering || (Plugins.Ordering = {}));
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var LimitPlugin = (function (_super) {
+            __extends(LimitPlugin, _super);
+            function LimitPlugin() {
+                _super.apply(this, arguments);
+                this._limitSize = 0;
+                this.Sizes = [];
+            }
+            LimitPlugin.prototype.renderContent = function (templatesProvider) {
+                return templatesProvider.getCachedTemplate('limit')(this);
+            };
+            LimitPlugin.prototype.changeLimitHandler = function (e) {
+                var limit = parseInt(e.EventArguments[0]);
+                if (isNaN(limit))
+                    limit = 0;
+                this.changeLimit(limit);
+            };
+            LimitPlugin.prototype.changeLimit = function (limit) {
+                var changed = this._limitSize !== limit;
+                if (!changed)
+                    return;
+                this._limitSize = limit;
+                var labelPair = null;
+                for (var i = 0; i < this.Sizes.length; i++) {
+                    labelPair = this.Sizes[i];
+                    if (labelPair.Value === limit) {
+                        break;
+                    }
+                }
+                if (labelPair != null)
+                    this.SelectedValue = labelPair.Label;
+                this.MasterTable.Renderer.redrawPlugin(this);
+                if (this.Configuration.ReloadTableOnLimitChange)
+                    this.MasterTable.Controller.reload();
+            };
+            LimitPlugin.prototype.modifyQuery = function (query, scope) {
+                var client = this.Configuration.EnableClientLimiting;
+                if (client && (scope === PowerTables.QueryScope.Client || scope === PowerTables.QueryScope.Transboundary)) {
+                    query.Paging.PageSize = this._limitSize;
+                }
+                if (!client && (scope === PowerTables.QueryScope.Server || scope === PowerTables.QueryScope.Transboundary)) {
+                    query.Paging.PageSize = this._limitSize;
+                }
+            };
+            LimitPlugin.prototype.init = function (masterTable) {
+                _super.prototype.init.call(this, masterTable);
+                var def = null;
+                for (var i = 0; i < this.Configuration.LimitValues.length; i++) {
+                    var a = {
+                        Value: this.Configuration.LimitValues[i],
+                        Label: this.Configuration.LimitLabels[i],
+                        IsSeparator: this.Configuration.LimitLabels[i] === '-'
+                    };
+                    this.Sizes.push(a);
+                    if (a.Label === this.Configuration.DefaultValue) {
+                        def = a;
+                    }
+                }
+                if (def) {
+                    this.SelectedValue = def.Label;
+                    this._limitSize = def.Value;
+                }
+                else {
+                    this._limitSize = 0;
+                }
+                if (this.Configuration.EnableClientLimiting) {
+                    this.MasterTable.DataHolder.EnableClientTake = true;
+                }
+            };
+            return LimitPlugin;
+        })(Plugins.FilterBase);
+        Plugins.LimitPlugin = LimitPlugin;
+        PowerTables.ComponentsContainer.registerComponent('Limit', LimitPlugin);
     })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
 })(PowerTables || (PowerTables = {}));
 //# sourceMappingURL=powertables.js.map

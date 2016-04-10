@@ -28,9 +28,10 @@ namespace PowerTables.Plugins.Limit
         /// When true then selecting new value from limit values menu will lead to table reloading. 
         /// In case of false you have to do that manually.
         /// </param>
+        /// <param name="enableCientLimiting">When true, limiting requests will not be passed to server. Client will load unlimited data and limit it manually on client-side</param>
         /// <param name="position">Visual limit menu position</param>
         /// <returns></returns>
-        public static T Limit<T>(this T configurator, string[] values, string defaultValue = null, bool reloadTableOnLimitChange = true, string position = null) 
+        public static T Limit<T>(this T configurator, string[] values, string defaultValue = null, bool reloadTableOnLimitChange = true, bool enableCientLimiting = false, string position = null) 
             where T : IConfigurator
         {
             if (values == null || values.Length == 0)
@@ -45,7 +46,8 @@ namespace PowerTables.Plugins.Limit
             LimitClientConfiguration limitPlugin = new LimitClientConfiguration()
             {
                 DefaultValue = defaultValue,
-                ReloadTableOnLimitChange = reloadTableOnLimitChange
+                ReloadTableOnLimitChange = reloadTableOnLimitChange,
+                EnableClientLimiting = enableCientLimiting
             };
             foreach (var value in values)
             {

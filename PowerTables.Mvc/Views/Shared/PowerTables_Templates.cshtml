@@ -1,6 +1,8 @@
 ﻿@using System.Activities.Statements
+@using System.Data.SqlTypes
 @using System.Web.UI.WebControls
 @using PowerTables.Plugins
+@using PowerTables.Plugins.Limit
 @using PowerTables.Plugins.Loading
 @using PowerTables.Plugins.Ordering
 @using PowerTables.Templating
@@ -21,7 +23,7 @@
             <div class="col-md-6 col-sm-6 col-xs-6 col-lg-6">
                 @t.Plugins("lt")
                 <div class="btn-group" style="margin-bottom: 10px">@t.Plugins("lt-toolbar")</div>
-                <br/>
+                <br />
             </div>
             <div class="col-md-6 col-sm-6 col-xs-6 col-lg-6 text-right">
                 @t.Plugins("rt")
@@ -30,13 +32,13 @@
         </div>
         <div class="row">
             <div class="col-md-12 col-sm-12 col-xs-12 col-lg-12">
-                <hr/>
+                <hr />
             </div>
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                 <table class="table table-striped table-condensed table-bordered">
                     <thead style="display: table-header-group;">
-                    <tr>@t.Headers()</tr>
-                    <tr>@t.Filters()</tr>
+                        <tr>@t.Headers()</tr>
+                        <tr>@t.Filters()</tr>
                     </thead>
                     <tbody>@t.Body()</tbody>
                 </table>
@@ -53,7 +55,7 @@
             </div>
         </div>
     </div>
-    
+
     <div style="display: none" id="_constructor"></div>
 }
 
@@ -119,8 +121,8 @@
 {
     using (t.IfStrEquals(c => c.MessageType, "error"))
     {
-        <tr class="danger" @t.Track()>
-            <td colspan="@t.Value(c=>c.UiColumnsCount)">
+        <tr class="danger" @t.Track() style="padding: 30px">
+            <td colspan="@t.Value(c => c.UiColumnsCount)">
                 <h4 class="text-center"><span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>  Error occured</h4>
                 <p style="margin-left:25px;margin-right:25px">
                     @t.Value(c => c.Message)
@@ -180,4 +182,24 @@
             <span class="glyphicon glyphicon-chevron-down" style="color: #bac5d3; float: right;"></span>
         }
     </th>
+}
+
+@using (var t = Plugin.Limit())
+{
+    <div class="btn-group">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            Results: <strong>@t.Value(c => c.SelectedValue)</strong> <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" role="menu">
+            @using (var sz = t.Each(c => c.Sizes))
+            {
+                using (sz.If(c => c.IsSeparator))
+                {
+                    <li class="divider"></li>
+                    @sz.Else()
+                    <li><a href="#" @sz.BindLimitChangeEvent("click")>@sz.Value(c => c.Label)</a></li>
+                }
+            }
+        </ul>
+    </div>
 }

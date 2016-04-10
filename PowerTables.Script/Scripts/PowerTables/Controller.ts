@@ -14,6 +14,15 @@
                 var p = el.prototype;
                 return (p.matches || p.matchesSelector || p.webkitMatchesSelector || p.mozMatchesSelector || p.msMatchesSelector || p.oMatchesSelector);
             } (Element));
+            this._masterTable.Events.LoadingError.subscribe(this.onLoadingError.bind(this),'controller');
+        }
+
+        private onLoadingError(e: ITableEventArgs<ILoadingErrorEventArgs>) {
+            this.showTableMessage({
+                Message: e.EventArgs.Reason,
+                MessageType: 'error',
+                AdditionalData: e.EventArgs.StackTrace
+            });
         }
 
         private _masterTable: IMasterTable;
@@ -38,6 +47,19 @@
         private localRedrawVisible() {
             var rows = this.produceRows();
             this._masterTable.Renderer.body(rows);
+        }
+
+        /**
+         * Shows full-width table message
+         * @param tableMessage Message of type ITableMessage
+         * @returns {} 
+         */
+        public showTableMessage(tableMessage: ITableMessage) {
+            tableMessage.UiColumnsCount = this._masterTable.InstanceManager.getUiColumns().length;
+            this._masterTable.DataHolder.DisplayedData = [tableMessage];
+            var row = this.produceRow(tableMessage, -1);
+            row.renderElement = hb => hb.getCachedTemplate('messages')(tableMessage);
+            this._masterTable.Renderer.body([row]);
         }
 
         /**
@@ -199,7 +221,7 @@
             this.localRedrawVisible();
         }
 
-        
+
         public produceRow(dataObject: any, idx: number, columns?: IColumn[]): IRow {
             if (!dataObject) return null;
             if (!columns) columns = this._masterTable.InstanceManager.getUiColumns();
@@ -403,5 +425,12 @@
          * @param object Data object          
          */
         UpdateFn: (object: any) => void
+    }
+
+    export interface ITableMessage {
+        Message: string;
+        AdditionalData: string;
+        MessageType: string;
+        UiColumnsCount?:number;
     }
 } 

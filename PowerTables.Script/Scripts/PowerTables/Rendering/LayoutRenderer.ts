@@ -54,9 +54,23 @@ module PowerTables.Rendering {
                     }
 
                     for (var k = 0; k < subscription.Events.length; k++) {
-                        (function (receiver, domSource, handler, eventId) {
-                            domSource.addEventListener(eventId, (evt) => handler.apply(receiver, [{ Element: domSource, EventObject: evt, Receiver: receiver }]));
-                        })(subscription.EventReceiver, domSource, handler, subscription.Events[k]);
+                        (function (receiver,
+                            domSource,
+                            handler,
+                            eventId,
+                            eventArguments: any[]) {
+                            domSource.addEventListener(eventId, (evt) => handler.apply(receiver, [
+                                {
+                                    Element: domSource,
+                                    EventObject: evt,
+                                    Receiver: receiver,
+                                    EventArguments: eventArguments
+                                }]));
+                        })(subscription.EventReceiver,
+                            domSource,
+                            handler,
+                            subscription.Events[k],
+                            subscription.EventArguments);
                     }
 
                 }
@@ -142,11 +156,20 @@ module PowerTables.Rendering {
         
         //#region
 
-        private bindEventHelper(commaSeparatedFunctions: string, commaSeparatedEvents: string): string {
+        private bindEventHelper(): string {
+            var commaSeparatedFunctions = arguments[0];
+            var commaSeparatedEvents = arguments[1];
+            var eventArgs = [];
+            if (arguments.length > 3) {
+                for (var i = 2; i <= arguments.length - 2; i++) {
+                    eventArgs.push(arguments[i]);
+                }
+            }
             var ed = <IEventDescriptor>{
                 EventReceiver: this._stack.Current.Object,
                 Functions: commaSeparatedFunctions.split(','),
-                Events: commaSeparatedEvents.split(',')
+                Events: commaSeparatedEvents.split(','),
+                EventArguments: eventArgs
             };
             var index = this._eventsQueue.length;
             this._eventsQueue.push(ed);
@@ -186,6 +209,11 @@ module PowerTables.Rendering {
          * DOM events that will trigger handler call
          */
         Events: string[];
+
+        /**
+         * Event argumetns
+         */
+        EventArguments: any[];
     }
 
     /**
@@ -205,6 +233,11 @@ module PowerTables.Rendering {
         /**
          * Event received (to avoid using "this" in come cases)
          */
-        Receiver:T;
+        Receiver: T;
+
+        /**
+         * Event argumetns
+         */
+        EventArguments: any[];
     }
 } 

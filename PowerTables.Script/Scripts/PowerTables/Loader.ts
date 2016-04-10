@@ -101,7 +101,8 @@
                                 this._events.LoadingError.invoke(this, {
                                     Request: data,
                                     XMLHttp: req,
-                                    Reason: json.Message
+                                    Reason: json.Message,
+                                    StackTrace: json['ExceptionStackTrace']
                                 });
                             } else {
                                 this._events.DataReceived.invoke(this, {
@@ -140,7 +141,8 @@
                     this._events.LoadingError.invoke(this, {
                         Request: data,
                         XMLHttp: req,
-                        Reason: 'Network error'
+                        Reason: 'Network error',
+                        StackTrace: 'Unable to connect to server to complete query'
                     });
                 }
                 this._events.AfterLoading.invoke(this, {

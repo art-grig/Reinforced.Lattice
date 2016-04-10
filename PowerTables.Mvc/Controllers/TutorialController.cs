@@ -90,6 +90,28 @@ namespace PowerTables.Mvc.Controllers
             return Handle(c => c.OrderingAndLoadingInidicator());
         }
 
+        [Tutorial("Messages and immediate loading", 4)]
+        public ActionResult Messages()
+        {
+            return TutPage(c => c.Messages());
+        }
+
+        public ActionResult MessagesHandle()
+        {
+            return Handle(c => c.Messages());
+        }
+
+        [Tutorial("Pagination and limiting", 5)]
+        public ActionResult PaginationAndLimiting()
+        {
+            return TutPage(c => c.Pagination());
+        }
+
+        public ActionResult PaginationAndLimitingHandle()
+        {
+            return Handle(c => c.Pagination());
+        }
+
         #region Utility
         private ActionResult TutPage(Action<Configurator<SourceData, TargetData>> config)
         {

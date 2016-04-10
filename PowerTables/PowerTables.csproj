@@ -125,6 +125,7 @@
     <Compile Include="Plugins\Hideout\HideoutClientConfiguration.cs" />
     <Compile Include="Plugins\Hideout\HideoutExtensions.cs" />
     <Compile Include="Plugins\Limit\LimitPluginExtensions.cs" />
+    <Compile Include="Plugins\Limit\LimitPluginTemplateRegion.cs" />
     <Compile Include="Plugins\Loading\LoadingPluginTemplateRegion.cs" />
     <Compile Include="Plugins\Ordering\OrderingConfiguration.cs" />
     <Compile Include="Plugins\Ordering\OrderingExtensions.cs" />

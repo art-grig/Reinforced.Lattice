@@ -9,10 +9,10 @@
         public static empty = HtmlParserDefinitions.makeMap("area,base,basefont,br,col,frame,hr,img,input,isindex,link,meta,param,embed");
 
         // Block Elements - HTML 4.01
-        public static block = HtmlParserDefinitions.makeMap("address,applet,blockquote,button,center,dd,del,dir,div,dl,dt,fieldset,form,frameset,hr,iframe,ins,isindex,li,map,menu,noframes,noscript,object,ol,p,pre,script,table,tbody,td,tfoot,th,thead,tr,ul");
+        public static block = HtmlParserDefinitions.makeMap("address,applet,blockquote,button,center,dd,del,dir,div,dl,dt,fieldset,form,frameset,hr,iframe,ins,isindex,li,map,menu,noframes,noscript,object,ol,p,pre,script,table,tbody,td,tfoot,th,thead,tr,ul,span");
 
         // Inline Elements - HTML 4.01
-        public static inline = HtmlParserDefinitions.makeMap("a,abbr,acronym,applet,b,basefont,bdo,big,br,button,cite,code,del,dfn,em,font,i,iframe,img,input,ins,kbd,label,map,object,q,s,samp,script,select,small,span,strike,strong,sub,sup,textarea,tt,u,var");
+        public static inline = HtmlParserDefinitions.makeMap("a,abbr,acronym,applet,b,basefont,bdo,big,br,button,cite,code,del,dfn,em,font,i,iframe,img,input,ins,kbd,label,map,object,q,s,samp,script,select,small,strike,strong,sub,sup,textarea,tt,u,var");
 
         // Elements that you can, intentionally, leave open
         // (and which close themselves)
@@ -115,11 +115,11 @@
         private parseStartTag(tag: string, tagName: string, rest, unary): string {
             tagName = tagName.toLowerCase();
 
-            if (HtmlParserDefinitions.block[tagName]) {
-                while (this._stack.last() && HtmlParserDefinitions.inline[this._stack.last()]) {
-                    this.parseEndTag("", this._stack.last());
-                }
-            }
+            //if (HtmlParserDefinitions.block[tagName]) {
+            //    while (this._stack.last() && HtmlParserDefinitions.inline[this._stack.last()]) {
+            //        this.parseEndTag("", this._stack.last());
+            //    }
+            //}
 
             if (HtmlParserDefinitions.closeSelf[tagName] && this._stack.last() === tagName) {
                 this.parseEndTag("", tagName);
@@ -191,6 +191,9 @@
         }
         private chars(text) {
             if (text.length === 0) return;
+            if (!this._curParentNode) {
+                throw new Error("Html2Dom error");
+            }
             this._curParentNode.appendChild(document.createTextNode(text));
         }
         //#endregion

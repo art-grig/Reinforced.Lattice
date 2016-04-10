@@ -11,13 +11,28 @@ namespace PowerTables.Plugins.Limit
     /// </summary>
     public class LimitClientConfiguration 
     {
+        /// <summary>
+        /// Value selected by default
+        /// </summary>
         public string DefaultValue { get; set; }
 
+        /// <summary>
+        /// List of limit values
+        /// </summary>
         public List<int> LimitValues { get; private set; }
 
+        /// <summary>
+        /// List of corresponding limit labels
+        /// </summary>
         public List<string> LimitLabels { get; private set; }
 
         public bool ReloadTableOnLimitChange { get; set; }
+
+        /// <summary>
+        /// When true, limiting will not be passed to server. 
+        /// All the limiting will be performed on client-side
+        /// </summary>
+        public bool EnableClientLimiting { get; set; }
 
         public LimitClientConfiguration()
         {

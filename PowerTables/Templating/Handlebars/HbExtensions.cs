@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
@@ -180,6 +181,22 @@ namespace PowerTables.Templating.Handlebars
             where T:IProvidesColumnContent,IModelProvider<TModel>
         {
             return MvcHtmlString.Create(string.Format("{{{{{{Content {0}}}}}}}", TraversePropertyLambda(parameter)));
+        }
+
+        /// <summary>
+        /// Binds event at specified element
+        /// </summary>
+        /// <param name="t">Template region</param>
+        /// <param name="commaSeparatedFunction">Comma-separated functions list to be bound</param>
+        /// <param name="commaSeparatedEvents">Comma-separated events list to be bound</param>
+        /// <param name="eventArguments">Event arguments</param>
+        /// <returns></returns>
+        public static MvcHtmlString BindEvent<T, TModel>(this T t, string commaSeparatedFunction, string commaSeparatedEvents, 
+            params Expression<Func<TModel,object>>[] eventArguments)
+            where T:IProvidesEventsBinding,IModelProvider<TModel>
+        {
+            var args = eventArguments.Select(TraversePropertyLambda).ToArray();
+            return t.BindEvent(commaSeparatedFunction, commaSeparatedEvents, args);
         }
     }
 }

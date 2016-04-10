@@ -20,14 +20,6 @@
             this.MasterTable.DataHolder.registerClientFilter(this);
         }
 
-        /**
-         * Call this method inside init and override selectData method to make this filter 
-         * participate in client-side data truncation
-         */
-        protected itIsClientDataTruncator() {
-            this.MasterTable.DataHolder.Selector = this;
-        }
-
         filterPredicate(rowObject, query: IQuery): boolean { throw new Error("Please override this method"); }
 
         selectData(sourceDataSet: any[], query: IQuery): any[] { throw new Error("Please override this method"); }

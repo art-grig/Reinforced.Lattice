@@ -135,6 +135,8 @@
     <Compile Include="Models\TargetData.cs" />
     <Compile Include="Models\TestsModel.cs" />
     <Compile Include="Models\TestTable.cs" />
+    <Compile Include="Models\Tutorial\_5_PaginationAndLimiting.cs" />
+    <Compile Include="Models\Tutorial\_4_Messages.cs" />
     <Compile Include="Models\Tutorial\_1_Basic.cs" />
     <Compile Include="Models\Tutorial\_3_OrderingAndLoadingInidicator.cs" />
     <Compile Include="Models\Tutorial\_2_ProjectionTitlesAndDataOnly.cs" />

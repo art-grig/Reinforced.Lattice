@@ -56,6 +56,12 @@ module PowerTables {
             this.Renderer.layout();
             if (this._configuration.LoadImmediately) {
                 this.Controller.reload();
+            } else {
+                this.Controller.showTableMessage({
+                    MessageType: 'initial',
+                    Message: 'No filtering specified',
+                    AdditionalData: 'To retrieve query results please specify several filters'
+                });
             }
         }
 

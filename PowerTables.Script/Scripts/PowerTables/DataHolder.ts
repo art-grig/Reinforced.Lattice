@@ -33,9 +33,14 @@
         public StoredData: any[];
 
         /**
-         * Selector of source data on client-side
+         * Enable query truncation from beginning during executing client queries
          */
-        public Selector: IClientTruncator = null;
+        public EnableClientSkip: boolean;
+
+        /**
+         * Enable query truncation by data cound during executing client queries
+         */
+        public EnableClientTake: boolean;
 
         /**
          * Registers client filter
@@ -64,7 +69,7 @@
          * @returns True if there are any actions to be performed on query after loading, false otherwise 
          */
         public isClientFiltrationPending(): boolean {
-            return ((!(!this.Selector)) || this._anyClientFiltration);
+            return (this.EnableClientSkip || this.EnableClientTake || this._anyClientFiltration);
         }
 
         /**
@@ -101,7 +106,7 @@
         /**
          * Client query that was used to obtain recent local data set
          */
-        public  RecentClientQuery: IQuery;
+        public RecentClientQuery: IQuery;
 
         /**
          * Filters supplied data set using client query 
@@ -129,20 +134,22 @@
             return objects;
         }
 
-         /**
-         * Orders supplied data set using client query 
-         * 
-         * @param objects Data set
-         * @param query Client query
-         * @returns {Array} Array of ordered items
-         */
+        /**
+        * Orders supplied data set using client query 
+        * 
+        * @param objects Data set
+        * @param query Client query
+        * @returns {Array} Array of ordered items
+        */
         public orderSet(objects: any[], query: IQuery): any[] {
             if (query.Orderings) {
                 var sortFn = '';
                 var comparersArg = '';
                 var orderFns = [];
 
-                for (var orderingKey in query.Orderings) {
+
+                for (var i = 0; i < this._rawColumnNames.length; i++) {
+                    var orderingKey = this._rawColumnNames[i];
                     if (query.Orderings.hasOwnProperty(orderingKey)) {
                         var orderingDirection = query.Orderings[orderingKey];
                         if (orderingDirection === Ordering.Neutral) continue;
@@ -152,7 +159,7 @@
                         sortFn += `cc=f${orderFns.length}(a,b); `;
                         comparersArg += `f${orderFns.length},`;
                         orderFns.push(this._comparators[orderingKey]);
-                        sortFn += `if (cc!=0) return ${negate ? '-cc' : 'cc'}; `;
+                        sortFn += `if (cc!==0) return ${negate ? '-cc' : 'cc'}; `;
                     }
                 }
                 if (sortFn.length === 0) return objects;
@@ -181,8 +188,18 @@
                 var filtered = this.filterSet(copy, query);
                 var ordered = this.orderSet(filtered, query);
                 var selected = ordered;
-                if (this.Selector) {
-                    selected = this.Selector.selectData(ordered, query);
+                var startingIndex = query.Paging.PageIndex * query.Paging.PageSize;
+                var take = query.Paging.PageSize;
+                if (this.EnableClientSkip && this.EnableClientTake) {
+                    selected = ordered.slice(startingIndex, take === 0 ? null : take);
+                } else {
+                    if (this.EnableClientSkip) {
+                        selected = ordered.slice(startingIndex);
+                    } else if (this.EnableClientTake) {
+                        if (take !== 0) {
+                            selected = ordered.slice(0, query.Paging.PageSize);
+                        }
+                    }
                 }
                 this.DisplayedData = selected;
             }
