@@ -7,8 +7,8 @@
         
         modifyQuery(query: IQuery, scope: QueryScope): void { }
 
-        init(masterTable: IMasterTable, configuration: PowerTables.Configuration.Json.IPluginConfiguration): void {
-            super.init(masterTable, configuration);
+        init(masterTable: IMasterTable): void {
+            super.init(masterTable);
             this.MasterTable.Loader.registerQueryPartProvider(this);
         }
 

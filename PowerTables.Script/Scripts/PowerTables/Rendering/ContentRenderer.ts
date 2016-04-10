@@ -51,7 +51,8 @@
                     for (var i = 0; i < columns.length; i++) {
                         var cell = row.Cells[columns[i].RawName];
                         this._stack.push(RenderingContextType.Cell, cell, columns[i].RawName);
-                        result += cellWrapper(cell);
+                        if (cell.renderElement) result += cell.renderElement(this._templatesProvider);
+                        else result += cellWrapper(cell);
                         this._stack.popContext();
                     }
                     break;

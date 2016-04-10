@@ -22,7 +22,6 @@ var PowerTables;
             this._masterTable = masterTable;
             this._events = events;
             this.initColumns();
-            this.initPlugins();
         }
         InstanceManager.prototype.initColumns = function () {
             var columns = [];
@@ -30,7 +29,7 @@ var PowerTables;
                 var c = {
                     Configuration: this.Configuration.Columns[i],
                     RawName: this.Configuration.Columns[i].RawColumnName,
-                    MasterTable: null,
+                    MasterTable: this._masterTable,
                     Header: null,
                     Order: i
                 };
@@ -54,15 +53,16 @@ var PowerTables;
                 if (pluginsConfiguration.hasOwnProperty(pluginId)) {
                     var conf = pluginsConfiguration[pluginId];
                     var plugin = PowerTables.ComponentsContainer.resolveComponent(conf.PluginId);
-                    plugin.init(this._masterTable, conf);
-                    plugin.PluginLocation = conf.Placement;
+                    plugin.PluginLocation = pluginId;
+                    plugin.RawConfig = conf;
+                    plugin.init(this._masterTable);
                     this.Plugins[pluginId] = plugin;
                 }
             }
         };
         InstanceManager.prototype.getPlugin = function (pluginId, placement) {
             if (!placement)
-                placement = 'lt';
+                placement = '';
             var key = placement + "-" + pluginId;
             if (this.Plugins[key])
                 return (this.Plugins[key]);
@@ -127,6 +127,18 @@ var PowerTables;
          */
         InstanceManager.prototype.getColumnNames = function () {
             return this._rawColumnNames;
+        };
+        /**
+         * Retrieves sequential columns names in corresponding order
+         * @returns {}
+         */
+        InstanceManager.prototype.getUiColumnNames = function () {
+            var result = [];
+            var uiCol = this.getUiColumns();
+            for (var i = 0; i < uiCol.length; i++) {
+                result.push(uiCol[i].RawName);
+            }
+            return result;
         };
         /**
          * Retreives columns suitable for UI rendering in corresponding order

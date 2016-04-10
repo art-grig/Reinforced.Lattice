@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using PowerTables.Configuration.Json;
+using PowerTables.Templating.Handlebars;
 
 namespace PowerTables.Templating.BuiltIn
 {
@@ -26,21 +27,13 @@ namespace PowerTables.Templating.BuiltIn
         }
     }
 
-    public class ParametrizedPluginConfiguration<T> : PluginConfiguration
-    {
-        public ParametrizedPluginConfiguration(string pluginId) : base(pluginId)
-        {
-        }
-
-        [OverrideHbFieldName("Configuration")]
-        public new T Configuration { get; set; }
-    }
-
     public interface IPluginWrapperModel<T>
     {
-        ParametrizedPluginConfiguration<T> Configuration { get; set; }
+        PluginConfiguration RawConfig { get; }
 
-        string PluginLocation { get; set; }
+        T Configuration { get; }
+
+        string PluginLocation { get; }
     }
 
     public static class PluginWrapperExtensions
@@ -53,6 +46,18 @@ namespace PowerTables.Templating.BuiltIn
         public static PluignWrapperTemplateRegion<T> PluginWrapper<T>(this TemplatesPageBase t)
         {
             return new PluignWrapperTemplateRegion<T>(t.Model.Prefix, t.Output);
+        }
+
+        /// <summary>
+        /// Template region being used if plugin is having specified location
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="pw"></param>
+        /// <param name="locationPart">Part of plugin location</param>
+        /// <returns></returns>
+        public static HbTagRegion IfLocation<T>(this PluignWrapperTemplateRegion<T> pw, string locationPart)
+        {
+            return new HbTagRegion("ifloc", String.Concat("\"", locationPart, "\""), pw.Writer);
         }
     }
 }

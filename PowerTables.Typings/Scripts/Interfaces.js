@@ -3,13 +3,9 @@
 //     the code is regenerated.
 var PowerTables;
 (function (PowerTables) {
-    /** Ordering */
     (function (Ordering) {
-        /** Ascending */
         Ordering[Ordering["Ascending"] = 0] = "Ascending";
-        /** Descending */
         Ordering[Ordering["Descending"] = 1] = "Descending";
-        /** Ordering is not applied */
         Ordering[Ordering["Neutral"] = 2] = "Neutral";
     })(PowerTables.Ordering || (PowerTables.Ordering = {}));
     var Ordering = PowerTables.Ordering;

@@ -33,8 +33,8 @@ namespace PowerTables.Mvc.Controllers
                 ViewBag.CurrentTutorial = currentTutorial;
                 _tutorialId = filterContext.ActionDescriptor.ActionName;
 
-                ViewBag.Code = GetCode(_tutorialId);
-                
+                ViewBag.Code = GetCode(_tutorialId,currentTutorial.TutorialNumber);
+
 
                 List<TutorialAttribute> tutorials =
                 typeof(TutorialController).GetMethods()
@@ -49,9 +49,9 @@ namespace PowerTables.Mvc.Controllers
             }
         }
 
-        private string GetCode(string tutorialId)
+        private string GetCode(string tutorialId, int tutorialNumber)
         {
-            var file = Server.MapPath(string.Format("~/Models/Tutorial/{0}.cs", tutorialId));
+            var file = Server.MapPath(string.Format("~/Models/Tutorial/_{1}_{0}.cs", tutorialId, tutorialNumber));
             var fileText = System.IO.File.ReadAllText(file);
             return fileText.Trim();
         }
@@ -78,12 +78,23 @@ namespace PowerTables.Mvc.Controllers
             return Handle(c => c.ProjectionTitlesAndDataOnly());
         }
 
+        [Tutorial("Ordering and Loading inidicator", 3)]
+        public ActionResult OrderingAndLoadingInidicator()
+        {
+            return TutPage(c => c.OrderingAndLoadingInidicator());
+        }
+
+        public ActionResult OrderingAndLoadingInidicatorHandle()
+        {
+            return Handle(c => c.OrderingAndLoadingInidicator());
+        }
+
         #region Utility
         private ActionResult TutPage(Action<Configurator<SourceData, TargetData>> config)
         {
             var t = Table();
             config(t);
-            return View(t);
+            return View("BaseTutorial", t);
         }
 
         private ActionResult Handle(Action<Configurator<SourceData, TargetData>> config)

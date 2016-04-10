@@ -25,7 +25,7 @@
                 if (hndlrs.hasOwnProperty(k)) {
                     var kHandlers = hndlrs[k];
                     for (i = 0; i < kHandlers.length; i++) {
-                        (<any>kHandlers[i]).apply(thisArg, ea);
+                        (<any>kHandlers[i]).apply(thisArg, [ea]);
                     }
                     i = 0;
                 }
@@ -73,7 +73,21 @@
             this.ColumnsCreation = new TableEvent(masterTable);
             this.DataReceived = new TableEvent(masterTable);
             this.AfterLoading = new TableEvent(masterTable);
+            this.BeforeLayoutDrawn = new TableEvent(masterTable);
+            this.AfterLayoutDrawn = new TableEvent(masterTable);
         }
+
+        /**
+         * "Before Layout Drawn" event. 
+         * Occurs before layout is actually drawn but after all table is initialized. 
+         */
+        public BeforeLayoutDrawn: TableEvent<any>;
+
+        /**
+         * "After Layout Drawn" event. 
+         * Occurs right after layout is drawn. 
+         */
+        public AfterLayoutDrawn: TableEvent<any>;
 
         /**
          * "Before Filter Gathering" event. 

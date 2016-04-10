@@ -9,12 +9,11 @@ var PowerTables;
         var PluginBase = (function () {
             function PluginBase() {
             }
-            PluginBase.prototype.init = function (masterTable, configuration) {
-                if (configuration)
-                    this.Configuration = configuration.Configuration;
+            PluginBase.prototype.init = function (masterTable) {
                 this.MasterTable = masterTable;
                 this.subscribe(masterTable.Events);
                 this.registerAdditionalHelpers(masterTable.Renderer.HandlebarsInstance);
+                this.Configuration = this.RawConfig.Configuration;
             };
             /**
              * Events subscription method.

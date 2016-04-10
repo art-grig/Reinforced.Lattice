@@ -1109,7 +1109,7 @@ var PowerTables;
             //#region
             LayoutRenderer.prototype.bindEventHelper = function (commaSeparatedFunctions, commaSeparatedEvents) {
                 var ed = {
-                    Target: this._stack.Current.Object,
+                    EventReceiver: this._stack.Current.Object,
                     Functions: commaSeparatedFunctions.split(','),
                     Events: commaSeparatedEvents.split(',')
                 };

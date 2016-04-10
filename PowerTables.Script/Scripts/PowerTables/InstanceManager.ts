@@ -12,7 +12,6 @@
             this._masterTable = masterTable;
             this._events = events;
             this.initColumns();
-            this.initPlugins();
         } 
         
         /**
@@ -62,21 +61,24 @@
             for (var j = 0; j < columns.length; j++) {
                 this._rawColumnNames.push(columns[j].RawName);
             }
-            this._events.ColumnsCreation.invoke(this, this.Columns);
+            
         }
 
-        private initPlugins(): void {
+        public initPlugins(): void {
             var pluginsConfiguration = this.Configuration.PluginsConfiguration;
 
             for (var pluginId in pluginsConfiguration) {
                 if (pluginsConfiguration.hasOwnProperty(pluginId)) {
                     var conf = pluginsConfiguration[pluginId];
                     var plugin = ComponentsContainer.resolveComponent<IPlugin>(conf.PluginId);
-                    plugin.init(this._masterTable, conf);
-                    plugin.PluginLocation = conf.Placement;
+                    plugin.PluginLocation = pluginId;
+                    plugin.RawConfig = conf;
+                    plugin.init(this._masterTable);
+                    
                     this.Plugins[pluginId] = plugin;
                 }
             }
+            this._events.ColumnsCreation.invoke(this, this.Columns);
         }
 
         /**
@@ -87,7 +89,7 @@
          */
         public getPlugin(pluginId: string, placement?: string): IPlugin;
         public getPlugin<TPlugin>(pluginId: string, placement?: string): TPlugin {
-            if (!placement) placement = 'lt';
+            if (!placement) placement = '';
             var key = `${placement}-${pluginId}`;
             if (this.Plugins[key]) return <any>(this.Plugins[key]);
             else {
@@ -143,7 +145,16 @@
          * @returns {} 
          */
         public isDateTime(columnName: string): boolean {
-            var tpn = this.Columns[columnName].Configuration.ColumnType;
+            return this.isDateTimeColumn(this.Columns[columnName]);
+        }
+
+        /**
+         * Determines is column of DateTime type or not
+         * @param columnName Column name
+         * @returns {} 
+         */
+        public isDateTimeColumn(column:IColumn): boolean {
+            var tpn = column.Configuration.ColumnType;
             return ((tpn === 'DateTime') || (tpn === 'DateTime?'));
         }
 

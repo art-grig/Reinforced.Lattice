@@ -125,7 +125,11 @@
     <Compile Include="Plugins\Hideout\HideoutClientConfiguration.cs" />
     <Compile Include="Plugins\Hideout\HideoutExtensions.cs" />
     <Compile Include="Plugins\Limit\LimitPluginExtensions.cs" />
+    <Compile Include="Plugins\Loading\LoadingPluginTemplateRegion.cs" />
+    <Compile Include="Plugins\Ordering\OrderingConfiguration.cs" />
     <Compile Include="Plugins\Ordering\OrderingExtensions.cs" />
+    <Compile Include="Plugins\Ordering\OrderingPluginTemplateRegion.cs" />
+    <Compile Include="Plugins\Ordering\OrderingUiConfigurationBuilder.cs" />
     <Compile Include="Plugins\Paging\PagingClientConfiguration.cs" />
     <Compile Include="Plugins\Paging\PagingExtensions.cs" />
     <Compile Include="Plugins\ResponseInfo\ActionBasedResponseModifier.cs" />
@@ -155,7 +159,7 @@
     <Compile Include="ReflectionCache.cs" />
     <Compile Include="LambdaHelpers.cs" />
     <Compile Include="Plugins\ResponseInfo\ResponseInfoExtensions.cs" />
-    <Compile Include="Plugins\LoadingPlugin.cs" />
+    <Compile Include="Plugins\Loading\LoadingPlugin.cs" />
     <Compile Include="PowerTablesHandler.cs" />
     <Compile Include="PowerTablesResponse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

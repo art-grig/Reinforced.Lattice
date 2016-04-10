@@ -27,7 +27,7 @@ namespace PowerTables.Configuration.Json
         /// <param name="filterConfig">Filter configuration</param>
         public static void ReplaceFilterConfig(this IColumnConfigurator column, string pluginId, object filterConfig)
         {
-            ReplacePluginConfig(column.TableConfigurator.TableConfiguration, string.Format("{0}-{1}", pluginId, column.ColumnConfiguration.RawColumnName), filterConfig, "filter");
+            ReplacePluginConfig(column.TableConfigurator.TableConfiguration, string.Format("{0}-{1}", column.ColumnConfiguration.RawColumnName, pluginId), filterConfig, "filter");
         }
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace PowerTables.Configuration.Json
         /// <param name="placement">Plugin placement</param>
         public static void ReplacePluginConfig(this TableConfiguration conf, string pluginId, object pluginConfig, string placement = null)
         {
-            var key = string.IsNullOrEmpty(placement) ? pluginId : String.Concat(pluginId, "-", placement);
+            var key = string.IsNullOrEmpty(placement) ? pluginId : String.Concat(placement, "-", pluginId);
             conf.PluginsConfiguration[key] = new PluginConfiguration(pluginId)
             {
                 Configuration = pluginConfig,
@@ -59,7 +59,7 @@ namespace PowerTables.Configuration.Json
             where TConfig : new()
         {
 
-            var key = string.IsNullOrEmpty(placement) ? pluginId : String.Concat(pluginId, "-", placement);
+            var key = string.IsNullOrEmpty(placement) ? pluginId : String.Concat(placement, "-", pluginId);
             PluginConfiguration config = null;
             if (!conf.PluginsConfiguration.ContainsKey(key))
             {
@@ -87,7 +87,7 @@ namespace PowerTables.Configuration.Json
         /// <returns></returns>
         public static TConfig GetPluginConfig<TConfig>(this TableConfiguration conf, string pluginId, string placement = null) where TConfig : class
         {
-            var key = string.IsNullOrEmpty(placement) ? pluginId : String.Concat(pluginId, "-", placement);
+            var key = string.IsNullOrEmpty(placement) ? pluginId : String.Concat(placement, "-", pluginId);
 
             if (!conf.PluginsConfiguration.ContainsKey(key)) return null;
             var config = conf.PluginsConfiguration[key];

@@ -17,8 +17,8 @@ var PowerTables;
                 _super.apply(this, arguments);
             }
             FilterBase.prototype.modifyQuery = function (query, scope) { };
-            FilterBase.prototype.init = function (masterTable, configuration) {
-                _super.prototype.init.call(this, masterTable, configuration);
+            FilterBase.prototype.init = function (masterTable) {
+                _super.prototype.init.call(this, masterTable);
                 this.MasterTable.Loader.registerQueryPartProvider(this);
             };
             /**

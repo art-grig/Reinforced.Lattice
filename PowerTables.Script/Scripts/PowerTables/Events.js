@@ -70,6 +70,8 @@ var PowerTables;
             this.ColumnsCreation = new TableEvent(masterTable);
             this.DataReceived = new TableEvent(masterTable);
             this.AfterLoading = new TableEvent(masterTable);
+            this.BeforeLayoutDrawn = new TableEvent(masterTable);
+            this.AfterLayoutDrawn = new TableEvent(masterTable);
         }
         /**
          * Registers new event for events manager.

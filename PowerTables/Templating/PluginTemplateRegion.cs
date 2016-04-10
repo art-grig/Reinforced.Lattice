@@ -8,14 +8,13 @@ using System.Threading.Tasks;
 namespace PowerTables.Templating
 {
     /// <summary>
-    /// Template region for plugin
+    /// Base template region for plugin
     /// </summary>
-    public class PluginTemplateRegion : TemplateRegion,IProvidesTracking
+    public class PluginTemplateRegion : TemplateRegion
     {
-        public PluginTemplateRegion(string prefix, string id, TextWriter writer) : base(prefix, id, writer)
+        public PluginTemplateRegion(IViewPlugins page, string id)
+            : base(page.Model.Prefix, id, page.Writer)
         {
         }
-
-        public bool IsTrackSet { get; set; }
     }
 }

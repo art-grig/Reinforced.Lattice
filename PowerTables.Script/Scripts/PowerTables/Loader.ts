@@ -147,6 +147,7 @@
                     Request: data,
                     XMLHttp: req
                 });
+                
             });
             //req.onabort = (e => {
             //    this.Events.AfterLoading.invoke(this, [this]);

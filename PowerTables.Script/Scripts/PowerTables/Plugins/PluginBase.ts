@@ -5,20 +5,20 @@
      */
     export class PluginBase<TConfiguration> implements IPlugin {
 
-        init(masterTable: IMasterTable, configuration: PowerTables.Configuration.Json.IPluginConfiguration): void {
-            if (configuration) this.Configuration = configuration.Configuration;
+        init(masterTable: IMasterTable): void {
             this.MasterTable = masterTable;
             this.subscribe(masterTable.Events);
             this.registerAdditionalHelpers(masterTable.Renderer.HandlebarsInstance);
+            this.Configuration = this.RawConfig.Configuration;
         }
 
-        Configuration: PowerTables.Configuration.Json.IPluginConfiguration;
+        RawConfig: PowerTables.Configuration.Json.IPluginConfiguration;
         PluginLocation: string;
 
         /**
          * Plugin configuration object
          */
-        protected PluginConfiguration: TConfiguration;
+        protected Configuration: TConfiguration;
 
         /**
          * Reference to master table this plugin belongs to

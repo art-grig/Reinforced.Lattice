@@ -12,10 +12,10 @@ module PowerTables.Rendering {
         private _instances: InstanceManager;
         private _templatesProvider: ITemplatesProvider;
         private _hb: Handlebars.IHandlebars;
-        private _eventsQueue: IEventDescriptor[];
+        private _eventsQueue: IEventDescriptor[] = [];
         private _stack: RenderingStack;
 
-        constructor(templates: ITemplatesProvider, stack: RenderingStack, instances:InstanceManager) {
+        constructor(templates: ITemplatesProvider, stack: RenderingStack, instances: InstanceManager) {
             this._hb = templates.HandlebarsInstance;
             this._templatesProvider = templates;
             this._stack = stack;
@@ -39,28 +39,28 @@ module PowerTables.Rendering {
             // bind plugins/filters events
             var sources = parentElement.querySelectorAll('[data-be]');
             for (var i = 0; i < sources.length; i++) {
-                var evSource = <HTMLElement>sources.item(i);
-                var bindTrack = parseInt(evSource.getAttribute('data-be'));
+                var domSource = <HTMLElement>sources.item(i);
+                var bindTrack = parseInt(domSource.getAttribute('data-be'));
 
-                var evDescription = this._eventsQueue[bindTrack];
+                var subscription = this._eventsQueue[bindTrack];
 
-                for (var j = 0; j < evDescription.Functions.length; j++) {
-                    var bindFn = evDescription.Functions[j];
-                    var fnItself = null;
-                    if (evDescription.Target[bindFn] && (typeof evDescription.Target[bindFn] === 'function')) {
-                        fnItself = evDescription[bindFn];
+                for (var j = 0; j < subscription.Functions.length; j++) {
+                    var bindFn = subscription.Functions[j];
+                    var handler = null;
+                    if (subscription.EventReceiver[bindFn] && (typeof subscription.EventReceiver[bindFn] === 'function')) {
+                        handler = subscription.EventReceiver[bindFn];
                     } else {
-                        fnItself = eval(bindFn);
+                        handler = eval(bindFn);
                     }
 
-                    for (var k = 0; k < evDescription.Events.length; k++) {
-                        (function (r, s, fn, e) {
-                            s.addEventListener(e, (evt) => fn.apply(r, [s, evt]));
-                        })(evDescription.Target, evSource, fnItself, evDescription.Events[k]);
+                    for (var k = 0; k < subscription.Events.length; k++) {
+                        (function (receiver, domSource, handler, eventId) {
+                            domSource.addEventListener(eventId, (evt) => handler.apply(receiver, [{ Element: domSource, EventObject: evt, Receiver: receiver }]));
+                        })(subscription.EventReceiver, domSource, handler, subscription.Events[k]);
                     }
 
                 }
-                evSource.removeAttribute('data-be');
+                domSource.removeAttribute('data-be');
             }
         }
 
@@ -95,7 +95,7 @@ module PowerTables.Rendering {
          * @param plugin Plugin interface
          * @returns {} 
          */
-        public  renderPlugin(plugin: IPlugin): string {
+        public renderPlugin(plugin: IPlugin): string {
             if (plugin.renderElement) return plugin.renderElement(this._templatesProvider);
             if (!plugin.renderContent) return '';
             this._stack.push(RenderingContextType.Plugin, plugin);
@@ -107,12 +107,22 @@ module PowerTables.Rendering {
 
         // #region headers helper
         private headerHelper(columnName: string): string {
-            return this.headerHelperInner(this._instances.getColumn(columnName));
+            return this.renderHeader(this._instances.getColumn(columnName));
         }
 
-        private headerHelperInner(column: IColumn): string {
+        /**
+         * Renders specified column's header into string including its wrapper
+         * 
+         * @param column Column which header is about to be rendered
+         * @returns {} 
+         */
+        public renderHeader(column: IColumn): string {
             this._stack.push(RenderingContextType.Header, column.Header, column.RawName);
-            var result = this._templatesProvider.getCachedTemplate('headerWrapper')(column.Header);
+            var result;
+
+            if (column.Header.renderElement) result = column.Header.renderElement(this._templatesProvider);
+            else result = this._templatesProvider.getCachedTemplate('headerWrapper')(column.Header);
+
             this._stack.popContext();
             return result;
         }
@@ -123,7 +133,7 @@ module PowerTables.Rendering {
             for (var a in columns) {
                 if (columns.hasOwnProperty(a)) {
                     var v = columns[a];
-                    result += this.headerHelperInner(v);
+                    result += this.renderHeader(v);
                 }
             }
             return result;
@@ -134,7 +144,7 @@ module PowerTables.Rendering {
 
         private bindEventHelper(commaSeparatedFunctions: string, commaSeparatedEvents: string): string {
             var ed = <IEventDescriptor>{
-                Target: this._stack.Current.Object,
+                EventReceiver: this._stack.Current.Object,
                 Functions: commaSeparatedFunctions.split(','),
                 Events: commaSeparatedEvents.split(',')
             };
@@ -159,11 +169,42 @@ module PowerTables.Rendering {
 
     }
 
-
+    /**
+     * Descriptor for event from events queue
+     */
     interface IEventDescriptor {
-        Target: any;
+        /**
+         * Event target. 
+         * Plugin, cell, header etc. Table entity that will receive event
+         */
+        EventReceiver: any;
+        /**
+         * Event handlers that will be called
+         */
         Functions: string[];
+        /**
+         * DOM events that will trigger handler call
+         */
         Events: string[];
     }
 
+    /**
+     * Event that was bound from template
+     */
+    export interface ITemplateBoundEvent<T> {
+        /**
+         * Element triggered particular event
+         */
+        Element: HTMLElement;
+
+        /**
+         * Original DOM event
+         */
+        EventObject: Event;
+
+        /**
+         * Event received (to avoid using "this" in come cases)
+         */
+        Receiver:T;
+    }
 } 

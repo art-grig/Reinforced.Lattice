@@ -48,7 +48,7 @@
         /**
          * Raw configuration object including Plugin Id
          */
-        Configuration: PluginConfiguration;
+        RawConfig: PluginConfiguration;
 
         /**
          * Plugin Id including placement
@@ -61,7 +61,7 @@
          * @param masterTable 
          * @param configuration          
          */
-        init(masterTable: IMasterTable, configuration: PluginConfiguration): void;
+        init(masterTable: IMasterTable): void;
 
     }
 
@@ -93,6 +93,11 @@
          * API for locating instances of different components
          */
         InstanceManager: InstanceManager;
+
+        /**
+         * API for overall workflow controlling
+         */
+        Controller: Controller;
     }
 
     /**

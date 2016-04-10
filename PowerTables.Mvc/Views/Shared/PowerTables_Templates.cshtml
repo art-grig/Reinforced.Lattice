@@ -1,6 +1,8 @@
 ﻿@using System.Activities.Statements
 @using System.Web.UI.WebControls
 @using PowerTables.Plugins
+@using PowerTables.Plugins.Loading
+@using PowerTables.Plugins.Ordering
 @using PowerTables.Templating
 @using PowerTables.Templating.BuiltIn
 @using PowerTables.Templating.Handlebars
@@ -59,26 +61,26 @@
 @using (var t = this.PluginWrapper())
 {
     <text>
-        @using (t.IfStrEquals(c => c.PluginLocation, "lt"))
+        @using (t.IfLocation("lt"))
         {
             <span @t.Track()> @t.Content() </span>
         }
 
-        @using (t.IfStrEquals(c => c.PluginLocation, "lb"))
+        @using (t.IfLocation("lb"))
         {
             <div style="float: left;" @t.Track()> @t.Content() </div>
         }
 
-        @using (t.IfStrEquals(c => c.PluginLocation, "rt"))
+        @using (t.IfLocation("rt"))
         {
             <div style="float: right;" @t.Track()> @t.Content() </div>
         }
 
-        @using (t.IfStrEquals(c => c.PluginLocation, "rb"))
+        @using (t.IfLocation("rb"))
         {
             <div style="float: right;" @t.Track()> @t.Content() </div>
         }
-        @using (t.IfStrEquals(c => c.PluginLocation, "filter"))
+        @using (t.IfLocation("filter"))
         {
             <th @t.Track()>@t.Content()</th>
         }
@@ -104,9 +106,39 @@
 
 @*
     Cell wrapper template.
-    Following HTML is being wrapped around each data cell    
+    Following HTML is being wrapped around each data cell
 *@
 @using (var t = this.CellWrapper())
 {
     <td @t.Track()>@t.Content()</td>
+}
+
+
+@using (var t = Plugin.Loading())
+{
+    <div style="display:block;height:10px;margin:10px;margin-top:5px;">
+        <div class="badge" @t.ThisElementWillBlink()>
+            <span class="glyphicon glyphicon-refresh"></span> Loading
+        </div>
+    </div>
+}
+
+@using (var t = Plugin.Ordering())
+{
+    <th @t.Track() @t.BindSwitchOrdering("click") style="cursor: pointer">
+        
+        <span><strong>@t.Content()</strong></span>
+        @using (t.If(c => c.IsNeutral))
+        {
+            <span class="glyphicon glyphicon-th-large" style="color: #bac5d3; float: right;"></span>
+        }
+        @using (t.If(c => c.IsAscending))
+        {
+            <span class="glyphicon glyphicon-chevron-up" style="color: #bac5d3; float: right;"></span>
+        }
+        @using (t.If(c => c.IsDescending))
+        {
+            <span class="glyphicon glyphicon-chevron-down" style="color: #bac5d3; float: right;"></span>
+        }
+    </th>
 }

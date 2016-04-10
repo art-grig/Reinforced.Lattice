@@ -4,12 +4,13 @@
      * Enity responsible for displaying table
      */
     export class Renderer implements ITemplatesProvider {
-        constructor(rootId: string, prefix: string, isColumnDateTimeFunc: (s: string) => boolean, instances: InstanceManager) {
+        constructor(rootId: string, prefix: string, isColumnDateTimeFunc: (s: string) => boolean, instances: InstanceManager,events:EventsManager) {
             this._isColumnDateTimeFunc = isColumnDateTimeFunc;
             this._instances = instances;
             this._stack = new RenderingStack();
             this.RootElement = document.getElementById(rootId);
             this._rootId = rootId;
+            this._events = events;
 
             this.HandlebarsInstance = Handlebars.create();
 
@@ -17,6 +18,7 @@
             this._contentRenderer = new ContentRenderer(this, this._stack, this._instances);
 
             this.HandlebarsInstance.registerHelper("ifq", this.ifqHelper);
+            this.HandlebarsInstance.registerHelper("ifloc", this.iflocHelper.bind(this));
             this.HandlebarsInstance.registerHelper('Content', this.contentHelper.bind(this));
             this.HandlebarsInstance.registerHelper('Track', this.trackHelper.bind(this));
             this.HandlebarsInstance.registerHelper('Datepicker', this.datepickerHelper.bind(this));
@@ -52,6 +54,7 @@
         private _datepickerFunction: (e: HTMLElement) => void;
         private _templatesCache: { [key: string]: HandlebarsTemplateDelegate } = {};
         private _rootId: string;
+        private _events:EventsManager;
 
         //#region Templates caching
         private cacheTemplates(templatesPrefix: string): void {
@@ -82,6 +85,8 @@
          * Perform table layout inside specified root element         
          */
         public layout(): void {
+            this._events.BeforeLayoutDrawn.invoke(this, null);
+
             var rendered = this.getCachedTemplate('layout')(null);
             this.RootElement.innerHTML = rendered;
 
@@ -91,6 +96,8 @@
             this.BodyElement.removeChild(bodyMarker);
             this._layoutRenderer.bindEventsQueue(this.RootElement);
             this.Locator = new DOMLocator(this.BodyElement, this.RootElement, this._rootId);
+
+            this._events.AfterLayoutDrawn.invoke(this, null);
         }
 
         /**
@@ -120,8 +127,8 @@
 
         private createElement(html: string): HTMLElement {
             var tempDiv = document.createElement('div');
-            tempDiv.innerHTML = html;
-            return <HTMLElement>tempDiv.childNodes.item(0);
+            tempDiv.innerHTML = html.trim();
+            return <HTMLElement>tempDiv.firstChild;
         }
 
         /**
@@ -177,6 +184,22 @@
         }
 
         /**
+         * Redraws header for specified column
+         * 
+         * @param column Column which header is to be redrawn         
+         */
+        public redrawHeader(column: IColumn) :void {
+            this._stack.clear();
+            var html = this._layoutRenderer.renderHeader(column);
+            //var newHeaderElement = this.createElement(html);
+            var oldHeaderElement = this.Locator.getHeaderElement(column.Header);
+            oldHeaderElement.innerHTML = html;
+            //var parent = oldHeaderElement.parentElement;
+            //parent.replaceChild(newHeaderElement, oldHeaderElement);
+            this._layoutRenderer.bindEventsQueue(oldHeaderElement);
+        }
+
+        /**
          * Removes all dynamically loaded content in table
          * 
          * @returns {} 
@@ -228,6 +251,16 @@
                 return opts.fn(this);
             else
                 return opts.inverse(this);
+        }
+
+        private iflocHelper(location: string, opts: any) {
+            if (this._stack.Current.Type === RenderingContextType.Plugin) {
+                var loc = (<IPlugin>this._stack.Current.Object).PluginLocation;
+                if (loc.length < location.length) return opts.inverse(this);
+                if (loc.length === location.length && loc === location) return opts.fn(this);
+                if (loc.substring(0, location.length) === location) return opts.fn(this);
+            }
+            return opts.inverse(this);
         }
         //#endregion
     }

@@ -7,10 +7,12 @@ var PowerTables;
          */
         var ContentRenderer = (function () {
             function ContentRenderer(templatesProvider, stack, instances) {
+                this._columnsRenderFunctions = {};
                 this._hb = templatesProvider.HandlebarsInstance;
                 this._templatesProvider = templatesProvider;
                 this._stack = stack;
                 this._instances = instances;
+                this.cacheColumnRenderers(this._instances.Columns);
             }
             /**
              * Renders supplied table rows to string
@@ -44,7 +46,10 @@ var PowerTables;
                         for (var i = 0; i < columns.length; i++) {
                             var cell = row.Cells[columns[i].RawName];
                             this._stack.push(Rendering.RenderingContextType.Cell, cell, columns[i].RawName);
-                            result += cellWrapper(cell);
+                            if (cell.renderElement)
+                                result += cell.renderElement(this._templatesProvider);
+                            else
+                                result += cellWrapper(cell);
                             this._stack.popContext();
                         }
                         break;

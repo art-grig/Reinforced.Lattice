@@ -10,7 +10,7 @@ var PowerTables;
          * Returns string track ID for cell
          */
         TrackHelper.getCellTrack = function (cell) {
-            var colIdx = cell.Column.MasterTable.getColumnNames().indexOf(cell.Column.RawName);
+            var colIdx = cell.Column.MasterTable.InstanceManager.getUiColumnNames().indexOf(cell.Column.RawName);
             var rowIdx = cell.Row.Index;
             return TrackHelper.getCellTrackByIndexes(rowIdx, colIdx);
         };

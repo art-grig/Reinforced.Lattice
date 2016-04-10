@@ -31,25 +31,25 @@ var PowerTables;
                 // bind plugins/filters events
                 var sources = parentElement.querySelectorAll('[data-be]');
                 for (var i = 0; i < sources.length; i++) {
-                    var evSource = sources.item(i);
-                    var bindTrack = parseInt(evSource.getAttribute('data-be'));
-                    var evDescription = this._eventsQueue[bindTrack];
-                    for (var j = 0; j < evDescription.Functions.length; j++) {
-                        var bindFn = evDescription.Functions[j];
-                        var fnItself = null;
-                        if (evDescription.Target[bindFn] && (typeof evDescription.Target[bindFn] === 'function')) {
-                            fnItself = evDescription[bindFn];
+                    var domSource = sources.item(i);
+                    var bindTrack = parseInt(domSource.getAttribute('data-be'));
+                    var subscription = this._eventsQueue[bindTrack];
+                    for (var j = 0; j < subscription.Functions.length; j++) {
+                        var bindFn = subscription.Functions[j];
+                        var handler = null;
+                        if (subscription.EventReceiver[bindFn] && (typeof subscription.EventReceiver[bindFn] === 'function')) {
+                            handler = subscription[bindFn];
                         }
                         else {
-                            fnItself = eval(bindFn);
+                            handler = eval(bindFn);
                         }
-                        for (var k = 0; k < evDescription.Events.length; k++) {
-                            (function (r, s, fn, e) {
-                                s.addEventListener(e, function (evt) { return fn.apply(r, [s, evt]); });
-                            })(evDescription.Target, evSource, fnItself, evDescription.Events[k]);
+                        for (var k = 0; k < subscription.Events.length; k++) {
+                            (function (evtTarget, evtSource, fn, e) {
+                                evtSource.addEventListener(e, function (evt) { return fn.apply(evtTarget, [evtSource, evt]); });
+                            })(subscription.EventReceiver, domSource, handler, subscription.Events[k]);
                         }
                     }
-                    evSource.removeAttribute('data-be');
+                    domSource.removeAttribute('data-be');
                 }
             };
             //#region Handlebars helpers
@@ -93,11 +93,21 @@ var PowerTables;
             //#endregion
             // #region headers helper
             LayoutRenderer.prototype.headerHelper = function (columnName) {
-                return this.headerHelperInner(this._instances.getColumn(columnName));
+                return this.renderHeader(this._instances.getColumn(columnName));
             };
-            LayoutRenderer.prototype.headerHelperInner = function (column) {
+            /**
+             * Renders specified column's header into string including its wrapper
+             *
+             * @param column Column which header is about to be rendered
+             * @returns {}
+             */
+            LayoutRenderer.prototype.renderHeader = function (column) {
                 this._stack.push(Rendering.RenderingContextType.Header, column.Header, column.RawName);
-                var result = this._templatesProvider.getCachedTemplate('headerWrapper')(column.Header);
+                var result;
+                if (column.Header.renderElement)
+                    result = column.Header.renderElement(this._templatesProvider);
+                else
+                    result = this._templatesProvider.getCachedTemplate('headerWrapper')(column.Header);
                 this._stack.popContext();
                 return result;
             };
@@ -107,7 +117,7 @@ var PowerTables;
                 for (var a in columns) {
                     if (columns.hasOwnProperty(a)) {
                         var v = columns[a];
-                        result += this.headerHelperInner(v);
+                        result += this.renderHeader(v);
                     }
                 }
                 return result;
@@ -116,7 +126,7 @@ var PowerTables;
             //#region
             LayoutRenderer.prototype.bindEventHelper = function (commaSeparatedFunctions, commaSeparatedEvents) {
                 var ed = {
-                    Target: this._stack.Current.Object,
+                    EventReceiver: this._stack.Current.Object,
                     Functions: commaSeparatedFunctions.split(','),
                     Events: commaSeparatedEvents.split(',')
                 };

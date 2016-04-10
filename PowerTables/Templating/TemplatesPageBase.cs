@@ -11,12 +11,6 @@ namespace PowerTables.Templating
         /// Default templates view. Used for shortening .RenderTemplates calls
         /// </summary>
         public static string DefaultTemplatesView;
-        
-        public override HelperResult RenderPage(string path, params object[] data)
-        {
-            Plugin = new PluginsClassifier(GetOutputWriter(), Model);
-            return base.RenderPage(path, data);
-        }
 
         /// <summary>
         /// Declares raw template region
@@ -28,21 +22,30 @@ namespace PowerTables.Templating
             return new TemplateRegion(Model.Prefix, id, this.GetOutputWriter());
         }
 
+        private IViewPlugins _plugins = null;
+
         /// <summary>
         /// Templates for particular plugins
         /// </summary>
-        public IViewPlugins Plugin { get; private set; }
+        public IViewPlugins Plugin
+        {
+            get
+            {
+                if (_plugins == null) _plugins = new PluginsClassifier(this);
+                return _plugins;
+            }
+        }
 
         private class PluginsClassifier : IViewPlugins
         {
-            public PluginsClassifier(TextWriter writer, LatticeTemplatesViewModel model)
+            public PluginsClassifier(TemplatesPageBase page)
             {
-                Writer = writer;
-                Model = model;
+                Page = page;
             }
 
-            public TextWriter Writer { get; private set; }
-            public LatticeTemplatesViewModel Model { get; private set; }
+            public TextWriter Writer { get { return Page.GetOutputWriter(); } }
+            public LatticeTemplatesViewModel Model { get { return Page.Model; } }
+            public TemplatesPageBase Page { get; private set; }
         }
 
     }

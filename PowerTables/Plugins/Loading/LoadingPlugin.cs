@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using PowerTables.Configuration;
+﻿using PowerTables.Configuration;
 using PowerTables.Configuration.Json;
 using PowerTables.Templating;
 
-namespace PowerTables.Plugins
+namespace PowerTables.Plugins.Loading
 {
     /// <summary>
     /// "Loading" plugin 
@@ -31,16 +26,6 @@ namespace PowerTables.Plugins
         {
             conf.TableConfiguration.ReplacePluginConfig(PluginId, null, position);
             return conf;
-        }
-
-        /// <summary>
-        /// Loading plugin template
-        /// </summary>
-        /// <param name="p"></param>
-        /// <returns>Template region</returns>
-        public static PluginTemplateRegion Loading(this IViewPlugins p)
-        {
-            return new PluginTemplateRegion(p.Model.Prefix, "loading", p.Writer);
         }
     }
 }

@@ -32,7 +32,7 @@ namespace PowerTables.Typings
                     .Where(c => c.Namespace.Contains("PowerTables.Typings.Infrastructure"));
 
 
-            builder.ExportAsInterfaces(infrastructureTypes, a => 
+            builder.ExportAsInterfaces(infrastructureTypes, a =>
                 a.WithPublicProperties().WithPublicMethods(c => c.CamelCase()).OverrideNamespace("PowerTables"));
 
 
@@ -60,7 +60,8 @@ namespace PowerTables.Typings
             builder.ExportAsInterface<ResponseInfoClientConfiguration>().WithPublicProperties();
             builder.ExportAsInterface<SelectListItem>()
                 .WithPublicProperties()
-                .WithProperty(c=>c.Group,c=>c.Ignore()); //todo use mvc
+                .WithProperty(c => c.Group, c => c.Ignore()); //todo use mvc
+
 
             builder.ExportAsInterface<SelectFilterUiConfig>().WithPublicProperties();
 
@@ -68,7 +69,8 @@ namespace PowerTables.Typings
                 .WithPublicProperties();
 
             builder.ExportAsInterface<OrderingConfiguration>()
-                .WithPublicProperties();
+                .WithPublicProperties()
+                .WithProperty(c => c.ClientSortableColumns, a => a.Type("{[key:string]:(a:any,b:any) => number}"));
 
             builder.ExportAsInterface<PagingClientConfiguration>().WithPublicProperties();
             builder.ExportAsInterface<PowerTablesResponse>()

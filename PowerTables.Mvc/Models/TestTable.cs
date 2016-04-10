@@ -16,6 +16,7 @@ using PowerTables.Plugins.Checkboxify;
 using PowerTables.Plugins.Formwatch;
 using PowerTables.Plugins.Hideout;
 using PowerTables.Plugins.Limit;
+using PowerTables.Plugins.Loading;
 using PowerTables.Plugins.Ordering;
 using PowerTables.Plugins.Paging;
 using PowerTables.Plugins.ResponseInfo;
@@ -115,7 +116,7 @@ namespace PowerTables.Mvc.Models
                 .Title("iCloud Lock");
 
             conf.Column(c => c.Cost).ValueFunction("function (a) {return a.Cost + ' EUR';}")
-                .Orderable(c => c.Cost, Ordering.Descending)
+                .Orderable(c => c.Cost)
                 .FilterRange(c => c.Cost, ui =>
                 {
                     ui.FromPlaceholder = "Min. Cost";
