@@ -25,12 +25,12 @@
         /**
          * Data that actually is currently displayed in table
          */
-        public CurrentlyDisplaying: any[];
+        public DisplayedData: any[];
 
         /**
          * Data that was recently loaded from server
          */
-        public LastLoaded: any[];
+        public StoredData: any[];
 
         /**
          * Selector of source data on client-side
@@ -94,17 +94,27 @@
                 }
                 currentCol = this._rawColumnNames[currentColIndex];
             }
-            this.LastLoaded = data;
-            this.filterRecentData(clientQuery);
+            this.StoredData = data;
+            this.filterStoredData(clientQuery);
         }
 
-        private _recentClientQuery: IQuery;
+        /**
+         * Client query that was used to obtain recent local data set
+         */
+        public  RecentClientQuery: IQuery;
 
-        private filterSet(objects: any[], query: IQuery): any[] {
+        /**
+         * Filters supplied data set using client query 
+         * 
+         * @param objects Data set
+         * @param query Client query
+         * @returns {Array} Array of filtered items
+         */
+        public filterSet(objects: any[], query: IQuery): any[] {
             var result = [];
             if (this._filters.length !== 0) {
-                for (var i = 0; i < this.LastLoaded.length; i++) {
-                    var obj = this.LastLoaded[i];
+                for (var i = 0; i < this.StoredData.length; i++) {
+                    var obj = this.StoredData[i];
                     var acceptable: boolean = true;
                     for (var j = 0; j < this._filters.length; j++) {
                         var filter = this._filters[j];
@@ -119,7 +129,14 @@
             return null;
         }
 
-        private orderSet(objects: any[], query: IQuery): any[] {
+         /**
+         * Orders supplied data set using client query 
+         * 
+         * @param objects Data set
+         * @param query Client query
+         * @returns {Array} Array of ordered items
+         */
+        public orderSet(objects: any[], query: IQuery): any[] {
             if (query.Orderings) {
                 var sortFn = '';
                 var comparersArg = '';
@@ -154,20 +171,28 @@
          * @param query Table query
          * @returns {} 
          */
-        public filterRecentData(query: IQuery) {
-            this.CurrentlyDisplaying = this.LastLoaded;
-            this._recentClientQuery = query;
+        public filterStoredData(query: IQuery) {
+            this.DisplayedData = this.StoredData;
+            this.RecentClientQuery = query;
 
             if (this.isClientFiltrationPending() && (!(!query))) {
-                var filtered = this.filterSet(this.CurrentlyDisplaying, query);
-                if (filtered) this.CurrentlyDisplaying = filtered;
-                var ordered = this.orderSet(this.CurrentlyDisplaying, query);
-                if (ordered) this.CurrentlyDisplaying = ordered;
+                var filtered = this.filterSet(this.DisplayedData, query);
+                if (filtered) this.DisplayedData = filtered;
+                var ordered = this.orderSet(this.DisplayedData, query);
+                if (ordered) this.DisplayedData = ordered;
 
                 if (this.Selector) {
-                    this.CurrentlyDisplaying = this.Selector.selectData(this.CurrentlyDisplaying, query);
+                    this.DisplayedData = this.Selector.selectData(this.DisplayedData, query);
                 }
             }
+        }
+
+        /**
+         * Filter recent data and store it to currently displaying data 
+         * using query that was previously applied to local data         
+         */
+        public filterStoredDataWithPreviousQuery() {
+            this.filterStoredData(this.RecentClientQuery);
         }
 
         /**
@@ -178,10 +203,10 @@
          */
         public localLookup(predicate: (object: any) => boolean): ILocalLookupResult[] {
             var result: ILocalLookupResult[] = [];
-            for (var i = 0; i < this.LastLoaded.length; i++) {
-                if (predicate(this.LastLoaded[i])) {
+            for (var i = 0; i < this.StoredData.length; i++) {
+                if (predicate(this.StoredData[i])) {
                     result.push({
-                        DataObject: this.LastLoaded[i],
+                        DataObject: this.StoredData[i],
                         IsCurrentlyDisplaying: false,
                         LoadedIndex: i,
                         DisplayedIndex: -1
@@ -190,7 +215,7 @@
             }
 
             for (var j = 0; j < result.length; j++) {
-                var idx = this.CurrentlyDisplaying.indexOf(result[j].DataObject);
+                var idx = this.DisplayedData.indexOf(result[j].DataObject);
                 if (idx >= 0) {
                     result[j].IsCurrentlyDisplaying = true;
                     result[j].DisplayedIndex = idx;
@@ -206,14 +231,14 @@
          * @param index Index of desired data object among locally displaying data
          * @returns ILocalLookupResult
          */
-        public localLookupCurrentlyDisplaying(index: number): ILocalLookupResult {
+        public localLookupDisplayedData(index: number): ILocalLookupResult {
             if (index < 0) return null;
-            if (index > this.CurrentlyDisplaying.length) return null;
+            if (index > this.DisplayedData.length) return null;
             var result: ILocalLookupResult = {
-                DataObject: this.CurrentlyDisplaying[index],
+                DataObject: this.DisplayedData[index],
                 IsCurrentlyDisplaying: true,
                 DisplayedIndex: index,
-                LoadedIndex: this.LastLoaded.indexOf(this.CurrentlyDisplaying[index])
+                LoadedIndex: this.StoredData.indexOf(this.DisplayedData[index])
             };
 
             return result;
@@ -226,13 +251,13 @@
          * @param index Index of desired data object among locally displaying data
          * @returns ILocalLookupResult
          */
-        public localLookupLoaded(index: number): ILocalLookupResult {
+        public localLookupStoredData(index: number): ILocalLookupResult {
             if (index < 0) return null;
-            if (index > this.LastLoaded.length) return null;
+            if (index > this.StoredData.length) return null;
             var result: ILocalLookupResult = {
-                DataObject: this.LastLoaded[index],
+                DataObject: this.StoredData[index],
                 IsCurrentlyDisplaying: true,
-                DisplayedIndex: this.CurrentlyDisplaying.indexOf(this.LastLoaded[index]),
+                DisplayedIndex: this.DisplayedData.indexOf(this.StoredData[index]),
                 LoadedIndex: index
             };
 

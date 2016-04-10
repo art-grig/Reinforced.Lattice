@@ -159,8 +159,8 @@ var PowerTables;
         Controller.prototype.produceRows = function () {
             var result = [];
             var columns = this._masterTable.InstanceManager.getUiColumns();
-            for (var i = 0; i < this._masterTable.DataHolder.CurrentlyDisplaying.length; i++) {
-                result.push(this.produceRow(this._masterTable.DataHolder.CurrentlyDisplaying[i], columns, i));
+            for (var i = 0; i < this._masterTable.DataHolder.DisplayedData.length; i++) {
+                result.push(this.produceRow(this._masterTable.DataHolder.DisplayedData[i], columns, i));
             }
             return result;
         };
@@ -272,14 +272,14 @@ var PowerTables;
                 }
                 currentCol = this._rawColumnNames[currentColIndex];
             }
-            this.LastLoaded = data;
+            this.StoredData = data;
             this.filterRecentData(clientQuery);
         };
         DataHolder.prototype.filterSet = function (objects, query) {
             var result = [];
             if (this._filters.length !== 0) {
-                for (var i = 0; i < this.LastLoaded.length; i++) {
-                    var obj = this.LastLoaded[i];
+                for (var i = 0; i < this.StoredData.length; i++) {
+                    var obj = this.StoredData[i];
                     var acceptable = true;
                     for (var j = 0; j < this._filters.length; j++) {
                         var filter = this._filters[j];
@@ -329,17 +329,17 @@ var PowerTables;
          * @returns {}
          */
         DataHolder.prototype.filterRecentData = function (query) {
-            this.CurrentlyDisplaying = this.LastLoaded;
+            this.DisplayedData = this.StoredData;
             this._recentClientQuery = query;
             if (this.isClientFiltrationPending() && (!(!query))) {
-                var filtered = this.filterSet(this.CurrentlyDisplaying, query);
+                var filtered = this.filterSet(this.DisplayedData, query);
                 if (filtered)
-                    this.CurrentlyDisplaying = filtered;
-                var ordered = this.orderSet(this.CurrentlyDisplaying, query);
+                    this.DisplayedData = filtered;
+                var ordered = this.orderSet(this.DisplayedData, query);
                 if (ordered)
-                    this.CurrentlyDisplaying = ordered;
+                    this.DisplayedData = ordered;
                 if (this.Selector) {
-                    this.CurrentlyDisplaying = this.Selector.selectData(this.CurrentlyDisplaying, query);
+                    this.DisplayedData = this.Selector.selectData(this.DisplayedData, query);
                 }
             }
         };
@@ -351,10 +351,10 @@ var PowerTables;
          */
         DataHolder.prototype.localLookup = function (predicate) {
             var result = [];
-            for (var i = 0; i < this.LastLoaded.length; i++) {
-                if (predicate(this.LastLoaded[i])) {
+            for (var i = 0; i < this.StoredData.length; i++) {
+                if (predicate(this.StoredData[i])) {
                     result.push({
-                        DataObject: this.LastLoaded[i],
+                        DataObject: this.StoredData[i],
                         IsCurrentlyDisplaying: false,
                         LoadedIndex: i,
                         DisplayedIndex: -1
@@ -362,7 +362,7 @@ var PowerTables;
                 }
             }
             for (var j = 0; j < result.length; j++) {
-                var idx = this.CurrentlyDisplaying.indexOf(result[j].DataObject);
+                var idx = this.DisplayedData.indexOf(result[j].DataObject);
                 if (idx >= 0) {
                     result[j].IsCurrentlyDisplaying = true;
                     result[j].DisplayedIndex = idx;
@@ -380,13 +380,13 @@ var PowerTables;
         DataHolder.prototype.localLookupCurrentlyDisplaying = function (index) {
             if (index < 0)
                 return null;
-            if (index > this.CurrentlyDisplaying.length)
+            if (index > this.DisplayedData.length)
                 return null;
             var result = {
-                DataObject: this.CurrentlyDisplaying[index],
+                DataObject: this.DisplayedData[index],
                 IsCurrentlyDisplaying: true,
                 DisplayedIndex: index,
-                LoadedIndex: this.LastLoaded.indexOf(this.CurrentlyDisplaying[index])
+                LoadedIndex: this.StoredData.indexOf(this.DisplayedData[index])
             };
             return result;
         };
@@ -400,12 +400,12 @@ var PowerTables;
         DataHolder.prototype.localLookupLoaded = function (index) {
             if (index < 0)
                 return null;
-            if (index > this.LastLoaded.length)
+            if (index > this.StoredData.length)
                 return null;
             var result = {
-                DataObject: this.LastLoaded[index],
+                DataObject: this.StoredData[index],
                 IsCurrentlyDisplaying: true,
-                DisplayedIndex: this.CurrentlyDisplaying.indexOf(this.LastLoaded[index]),
+                DisplayedIndex: this.DisplayedData.indexOf(this.StoredData[index]),
                 LoadedIndex: index
             };
             return result;

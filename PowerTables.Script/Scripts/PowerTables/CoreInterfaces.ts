@@ -193,7 +193,7 @@
         /** 
          * Displaying index. 
          * You can obtain data for this particular row from DataHolder 
-         * using localLookupCurrentlyDisplaying method
+         * using localLookupDisplayedData method
          */
         Index: number;
         /** 

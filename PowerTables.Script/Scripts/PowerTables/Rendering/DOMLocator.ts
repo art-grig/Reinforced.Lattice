@@ -15,13 +15,24 @@
         private _rootIdPrefix: string;
         
         /**
-         * Retrieves cell element from supplied body
+         * Retrieves cell element by cell object
          * 
          * @param cell Cell element
-         * @returns {} 
+         * @returns {HTMLElement} Element containing cell (with wrapper)
          */
         public getCellElement(cell: ICell): HTMLElement {
             var track = TrackHelper.getCellTrack(cell);
+            return <HTMLElement>this._bodyElement.querySelector(`${this._rootIdPrefix} [data-track="${track}"]`);
+        }
+
+        /**
+         * Retrieves cell element using supplied coordinates
+         * 
+         * @param cell Cell element
+         * @returns {HTMLElement} Element containing cell (with wrapper)
+         */
+        public getCellElementByIndex(rowDisplayIndex:number,columnIndex:number): HTMLElement {
+            var track = TrackHelper.getCellTrackByIndexes(rowDisplayIndex,columnIndex);
             return <HTMLElement>this._bodyElement.querySelector(`${this._rootIdPrefix} [data-track="${track}"]`);
         }
 
@@ -37,6 +48,17 @@
         }
 
         /**
+        * Retrieves row element (including wrapper) by specified row index
+        * 
+        * @param row Row
+        * @returns HTML element
+        */
+        public getRowElementByIndex(rowDisplayingIndex:number): HTMLElement {
+            var track = TrackHelper.getRowTrackByIndex(rowDisplayingIndex);
+            return <HTMLElement>this._bodyElement.querySelector(`${this._rootIdPrefix} [data-track="${track}"]`);
+        }
+
+        /**
          * Retrieves data cells for specified column (including wrappers)
          * 
          * @param column Column desired data cells belongs to
@@ -45,6 +67,16 @@
         public getColumnCellsElements(column: IColumn): NodeList {
             var colIdx = column.MasterTable.getColumnNames().indexOf(column.RawName);
             return this._bodyElement.querySelectorAll(`${this._rootIdPrefix} [data-track$="-c${colIdx}"]`);
+        }
+
+        /**
+         * Retrieves data cells for specified column (including wrappers) by column index
+         * 
+         * @param column Column desired data cells belongs to
+         * @returns HTML NodeList containing results
+         */
+        public getColumnCellsElementsByColumnIndex(columnIndex:number): NodeList {
+            return this._bodyElement.querySelectorAll(`${this._rootIdPrefix} [data-track$="-c${columnIndex}"]`);
         }
 
         /**

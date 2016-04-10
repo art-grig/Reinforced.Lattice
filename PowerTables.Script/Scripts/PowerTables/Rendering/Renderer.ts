@@ -109,7 +109,7 @@
          * @param plugin Plugin to redraw
          * @returns {} 
          */
-        public redrawPlugin(plugin: IPlugin) :void {
+        public redrawPlugin(plugin: IPlugin): void {
             this._stack.clear();
             var newPluginElement = this.createElement(this._layoutRenderer.renderPlugin(plugin));
             var oldPluginElement = this.Locator.getPluginElement(plugin);
@@ -129,7 +129,7 @@
          * @param row 
          * @returns {} 
          */
-        public redrawRow(row: IRow):void {
+        public redrawRow(row: IRow): void {
             this._stack.clear();
             var wrapper = this.getCachedTemplate('rowWrapper');
             var html;
@@ -142,6 +142,37 @@
             var oldElement = this.Locator.getRowElement(row);
             var parent = oldElement.parentElement;
             parent.replaceChild(newRowElement, oldElement);
+        }
+
+        /**
+         * Redraws specified row refreshing all its graphical state
+         * 
+         * @param row 
+         * @returns {} 
+         */
+        public appendRow(row: IRow, afterRowAtIndex: number): void {
+            this._stack.clear();
+            var wrapper = this.getCachedTemplate('rowWrapper');
+            var html;
+            if (row.renderElement) {
+                html = row.renderElement(this);
+            } else {
+                html = wrapper(row);
+            }
+            var newRowElement = this.createElement(html);
+            var referenceNode = this.Locator.getRowElementByIndex(afterRowAtIndex);
+            referenceNode.parentNode.insertBefore(newRowElement, referenceNode.nextSibling);
+        }
+
+        /**
+         * Removes referenced row by its index
+         * 
+         * @param rowDisplayIndex 
+         * @returns {} 
+         */
+        public removeRowByIndex(rowDisplayIndex: number): void {
+            var referenceNode = this.Locator.getRowElementByIndex(rowDisplayIndex);
+            referenceNode.parentElement.removeChild(referenceNode);
         }
 
         /**
