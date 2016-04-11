@@ -15,6 +15,7 @@
 
             this._layoutRenderer = new LayoutRenderer(this, this._stack, this._instances);
             this._contentRenderer = new ContentRenderer(this, this._stack, this._instances);
+            this.BackBinder = new BackBinder(this.HandlebarsInstance, instances, this._stack);
 
             this.HandlebarsInstance.registerHelper("ifq", this.ifqHelper);
             this.HandlebarsInstance.registerHelper("ifloc", this.iflocHelper.bind(this));
@@ -43,6 +44,11 @@
          * Locator of particular table parts in DOM
          */
         public Locator: DOMLocator;
+
+        /**
+         * BackBinder instance
+         */
+        public BackBinder: BackBinder;
 
         private _instances: InstanceManager;
         private _layoutRenderer: LayoutRenderer;
@@ -91,7 +97,7 @@
             if (!bodyMarker) throw new Error('{{Body}} placeholder is missing in table layout template');
             this.BodyElement = bodyMarker.parentElement;
             this.BodyElement.removeChild(bodyMarker);
-            this._layoutRenderer.backBind(this.RootElement);
+            this.BackBinder.backBind(this.RootElement);
             this.Locator = new DOMLocator(this.BodyElement, this.RootElement, this._rootId);
 
             this._events.AfterLayoutRendered.invoke(this, null);
@@ -103,7 +109,6 @@
          * @param rows Set of table rows         
          */
         public body(rows: IRow[]): void {
-            this._events.BeforeDataRendered.invoke(this, null);
             this.clearBody();
             var html =  this._contentRenderer.renderBody(rows);
             this.BodyElement.innerHTML = html;
@@ -121,10 +126,11 @@
             var oldPluginElement = this.Locator.getPluginElement(plugin);
             var parent = oldPluginElement.parentElement;
             var parser = new PowerTables.Rendering.Html2Dom.HtmlParser();
-            var newPluginElement = parser.html2Dom(this._layoutRenderer.renderPlugin(plugin));
+            var html = this._layoutRenderer.renderPlugin(plugin);
+            var newPluginElement = parser.html2Dom(html);
 
             parent.replaceChild(newPluginElement, oldPluginElement);
-            this._layoutRenderer.backBind(newPluginElement);
+            this.BackBinder.backBind(newPluginElement);
         }
 
         /**
@@ -187,7 +193,7 @@
             var html = this._layoutRenderer.renderHeader(column);
             var oldHeaderElement = this.Locator.getHeaderElement(column.Header);
             var newElement = this.replaceElement(oldHeaderElement, html);
-            this._layoutRenderer.backBind(newElement.parentElement);
+            this.BackBinder.backBind(newElement.parentElement);
         }
 
         private createElement(html: string): HTMLElement {

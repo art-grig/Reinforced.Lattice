@@ -131,7 +131,7 @@ module PowerTables.Configuration.Json {
 		/** Table columns */
 		Columns: PowerTables.Configuration.Json.IColumnConfiguration[];
 		/** Custom plugins configuration. Key: pluginId, Value: configuration */
-		PluginsConfiguration: { [key:string]: PowerTables.Configuration.Json.IPluginConfiguration };
+		PluginsConfiguration: PowerTables.Configuration.Json.IPluginConfiguration[];
 		/** Static data that will be embedded into table and sent within each request */
 		StaticData: string;
 	}

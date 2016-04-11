@@ -23,11 +23,15 @@ namespace PowerTables.Plugins.Hideout
         /// <param name="column">Column</param>
         /// <param name="hide">Should current column be hidden or not</param>
         /// <param name="initiatesReload">Initiate table reload when this column is being hidden</param>
+        /// <param name="where">Plugin placement - to distinguish which instance to update. Can be omitted if you have single plugin instance per table.</param>
         /// <returns>Fluent</returns>
-        public static ColumnUsage<TSourceData, TTableData, TTableColumn> 
+        public static ColumnUsage<TSourceData, TTableData, TTableColumn>
             Hide
             <TSourceData, TTableData, TTableColumn>(
-            this ColumnUsage<TSourceData, TTableData, TTableColumn> column,bool hide = true, bool initiatesReload = false) where TTableData : new()
+            this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
+            bool hide = true,
+            bool initiatesReload = false,
+            string where = null) where TTableData : new()
         {
             column.Configurator.TableConfiguration.UpdatePluginConfig<HideoutPluginConfiguration>(PluginId, c =>
             {
@@ -45,24 +49,25 @@ namespace PowerTables.Plugins.Hideout
         /// </summary>
         /// <param name="conf">Table configurator</param>
         /// <param name="columns">Hideable columns to show in hideout menu</param>
-        /// <param name="placement">Plugin placement</param>
+        /// <param name="where">Plugin placement - to distinguish which instance to update. Can be omitted if you have single plugin instance per table.</param>
+        /// <param name="ui">UI settings for Hideout plugin</param>
         /// <returns>Fluent</returns>
-        public static Configurator<TSourceData, TTableData> 
+        public static Configurator<TSourceData, TTableData>
             HideoutMenu
             <TSourceData, TTableData>(
-            this Configurator<TSourceData, TTableData> conf, 
-            Action<ColumnListBuilder<TSourceData,TTableData>> columns,
-            string placement,
-            Action<IPluginConfiguration<HideoutPluginConfiguration>> ui = null
+            this Configurator<TSourceData, TTableData> conf,
+            Action<ColumnListBuilder<TSourceData, TTableData>> columns,
+            Action<IPluginConfiguration<HideoutPluginConfiguration>> ui = null,
+            string where = null
             ) where TTableData : new()
         {
-            ColumnListBuilder<TSourceData,TTableData> bldr = new ColumnListBuilder<TSourceData, TTableData>(conf);
+            ColumnListBuilder<TSourceData, TTableData> bldr = new ColumnListBuilder<TSourceData, TTableData>(conf);
             columns(bldr);
             conf.TableConfiguration.UpdatePluginConfig<HideoutPluginConfiguration>(PluginId, a =>
             {
                 if (ui != null) ui(a);
                 a.Configuration.HideableColumnsNames = bldr.Names.ToList();
-            }, placement);
+            }, where);
 
             return conf;
 
@@ -102,7 +107,7 @@ namespace PowerTables.Plugins.Hideout
         public static PropertyInfo[] GetHiddenColumns(this Query request, IConfigurator conf)
         {
             var columns = GetHiddenColumns(request);
-            return conf.TableColumnsDictionary.Where(c => columns.Contains(c.Key)).Select(c=>c.Value).ToArray();
+            return conf.TableColumnsDictionary.Where(c => columns.Contains(c.Key)).Select(c => c.Value).ToArray();
         }
 
         /// <summary>

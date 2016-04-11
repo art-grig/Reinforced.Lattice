@@ -10,13 +10,24 @@ namespace PowerTables.Mvc.Models.Tutorial
         {
             conf.OrderingAndLoadingInidicator();
             conf.LoadImmediately(false);
-            conf.Limit(new[]
+            conf.Limit(ui => ui.PlaceAt("lt").Configuration
+                .EnableClientLimiting() // lets enable client limiting
+                .Values(new[]
             {
-                "Everything",  // any text will be interpreted as "all records"
-                "-",              // dash will be interpreted as separator
+                "Everything",           // any text will be interpreted as "all records"
+                "-",                    // dash will be interpreted as separator
                 "5", "10", "-", "50", "100"
-            }, "10", position: "lt", enableCientLimiting: true);
-            conf.PagingWithPeriods(position: "lb", useGotoPage: true, useFirstLasPage: true, enableClientPaging: true);
+            }, "10"));
+
+            
+            conf.Paging(
+                ui =>
+                    ui.PlaceAt("lb")
+                    .Configuration
+                    .EnableClientPaging() // Client limiting cannot work without client paging
+                    .PagingWithPeriods(   // lets pick most complex pagin
+                        useGotoPage: true, 
+                        useFirstLasPage: true));
             return conf;
         }
     }

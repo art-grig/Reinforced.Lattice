@@ -26,7 +26,7 @@ namespace PowerTables.Configuration.Json
         /// <param name="pluginId">Filter plugin ID</param>
         /// <param name="filterConfig">Filter configuration</param>
         /// <param name="order">Order among particular placement</param>
-        public static void ReplaceFilterConfig(this IColumnConfigurator column, string pluginId, object filterConfig,int order = 0)
+        public static void ReplaceFilterConfig(this IColumnConfigurator column, string pluginId, object filterConfig, int order = 0)
         {
             ReplacePluginConfig(column.TableConfigurator.TableConfiguration, pluginId, filterConfig,
                 string.Concat("filter-", column.ColumnConfiguration.RawColumnName));
@@ -40,7 +40,9 @@ namespace PowerTables.Configuration.Json
         /// <param name="configuration">Filter configuration delegate</param>
         public static void UpdateFilterConfig<T>(this IColumnConfigurator column, string pluginId, Action<IPluginConfiguration<T>> configuration) where T : new()
         {
-            UpdatePluginConfig(column.TableConfigurator.TableConfiguration, pluginId, configuration,
+            UpdatePluginConfig(column.TableConfigurator.TableConfiguration, 
+                pluginId, 
+                configuration,
                 string.Concat("filter-", column.ColumnConfiguration.RawColumnName));
         }
 
@@ -54,13 +56,29 @@ namespace PowerTables.Configuration.Json
         /// <param name="order">Order among particular placement</param>
         public static void ReplacePluginConfig(this TableConfiguration conf, string pluginId, object pluginConfig, string placement = null, int order = 0)
         {
-            var key = string.IsNullOrEmpty(placement) ? pluginId : String.Concat(placement, "-", pluginId);
-            conf.PluginsConfiguration[key] = new PluginConfiguration(pluginId)
+            var config = conf.GetPluginConfiguration(pluginId, placement);
+            if (config == null)
             {
-                Configuration = pluginConfig,
-                Placement = placement,
-                Order = order
-            };
+                config = new PluginConfiguration(pluginId);
+                conf.PluginsConfiguration.Add(config);
+            }
+            config.Configuration = pluginConfig;
+            config.Placement = placement;
+            config.Order = order;
+
+        }
+
+        private static PluginConfiguration GetPluginConfiguration(this TableConfiguration conf, string pluginId, string placement = null)
+        {
+            var plugins = conf.PluginsConfiguration.Where(
+                    c => c.PluginId == pluginId && (string.IsNullOrEmpty(placement) || c.Placement == placement)).ToArray();
+            if (plugins.Length > 1)
+            {
+                throw new Exception(string.Format("It is unclear which {0} plugin is mentioned for configuration. You have {1}: at {2}. Please specify placement if you try to update any specific plugin instance. Otherwise please update instances separately."
+                    , pluginId, plugins.Length, string.Join(", ", plugins.Select(c => c.Placement).ToArray())));
+            }
+
+            return plugins.Length == 0 ? null : plugins[0];
         }
 
         /// <summary>
@@ -70,27 +88,23 @@ namespace PowerTables.Configuration.Json
         /// <param name="conf">Table configuration</param>
         /// <param name="pluginId">Plugin ID</param>
         /// <param name="pluginConfiguration">Configuration function</param>
-        /// <param name="placement">Plugin placement</param>
-        public static void UpdatePluginConfig<TConfig>(this TableConfiguration conf, string pluginId, Action<IPluginConfiguration<TConfig>> pluginConfiguration, string placement = null)
+        /// <param name="where">Specifies which plugin is mentioned</param>
+        public static void UpdatePluginConfig<TConfig>(this TableConfiguration conf, string pluginId, Action<IPluginConfiguration<TConfig>> pluginConfiguration, string where = null)
             where TConfig : new()
         {
-            var key = string.IsNullOrEmpty(placement) ? pluginId : String.Concat(placement, "-", pluginId);
-            PluginConfiguration config = null;
-            if (!conf.PluginsConfiguration.ContainsKey(key))
+            PluginConfiguration config = conf.GetPluginConfiguration(pluginId, where); ;
+            if (config == null)
             {
                 config = new PluginConfiguration(pluginId)
                 {
-                    Placement = placement,
-                    Configuration = new TConfig()
+                    Configuration = new TConfig(),
+                    Placement = where
                 };
-                conf.PluginsConfiguration[key] = config;
+                conf.PluginsConfiguration.Add(config);
             }
-            else
-            {
-                config = conf.PluginsConfiguration[key];
-            }
+
             var wpapper = new PluginConfigurationWrapper<TConfig>(config);
-            if (pluginConfiguration!=null) pluginConfiguration(wpapper);
+            if (pluginConfiguration != null) pluginConfiguration(wpapper);
         }
 
         /// <summary>
@@ -103,10 +117,8 @@ namespace PowerTables.Configuration.Json
         /// <returns></returns>
         public static TConfig GetPluginConfig<TConfig>(this TableConfiguration conf, string pluginId, string placement = null) where TConfig : class
         {
-            var key = string.IsNullOrEmpty(placement) ? pluginId : String.Concat(placement, "-", pluginId);
-
-            if (!conf.PluginsConfiguration.ContainsKey(key)) return null;
-            var config = conf.PluginsConfiguration[key];
+            var config = conf.GetPluginConfiguration(pluginId, placement);
+            if (config == null) return null;
             return (TConfig)config.Configuration;
         }
     }

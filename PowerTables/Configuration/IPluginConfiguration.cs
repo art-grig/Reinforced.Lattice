@@ -21,5 +21,10 @@ namespace PowerTables.Configuration
         /// Plugin order among specific placement
         /// </summary>
         int Order { get; set; }
+
+        /// <summary>
+        /// Plugin placement
+        /// </summary>
+        string Placement { get; set; }
     }
 }

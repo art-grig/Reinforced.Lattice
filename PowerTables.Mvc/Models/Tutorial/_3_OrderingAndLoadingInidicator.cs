@@ -11,7 +11,7 @@ namespace PowerTables.Mvc.Models.Tutorial
         {
             conf.ProjectionTitlesAndDataOnly();
 
-            conf.LoadingIndicator(position: "rt");
+            conf.LoadingIndicator(where: "rt");
             conf.Column(c => c.Cost).Orderable(c => c.Cost, ui => ui.DefaultOrdering(Ordering.Descending));
             conf.Column(c => c.GroupName).Orderable(c => c.VeryName);
             conf.Column(c => c.ItemsCount).Title("Items count (client ordering)").Orderable(c => c.ItemsCount, ui => ui.UseClientOrdering());

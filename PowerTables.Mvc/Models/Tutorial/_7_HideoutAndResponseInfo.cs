@@ -16,7 +16,9 @@ namespace PowerTables.Mvc.Models.Tutorial
         public static Configurator<SourceData, TargetData> HideoutAndResponseInfo(this Configurator<SourceData, TargetData> conf)
         {
             conf.Filtering();
-            conf.HideoutMenu(c => c.IncludeAll().Except(a => a.Id), "lt");
+            conf.HideoutMenu(c => c.IncludeAll().Except(a => a.Id)
+                .Except(a=>a.BehindProperty)
+                .Except(a=>a.SomethingDataOnly), ui => ui.PlaceAt("lt"));
             conf.Column(c => c.NullableDate).Hide(false, true);
             conf.Column(c => c.SomeCustomTemplate).Hide();
             return conf;

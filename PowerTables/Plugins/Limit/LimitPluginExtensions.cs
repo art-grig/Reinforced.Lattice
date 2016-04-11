@@ -22,47 +22,55 @@ namespace PowerTables.Plugins.Limit
         /// instruct table to retrieve all records.
         /// </summary>
         /// <param name="configurator">Table configurator.</param>
-        /// <param name="values">Values for limit menu. By default is { "All", "10", "50", "100" }</param>
-        /// <param name="defaultValue">Value from limit menu selected by default.</param>
-        /// <param name="reloadTableOnLimitChange">
-        /// When true then selecting new value from limit values menu will lead to table reloading. 
-        /// In case of false you have to do that manually.
-        /// </param>
-        /// <param name="enableCientLimiting">When true, limiting requests will not be passed to server. Client will load unlimited data and limit it manually on client-side</param>
-        /// <param name="position">Visual limit menu position</param>
+        /// <param name="ui">Limit filter UI configuration</param>
+        /// <param name="where">Plugin placement - to distinguish which instance to update. Can be omitted if you have single plugin instance per table.</param>
         /// <returns></returns>
-        public static T Limit<T>(this T configurator, string[] values, string defaultValue = null, bool reloadTableOnLimitChange = true, bool enableCientLimiting = false, string position = null) 
+        public static T Limit<T>(this T configurator, Action<IPluginConfiguration<LimitClientConfiguration>> ui, string where = null)
             where T : IConfigurator
         {
-            if (values == null || values.Length == 0)
+            configurator.TableConfiguration.UpdatePluginConfig(PluginId, ui, where);
+            return configurator;
+        }
+
+        /// <summary>
+        /// Specifies limiting possible volumes
+        /// </summary>
+        /// <param name="conf"></param>
+        /// <param name="values">Limiting values</param>
+        /// <param name="defaultValue">Default value. Should be among supplied values. Can be omitted (first value will be taken)</param>
+        /// <returns></returns>
+        public static LimitClientConfiguration Values(this LimitClientConfiguration conf, string[] values, string defaultValue = null)
+        {
+            foreach (var value in values)
             {
-                values = new string[] { "All", "10", "50", "100" };
+                int v = 0;
+                int.TryParse(value, out v);
+                conf.AddValue(value, v);
             }
             if (defaultValue == null)
             {
                 defaultValue = values[0];
             }
-            
-            LimitClientConfiguration limitPlugin = new LimitClientConfiguration()
-            {
-                DefaultValue = defaultValue,
-                ReloadTableOnLimitChange = reloadTableOnLimitChange,
-                EnableClientLimiting = enableCientLimiting
-            };
-            foreach (var value in values)
-            {
-                int v = 0;
-                bool parsed = int.TryParse(value, out v);
-                limitPlugin.AddValue(value, v);
-            }
-            configurator.TableConfiguration.ReplacePluginConfig(PluginId, limitPlugin, position);
-            
             if (!values.Contains(defaultValue))
                 throw new Exception("Limit menu default selected value does not belong to menu values");
-            if (defaultValue.Trim()=="-")
+            
+            if (defaultValue.Trim() == "-")
                 throw new Exception("Limit menu default selected value should not be a separator");
-
-            return configurator;
+            conf.DefaultValue = defaultValue;
+            return conf;
         }
+
+        /// <summary>
+        /// Enables or disables client limiting
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="enable">When true, client limiting will be enabled. Disabled when false</param>
+        /// <returns></returns>
+        public static LimitClientConfiguration EnableClientLimiting(this LimitClientConfiguration c, bool enable = true)
+        {
+            c.EnableClientLimiting = enable;
+            return c;
+        }
+        
     }
 }

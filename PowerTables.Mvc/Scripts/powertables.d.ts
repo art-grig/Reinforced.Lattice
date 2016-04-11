@@ -129,9 +129,7 @@ declare module PowerTables.Configuration.Json {
         /** Table columns */
         Columns: PowerTables.Configuration.Json.IColumnConfiguration[];
         /** Custom plugins configuration. Key: pluginId, Value: configuration */
-        PluginsConfiguration: {
-            [key: string]: PowerTables.Configuration.Json.IPluginConfiguration;
-        };
+        PluginsConfiguration: PowerTables.Configuration.Json.IPluginConfiguration[];
         /** Static data that will be embedded into table and sent within each request */
         StaticData: string;
     }
@@ -1121,6 +1119,7 @@ declare module PowerTables {
         AdditionalData: string;
         MessageType: string;
         UiColumnsCount?: number;
+        IsMessage?: boolean;
     }
 }
 declare module PowerTables {
@@ -1387,6 +1386,27 @@ declare module PowerTables {
     }
 }
 declare module PowerTables.Rendering {
+    class BackBinder {
+        private _eventsQueue;
+        private _markQueue;
+        private _datepickersQueue;
+        private _instances;
+        private _stack;
+        constructor(hb: Handlebars.IHandlebars, instances: InstanceManager, stack: RenderingStack);
+        private traverseBackbind<T>(parentElement, backbindCollection, attribute, fn);
+        /**
+         * Applies binding of events left in events queue
+         *
+         * @param parentElement Parent element to lookup for event binding attributes
+         * @returns {}
+         */
+        backBind(parentElement: HTMLElement): void;
+        private bindEventHelper();
+        private markHelper(fieldName);
+        private datepickerHelper(columnName);
+    }
+}
+declare module PowerTables.Rendering {
     /**
      * Part of renderer that is responsible for rendering of dynamically loaded content
      */
@@ -1542,19 +1562,8 @@ declare module PowerTables.Rendering {
         private _instances;
         private _templatesProvider;
         private _hb;
-        private _eventsQueue;
-        private _markQueue;
-        private _datepickersQueue;
         private _stack;
         constructor(templates: ITemplatesProvider, stack: RenderingStack, instances: InstanceManager);
-        private traverseBackbind<T>(parentElement, backbindCollection, attribute, fn);
-        /**
-         * Applies binding of events left in events queue
-         *
-         * @param parentElement Parent element to lookup for event binding attributes
-         * @returns {}
-         */
-        backBind(parentElement: HTMLElement): void;
         private bodyHelper();
         private pluginHelper(pluginPosition, pluginId);
         private pluginsHelper(pluginPosition);
@@ -1574,9 +1583,6 @@ declare module PowerTables.Rendering {
          */
         renderHeader(column: IColumn): string;
         private headersHelper();
-        private bindEventHelper();
-        private markHelper(fieldName);
-        private datepickerHelper(columnName);
         renderContent(columnName?: string): string;
     }
     /**
@@ -1725,6 +1731,10 @@ declare module PowerTables.Rendering {
          * Locator of particular table parts in DOM
          */
         Locator: DOMLocator;
+        /**
+         * BackBinder instance
+         */
+        BackBinder: BackBinder;
         private _instances;
         private _layoutRenderer;
         private _contentRenderer;
@@ -2153,19 +2163,23 @@ declare module PowerTables.Plugins {
         isColumnVisible(columnName: string): boolean;
         isColumnInstanceVisible(col: IColumn): boolean;
         hideColumnByName(rawColname: string): void;
-        private _hideElements(element);
-        private _showElements(element);
-        private _hideElement(element);
-        private _showElement(element);
-        hideColumnInstance(c: IColumn): void;
         showColumnByName(rawColname: string): void;
         toggleColumn(e: TemplateBoundEvent<HideoutPlugin>): void;
         showColumn(e: TemplateBoundEvent<HideoutPlugin>): void;
         hideColumn(e: TemplateBoundEvent<HideoutPlugin>): void;
-        showColumnInstance(c: IColumn): void;
+        private getRealDisplay(elem);
+        private displayCache;
+        private _hideElement(el);
+        private _showElement(el);
+        private _hideElements(element);
+        private _showElements(element);
         toggleColumnByName(columnName: string): boolean;
         modifyQuery(query: IQuery, scope: QueryScope): void;
-        private onDataRedrawn();
+        hideColumnInstance(c: IColumn): void;
+        showColumnInstance(c: IColumn): void;
+        private onBeforeDataRendered();
+        private onDataRendered();
+        private onLayourRendered();
         init(masterTable: IMasterTable): void;
         renderContent(templatesProvider: ITemplatesProvider): string;
     }

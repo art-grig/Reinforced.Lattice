@@ -278,7 +278,7 @@
                 {
                     <li @itm.BindHide("click")>
                         <a style="cursor: pointer;">
-                            <span class="glyphicon glyphicon-eye-open" style="float: left"></span> @itm.Value(c => c.Name)
+                            <span class="glyphicon glyphicon-eye-open" style="float: left"></span> <span style="margin-left: 10px">@itm.Value(c => c.Name)</span>
                         </a>
                     </li>
                 }
@@ -286,12 +286,13 @@
                 {
                     <li @itm.BindShow("click")>
                         <a style="cursor: pointer;">
-                            <span class="glyphicon glyphicon-eye-close" style="float: left"></span> @itm.Value(c => c.Name)
+                            <span class="glyphicon glyphicon-eye-close" style="float: left"></span> <span style="margin-left: 10px;">@itm.Value(c => c.Name)</span>
                         </a>
                     </li>
                 }
             }
         </ul>
+
     </div>
 }
 
@@ -301,15 +302,15 @@
         @using (t.If(c => c.IsLocalRequest))
         {
             <br />
-            <p>Data fetched locally.</p>
+        <p>Data fetched locally.</p>
         }
         Currently shown <strong>@t.Value(c => c.CurrentlyShown)</strong> of <strong>@t.Value(c => c.TotalServer)</strong> records
-        <br/>
+        <br />
         @using (t.If(c => c.PagingEnabled))
         {
             <p>
-                Page <strong>@t.Value(c=>c.CurrentPage)</strong> of @t.Value(c=>c.TotalPages)
+                Page <strong>@t.Value(c => c.CurrentPage)</strong> of @t.Value(c => c.TotalPages)
             </p>
         }
-   </p>
+        </p>
 }

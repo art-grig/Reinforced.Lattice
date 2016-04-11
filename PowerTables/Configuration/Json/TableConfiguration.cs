@@ -59,7 +59,7 @@ namespace PowerTables.Configuration.Json
         /// <summary>
         /// Custom plugins configuration. Key: pluginId, Value: configuration
         /// </summary>
-        public Dictionary<string, PluginConfiguration> PluginsConfiguration { get; set; }
+        public List<PluginConfiguration> PluginsConfiguration { get; set; }
 
         /// <summary>
         /// Static data that will be embedded into table and sent within each request
@@ -69,7 +69,7 @@ namespace PowerTables.Configuration.Json
         public TableConfiguration()
         {
             Columns = new List<ColumnConfiguration>();
-            PluginsConfiguration = new Dictionary<string, PluginConfiguration>();
+            PluginsConfiguration = new List<PluginConfiguration>();
             LoadImmediately = true;
             Prefix = "lt";
         }
@@ -131,6 +131,7 @@ namespace PowerTables.Configuration.Json
         public PluginConfiguration(string pluginId)
         {
             PluginId = pluginId;
+            Placement = "lt";
         }
 
         /// <summary>

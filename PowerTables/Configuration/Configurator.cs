@@ -151,7 +151,7 @@ namespace PowerTables.Configuration
         /// <typeparam name="TColType">Column type</typeparam>
         /// <param name="column">Column</param>
         /// <returns>Corresponding column configurator</returns>
-        public ColumnUsage<TSourceData, TTableData, TColType> @Column<TColType>(Expression<Func<TTableData, TColType>> column)
+        public ColumnUsage<TSourceData, TTableData, TColType> Column<TColType>(Expression<Func<TTableData, TColType>> column)
         {
             var targetProperty = LambdaHelpers.ParsePropertyLambda(column);
             targetProperty = _tableColumnsDictionary[targetProperty.Name];
@@ -161,7 +161,21 @@ namespace PowerTables.Configuration
             return usage;
         }
 
-       
+        /// <summary>
+        /// Retrieves column configurator
+        /// </summary>
+        /// <param name="column">Column</param>
+        /// <param name="throw">Throw error if no column configuration</param>
+        /// <returns>Corresponding column configurator</returns>
+        public IColumnConfigurator Column(PropertyInfo column,bool @throw = true)
+        {
+            column = _tableColumnsDictionary[column.Name];
+            if (_configurators.ContainsKey(column)) return _configurators[column];
+            if (@throw) throw new Exception(string.Format("No configurator for column {0}", column));
+            return null;
+        }
+
+
         public ColumnConfiguration GetColumnConfiguration(PropertyInfo property)
         {
             return _columnsConfiguration[property];
@@ -204,7 +218,7 @@ namespace PowerTables.Configuration
             }
             return result;
         }
-        
+
         public object[] EncodeResults(IEnumerable resultRows, int resultsCount)
         {
             object[] result = new object[resultsCount * TableColumns.Length];
@@ -234,7 +248,7 @@ namespace PowerTables.Configuration
         }
         #endregion
 
-      
+
         #region Registrations
 
         public void RegisterCommandHandler<THandler>(string command)
@@ -256,7 +270,7 @@ namespace PowerTables.Configuration
             _commandHandlersTypes.Add(command, typeof(THandler));
         }
 
-        
+
         public void RegisterResponseModifier(IResponseModifier modifier)
         {
 
@@ -265,7 +279,7 @@ namespace PowerTables.Configuration
                 _responseModifiers.Add(modifier);
             }
         }
-        
+
         public void RegisterFilter(IFilter typedFilter)
         {
             if (_filters.Contains(typedFilter))
@@ -279,7 +293,7 @@ namespace PowerTables.Configuration
                 _colFilters[columnFilter.ColumnName] = columnFilter;
             }
         }
-        
+
         public IColumnFilter GetFilter(string columnName)
         {
             if (!_colFilters.ContainsKey(columnName)) return null;
@@ -321,7 +335,7 @@ namespace PowerTables.Configuration
         #endregion
 
 
-        
+
         public string JsonConfig<TStaticData>(string rootId, TStaticData staticData = null, string prefix = "lt") where TStaticData : class
         {
             TableConfiguration tc = TableConfiguration;

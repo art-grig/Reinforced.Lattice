@@ -56,8 +56,8 @@ namespace PowerTables.Mvc.Models
 
             conf
                 .DatePicker("function(v,f){ v.datepicker({ format: f, weekStart: 1 }); }", "mm/dd/yyyy", "MM/dd/yyyy")
-                .Limit(new[] { "Every", "-", "5", "10", "-", "50", "100" }, "10", position: "lt")
-                .PagingSimple(useFirstLasPage: true, useGotoPage: true)
+                .Limit(ui=>ui.PlaceAt("lt").Configuration.Values(new[] { "Every", "-", "5", "10", "-", "50", "100" }, "10"))
+                .Paging(ui=>ui.Configuration.PagingSimple(useFirstLasPage: true, useGotoPage: true))
                 .Toolbar("rt-toolbar", a =>
                 {
                     //a.AddSimpleButton("filter".GlyphIcon() + "Toggle filters")
@@ -86,7 +86,7 @@ namespace PowerTables.Mvc.Models
                 }
                     )
                 .LoadingIndicator()
-                .HideoutMenu(c => c.IncludeAll().Except(a => a.Id), "lt")
+                .HideoutMenu(c => c.IncludeAll().Except(a => a.Id), ui=>ui.PlaceAt("lt"))
                 .Checkboxify(c => c.Id, selectedClass: "warning", selectAllBehavior: SelectAllBehavior.InvolveServer, selectAllLocation: SelectAllLocation.FiltersHeader)
                 .WithResponseInfo(a => new ResponseInfo()
                 {

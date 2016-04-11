@@ -66,6 +66,7 @@ namespace PowerTables.Templating.Handlebars
         {
             var proname = TraversePropertyLambda(condition, t.ExistingModel);
             var tr = new HbTagRegion("if", proname, t.Writer);
+            t.Writer.Write(" ");
             t.Writer.Write(textIf);
             tr.Dispose();
             return MvcHtmlString.Empty;

@@ -15,12 +15,6 @@
 </script>
 <!-- /Checkboxify-->
 
-<!-- ResponseInfo -->
-<script id="lt-responseinfo" type="text/x-handlebars-template">
-    <p>Total <strong>{{ResultsCount}}</strong> records found</p>
-</script>
-<!-- /ResponseInfo -->
-
 <!--Toolbar-->
 <script id="lt-toolbar" type="text/x-handlebars-template">
     {{#each Configuration.Buttons}}

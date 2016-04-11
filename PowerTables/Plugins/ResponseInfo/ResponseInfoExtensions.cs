@@ -7,16 +7,16 @@ namespace PowerTables.Plugins.ResponseInfo
     public static class ResponseInfoExtensions
     {
         public const string PluginId = "ResponseInfo";
-        public static T WithResponseInfo<T>(this T c,string position = "lt", Action<IPluginConfiguration<ResponseInfoClientConfiguration>> ui = null) where T : IConfigurator
+        public static T WithResponseInfo<T>(this T c, Action<IPluginConfiguration<ResponseInfoClientConfiguration>> ui = null, string where = null) where T : IConfigurator
         {
-            c.TableConfiguration.UpdatePluginConfig(PluginId, ui, position);
+            c.TableConfiguration.UpdatePluginConfig(PluginId, ui, where);
             return c;
         }
 
         public static Configurator<TSourceData, TTableData> WithResponseInfo<TSourceData, TTableData, TResponseData>
             (this Configurator<TSourceData, TTableData> conf,
             Func<PowerTablesData<TSourceData, TTableData>, TResponseData> responseDataEvaluator,
-            Action<IPluginConfiguration<ResponseInfoClientConfiguration>> ui = null, string position = "lt")
+            Action<IPluginConfiguration<ResponseInfoClientConfiguration>> ui = null, string where = null)
             where TTableData : new()
         {
             var arm = new ActionBasedResponseModifier<TSourceData, TTableData>((a, r) =>
@@ -29,7 +29,7 @@ namespace PowerTables.Plugins.ResponseInfo
             {
                 if (ui != null) ui(pc);
                 pc.Configuration.ResponseObjectOverriden = true;
-            }, position);
+            }, where);
             return conf;
         }
     }

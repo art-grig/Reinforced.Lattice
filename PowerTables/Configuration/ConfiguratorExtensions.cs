@@ -243,6 +243,29 @@ namespace PowerTables.Configuration
         {
             conf.ColumnConfiguration.IsDataOnly = true;
         }
-        
+
+        /// <summary>
+        /// Places plugin's UI at specified template region
+        /// </summary>
+        /// <param name="ui">Plugin configuration</param>
+        /// <param name="placement">Plugin placement</param>
+        /// <returns></returns>
+        public static IPluginConfiguration<T> PlaceAt<T>(this IPluginConfiguration<T> ui, string placement)
+        {
+            ui.Placement = placement;
+            return ui;
+        }
+
+        /// <summary>
+        /// Sets plugin's UI order among specified location
+        /// </summary>
+        /// <param name="ui">Plugin configuration</param>
+        /// <param name="order">Plugin placement</param>
+        /// <returns></returns>
+        public static IPluginConfiguration<T> Order<T>(this IPluginConfiguration<T> ui, int order)
+        {
+            ui.Order = order;
+            return ui;
+        }
     }
 }

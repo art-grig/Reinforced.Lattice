@@ -20,11 +20,11 @@ namespace PowerTables.Plugins.Loading
         /// <typeparam name="TSourceData"></typeparam>
         /// <typeparam name="TTableData"></typeparam>
         /// <param name="conf">Table configuration</param>
-        /// <param name="position">Plugin position</param>
+        /// <param name="where">Specifies Limit plugin placement - where it will be drawn</param>
         /// <returns></returns>
-        public static Configurator<TSourceData, TTableData> LoadingIndicator<TSourceData, TTableData>(this Configurator<TSourceData, TTableData> conf, string position = null) where TTableData : new()
+        public static Configurator<TSourceData, TTableData> LoadingIndicator<TSourceData, TTableData>(this Configurator<TSourceData, TTableData> conf, string where = null) where TTableData : new()
         {
-            conf.TableConfiguration.ReplacePluginConfig(PluginId, null, position);
+            conf.TableConfiguration.ReplacePluginConfig(PluginId, null, where);
             return conf;
         }
     }

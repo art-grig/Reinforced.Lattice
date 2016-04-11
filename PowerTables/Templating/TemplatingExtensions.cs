@@ -22,7 +22,7 @@ namespace PowerTables.Templating
         public static MvcHtmlString BindEvent(this IProvidesEventsBinding t, string commaSeparatedFunction, string commaSeparatedEvents, params string[] arguments)
         {
             return
-                MvcHtmlString.Create(string.Format("{{{{BindEvent \"{0}\" \"{1}\" {2} }}}}", commaSeparatedFunction,
+                MvcHtmlString.Create(string.Format("{{{{{{BindEvent \"{0}\" \"{1}\" {2} }}}}}}", commaSeparatedFunction,
                 commaSeparatedEvents, arguments.Length == 0 ? null : string.Join(" ", arguments)));
         }
 
@@ -37,7 +37,7 @@ namespace PowerTables.Templating
         public static MvcHtmlString Datepicker(this IProvidesDatepicker t, string columnExpression)
         {
             return
-                MvcHtmlString.Create(string.Format("{{{{Datepicker {0}}}}}", columnExpression));
+                MvcHtmlString.Create(string.Format("{{{{{{Datepicker {0}}}}}}}", columnExpression));
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace PowerTables.Templating
         public static MvcHtmlString Mark(this IProvidesMarking t, string fieldName)
         {
             return
-                MvcHtmlString.Create(string.Format("{{{{Mark \"{0}\"}}}}", fieldName));
+                MvcHtmlString.Create(string.Format("{{{{{{Mark \"{0}\"}}}}}}", fieldName));
         }
 
         private static readonly MvcHtmlString _track = MvcHtmlString.Create("{{{Track}}}");

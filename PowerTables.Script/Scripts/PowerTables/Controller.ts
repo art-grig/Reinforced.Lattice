@@ -21,7 +21,8 @@
             this.showTableMessage({
                 Message: e.EventArgs.Reason,
                 MessageType: 'error',
-                AdditionalData: e.EventArgs.StackTrace
+                AdditionalData: e.EventArgs.StackTrace,
+                IsMessage: true
             });
         }
 
@@ -59,10 +60,9 @@
          */
         public showTableMessage(tableMessage: ITableMessage) {
             tableMessage.UiColumnsCount = this._masterTable.InstanceManager.getUiColumns().length;
+            tableMessage.IsMessage = true;
             this._masterTable.DataHolder.DisplayedData = [tableMessage];
-            var row = this.produceRow(tableMessage, -1);
-            row.renderElement = hb => hb.getCachedTemplate('messages')(tableMessage);
-            this._masterTable.Renderer.body([row]);
+            this.redrawVisibleData();
         }
 
         /**
@@ -228,11 +228,15 @@
         public produceRow(dataObject: any, idx: number, columns?: IColumn[]): IRow {
             if (!dataObject) return null;
             if (!columns) columns = this._masterTable.InstanceManager.getUiColumns();
-
+            
             var rw = <IRow>{
                 DataObject: dataObject,
                 Index: idx,
                 MasterTable: this._masterTable
+            }
+            if (dataObject.IsMessage) {
+                rw.renderElement = hb => hb.getCachedTemplate('messages')(dataObject);
+                return rw;
             }
             var cells: { [key: string]: ICell } = {};
 
@@ -252,7 +256,9 @@
             return rw;
         }
 
-        private produceRows(): IRow[] {
+        private produceRows(): IRow[]{
+            this._masterTable.Events.BeforeDataRendered.invoke(this, null);
+            
             var result: IRow[] = [];
             var columns = this._masterTable.InstanceManager.getUiColumns();
 
@@ -434,6 +440,7 @@
         Message: string;
         AdditionalData: string;
         MessageType: string;
-        UiColumnsCount?:number;
+        UiColumnsCount?: number;
+        IsMessage?:boolean;
     }
 } 

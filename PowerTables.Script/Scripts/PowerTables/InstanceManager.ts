@@ -96,29 +96,30 @@
             var anySpecialCases = false;
 
             // registering additional events
-            for (var eventProviderId in pluginsConfiguration) {
-                if (pluginsConfiguration.hasOwnProperty(eventProviderId)) {
-                    var epConf = pluginsConfiguration[eventProviderId];
-                    ComponentsContainer.registerComponentEvents(epConf.PluginId, this._events);
+            for (var j = 0; j < pluginsConfiguration.length; j++) {
+                var epConf = pluginsConfiguration[j];
+                ComponentsContainer.registerComponentEvents(epConf.PluginId, this._events);
+            }
+           
+            // instantiating and initializing plugins
+            for (var l = 0; l < pluginsConfiguration.length; l++) {
+                var conf = pluginsConfiguration[l];
+                var plugin = ComponentsContainer.resolveComponent<IPlugin>(conf.PluginId);
+                plugin.PluginLocation = (!conf.Placement)?conf.PluginId:`${conf.Placement}-${conf.PluginId}`;
+                plugin.RawConfig = conf;
+                plugin.Order = conf.Order;
+
+                plugin.init(this._masterTable);
+                if (this._isHandlingSpecialPlacementCase && this.startsWith(conf.Placement, this._specialCasePlaceholder)) {
+                    specialCases[conf.Placement] = plugin;
+                    anySpecialCases = true;
+                } else {
+                    this.Plugins[plugin.PluginLocation] = plugin;
                 }
             }
-
-            // instantiating and initializing plugins
             for (var pluginId in pluginsConfiguration) {
                 if (pluginsConfiguration.hasOwnProperty(pluginId)) {
-                    var conf = pluginsConfiguration[pluginId];
-                    var plugin = ComponentsContainer.resolveComponent<IPlugin>(conf.PluginId);
-                    plugin.PluginLocation = pluginId;
-                    plugin.RawConfig = conf;
-                    plugin.Order = conf.Order;
-
-                    plugin.init(this._masterTable);
-                    if (this._isHandlingSpecialPlacementCase && this.startsWith(conf.Placement, this._specialCasePlaceholder)) {
-                        specialCases[conf.Placement] = plugin;
-                        anySpecialCases = true;
-                    } else {
-                        this.Plugins[pluginId] = plugin;
-                    }
+                    
                 }
             }
 
@@ -138,9 +139,7 @@
                         if (specialPlugin == null) {
                             specialPlugin = {
                                 PluginLocation: `${id}-empty`,
-                                renderContent() {
-                                    return '';
-                                }
+                                renderContent: () => { return ''; }
                             };
                         }
                         specialPlugin.Order = i;
