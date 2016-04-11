@@ -53,6 +53,23 @@ namespace PowerTables.Templating.Handlebars
             return new HbTagRegion("if", proname, t.Writer);
         }
 
+        /// <summary>
+        /// Renders handlebars "if" directive in region
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="t"></param>
+        /// <param name="condition"></param>
+        /// <param name="textIf">Text if condition met</param>
+        /// <returns></returns>
+        public static MvcHtmlString If<T>(this IModelProvider<T> t, Expression<Func<T, bool>> condition, string textIf)
+        {
+            var proname = TraversePropertyLambda(condition);
+            var tr = new HbTagRegion("if", proname, t.Writer);
+            t.Writer.Write(textIf);
+            tr.Dispose();
+            return MvcHtmlString.Empty;
+        }
+
 
         /// <summary>
         /// Else helper
@@ -153,8 +170,21 @@ namespace PowerTables.Templating.Handlebars
         /// <returns></returns>
         public static MvcHtmlString Value<T, TData>(this IModelProvider<T> t, Expression<Func<T, TData>> valueField)
         {
+            return MvcHtmlString.Create(string.Concat("{{", CleanValue(t, valueField), "}}"));
+        }
+
+        /// <summary>
+        /// Returns clean value expression without HB parenthesis
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TData"></typeparam>
+        /// <param name="t"></param>
+        /// <param name="valueField">Value expression</param>
+        /// <returns></returns>
+        public static string CleanValue<T, TData>(this IModelProvider<T> t, Expression<Func<T, TData>> valueField)
+        {
             var proname = TraversePropertyLambda(valueField);
-            return MvcHtmlString.Create(string.Concat("{{", proname, "}}"));
+            return proname;
         }
 
         /// <summary>
@@ -177,8 +207,8 @@ namespace PowerTables.Templating.Handlebars
         /// <param name="t">Template region</param>
         /// <param name="parameter">Parameter to be read as column name</param>
         /// <returns></returns>
-        public static MvcHtmlString HtmlContent<T,TModel,TData>(this T t, Expression<Func<TModel,TData>> parameter )
-            where T:IProvidesColumnContent,IModelProvider<TModel>
+        public static MvcHtmlString HtmlContent<T, TModel, TData>(this T t, Expression<Func<TModel, TData>> parameter)
+            where T : IProvidesColumnContent, IModelProvider<TModel>
         {
             return MvcHtmlString.Create(string.Format("{{{{{{Content {0}}}}}}}", TraversePropertyLambda(parameter)));
         }
@@ -191,9 +221,9 @@ namespace PowerTables.Templating.Handlebars
         /// <param name="commaSeparatedEvents">Comma-separated events list to be bound</param>
         /// <param name="eventArguments">Event arguments</param>
         /// <returns></returns>
-        public static MvcHtmlString BindEvent<T, TModel,TData>(this T t, string commaSeparatedFunction, string commaSeparatedEvents, 
-            params Expression<Func<TModel,TData>>[] eventArguments)
-            where T:IProvidesEventsBinding,IModelProvider<TModel>
+        public static MvcHtmlString BindEvent<T, TModel, TData>(this T t, string commaSeparatedFunction, string commaSeparatedEvents,
+            params Expression<Func<TModel, TData>>[] eventArguments)
+            where T : IProvidesEventsBinding, IModelProvider<TModel>
         {
             var args = eventArguments.Select(TraversePropertyLambda).ToArray();
             return t.BindEvent(commaSeparatedFunction, commaSeparatedEvents, args);

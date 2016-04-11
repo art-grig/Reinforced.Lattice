@@ -122,6 +122,17 @@ namespace PowerTables.Mvc.Controllers
         {
             return Handle(c => c.Filtering());
         }
+        
+        [Tutorial("Hideout and .DataOnly", 6)]
+        public ActionResult HideoutAndDataOnly()
+        {
+            return TutPage(c => c.HideoutAndDataOnly());
+        }
+
+        public ActionResult HideoutAndDataOnlyHandle()
+        {
+            return Handle(c => c.HideoutAndDataOnly());
+        }
 
         #region Utility
         private ActionResult TutPage(Action<Configurator<SourceData, TargetData>> config)

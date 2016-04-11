@@ -103,6 +103,7 @@
     <Compile Include="Filters\Range\RangeFilterExtensions.cs" />
     <Compile Include="Filters\Range\RangeTuple.cs" />
     <Compile Include="Filters\Range\RangeFilterUiConfigExtensions.cs" />
+    <Compile Include="Filters\Select\SelectFilterTemplateRegion.cs" />
     <Compile Include="Filters\Select\SelectFilterUiConfig.cs" />
     <Compile Include="Filters\Select\SelectFilterExtensions.cs" />
     <Compile Include="Filters\Select\SelectFilterUiConfigExtensions.cs" />

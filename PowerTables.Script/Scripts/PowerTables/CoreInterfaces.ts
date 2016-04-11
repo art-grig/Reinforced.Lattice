@@ -68,6 +68,8 @@
          */
         init(masterTable: IMasterTable): void;
 
+        
+
     }
 
     /**

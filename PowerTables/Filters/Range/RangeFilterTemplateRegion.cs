@@ -5,10 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using PowerTables.Templating;
+using PowerTables.Templating.Handlebars;
 
 namespace PowerTables.Filters.Range
 {
-    public class RangeFilterTemplateRegion : PluginTemplateRegion, IModelProvider<IRangeFilterModel>
+    public class RangeFilterTemplateRegion : PluginTemplateRegion, IModelProvider<IRangeFilterModel>, IProvidesDatepicker
     {
         public RangeFilterTemplateRegion(IViewPlugins page) : base(page, "rangeFilter")
         {
@@ -39,6 +40,11 @@ namespace PowerTables.Filters.Range
         public static MvcHtmlString ThisIsToField(this RangeFilterTemplateRegion t)
         {
             return t.Mark("ToValueProvider");
+        }
+
+        public static MvcHtmlString DatepickerCanBeHere(this RangeFilterTemplateRegion t)
+        {
+            return t.Datepicker(t.CleanValue(c => c.Configuration.ColumnName));
         }
     }
 }

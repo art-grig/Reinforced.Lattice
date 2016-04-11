@@ -46,7 +46,7 @@ module PowerTables {
             this._isReady = true;
             this.Events = new EventsManager(this);
             this.InstanceManager = new InstanceManager(this._configuration, this, this.Events);
-            
+
             this.DataHolder = new DataHolder(this.InstanceManager.getColumnNames(), this.Events, this.InstanceManager);
             this.Loader = new Loader(this._configuration.StaticData, this._configuration.OperationalAjaxUrl, this.Events, this.DataHolder);
             this.Renderer = new Rendering.Renderer(this._configuration.TableRootId, this._configuration.Prefix, this.InstanceManager, this.Events);
@@ -103,6 +103,22 @@ module PowerTables {
          * API for overall workflow controlling
          */
         public Controller: Controller;
+
+        /**
+         * Fires specified DOM event on specified element
+         * 
+         * @param eventName DOM event id
+         * @param element Element is about to dispatch event
+         */
+        public static fireDomEvent(eventName: string, element: HTMLElement): void {
+            if ("createEvent" in document) {
+                var evt = document.createEvent("HTMLEvents");
+                evt.initEvent(eventName, false, true);
+                element.dispatchEvent(evt);
+            }
+            else
+                element['fireEvent'](eventName);
+        }
 
     }
 } 

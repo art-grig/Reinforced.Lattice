@@ -20,7 +20,6 @@
             this.HandlebarsInstance.registerHelper("ifloc", this.iflocHelper.bind(this));
             this.HandlebarsInstance.registerHelper('Content', this.contentHelper.bind(this));
             this.HandlebarsInstance.registerHelper('Track', this.trackHelper.bind(this));
-            this.HandlebarsInstance.registerHelper('Datepicker', this.datepickerHelper.bind(this));
 
             this.cacheTemplates(prefix);
         } 
@@ -92,7 +91,7 @@
             if (!bodyMarker) throw new Error('{{Body}} placeholder is missing in table layout template');
             this.BodyElement = bodyMarker.parentElement;
             this.BodyElement.removeChild(bodyMarker);
-            this._layoutRenderer.bindEventsQueue(this.RootElement);
+            this._layoutRenderer.backBind(this.RootElement);
             this.Locator = new DOMLocator(this.BodyElement, this.RootElement, this._rootId);
 
             this._events.AfterLayoutRendered.invoke(this, null);
@@ -125,7 +124,7 @@
             var newPluginElement = parser.html2Dom(this._layoutRenderer.renderPlugin(plugin));
 
             parent.replaceChild(newPluginElement, oldPluginElement);
-            this._layoutRenderer.bindEventsQueue(newPluginElement);
+            this._layoutRenderer.backBind(newPluginElement);
         }
 
         /**
@@ -188,7 +187,7 @@
             var html = this._layoutRenderer.renderHeader(column);
             var oldHeaderElement = this.Locator.getHeaderElement(column.Header);
             var newElement = this.replaceElement(oldHeaderElement, html);
-            this._layoutRenderer.bindEventsQueue(newElement.parentElement);
+            this._layoutRenderer.backBind(newElement.parentElement);
         }
 
         private createElement(html: string): HTMLElement {
@@ -237,18 +236,6 @@
             var trk = this._stack.Current.CurrentTrack;
             if (trk.length === 0) return '';
             return `data-track="${trk}"`;
-        }
-
-        private datepickerHelper(): string {
-            if (this._stack.Current.Type === RenderingContextType.Plugin) {
-                if (this._instances.Columns[this._stack.Current.ColumnName].IsDateTime) {
-                    return 'data-dp="true"';
-                } else {
-                    return '';
-                }
-            } else {
-                return '';
-            }
         }
 
         private ifqHelper(a: any, b: any, opts: any) {

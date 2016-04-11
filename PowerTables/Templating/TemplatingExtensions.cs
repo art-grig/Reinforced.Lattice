@@ -27,6 +27,20 @@ namespace PowerTables.Templating
         }
 
         /// <summary>
+        /// Marks element where should be conditional datepicker. 
+        /// If specified column is of DateTime type - there will be datepicker. 
+        /// Otherwise nothing happens
+        /// </summary>
+        /// <param name="t"></param>
+        /// <param name="columnExpression">Column name to determine is datepicker needed or not</param>
+        /// <returns></returns>
+        public static MvcHtmlString Datepicker(this IProvidesDatepicker t, string columnExpression)
+        {
+            return
+                MvcHtmlString.Create(string.Format("{{{{Datepicker {0}}}}}", columnExpression));
+        }
+
+        /// <summary>
         /// Marks specified element and provides plugin with it further. 
         /// After plugin rendering, marked element will be put to plugin/header instance 
         /// into filed denoted with fieldName

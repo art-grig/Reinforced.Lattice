@@ -297,6 +297,17 @@ declare module PowerTables.Filters.Select {
         ColumnName: string;
         /** Select filter value list */
         Items: System.Web.Mvc.ISelectListItem[];
+        /** Turn this filter to be working on client-side */
+        ClientFiltering: boolean;
+        /**
+        * Specifies custom client filtering function.
+        *             Function type: (datarow:any, filterSelection:string[], query:IQuery) =&gt; boolean
+        *             dataRow: JSON-ed TTableObject
+        *             filterSelection: selected values
+        *             query: IQuery object
+        *             Returns: true for satisfying objects, false otherwise
+        */
+        ClientFilteringFunction: (object: any, selectedValues: string[], query: IQuery) => boolean;
     }
 }
 declare module PowerTables.Plugins.Limit {
@@ -408,6 +419,19 @@ declare module PowerTables {
          * @returns {}
          */
         static resolveComponent<T>(key: string, args?: any[]): T;
+        /**
+         * Registers component-provided events in particular EventsManager instance.
+         * It is important to register all component's events befor instantiation and .init call
+         * to make them available to subscribe each other's events.
+         *
+         * Instance manager asserts that .registerEvent will be called exactly once for
+         * each component used in table
+         *
+         * @param key Text ID of desired component
+         * @param eventsManager Events manager instance
+         * @returns {}
+         */
+        static registerComponentEvents(key: string, eventsManager: EventsManager): void;
     }
 }
 declare module PowerTables {
@@ -1347,6 +1371,10 @@ declare module PowerTables {
         requestServer(command: string, callback: (data: any) => void, queryModifier?: (a: IQuery) => IQuery): void;
     }
 }
+declare module PowerTables.Plugins {
+    class HideoutPlugin {
+    }
+}
 declare module PowerTables.Rendering {
     /**
      * Part of renderer that is responsible for rendering of dynamically loaded content
@@ -1505,15 +1533,17 @@ declare module PowerTables.Rendering {
         private _hb;
         private _eventsQueue;
         private _markQueue;
+        private _datepickersQueue;
         private _stack;
         constructor(templates: ITemplatesProvider, stack: RenderingStack, instances: InstanceManager);
+        private traverseBackbind<T>(parentElement, backbindCollection, attribute, fn);
         /**
          * Applies binding of events left in events queue
          *
          * @param parentElement Parent element to lookup for event binding attributes
          * @returns {}
          */
-        bindEventsQueue(parentElement: HTMLElement): void;
+        backBind(parentElement: HTMLElement): void;
         private bodyHelper();
         private pluginHelper(pluginPosition, pluginId);
         private pluginsHelper(pluginPosition);
@@ -1535,6 +1565,7 @@ declare module PowerTables.Rendering {
         private headersHelper();
         private bindEventHelper();
         private markHelper(fieldName);
+        private datepickerHelper(columnName);
         renderContent(columnName?: string): string;
     }
     /**
@@ -1745,7 +1776,6 @@ declare module PowerTables.Rendering {
         clearBody(): void;
         contentHelper(columnName?: string): string;
         private trackHelper();
-        private datepickerHelper();
         private ifqHelper(a, b, opts);
         private iflocHelper(location, opts);
     }
@@ -1855,6 +1885,13 @@ declare module PowerTables {
          * API for overall workflow controlling
          */
         Controller: Controller;
+        /**
+         * Fires specified DOM event on specified element
+         *
+         * @param eventName DOM event id
+         * @param element Element is about to dispatch event
+         */
+        static fireDomEvent(eventName: string, element: HTMLElement): void;
     }
 }
 declare module PowerTables.Plugins {
@@ -2065,6 +2102,20 @@ declare module PowerTables.Plugins {
         modifyQuery(query: IQuery, scope: QueryScope): void;
         init(masterTable: IMasterTable): void;
         renderContent(templatesProvider: ITemplatesProvider): string;
+        filterPredicate(rowObject: any, query: IQuery): boolean;
+    }
+}
+declare module PowerTables.Plugins {
+    import SelectFilterUiConfig = PowerTables.Filters.Select.ISelectFilterUiConfig;
+    class SelectFilterPlugin extends FilterBase<SelectFilterUiConfig> {
+        FilterValueProvider: HTMLSelectElement;
+        private _associatedColumn;
+        getArgument(): string;
+        getSelectionArray(): string[];
+        modifyQuery(query: IQuery, scope: QueryScope): void;
+        renderContent(templatesProvider: ITemplatesProvider): string;
+        handleValueChanged(): void;
+        init(masterTable: IMasterTable): void;
         filterPredicate(rowObject: any, query: IQuery): boolean;
     }
 }

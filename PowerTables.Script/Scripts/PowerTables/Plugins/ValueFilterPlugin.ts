@@ -46,11 +46,6 @@
                 this.itIsClientFilter();
             }
             this._associatedColumn = this.MasterTable.InstanceManager.Columns[this.Configuration.ColumnName];
-            if (this._associatedColumn.IsDateTime) {
-                this.MasterTable.Events.AfterLayoutRendered.subscribe(() => {
-                    this.MasterTable.InstanceManager.createDatePicker(this.FilterValueProvider);
-                }, `valueFilter-${this._associatedColumn.RawName}`);
-            }
         }
 
 

@@ -14,6 +14,7 @@ module PowerTables.Rendering {
         private _hb: Handlebars.IHandlebars;
         private _eventsQueue: IEventDescriptor[] = [];
         private _markQueue: IMarkDescriptor[] = [];
+        private _datepickersQueue: IDatepickerDescriptor[] = [];
 
         private _stack: RenderingStack;
 
@@ -30,6 +31,18 @@ module PowerTables.Rendering {
             this._hb.registerHelper('Headers', this.headersHelper.bind(this));
             this._hb.registerHelper('BindEvent', this.bindEventHelper.bind(this));
             this._hb.registerHelper('Mark', this.markHelper.bind(this));
+            this._hb.registerHelper('Datepicker', this.datepickerHelper.bind(this));
+        }
+
+        private traverseBackbind<T>(parentElement: HTMLElement, backbindCollection: T[], attribute: string, fn: (backbind: T, element: HTMLElement) => void) {
+            var elements = parentElement.querySelectorAll(`[${attribute}]`);
+            for (var i = 0; i < elements.length; i++) {
+                var element = <HTMLElement>elements.item(i);
+                var idx = parseInt(element.getAttribute(attribute));
+                var backbindDescription = backbindCollection[idx];
+                fn.call(this, backbindDescription, element);
+                element.removeAttribute(attribute);
+            }
         }
 
         /**
@@ -38,22 +51,19 @@ module PowerTables.Rendering {
          * @param parentElement Parent element to lookup for event binding attributes
          * @returns {} 
          */
-        public bindEventsQueue(parentElement: HTMLElement): void {
-            var marked = parentElement.querySelectorAll('[data-mrk]');
-            for (var l = 0; l < marked.length; l++) {
-                var markedElement = <HTMLElement>marked.item(l);
-                var markTrack = parseInt(markedElement.getAttribute('data-mrk'));
-                var markdescription = this._markQueue[markTrack];
-                markdescription.ElementReceiver[markdescription.FieldName] = markedElement;
-            }
-            // bind plugins/filters events
-            var sources = parentElement.querySelectorAll('[data-be]');
-            for (var i = 0; i < sources.length; i++) {
-                var domSource = <HTMLElement>sources.item(i);
-                var bindTrack = parseInt(domSource.getAttribute('data-be'));
-
-                var subscription = this._eventsQueue[bindTrack];
-
+        public backBind(parentElement: HTMLElement): void {
+            
+            // back binding of datepickers
+            this.traverseBackbind<IDatepickerDescriptor>(parentElement, this._datepickersQueue, 'data-dp', (b, e) => {
+                this._instances.createDatePicker(e);
+            });
+            // back binding of componens needed HTML elements
+            this.traverseBackbind<IMarkDescriptor>(parentElement, this._markQueue, 'data-mrk', (b, e) => {
+                b.ElementReceiver[b.FieldName] = e;
+            });
+            
+            // backbinding of events
+            this.traverseBackbind<IEventDescriptor>(parentElement, this._eventsQueue, 'data-be', (subscription, domSource) => {
                 for (var j = 0; j < subscription.Functions.length; j++) {
                     var bindFn = subscription.Functions[j];
                     var handler = null;
@@ -69,13 +79,16 @@ module PowerTables.Rendering {
                             handler,
                             eventId,
                             eventArguments: any[]) {
-                            domSource.addEventListener(eventId, (evt) => handler.apply(receiver, [
-                                {
-                                    Element: domSource,
-                                    EventObject: evt,
-                                    Receiver: receiver,
-                                    EventArguments: eventArguments
-                                }]));
+                            domSource.addEventListener(eventId, (evt) => {
+                                handler.apply(receiver, [
+                                    {
+                                        Element: domSource,
+                                        EventObject: evt,
+                                        Receiver: receiver,
+                                        EventArguments: eventArguments
+                                    }
+                                ]);
+                            });
                         })(subscription.EventReceiver,
                             domSource,
                             handler,
@@ -84,8 +97,7 @@ module PowerTables.Rendering {
                     }
 
                 }
-                domSource.removeAttribute('data-be');
-            }
+            });
         }
 
         //#region Handlebars helpers
@@ -196,6 +208,18 @@ module PowerTables.Rendering {
             return `data-mrk=${index}`;
         }
 
+        private datepickerHelper(columnName: string): string {
+            var index = this._datepickersQueue.length;
+            if (this._instances.Columns[columnName].IsDateTime) {
+                var md = <IDatepickerDescriptor>{
+                    ElementReceiver: this._stack.Current.Object
+                };
+                this._datepickersQueue.push(md);
+                return `data-dp=${index}`;
+            }
+            return '';
+        }
+
         public renderContent(columnName?: string): string {
             switch (this._stack.Current.Type) {
                 case RenderingContextType.Header:
@@ -215,6 +239,10 @@ module PowerTables.Rendering {
     interface IMarkDescriptor {
         ElementReceiver: any;
         FieldName: string;
+    }
+
+    interface IDatepickerDescriptor {
+        ElementReceiver: any;
     }
 
     /**

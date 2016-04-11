@@ -63,7 +63,7 @@ namespace PowerTables.Typings
                 .WithProperty(c => c.Group, c => c.Ignore()); //todo use mvc
 
 
-            builder.ExportAsInterface<SelectFilterUiConfig>().WithPublicProperties();
+            builder.ExportAsInterface<SelectFilterUiConfig>().WithPublicProperties().WithProperty(c => c.ClientFilteringFunction, c => c.Type("(object: any, selectedValues:string[], query: IQuery)=>boolean"));
 
             builder.ExportAsInterface<LimitClientConfiguration>()
                 .WithPublicProperties();

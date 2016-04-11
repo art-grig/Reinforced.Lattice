@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 using System.Web.Mvc;
 using PowerTables.Plugins.Limit;
 using PowerTables.Templating;
+using PowerTables.Templating.Handlebars;
 
 namespace PowerTables.Filters.Value
 {
-    public class ValueFilterTemplateRegion : PluginTemplateRegion, IModelProvider<IValueFilterModel>
+    public class ValueFilterTemplateRegion : PluginTemplateRegion, IModelProvider<IValueFilterModel>, IProvidesDatepicker
     {
         public ValueFilterTemplateRegion(IViewPlugins page) : base(page, "valueFilter")
         {
@@ -36,6 +37,11 @@ namespace PowerTables.Filters.Value
         public static MvcHtmlString ThisIsFilterValueProvider(this ValueFilterTemplateRegion t)
         {
             return t.Mark("FilterValueProvider");
+        }
+
+        public static MvcHtmlString DatepickerCanBeHere(this ValueFilterTemplateRegion t)
+        {
+            return t.Datepicker(t.CleanValue(c=>c.Configuration.ColumnName));
         }
     }
 }

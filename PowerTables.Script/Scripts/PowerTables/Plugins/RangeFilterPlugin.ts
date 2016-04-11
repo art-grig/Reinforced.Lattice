@@ -67,12 +67,6 @@
                 this.itIsClientFilter();
             }
             this._associatedColumn = this.MasterTable.InstanceManager.Columns[this.Configuration.ColumnName];
-            if (this._associatedColumn.IsDateTime) {
-                this.MasterTable.Events.AfterLayoutRendered.subscribe(() => {
-                    this.MasterTable.InstanceManager.createDatePicker(this.FromValueProvider);
-                    this.MasterTable.InstanceManager.createDatePicker(this.ToValueProvider);
-                }, `rangeFilter-${this._associatedColumn.RawName}`);
-            }
         }
 
         renderContent(templatesProvider: ITemplatesProvider): string {

@@ -308,6 +308,17 @@ module PowerTables.Filters.Select {
 		ColumnName: string;
 		/** Select filter value list */
 		Items: System.Web.Mvc.ISelectListItem[];
+		/** Turn this filter to be working on client-side */
+		ClientFiltering: boolean;
+		/**
+		* Specifies custom client filtering function. 
+		*             Function type: (datarow:any, filterSelection:string[], query:IQuery) =&gt; boolean
+		*             dataRow: JSON-ed TTableObject
+		*             filterSelection: selected values
+		*             query: IQuery object
+		*             Returns: true for satisfying objects, false otherwise
+		*/
+		ClientFilteringFunction: (object: any, selectedValues:string[], query: IQuery)=>boolean;
 	}
 }
 module PowerTables.Plugins.Limit {

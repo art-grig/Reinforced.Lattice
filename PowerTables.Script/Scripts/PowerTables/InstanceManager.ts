@@ -44,7 +44,7 @@
          * 
          * @param element HTML element         
          */
-        public createDatePicker(element: HTMLElement):void {
+        public createDatePicker(element: HTMLElement): void {
             this.Configuration.DatePickerFunction(element, this.Configuration.ClientDateTimeFormat);
         }
 
@@ -73,7 +73,7 @@
                     IsFloat: InstanceManager._floatTypes.indexOf(cnf.ColumnType) > -1,
                     IsInteger: InstanceManager._integerTypes.indexOf(cnf.ColumnType) > -1,
                     IsBoolean: InstanceManager._booleanTypes.indexOf(cnf.ColumnType) > -1,
-                    IsEnum: false // todo
+                    IsEnum: cnf.IsEnum
                 };
                 c.Header = {
                     Column: c,
@@ -95,6 +95,15 @@
             var specialCases: { [key: string]: IPlugin } = {};
             var anySpecialCases = false;
 
+            // registering additional events
+            for (var eventProviderId in pluginsConfiguration) {
+                if (pluginsConfiguration.hasOwnProperty(eventProviderId)) {
+                    var epConf = pluginsConfiguration[eventProviderId];
+                    ComponentsContainer.registerComponentEvents(epConf.PluginId, this._events);
+                }
+            }
+
+            // instantiating and initializing plugins
             for (var pluginId in pluginsConfiguration) {
                 if (pluginsConfiguration.hasOwnProperty(pluginId)) {
                     var conf = pluginsConfiguration[pluginId];
@@ -113,6 +122,7 @@
                 }
             }
 
+            // handling special filters case
             if (this._isHandlingSpecialPlacementCase) {
                 if (anySpecialCases) {
                     var columns = this.getUiColumnNames();

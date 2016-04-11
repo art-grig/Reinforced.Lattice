@@ -24,7 +24,8 @@ namespace PowerTables.Mvc.Models.Tutorial
             conf.Column(c => c.IcloudLock).Title("iCloud Lock");
             conf.Column(c => c.ItemsCount).Title("Items count");
             conf.Column(c => c.SomethingDataOnly).DataOnly();
-            conf.Column(c => c.BehindProperty).Title("Behind");
+            conf.Column(c => c.BehindProperty).DataOnly();
+            
 
             return conf;
         }

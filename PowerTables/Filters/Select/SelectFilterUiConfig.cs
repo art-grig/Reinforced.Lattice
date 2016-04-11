@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using Newtonsoft.Json.Linq;
 
 
 namespace PowerTables.Filters.Select
@@ -42,33 +43,41 @@ namespace PowerTables.Filters.Select
         /// Select filter value list
         /// </summary>
         public List<SelectListItem> Items { get; set; }
+
+        /// <summary>
+        /// Turn this filter to be working on client-side
+        /// </summary>
+        public bool ClientFiltering { get; set; }
+
+        /// <summary>
+        /// Specifies custom client filtering function. 
+        /// Function type: (datarow:any, filterSelection:string[], query:IQuery) => boolean
+        /// dataRow: JSON-ed TTableObject
+        /// filterSelection: selected values
+        /// query: IQuery object
+        /// Returns: true for satisfying objects, false otherwise
+        /// </summary>
+        public JRaw ClientFilteringFunction { get; set; }
         
     }
 
-    /// <summary>
-    /// Select filter option
-    /// </summary>
-    public interface ISelectListItem
+    public static class ValueFilterUiExtensions
     {
         /// <summary>
-        /// Is option disabled or not
+        /// Enables client filtering and specifies custom client filtering function. 
+        /// 
+        /// Function type: (datarow:any, filterSelection:string[], query:IQuery) => boolean
+        /// dataRow: JSON-ed TTableObject
+        /// filterSelection: selected values
+        /// query: IQuery object
+        /// Returns: true for satisfying objects, false otherwise
         /// </summary>
-        bool Disabled { get; set; }
-
-        /// <summary>
-        /// Is option selected by default
-        /// </summary>
-        bool Selected { get; set; }
-
-        /// <summary>
-        /// Option text
-        /// </summary>
-        string Text { get; set; }
-
-        /// <summary>
-        /// Option value
-        /// </summary>
-        string Value { get; set; }
+        public static SelectFilterUiConfig ClientFiltering(this SelectFilterUiConfig c, string function = null)
+        {
+            c.ClientFiltering = true;
+            c.ClientFilteringFunction = new JRaw(string.IsNullOrEmpty(function) ? "null" : function);
+            return c;
+        }
     }
 
     
