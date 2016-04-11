@@ -29,6 +29,13 @@ namespace PowerTables.Mvc.Models.Tutorial
                 ui.Configuration.FromPlaceholder = "Min. Cost";
                 ui.Configuration.ToPlaceholder = "Max. Cost";
             });
+
+            conf.Column(c => c.Id).FilterRangeUi(ui =>
+            {
+                ui.Configuration.FromPlaceholder = "Min. Id";
+                ui.Configuration.ToPlaceholder = "Max. Id";
+                ui.Configuration.ClientFiltering();
+            });
             return conf;
         }
     }

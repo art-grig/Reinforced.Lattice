@@ -2064,6 +2064,7 @@ declare module PowerTables.Plugins {
         getFilterArgument(): string;
         modifyQuery(query: IQuery, scope: QueryScope): void;
         init(masterTable: IMasterTable): void;
+        renderContent(templatesProvider: ITemplatesProvider): string;
         filterPredicate(rowObject: any, query: IQuery): boolean;
     }
 }

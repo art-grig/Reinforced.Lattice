@@ -3029,6 +3029,9 @@ var PowerTables;
                     }, "rangeFilter-" + this._associatedColumn.RawName);
                 }
             };
+            RangeFilterPlugin.prototype.renderContent = function (templatesProvider) {
+                return templatesProvider.getCachedTemplate('rangeFilter')(this);
+            };
             RangeFilterPlugin.prototype.filterPredicate = function (rowObject, query) {
                 var fval = query.Filterings[this._associatedColumn.RawName];
                 if (!fval)
@@ -3039,6 +3042,10 @@ var PowerTables;
                 if (this.Configuration.ClientFilteringFunction) {
                     return this.Configuration.ClientFilteringFunction(rowObject, fromValue, toValue, query);
                 }
+                var frmEmpty = fromValue.trim().length === 0;
+                var toEmpty = toValue.trim().length === 0;
+                if (frmEmpty && toEmpty)
+                    return true;
                 if (!query.Filterings.hasOwnProperty(this._associatedColumn.RawName))
                     return true;
                 var objVal = rowObject[this._associatedColumn.RawName];
@@ -3046,13 +3053,13 @@ var PowerTables;
                     return false;
                 if (this._associatedColumn.IsString) {
                     var str = objVal.toString();
-                    return str.localeCompare(fromValue) >= 0 && str.localeCompare(toValue) <= 0;
+                    return ((frmEmpty) || str.localeCompare(fromValue) >= 0) && ((toEmpty) || str.localeCompare(toValue) <= 0);
                 }
                 if (this._associatedColumn.IsFloat) {
-                    return objVal >= parseFloat(fromValue) && objVal <= parseFloat(toValue);
+                    return ((frmEmpty) || objVal >= parseFloat(fromValue)) && ((toEmpty) || objVal <= parseFloat(toValue));
                 }
                 if (this._associatedColumn.IsInteger || this._associatedColumn.IsEnum) {
-                    return objVal >= parseInt(fromValue) && objVal <= parseInt(toValue);
+                    return ((frmEmpty) || objVal >= parseInt(fromValue)) && ((toEmpty) || objVal <= parseInt(toValue));
                 }
                 return true;
             };
