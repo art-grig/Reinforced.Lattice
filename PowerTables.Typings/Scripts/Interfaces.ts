@@ -209,15 +209,20 @@ module PowerTables.Plugins.Formwatch {
 	}
 }
 module PowerTables.Plugins.Hideout {
-	/**
-	* Client configuration for Hideout plugin. 
-	*             See <see cref="T:PowerTables.Plugins.Hideout.HideoutExtensions" />
-	*/
-	export interface IHideoutClientConfiguration
+	/** Client hideout plugin configuration */
+	export interface IHideoutPluginConfiguration
 	{
+		/** Show hideout menu or not */
 		ShowMenu: boolean;
-		HidebleColumnsNames: string[];
-		ReloadTableOnChangeHidden: boolean;
+		/** Columns that are hidable at all */
+		HideableColumnsNames: string[];
+		/** Columns initiating table reload when their hidden/shown state changes */
+		ColumnInitiatingReload: string[];
+		/**
+		* Columns hidout settings
+		*             Key = column RawName, Value = true when hidden, false when shown
+		*/
+		HiddenColumns: { [key:string]: boolean };
 	}
 }
 module PowerTables.Filters.Range {
@@ -280,7 +285,12 @@ module PowerTables.Plugins.ResponseInfo {
 	{
 		/** Use handlebars syntax with IResponse as context */
 		TemplateText: string;
-		ResponseObjectOverride: boolean;
+		/** Client function for evaluating template information */
+		ClientEvaluationFunction: (clientInfo:any, table: IMasterTable)=>any;
+		/** Used to point that response info resulting object has been changed */
+		ResponseObjectOverriden: boolean;
+		/** When true, response information will be refreshed during pure client queries */
+		ReloadOnClientQueries: boolean;
 	}
 }
 module System.Web.Mvc {

@@ -7,21 +7,16 @@ namespace PowerTables.Plugins.ResponseInfo
     public static class ResponseInfoExtensions
     {
         public const string PluginId = "ResponseInfo";
-        public static T WithResponseInfo<T>(this T c, string templateText = null, string position = null) where T : IConfigurator
+        public static T WithResponseInfo<T>(this T c,string position = "lt", Action<IPluginConfiguration<ResponseInfoClientConfiguration>> ui = null) where T : IConfigurator
         {
-            ResponseInfoClientConfiguration pc = new ResponseInfoClientConfiguration()
-            {
-                TemplateText = templateText
-            };
-            c.TableConfiguration.ReplacePluginConfig(PluginId, pc, position);
+            c.TableConfiguration.UpdatePluginConfig(PluginId, ui, position);
             return c;
         }
 
         public static Configurator<TSourceData, TTableData> WithResponseInfo<TSourceData, TTableData, TResponseData>
             (this Configurator<TSourceData, TTableData> conf,
             Func<PowerTablesData<TSourceData, TTableData>, TResponseData> responseDataEvaluator,
-            string templateText = null,
-            string position = null)
+            Action<IPluginConfiguration<ResponseInfoClientConfiguration>> ui = null, string position = "lt")
             where TTableData : new()
         {
             var arm = new ActionBasedResponseModifier<TSourceData, TTableData>((a, r) =>
@@ -29,12 +24,12 @@ namespace PowerTables.Plugins.ResponseInfo
                 r.AdditionalData[PluginId] = responseDataEvaluator(a);
             });
             conf.RegisterResponseModifier(arm);
-            ResponseInfoClientConfiguration pc = new ResponseInfoClientConfiguration()
+
+            conf.TableConfiguration.UpdatePluginConfig<ResponseInfoClientConfiguration>(PluginId, pc =>
             {
-                TemplateText = templateText,
-                ResponseObjectOverride = true
-            };
-            conf.TableConfiguration.ReplacePluginConfig(PluginId, pc, position);
+                if (ui != null) ui(pc);
+                pc.Configuration.ResponseObjectOverriden = true;
+            }, position);
             return conf;
         }
     }

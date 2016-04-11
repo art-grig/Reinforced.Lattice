@@ -13,7 +13,7 @@ namespace PowerTables.Templating.Handlebars
     /// </summary>
     public static class HbExtensions
     {
-        private static string TraversePropertyLambda(LambdaExpression lambda)
+        private static string TraversePropertyLambda(LambdaExpression lambda, string existing)
         {
             Stack<string> properties = new Stack<string>();
             MemberExpression current = lambda.Body as MemberExpression;
@@ -37,7 +37,8 @@ namespace PowerTables.Templating.Handlebars
                 sb.Append(properties.Pop());
                 if (properties.Count > 0) sb.Append(".");
             }
-            return sb.ToString();
+            if (string.IsNullOrEmpty(existing)) return sb.ToString();
+            return existing + "." + sb.ToString();
         }
 
         /// <summary>
@@ -49,7 +50,7 @@ namespace PowerTables.Templating.Handlebars
         /// <returns></returns>
         public static HbTagRegion If<T>(this IModelProvider<T> t, Expression<Func<T, bool>> condition)
         {
-            var proname = TraversePropertyLambda(condition);
+            var proname = TraversePropertyLambda(condition, t.ExistingModel);
             return new HbTagRegion("if", proname, t.Writer);
         }
 
@@ -63,7 +64,7 @@ namespace PowerTables.Templating.Handlebars
         /// <returns></returns>
         public static MvcHtmlString If<T>(this IModelProvider<T> t, Expression<Func<T, bool>> condition, string textIf)
         {
-            var proname = TraversePropertyLambda(condition);
+            var proname = TraversePropertyLambda(condition, t.ExistingModel);
             var tr = new HbTagRegion("if", proname, t.Writer);
             t.Writer.Write(textIf);
             tr.Dispose();
@@ -102,7 +103,7 @@ namespace PowerTables.Templating.Handlebars
         /// <returns></returns>
         public static HbTagRegion IfEquals<T, TData>(this IModelProvider<T> t, Expression<Func<T, TData>> field, string comparisonConstant)
         {
-            var proname = TraversePropertyLambda(field);
+            var proname = TraversePropertyLambda(field, t.ExistingModel);
             return new HbTagRegion("ifq", string.Format("{0} {1}", proname, comparisonConstant), t.Writer);
         }
 
@@ -115,7 +116,7 @@ namespace PowerTables.Templating.Handlebars
         /// <returns></returns>
         public static HbTagRegion IfStrEquals<T>(this IModelProvider<T> t, Expression<Func<T, string>> field, string comparisonConstant)
         {
-            var proname = TraversePropertyLambda(field);
+            var proname = TraversePropertyLambda(field, t.ExistingModel);
             return new HbTagRegion("ifq", string.Format("{0} \"{1}\"", proname, comparisonConstant), t.Writer);
         }
 
@@ -129,7 +130,7 @@ namespace PowerTables.Templating.Handlebars
         /// <returns></returns>
         public static HbTagRegion Unless<T>(this IModelProvider<T> t, Expression<Func<T, bool>> condition)
         {
-            var proname = TraversePropertyLambda(condition);
+            var proname = TraversePropertyLambda(condition, t.ExistingModel);
             return new HbTagRegion("unless", proname, t.Writer);
         }
 
@@ -143,7 +144,7 @@ namespace PowerTables.Templating.Handlebars
         /// <returns></returns>
         public static ParametrizedHbTagRegion<TElement> Each<T, TElement>(this IModelProvider<T> t, Expression<Func<T, IEnumerable<TElement>>> condition)
         {
-            var proname = TraversePropertyLambda(condition);
+            var proname = TraversePropertyLambda(condition, t.ExistingModel);
             return new ParametrizedHbTagRegion<TElement>("each", proname, t.Writer);
         }
 
@@ -156,7 +157,7 @@ namespace PowerTables.Templating.Handlebars
         /// <returns></returns>
         public static ParametrizedHbTagRegion<TElement> Each<T, TElement>(this IModelProvider<T> t, Expression<Func<T, IHbArray<TElement>>> condition)
         {
-            var proname = TraversePropertyLambda(condition);
+            var proname = TraversePropertyLambda(condition, t.ExistingModel);
             return new ParametrizedHbTagRegion<TElement>("each", proname, t.Writer);
         }
 
@@ -183,7 +184,7 @@ namespace PowerTables.Templating.Handlebars
         /// <returns></returns>
         public static string CleanValue<T, TData>(this IModelProvider<T> t, Expression<Func<T, TData>> valueField)
         {
-            var proname = TraversePropertyLambda(valueField);
+            var proname = TraversePropertyLambda(valueField, t.ExistingModel);
             return proname;
         }
 
@@ -197,7 +198,7 @@ namespace PowerTables.Templating.Handlebars
         /// <returns></returns>
         public static MvcHtmlString HtmlValue<T, TData>(this IModelProvider<T> t, Expression<Func<T, TData>> valueField)
         {
-            var proname = TraversePropertyLambda(valueField);
+            var proname = TraversePropertyLambda(valueField, t.ExistingModel);
             return MvcHtmlString.Create(string.Concat("{{{", proname, "}}}"));
         }
 
@@ -210,7 +211,7 @@ namespace PowerTables.Templating.Handlebars
         public static MvcHtmlString HtmlContent<T, TModel, TData>(this T t, Expression<Func<TModel, TData>> parameter)
             where T : IProvidesColumnContent, IModelProvider<TModel>
         {
-            return MvcHtmlString.Create(string.Format("{{{{{{Content {0}}}}}}}", TraversePropertyLambda(parameter)));
+            return MvcHtmlString.Create(string.Format("{{{{{{Content {0}}}}}}}", TraversePropertyLambda(parameter, t.ExistingModel)));
         }
 
         /// <summary>
@@ -225,7 +226,7 @@ namespace PowerTables.Templating.Handlebars
             params Expression<Func<TModel, TData>>[] eventArguments)
             where T : IProvidesEventsBinding, IModelProvider<TModel>
         {
-            var args = eventArguments.Select(TraversePropertyLambda).ToArray();
+            var args = eventArguments.Select(c => TraversePropertyLambda(c, t.ExistingModel)).ToArray();
             return t.BindEvent(commaSeparatedFunction, commaSeparatedEvents, args);
         }
     }

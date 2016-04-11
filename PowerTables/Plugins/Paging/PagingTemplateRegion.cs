@@ -19,6 +19,8 @@ namespace PowerTables.Plugins.Paging
             : base(page, "paging")
         {
         }
+
+        public string ExistingModel { get; private set; }
     }
 
     public class PagingArrowsModeTemplate : HbTagRegion, IProvidesEventsBinding, IModelProvider<IArrowModeViewModel>
@@ -27,6 +29,8 @@ namespace PowerTables.Plugins.Paging
             : base("if", "Configuration.ArrowsMode", writer)
         {
         }
+
+        public string ExistingModel { get; private set; }
     }
 
     public class PagingPeriodsModeTemplate : HbTagRegion, IProvidesEventsBinding, IModelProvider<IPeriodsModeViewModel>
@@ -35,6 +39,8 @@ namespace PowerTables.Plugins.Paging
             : base("unless", "Configuration.ArrowsMode", writer)
         {
         }
+
+        public string ExistingModel { get; private set; }
     }
 
     public class PagingGotoPageTemplate : HbTagRegion, IProvidesMarking, IProvidesEventsBinding

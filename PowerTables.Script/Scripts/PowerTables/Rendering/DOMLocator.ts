@@ -122,6 +122,17 @@
         }
 
         /**
+         * Retrieves HTML element for plugin (including wrapper)
+         * 
+         * @param plugin Plugin
+         * @returns HTML element 
+         */
+        public getPluginElementsByPositionPart(placement:string): NodeList {
+            var track = TrackHelper.getPluginTrackByLocation(placement);
+            return this._rootElement.querySelectorAll(`${this._rootIdPrefix} [data-track^="${track}"]`);
+        }
+
+        /**
          * Determines if supplied element is table row
          * 
          * @param e Testing element

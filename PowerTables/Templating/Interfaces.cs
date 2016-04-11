@@ -20,7 +20,10 @@ namespace PowerTables.Templating
 
     public interface IProvidesColumnContent : ITemplateRegion { }
 
-    public interface IModelProvider<T> : ITemplateRegion { }
+    public interface IModelProvider<T> : ITemplateRegion
+    {
+        string ExistingModel { get; }
+    }
 
     public interface IProvidesMarking : ITemplateRegion { }
     public interface IProvidesDatepicker : ITemplateRegion { }

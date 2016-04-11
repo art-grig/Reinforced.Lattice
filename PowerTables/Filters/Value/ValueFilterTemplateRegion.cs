@@ -15,6 +15,8 @@ namespace PowerTables.Filters.Value
         public ValueFilterTemplateRegion(IViewPlugins page) : base(page, "valueFilter")
         {
         }
+
+        public string ExistingModel { get; private set; }
     }
 
     public interface IValueFilterModel

@@ -17,7 +17,7 @@ namespace PowerTables.FrequentlyUsed
         private readonly List<string> _attributeValues = new List<string>();
         private string _content;
         private readonly List<string> _ahead = new List<string>();
-
+        
         /// <summary>
         /// Specifies button tag
         /// </summary>

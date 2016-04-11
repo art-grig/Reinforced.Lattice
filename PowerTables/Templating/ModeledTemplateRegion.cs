@@ -7,5 +7,7 @@ namespace PowerTables.Templating
         public ModeledTemplateRegion(string prefix, string id, TextWriter writer) : base(prefix, id, writer)
         {
         }
+
+        public string ExistingModel { get; private set; }
     }
 }

@@ -21,6 +21,7 @@ namespace PowerTables.Plugins.Ordering
         }
 
         public bool IsTrackSet { get; set; }
+        public string ExistingModel { get; private set; }
     }
 
     /// <summary>

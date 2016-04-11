@@ -14,6 +14,8 @@ namespace PowerTables.Filters.Select
         public SelectFilterTemplateRegion(IViewPlugins page) : base(page, "selectFilter")
         {
         }
+
+        public string ExistingModel { get; private set; }
     }
 
     public interface ISelectFilterModel

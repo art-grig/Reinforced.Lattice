@@ -1,5 +1,7 @@
 ﻿
 
+using Newtonsoft.Json.Linq;
+
 namespace PowerTables.Plugins.ResponseInfo
 {
     public class ResponseInfoClientConfiguration
@@ -9,6 +11,19 @@ namespace PowerTables.Plugins.ResponseInfo
         /// </summary>
         public string TemplateText { get; set; }
 
-        public bool ResponseObjectOverride { get; set; }
+        /// <summary>
+        /// Client function for evaluating template information
+        /// </summary>
+        public JRaw ClientEvaluationFunction { get; set; }
+
+        /// <summary>
+        /// Used to point that response info resulting object has been changed
+        /// </summary>
+        public bool ResponseObjectOverriden { get; internal set; }
+
+        /// <summary>
+        /// When true, response information will be refreshed during pure client queries
+        /// </summary>
+        public bool ReloadOnClientQueries { get; internal set; }
     }
 }

@@ -90,7 +90,7 @@ namespace PowerTables.Configuration.Json
                 config = conf.PluginsConfiguration[key];
             }
             var wpapper = new PluginConfigurationWrapper<TConfig>(config);
-            pluginConfiguration(wpapper);
+            if (pluginConfiguration!=null) pluginConfiguration(wpapper);
         }
 
         /// <summary>

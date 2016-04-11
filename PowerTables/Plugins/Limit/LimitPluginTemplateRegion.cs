@@ -10,13 +10,14 @@ using PowerTables.Templating.Handlebars;
 namespace PowerTables.Plugins.Limit
 {
     public class LimitPluginTemplateRegion : PluginTemplateRegion
-        , IProvidesEventsBinding
         , IModelProvider<ILimitPluginViewModel>
     {
         public LimitPluginTemplateRegion(IViewPlugins page)
             : base(page, "limit")
         {
         }
+
+        public string ExistingModel { get; private set; }
     }
 
     /// <summary>

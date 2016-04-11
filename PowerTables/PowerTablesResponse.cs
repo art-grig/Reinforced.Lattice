@@ -44,7 +44,6 @@ namespace PowerTables
         /// </summary>
         public string Message { get; set; }
 
-
         /// <summary>
         /// Exception stack trace (if exists)
         /// </summary>

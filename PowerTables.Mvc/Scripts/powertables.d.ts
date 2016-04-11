@@ -204,14 +204,21 @@ declare module PowerTables.Plugins.Formwatch {
     }
 }
 declare module PowerTables.Plugins.Hideout {
-    /**
-    * Client configuration for Hideout plugin.
-    *             See <see cref="T:PowerTables.Plugins.Hideout.HideoutExtensions" />
-    */
-    interface IHideoutClientConfiguration {
+    /** Client hideout plugin configuration */
+    interface IHideoutPluginConfiguration {
+        /** Show hideout menu or not */
         ShowMenu: boolean;
-        HidebleColumnsNames: string[];
-        ReloadTableOnChangeHidden: boolean;
+        /** Columns that are hidable at all */
+        HideableColumnsNames: string[];
+        /** Columns initiating table reload when their hidden/shown state changes */
+        ColumnInitiatingReload: string[];
+        /**
+        * Columns hidout settings
+        *             Key = column RawName, Value = true when hidden, false when shown
+        */
+        HiddenColumns: {
+            [key: string]: boolean;
+        };
     }
 }
 declare module PowerTables.Filters.Range {
@@ -271,7 +278,12 @@ declare module PowerTables.Plugins.ResponseInfo {
     interface IResponseInfoClientConfiguration {
         /** Use handlebars syntax with IResponse as context */
         TemplateText: string;
-        ResponseObjectOverride: boolean;
+        /** Client function for evaluating template information */
+        ClientEvaluationFunction: (clientInfo: any, table: IMasterTable) => any;
+        /** Used to point that response info resulting object has been changed */
+        ResponseObjectOverriden: boolean;
+        /** When true, response information will be refreshed during pure client queries */
+        ReloadOnClientQueries: boolean;
     }
 }
 declare module System.Web.Mvc {
@@ -913,7 +925,10 @@ declare module PowerTables {
          * @returns {}
          */
         reload(): void;
-        private localRedrawVisible();
+        /**
+         * Redraws locally visible data
+         */
+        redrawVisibleData(): void;
         /**
          * Shows full-width table message
          * @param tableMessage Message of type ITableMessage
@@ -1371,10 +1386,6 @@ declare module PowerTables {
         requestServer(command: string, callback: (data: any) => void, queryModifier?: (a: IQuery) => IQuery): void;
     }
 }
-declare module PowerTables.Plugins {
-    class HideoutPlugin {
-    }
-}
 declare module PowerTables.Rendering {
     /**
      * Part of renderer that is responsible for rendering of dynamically loaded content
@@ -1669,6 +1680,13 @@ declare module PowerTables.Rendering {
          * @returns HTML element
          */
         getPluginElement(plugin: IPlugin): HTMLElement;
+        /**
+         * Retrieves HTML element for plugin (including wrapper)
+         *
+         * @param plugin Plugin
+         * @returns HTML element
+         */
+        getPluginElementsByPositionPart(placement: string): NodeList;
         /**
          * Determines if supplied element is table row
          *
@@ -2117,5 +2135,47 @@ declare module PowerTables.Plugins {
         handleValueChanged(): void;
         init(masterTable: IMasterTable): void;
         filterPredicate(rowObject: any, query: IQuery): boolean;
+    }
+}
+declare module PowerTables.Plugins {
+    import HideoutClientConfiguration = PowerTables.Plugins.Hideout.IHideoutPluginConfiguration;
+    import TemplateBoundEvent = PowerTables.Rendering.ITemplateBoundEvent;
+    interface IColumnState {
+        Visible: boolean;
+        RawName: string;
+        Name: string;
+        DoesNotExists: boolean;
+    }
+    class HideoutPlugin extends PluginBase<HideoutClientConfiguration> implements IQueryPartProvider {
+        ColumnStates: IColumnState[];
+        private _columnStates;
+        private _isInitializing;
+        isColumnVisible(columnName: string): boolean;
+        isColumnInstanceVisible(col: IColumn): boolean;
+        hideColumnByName(rawColname: string): void;
+        private _hideElements(element);
+        private _showElements(element);
+        private _hideElement(element);
+        private _showElement(element);
+        hideColumnInstance(c: IColumn): void;
+        showColumnByName(rawColname: string): void;
+        toggleColumn(e: TemplateBoundEvent<HideoutPlugin>): void;
+        showColumn(e: TemplateBoundEvent<HideoutPlugin>): void;
+        hideColumn(e: TemplateBoundEvent<HideoutPlugin>): void;
+        showColumnInstance(c: IColumn): void;
+        toggleColumnByName(columnName: string): boolean;
+        modifyQuery(query: IQuery, scope: QueryScope): void;
+        private onDataRedrawn();
+        init(masterTable: IMasterTable): void;
+        renderContent(templatesProvider: ITemplatesProvider): string;
+    }
+}
+declare module PowerTables.Plugins {
+    import ResponseInfoClientConfiguration = PowerTables.Plugins.ResponseInfo.IResponseInfoClientConfiguration;
+    class ResponseInfoPlugin extends PluginBase<ResponseInfoClientConfiguration> {
+        private _recentData;
+        private _recentTemplate;
+        renderContent(templatesProvider: ITemplatesProvider): string;
+        init(masterTable: IMasterTable): void;
     }
 }

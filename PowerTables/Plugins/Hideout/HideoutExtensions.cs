@@ -21,15 +21,18 @@ namespace PowerTables.Plugins.Hideout
         /// Hidden column will not be displayed but will be rendered to DOM to be able hidden/shown by target user
         /// </summary>
         /// <param name="column">Column</param>
+        /// <param name="hide">Should current column be hidden or not</param>
+        /// <param name="initiatesReload">Initiate table reload when this column is being hidden</param>
         /// <returns>Fluent</returns>
         public static ColumnUsage<TSourceData, TTableData, TTableColumn> 
             Hide
             <TSourceData, TTableData, TTableColumn>(
-            this ColumnUsage<TSourceData, TTableData, TTableColumn> column) where TTableData : new()
+            this ColumnUsage<TSourceData, TTableData, TTableColumn> column,bool hide = true, bool initiatesReload = false) where TTableData : new()
         {
             column.Configurator.TableConfiguration.UpdatePluginConfig<HideoutPluginConfiguration>(PluginId, c =>
             {
-                c.Configuration.HiddenColumns[column.ColumnProperty.Name] = true;
+                if (hide) c.Configuration.HiddenColumns[column.ColumnProperty.Name] = true;
+                if (initiatesReload) c.Configuration.ColumnInitiatingReload.Add(column.ColumnProperty.Name);
             });
             return column;
         }
@@ -50,15 +53,15 @@ namespace PowerTables.Plugins.Hideout
             this Configurator<TSourceData, TTableData> conf, 
             Action<ColumnListBuilder<TSourceData,TTableData>> columns,
             string placement,
-            Action<IPluginConfiguration<HideoutClientConfiguration>> ui = null
+            Action<IPluginConfiguration<HideoutPluginConfiguration>> ui = null
             ) where TTableData : new()
         {
             ColumnListBuilder<TSourceData,TTableData> bldr = new ColumnListBuilder<TSourceData, TTableData>(conf);
             columns(bldr);
-            conf.TableConfiguration.UpdatePluginConfig<HideoutClientConfiguration>(PluginId, a =>
+            conf.TableConfiguration.UpdatePluginConfig<HideoutPluginConfiguration>(PluginId, a =>
             {
                 if (ui != null) ui(a);
-                a.Configuration.HidebleColumnsNames = bldr.Names.ToList();
+                a.Configuration.HideableColumnsNames = bldr.Names.ToList();
             }, placement);
 
             return conf;

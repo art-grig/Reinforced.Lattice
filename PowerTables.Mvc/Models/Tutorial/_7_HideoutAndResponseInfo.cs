@@ -7,15 +7,18 @@ using PowerTables.Filters.Range;
 using PowerTables.Filters.Select;
 using PowerTables.Filters.Value;
 using PowerTables.FrequentlyUsed;
+using PowerTables.Plugins.Hideout;
 
 namespace PowerTables.Mvc.Models.Tutorial
 {
     public static partial class Tutorial
     {
-        public static Configurator<SourceData, TargetData> HideoutAndDataOnly(this Configurator<SourceData, TargetData> conf)
+        public static Configurator<SourceData, TargetData> HideoutAndResponseInfo(this Configurator<SourceData, TargetData> conf)
         {
             conf.Filtering();
-
+            conf.HideoutMenu(c => c.IncludeAll().Except(a => a.Id), "lt");
+            conf.Column(c => c.NullableDate).Hide(false, true);
+            conf.Column(c => c.SomeCustomTemplate).Hide();
             return conf;
         }
     }

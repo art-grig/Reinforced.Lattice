@@ -86,17 +86,17 @@ namespace PowerTables.Mvc.Models
                 }
                     )
                 .LoadingIndicator()
-                .HideoutMenu(c => c.IncludeAll().Except(a => a.Id), "lt",c=>
-                {
-                    c.Configuration.ReloadTableOnChangeHidden = true;
-                })
+                .HideoutMenu(c => c.IncludeAll().Except(a => a.Id), "lt")
                 .Checkboxify(c => c.Id, selectedClass: "warning", selectAllBehavior: SelectAllBehavior.InvolveServer, selectAllLocation: SelectAllLocation.FiltersHeader)
                 .WithResponseInfo(a => new ResponseInfo()
                 {
                     QueryTime = DateTime.Now.ToString("dd MMM yyyy"),
                     Shown = a.Mapped.Value.Length,
                     TotalRecords = a.ResultsCount
-                }, ResponseInfo.ResponseInfoTemplate)
+                }, ui =>
+                {
+                    ui.Configuration.TemplateText = ResponseInfo.ResponseInfoTemplate;
+                })
                 .Totals(a => a
                         .AddTotalFormat(c => c.ItemsCount, q => q.Paged.Any() ? q.Paged.Sum(c => c.ItemsCount) : 0, "Total: {v} pcs.")
                         .AddTotalFormat(c => c.Cost, q => q.Paged.Any() ? Math.Round(q.Paged.Average(c => c.Cost), 2) : 0, "Avg.: {v} EUR"), showOnTop: true);

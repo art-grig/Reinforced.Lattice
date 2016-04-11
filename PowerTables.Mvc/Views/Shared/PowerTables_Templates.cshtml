@@ -1,10 +1,13 @@
-﻿@using PowerTables.Filters.Range
+﻿@using PowerTables
+@using PowerTables.Filters.Range
 @using PowerTables.Filters.Select
 @using PowerTables.Filters.Value
+@using PowerTables.Plugins.Hideout
 @using PowerTables.Plugins.Limit
 @using PowerTables.Plugins.Loading
 @using PowerTables.Plugins.Ordering
 @using PowerTables.Plugins.Paging
+@using PowerTables.Plugins.ResponseInfo
 @using PowerTables.Templating
 @using PowerTables.Templating.BuiltIn
 @using PowerTables.Templating.Handlebars
@@ -189,10 +192,10 @@
                 <ul class="pager">
                     @using (m.If(c => c.PrevArrow))
                     {
-                    <li><a @t.BindPreviousPage("click")><span class="glyphicon glyphicon-chevron-left"></span></a></li> }
+                        <li><a @t.BindPreviousPage("click")><span class="glyphicon glyphicon-chevron-left"></span></a></li> }
                     @using (m.If(c => c.NextArrow))
                     {
-                    <li><a @t.BindNextPage("click")><span class="glyphicon glyphicon-chevron-right"></span></a></li> }
+                        <li><a @t.BindNextPage("click")><span class="glyphicon glyphicon-chevron-right"></span></a></li> }
                 </ul>
             </nav>
         }
@@ -204,25 +207,25 @@
                 {
                     using (pg.If(c => c.First))
                     {
-                    <li class="first"><a style="cursor:pointer" @pg.BindNavigateToPage("click")><span class="glyphicon glyphicon-fast-backward"></span></a></li> }
+                        <li class="first"><a style="cursor:pointer" @pg.BindNavigateToPage("click")><span class="glyphicon glyphicon-fast-backward"></span></a></li> }
                     using (pg.If(c => c.Prev))
                     {
-                    <li class="prev"><a style="cursor:pointer" @t.BindPreviousPage("click")><span class="glyphicon glyphicon-chevron-left"></span></a></li> }
+                        <li class="prev"><a style="cursor:pointer" @t.BindPreviousPage("click")><span class="glyphicon glyphicon-chevron-left"></span></a></li> }
                     using (pg.If(c => c.Period))
                     {
-                    <li><span>. . .</span></li> }
+                        <li><span>. . .</span></li> }
                     using (pg.If(c => c.ActivePage))
                     {
-                    <li class="active"><span>@pg.Value(c => c.DisPage)</span></li> }
+                        <li class="active"><span>@pg.Value(c => c.DisPage)</span></li> }
                     using (pg.If(c => c.InActivePage))
                     {
-                    <li><a @pg.BindNavigateToPage("click") style="cursor:pointer">@pg.Value(c => c.DisPage)</a></li> }
+                        <li><a @pg.BindNavigateToPage("click") style="cursor:pointer">@pg.Value(c => c.DisPage)</a></li> }
                     using (pg.If(c => c.Next))
                     {
-                    <li class="next"><a style="cursor:pointer" @t.BindNextPage("click")><span class="glyphicon glyphicon-chevron-right"></span></a></li> }
+                        <li class="next"><a style="cursor:pointer" @t.BindNextPage("click")><span class="glyphicon glyphicon-chevron-right"></span></a></li> }
                     using (pg.If(c => c.Last))
                     {
-                    <li class="last"><a style="cursor:pointer" @pg.BindNavigateToPage("click")><span class="glyphicon glyphicon-fast-forward"></span></a></li> }
+                        <li class="last"><a style="cursor:pointer" @pg.BindNavigateToPage("click")><span class="glyphicon glyphicon-fast-forward"></span></a></li> }
                 }
             </ul>
         }
@@ -259,4 +262,54 @@
             <option @item.If(c => c.Disabled, "disabled=\"disabled\"") value="@item.Value(c => c.Value)" @item.If(c => c.Selected, "selected")>@item.Value(c => c.Text)</option>
         }
     </select>
+}
+
+@using (var t = Plugin.HideoutMenu())
+{
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Show/Hide Columns
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+            @using (var itm = t.Each(c => c.ColumnStates))
+            {
+                using (itm.If(c => c.Visible))
+                {
+                    <li @itm.BindHide("click")>
+                        <a style="cursor: pointer;">
+                            <span class="glyphicon glyphicon-eye-open" style="float: left"></span> @itm.Value(c => c.Name)
+                        </a>
+                    </li>
+                }
+                using (itm.Unless(c => c.Visible))
+                {
+                    <li @itm.BindShow("click")>
+                        <a style="cursor: pointer;">
+                            <span class="glyphicon glyphicon-eye-close" style="float: left"></span> @itm.Value(c => c.Name)
+                        </a>
+                    </li>
+                }
+            }
+        </ul>
+    </div>
+}
+
+@using (var t = this.Plugin.ResponseInfo())
+{
+    <p>
+        @using (t.If(c => c.IsLocalRequest))
+        {
+            <br />
+            <p>Data fetched locally.</p>
+        }
+        Currently shown <strong>@t.Value(c => c.CurrentlyShown)</strong> of <strong>@t.Value(c => c.TotalServer)</strong> records
+        <br/>
+        @using (t.If(c => c.PagingEnabled))
+        {
+            <p>
+                Page <strong>@t.Value(c=>c.CurrentPage)</strong> of @t.Value(c=>c.TotalPages)
+            </p>
+        }
+   </p>
 }

@@ -40,11 +40,14 @@
          */
         public reload(): void {
             this._masterTable.Loader.requestServer('query', () => {
-                this.localRedrawVisible();
+                this.redrawVisibleData();
             });
         }
 
-        private localRedrawVisible() {
+        /**
+         * Redraws locally visible data
+         */
+        public redrawVisibleData() :void {
             var rows = this.produceRows();
             this._masterTable.Renderer.body(rows);
         }
@@ -148,7 +151,7 @@
                 else {
                     this._masterTable.DataHolder.DisplayedData.splice(insertion.DisplayRowIndex, 0, insertion.DataObject);
 
-                    if (insertion.RedrawBehavior === RedrawBehavior.RedrawVisible) this.localRedrawVisible();
+                    if (insertion.RedrawBehavior === RedrawBehavior.RedrawVisible) this.redrawVisibleData();
                     else if (insertion.RedrawBehavior === RedrawBehavior.LocalVisibleReorder) this.localVisibleReorder();
                     else if (insertion.RedrawBehavior === RedrawBehavior.ParticularRowUpdate) {
                         var row = this.produceRow(insertion.DataObject, insertion.DisplayRowIndex);
@@ -173,7 +176,7 @@
                 else {
                     this._masterTable.DataHolder.DisplayedData.splice(deletion.DisplayRowIndex, 1);
 
-                    if (deletion.RedrawBehavior === RedrawBehavior.RedrawVisible) this.localRedrawVisible();
+                    if (deletion.RedrawBehavior === RedrawBehavior.RedrawVisible) this.redrawVisibleData();
                     else if (deletion.RedrawBehavior === RedrawBehavior.LocalVisibleReorder) this.localVisibleReorder();
                     else if (deletion.RedrawBehavior === RedrawBehavior.ParticularRowUpdate) {
                         this._masterTable.Renderer.removeRowByIndex(deletion.DisplayRowIndex);
@@ -200,7 +203,7 @@
 
                     // not required to update displayed object because we are updating reference
 
-                    if (update.RedrawBehavior === RedrawBehavior.RedrawVisible) this.localRedrawVisible();
+                    if (update.RedrawBehavior === RedrawBehavior.RedrawVisible) this.redrawVisibleData();
                     else if (update.RedrawBehavior === RedrawBehavior.LocalVisibleReorder) this.localVisibleReorder();
                     else if (update.RedrawBehavior === RedrawBehavior.ParticularRowUpdate) {
                         var row = this.produceRow(object, update.DisplayRowIndex);
@@ -212,13 +215,13 @@
 
         private localFullRefresh() {
             this._masterTable.DataHolder.filterStoredDataWithPreviousQuery();
-            this.localRedrawVisible();
+            this.redrawVisibleData();
         }
 
         private localVisibleReorder() {
             this._masterTable.DataHolder.DisplayedData = this._masterTable.DataHolder.orderSet(
                 this._masterTable.DataHolder.DisplayedData, this._masterTable.DataHolder.RecentClientQuery);
-            this.localRedrawVisible();
+            this.redrawVisibleData();
         }
 
 

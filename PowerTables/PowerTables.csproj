@@ -126,9 +126,9 @@
     <Compile Include="Plugins\Formwatch\FormWatchExtensions.cs" />
     <Compile Include="Plugins\Formwatch\FormWatchFieldBuilder.cs" />
     <Compile Include="Plugins\Formwatch\IFormWatchFieldBuilder.cs" />
-    <Compile Include="Plugins\Hideout\HideoutCellConfiguration.cs" />
-    <Compile Include="Plugins\Hideout\HideoutClientConfiguration.cs" />
+    <Compile Include="Plugins\Hideout\HideoutPluginConfiguration.cs" />
     <Compile Include="Plugins\Hideout\HideoutExtensions.cs" />
+    <Compile Include="Plugins\Hideout\HideoutTemplateRegion.cs" />
     <Compile Include="Plugins\Limit\LimitPluginExtensions.cs" />
     <Compile Include="Plugins\Limit\LimitPluginTemplateRegion.cs" />
     <Compile Include="Plugins\Loading\LoadingPluginTemplateRegion.cs" />
@@ -142,6 +142,7 @@
     <Compile Include="Plugins\ResponseInfo\ActionBasedResponseModifier.cs" />
     <Compile Include="Plugins\Checkboxify\CheckboxifyClientConfig.cs" />
     <Compile Include="Plugins\ResponseInfo\ResponseInfoClientConfiguration.cs" />
+    <Compile Include="Plugins\ResponseInfo\ResponseInfoTemplateRegion.cs" />
     <Compile Include="Plugins\Toolbar\ToolbarBuilder.cs" />
     <Compile Include="Plugins\Toolbar\ToolbarButtonClientConfiguration.cs" />
     <Compile Include="Plugins\Toolbar\ToolbarButtonsClientConfiguration.cs" />

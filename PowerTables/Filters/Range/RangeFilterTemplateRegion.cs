@@ -14,6 +14,8 @@ namespace PowerTables.Filters.Range
         public RangeFilterTemplateRegion(IViewPlugins page) : base(page, "rangeFilter")
         {
         }
+
+        public string ExistingModel { get; private set; }
     }
     public interface IRangeFilterModel
     {

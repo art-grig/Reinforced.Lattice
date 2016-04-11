@@ -42,7 +42,7 @@
     <TypeScriptCompile Include="Scripts\PowerTables\DataHolder.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\InstanceManager.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Loader.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\HideoutPlugin.ts" />
+
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\ContentRenderer.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\HtmlToDom.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\LayoutRenderer.ts" />
@@ -60,6 +60,8 @@
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\ValueFilterPlugin.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\RangeFilterPlugin.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\SelectFilterPlugin.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\HideoutPlugin.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\ResponseInfoPlugin.ts" />
   </ItemGroup>
   <ItemGroup />
   <PropertyGroup>

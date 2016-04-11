@@ -123,15 +123,15 @@ namespace PowerTables.Mvc.Controllers
             return Handle(c => c.Filtering());
         }
         
-        [Tutorial("Hideout and .DataOnly", 6)]
-        public ActionResult HideoutAndDataOnly()
+        [Tutorial("Hideout and Response info", 7)]
+        public ActionResult HideoutAndResponseInfo()
         {
-            return TutPage(c => c.HideoutAndDataOnly());
+            return TutPage(c => c.HideoutAndResponseInfo());
         }
 
-        public ActionResult HideoutAndDataOnlyHandle()
+        public ActionResult HideoutAndResponseInfoHandle()
         {
-            return Handle(c => c.HideoutAndDataOnly());
+            return Handle(c => c.HideoutAndResponseInfo());
         }
 
         #region Utility
