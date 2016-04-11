@@ -98,6 +98,7 @@
     <Compile Include="Filters\Multi\MultiColumnFilter.cs" />
     <Compile Include="Filters\Multi\MultiFilterExtensions.cs" />
     <Compile Include="Filters\Range\RangeColumnFilter.cs" />
+    <Compile Include="Filters\Range\RangeFilterTemplateRegion.cs" />
     <Compile Include="Filters\Range\RangeFilterUiConfig.cs" />
     <Compile Include="Filters\Range\RangeFilterExtensions.cs" />
     <Compile Include="Filters\Range\RangeTuple.cs" />

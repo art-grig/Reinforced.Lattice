@@ -136,7 +136,7 @@ namespace PowerTables.Mvc.Controllers
             var t = Table();
             config(t);
             var handler = new PowerTablesHandler<SourceData, TargetData>(t);
-            Thread.Sleep(500); // simulate working
+            //Thread.Sleep(500); // simulate working
             return handler.Handle(Data.SourceData.AsQueryable(), ControllerContext);
         }
         #endregion

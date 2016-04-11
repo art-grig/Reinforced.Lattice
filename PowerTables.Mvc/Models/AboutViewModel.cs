@@ -29,9 +29,26 @@ namespace PowerTables.Mvc.Models
         public DateTime? NullableDate { get; set; }
 
         public int Delay { get; set; }
+
+        public SourceData Clone()
+        {
+            return new SourceData()
+            {
+                Id = Id,
+                Cost = Cost,
+                CurrentDate = CurrentDate,
+                Delay = Delay,
+                GroupType = GroupType,
+                ItemsCount = ItemsCount,
+                IcloudLock = IcloudLock,
+                NullableDate = NullableDate,
+                NullableValue = NullableValue,
+                VeryName = VeryName
+            };
+        }
     }
 
-    
+
     public class RequestStaticData
     {
         public int SomeId { get; set; }

@@ -55,8 +55,8 @@ namespace PowerTables.Typings
                 .WithProperty(c => c.FieldValueFunction, a => a.Type<Func<object>>())
                 .WithProperty(c => c.Key, a => a.Ignore());
             builder.ExportAsInterface<HideoutClientConfiguration>().WithPublicProperties();
-            builder.ExportAsInterface<RangeFilterUiConfig>().WithPublicProperties();
-            builder.ExportAsInterface<ValueFilterUiConfig>().WithPublicProperties().WithProperty(c => c.ClientFilteringFunction, c => c.Type("(object: any, query: IQuery)=>boolean"));
+            builder.ExportAsInterface<RangeFilterUiConfig>().WithPublicProperties().WithProperty(c => c.ClientFilteringFunction, c => c.Type("(object: any, fromValue:string, toValue:string, query: IQuery)=>boolean"));
+            builder.ExportAsInterface<ValueFilterUiConfig>().WithPublicProperties().WithProperty(c => c.ClientFilteringFunction, c => c.Type("(object: any, filterValue:string, query: IQuery)=>boolean"));
             builder.ExportAsInterface<ResponseInfoClientConfiguration>().WithPublicProperties();
             builder.ExportAsInterface<SelectListItem>()
                 .WithPublicProperties()

@@ -195,7 +195,8 @@
                 if (startingIndex > filtered.length) startingIndex = 0;
                 var take = query.Paging.PageSize;
                 if (this.EnableClientSkip && this.EnableClientTake) {
-                    selected = ordered.slice(startingIndex, take === 0 ? null : (startingIndex + take));
+                    if (take === 0) selected = ordered.slice(startingIndex);
+                    else selected = ordered.slice(startingIndex, startingIndex + take);
                 } else {
                     if (this.EnableClientSkip) {
                         selected = ordered.slice(startingIndex);

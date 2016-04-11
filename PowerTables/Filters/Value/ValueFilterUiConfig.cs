@@ -39,7 +39,12 @@ namespace PowerTables.Filters.Value
         public bool ClientFiltering { get; set; }
 
         /// <summary>
-        /// Specifies custom client rendering function
+        /// Specifies custom client filtering function. 
+        /// Function type: (datarow:any, filterValue:string, query:IQuery) => boolean
+        /// dataRow: JSON-ed TTableObject
+        /// filterValue: value entered to filter
+        /// query: IQuery object
+        /// Returns: true for satisfying objects, false otherwise
         /// </summary>
         public JRaw ClientFilteringFunction { get; set; }
 
@@ -51,6 +56,15 @@ namespace PowerTables.Filters.Value
 
     public static class ValueFilterUiExtensions
     {
+        /// <summary>
+        /// Enables client filtering and specifies custom client filtering function. 
+        /// 
+        /// Function type: (datarow:any, filterValue:string, query:IQuery) => boolean
+        /// dataRow: JSON-ed TTableObject
+        /// filterValue: value entered to filter
+        /// query: IQuery object
+        /// Returns: true for satisfying objects, false otherwise
+        /// </summary>
         public static ValueFilterUiConfig ClientFiltering(this ValueFilterUiConfig c, string function = null)
         {
             c.ClientFiltering = true;

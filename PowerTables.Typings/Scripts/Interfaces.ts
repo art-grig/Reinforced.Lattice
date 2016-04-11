@@ -236,6 +236,18 @@ module PowerTables.Filters.Range {
 		FromValue: string;
 		/** "To" box preselected value */
 		ToValue: string;
+		/** Turn this filter to be working on client-side */
+		ClientFiltering: boolean;
+		/**
+		* Specifies custom client filtering function. 
+		*             Function type: (datarow:any, fromValue:string, toValue:string, query:IQuery) =&gt; boolean
+		*             dataRow: JSON-ed TTableObject
+		*             fromValue: min. value entered to filter
+		*             toValue: max. value entered to filter
+		*             query: IQuery object
+		*             Returns: true for satisfying objects, false otherwise
+		*/
+		ClientFilteringFunction: (object: any, fromValue:string, toValue:string, query: IQuery)=>boolean;
 	}
 }
 module PowerTables.Filters.Value {
@@ -252,8 +264,15 @@ module PowerTables.Filters.Value {
 		ColumnName: string;
 		/** Turn this filter to be working on client-side */
 		ClientFiltering: boolean;
-		/** Specifies custom client rendering function */
-		ClientFilteringFunction: (object: any, query: IQuery)=>boolean;
+		/**
+		* Specifies custom client filtering function. 
+		*             Function type: (datarow:any, filterValue:string, query:IQuery) =&gt; boolean
+		*             dataRow: JSON-ed TTableObject
+		*             filterValue: value entered to filter
+		*             query: IQuery object
+		*             Returns: true for satisfying objects, false otherwise
+		*/
+		ClientFilteringFunction: (object: any, filterValue:string, query: IQuery)=>boolean;
 	}
 }
 module PowerTables.Plugins.ResponseInfo {

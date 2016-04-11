@@ -83,7 +83,7 @@
          * Perform table layout inside specified root element         
          */
         public layout(): void {
-            this._events.BeforeLayoutDrawn.invoke(this, null);
+            this._events.BeforeLayoutRendered.invoke(this, null);
 
             var rendered = this.getCachedTemplate('layout')(null);
             this.RootElement.innerHTML = rendered;
@@ -95,7 +95,7 @@
             this._layoutRenderer.bindEventsQueue(this.RootElement);
             this.Locator = new DOMLocator(this.BodyElement, this.RootElement, this._rootId);
 
-            this._events.AfterLayoutDrawn.invoke(this, null);
+            this._events.AfterLayoutRendered.invoke(this, null);
         }
 
         /**
@@ -104,8 +104,11 @@
          * @param rows Set of table rows         
          */
         public body(rows: IRow[]): void {
+            this._events.BeforeDataRendered.invoke(this, null);
             this.clearBody();
-            this.BodyElement.innerHTML = this._contentRenderer.renderBody(rows);
+            var html =  this._contentRenderer.renderBody(rows);
+            this.BodyElement.innerHTML = html;
+            this._events.AfterDataRendered.invoke(this, null);
         }
 
         /**
@@ -204,7 +207,10 @@
          * @returns {} 
          */
         public clearBody(): void {
-            this.BodyElement.innerHTML = '';
+            //this.BodyElement.innerHTML = '';
+            while (this.BodyElement.firstChild) {
+                this.BodyElement.removeChild(this.BodyElement.firstChild);
+            }
         }
         //#endregion
 

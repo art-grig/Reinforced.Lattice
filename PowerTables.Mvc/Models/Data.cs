@@ -93,6 +93,14 @@ namespace PowerTables.Mvc.Models
                 new SourceData(){Cost = 70,GroupType = 3,Id=7,ItemsCount = 4,VeryName = "Sygma"},
                 new SourceData(){Cost = 223,GroupType = 1,Id=8,ItemsCount = 12,VeryName = "Alpha"},
             };
+
+            _sourceData.AddRange(_sourceData.Select(c => c.Clone()).ToArray());
+            _sourceData.AddRange(_sourceData.Select(c => c.Clone()).ToArray());
+            _sourceData.AddRange(_sourceData.Select(c => c.Clone()).ToArray());
+            _sourceData.AddRange(_sourceData.Select(c => c.Clone()).ToArray());
+            _sourceData.AddRange(_sourceData.Select(c => c.Clone()).ToArray());
+            _sourceData.AddRange(_sourceData.Select(c => c.Clone()).ToArray());
+
             Random r = new Random();
             for (int i = 0; i < _sourceData.Count; i++)
             {

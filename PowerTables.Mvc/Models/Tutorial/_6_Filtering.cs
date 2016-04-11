@@ -1,5 +1,6 @@
 ﻿using PowerTables.Configuration;
 using PowerTables.Filters;
+using PowerTables.Filters.Range;
 using PowerTables.Filters.Value;
 
 namespace PowerTables.Mvc.Models.Tutorial
@@ -21,6 +22,12 @@ namespace PowerTables.Mvc.Models.Tutorial
             conf.Column(c => c.GroupName).FilterValue(c => c.VeryName, ui =>
             {
                 ui.Configuration.DefaultValue = conf.ToFilterDefaultString("Alpha");
+            });
+
+            conf.Column(c => c.Cost).FilterRange(c => c.Cost, ui =>
+            {
+                ui.Configuration.FromPlaceholder = "Min. Cost";
+                ui.Configuration.ToPlaceholder = "Max. Cost";
             });
             return conf;
         }

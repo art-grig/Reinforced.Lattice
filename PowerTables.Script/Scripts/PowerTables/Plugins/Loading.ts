@@ -3,7 +3,7 @@
         subscribe(e: EventsManager): void {
             e.BeforeLoading.subscribe(() => this.showLoadingIndicator(), "loading");
             e.AfterLoading.subscribe(() => this.hideLoadingIndicator(), "loading");
-            e.AfterLayoutDrawn.subscribe(() => {
+            e.AfterLayoutRendered.subscribe(() => {
                 var me = this.MasterTable.Renderer.Locator.getPluginElement(this);
                 this._blinkElement = <HTMLElement>me.querySelector('[data-blink]');
                 this.hideLoadingIndicator();

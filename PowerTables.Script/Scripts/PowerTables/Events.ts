@@ -75,25 +75,25 @@
             this.ColumnsCreation = new TableEvent(masterTable);
             this.DataReceived = new TableEvent(masterTable);
             this.AfterLoading = new TableEvent(masterTable);
-            this.BeforeLayoutDrawn = new TableEvent(masterTable);
-            this.AfterLayoutDrawn = new TableEvent(masterTable);
+            this.BeforeLayoutRendered = new TableEvent(masterTable);
+            
             this.BeforeClientDataProcessing = new TableEvent(masterTable);
             this.AfterClientDataProcessing = new TableEvent(masterTable);
             this.ClientDataFiltered = new TableEvent(masterTable);
+            this.BeforeLayoutRendered = new TableEvent(masterTable);
+            this.AfterLayoutRendered = new TableEvent(masterTable);
+            this.BeforeDataRendered = new TableEvent(masterTable);
+            this.AfterDataRendered = new TableEvent(masterTable);
         }
 
         /**
          * "Before Layout Drawn" event. 
          * Occurs before layout is actually drawn but after all table is initialized. 
          */
-        public BeforeLayoutDrawn: TableEvent<any>;
+        public BeforeLayoutRendered: TableEvent<any>;
 
-        /**
-         * "After Layout Drawn" event. 
-         * Occurs right after layout is drawn. 
-         */
-        public AfterLayoutDrawn: TableEvent<any>;
-
+        
+        
         /**
          * "Before Filter Gathering" event. 
          * Occurs every time before sending request to server via Loader before 
@@ -159,6 +159,9 @@
         public BeforeClientDataProcessing: TableEvent<IQuery>;
         public AfterClientDataProcessing: TableEvent<IQuery>;
         public ClientDataFiltered: TableEvent<IClientData>;
+        public AfterLayoutRendered: TableEvent<any>;
+        public AfterDataRendered: TableEvent<any>;
+        public BeforeDataRendered: TableEvent<any>;
 
         /**
          * "After Loading" event.

@@ -1,8 +1,5 @@
-﻿@using System.Activities.Statements
-@using System.Data.SqlTypes
-@using System.Web.UI.WebControls
+﻿@using PowerTables.Filters.Range
 @using PowerTables.Filters.Value
-@using PowerTables.Plugins
 @using PowerTables.Plugins.Limit
 @using PowerTables.Plugins.Loading
 @using PowerTables.Plugins.Ordering
@@ -67,57 +64,30 @@
 @using (var t = this.PluginWrapper())
 {
     <text>
-        @using (t.IfLocation("lt"))
-        {
-            <span @t.Track()> @t.Content() </span>
-        }
-
-        @using (t.IfLocation("lb"))
-        {
-            <div style="float: left;" @t.Track()> @t.Content() </div>
-        }
-
-        @using (t.IfLocation("rt"))
-        {
-            <div style="float: right;" @t.Track()> @t.Content() </div>
-        }
-
-        @using (t.IfLocation("rb"))
-        {
-            <div style="float: right;" @t.Track()> @t.Content() </div>
-        }
-        @using (t.IfLocation("filter"))
-        {
-            <th @t.Track()>@t.Content()</th>
-        }
+        @using (t.IfPlacement("lt")) { <span @t.Track()> @t.Content() </span> }
+        @using (t.IfPlacement("lb")) { <div style="float: left;" @t.Track()> @t.Content() </div> }
+        @using (t.IfPlacement("rt")) { <div style="float: right;" @t.Track()> @t.Content() </div> }
+        @using (t.IfPlacement("rb")) { <div style="float: right;" @t.Track()> @t.Content() </div> }
+        @using (t.IfPlacement("filter")) { <th @t.Track()>@t.Content()</th> }
     </text>
 }
 
 @*
     Column header wrapper template.
 *@
-@using (var t = this.HeaderWrapper())
-{
-    <th @t.Track()>@t.Content()</th>
-}
+@using (var t = this.HeaderWrapper()) { <th @t.Track()>@t.Content()</th> }
 
 @*
     Row wrapper template.
     Following HTML is being wrapped around each data row
 *@
-@using (var t = this.RowWrapper())
-{
-    <tr @t.Track()>@t.Content()</tr>
-}
+@using (var t = this.RowWrapper()) { <tr @t.Track()>@t.Content()</tr> }
 
 @*
     Cell wrapper template.
     Following HTML is being wrapped around each data cell
 *@
-@using (var t = this.CellWrapper())
-{
-    <td @t.Track()>@t.Content()</td>
-}
+@using (var t = this.CellWrapper()) { <td @t.Track()>@t.Content()</td> }
 
 @using (var t = this.MessagesWrapper())
 {
@@ -171,18 +141,9 @@
 {
     <th @t.Track() @t.BindSwitchOrdering("click") style="cursor: pointer">
         <span><strong>@t.HtmlValue(c => c.Column.Configuration.Title)</strong></span>
-        @using (t.If(c => c.IsNeutral))
-        {
-            <span class="glyphicon glyphicon-th-large" style="color: #bac5d3; float: right;"></span>
-        }
-        @using (t.If(c => c.IsAscending))
-        {
-            <span class="glyphicon glyphicon-chevron-up" style="color: #bac5d3; float: right;"></span>
-        }
-        @using (t.If(c => c.IsDescending))
-        {
-            <span class="glyphicon glyphicon-chevron-down" style="color: #bac5d3; float: right;"></span>
-        }
+        @using (t.If(c => c.IsNeutral)) { <span class="glyphicon glyphicon-th-large" style="color: #bac5d3; float: right;"></span> }
+        @using (t.If(c => c.IsAscending)) { <span class="glyphicon glyphicon-chevron-up" style="color: #bac5d3; float: right;"></span> }
+        @using (t.If(c => c.IsDescending)) { <span class="glyphicon glyphicon-chevron-down" style="color: #bac5d3; float: right;"></span> }
     </th>
 }
 
@@ -214,18 +175,8 @@
         {
             <nav style="margin:0;width:100px;margin-left:auto;">
                 <ul class="pager">
-                    @using (m.If(c => c.PrevArrow))
-                    {
-                        <li>
-                            <a @t.BindPreviousPage("click") ><span class="glyphicon glyphicon-chevron-left"></span></a>
-                        </li>
-                    }
-                    @using (m.If(c => c.NextArrow))
-                    {
-                        <li>
-                            <a @t.BindNextPage("click")><span class="glyphicon glyphicon-chevron-right"></span></a>
-                        </li>
-                    }
+                    @using (m.If(c => c.PrevArrow)) { <li><a @t.BindPreviousPage("click") ><span class="glyphicon glyphicon-chevron-left"></span></a></li> }
+                    @using (m.If(c => c.NextArrow)) { <li><a @t.BindNextPage("click")><span class="glyphicon glyphicon-chevron-right"></span></a></li> }
                 </ul>
             </nav>
         }
@@ -235,27 +186,13 @@
             <ul class="pagination" style="margin: 0;">
                 @using (var pg = m.Each(c => c.Pages))
                 {
-                    using (pg.If(c => c.First))
-                    {
-                        <li class="first"><a style="cursor:pointer" @pg.BindNavigateToPage("click")><span class="glyphicon glyphicon-fast-backward"></span></a></li>
-                    }
-
-                    using (pg.If(c => c.Prev))
-                    {
-                        <li class="prev"><a style="cursor:pointer" @t.BindPreviousPage("click")><span class="glyphicon glyphicon-chevron-left"></span></a></li>
-                    }
-
+                    using (pg.If(c => c.First)) { <li class="first"><a style="cursor:pointer" @pg.BindNavigateToPage("click")><span class="glyphicon glyphicon-fast-backward"></span></a></li> }
+                    using (pg.If(c => c.Prev)) { <li class="prev"><a style="cursor:pointer" @t.BindPreviousPage("click")><span class="glyphicon glyphicon-chevron-left"></span></a></li> }
                     using (pg.If(c => c.Period)) { <li><span>. . .</span></li> }
                     using (pg.If(c => c.ActivePage)) { <li class="active"><span>@pg.Value(c => c.DisPage)</span></li> }
                     using (pg.If(c => c.InActivePage)) { <li><a @pg.BindNavigateToPage("click") style="cursor:pointer">@pg.Value(c => c.DisPage)</a></li> }
-                    using (pg.If(c => c.Next))
-                    {
-                        <li class="next"><a style="cursor:pointer" @t.BindNextPage("click")><span class="glyphicon glyphicon-chevron-right"></span></a></li>
-                    }
-                    using (pg.If(c => c.Last))
-                    {
-                        <li class="last"><a style="cursor:pointer" @pg.BindNavigateToPage("click")><span class="glyphicon glyphicon-fast-forward"></span></a></li>
-                    }
+                    using (pg.If(c => c.Next)) { <li class="next"><a style="cursor:pointer" @t.BindNextPage("click")><span class="glyphicon glyphicon-chevron-right"></span></a></li> }
+                    using (pg.If(c => c.Last)) { <li class="last"><a style="cursor:pointer" @pg.BindNavigateToPage("click")><span class="glyphicon glyphicon-fast-forward"></span></a></li> }
                 }
             </ul>
         }
@@ -275,4 +212,11 @@
 @using (var t = Plugin.ValueFilter())
 {
     <input type="text" @t.BindValueChanged("keyup") @t.ThisIsFilterValueProvider() style="margin: 0; width: 100%; max-width: 100%;" class="form-control input-md" value="@t.Value(c=>c.Configuration.DefaultValue)" placeholder="@t.Value(c=>c.Configuration.Placeholder)" />
+}
+
+@using (var t = Plugin.RangeFilter())
+{
+    <input type="text" @t.ThisIsFromField()  @t.BindValueChanged("keyup") class="form-control input-md" value="@t.Value(c=>c.Configuration.FromValue)" style="margin:0;width:100%;max-width:100%;" placeholder="@t.Value(c=>c.Configuration.FromPlaceholder)">
+    <br />
+    <input type="text" @t.ThisIsToField() @t.BindValueChanged("keyup") class="form-control input-md" value="@t.Value(c=>c.Configuration.ToValue)" style="margin:0;width:100%;max-width:100%;" placeholder="@t.Value(c=>c.Configuration.ToPlaceholder)">
 }

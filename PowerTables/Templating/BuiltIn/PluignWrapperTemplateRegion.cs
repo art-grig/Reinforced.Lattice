@@ -55,7 +55,7 @@ namespace PowerTables.Templating.BuiltIn
         /// <param name="pw"></param>
         /// <param name="locationPart">Part of plugin location</param>
         /// <returns></returns>
-        public static HbTagRegion IfLocation<T>(this PluignWrapperTemplateRegion<T> pw, string locationPart)
+        public static HbTagRegion IfPlacement<T>(this PluignWrapperTemplateRegion<T> pw, string locationPart)
         {
             return new HbTagRegion("ifloc", String.Concat("\"", locationPart, "\""), pw.Writer);
         }

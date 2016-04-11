@@ -47,20 +47,24 @@
             }
             this._associatedColumn = this.MasterTable.InstanceManager.Columns[this.Configuration.ColumnName];
             if (this._associatedColumn.IsDateTime) {
-                this.MasterTable.InstanceManager.isDateTimeColumn()
+                this.MasterTable.Events.AfterLayoutRendered.subscribe(() => {
+                    this.MasterTable.InstanceManager.createDatePicker(this.FilterValueProvider);
+                }, `valueFilter-${this._associatedColumn.RawName}`);
             }
         }
 
 
         filterPredicate(rowObject, query: IQuery): boolean {
-            if (this.Configuration.ClientFilteringFunction) {
-                return this.Configuration.ClientFilteringFunction(rowObject, query);
-            }
-            if (!query.Filterings.hasOwnProperty(this._associatedColumn.RawName)) return true;
             var fval = query.Filterings[this._associatedColumn.RawName];
             if (!fval) return true;
-            var objVal = rowObject[this._associatedColumn.RawName];
 
+            if (this.Configuration.ClientFilteringFunction) {
+                return this.Configuration.ClientFilteringFunction(rowObject, fval, query);
+            }
+
+            if (!query.Filterings.hasOwnProperty(this._associatedColumn.RawName)) return true;
+            var objVal = rowObject[this._associatedColumn.RawName];
+            if (objVal == null) return false;
             if (this._associatedColumn.IsString) {
                 var entries = fval.split(/\s/);
                 for (var i = 0; i < entries.length; i++) {
