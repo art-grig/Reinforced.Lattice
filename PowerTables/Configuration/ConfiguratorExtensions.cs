@@ -62,6 +62,21 @@ namespace PowerTables.Configuration
 
         }
 
+
+        /// <summary>
+        /// Instructs Lattice to append empty filters when column filter is missing. 
+        /// It is usable if you render you table in a way of regular table. 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="configurator"></param>
+        /// <param name="placeholder">Location where to append empty filters</param>
+        /// <returns></returns>
+        public static T AppendEmptyFilters<T>(this T configurator,string placeholder = "filter") where T : IConfigurator
+        {
+            configurator.TableConfiguration.EmptyFiltersPlaceholder = placeholder;
+            return configurator;
+        }
+
         /// <summary>
         /// Disables or enables immediate fetching of table data from server
         /// </summary>

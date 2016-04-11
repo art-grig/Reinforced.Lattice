@@ -20,7 +20,7 @@ namespace PowerTables.Plugins.Toolbar
         {
             conf.TableConfiguration.UpdatePluginConfig<ToolbarButtonsClientConfiguration>(PluginId, c =>
             {
-                ToolbarBuilder tb = new ToolbarBuilder(c.Buttons);
+                ToolbarBuilder tb = new ToolbarBuilder(c.Configuration.Buttons);
                 toolbar(tb);
             }, position);
             return conf;

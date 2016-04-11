@@ -131,6 +131,8 @@ namespace PowerTables.Configuration
                     ColumnType = typeName,
                     RawColumnName = tableDataProperty.Name,
                     Title = tableDataProperty.Name,
+                    IsEnum = tableDataProperty.PropertyType.IsEnum,
+                    IsNullable = tableDataProperty.PropertyType.IsNullable()
                 };
                 var attr = tableDataProperty.GetCustomAttribute<DisplayAttribute>();
                 if (attr != null)

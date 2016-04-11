@@ -25,7 +25,7 @@ namespace PowerTables.Filters.Select
         public static ValueColumnFilter<TSourceData, TSourceColumn> FilterSelect<TSourceData, TTableData, TTableColumn, TSourceColumn>(
             this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
             Expression<Func<TSourceData, TSourceColumn>> sourceColumn,
-            Action<SelectFilterUiConfig> ui = null) where TTableData : new()
+            Action<IPluginConfiguration<SelectFilterUiConfig>> ui = null) where TTableData : new()
         {
 
             var filter = FilterSelectNoUi(column, sourceColumn);
@@ -43,7 +43,7 @@ namespace PowerTables.Filters.Select
         public static ValueColumnFilter<TSourceData, TSourceColumn> FilterSelect<TSourceData, TTableData, TTableColumn, TSourceColumn>(
             this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
             Func<IQueryable<TSourceData>, TSourceColumn, IQueryable<TSourceData>> filterDelegate,
-            Action<SelectFilterUiConfig> ui = null) where TTableData : new()
+            Action<IPluginConfiguration<SelectFilterUiConfig>> ui = null) where TTableData : new()
         {
 
             var filter = FilterSelectNoUi(column, filterDelegate);
@@ -89,13 +89,14 @@ namespace PowerTables.Filters.Select
         /// <param name="column">Column</param>
         /// <param name="ui">UI builder</param>
         public static void FilterSelectUi<TSourceData, TTableData, TTableColumn>(this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
-           Action<SelectFilterUiConfig> ui = null) where TTableData : new()
+           Action<IPluginConfiguration<SelectFilterUiConfig>> ui = null) where TTableData : new()
         {
-            SelectFilterUiConfig cc = new SelectFilterUiConfig();
-            cc.ColumnName = column.ColumnProperty.Name;
 
-            if (ui != null) ui(cc);
-            column.ReplaceFilterConfig(PluginId, cc);
+            column.UpdateFilterConfig<SelectFilterUiConfig>(PluginId, cc =>
+            {
+                cc.Configuration.ColumnName = column.ColumnProperty.Name;
+                if (ui != null) ui(cc);    
+            });
         }
 
     }

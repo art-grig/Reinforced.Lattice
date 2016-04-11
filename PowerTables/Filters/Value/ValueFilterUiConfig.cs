@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 
 namespace PowerTables.Filters.Value
@@ -32,9 +33,29 @@ namespace PowerTables.Filters.Value
         /// </summary>
         public string ColumnName { get; set; }
 
+        /// <summary>
+        /// Turn this filter to be working on client-side
+        /// </summary>
+        public bool ClientFiltering { get; set; }
+
+        /// <summary>
+        /// Specifies custom client rendering function
+        /// </summary>
+        public JRaw ClientFilteringFunction { get; set; }
+
         public ValueFilterUiConfig()
         {
             InputDelay = 500;
+        }
+    }
+
+    public static class ValueFilterUiExtensions
+    {
+        public static ValueFilterUiConfig ClientFiltering(this ValueFilterUiConfig c, string function = null)
+        {
+            c.ClientFiltering = true;
+            c.ClientFilteringFunction = new JRaw(string.IsNullOrEmpty(function) ? "null" : function);
+            return c;
         }
     }
 }

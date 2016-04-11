@@ -109,6 +109,11 @@ module PowerTables.Configuration.Json {
 	/** Configuration JSON object for whole table */
 	export interface ITableConfiguration
 	{
+		/**
+		* Appends empty filter if there are no filters for any columns. 
+		*             This option fits good in case of table form-factor
+		*/
+		EmptyFiltersPlaceholder: string;
 		/** Templates prefix. It is used to distinguish several templates sets on single page from each other */
 		Prefix: string;
 		/** Root ID */
@@ -148,6 +153,10 @@ module PowerTables.Configuration.Json {
 		ColumnType: string;
 		/** Is column data-only (never being displayed actually) */
 		IsDataOnly: boolean;
+		/** Is column type Enumeration */
+		IsEnum: boolean;
+		/** Is column nullable */
+		IsNullable: boolean;
 	}
 	/** Plugin JSON configuration */
 	export interface IPluginConfiguration
@@ -158,6 +167,8 @@ module PowerTables.Configuration.Json {
 		Placement: string;
 		/** Plugin configuration itself */
 		Configuration: any;
+		/** Plugin order among particular placement */
+		Order: number;
 	}
 }
 module PowerTables.Plugins.Checkboxify {
@@ -239,6 +250,10 @@ module PowerTables.Filters.Value {
 		DefaultValue: string;
 		/** Column name this filter associated with */
 		ColumnName: string;
+		/** Turn this filter to be working on client-side */
+		ClientFiltering: boolean;
+		/** Specifies custom client rendering function */
+		ClientFilteringFunction: (object: any, query: IQuery)=>boolean;
 	}
 }
 module PowerTables.Plugins.ResponseInfo {

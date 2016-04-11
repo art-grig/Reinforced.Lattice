@@ -4,8 +4,7 @@
      * Enity responsible for displaying table
      */
     export class Renderer implements ITemplatesProvider {
-        constructor(rootId: string, prefix: string, isColumnDateTimeFunc: (s: string) => boolean, instances: InstanceManager, events: EventsManager) {
-            this._isColumnDateTimeFunc = isColumnDateTimeFunc;
+        constructor(rootId: string, prefix: string, instances: InstanceManager, events: EventsManager) {
             this._instances = instances;
             this._stack = new RenderingStack();
             this.RootElement = document.getElementById(rootId);
@@ -46,7 +45,6 @@
          */
         public Locator: DOMLocator;
 
-        private _isColumnDateTimeFunc: (s: string) => boolean;
         private _instances: InstanceManager;
         private _layoutRenderer: LayoutRenderer;
         private _contentRenderer: ContentRenderer;
@@ -237,7 +235,7 @@
 
         private datepickerHelper(): string {
             if (this._stack.Current.Type === RenderingContextType.Plugin) {
-                if (this._isColumnDateTimeFunc(this._stack.Current.ColumnName)) {
+                if (this._instances.Columns[this._stack.Current.ColumnName].IsDateTime) {
                     return 'data-dp="true"';
                 } else {
                     return '';

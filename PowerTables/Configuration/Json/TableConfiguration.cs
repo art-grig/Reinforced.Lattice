@@ -11,6 +11,12 @@ namespace PowerTables.Configuration.Json
     public class TableConfiguration
     {
         /// <summary>
+        /// Appends empty filter if there are no filters for any columns. 
+        /// This option fits good in case of table form-factor
+        /// </summary>
+        public string EmptyFiltersPlaceholder { get; set; }
+
+        /// <summary>
         /// Templates prefix. It is used to distinguish several templates sets on single page from each other
         /// </summary>
         public string Prefix { get; set; }
@@ -105,6 +111,16 @@ namespace PowerTables.Configuration.Json
         /// Is column data-only (never being displayed actually)
         /// </summary>
         public bool IsDataOnly { get; set; }
+
+        /// <summary>
+        /// Is column type Enumeration
+        /// </summary>
+        public bool IsEnum { get; set; }
+
+        /// <summary>
+        /// Is column nullable
+        /// </summary>
+        public bool IsNullable { get; set; }
     }
     
     /// <summary>
@@ -131,6 +147,11 @@ namespace PowerTables.Configuration.Json
         /// Plugin configuration itself
         /// </summary>
         public object Configuration { get; set; }
+
+        /// <summary>
+        /// Plugin order among particular placement
+        /// </summary>
+        public int Order { get; set; }
         
     }
 }

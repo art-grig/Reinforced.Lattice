@@ -29,7 +29,7 @@ namespace PowerTables.Plugins.Hideout
         {
             column.Configurator.TableConfiguration.UpdatePluginConfig<HideoutPluginConfiguration>(PluginId, c =>
             {
-                c.HiddenColumns[column.ColumnProperty.Name] = true;
+                c.Configuration.HiddenColumns[column.ColumnProperty.Name] = true;
             });
             return column;
         }
@@ -42,29 +42,24 @@ namespace PowerTables.Plugins.Hideout
         /// </summary>
         /// <param name="conf">Table configurator</param>
         /// <param name="columns">Hideable columns to show in hideout menu</param>
-        /// <param name="showMenu">Show menu or not</param>
-        /// <param name="position">Menu position</param>
-        /// <param name="reloadTableOnHide">When true then forces table reloading when user shows/hides columns</param>
+        /// <param name="placement">Plugin placement</param>
         /// <returns>Fluent</returns>
         public static Configurator<TSourceData, TTableData> 
             HideoutMenu
             <TSourceData, TTableData>(
             this Configurator<TSourceData, TTableData> conf, 
             Action<ColumnListBuilder<TSourceData,TTableData>> columns,
-            bool showMenu = true,
-            string position = null,
-            bool reloadTableOnHide = false
+            string placement,
+            Action<IPluginConfiguration<HideoutClientConfiguration>> ui = null
             ) where TTableData : new()
         {
             ColumnListBuilder<TSourceData,TTableData> bldr = new ColumnListBuilder<TSourceData, TTableData>(conf);
             columns(bldr);
-            HideoutClientConfiguration cc = new HideoutClientConfiguration()
+            conf.TableConfiguration.UpdatePluginConfig<HideoutClientConfiguration>(PluginId, a =>
             {
-                ShowMenu = showMenu,
-                HidebleColumnsNames = bldr.Names.ToList(),
-                ReloadTableOnChangeHidden = reloadTableOnHide
-            };
-            conf.TableConfiguration.ReplacePluginConfig(PluginId, cc, position);
+                if (ui != null) ui(a);
+                a.Configuration.HidebleColumnsNames = bldr.Names.ToList();
+            }, placement);
 
             return conf;
 

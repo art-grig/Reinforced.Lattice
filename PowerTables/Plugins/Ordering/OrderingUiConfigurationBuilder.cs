@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using PowerTables.Configuration;
 
 namespace PowerTables.Plugins.Ordering
 {
@@ -41,9 +42,9 @@ namespace PowerTables.Plugins.Ordering
             return this;
         }
 
-        internal OrderingUiConfigurationBuilder(OrderingConfiguration configuration, string columnName)
+        internal OrderingUiConfigurationBuilder(IPluginConfiguration<OrderingConfiguration> configuration, string columnName)
         {
-            _configuration = configuration;
+            _configuration = configuration.Configuration;
             _columnName = columnName;
             _configuration.DefaultOrderingsForColumns[_columnName] = PowerTables.Ordering.Neutral;
         }

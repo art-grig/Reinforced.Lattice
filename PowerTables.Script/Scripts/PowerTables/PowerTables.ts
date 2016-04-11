@@ -46,11 +46,10 @@ module PowerTables {
             this._isReady = true;
             this.Events = new EventsManager(this);
             this.InstanceManager = new InstanceManager(this._configuration, this, this.Events);
-            var isDt = this.InstanceManager.isDateTime.bind(this.InstanceManager);
-
-            this.DataHolder = new DataHolder(this.InstanceManager.getColumnNames(), isDt, this.Events, this.InstanceManager);
+            
+            this.DataHolder = new DataHolder(this.InstanceManager.getColumnNames(), this.Events, this.InstanceManager);
             this.Loader = new Loader(this._configuration.StaticData, this._configuration.OperationalAjaxUrl, this.Events, this.DataHolder);
-            this.Renderer = new Rendering.Renderer(this._configuration.TableRootId, this._configuration.Prefix, isDt, this.InstanceManager, this.Events);
+            this.Renderer = new Rendering.Renderer(this._configuration.TableRootId, this._configuration.Prefix, this.InstanceManager, this.Events);
             this.Controller = new Controller(this);
             this.InstanceManager.initPlugins();
             this.Renderer.layout();

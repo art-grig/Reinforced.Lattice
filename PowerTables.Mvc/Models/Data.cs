@@ -98,7 +98,7 @@ namespace PowerTables.Mvc.Models
             {
                 _sourceData[i].Id = i;
                 _sourceData[i].IcloudLock = r.Next(0, 10) > 3;
-                _sourceData[i].ItemsCount = r.Next(10, 500);
+                if (i > 0) _sourceData[i].ItemsCount = r.Next(10, 500);
                 _sourceData[i].Cost = r.NextDouble() * 1000;
                 _sourceData[i].Delay = 0 - r.Next(0, 30);
             }

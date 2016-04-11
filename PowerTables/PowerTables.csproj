@@ -78,7 +78,9 @@
     <Compile Include="Configuration\ConfiguratorExtensions.cs" />
     <Compile Include="Configuration\IColumnConfigurator.cs" />
     <Compile Include="Configuration\IConfigurator.cs" />
+    <Compile Include="Configuration\IPluginConfiguration.cs" />
     <Compile Include="Configuration\Json\JsonConfigurationExtensions.cs" />
+    <Compile Include="Configuration\PluginConfigurationWrapper.cs" />
     <Compile Include="Defaults\DefaultCommandHandler.cs" />
     <Compile Include="Defaults\DefaultQueryHandler.cs" />
     <Compile Include="Defaults\DelegateCommandHandler.cs" />
@@ -104,6 +106,7 @@
     <Compile Include="Filters\Select\SelectFilterExtensions.cs" />
     <Compile Include="Filters\Select\SelectFilterUiConfigExtensions.cs" />
     <Compile Include="Filters\Value\ValueColumnFilter.cs" />
+    <Compile Include="Filters\Value\ValueFilterTemplateRegion.cs" />
     <Compile Include="Filters\Value\ValueFilterUiConfig.cs" />
     <Compile Include="Filters\Value\ValueFilterExtensions.cs" />
     <Compile Include="FilterTuple.cs" />

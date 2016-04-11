@@ -86,7 +86,10 @@ namespace PowerTables.Mvc.Models
                 }
                     )
                 .LoadingIndicator()
-                .HideoutMenu(c => c.IncludeAll().Except(a => a.Id), reloadTableOnHide: true)
+                .HideoutMenu(c => c.IncludeAll().Except(a => a.Id), "lt",c=>
+                {
+                    c.Configuration.ReloadTableOnChangeHidden = true;
+                })
                 .Checkboxify(c => c.Id, selectedClass: "warning", selectAllBehavior: SelectAllBehavior.InvolveServer, selectAllLocation: SelectAllLocation.FiltersHeader)
                 .WithResponseInfo(a => new ResponseInfo()
                 {
@@ -119,8 +122,8 @@ namespace PowerTables.Mvc.Models
                 .Orderable(c => c.Cost)
                 .FilterRange(c => c.Cost, ui =>
                 {
-                    ui.FromPlaceholder = "Min. Cost";
-                    ui.ToPlaceholder = "Max. Cost";
+                    ui.Configuration.FromPlaceholder = "Min. Cost";
+                    ui.Configuration.ToPlaceholder = "Max. Cost";
                 });
 
             conf.Column(c => c.ItemsCount)
@@ -138,8 +141,8 @@ namespace PowerTables.Mvc.Models
                     }")
                 .FilterValue(c => c.ItemsCount, ui =>
                 {
-                    ui.Placeholder = "Minimum cost";
-                    ui.DefaultValue = conf.ToFilterDefaultString(50);
+                    ui.Configuration.Placeholder = "Minimum cost";
+                    ui.Configuration.DefaultValue = conf.ToFilterDefaultString(50);
                 })
                 .By((a, v) => a.Where(c => c.Cost >= v));
 
@@ -147,13 +150,13 @@ namespace PowerTables.Mvc.Models
                 .Orderable(c => c.VeryName)
                 .FilterValue(c => c.VeryName, ui =>
                 {
-                    ui.DefaultValue = conf.ToFilterDefaultString("Alpha");
+                    ui.Configuration.DefaultValue = conf.ToFilterDefaultString("Alpha");
                 });
 
             conf.Column(c => c.EnumValue)
                 .Hide()
                 .FormatEnumWithDisplayAttribute()
-                .FilterMultiSelect(c => c.GroupType, ui=> ui.SelectItems(EnumHelper.GetSelectList(typeof(SomeEnum))))
+                .FilterMultiSelect(c => c.GroupType, ui => ui.Configuration.SelectItems(EnumHelper.GetSelectList(typeof(SomeEnum))))
                 ;
             conf.Column(c => c.CurrentDate).FormatDateWithDateformatJs().FilterValue(c => c.CurrentDate);
             conf.Column(c => c.NullableValue).FilterRange(c => c.NullableValue ?? 0);

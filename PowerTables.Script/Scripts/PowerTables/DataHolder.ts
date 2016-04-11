@@ -5,17 +5,14 @@
      */
     export class DataHolder {
         constructor(rawColumnNames: string[],
-            isColumnDateTimeFunc: (s: string) => boolean,
             events: EventsManager,
             instances: InstanceManager) {
             this._rawColumnNames = rawColumnNames;
-            this._isColumnDateTimeFunc = isColumnDateTimeFunc;
             this._events = events;
             this._instances = instances;
         }
 
         private _rawColumnNames: string[];
-        private _isColumnDateTimeFunc: (s: string) => boolean;
         private _comparators: { [key: string]: (a: any, b: any) => number } = {};
         private _filters: IClientFilter[] = [];
         private _anyClientFiltration: boolean = false;
@@ -82,7 +79,7 @@
             var currentCol = this._rawColumnNames[currentColIndex];
 
             for (var i = 0; i < response.Data.length; i++) {
-                if (this._isColumnDateTimeFunc(currentCol)) {
+                if (this._instances.Columns[currentCol].IsDateTime) {
                     if (response.Data[i]) {
                         obj[currentCol] = Date.parse(response.Data[i]);
                     } else {
@@ -190,7 +187,12 @@
                 var filtered = this.filterSet(copy, query);
                 var ordered = this.orderSet(filtered, query);
                 var selected = ordered;
+                this._events.ClientDataFiltered.invoke(this, {
+                    Filtered: filtered,
+                    Ordered: ordered
+                });
                 var startingIndex = query.Paging.PageIndex * query.Paging.PageSize;
+                if (startingIndex > filtered.length) startingIndex = 0;
                 var take = query.Paging.PageSize;
                 if (this.EnableClientSkip && this.EnableClientTake) {
                     selected = ordered.slice(startingIndex, take === 0 ? null : (startingIndex + take));
@@ -205,6 +207,8 @@
                 }
                 this.DisplayedData = selected;
             }
+
+            this._events.AfterClientDataProcessing.invoke(this, query);
         }
 
         /**

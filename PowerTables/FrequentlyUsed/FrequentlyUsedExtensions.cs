@@ -95,9 +95,9 @@ namespace PowerTables.FrequentlyUsed
 
             return column.FilterSelect(sourceColumn, v =>
             {
-                v.AllowSelectNothing = allowBoth;
-                v.NothingText = bothText;
-                v.SelectItems(items);
+                v.Configuration.AllowSelectNothing = allowBoth;
+                v.Configuration.NothingText = bothText;
+                v.Configuration.SelectItems(items);
             });
         }
 

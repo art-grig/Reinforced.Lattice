@@ -1,6 +1,7 @@
 ﻿@using System.Activities.Statements
 @using System.Data.SqlTypes
 @using System.Web.UI.WebControls
+@using PowerTables.Filters.Value
 @using PowerTables.Plugins
 @using PowerTables.Plugins.Limit
 @using PowerTables.Plugins.Loading
@@ -269,4 +270,9 @@
             </div>
         }
     }
+}
+
+@using (var t = Plugin.ValueFilter())
+{
+    <input type="text" @t.BindValueChanged("keyup") @t.ThisIsFilterValueProvider() style="margin: 0; width: 100%; max-width: 100%;" class="form-control input-md" value="@t.Value(c=>c.Configuration.DefaultValue)" placeholder="@t.Value(c=>c.Configuration.Placeholder)" />
 }

@@ -30,7 +30,7 @@ namespace PowerTables.Filters.Value
         public static ValueColumnFilter<TSourceData, TSourceColumn> FilterValue<TSourceData, TTableData, TTableColumn, TSourceColumn>(
             this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
             Expression<Func<TSourceData, TSourceColumn>> sourceColumn,
-            Action<ValueFilterUiConfig> ui = null
+            Action<IPluginConfiguration<ValueFilterUiConfig>> ui = null
             ) where TTableData : new()
         {
             var filter = FilterValueNoUi(column, sourceColumn);
@@ -51,7 +51,7 @@ namespace PowerTables.Filters.Value
         public static ValueColumnFilter<TSourceData, TSourceColumn> FilterValue<TSourceData, TTableData, TTableColumn, TSourceColumn>(
             this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
             Func<IQueryable<TSourceData>, TSourceColumn, IQueryable<TSourceData>> filterDelegate,
-            Action<ValueFilterUiConfig> ui = null
+            Action<IPluginConfiguration<ValueFilterUiConfig>> ui = null
             ) where TTableData : new()
         {
             var filter = FilterValueNoUi(column, filterDelegate);
@@ -107,13 +107,14 @@ namespace PowerTables.Filters.Value
         /// <returns></returns>
         public static void FilterValueUi<TSourceData, TTableData, TTableColumn>(
             this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
-            Action<ValueFilterUiConfig> ui = null
+            Action<IPluginConfiguration<ValueFilterUiConfig>> ui = null
             ) where TTableData : new()
         {
-            ValueFilterUiConfig clientConfig = new ValueFilterUiConfig();
-            clientConfig.ColumnName = column.ColumnProperty.Name;
-            if (ui != null) ui(clientConfig);
-            column.ReplaceFilterConfig(PluginId,clientConfig);
+            column.UpdateFilterConfig < ValueFilterUiConfig>(PluginId, c =>
+            {
+                c.Configuration.ColumnName = column.ColumnProperty.Name;
+                if (ui != null) ui(c);    
+            });
         }
         
     }

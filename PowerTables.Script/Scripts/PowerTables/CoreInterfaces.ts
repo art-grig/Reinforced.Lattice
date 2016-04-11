@@ -56,6 +56,11 @@
         PluginLocation: string;
 
         /**
+         * Plugin order among its location
+         */
+        Order: number;
+
+        /**
          * Beginning of plugin lifecycle
          * 
          * @param masterTable 
@@ -235,5 +240,35 @@
         Header: IColumnHeader;
         /** Column order (left-to-right) */
         Order: number;
+
+        /**
+         * True when column holds DateTime values
+         */
+        IsDateTime: boolean;
+
+        /**
+         * True when column holds Integer numbers
+         */
+        IsInteger: boolean;
+
+        /**
+         * True when column holds floating point
+         */
+        IsFloat: boolean;
+
+        /**
+         * True when column holds strings
+         */
+        IsString: boolean;
+
+        /**
+         * True when column holds enum values
+         */
+        IsEnum: boolean;
+
+        /**
+         * True when column holds boolean
+         */
+        IsBoolean: boolean;
     }
 }

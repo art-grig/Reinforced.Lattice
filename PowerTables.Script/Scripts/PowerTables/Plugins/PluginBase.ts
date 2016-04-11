@@ -41,6 +41,7 @@
          * @returns {} 
          */
         protected registerAdditionalHelpers(hb: Handlebars.IHandlebars): void { }
-       
+
+        Order: number;
     }
 } 

@@ -112,6 +112,17 @@ namespace PowerTables.Mvc.Controllers
             return Handle(c => c.Pagination());
         }
 
+        [Tutorial("Filtering", 6)]
+        public ActionResult Filtering()
+        {
+            return TutPage(c => c.Filtering());
+        }
+
+        public ActionResult FilteringHandle()
+        {
+            return Handle(c => c.Filtering());
+        }
+
         #region Utility
         private ActionResult TutPage(Action<Configurator<SourceData, TargetData>> config)
         {
