@@ -32,6 +32,17 @@ namespace PowerTables.FrequentlyUsed
         }
 
         /// <summary>
+        /// Template will return empty cell is specified column is null or 0 or undefined
+        /// </summary>
+        /// <param name="columnName">Column</param>
+        /// <returns></returns>
+        public CellTemplateBuilder EmptyIfNotPresentSelf()
+        {
+            _lines.Add("if (!v) return '';");
+            return this;
+        }
+
+        /// <summary>
         /// Template will return empty cell is specified expression met. 
         /// Feel free to use {Something} syntax here where Something is one of 
         /// raw column names
@@ -93,15 +104,26 @@ namespace PowerTables.FrequentlyUsed
             return this;
         }
 
+        private static bool IsValidToken(char token)
+        {
+            return char.IsLetter(token) || token == '@';
+        }
+
+        private static bool IsSelfReference(char token)
+        {
+            return token == '@';
+        }
+
         private static string ConvertSimpleExpression(string expression)
         {
             StringBuilder sb = new StringBuilder();
             bool isOpenFieldReference = false;
             for (int i = 0; i < expression.Length; i++)
             {
-                if (expression[i] == '{' && (i < expression.Length - 2 && char.IsLetter(expression[i + 1])))
+                if (expression[i] == '{' && (i < expression.Length - 2 && IsValidToken(expression[i + 1])))
                 {
-                    sb.Append("v.");
+                    sb.Append(IsSelfReference(expression[i + 1]) ? "v" : "v.");
+                    i++;
                     isOpenFieldReference = true;
                 }
                 else if (expression[i] == '}' && isOpenFieldReference)
@@ -138,10 +160,12 @@ namespace PowerTables.FrequentlyUsed
                 }
 
                 if (expression[i] == '\'' && !isOpenFieldReference && !isOpenExpression) sb.Append("\\\'");
-                else if (expression[i] == '{' && (i < expression.Length - 2 && char.IsLetter(expression[i + 1])))
+                else if (expression[i] == '{' && (i < expression.Length - 2 && IsValidToken(expression[i + 1])))
                 {
-                    if (isOpenExpression) sb.Append("v.");
-                    else sb.Append("' + v.");
+                    if (isOpenExpression) sb.Append("v");
+                    else sb.Append("' + v");
+                    if (IsSelfReference(expression[i + 1])) i++;
+                    else sb.Append(".");
                     isOpenFieldReference = true;
                 }
                 else if (expression[i] == '}' && isOpenFieldReference)

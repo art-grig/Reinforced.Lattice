@@ -109,8 +109,9 @@
          * @param rows Set of table rows         
          */
         public body(rows: IRow[]): void {
+            this._events.BeforeClientRowsRendering.invoke(this, rows);
             this.clearBody();
-            var html =  this._contentRenderer.renderBody(rows);
+            var html = this._contentRenderer.renderBody(rows);
             this.BodyElement.innerHTML = html;
             this._events.AfterDataRendered.invoke(this, null);
         }

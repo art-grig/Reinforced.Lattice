@@ -9,6 +9,7 @@ using PowerTables.Filters.Value;
 using PowerTables.FrequentlyUsed;
 using PowerTables.Plugins.Hideout;
 using PowerTables.Plugins.ResponseInfo;
+using PowerTables.Plugins.Total;
 
 namespace PowerTables.Mvc.Models.Tutorial
 {
@@ -33,7 +34,13 @@ namespace PowerTables.Mvc.Models.Tutorial
               "rb"
             );
 
-
+            conf.Totals(totals =>
+            {
+                totals.AddTotalFormat(c => c.ItemsCount, c => c.Source.Sum(v => v.ItemsCount), "{v} pcs.");
+                totals.AddTotalTemplate(c => c.Id, c => c.Source.Max(v => v.Id), 
+                    c => c.EmptyIfNotPresentSelf().Returns(v => v.Tag("strong").Attr("class","text-center").Inside("Max ID: {@}")));
+                totals.AddTotal(c => c.Cost, c => c.Source.Average(v => v.Cost), "function(v) { return 'AVG cost: $' + parseFloat(v).toFixed(2); }");
+            });
             return conf;
         }
     }

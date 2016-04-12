@@ -65,6 +65,7 @@
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\SelectFilterPlugin.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\HideoutPlugin.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\ResponseInfoPlugin.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\TotalsPlugin.ts" />
   </ItemGroup>
   <ItemGroup />
   <PropertyGroup>

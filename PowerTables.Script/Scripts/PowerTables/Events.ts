@@ -84,6 +84,8 @@
             this.AfterLayoutRendered = new TableEvent(masterTable);
             this.BeforeDataRendered = new TableEvent(masterTable);
             this.AfterDataRendered = new TableEvent(masterTable);
+            this.BeforeClientRowsRendering = new TableEvent(masterTable);
+            
         }
 
         /**
@@ -162,7 +164,7 @@
         public AfterLayoutRendered: TableEvent<any>;
         public AfterDataRendered: TableEvent<any>;
         public BeforeDataRendered: TableEvent<any>;
-
+        
         /**
          * "After Loading" event.
          * Occurs every time after EVERY operation connected to server response handling 

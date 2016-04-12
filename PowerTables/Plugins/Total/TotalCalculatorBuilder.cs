@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using PowerTables.Configuration;
+using PowerTables.FrequentlyUsed;
 
 namespace PowerTables.Plugins.Total
 {
@@ -46,6 +47,27 @@ namespace PowerTables.Plugins.Total
             var name = LambdaHelpers.ParsePropertyLambda(column).Name;
             _calculators.Add(name,calculator);
             _valueFunctions.Add(name,valueFunction);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds total calculator to table
+        /// </summary>
+        /// <param name="column">Table column to provide total with</param>
+        /// <param name="calculator">Total calculator consuming ready-to-send table data and producing some value</param>
+        /// <param name="templateBuilder">Template builder like for usual column, but here is only self reference ('{@}') available </param>
+        /// <returns></returns>
+        public TotalCalculatorBuilder<TSourceData, TTableData> AddTotalTemplate<TTableColumn, TTotalType>(
+            Expression<Func<TTableData, TTableColumn>> column,
+            Func<PowerTablesData<TSourceData, TTableData>, TTotalType> calculator,
+            Action<CellTemplateBuilder> templateBuilder
+            )
+        {
+            var name = LambdaHelpers.ParsePropertyLambda(column).Name;
+            _calculators.Add(name, calculator);
+            CellTemplateBuilder ctb = new CellTemplateBuilder();
+            templateBuilder(ctb);
+            _valueFunctions.Add(name, ctb.Build());
             return this;
         }
 

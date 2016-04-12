@@ -27,6 +27,7 @@ namespace PowerTables.Mvc.Controllers
         protected override void OnActionExecuting(ActionExecutingContext filterContext)
         {
             base.OnActionExecuting(filterContext);
+            
             var attrs = filterContext.ActionDescriptor.GetCustomAttributes(typeof(TutorialAttribute), true);
             if (attrs.Length != 0)
             {
@@ -123,7 +124,7 @@ namespace PowerTables.Mvc.Controllers
             return Handle(c => c.Filtering());
         }
         
-        [Tutorial("Hideout and Response info", 7)]
+        [Tutorial("Hideout, Response info and Totals", 7)]
         public ActionResult HideoutAndResponseInfo()
         {
             return TutPage(c => c.HideoutAndResponseInfo());

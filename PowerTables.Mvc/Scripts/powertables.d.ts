@@ -2186,3 +2186,13 @@ declare module PowerTables.Plugins {
         init(masterTable: IMasterTable): void;
     }
 }
+declare module PowerTables.Plugins {
+    import TotalClientConfiguration = PowerTables.Plugins.Total.ITotalClientConfiguration;
+    class TotalsPlugin extends PluginBase<TotalClientConfiguration> {
+        private _totalsForColumns;
+        private makeTotalsRow();
+        onResponse(e: ITableEventArgs<IDataEventArgs>): void;
+        onClientRowsRendering(e: ITableEventArgs<IRow[]>): void;
+        init(masterTable: IMasterTable): void;
+    }
+}

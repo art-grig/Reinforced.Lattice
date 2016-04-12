@@ -267,6 +267,7 @@
                 if (!row) continue;
                 result.push(row);
             }
+
             return result;
         }
 
