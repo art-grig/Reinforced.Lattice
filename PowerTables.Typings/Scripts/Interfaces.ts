@@ -181,8 +181,10 @@ module PowerTables.Plugins.Checkboxify {
 		SelectionColumnName: string;
 		ResetOnReload: boolean;
 		EnableSelectAll: boolean;
-		SelectAllSelectsUndisplayedData: boolean;
+		SelectAllSelectsServerUndisplayedData: boolean;
+		SelectAllSelectsClientUndisplayedData: boolean;
 		SelectAllOnlyIfAllData: boolean;
+		ResetOnClientReload: boolean;
 	}
 }
 module PowerTables.Plugins.Formwatch {

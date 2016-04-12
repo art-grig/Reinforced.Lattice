@@ -24,6 +24,7 @@ namespace PowerTables.Plugins.Checkboxify
     public interface ICheckboxifySelectAll
     {
         bool IsAllSelected { get; }
+        bool CanSelectAll { get; }
     }
 
     public class CheckboxifiedCellTemplateRegion : PluginTemplateRegion, IModelProvider<ICheckboxifyCellViewModel>

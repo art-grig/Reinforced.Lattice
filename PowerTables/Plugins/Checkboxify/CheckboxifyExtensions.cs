@@ -60,7 +60,7 @@ namespace PowerTables.Plugins.Checkboxify
             this Configurator<TSourceData, TTableData> conf,
             Expression<Func<TTableData, TTableColumn>> column,
             SelectAllBehavior selectAllBehavior = SelectAllBehavior.OnlyIfAllDataVisible,
-            bool resetOnLoad = false
+            bool resetOnLoad = false,bool resetOnClientLoad = false
 
             ) where TTableData : new()
         {
@@ -69,7 +69,8 @@ namespace PowerTables.Plugins.Checkboxify
             CheckboxifyClientConfig ccc = new CheckboxifyClientConfig
             {
                 SelectionColumnName = colName,
-                ResetOnReload = resetOnLoad
+                ResetOnReload = resetOnLoad,
+                ResetOnClientReload = resetOnClientLoad
             };
             switch (selectAllBehavior)
             {
@@ -83,6 +84,10 @@ namespace PowerTables.Plugins.Checkboxify
                 case SelectAllBehavior.OnlyIfAllDataVisible:
                     ccc.EnableSelectAll = true;
                     ccc.SelectAllOnlyIfAllData = true;
+                    break;
+                case SelectAllBehavior.AllLocal:
+                    ccc.EnableSelectAll = true;
+                    ccc.SelectAllSelectsClientUndisplayedData = true;
                     break;
                 case SelectAllBehavior.InvolveServer:
                     try
@@ -98,7 +103,7 @@ namespace PowerTables.Plugins.Checkboxify
                             colName, typeof(TSourceData).FullName, typeof(TTableData).FullName));
                     }
                     ccc.EnableSelectAll = true;
-                    ccc.SelectAllSelectsUndisplayedData = true;
+                    ccc.SelectAllSelectsServerUndisplayedData = true;
                     conf.RegisterCommandHandler<CheckboxifyCommandHandler>("checkboxify_all");
 
                     break;
@@ -131,6 +136,11 @@ namespace PowerTables.Plugins.Checkboxify
         /// <summary>
         /// "Select all" will query server to retrieve all data to select
         /// </summary>
-        InvolveServer
+        InvolveServer,
+
+        /// <summary>
+        /// "Select all" select all available local data
+        /// </summary>
+        AllLocal
     }
 }

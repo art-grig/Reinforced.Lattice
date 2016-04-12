@@ -44,11 +44,11 @@ var PowerTables;
          * @param eventsManager Events manager instance
          * @returns {}
          */
-        ComponentsContainer.registerComponentEvents = function (key, eventsManager) {
+        ComponentsContainer.registerComponentEvents = function (key, eventsManager, masterTable) {
             if (!this._components[key])
                 throw new Error("Component " + key + " is not registered. Please ensure that you have connected all the additional scripts");
             if (this._components[key].registerEvents && {}.toString.call(this._components[key].registerEvents) === '[object Function]') {
-                this._components[key].registerEvents.call(eventsManager, eventsManager);
+                this._components[key].registerEvents.call(eventsManager, eventsManager, masterTable);
             }
         };
         ComponentsContainer._components = {};

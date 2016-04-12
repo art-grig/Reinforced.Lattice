@@ -39,6 +39,23 @@ var PowerTables;
             });
         };
         /**
+         * Redraws row containing currently visible data object
+         *
+         * @param dataObject Data object
+         * @param idx
+         * @returns {}
+         */
+        Controller.prototype.redrawVisibleDataObject = function (dataObject, idx) {
+            if (!idx) {
+                var dispIndex = this._masterTable.DataHolder.localLookupDisplayedData(dataObject);
+                if (dispIndex == null)
+                    throw new Error('Cannot redraw object because it is not displaying currently');
+                idx = dispIndex.DisplayedIndex;
+            }
+            var row = this.produceRow(dataObject, idx);
+            this._masterTable.Renderer.redrawRow(row);
+        };
+        /**
          * Redraws locally visible data
          */
         Controller.prototype.redrawVisibleData = function () {
@@ -81,51 +98,76 @@ var PowerTables;
             this._rowDomSubscriptions[subscription.EventId].push(subscription);
             this.ensureEventSubscription(subscription.EventId);
         };
+        //#region event delegation hell
         Controller.prototype.ensureEventSubscription = function (eventId) {
             var fn = this.onTableEvent.bind(this);
-            this._attachFn(eventId, fn);
+            this._attachFn.call(this._masterTable.Renderer.BodyElement, eventId, fn);
             this._domEvents[eventId] = fn;
         };
-        Controller.prototype.onTableEvent = function (e) {
-            var subscriptions = null;
-            var isCell = false;
-            if (this._masterTable.Renderer.Locator.isCell(e.currentTarget)) {
-                subscriptions = this._cellDomSubscriptions[e.type];
-                isCell = true;
-            }
-            if (this._masterTable.Renderer.Locator.isRow(e.currentTarget)) {
-                subscriptions = this._rowDomSubscriptions[e.type];
-            }
-            if (!subscriptions)
-                return;
-            if (subscriptions.length === 0)
-                return;
-            var eventArgs;
-            if (isCell) {
-                var location = PowerTables.TrackHelper.getCellLocation(e.currentTarget);
-                eventArgs = {
-                    Table: this._masterTable,
-                    DisplayingRowIndex: location.RowIndex,
-                    ColumnIndex: location.ColumnIndex,
-                    OriginalEvent: e
-                };
-            }
-            else {
-                var ridx = PowerTables.TrackHelper.getRowIndex(e.currentTarget);
-                eventArgs = {
-                    Table: this._masterTable,
-                    DisplayingRowIndex: ridx,
-                    OriginalEvent: e
-                };
-            }
-            for (var i = 0; i < subscriptions.length; i++) {
-                if (subscriptions[i].Selector) {
-                    if (!this._matches.apply(e.target, subscriptions[i].Selector))
-                        continue;
+        Controller.prototype.traverseSubscriptions = function (target, eventType, originalEvent) {
+            var t = target;
+            var forRow = this._rowDomSubscriptions[eventType];
+            var forCell = this._cellDomSubscriptions[eventType];
+            var result = [];
+            if (!forRow)
+                forRow = [];
+            if (!forCell)
+                forCell = [];
+            if (forRow.length === 0 && forCell.length === 0)
+                return result;
+            var pathToCell = [];
+            var pathToRow = [];
+            var cellLocation = null, rowIndex = null;
+            while (t !== this._masterTable.Renderer.BodyElement) {
+                if (this._masterTable.Renderer.Locator.isCell(t)) {
+                    cellLocation = PowerTables.TrackHelper.getCellLocation(t);
                 }
-                subscriptions[i].Handler(eventArgs);
+                if (this._masterTable.Renderer.Locator.isRow(t)) {
+                    rowIndex = PowerTables.TrackHelper.getRowIndex(t);
+                }
+                if (cellLocation == null)
+                    pathToCell.push(t);
+                if (rowIndex == null)
+                    pathToRow.push(t);
+                t = t.parentElement;
+            }
+            if (cellLocation != null) {
+                var cellArgs = {
+                    Table: this._masterTable,
+                    OriginalEvent: originalEvent,
+                    DisplayingRowIndex: cellLocation.RowIndex,
+                    ColumnIndex: cellLocation.ColumnIndex
+                };
+                this.traverseAndFire(forCell, pathToCell, cellArgs);
+            }
+            if (rowIndex != null) {
+                var rowArgs = {
+                    Table: this._masterTable,
+                    OriginalEvent: originalEvent,
+                    DisplayingRowIndex: rowIndex
+                };
+                this.traverseAndFire(forRow, pathToRow, rowArgs);
             }
         };
+        Controller.prototype.traverseAndFire = function (subscriptions, path, args) {
+            for (var i = 0; i < subscriptions.length; i++) {
+                if (subscriptions[i].Selector) {
+                    for (var j = 0; j < path.length; j++) {
+                        if (this._matches.call(path[j], subscriptions[i].Selector)) {
+                            subscriptions[i].Handler(args);
+                            break;
+                        }
+                    }
+                }
+                else {
+                    subscriptions[i].Handler(args);
+                }
+            }
+        };
+        Controller.prototype.onTableEvent = function (e) {
+            this.traverseSubscriptions((e.target || e.srcElement), e.type, e);
+        };
+        //#endregion
         /**
          * Inserts data entry to local storage
          *
@@ -212,6 +254,14 @@ var PowerTables;
             this._masterTable.DataHolder.DisplayedData = this._masterTable.DataHolder.orderSet(this._masterTable.DataHolder.DisplayedData, this._masterTable.DataHolder.RecentClientQuery);
             this.redrawVisibleData();
         };
+        /**
+         * Converts data object to display row
+         *
+         * @param dataObject Data object
+         * @param idx Object's displaying index
+         * @param columns Optional displaying columns set
+         * @returns {IRow} Row representing displayed object
+         */
         Controller.prototype.produceRow = function (dataObject, idx, columns) {
             if (!dataObject)
                 return null;
@@ -224,6 +274,7 @@ var PowerTables;
             };
             if (dataObject.IsMessage) {
                 rw.renderElement = function (hb) { return hb.getCachedTemplate('messages')(dataObject); };
+                rw.IsSpecial = true;
                 return rw;
             }
             var cells = {};

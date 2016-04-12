@@ -98,7 +98,7 @@
             // registering additional events
             for (var j = 0; j < pluginsConfiguration.length; j++) {
                 var epConf = pluginsConfiguration[j];
-                ComponentsContainer.registerComponentEvents(epConf.PluginId, this._events);
+                ComponentsContainer.registerComponentEvents(epConf.PluginId, this._events, this._masterTable);
             }
            
             // instantiating and initializing plugins

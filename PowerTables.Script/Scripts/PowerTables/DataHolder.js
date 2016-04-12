@@ -223,6 +223,44 @@ var PowerTables;
          * @param index Index of desired data object among locally displaying data
          * @returns ILocalLookupResult
          */
+        DataHolder.prototype.localLookupDisplayedDataObject = function (dataObject) {
+            var index = this.DisplayedData.indexOf(dataObject);
+            if (index < 0)
+                return null;
+            var result = {
+                DataObject: dataObject,
+                IsCurrentlyDisplaying: true,
+                DisplayedIndex: index,
+                LoadedIndex: this.StoredData.indexOf(dataObject)
+            };
+            return result;
+        };
+        /**
+         * Finds data object among currently displayed and returns ILocalLookupResult
+         * containing also Loaded-set index of this data object
+         *
+         * @param index Index of desired data object among locally displaying data
+         * @returns ILocalLookupResult
+         */
+        DataHolder.prototype.localLookupStoredDataObject = function (dataObject) {
+            var index = this.StoredData.indexOf(dataObject);
+            if (index < 0)
+                return null;
+            var result = {
+                DataObject: dataObject,
+                IsCurrentlyDisplaying: true,
+                DisplayedIndex: this.DisplayedData.indexOf(dataObject),
+                LoadedIndex: index
+            };
+            return result;
+        };
+        /**
+         * Finds data object among currently displayed and returns ILocalLookupResult
+         * containing also Loaded-set index of this data object
+         *
+         * @param index Index of desired data object among locally displaying data
+         * @returns ILocalLookupResult
+         */
         DataHolder.prototype.localLookupDisplayedData = function (index) {
             if (index < 0)
                 return null;

@@ -1,4 +1,5 @@
-﻿@using PowerTables
+﻿@using System.IdentityModel.Tokens
+@using PowerTables
 @using PowerTables.Filters.Range
 @using PowerTables.Filters.Select
 @using PowerTables.Filters.Value
@@ -332,11 +333,14 @@
 @using (var t = Plugin.CheckboxifySelectAll())
 {
     <th @t.Track()>
-        @using (t.If(c => c.IsAllSelected))
+        @using (t.If(c => c.CanSelectAll))
         {
-            <button class="btn btn-xs btn-danger" @t.BindSelectAll("click")><span class="glyphicon glyphicon-check"></span></button>
-            @t.Else()
-            <button class="btn btn-xs btn-primary" @t.BindSelectAll("click")><span class="glyphicon glyphicon-unchecked"></span></button>
+            using (t.If(c => c.IsAllSelected))
+            {
+                <button class="btn btn-xs btn-danger" @t.BindSelectAll("click")><span class="glyphicon glyphicon-check"></span></button>
+                @t.Else()
+                <button class="btn btn-xs btn-primary" @t.BindSelectAll("click")><span class="glyphicon glyphicon-unchecked"></span></button>
+            }
         }
     </th>
 }
@@ -347,9 +351,9 @@
     {
         using (t.If(c => c.IsChecked))
         {
-            <button class="btn btn-xs btn-danger" @t.ThisWillTriggerSelection()><span class="glyphicon glyphicon-check"></span></button>
+            <span class="glyphicon glyphicon-check" @t.ThisWillTriggerSelection()></span>
             @t.Else()
-            <button class="btn btn-xs btn-primary" @t.ThisWillTriggerSelection()><span class="glyphicon glyphicon-unchecked"></span></button>
+            <span class="glyphicon glyphicon-unchecked" @t.ThisWillTriggerSelection()></span>
         }
     }
 }

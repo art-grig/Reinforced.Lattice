@@ -67,7 +67,7 @@ var PowerTables;
                 return null;
             if (!e.getAttribute)
                 return null;
-            var trk = e.getAttribute('data-track').substring(2).split('-c');
+            var trk = e.getAttribute('data-track').substring(3).split('-c');
             return {
                 RowIndex: parseInt(trk[0]),
                 ColumnIndex: parseInt(trk[1])

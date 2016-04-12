@@ -33,7 +33,8 @@ var PowerTables;
                     DataObject: dataObject,
                     Cells: {},
                     renderContent: null,
-                    renderElement: null
+                    renderElement: null,
+                    IsSpecial: true
                 };
                 for (var i = 0; i < cols.length; i++) {
                     var col = cols[i];

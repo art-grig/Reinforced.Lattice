@@ -16,17 +16,17 @@ namespace PowerTables.Mvc.Models.Tutorial
             {
                 "Everything",           // any text will be interpreted as "all records"
                 "-",                    // dash will be interpreted as separator
-                "5", "10", "-", "50", "100"
+                "5", "10", "-", "50", "100","250","1000","2000"
             }, "10"));
 
-            
+
             conf.Paging(
                 ui =>
                     ui.PlaceAt("rb")
                     .Configuration
                     .EnableClientPaging() // Client limiting cannot work without client paging
                     .PagingWithPeriods(   // lets pick most complex pagin
-                        useGotoPage: true, 
+                        useGotoPage: true,
                         useFirstLasPage: true));
             return conf;
         }

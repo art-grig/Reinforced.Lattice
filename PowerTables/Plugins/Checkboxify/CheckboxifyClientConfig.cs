@@ -10,15 +10,19 @@ namespace PowerTables.Plugins.Checkboxify
     public class CheckboxifyClientConfig
     {
         public string SelectionColumnName { get; set; }
-        
+
         public bool ResetOnReload { get; set; }
 
         public bool EnableSelectAll { get; set; }
 
-        public bool SelectAllSelectsUndisplayedData { get; set; }
+        public bool SelectAllSelectsServerUndisplayedData { get; set; }
+
+        public bool SelectAllSelectsClientUndisplayedData { get; set; }
 
         public bool SelectAllOnlyIfAllData { get; set; }
-       
+
+        public bool ResetOnClientReload { get; set; }
+
     }
-    
+
 }

@@ -70,7 +70,7 @@ var PowerTables;
             // registering additional events
             for (var j = 0; j < pluginsConfiguration.length; j++) {
                 var epConf = pluginsConfiguration[j];
-                PowerTables.ComponentsContainer.registerComponentEvents(epConf.PluginId, this._events);
+                PowerTables.ComponentsContainer.registerComponentEvents(epConf.PluginId, this._events, this._masterTable);
             }
             // instantiating and initializing plugins
             for (var l = 0; l < pluginsConfiguration.length; l++) {

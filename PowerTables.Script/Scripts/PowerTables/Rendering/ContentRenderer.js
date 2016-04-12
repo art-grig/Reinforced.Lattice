@@ -83,6 +83,15 @@ var PowerTables;
                 }
                 ;
             };
+            /**
+             * Adds/replaces column rendering function for specified column
+             *
+             * @param column Column to cache renderer for
+             * @param fn Rendering function
+             */
+            ContentRenderer.prototype.cacheColumnRenderingFunction = function (column, fn) {
+                this._columnsRenderFunctions[column.Configuration.RawColumnName] = fn;
+            };
             return ContentRenderer;
         })();
         Rendering.ContentRenderer = ContentRenderer;

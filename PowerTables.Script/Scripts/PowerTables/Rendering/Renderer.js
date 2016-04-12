@@ -14,8 +14,8 @@ var PowerTables;
                 this._rootId = rootId;
                 this._events = events;
                 this.HandlebarsInstance = Handlebars.create();
-                this._layoutRenderer = new Rendering.LayoutRenderer(this, this._stack, this._instances);
-                this._contentRenderer = new Rendering.ContentRenderer(this, this._stack, this._instances);
+                this.LayoutRenderer = new Rendering.LayoutRenderer(this, this._stack, this._instances);
+                this.ContentRenderer = new Rendering.ContentRenderer(this, this._stack, this._instances);
                 this.BackBinder = new Rendering.BackBinder(this.HandlebarsInstance, instances, this._stack);
                 this.HandlebarsInstance.registerHelper("ifq", this.ifqHelper);
                 this.HandlebarsInstance.registerHelper("ifloc", this.iflocHelper.bind(this));
@@ -69,7 +69,7 @@ var PowerTables;
             Renderer.prototype.body = function (rows) {
                 this._events.BeforeClientRowsRendering.invoke(this, rows);
                 this.clearBody();
-                var html = this._contentRenderer.renderBody(rows);
+                var html = this.ContentRenderer.renderBody(rows);
                 this.BodyElement.innerHTML = html;
                 this._events.AfterDataRendered.invoke(this, null);
             };
@@ -84,7 +84,7 @@ var PowerTables;
                 var oldPluginElement = this.Locator.getPluginElement(plugin);
                 var parent = oldPluginElement.parentElement;
                 var parser = new PowerTables.Rendering.Html2Dom.HtmlParser();
-                var html = this._layoutRenderer.renderPlugin(plugin);
+                var html = this.LayoutRenderer.renderPlugin(plugin);
                 var newPluginElement = parser.html2Dom(html);
                 parent.replaceChild(newPluginElement, oldPluginElement);
                 this.BackBinder.backBind(newPluginElement);
@@ -97,6 +97,7 @@ var PowerTables;
              */
             Renderer.prototype.redrawRow = function (row) {
                 this._stack.clear();
+                this._stack.push(Rendering.RenderingContextType.Row, row);
                 var wrapper = this.getCachedTemplate('rowWrapper');
                 var html;
                 if (row.renderElement) {
@@ -105,6 +106,7 @@ var PowerTables;
                 else {
                     html = wrapper(row);
                 }
+                this._stack.popContext();
                 var oldElement = this.Locator.getRowElement(row);
                 this.replaceElement(oldElement, html);
             };
@@ -145,10 +147,10 @@ var PowerTables;
              */
             Renderer.prototype.redrawHeader = function (column) {
                 this._stack.clear();
-                var html = this._layoutRenderer.renderHeader(column);
+                var html = this.LayoutRenderer.renderHeader(column);
                 var oldHeaderElement = this.Locator.getHeaderElement(column.Header);
                 var newElement = this.replaceElement(oldHeaderElement, html);
-                this.BackBinder.backBind(newElement.parentElement);
+                this.BackBinder.backBind(newElement);
             };
             Renderer.prototype.createElement = function (html) {
                 var parser = new PowerTables.Rendering.Html2Dom.HtmlParser();
@@ -180,10 +182,10 @@ var PowerTables;
                     switch (this._stack.Current.Type) {
                         case Rendering.RenderingContextType.Header:
                         case Rendering.RenderingContextType.Plugin:
-                            return this._layoutRenderer.renderContent(columnName);
+                            return this.LayoutRenderer.renderContent(columnName);
                         case Rendering.RenderingContextType.Row:
                         case Rendering.RenderingContextType.Cell:
-                            return this._contentRenderer.renderContent(columnName);
+                            return this.ContentRenderer.renderContent(columnName);
                         default:
                             throw new Error("Unknown rendering context type");
                     }

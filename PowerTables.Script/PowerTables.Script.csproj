@@ -45,6 +45,7 @@
     <TypeScriptCompile Include="Scripts\Typings\HideoutPlugin.d.ts" />
     <TypeScriptCompile Include="Scripts\Typings\Limit.d.ts" />
     <TypeScriptCompile Include="Scripts\Typings\PagingPlugin.d.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\PluginBase.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\BackBinder.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\ContentRenderer.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\HtmlToDom.ts" />
@@ -54,7 +55,6 @@
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\RenderingStack.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\TrackHelper.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\PowerTables.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\PluginBase.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\FilterBase.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Loading.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Ordering.ts" />
@@ -67,6 +67,7 @@
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\ResponseInfoPlugin.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\TotalsPlugin.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\CheckboxifyPlugin.ts" />
+    <TypeScriptCompile Include="Scripts\Typings\CheckboxifyPlugin.d.ts" />
   </ItemGroup>
   <ItemGroup />
   <PropertyGroup>
@@ -98,6 +99,7 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
+    <TypeScriptOutFile>..\PowerTables.Mvc\Scripts\powertables.js</TypeScriptOutFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TypeScriptRemoveComments>False</TypeScriptRemoveComments>
