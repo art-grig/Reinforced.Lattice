@@ -280,3 +280,9 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 /packages
+/PowerTables.Script/Scripts/PowerTables/*.js
+/PowerTables.Script/Scripts/PowerTables/*.map
+/PowerTables.Script/Scripts/PowerTables/Rendering/*.js
+/PowerTables.Script/Scripts/PowerTables/Rendering/*.map
+/PowerTables.Script/Scripts/PowerTables/Plugins/*.js
+/PowerTables.Script/Scripts/PowerTables/Plugins/*.map
