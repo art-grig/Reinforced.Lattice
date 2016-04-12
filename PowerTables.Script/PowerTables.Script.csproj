@@ -68,6 +68,7 @@
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\TotalsPlugin.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\CheckboxifyPlugin.ts" />
     <TypeScriptCompile Include="Scripts\Typings\CheckboxifyPlugin.d.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\ToolbarPlugin.ts" />
   </ItemGroup>
   <ItemGroup />
   <PropertyGroup>

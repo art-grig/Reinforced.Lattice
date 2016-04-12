@@ -10,6 +10,7 @@
 @using PowerTables.Plugins.Ordering
 @using PowerTables.Plugins.Paging
 @using PowerTables.Plugins.ResponseInfo
+@using PowerTables.Plugins.Toolbar
 @using PowerTables.Templating
 @using PowerTables.Templating.BuiltIn
 @using PowerTables.Templating.Handlebars
@@ -27,12 +28,12 @@
         <div class="row">
             <div class="col-md-6 col-sm-6 col-xs-6 col-lg-6">
                 @t.Plugins("lt")
-                <div class="btn-group" style="margin-bottom: 10px">@t.Plugins("lt-toolbar")</div>
+                <div class="btn-group" style="margin-bottom: 10px">@t.Plugins("toolbar-lt")</div>
                 <br />
             </div>
             <div class="col-md-6 col-sm-6 col-xs-6 col-lg-6 text-right">
                 @t.Plugins("rt")
-                <div class="btn-group" style="padding-bottom: 10px">@t.Plugins("rt-toolbar")</div>
+                <div class="btn-group" style="padding-bottom: 10px">@t.Plugins("toolbar-rt")</div>
             </div>
         </div>
         <div class="row">
@@ -52,11 +53,11 @@
         <div class="row">
             <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
                 @t.Plugins("lb")
-                <div class="btn-group">@t.Plugins("lb-toolbar")</div>
+                <div class="btn-group">@t.Plugins("toolbar-lb")</div>
             </div>
             <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 text-right" style="float: right;">
                 @t.Plugins("rb")
-                <div class="btn-group">@t.Plugins("rb-toolbar")</div>
+                <div class="btn-group">@t.Plugins("toolbar-rb")</div>
             </div>
         </div>
     </div>
@@ -70,14 +71,14 @@
 @using (var t = this.PluginWrapper())
 {
     <text>
-        @using (t.IfPlacement("lt"))
-        { <span @t.Track()> @t.Content() </span> }
-        @using (t.IfPlacement("lb"))
-        { <div @t.Track()> @t.Content() </div> }
-        @using (t.IfPlacement("rt"))
-        { <div style="float: right;" @t.Track()> @t.Content() </div> }
-        @using (t.IfPlacement("rb"))
-        { <div style="float: right;" @t.Track()> @t.Content() </div> }
+        @using (t.IfPlacement("lt")) { <span @t.Track()> @t.Content() </span> }
+        @using (t.IfPlacement("toolbar-lt")) { <span @t.Track()> @t.Content() </span> }
+        @using (t.IfPlacement("lb")) { <div @t.Track()> @t.Content() </div> }
+        @using (t.IfPlacement("toolbar-lb")) { <div @t.Track()> @t.Content() </div> }
+        @using (t.IfPlacement("rt")){ <div style="float: right;" @t.Track()> @t.Content() </div> }
+        @using (t.IfPlacement("toolbar-rt")) { <div style="float: right;" @t.Track()> @t.Content() </div> }
+        @using (t.IfPlacement("rb")) { <div style="float: right;" @t.Track()> @t.Content() </div> }
+        @using (t.IfPlacement("toolbar-rb")) { <div style="float: right;" @t.Track()> @t.Content() </div> }
         @using (t.IfPlacement("filter"))
         { <th @t.Track()>@t.Content()</th> }
     </text>
@@ -362,4 +363,44 @@
 @using (var t = Plugin.CheckboxifyRow())
 {
     <tr class="success" @t.Track()>@t.Content()</tr>
+}
+
+@using (var t = Plugin.Toolbar())
+{
+    using (var btn = t.Each(c => c.Configuration.Buttons))
+    {
+        using (btn.Unless(c => c.HasSubmenu))
+        {
+            <button type="button" data-role="toolbar-btn" class="btn btn-default @btn.Value(c=>c.Css)" title="@btn.Value(c=>c.Title)" id="@btn.Value(c=>c.Id)" data-idx="{{TempId}}">@btn.HtmlValue(c => c.HtmlContent)</button>
+            @btn.Else()
+            <div class="btn-group">
+                @btn.If(c => c.IsMenu, "<div class=\"btn-group\" role=\"group\">")
+                @using (btn.If(c => c.IsMenu))
+                {
+                    <button type="button" id="@btn.Value(c => c.Id)" class="btn @btn.Value(c => c.Css) dropdown-toggle" title="@btn.Value(c => c.Title)" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        @btn.HtmlValue(c => c.HtmlContent)
+                        <span class="caret"></span>
+                    </button>
+                    @btn.Else()
+                    <button type="button" id="@btn.Value(c=>c.Id)" class="btn @btn.Value(c=>c.Css)" data-idx="{{TempId}}" title="@btn.Value(c=>c.Title)">@btn.HtmlValue(c => c.HtmlContent)</button>
+                    <button type="button" class="btn {{Css}} dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span class="caret"></span>
+                        <span class="sr-only">Toggle Dropdown</span>
+                    </button>
+                }
+                <ul class="dropdown-menu">
+                    @using (var sm = btn.Each(c => c.Submenu))
+                    {
+                        using (sm.If(c => c.Separator))
+                        {
+                            <li role="separator" class="divider"></li>
+                            @sm.Else()
+                            <li data-idx="{{TempId}}" style="cursor: pointer" class="@sm.Value(c=>c.Css)" id="@sm.Value(c=>c.Id)"><a title="@sm.Value(c=>c.Title)">@sm.HtmlValue(c => c.HtmlContent)</a></li>
+                        }
+                    }
+                </ul>
+                @btn.If(c => c.IsMenu, "</div>")
+            </div>
+        }
+    }
 }

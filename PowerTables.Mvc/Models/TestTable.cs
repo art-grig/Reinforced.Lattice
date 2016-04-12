@@ -59,34 +59,7 @@ namespace PowerTables.Mvc.Models
                 .Limit(
                     ui => ui.PlaceAt("lt").Configuration.Values(new[] {"Every", "-", "5", "10", "-", "50", "100"}, "10"))
                 .Paging(ui => ui.Configuration.PagingSimple(useFirstLasPage: true, useGotoPage: true))
-                .Toolbar("rt-toolbar", a =>
-                {
-                    //a.AddSimpleButton("filter".GlyphIcon() + "Toggle filters")
-                    //    .Id("btnHideFilters")
-                    //    .OnClick("function (t) { t.Renderer.toggleFilters(); }");
-
-                    a.AddCommandButton("remove".GlyphIcon() + "Remove selected", Remove)
-                        .DisableIfNothingChecked()
-                        .ShowMessageResponseCallback();
-
-                    a.AddCommandButton("download".GlyphIcon() + "Download", Download);
-
-                    a.AddMenu("th".GlyphIcon() + "Excel export", b =>
-                    {
-                        b.AddCommandItem("star".GlyphIcon("left") + "Export all", ExportAll);
-                        b.AddCommandItem("save".GlyphIcon("left") + "Export selected", ExportSelected)
-                            .DisableIfNothingChecked();
-                    }).Css("btn-primary");
-
-                    a.AddMenuButton("record".GlyphIcon() + "And this is button menu", "something", b =>
-                    {
-                        b.AddSimpleItem("Simple active item").Css("active");
-                        b.Separator();
-                        b.AddSimpleItem("Simple inactive item");
-
-                    }).Css("btn-primary");
-                }
-                )
+               
                 .LoadingIndicator()
                 .HideoutMenu(c => c.IncludeAll().Except(a => a.Id), ui => ui.PlaceAt("lt"))
                 .Checkboxify(c => c.Id, selectAllBehavior: SelectAllBehavior.InvolveServer)
