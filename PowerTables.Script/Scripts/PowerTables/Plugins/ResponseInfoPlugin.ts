@@ -25,7 +25,7 @@
                 };
             }
         }
-        onClientDataProcessed() {
+        onClientDataProcessed(e:ITableEventArgs<IClientDataResults>) {
             if (this.Configuration.ResponseObjectOverriden) return;
 
             if (!this.Configuration.ClientEvaluationFunction) {
@@ -39,8 +39,7 @@
                 };
             } else {
                 this._recentData = this.Configuration.ClientEvaluationFunction(
-                    this.MasterTable.DataHolder.DisplayedData,
-                    this.MasterTable.DataHolder.StoredData,
+                    e.EventArgs,
                     (!this._pagingPlugin) ? 0 : (this._pagingPlugin.getCurrentPage()),
                     (!this._pagingPlugin) ? 0 : (this._pagingPlugin.getTotalPages())
                     );

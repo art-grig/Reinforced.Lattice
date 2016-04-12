@@ -52,7 +52,7 @@
             this.MasterTable.Renderer.redrawPlugin(this);
         }
 
-        private onClientDataProcessing(e: ITableEventArgs<IClientData>) {
+        private onClientDataProcessing(e: ITableEventArgs<IClientDataResults>) {
             var tp = e.EventArgs.Filtered.length / this._pageSize;
             if (tp !== parseInt(<any>tp)) {
                 tp = parseInt(<any>tp) + 1;
@@ -174,7 +174,7 @@
             if (!this.Configuration.EnableClientPaging) {
                 this.MasterTable.Events.DataReceived.subscribe(this.onResponse.bind(this), 'paging');
             } else {
-                this.MasterTable.Events.ClientDataFiltered.subscribe(this.onClientDataProcessing.bind(this), 'paging');
+                this.MasterTable.Events.AfterClientDataProcessing.subscribe(this.onClientDataProcessing.bind(this), 'paging');
             }
             this.MasterTable.Events.ColumnsCreation.subscribe(this.onColumnsCreation.bind(this), 'paging');
 

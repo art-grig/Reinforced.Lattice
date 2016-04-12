@@ -19,39 +19,7 @@ var PowerTables;
                 this._hb.registerHelper('Plugins', this.pluginsHelper.bind(this));
                 this._hb.registerHelper('Header', this.headerHelper.bind(this));
                 this._hb.registerHelper('Headers', this.headersHelper.bind(this));
-                this._hb.registerHelper('BindEvent', this.bindEventHelper.bind(this));
             }
-            /**
-             * Applies binding of events left in events queue
-             *
-             * @param parentElement Parent element to lookup for event binding attributes
-             * @returns {}
-             */
-            LayoutRenderer.prototype.bindEventsQueue = function (parentElement) {
-                // bind plugins/filters events
-                var sources = parentElement.querySelectorAll('[data-be]');
-                for (var i = 0; i < sources.length; i++) {
-                    var domSource = sources.item(i);
-                    var bindTrack = parseInt(domSource.getAttribute('data-be'));
-                    var subscription = this._eventsQueue[bindTrack];
-                    for (var j = 0; j < subscription.Functions.length; j++) {
-                        var bindFn = subscription.Functions[j];
-                        var handler = null;
-                        if (subscription.EventReceiver[bindFn] && (typeof subscription.EventReceiver[bindFn] === 'function')) {
-                            handler = subscription[bindFn];
-                        }
-                        else {
-                            handler = eval(bindFn);
-                        }
-                        for (var k = 0; k < subscription.Events.length; k++) {
-                            (function (evtTarget, evtSource, fn, e) {
-                                evtSource.addEventListener(e, function (evt) { return fn.apply(evtTarget, [evtSource, evt]); });
-                            })(subscription.EventReceiver, domSource, handler, subscription.Events[k]);
-                        }
-                    }
-                    domSource.removeAttribute('data-be');
-                }
-            };
             //#region Handlebars helpers
             LayoutRenderer.prototype.bodyHelper = function () {
                 return '<input type="hidden" data-track="tableBodyHere" style="display:none;"/>';
@@ -124,16 +92,6 @@ var PowerTables;
             };
             //#endregion
             //#region
-            LayoutRenderer.prototype.bindEventHelper = function (commaSeparatedFunctions, commaSeparatedEvents) {
-                var ed = {
-                    EventReceiver: this._stack.Current.Object,
-                    Functions: commaSeparatedFunctions.split(','),
-                    Events: commaSeparatedEvents.split(',')
-                };
-                var index = this._eventsQueue.length;
-                this._eventsQueue.push(ed);
-                return "data-be=" + index;
-            };
             LayoutRenderer.prototype.renderContent = function (columnName) {
                 switch (this._stack.Current.Type) {
                     case Rendering.RenderingContextType.Header:

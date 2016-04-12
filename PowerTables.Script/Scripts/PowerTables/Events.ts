@@ -79,7 +79,6 @@
             
             this.BeforeClientDataProcessing = new TableEvent(masterTable);
             this.AfterClientDataProcessing = new TableEvent(masterTable);
-            this.ClientDataFiltered = new TableEvent(masterTable);
             this.BeforeLayoutRendered = new TableEvent(masterTable);
             this.AfterLayoutRendered = new TableEvent(masterTable);
             this.BeforeDataRendered = new TableEvent(masterTable);
@@ -159,8 +158,7 @@
         public DataReceived: TableEvent<IDataEventArgs>;
         
         public BeforeClientDataProcessing: TableEvent<IQuery>;
-        public AfterClientDataProcessing: TableEvent<IQuery>;
-        public ClientDataFiltered: TableEvent<IClientData>;
+        public AfterClientDataProcessing: TableEvent<IClientDataResults>;
         public AfterLayoutRendered: TableEvent<any>;
         public AfterDataRendered: TableEvent<any>;
         public BeforeDataRendered: TableEvent<any>;
@@ -195,6 +193,28 @@
             this[eventName] = new TableEvent(this._masterTable);
         }
 
+    }
+
+    /**
+     * Interface for client data results event args
+     */
+    export interface IClientDataResults {
+        /**
+         * Source data
+         */
+        Source: any[];
+        /**
+         * Filtered data
+         */
+        Filtered: any[];
+        /**
+         * Ordered data
+         */
+        Ordered: any[];
+        /**
+         * Actually displaying data
+         */
+        Displaying:any[];
     }
 
     /**
@@ -290,10 +310,4 @@
          */
         Scope: QueryScope;
     }
-
-    export interface IClientData {
-        Filtered: any[];
-        Ordered:any[];
-    }
-
 } 

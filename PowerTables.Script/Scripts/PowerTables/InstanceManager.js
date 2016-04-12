@@ -21,17 +21,34 @@ var PowerTables;
             this.Configuration = configuration;
             this._masterTable = masterTable;
             this._events = events;
+            this._isHandlingSpecialPlacementCase = !(!this.Configuration.EmptyFiltersPlaceholder);
+            this._specialCasePlaceholder = this.Configuration.EmptyFiltersPlaceholder;
             this.initColumns();
         }
+        /**
+         * Attaches datepicker component to HTML element
+         *
+         * @param element HTML element
+         */
+        InstanceManager.prototype.createDatePicker = function (element) {
+            this.Configuration.DatePickerFunction(element, this.Configuration.ClientDateTimeFormat);
+        };
         InstanceManager.prototype.initColumns = function () {
             var columns = [];
             for (var i = 0; i < this.Configuration.Columns.length; i++) {
+                var cnf = this.Configuration.Columns[i];
                 var c = {
-                    Configuration: this.Configuration.Columns[i],
-                    RawName: this.Configuration.Columns[i].RawColumnName,
+                    Configuration: cnf,
+                    RawName: cnf.RawColumnName,
                     MasterTable: this._masterTable,
                     Header: null,
-                    Order: i
+                    Order: i,
+                    IsDateTime: InstanceManager._datetimeTypes.indexOf(cnf.ColumnType) > -1,
+                    IsString: InstanceManager._stringTypes.indexOf(cnf.ColumnType) > -1,
+                    IsFloat: InstanceManager._floatTypes.indexOf(cnf.ColumnType) > -1,
+                    IsInteger: InstanceManager._integerTypes.indexOf(cnf.ColumnType) > -1,
+                    IsBoolean: InstanceManager._booleanTypes.indexOf(cnf.ColumnType) > -1,
+                    IsEnum: cnf.IsEnum
                 };
                 c.Header = {
                     Column: c,
@@ -45,33 +62,94 @@ var PowerTables;
             for (var j = 0; j < columns.length; j++) {
                 this._rawColumnNames.push(columns[j].RawName);
             }
-            this._events.ColumnsCreation.invoke(this, this.Columns);
         };
         InstanceManager.prototype.initPlugins = function () {
             var pluginsConfiguration = this.Configuration.PluginsConfiguration;
-            for (var pluginId in pluginsConfiguration) {
-                if (pluginsConfiguration.hasOwnProperty(pluginId)) {
-                    var conf = pluginsConfiguration[pluginId];
-                    var plugin = PowerTables.ComponentsContainer.resolveComponent(conf.PluginId);
-                    plugin.PluginLocation = pluginId;
-                    plugin.RawConfig = conf;
-                    plugin.init(this._masterTable);
-                    this.Plugins[pluginId] = plugin;
+            var specialCases = {};
+            var anySpecialCases = false;
+            // registering additional events
+            for (var j = 0; j < pluginsConfiguration.length; j++) {
+                var epConf = pluginsConfiguration[j];
+                PowerTables.ComponentsContainer.registerComponentEvents(epConf.PluginId, this._events);
+            }
+            // instantiating and initializing plugins
+            for (var l = 0; l < pluginsConfiguration.length; l++) {
+                var conf = pluginsConfiguration[l];
+                var plugin = PowerTables.ComponentsContainer.resolveComponent(conf.PluginId);
+                plugin.PluginLocation = (!conf.Placement) ? conf.PluginId : conf.Placement + "-" + conf.PluginId;
+                plugin.RawConfig = conf;
+                plugin.Order = conf.Order;
+                plugin.init(this._masterTable);
+                if (this._isHandlingSpecialPlacementCase && this.startsWith(conf.Placement, this._specialCasePlaceholder)) {
+                    specialCases[conf.Placement] = plugin;
+                    anySpecialCases = true;
+                }
+                else {
+                    this.Plugins[plugin.PluginLocation] = plugin;
                 }
             }
+            for (var pluginId in pluginsConfiguration) {
+                if (pluginsConfiguration.hasOwnProperty(pluginId)) {
+                }
+            }
+            // handling special filters case
+            if (this._isHandlingSpecialPlacementCase) {
+                if (anySpecialCases) {
+                    var columns = this.getUiColumnNames();
+                    for (var i = 0; i < columns.length; i++) {
+                        var c = columns[i];
+                        var id = this._specialCasePlaceholder + "-" + c;
+                        var specialPlugin = null;
+                        for (var k in specialCases) {
+                            if (this.startsWith(k, id)) {
+                                specialPlugin = specialCases[k];
+                            }
+                        }
+                        if (specialPlugin == null) {
+                            specialPlugin = {
+                                PluginLocation: id + "-empty",
+                                renderContent: function () { return ''; }
+                            };
+                        }
+                        specialPlugin.Order = i;
+                        this.Plugins[specialPlugin.PluginLocation] = specialPlugin;
+                    }
+                }
+            }
+            this._events.ColumnsCreation.invoke(this, this.Columns);
+        };
+        InstanceManager.prototype.startsWith = function (s1, prefix) {
+            if (s1 == undefined || s1 === null)
+                return false;
+            if (prefix.length > s1.length)
+                return false;
+            if (s1 === prefix)
+                return true;
+            var part = s1.substring(0, prefix.length);
+            return part === prefix;
+        };
+        InstanceManager.prototype.endsWith = function (s1, postfix) {
+            if (s1 == undefined || s1 === null)
+                return false;
+            if (postfix.length > s1.length)
+                return false;
+            if (s1 === postfix)
+                return true;
+            var part = s1.substring(s1.length - postfix.length - 1, postfix.length);
+            return part === postfix;
         };
         InstanceManager.prototype.getPlugin = function (pluginId, placement) {
             if (!placement)
                 placement = '';
-            var key = placement + "-" + pluginId;
+            var key = placement.length === 0 ? pluginId : placement + "-" + pluginId;
             if (this.Plugins[key])
                 return (this.Plugins[key]);
             else {
                 for (var k in this.Plugins) {
                     if (this.Plugins.hasOwnProperty(k)) {
-                        var kp = k.substring(0, pluginId.length);
-                        if (kp === pluginId)
-                            return this.Plugins[k];
+                        var plg = this.Plugins[k];
+                        if (this.startsWith(plg.RawConfig.PluginId, pluginId))
+                            return plg;
                     }
                 }
             }
@@ -93,6 +171,9 @@ var PowerTables;
                     }
                 }
             }
+            result.sort(function (a, b) {
+                return a.Order - b.Order;
+            });
             return result;
         };
         /**
@@ -111,15 +192,6 @@ var PowerTables;
                 }
             }
             throw new Error("There is no filter for " + columnName);
-        };
-        /**
-         * Determines is column of DateTime type or not
-         * @param columnName Column name
-         * @returns {}
-         */
-        InstanceManager.prototype.isDateTime = function (columnName) {
-            var tpn = this.Columns[columnName].Configuration.ColumnType;
-            return ((tpn === 'DateTime') || (tpn === 'DateTime?'));
         };
         /**
          * Retrieves sequential columns names in corresponding order
@@ -169,6 +241,11 @@ var PowerTables;
                 throw new Error("Column " + columnName + " not found for rendering");
             return this.Columns[columnName];
         };
+        InstanceManager._datetimeTypes = ['DateTime', 'DateTime?'];
+        InstanceManager._stringTypes = ['String'];
+        InstanceManager._floatTypes = ['Single', 'Double', 'Decimal', 'Single?', 'Double?', 'Decimal?'];
+        InstanceManager._integerTypes = ['Int32', 'Int64', 'Int16', 'SByte', 'Byte', 'UInt32', 'UInt64', 'UInt16', 'Int32?', 'Int64?', 'Int16?', 'SByte?', 'Byte?', 'UInt32?', 'UInt64?', 'UInt16?'];
+        InstanceManager._booleanTypes = ['Boolean', 'Boolean?'];
         return InstanceManager;
     })();
     PowerTables.InstanceManager = InstanceManager;

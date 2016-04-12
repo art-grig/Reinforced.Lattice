@@ -135,6 +135,17 @@ namespace PowerTables.Mvc.Controllers
             return Handle(c => c.HideoutAndResponseInfo());
         }
 
+        [Tutorial("Buttons and Checkboxify", 8)]
+        public ActionResult ButtonsAndCheckboxify()
+        {
+            return TutPage(c => c.ButtonsAndCheckboxify());
+        }
+
+        public ActionResult ButtonsAndCheckboxifyHandle()
+        {
+            return Handle(c => c.ButtonsAndCheckboxify());
+        }
+
         #region Utility
         private ActionResult TutPage(Action<Configurator<SourceData, TargetData>> config)
         {

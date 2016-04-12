@@ -4,16 +4,11 @@ var PowerTables;
      * Class that is responsible for holding and managing data loaded from server
      */
     var DataHolder = (function () {
-        function DataHolder(rawColumnNames, isColumnDateTimeFunc, events, instances) {
+        function DataHolder(rawColumnNames, events, instances) {
             this._comparators = {};
             this._filters = [];
             this._anyClientFiltration = false;
-            /**
-             * Selector of source data on client-side
-             */
-            this.Selector = null;
             this._rawColumnNames = rawColumnNames;
-            this._isColumnDateTimeFunc = isColumnDateTimeFunc;
             this._events = events;
             this._instances = instances;
         }
@@ -42,7 +37,7 @@ var PowerTables;
          * @returns True if there are any actions to be performed on query after loading, false otherwise
          */
         DataHolder.prototype.isClientFiltrationPending = function () {
-            return ((!(!this.Selector)) || this._anyClientFiltration);
+            return (this.EnableClientSkip || this.EnableClientTake || this._anyClientFiltration);
         };
         /**
         * Parses response from server and turns it to objects array
@@ -53,7 +48,7 @@ var PowerTables;
             var currentColIndex = 0;
             var currentCol = this._rawColumnNames[currentColIndex];
             for (var i = 0; i < response.Data.length; i++) {
-                if (this._isColumnDateTimeFunc(currentCol)) {
+                if (this._instances.Columns[currentCol].IsDateTime) {
                     if (response.Data[i]) {
                         obj[currentCol] = Date.parse(response.Data[i]);
                     }
@@ -85,8 +80,8 @@ var PowerTables;
         DataHolder.prototype.filterSet = function (objects, query) {
             var result = [];
             if (this._filters.length !== 0) {
-                for (var i = 0; i < this.StoredData.length; i++) {
-                    var obj = this.StoredData[i];
+                for (var i = 0; i < objects.length; i++) {
+                    var obj = objects[i];
                     var acceptable = true;
                     for (var j = 0; j < this._filters.length; j++) {
                         var filter = this._filters[j];
@@ -100,7 +95,7 @@ var PowerTables;
                 }
                 return result;
             }
-            return null;
+            return objects;
         };
         /**
         * Orders supplied data set using client query
@@ -114,7 +109,8 @@ var PowerTables;
                 var sortFn = '';
                 var comparersArg = '';
                 var orderFns = [];
-                for (var orderingKey in query.Orderings) {
+                for (var i = 0; i < this._rawColumnNames.length; i++) {
+                    var orderingKey = this._rawColumnNames[i];
                     if (query.Orderings.hasOwnProperty(orderingKey)) {
                         var orderingDirection = query.Orderings[orderingKey];
                         if (orderingDirection === PowerTables.Ordering.Neutral)
@@ -122,19 +118,21 @@ var PowerTables;
                         if (!this._comparators[orderingKey])
                             continue;
                         var negate = orderingDirection === PowerTables.Ordering.Descending;
-                        sortFn += "cc = f" + orderFns.length + "(a,b); ";
+                        sortFn += "cc=f" + orderFns.length + "(a,b); ";
                         comparersArg += "f" + orderFns.length + ",";
                         orderFns.push(this._comparators[orderingKey]);
-                        sortFn += "if (cc!=0) return " + (negate ? '-cc' : 'cc') + "; ";
+                        sortFn += "if (cc!==0) return " + (negate ? '-cc' : 'cc') + "; ";
                     }
                 }
+                if (sortFn.length === 0)
+                    return objects;
                 comparersArg = comparersArg.substr(0, comparersArg.length - 1);
-                sortFn = "function(" + comparersArg + "){ return function (a,b) { var cc = 0; " + sortFn + " return 0; } }";
+                sortFn = "(function(" + comparersArg + "){ return (function (a,b) { var cc = 0; " + sortFn + " return 0; }); })";
                 var sortFunction = eval(sortFn).apply(null, orderFns);
                 var ordered = objects.sort(sortFunction);
                 return ordered;
             }
-            return null;
+            return objects;
         };
         /**
          * Filter recent data and store it to currently displaying data
@@ -143,19 +141,46 @@ var PowerTables;
          * @returns {}
          */
         DataHolder.prototype.filterStoredData = function (query) {
+            this._events.BeforeClientDataProcessing.invoke(this, query);
             this.DisplayedData = this.StoredData;
+            this._previouslyFiltered = this.StoredData;
+            this._previouslyOrdered = this.StoredData;
             this.RecentClientQuery = query;
             if (this.isClientFiltrationPending() && (!(!query))) {
-                var filtered = this.filterSet(this.DisplayedData, query);
-                if (filtered)
-                    this.DisplayedData = filtered;
-                var ordered = this.orderSet(this.DisplayedData, query);
-                if (ordered)
-                    this.DisplayedData = ordered;
-                if (this.Selector) {
-                    this.DisplayedData = this.Selector.selectData(this.DisplayedData, query);
+                var copy = this.StoredData.slice();
+                var filtered = this.filterSet(copy, query);
+                var ordered = this.orderSet(filtered, query);
+                var selected = ordered;
+                var startingIndex = query.Paging.PageIndex * query.Paging.PageSize;
+                if (startingIndex > filtered.length)
+                    startingIndex = 0;
+                var take = query.Paging.PageSize;
+                if (this.EnableClientSkip && this.EnableClientTake) {
+                    if (take === 0)
+                        selected = ordered.slice(startingIndex);
+                    else
+                        selected = ordered.slice(startingIndex, startingIndex + take);
                 }
+                else {
+                    if (this.EnableClientSkip) {
+                        selected = ordered.slice(startingIndex);
+                    }
+                    else if (this.EnableClientTake) {
+                        if (take !== 0) {
+                            selected = ordered.slice(0, query.Paging.PageSize);
+                        }
+                    }
+                }
+                this._previouslyFiltered = filtered;
+                this._previouslyOrdered = ordered;
+                this.DisplayedData = selected;
             }
+            this._events.AfterClientDataProcessing.invoke(this, {
+                Displaying: this.DisplayedData,
+                Filtered: this._previouslyFiltered,
+                Ordered: this._previouslyOrdered,
+                Source: this.StoredData
+            });
         };
         /**
          * Filter recent data and store it to currently displaying data

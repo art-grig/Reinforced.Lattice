@@ -135,6 +135,7 @@
     <Compile Include="Models\TargetData.cs" />
     <Compile Include="Models\TestsModel.cs" />
     <Compile Include="Models\TestTable.cs" />
+    <Compile Include="Models\Tutorial\_8_ButtonsAndCheckboxify.cs" />
     <Compile Include="Models\Tutorial\_7_HideoutAndResponseInfo.cs" />
     <Compile Include="Models\Tutorial\_6_Filtering.cs" />
     <Compile Include="Models\Tutorial\_5_PaginationAndLimiting.cs" />

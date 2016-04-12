@@ -61,10 +61,21 @@
             }
         }
 
+        onClientDataProcessed(e: ITableEventArgs<IClientDataResults>) {
+            if (!this._totalsForColumns) this._totalsForColumns = {};
+
+            for (var k in this.Configuration.ColumnsCalculatorFunctions) {
+                if (this.Configuration.ColumnsCalculatorFunctions.hasOwnProperty(k)) {
+                    this._totalsForColumns[k] = this.Configuration.ColumnsCalculatorFunctions[k](e.EventArgs).toString();
+                }
+            }
+        }
+
         init(masterTable: IMasterTable): void {
             super.init(masterTable);
             this.MasterTable.Events.DataReceived.subscribe(this.onResponse.bind(this), 'totals');
             this.MasterTable.Events.BeforeClientRowsRendering.subscribe(this.onClientRowsRendering.bind(this), 'totals');
+            this.MasterTable.Events.AfterClientDataProcessing.subscribe(this.onClientDataProcessed.bind(this), 'totals');
             
         }
     }

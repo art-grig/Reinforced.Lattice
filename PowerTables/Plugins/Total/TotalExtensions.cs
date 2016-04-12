@@ -31,7 +31,8 @@ namespace PowerTables.Plugins.Total
             TotalClientConfiguration tcc = new TotalClientConfiguration()
             {
                 ShowOnTop = showOnTop,
-                ColumnsValueFunctions = calc.ValueFunctions.ToDictionary(c => c.Key, v => v.Value != null ? new JRaw(v.Value) : null)
+                ColumnsValueFunctions = calc.ValueFunctions.ToDictionary(c => c.Key, v => v.Value != null ? new JRaw(v.Value) : null),
+                ColumnsCalculatorFunctions = calc.ClientCalculators.ToDictionary(c => c.Key, v => v.Value != null ? new JRaw(v.Value) : null)
             };
             conf.TableConfiguration.ReplacePluginConfig(PluginId, tcc);
             var trr = new TotalResponseModifier<TSourceData,TTableData>(calc);

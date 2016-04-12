@@ -24,5 +24,10 @@ namespace PowerTables.Plugins.Total
         /// Functions for formatting of received values
         /// </summary>
         public Dictionary<string, JRaw> ColumnsValueFunctions { get; set; }
+
+        /// <summary>
+        /// Functions for calculating totals
+        /// </summary>
+        public Dictionary<string, JRaw> ColumnsCalculatorFunctions { get; set; }
     }
 }

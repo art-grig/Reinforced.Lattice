@@ -6,9 +6,8 @@ var PowerTables;
          * Enity responsible for displaying table
          */
         var Renderer = (function () {
-            function Renderer(rootId, prefix, isColumnDateTimeFunc, instances, events) {
+            function Renderer(rootId, prefix, instances, events) {
                 this._templatesCache = {};
-                this._isColumnDateTimeFunc = isColumnDateTimeFunc;
                 this._instances = instances;
                 this._stack = new Rendering.RenderingStack();
                 this.RootElement = document.getElementById(rootId);
@@ -17,11 +16,11 @@ var PowerTables;
                 this.HandlebarsInstance = Handlebars.create();
                 this._layoutRenderer = new Rendering.LayoutRenderer(this, this._stack, this._instances);
                 this._contentRenderer = new Rendering.ContentRenderer(this, this._stack, this._instances);
+                this.BackBinder = new Rendering.BackBinder(this.HandlebarsInstance, instances, this._stack);
                 this.HandlebarsInstance.registerHelper("ifq", this.ifqHelper);
                 this.HandlebarsInstance.registerHelper("ifloc", this.iflocHelper.bind(this));
                 this.HandlebarsInstance.registerHelper('Content', this.contentHelper.bind(this));
                 this.HandlebarsInstance.registerHelper('Track', this.trackHelper.bind(this));
-                this.HandlebarsInstance.registerHelper('Datepicker', this.datepickerHelper.bind(this));
                 this.cacheTemplates(prefix);
             }
             //#region Templates caching
@@ -50,7 +49,7 @@ var PowerTables;
              * Perform table layout inside specified root element
              */
             Renderer.prototype.layout = function () {
-                this._events.BeforeLayoutDrawn.invoke(this, null);
+                this._events.BeforeLayoutRendered.invoke(this, null);
                 var rendered = this.getCachedTemplate('layout')(null);
                 this.RootElement.innerHTML = rendered;
                 var bodyMarker = this.RootElement.querySelector('[data-track="tableBodyHere"]');
@@ -58,9 +57,9 @@ var PowerTables;
                     throw new Error('{{Body}} placeholder is missing in table layout template');
                 this.BodyElement = bodyMarker.parentElement;
                 this.BodyElement.removeChild(bodyMarker);
-                this._layoutRenderer.bindEventsQueue(this.RootElement);
+                this.BackBinder.backBind(this.RootElement);
                 this.Locator = new Rendering.DOMLocator(this.BodyElement, this.RootElement, this._rootId);
-                this._events.AfterLayoutDrawn.invoke(this, null);
+                this._events.AfterLayoutRendered.invoke(this, null);
             };
             /**
              * Clear dynamically loaded table content and replace it with new one
@@ -68,8 +67,11 @@ var PowerTables;
              * @param rows Set of table rows
              */
             Renderer.prototype.body = function (rows) {
+                this._events.BeforeClientRowsRendering.invoke(this, rows);
                 this.clearBody();
-                this.BodyElement.innerHTML = this._contentRenderer.renderBody(rows);
+                var html = this._contentRenderer.renderBody(rows);
+                this.BodyElement.innerHTML = html;
+                this._events.AfterDataRendered.invoke(this, null);
             };
             /**
              * Redraws specified plugin refreshing all its graphical state
@@ -79,16 +81,13 @@ var PowerTables;
              */
             Renderer.prototype.redrawPlugin = function (plugin) {
                 this._stack.clear();
-                var newPluginElement = this.createElement(this._layoutRenderer.renderPlugin(plugin));
                 var oldPluginElement = this.Locator.getPluginElement(plugin);
                 var parent = oldPluginElement.parentElement;
+                var parser = new PowerTables.Rendering.Html2Dom.HtmlParser();
+                var html = this._layoutRenderer.renderPlugin(plugin);
+                var newPluginElement = parser.html2Dom(html);
                 parent.replaceChild(newPluginElement, oldPluginElement);
-                this._layoutRenderer.bindEventsQueue(newPluginElement);
-            };
-            Renderer.prototype.createElement = function (html) {
-                var tempDiv = document.createElement('div');
-                tempDiv.innerHTML = html;
-                return tempDiv.childNodes.item(0);
+                this.BackBinder.backBind(newPluginElement);
             };
             /**
              * Redraws specified row refreshing all its graphical state
@@ -106,10 +105,8 @@ var PowerTables;
                 else {
                     html = wrapper(row);
                 }
-                var newRowElement = this.createElement(html);
                 var oldElement = this.Locator.getRowElement(row);
-                var parent = oldElement.parentElement;
-                parent.replaceChild(newRowElement, oldElement);
+                this.replaceElement(oldElement, html);
             };
             /**
              * Redraws specified row refreshing all its graphical state
@@ -127,8 +124,8 @@ var PowerTables;
                 else {
                     html = wrapper(row);
                 }
-                var newRowElement = this.createElement(html);
                 var referenceNode = this.Locator.getRowElementByIndex(afterRowAtIndex);
+                var newRowElement = this.createElement(html);
                 referenceNode.parentNode.insertBefore(newRowElement, referenceNode.nextSibling);
             };
             /**
@@ -148,11 +145,19 @@ var PowerTables;
              */
             Renderer.prototype.redrawHeader = function (column) {
                 this._stack.clear();
-                var newHeaderElement = this.createElement(this._layoutRenderer.renderHeader(column));
+                var html = this._layoutRenderer.renderHeader(column);
                 var oldHeaderElement = this.Locator.getHeaderElement(column.Header);
-                var parent = oldHeaderElement.parentElement;
-                parent.replaceChild(newHeaderElement, oldHeaderElement);
-                this._layoutRenderer.bindEventsQueue(newHeaderElement);
+                var newElement = this.replaceElement(oldHeaderElement, html);
+                this.BackBinder.backBind(newElement.parentElement);
+            };
+            Renderer.prototype.createElement = function (html) {
+                var parser = new PowerTables.Rendering.Html2Dom.HtmlParser();
+                return parser.html2Dom(html);
+            };
+            Renderer.prototype.replaceElement = function (element, html) {
+                var node = this.createElement(html);
+                element.parentElement.replaceChild(node, element);
+                return node;
             };
             /**
              * Removes all dynamically loaded content in table
@@ -160,7 +165,10 @@ var PowerTables;
              * @returns {}
              */
             Renderer.prototype.clearBody = function () {
-                this.BodyElement.innerHTML = '';
+                //this.BodyElement.innerHTML = '';
+                while (this.BodyElement.firstChild) {
+                    this.BodyElement.removeChild(this.BodyElement.firstChild);
+                }
             };
             //#endregion
             //#region Helpers
@@ -186,19 +194,6 @@ var PowerTables;
                 if (trk.length === 0)
                     return '';
                 return "data-track=\"" + trk + "\"";
-            };
-            Renderer.prototype.datepickerHelper = function () {
-                if (this._stack.Current.Type === Rendering.RenderingContextType.Plugin) {
-                    if (this._isColumnDateTimeFunc(this._stack.Current.ColumnName)) {
-                        return 'data-dp="true"';
-                    }
-                    else {
-                        return '';
-                    }
-                }
-                else {
-                    return '';
-                }
             };
             Renderer.prototype.ifqHelper = function (a, b, opts) {
                 if (a == b)

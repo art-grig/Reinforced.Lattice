@@ -32,6 +32,25 @@ var PowerTables;
                 return new boundCtor();
             }
         };
+        /**
+         * Registers component-provided events in particular EventsManager instance.
+         * It is important to register all component's events befor instantiation and .init call
+         * to make them available to subscribe each other's events.
+         *
+         * Instance manager asserts that .registerEvent will be called exactly once for
+         * each component used in table
+         *
+         * @param key Text ID of desired component
+         * @param eventsManager Events manager instance
+         * @returns {}
+         */
+        ComponentsContainer.registerComponentEvents = function (key, eventsManager) {
+            if (!this._components[key])
+                throw new Error("Component " + key + " is not registered. Please ensure that you have connected all the additional scripts");
+            if (this._components[key].registerEvents && {}.toString.call(this._components[key].registerEvents) === '[object Function]') {
+                this._components[key].registerEvents.call(eventsManager, eventsManager);
+            }
+        };
         ComponentsContainer._components = {};
         return ComponentsContainer;
     })();

@@ -109,6 +109,16 @@ var PowerTables;
                 return this._rootElement.querySelector(this._rootIdPrefix + " [data-track=\"" + track + "\"]");
             };
             /**
+             * Retrieves HTML element for plugin (including wrapper)
+             *
+             * @param plugin Plugin
+             * @returns HTML element
+             */
+            DOMLocator.prototype.getPluginElementsByPositionPart = function (placement) {
+                var track = PowerTables.TrackHelper.getPluginTrackByLocation(placement);
+                return this._rootElement.querySelectorAll(this._rootIdPrefix + " [data-track^=\"" + track + "\"]");
+            };
+            /**
              * Determines if supplied element is table row
              *
              * @param e Testing element

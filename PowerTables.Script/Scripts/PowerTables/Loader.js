@@ -33,11 +33,21 @@ var PowerTables;
                 AdditionalData: {},
                 StaticDataJson: this._staticData
             };
-            this._events.BeforeQueryGathering.invoke(this, { Query: a, Scope: queryScope });
+            if (queryScope === PowerTables.QueryScope.Client) {
+                this._events.BeforeClientQueryGathering.invoke(this, { Query: a, Scope: queryScope });
+            }
+            else {
+                this._events.BeforeQueryGathering.invoke(this, { Query: a, Scope: queryScope });
+            }
             for (var i = 0; i < this._queryPartProviders.length; i++) {
                 this._queryPartProviders[i].modifyQuery(a, queryScope);
             }
-            this._events.AfterQueryGathering.invoke(this, { Query: a, Scope: queryScope });
+            if (queryScope === PowerTables.QueryScope.Client) {
+                this._events.AfterClientQueryGathering.invoke(this, { Query: a, Scope: queryScope });
+            }
+            else {
+                this._events.AfterQueryGathering.invoke(this, { Query: a, Scope: queryScope });
+            }
             return a;
         };
         Loader.prototype.getXmlHttp = function () {
@@ -89,7 +99,8 @@ var PowerTables;
                                 _this._events.LoadingError.invoke(_this, {
                                     Request: data,
                                     XMLHttp: req,
-                                    Reason: json.Message
+                                    Reason: json.Message,
+                                    StackTrace: json['ExceptionStackTrace']
                                 });
                             }
                             else {
@@ -133,7 +144,8 @@ var PowerTables;
                     _this._events.LoadingError.invoke(_this, {
                         Request: data,
                         XMLHttp: req,
-                        Reason: 'Network error'
+                        Reason: 'Network error',
+                        StackTrace: 'Unable to connect to server to complete query'
                     });
                 }
                 _this._events.AfterLoading.invoke(_this, {

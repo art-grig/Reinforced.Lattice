@@ -44,15 +44,21 @@ var PowerTables;
             this._isReady = true;
             this.Events = new PowerTables.EventsManager(this);
             this.InstanceManager = new PowerTables.InstanceManager(this._configuration, this, this.Events);
-            var isDt = this.InstanceManager.isDateTime.bind(this.InstanceManager);
-            this.DataHolder = new PowerTables.DataHolder(this.InstanceManager.getColumnNames(), isDt, this.Events, this.InstanceManager);
+            this.DataHolder = new PowerTables.DataHolder(this.InstanceManager.getColumnNames(), this.Events, this.InstanceManager);
             this.Loader = new PowerTables.Loader(this._configuration.StaticData, this._configuration.OperationalAjaxUrl, this.Events, this.DataHolder);
-            this.Renderer = new PowerTables.Rendering.Renderer(this._configuration.TableRootId, this._configuration.Prefix, isDt, this.InstanceManager, this.Events);
+            this.Renderer = new PowerTables.Rendering.Renderer(this._configuration.TableRootId, this._configuration.Prefix, this.InstanceManager, this.Events);
             this.Controller = new PowerTables.Controller(this);
             this.InstanceManager.initPlugins();
             this.Renderer.layout();
             if (this._configuration.LoadImmediately) {
                 this.Controller.reload();
+            }
+            else {
+                this.Controller.showTableMessage({
+                    MessageType: 'initial',
+                    Message: 'No filtering specified',
+                    AdditionalData: 'To retrieve query results please specify several filters'
+                });
             }
         };
         /**
@@ -63,6 +69,21 @@ var PowerTables;
          */
         PowerTable.prototype.reload = function () {
             this.Controller.reload();
+        };
+        /**
+         * Fires specified DOM event on specified element
+         *
+         * @param eventName DOM event id
+         * @param element Element is about to dispatch event
+         */
+        PowerTable.fireDomEvent = function (eventName, element) {
+            if ("createEvent" in document) {
+                var evt = document.createEvent("HTMLEvents");
+                evt.initEvent(eventName, false, true);
+                element.dispatchEvent(evt);
+            }
+            else
+                element['fireEvent'](eventName);
         };
         return PowerTable;
     })();

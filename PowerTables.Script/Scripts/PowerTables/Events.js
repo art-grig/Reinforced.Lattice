@@ -25,7 +25,7 @@ var PowerTables;
                 if (hndlrs.hasOwnProperty(k)) {
                     var kHandlers = hndlrs[k];
                     for (i = 0; i < kHandlers.length; i++) {
-                        kHandlers[i].apply(thisArg, ea);
+                        kHandlers[i].apply(thisArg, [ea]);
                     }
                     i = 0;
                 }
@@ -65,13 +65,21 @@ var PowerTables;
             this._masterTable = masterTable;
             this.BeforeQueryGathering = new TableEvent(masterTable);
             this.AfterQueryGathering = new TableEvent(masterTable);
+            this.BeforeClientQueryGathering = new TableEvent(masterTable);
+            this.AfterClientQueryGathering = new TableEvent(masterTable);
             this.BeforeLoading = new TableEvent(masterTable);
             this.LoadingError = new TableEvent(masterTable);
             this.ColumnsCreation = new TableEvent(masterTable);
             this.DataReceived = new TableEvent(masterTable);
             this.AfterLoading = new TableEvent(masterTable);
-            this.BeforeLayoutDrawn = new TableEvent(masterTable);
-            this.AfterLayoutDrawn = new TableEvent(masterTable);
+            this.BeforeLayoutRendered = new TableEvent(masterTable);
+            this.BeforeClientDataProcessing = new TableEvent(masterTable);
+            this.AfterClientDataProcessing = new TableEvent(masterTable);
+            this.BeforeLayoutRendered = new TableEvent(masterTable);
+            this.AfterLayoutRendered = new TableEvent(masterTable);
+            this.BeforeDataRendered = new TableEvent(masterTable);
+            this.AfterDataRendered = new TableEvent(masterTable);
+            this.BeforeClientRowsRendering = new TableEvent(masterTable);
         }
         /**
          * Registers new event for events manager.

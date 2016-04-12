@@ -17,7 +17,7 @@ var PowerTables;
                 var _this = this;
                 e.BeforeLoading.subscribe(function () { return _this.showLoadingIndicator(); }, "loading");
                 e.AfterLoading.subscribe(function () { return _this.hideLoadingIndicator(); }, "loading");
-                e.AfterLayoutDrawn.subscribe(function () {
+                e.AfterLayoutRendered.subscribe(function () {
                     var me = _this.MasterTable.Renderer.Locator.getPluginElement(_this);
                     _this._blinkElement = me.querySelector('[data-blink]');
                     _this.hideLoadingIndicator();

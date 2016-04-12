@@ -17,6 +17,7 @@ namespace PowerTables.Plugins.Total
         
         private readonly Dictionary<string, Delegate> _calculators = new Dictionary<string, Delegate>();
         private readonly Dictionary<string, string> _valueFunctions = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> _clientCalculators = new Dictionary<string, string>();
 
         /// <summary>
         /// All calculators (delegates). Key = column, Value = calculation delegate
@@ -27,6 +28,11 @@ namespace PowerTables.Plugins.Total
         /// Value formatting functions for table total
         /// </summary>
         public IReadOnlyDictionary<string, string> ValueFunctions { get { return _valueFunctions; } }
+
+        /// <summary>
+        /// Client calculator functions
+        /// </summary>
+        public IReadOnlyDictionary<string, string> ClientCalculators { get { return _clientCalculators; } }
 
         /// <summary>
         /// Adds total calculator to table
@@ -68,6 +74,42 @@ namespace PowerTables.Plugins.Total
             CellTemplateBuilder ctb = new CellTemplateBuilder();
             templateBuilder(ctb);
             _valueFunctions.Add(name, ctb.Build());
+            return this;
+        }
+
+        /// <summary>
+        /// Adds only template for total cell
+        /// </summary>
+        /// <param name="column">Table column to provide total with</param>
+        /// <param name="templateBuilder">Template builder like for usual column, but here is only self reference ('{@}') available </param>
+        /// <returns></returns>
+        public TotalCalculatorBuilder<TSourceData, TTableData> AddTemplate<TTableColumn, TTotalType>(
+            Expression<Func<TTableData, TTableColumn>> column,
+            Action<CellTemplateBuilder> templateBuilder
+            )
+        {
+            var name = LambdaHelpers.ParsePropertyLambda(column).Name;
+            CellTemplateBuilder ctb = new CellTemplateBuilder();
+            templateBuilder(ctb);
+            _valueFunctions.Add(name, ctb.Build());
+            return this;
+        }
+
+        /// <summary>
+        /// Adds client total calculator function to totals
+        /// Calculator function type: (data:IClientDataResults)=>any
+        /// data: data prepared on client side. Consists of 4 collections: Source, Filtered, Ordered, Displaying all of type any[] containing corresponding JSONed TTableData
+        /// </summary>
+        /// <param name="column">Table column to provide total with</param>
+        /// <param name="function">Client calculator function</param>
+        /// <returns></returns>
+        public TotalCalculatorBuilder<TSourceData, TTableData> AddClientCalculator<TTableColumn, TTotalType>(
+            Expression<Func<TTableData, TTableColumn>> column,
+            string function
+            )
+        {
+            var name = LambdaHelpers.ParsePropertyLambda(column).Name;
+            _clientCalculators.Add(name, function);
             return this;
         }
 

@@ -18,7 +18,16 @@ var PowerTables;
                 var p = el.prototype;
                 return (p.matches || p.matchesSelector || p.webkitMatchesSelector || p.mozMatchesSelector || p.msMatchesSelector || p.oMatchesSelector);
             }(Element));
+            this._masterTable.Events.LoadingError.subscribe(this.onLoadingError.bind(this), 'controller');
         }
+        Controller.prototype.onLoadingError = function (e) {
+            this.showTableMessage({
+                Message: e.EventArgs.Reason,
+                MessageType: 'error',
+                AdditionalData: e.EventArgs.StackTrace,
+                IsMessage: true
+            });
+        };
         /**
          * Initializes full reloading cycle
          * @returns {}
@@ -26,12 +35,26 @@ var PowerTables;
         Controller.prototype.reload = function () {
             var _this = this;
             this._masterTable.Loader.requestServer('query', function () {
-                _this.localRedrawVisible();
+                _this.redrawVisibleData();
             });
         };
-        Controller.prototype.localRedrawVisible = function () {
+        /**
+         * Redraws locally visible data
+         */
+        Controller.prototype.redrawVisibleData = function () {
             var rows = this.produceRows();
             this._masterTable.Renderer.body(rows);
+        };
+        /**
+         * Shows full-width table message
+         * @param tableMessage Message of type ITableMessage
+         * @returns {}
+         */
+        Controller.prototype.showTableMessage = function (tableMessage) {
+            tableMessage.UiColumnsCount = this._masterTable.InstanceManager.getUiColumns().length;
+            tableMessage.IsMessage = true;
+            this._masterTable.DataHolder.DisplayedData = [tableMessage];
+            this.redrawVisibleData();
         };
         /**
          * Subscribe handler to any DOM event happening on particular table cell
@@ -119,11 +142,11 @@ var PowerTables;
                 else {
                     this._masterTable.DataHolder.DisplayedData.splice(insertion.DisplayRowIndex, 0, insertion.DataObject);
                     if (insertion.RedrawBehavior === RedrawBehavior.RedrawVisible)
-                        this.localRedrawVisible();
+                        this.redrawVisibleData();
                     else if (insertion.RedrawBehavior === RedrawBehavior.LocalVisibleReorder)
                         this.localVisibleReorder();
                     else if (insertion.RedrawBehavior === RedrawBehavior.ParticularRowUpdate) {
-                        var row = this.produceRow(insertion.DataObject, this._masterTable.InstanceManager.getUiColumns(), insertion.DisplayRowIndex);
+                        var row = this.produceRow(insertion.DataObject, insertion.DisplayRowIndex);
                         this._masterTable.Renderer.appendRow(row, insertion.DisplayRowIndex);
                     }
                 }
@@ -145,7 +168,7 @@ var PowerTables;
                 else {
                     this._masterTable.DataHolder.DisplayedData.splice(deletion.DisplayRowIndex, 1);
                     if (deletion.RedrawBehavior === RedrawBehavior.RedrawVisible)
-                        this.localRedrawVisible();
+                        this.redrawVisibleData();
                     else if (deletion.RedrawBehavior === RedrawBehavior.LocalVisibleReorder)
                         this.localVisibleReorder();
                     else if (deletion.RedrawBehavior === RedrawBehavior.ParticularRowUpdate) {
@@ -171,11 +194,11 @@ var PowerTables;
                 else {
                     // not required to update displayed object because we are updating reference
                     if (update.RedrawBehavior === RedrawBehavior.RedrawVisible)
-                        this.localRedrawVisible();
+                        this.redrawVisibleData();
                     else if (update.RedrawBehavior === RedrawBehavior.LocalVisibleReorder)
                         this.localVisibleReorder();
                     else if (update.RedrawBehavior === RedrawBehavior.ParticularRowUpdate) {
-                        var row = this.produceRow(object, this._masterTable.InstanceManager.getUiColumns(), update.DisplayRowIndex);
+                        var row = this.produceRow(object, update.DisplayRowIndex);
                         this._masterTable.Renderer.redrawRow(row);
                     }
                 }
@@ -183,20 +206,26 @@ var PowerTables;
         };
         Controller.prototype.localFullRefresh = function () {
             this._masterTable.DataHolder.filterStoredDataWithPreviousQuery();
-            this.localRedrawVisible();
+            this.redrawVisibleData();
         };
         Controller.prototype.localVisibleReorder = function () {
             this._masterTable.DataHolder.DisplayedData = this._masterTable.DataHolder.orderSet(this._masterTable.DataHolder.DisplayedData, this._masterTable.DataHolder.RecentClientQuery);
-            this.localRedrawVisible();
+            this.redrawVisibleData();
         };
-        Controller.prototype.produceRow = function (dataObject, columns, idx) {
+        Controller.prototype.produceRow = function (dataObject, idx, columns) {
             if (!dataObject)
                 return null;
+            if (!columns)
+                columns = this._masterTable.InstanceManager.getUiColumns();
             var rw = {
-                DataObject: dataObject[idx],
+                DataObject: dataObject,
                 Index: idx,
                 MasterTable: this._masterTable
             };
+            if (dataObject.IsMessage) {
+                rw.renderElement = function (hb) { return hb.getCachedTemplate('messages')(dataObject); };
+                return rw;
+            }
             var cells = {};
             for (var j = 0; j < columns.length; j++) {
                 var col = columns[j];
@@ -214,10 +243,11 @@ var PowerTables;
             return rw;
         };
         Controller.prototype.produceRows = function () {
+            this._masterTable.Events.BeforeDataRendered.invoke(this, null);
             var result = [];
             var columns = this._masterTable.InstanceManager.getUiColumns();
             for (var i = 0; i < this._masterTable.DataHolder.DisplayedData.length; i++) {
-                var row = this.produceRow(this._masterTable.DataHolder.DisplayedData[i], columns, i);
+                var row = this.produceRow(this._masterTable.DataHolder.DisplayedData[i], i, columns);
                 if (!row)
                     continue;
                 result.push(row);

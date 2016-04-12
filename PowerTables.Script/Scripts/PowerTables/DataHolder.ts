@@ -169,6 +169,8 @@
             }
             return objects;
         }
+        private _previouslyFiltered: any[];
+        private _previouslyOrdered: any[];
 
         /**
          * Filter recent data and store it to currently displaying data
@@ -180,6 +182,9 @@
             this._events.BeforeClientDataProcessing.invoke(this, query);
 
             this.DisplayedData = this.StoredData;
+            this._previouslyFiltered = this.StoredData;
+            this._previouslyOrdered = this.StoredData;
+
             this.RecentClientQuery = query;
 
             if (this.isClientFiltrationPending() && (!(!query))) {
@@ -187,10 +192,7 @@
                 var filtered = this.filterSet(copy, query);
                 var ordered = this.orderSet(filtered, query);
                 var selected = ordered;
-                this._events.ClientDataFiltered.invoke(this, {
-                    Filtered: filtered,
-                    Ordered: ordered
-                });
+                
                 var startingIndex = query.Paging.PageIndex * query.Paging.PageSize;
                 if (startingIndex > filtered.length) startingIndex = 0;
                 var take = query.Paging.PageSize;
@@ -206,10 +208,19 @@
                         }
                     }
                 }
-                this.DisplayedData = selected;
-            }
 
-            this._events.AfterClientDataProcessing.invoke(this, query);
+                this._previouslyFiltered = filtered;
+                this._previouslyOrdered = ordered;
+
+                this.DisplayedData = selected;
+            } 
+
+            this._events.AfterClientDataProcessing.invoke(this, {
+                Displaying: this.DisplayedData,
+                Filtered: this._previouslyFiltered,
+                Ordered: this._previouslyOrdered,
+                Source: this.StoredData
+            });
         }
 
         /**

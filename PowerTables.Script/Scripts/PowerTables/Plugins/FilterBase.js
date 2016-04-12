@@ -28,13 +28,6 @@ var PowerTables;
             FilterBase.prototype.itIsClientFilter = function () {
                 this.MasterTable.DataHolder.registerClientFilter(this);
             };
-            /**
-             * Call this method inside init and override selectData method to make this filter
-             * participate in client-side data truncation
-             */
-            FilterBase.prototype.itIsClientDataTruncator = function () {
-                this.MasterTable.DataHolder.Selector = this;
-            };
             FilterBase.prototype.filterPredicate = function (rowObject, query) { throw new Error("Please override this method"); };
             FilterBase.prototype.selectData = function (sourceDataSet, query) { throw new Error("Please override this method"); };
             return FilterBase;
