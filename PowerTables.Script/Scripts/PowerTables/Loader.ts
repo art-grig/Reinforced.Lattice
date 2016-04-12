@@ -83,7 +83,54 @@
 
         private _previousQueryString: string;
 
-        private doServerQuery(data: IPowerTableRequest, clientQuery: IQuery, callback: (data: any) => void) {
+        private checkError(json: any, data, req): boolean {
+            if (json['__ZBnpwvibZm'] && json['Success'] != undefined && !json.Success) {
+                this._events.LoadingError.invoke(this, {
+                    Request: data,
+                    XMLHttp: req,
+                    Reason: json.Message,
+                    StackTrace: json['ExceptionStackTrace']
+                });
+                return true;
+            }
+            return false;
+        }
+
+        private handleRegularJsonResponse(req, data, clientQuery, callback, errorCallback) {
+            var json = JSON.parse(req.responseText);
+            var error = this.checkError(json, data, req);
+            if (!error) {
+                this._events.DataReceived.invoke(this, {
+                    Request: data,
+                    XMLHttp: req,
+                    Data: json
+                });
+                if (data.Command === 'query') {
+                    this._dataHolder.storeResponse(json, clientQuery);
+                    callback(json);
+                    this._previousQueryString = JSON.stringify(data.Query);
+                } else {
+                    callback(json);
+                }
+            } else {
+                if (errorCallback) errorCallback(json);
+            }
+        }
+
+        private handleDeferredResponse(req, data, callback) {
+            if (req.responseText.indexOf('$Token=') === 0) {
+                var token = req.responseText.substr(7, req.responseText.length - 7);
+                this._events.DeferredDataReceived.invoke(this, {
+                    Request: data,
+                    XMLHttp: req,
+                    Token: token,
+                    DataUrl: this._operationalAjaxUrl + '?q=' + token
+                });
+                callback({ $isDeferred: true, $url: this._operationalAjaxUrl + '?q=' + token, $token: token });
+            }
+        }
+
+        private doServerQuery(data: IPowerTableRequest, clientQuery: IQuery, callback: (data: any) => void, errorCallback?: (data: any) => void): void {
             var dataText = JSON.stringify(data);
             var req = this.getXmlHttp();
 
@@ -98,53 +145,16 @@
             var reqEvent = req.onload ? 'onload' : 'onreadystatechange'; // for IE
 
             req[reqEvent] = (() => {
-                if (req.readyState != 4) return false;
+                if (req.readyState !== 4) return false;
 
                 if (req.status === 200) {
                     var ctype = req.getResponseHeader('content-type');
                     if (ctype) ctype = ctype.toLowerCase();
 
                     if (ctype && ctype.indexOf('application/json') >= 0) {
-                        var json = JSON.parse(req.responseText);
-                        if (data.Command === 'query') {
-                            if (json['Success'] != undefined && !json.Success) {
-                                this._events.LoadingError.invoke(this, {
-                                    Request: data,
-                                    XMLHttp: req,
-                                    Reason: json.Message,
-                                    StackTrace: json['ExceptionStackTrace']
-                                });
-                            } else {
-                                this._events.DataReceived.invoke(this, {
-                                    Request: data,
-                                    XMLHttp: req,
-                                    Data: json
-                                });
-                                this._dataHolder.storeResponse(json, clientQuery);
-                                callback(json);
-                            }
-                            this._previousQueryString = JSON.stringify(data.Query);
-                        } else {
-                            this._events.DataReceived.invoke(this, {
-                                Request: data,
-                                XMLHttp: req,
-                                Data: json
-                            }); //?
-                            callback(json);
-                        }
-                    } else {
-                        if (ctype && ctype.indexOf('lattice/service') >= 0) {
-                            if (req.responseText.indexOf('$Token=') === 0) {
-                                var token = req.responseText.substr(7, req.responseText.length - 7);
-                                this._events.DeferredDataReceived.invoke(this, {
-                                    Request: data,
-                                    XMLHttp: req,
-                                    Token: token,
-                                    DataUrl: this._operationalAjaxUrl + '?q=' + token
-                                });
-                                callback({ $isDeferred: true, $url: this._operationalAjaxUrl + '?q=' + token, $token: token });
-                            }
-                        }
+                        this.handleRegularJsonResponse(req, data, clientQuery, callback,errorCallback);
+                    } else if (ctype && ctype.indexOf('lattice/service') >= 0) {
+                        this.handleDeferredResponse(req, data, callback);
                     }
                 } else {
                     if (req.status === 0) return false; // for IE
@@ -155,11 +165,12 @@
                         StackTrace: 'Unable to connect to server to complete query'
                     });
                 }
+
                 this._events.AfterLoading.invoke(this, {
                     Request: data,
                     XMLHttp: req
                 });
-                
+
             });
             //req.onabort = (e => {
             //    this.Events.AfterLoading.invoke(this, [this]);
@@ -179,9 +190,10 @@
          * @param command Query command
          * @param callback Callback that will be invoked after data received
          * @param queryModifier Inline query modifier for in-place query modification
+         * @param errorCallback Will be called if error occures
          * @returns {} 
          */
-        public requestServer(command: string, callback: (data: any) => void, queryModifier?: (a: IQuery) => IQuery): void {
+        public requestServer(command: string, callback: (data: any) => void, queryModifier?: (a: IQuery) => IQuery, errorCallback?: (data: any) => void): void {
 
             var scope = QueryScope.Transboundary;
             if (command === 'query') scope = QueryScope.Server;
@@ -203,7 +215,7 @@
                     Query: serverQuery
                 };
 
-                this.doServerQuery(data, clientQuery, callback);
+                this.doServerQuery(data, clientQuery, callback, errorCallback);
             } else {
                 this._dataHolder.filterStoredData(clientQuery);
                 callback(null);

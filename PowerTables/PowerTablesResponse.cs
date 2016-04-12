@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using Newtonsoft.Json;
 using PowerTables.ResponseProcessing;
 
 namespace PowerTables
@@ -11,6 +11,13 @@ namespace PowerTables
     /// </summary>
     public class PowerTablesResponse
     {
+        /// <summary>
+        /// This property is unique identifier of Lattice response. 
+        /// Just leave it in place and do not touch
+        /// </summary>
+        [JsonProperty(PropertyName = "__ZBnpwvibZm")]
+        public bool IsLatticeResponse { get { return true; } }
+
         /// <summary>
         /// Total results count
         /// </summary>

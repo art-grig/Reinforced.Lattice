@@ -192,6 +192,7 @@
         public registerEvent<TEventArgs>(eventName: string) {
             this[eventName] = new TableEvent(this._masterTable);
         }
+        public SelectionChanged: TableEvent<string[]>; //registered by Checkboxify
 
     }
 

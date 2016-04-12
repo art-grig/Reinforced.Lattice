@@ -222,6 +222,7 @@ module PowerTables.Plugins.Toolbar {
 		IsMenu: boolean;
 		Separator: boolean;
 		InternalId: number;
+		IsDisabled: boolean;
 	}
 }
 module PowerTables.Plugins.Total {

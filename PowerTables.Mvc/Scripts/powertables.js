@@ -999,6 +999,12 @@ var PowerTables;
             var part = s1.substring(s1.length - postfix.length - 1, postfix.length);
             return part === postfix;
         };
+        /**
+         * Reteives plugin at specified placement
+         * @param pluginId Plugin ID
+         * @param placement Pluign placement
+         * @returns {}
+         */
         InstanceManager.prototype.getPlugin = function (pluginId, placement) {
             if (!placement)
                 placement = '';
@@ -1186,7 +1192,54 @@ var PowerTables;
             this._previousRequest = xmlhttp;
             return xmlhttp;
         };
-        Loader.prototype.doServerQuery = function (data, clientQuery, callback) {
+        Loader.prototype.checkError = function (json, data, req) {
+            if (json['__ZBnpwvibZm'] && json['Success'] != undefined && !json.Success) {
+                this._events.LoadingError.invoke(this, {
+                    Request: data,
+                    XMLHttp: req,
+                    Reason: json.Message,
+                    StackTrace: json['ExceptionStackTrace']
+                });
+                return true;
+            }
+            return false;
+        };
+        Loader.prototype.handleRegularJsonResponse = function (req, data, clientQuery, callback, errorCallback) {
+            var json = JSON.parse(req.responseText);
+            var error = this.checkError(json, data, req);
+            if (!error) {
+                this._events.DataReceived.invoke(this, {
+                    Request: data,
+                    XMLHttp: req,
+                    Data: json
+                });
+                if (data.Command === 'query') {
+                    this._dataHolder.storeResponse(json, clientQuery);
+                    callback(json);
+                    this._previousQueryString = JSON.stringify(data.Query);
+                }
+                else {
+                    callback(json);
+                }
+            }
+            else {
+                if (errorCallback)
+                    errorCallback(json);
+            }
+        };
+        Loader.prototype.handleDeferredResponse = function (req, data, callback) {
+            if (req.responseText.indexOf('$Token=') === 0) {
+                var token = req.responseText.substr(7, req.responseText.length - 7);
+                this._events.DeferredDataReceived.invoke(this, {
+                    Request: data,
+                    XMLHttp: req,
+                    Token: token,
+                    DataUrl: this._operationalAjaxUrl + '?q=' + token
+                });
+                callback({ $isDeferred: true, $url: this._operationalAjaxUrl + '?q=' + token, $token: token });
+            }
+        };
+        Loader.prototype.doServerQuery = function (data, clientQuery, callback, errorCallback) {
             var _this = this;
             var dataText = JSON.stringify(data);
             var req = this.getXmlHttp();
@@ -1199,56 +1252,17 @@ var PowerTables;
             req.setRequestHeader('Content-type', 'application/json');
             var reqEvent = req.onload ? 'onload' : 'onreadystatechange'; // for IE
             req[reqEvent] = (function () {
-                if (req.readyState != 4)
+                if (req.readyState !== 4)
                     return false;
                 if (req.status === 200) {
                     var ctype = req.getResponseHeader('content-type');
                     if (ctype)
                         ctype = ctype.toLowerCase();
                     if (ctype && ctype.indexOf('application/json') >= 0) {
-                        var json = JSON.parse(req.responseText);
-                        if (data.Command === 'query') {
-                            if (json['Success'] != undefined && !json.Success) {
-                                _this._events.LoadingError.invoke(_this, {
-                                    Request: data,
-                                    XMLHttp: req,
-                                    Reason: json.Message,
-                                    StackTrace: json['ExceptionStackTrace']
-                                });
-                            }
-                            else {
-                                _this._events.DataReceived.invoke(_this, {
-                                    Request: data,
-                                    XMLHttp: req,
-                                    Data: json
-                                });
-                                _this._dataHolder.storeResponse(json, clientQuery);
-                                callback(json);
-                            }
-                            _this._previousQueryString = JSON.stringify(data.Query);
-                        }
-                        else {
-                            _this._events.DataReceived.invoke(_this, {
-                                Request: data,
-                                XMLHttp: req,
-                                Data: json
-                            }); //?
-                            callback(json);
-                        }
+                        _this.handleRegularJsonResponse(req, data, clientQuery, callback, errorCallback);
                     }
-                    else {
-                        if (ctype && ctype.indexOf('lattice/service') >= 0) {
-                            if (req.responseText.indexOf('$Token=') === 0) {
-                                var token = req.responseText.substr(7, req.responseText.length - 7);
-                                _this._events.DeferredDataReceived.invoke(_this, {
-                                    Request: data,
-                                    XMLHttp: req,
-                                    Token: token,
-                                    DataUrl: _this._operationalAjaxUrl + '?q=' + token
-                                });
-                                callback({ $isDeferred: true, $url: _this._operationalAjaxUrl + '?q=' + token, $token: token });
-                            }
-                        }
+                    else if (ctype && ctype.indexOf('lattice/service') >= 0) {
+                        _this.handleDeferredResponse(req, data, callback);
                     }
                 }
                 else {
@@ -1280,9 +1294,10 @@ var PowerTables;
          * @param command Query command
          * @param callback Callback that will be invoked after data received
          * @param queryModifier Inline query modifier for in-place query modification
+         * @param errorCallback Will be called if error occures
          * @returns {}
          */
-        Loader.prototype.requestServer = function (command, callback, queryModifier) {
+        Loader.prototype.requestServer = function (command, callback, queryModifier, errorCallback) {
             var scope = PowerTables.QueryScope.Transboundary;
             if (command === 'query')
                 scope = PowerTables.QueryScope.Server;
@@ -1300,7 +1315,7 @@ var PowerTables;
                     Command: command,
                     Query: serverQuery
                 };
-                this.doServerQuery(data, clientQuery, callback);
+                this.doServerQuery(data, clientQuery, callback, errorCallback);
             }
             else {
                 this._dataHolder.filterStoredData(clientQuery);
@@ -3777,11 +3792,13 @@ var PowerTables;
                         for (var i = 0; i < this.MasterTable.DataHolder.StoredData.length; i++) {
                             this._selectedItems.push(this.MasterTable.DataHolder.StoredData[i][this._valueColumnName].toString());
                         }
+                        this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
                         this.MasterTable.Controller.redrawVisibleData();
                     }
                     else if (this.Configuration.SelectAllSelectsServerUndisplayedData) {
                         this.MasterTable.Loader.requestServer('checkboxify_all', function (data) {
                             _this._selectedItems = data;
+                            _this.MasterTable.Events.SelectionChanged.invoke(_this, _this._selectedItems);
                             _this.MasterTable.Controller.redrawVisibleData();
                         });
                     }
@@ -3789,10 +3806,12 @@ var PowerTables;
                         for (var j = 0; j < this.MasterTable.DataHolder.DisplayedData.length; j++) {
                             this._selectedItems.push(this.MasterTable.DataHolder.DisplayedData[j][this._valueColumnName].toString());
                         }
+                        this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
                         this.MasterTable.Controller.redrawVisibleData();
                     }
                 }
                 else {
+                    this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
                     this.MasterTable.Controller.redrawVisibleData();
                 }
             };
@@ -3864,6 +3883,7 @@ var PowerTables;
                 if (overrideRow) {
                     row.renderElement = function (e) { return e.getCachedTemplate('checkboxifyRow')(row); };
                 }
+                this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
                 this.MasterTable.Renderer.redrawRow(row);
             };
             CheckboxifyPlugin.prototype.afterLayoutRender = function () {
@@ -3950,13 +3970,95 @@ var PowerTables;
             function ToolbarPlugin() {
                 _super.apply(this, arguments);
                 this.AllButtons = {};
+                this._buttonsConfig = {};
             }
             ToolbarPlugin.prototype.buttonHandleEvent = function (e) {
                 var btnId = e.EventArguments[0];
-                alert(btnId);
+                this.handleButtonAction(this._buttonsConfig[btnId]);
+            };
+            ToolbarPlugin.prototype.redrawMe = function () {
+                this.MasterTable.Renderer.redrawPlugin(this);
+            };
+            ToolbarPlugin.prototype.handleButtonAction = function (btn) {
+                if (btn.OnClick) {
+                    btn.OnClick.call(this.MasterTable, this.MasterTable, this.AllButtons[btn.InternalId]);
+                }
+                if (btn.Command) {
+                    var _self = this;
+                    // ReSharper disable Lambda
+                    var f = function (queryModifier) {
+                        if (btn.BlackoutWhileCommand) {
+                            btn.IsDisabled = true;
+                            _self.redrawMe();
+                        }
+                        _self.MasterTable.Loader.requestServer(btn.Command, function (response) {
+                            if (btn.CommandCallbackFunction) {
+                                btn.CommandCallbackFunction.apply(_self.MasterTable, [_self.MasterTable, response]);
+                            }
+                            else {
+                                if (response.$isDeferred && response.$url) {
+                                    window.location.href = response.$url;
+                                }
+                            }
+                            if (btn.BlackoutWhileCommand) {
+                                btn.IsDisabled = false;
+                                _self.redrawMe();
+                            }
+                        }, queryModifier, function () {
+                            if (btn.BlackoutWhileCommand) {
+                                btn.IsDisabled = false;
+                                _self.redrawMe();
+                            }
+                        });
+                    };
+                    // ReSharper restore Lambda
+                    if (btn.ConfirmationFunction)
+                        btn.ConfirmationFunction.apply(this.MasterTable, [f]);
+                    else
+                        f();
+                }
             };
             ToolbarPlugin.prototype.renderContent = function (templatesProvider) {
                 return templatesProvider.getCachedTemplate('toolbar')(this);
+            };
+            ToolbarPlugin.prototype.traverseButtons = function (arr) {
+                for (var i = 0; i < arr.length; i++) {
+                    this._buttonsConfig[arr[i].InternalId] = arr[i];
+                    if (arr[i].HasSubmenu) {
+                        this.traverseButtons(arr[i].Submenu);
+                    }
+                }
+            };
+            ToolbarPlugin.prototype.onSelectionChanged = function (e) {
+                var atleastOne = false;
+                var disabled = e.EventArgs.length === 0;
+                for (var bc in this._buttonsConfig) {
+                    if (this._buttonsConfig.hasOwnProperty(bc)) {
+                        if (this._buttonsConfig[bc].DisableIfNothingChecked) {
+                            if (this._buttonsConfig[bc].IsDisabled !== disabled) {
+                                atleastOne = true;
+                                this._buttonsConfig[bc].IsDisabled = disabled;
+                            }
+                        }
+                    }
+                }
+                if (atleastOne)
+                    this.MasterTable.Renderer.redrawPlugin(this);
+            };
+            ToolbarPlugin.prototype.init = function (masterTable) {
+                _super.prototype.init.call(this, masterTable);
+                try {
+                    var p = this.MasterTable.InstanceManager.getPlugin('Checkboxify');
+                    var nothingSelected = p.getSelection().length === 0;
+                    for (var i = 0; i < this.Configuration.Buttons.length; i++) {
+                        if (this.Configuration.Buttons[i].DisableIfNothingChecked) {
+                            this.Configuration.Buttons[i].IsDisabled = nothingSelected;
+                        }
+                    }
+                }
+                catch (e) { }
+                this.traverseButtons(this.Configuration.Buttons);
+                this.MasterTable.Events.SelectionChanged.subscribe(this.onSelectionChanged.bind(this), 'toolbar');
             };
             return ToolbarPlugin;
         })(Plugins.PluginBase);

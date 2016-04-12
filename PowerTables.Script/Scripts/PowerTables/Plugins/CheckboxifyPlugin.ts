@@ -21,19 +21,23 @@
                     for (var i = 0; i < this.MasterTable.DataHolder.StoredData.length; i++) {
                         this._selectedItems.push(this.MasterTable.DataHolder.StoredData[i][this._valueColumnName].toString());
                     }
+                    this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
                     this.MasterTable.Controller.redrawVisibleData();
                 } else if (this.Configuration.SelectAllSelectsServerUndisplayedData) {
                     this.MasterTable.Loader.requestServer('checkboxify_all',data => {
                         this._selectedItems = data;
+                        this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
                         this.MasterTable.Controller.redrawVisibleData();
                     });
                 } else {
                     for (var j = 0; j < this.MasterTable.DataHolder.DisplayedData.length; j++) {
                         this._selectedItems.push(this.MasterTable.DataHolder.DisplayedData[j][this._valueColumnName].toString());
                     }
+                    this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
                     this.MasterTable.Controller.redrawVisibleData();
                 }
             } else {
+                this.MasterTable.Events.SelectionChanged.invoke(this,this._selectedItems);
                 this.MasterTable.Controller.redrawVisibleData();
             }
             
@@ -111,6 +115,7 @@
             if (overrideRow) {
                 row.renderElement = (e) => e.getCachedTemplate('checkboxifyRow')(row);
             }
+            this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
             this.MasterTable.Renderer.redrawRow(row);
         }
         private afterLayoutRender() {

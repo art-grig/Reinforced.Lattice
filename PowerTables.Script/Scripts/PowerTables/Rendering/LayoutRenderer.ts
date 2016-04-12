@@ -37,7 +37,7 @@ module PowerTables.Rendering {
 
         //#region Plugin helpers
         private pluginHelper(pluginPosition: string, pluginId: string): string {
-            var plugin = this._instances.getPlugin(pluginId, pluginPosition);
+            var plugin = this._instances.getPlugin<IPlugin>(pluginId, pluginPosition);
             return this.renderPlugin(plugin);
         }
 

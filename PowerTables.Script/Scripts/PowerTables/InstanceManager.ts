@@ -172,7 +172,6 @@
          * @param placement Pluign placement
          * @returns {} 
          */
-        public getPlugin(pluginId: string, placement?: string): IPlugin;
         public getPlugin<TPlugin>(pluginId: string, placement?: string): TPlugin {
             if (!placement) placement = '';
             var key = placement.length === 0 ? pluginId : `${placement}-${pluginId}`;

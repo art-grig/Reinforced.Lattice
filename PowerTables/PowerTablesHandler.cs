@@ -191,7 +191,7 @@ Btw, original message was: {0}", ex.Message),
         {
             PowerTablesResponse ptr = new PowerTablesResponse();
             ptr.FormatException(ex);
-            return new JsonResult() { Data = ptr, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            return new JsonNetResult() { Data = ptr, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
         }
 
 
