@@ -276,6 +276,8 @@
     <Content Include="Views\Tutorial\BaseTutorial.cshtml" />
     <Content Include="Views\Shared\TutorialsLayout.cshtml" />
     <Content Include="Views\Tutorial\FormWatch.cshtml" />
+    <Content Include="Views\Shared\Datepicker.cshtml" />
+    <None Include="Views\Tutorial\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

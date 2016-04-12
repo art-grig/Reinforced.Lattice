@@ -2,7 +2,15 @@
 @{
     List<TutorialAttribute> tutorials = ViewBag.Tutorials;
     TutorialAttribute cTut = ViewBag.CurrentTutorial;
+    if (cTut == null)
+    {
+        cTut = new TutorialAttribute("Welcome",0);
+    }
     Dictionary<Code, string> additionaCode = ViewBag.AdditionalCode;
+    if (additionaCode == null)
+    {
+        additionaCode = new Dictionary<Code, string>();
+    }
 }
 <html>
 <head>
@@ -16,16 +24,7 @@
     <script type="text/javascript" src="~/Scripts/prism.js"></script>
     <script type="text/javascript" src="~/Scripts/handlebars.min.js"></script>
     <script type="text/javascript" src="~/Scripts/powertables.js"></script>
-    <script type="text/javascript">
-        var createDatePicker = function (element, format) {
-            $(element)
-                .datepicker({ format: format, weekStart: 1 })
-                .on('changeDate', function () {
-                    PowerTables.PowerTable.fireDomEvent('keyup', element);
-                });
-
-        }
-    </script>
+    @{ Html.RenderPartial("Datepicker"); }
 </head>
 <body>
     <div class="navbar navbar-inverse navbar-fixed-top">
@@ -36,11 +35,11 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                @Html.ActionLink("Application name", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+                @Html.ActionLink("Reinforced.Lattice Tutorial", "Index", "Tutorial", new { area = "" }, new { @class = "navbar-brand" })
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li>@Html.ActionLink("Markup", "About", "Home")</li>
+                    
                 </ul>
             </div>
         </div>
@@ -64,7 +63,7 @@
                         <div class="col-md-12">
                             <ul class="nav nav-tabs" role="tablist">
                                 <li role="presentation" class="active"><a href="#_result" aria-controls="_result" role="tab" data-toggle="tab">Sample</a></li>
-                                <li role="presentation"><a href="#_code" aria-controls="_code" role="tab" data-toggle="tab">Code</a></li>
+                                <li role="presentation"><a href="#_code" aria-controls="_code" role="tab" data-toggle="tab">Table configuration</a></li>
                                 @foreach (var c in additionaCode)
                                 {
                                     <li role="presentation"><a href="#_@(c.Key.Id)" aria-controls="_@(c.Key.Id)" role="tab" data-toggle="tab">@c.Key.File</a></li>

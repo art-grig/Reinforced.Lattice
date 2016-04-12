@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using PowerTables.Configuration;
+using PowerTables.Mvc.Models.Tutorial;
 
 namespace PowerTables.Mvc.Models
 {

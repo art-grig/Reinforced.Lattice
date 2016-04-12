@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using PowerTables.Mvc.Models.Tutorial;
 
 namespace PowerTables.Mvc.Models
 {
     public class Data
     {
-        private static List<SourceData> _sourceData;
+        private static readonly List<SourceData> _sourceData;
 
         public static List<SourceData> SourceData
         {

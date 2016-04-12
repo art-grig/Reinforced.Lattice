@@ -11,6 +11,7 @@ using PowerTables.Filters.Range;
 using PowerTables.Filters.Select;
 using PowerTables.Filters.Value;
 using PowerTables.FrequentlyUsed;
+using PowerTables.Mvc.Models.Tutorial;
 using PowerTables.Plugins;
 using PowerTables.Plugins.Checkboxify;
 using PowerTables.Plugins.Formwatch;

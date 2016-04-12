@@ -56,7 +56,8 @@ namespace PowerTables.Mvc.Controllers
                     codeobj.Id = codeobj.File.Replace(".", "_");
                     ViewBag.AdditionalCode[codeobj] = code;
                 }
-                List<TutorialAttribute> tutorials =
+            }
+            List<TutorialAttribute> tutorials =
                 typeof(TutorialController).GetMethods()
                     .Where(c => c.GetCustomAttribute<TutorialAttribute>() != null)
                     .Select(c =>
@@ -64,9 +65,8 @@ namespace PowerTables.Mvc.Controllers
                         var ct = c.GetCustomAttribute<TutorialAttribute>();
                         ct.TutorialId = c.Name;
                         return ct;
-                    }).OrderBy(v=>v.TutorialNumber).ToList();
-                ViewBag.Tutorials = tutorials;
-            }
+                    }).OrderBy(v => v.TutorialNumber).ToList();
+            ViewBag.Tutorials = tutorials;
         }
         private string GetCode(string path)
         {
@@ -81,7 +81,12 @@ namespace PowerTables.Mvc.Controllers
             return fileText.Trim();
         }
 
-        [Tutorial("Basic setup", 1)]
+        public ActionResult Index()
+        {
+            return View();
+        }
+
+        [Tutorial("Basic setup", 1, "Models/Data.cs", "Views/Tutorial/BaseTutorial.cshtml")]
         public ActionResult Basic()
         {
             return TutPage(c => TestTables.Basic(c));
@@ -136,7 +141,7 @@ namespace PowerTables.Mvc.Controllers
             return Handle(c => c.Pagination());
         }
 
-        [Tutorial("Filtering", 6)]
+        [Tutorial("Filtering", 6, "/Views/Shared/Datepicker.cshtml")]
         public ActionResult Filtering()
         {
             return TutPage(c => c.Filtering());

@@ -6,6 +6,7 @@ using System.Web.Mvc;
 using PowerTables.Configuration;
 using PowerTables.Defaults;
 using PowerTables.Mvc.Models;
+using PowerTables.Mvc.Models.Tutorial;
 using PowerTables.Plugins.Checkboxify;
 using PowerTables.Plugins.Formwatch;
 using PowerTables.Plugins.Hideout;

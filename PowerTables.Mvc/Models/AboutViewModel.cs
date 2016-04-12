@@ -3,50 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using PowerTables.Configuration;
+using PowerTables.Mvc.Models.Tutorial;
 
 namespace PowerTables.Mvc.Models
 {
-    public enum SomeEnum
-    {
-        One,
-        Two,
-        Three,
-        Four
-    }
-
-    public class SourceData
-    {
-        public int Id { get; set; }
-        public byte GroupType { get; set; }
-        public string VeryName { get; set; }
-        public int ItemsCount { get; set; }
-        public double Cost { get; set; }
-        public bool IcloudLock { get; set; }
-
-        public int? NullableValue { get; set; }
-        public DateTime CurrentDate { get; set; }
-
-        public DateTime? NullableDate { get; set; }
-
-        public int Delay { get; set; }
-
-        public SourceData Clone()
-        {
-            return new SourceData()
-            {
-                Id = Id,
-                Cost = Cost,
-                CurrentDate = CurrentDate,
-                Delay = Delay,
-                GroupType = GroupType,
-                ItemsCount = ItemsCount,
-                IcloudLock = IcloudLock,
-                NullableDate = NullableDate,
-                NullableValue = NullableValue,
-                VeryName = VeryName
-            };
-        }
-    }
+    
 
 
     public class RequestStaticData

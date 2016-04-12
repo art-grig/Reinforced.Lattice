@@ -1,0 +1,14 @@
+﻿<script type="text/javascript">
+    @*
+        It is very important for datepicker do not to overlap DOM events on text input
+        bootstrap-datepicker does, so we are using such hack
+    *@
+    var createDatePicker = function (element, format) {
+        $(element)
+            .datepicker({ format: format, weekStart: 1 })
+            .on('changeDate', function () {
+                PowerTables.PowerTable.fireDomEvent('keyup', element);
+            });
+
+    }
+</script>
