@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -10,7 +11,7 @@ using PowerTables.Mvc.Models.Tutorial;
 
 namespace PowerTables.Mvc.Controllers
 {
-    public class TutorialController : Controller
+    public partial class TutorialController : Controller
     {
         private Configurator<SourceData, TargetData> Table()
         {
@@ -37,7 +38,24 @@ namespace PowerTables.Mvc.Controllers
 
                 ViewBag.Code = GetCode(_tutorialId,currentTutorial.TutorialNumber);
 
-
+                ViewBag.AdditionalCode = new Dictionary<Code, string>();
+                foreach (var additionalCodeFile in currentTutorial.AdditionalCodeFiles)
+                {
+                    string code = GetCode(additionalCodeFile);
+                    var codeobj = new Code(Path.GetFileName(additionalCodeFile), "html");
+                    var ext = Path.GetExtension(additionalCodeFile);
+                    switch (ext)
+                    {
+                        case ".cshtml":
+                            codeobj.Language = "html";
+                            break;
+                        case ".cs":
+                            codeobj.Language = "csharp";
+                            break;
+                    }
+                    codeobj.Id = codeobj.File.Replace(".", "_");
+                    ViewBag.AdditionalCode[codeobj] = code;
+                }
                 List<TutorialAttribute> tutorials =
                 typeof(TutorialController).GetMethods()
                     .Where(c => c.GetCustomAttribute<TutorialAttribute>() != null)
@@ -46,11 +64,16 @@ namespace PowerTables.Mvc.Controllers
                         var ct = c.GetCustomAttribute<TutorialAttribute>();
                         ct.TutorialId = c.Name;
                         return ct;
-                    }).ToList();
+                    }).OrderBy(v=>v.TutorialNumber).ToList();
                 ViewBag.Tutorials = tutorials;
             }
         }
-
+        private string GetCode(string path)
+        {
+            var file = Server.MapPath(string.Format("~/{0}", path));
+            var fileText = System.IO.File.ReadAllText(file);
+            return fileText.Trim();
+        }
         private string GetCode(string tutorialId, int tutorialNumber)
         {
             var file = Server.MapPath(string.Format("~/Models/Tutorial/_{1}_{0}.cs", tutorialId, tutorialNumber));
@@ -145,6 +168,8 @@ namespace PowerTables.Mvc.Controllers
         {
             return Handle(c => c.ButtonsAndCheckboxify());
         }
+
+        
 
         #region Utility
         private ActionResult TutPage(Action<Configurator<SourceData, TargetData>> config)

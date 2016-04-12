@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using PowerTables.Mvc.Models.Tutorial;
 
 namespace PowerTables.Mvc.Models
 {
@@ -22,13 +23,5 @@ namespace PowerTables.Mvc.Models
         public IList<SelectListItem> Types { get; set; }
     }
 
-    public enum SomeType
-    {
-        [Display(Name = "Type one")]
-        One,
-        [Display(Name = "Type two")]
-        Two,
-        [Display(Name = "Type three")]
-        Three
-    }
+    
 }

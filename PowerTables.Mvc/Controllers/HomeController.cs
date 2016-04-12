@@ -12,7 +12,7 @@ using PowerTables.Plugins.Hideout;
 
 namespace PowerTables.Mvc.Controllers
 {
-    public class HomeController : Controller
+    public partial class HomeController : Controller
     {
         public ActionResult Index()
         {

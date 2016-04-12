@@ -13,10 +13,28 @@ namespace PowerTables.Mvc
 
         public int TutorialNumber { get; set; }
 
-        public TutorialAttribute(string tutorialTitle, int tutorialNumber)
+        public string[] AdditionalCodeFiles { get; set; }
+
+        public TutorialAttribute(string tutorialTitle, int tutorialNumber, params string[] additionalCodePath)
         {
             TutorialTitle = tutorialTitle;
             TutorialNumber = tutorialNumber;
+            AdditionalCodeFiles = additionalCodePath;
+        }
+    }
+
+    public class Code
+    {
+        public string File { get; set; }
+
+        public string Id { get; set; }
+
+        public string Language { get; set; }
+
+        public Code(string file, string language)
+        {
+            File = file;
+            Language = language;
         }
     }
 }

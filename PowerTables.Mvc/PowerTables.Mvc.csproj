@@ -118,6 +118,7 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\FormWatchController.cs" />
     <Compile Include="Controllers\HandleTutorial.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\TutorialController.cs" />
@@ -135,6 +136,8 @@
     <Compile Include="Models\TargetData.cs" />
     <Compile Include="Models\TestsModel.cs" />
     <Compile Include="Models\TestTable.cs" />
+    <Compile Include="Models\Tutorial\FormWatchTutorialModel.cs" />
+    <Compile Include="Models\Tutorial\_9_FormWatchForm.cs" />
     <Compile Include="Models\Tutorial\_8_ButtonsAndCheckboxify.cs" />
     <Compile Include="Models\Tutorial\_7_HideoutAndResponseInfo.cs" />
     <Compile Include="Models\Tutorial\_6_Filtering.cs" />
@@ -272,6 +275,7 @@
     <Content Include="Views\Shared\AdditionalSearchDataView.cshtml" />
     <Content Include="Views\Tutorial\BaseTutorial.cshtml" />
     <Content Include="Views\Shared\TutorialsLayout.cshtml" />
+    <Content Include="Views\Tutorial\FormWatch.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
