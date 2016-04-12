@@ -89,8 +89,7 @@ namespace PowerTables.Mvc.Models
                 )
                 .LoadingIndicator()
                 .HideoutMenu(c => c.IncludeAll().Except(a => a.Id), ui => ui.PlaceAt("lt"))
-                .Checkboxify(c => c.Id, selectedClass: "warning", selectAllBehavior: SelectAllBehavior.InvolveServer,
-                    selectAllLocation: SelectAllLocation.FiltersHeader)
+                .Checkboxify(c => c.Id, selectAllBehavior: SelectAllBehavior.InvolveServer)
                 //.WithResponseInfo(a => new ResponseInfo()
                 //{
                 //    QueryTime = DateTime.Now.ToString("dd MMM yyyy"),

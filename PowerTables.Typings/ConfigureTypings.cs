@@ -49,7 +49,6 @@ namespace PowerTables.Typings
 
             builder.ExportAsInterface<PluginConfiguration>().WithPublicProperties();
             builder.ExportAsInterface<CheckboxifyClientConfig>().WithPublicProperties();
-            builder.ExportAsEnum<SelectAllLocation>();
             builder.ExportAsInterface<FormwatchClientConfiguration>().WithPublicProperties();
             builder.ExportAsInterface<FormwatchFieldData>().WithPublicProperties()
                 .WithProperty(c => c.FieldValueFunction, a => a.Type<Func<object>>())

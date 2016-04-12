@@ -1,4 +1,5 @@
 ﻿using PowerTables.Configuration;
+using PowerTables.Plugins.Checkboxify;
 
 namespace PowerTables.Mvc.Models.Tutorial
 {
@@ -6,9 +7,8 @@ namespace PowerTables.Mvc.Models.Tutorial
     {
         public static Configurator<SourceData, TargetData> ButtonsAndCheckboxify(this Configurator<SourceData, TargetData> conf)
         {
-            conf
-                .DatePicker("createDatePicker", "mm/dd/yyyy", "MM/dd/yyyy")
-                .AppendEmptyFilters();
+            conf.HideoutAndResponseInfo();
+            conf.Checkboxify(c => c.Id, SelectAllBehavior.CurrentPage);
             return conf;
         }
     }

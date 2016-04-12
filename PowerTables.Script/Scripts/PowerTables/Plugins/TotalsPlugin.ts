@@ -26,10 +26,11 @@
                 DataObject: dataObject,
                 Cells: {},
                 renderContent: null,
-                renderElement: null
+                renderElement: null,
+                IsSpecial: true
             };
 
-            
+
             for (var i = 0; i < cols.length; i++) {
                 var col = cols[i];
                 var cell: ICell = {
@@ -76,9 +77,9 @@
             this.MasterTable.Events.DataReceived.subscribe(this.onResponse.bind(this), 'totals');
             this.MasterTable.Events.BeforeClientRowsRendering.subscribe(this.onClientRowsRendering.bind(this), 'totals');
             this.MasterTable.Events.AfterClientDataProcessing.subscribe(this.onClientDataProcessed.bind(this), 'totals');
-            
+
         }
     }
 
-    ComponentsContainer.registerComponent('Total',TotalsPlugin);
+    ComponentsContainer.registerComponent('Total', TotalsPlugin);
 } 

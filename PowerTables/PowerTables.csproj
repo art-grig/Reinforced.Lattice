@@ -120,6 +120,7 @@
     <Compile Include="IQueryHandler.cs" />
     <Compile Include="Plugins\Checkboxify\CheckboxifyExtensions.cs" />
     <Compile Include="Plugins\Checkboxify\CheckboxifyCommandHandler.cs" />
+    <Compile Include="Plugins\Checkboxify\CheckboxifyTemplateRegion.cs" />
     <Compile Include="Plugins\ColumnListBuilder.cs" />
     <Compile Include="Plugins\Formwatch\FormWatchBuilder.cs" />
     <Compile Include="Plugins\Formwatch\FormwatchClientConfiguration.cs" />

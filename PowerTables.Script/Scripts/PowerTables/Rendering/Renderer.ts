@@ -13,8 +13,8 @@
 
             this.HandlebarsInstance = Handlebars.create();
 
-            this._layoutRenderer = new LayoutRenderer(this, this._stack, this._instances);
-            this._contentRenderer = new ContentRenderer(this, this._stack, this._instances);
+            this.LayoutRenderer = new LayoutRenderer(this, this._stack, this._instances);
+            this.ContentRenderer = new ContentRenderer(this, this._stack, this._instances);
             this.BackBinder = new BackBinder(this.HandlebarsInstance, instances, this._stack);
 
             this.HandlebarsInstance.registerHelper("ifq", this.ifqHelper);
@@ -51,8 +51,8 @@
         public BackBinder: BackBinder;
 
         private _instances: InstanceManager;
-        private _layoutRenderer: LayoutRenderer;
-        private _contentRenderer: ContentRenderer;
+        public LayoutRenderer: LayoutRenderer;
+        public ContentRenderer: ContentRenderer;
         private _stack: RenderingStack;
         private _datepickerFunction: (e: HTMLElement) => void;
         private _templatesCache: { [key: string]: HandlebarsTemplateDelegate } = {};
@@ -111,7 +111,7 @@
         public body(rows: IRow[]): void {
             this._events.BeforeClientRowsRendering.invoke(this, rows);
             this.clearBody();
-            var html = this._contentRenderer.renderBody(rows);
+            var html = this.ContentRenderer.renderBody(rows);
             this.BodyElement.innerHTML = html;
             this._events.AfterDataRendered.invoke(this, null);
         }
@@ -127,7 +127,7 @@
             var oldPluginElement = this.Locator.getPluginElement(plugin);
             var parent = oldPluginElement.parentElement;
             var parser = new PowerTables.Rendering.Html2Dom.HtmlParser();
-            var html = this._layoutRenderer.renderPlugin(plugin);
+            var html = this.LayoutRenderer.renderPlugin(plugin);
             var newPluginElement = parser.html2Dom(html);
 
             parent.replaceChild(newPluginElement, oldPluginElement);
@@ -142,6 +142,7 @@
          */
         public redrawRow(row: IRow): void {
             this._stack.clear();
+            this._stack.push(RenderingContextType.Row, row);
             var wrapper = this.getCachedTemplate('rowWrapper');
             var html;
             if (row.renderElement) {
@@ -149,6 +150,7 @@
             } else {
                 html = wrapper(row);
             }
+            this._stack.popContext();
             var oldElement = this.Locator.getRowElement(row);
             this.replaceElement(oldElement, html);
         }
@@ -191,10 +193,10 @@
          */
         public redrawHeader(column: IColumn): void {
             this._stack.clear();
-            var html = this._layoutRenderer.renderHeader(column);
+            var html = this.LayoutRenderer.renderHeader(column);
             var oldHeaderElement = this.Locator.getHeaderElement(column.Header);
             var newElement = this.replaceElement(oldHeaderElement, html);
-            this.BackBinder.backBind(newElement.parentElement);
+            this.BackBinder.backBind(newElement);
         }
 
         private createElement(html: string): HTMLElement {
@@ -228,10 +230,10 @@
                 switch (this._stack.Current.Type) {
                     case RenderingContextType.Header:
                     case RenderingContextType.Plugin:
-                        return this._layoutRenderer.renderContent(columnName);
+                        return this.LayoutRenderer.renderContent(columnName);
                     case RenderingContextType.Row:
                     case RenderingContextType.Cell:
-                        return this._contentRenderer.renderContent(columnName);
+                        return this.ContentRenderer.renderContent(columnName);
                     default:
                         throw new Error("Unknown rendering context type");
 

@@ -55,18 +55,12 @@ namespace PowerTables.Plugins.Checkboxify
         /// <param name="column">Column that will be used as ID provider for select checkbox</param>
         /// <param name="selectAllBehavior">Specifies select all checkbox behavior</param>
         /// <param name="resetOnLoad">Reset selection on table reload or not</param>
-        /// <param name="selectedClass">Class name that will be assigned to selected row</param>
-        /// <param name="columnTitle">Selection column title</param>
-        /// <param name="selectAllLocation">Location of "select all" checkbox - on header or with filters</param>
         /// <returns></returns>
         public static Configurator<TSourceData, TTableData> Checkboxify<TSourceData, TTableData, TTableColumn>(
             this Configurator<TSourceData, TTableData> conf,
             Expression<Func<TTableData, TTableColumn>> column,
             SelectAllBehavior selectAllBehavior = SelectAllBehavior.OnlyIfAllDataVisible,
-            bool resetOnLoad = false,
-            string selectedClass = null,
-            string columnTitle = null,
-            SelectAllLocation selectAllLocation = SelectAllLocation.FiltersHeader
+            bool resetOnLoad = false
 
             ) where TTableData : new()
         {
@@ -75,9 +69,7 @@ namespace PowerTables.Plugins.Checkboxify
             CheckboxifyClientConfig ccc = new CheckboxifyClientConfig
             {
                 SelectionColumnName = colName,
-                ResetOnReload = resetOnLoad,
-                SelectedRowClass = selectedClass,
-                CheckboxifyColumnName = columnTitle
+                ResetOnReload = resetOnLoad
             };
             switch (selectAllBehavior)
             {
@@ -111,7 +103,6 @@ namespace PowerTables.Plugins.Checkboxify
 
                     break;
             }
-            ccc.SelectAllLocation = selectAllLocation;
             conf.TableConfiguration.ReplacePluginConfig(PluginId, ccc);
             return conf;
         }

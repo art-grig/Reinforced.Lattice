@@ -16,20 +16,6 @@ var PowerTables;
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        var Checkboxify;
-        (function (Checkboxify) {
-            (function (SelectAllLocation) {
-                SelectAllLocation[SelectAllLocation["FiltersHeader"] = 0] = "FiltersHeader";
-                SelectAllLocation[SelectAllLocation["ColumnHeader"] = 1] = "ColumnHeader";
-            })(Checkboxify.SelectAllLocation || (Checkboxify.SelectAllLocation = {}));
-            var SelectAllLocation = Checkboxify.SelectAllLocation;
-        })(Checkboxify = Plugins.Checkboxify || (Plugins.Checkboxify = {}));
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
     /**
      * Components container for registration/resolving plugins
      */
@@ -193,7 +179,6 @@ var PowerTables;
             this.BeforeLayoutRendered = new TableEvent(masterTable);
             this.BeforeClientDataProcessing = new TableEvent(masterTable);
             this.AfterClientDataProcessing = new TableEvent(masterTable);
-            this.ClientDataFiltered = new TableEvent(masterTable);
             this.BeforeLayoutRendered = new TableEvent(masterTable);
             this.AfterLayoutRendered = new TableEvent(masterTable);
             this.BeforeDataRendered = new TableEvent(masterTable);
@@ -258,6 +243,23 @@ var PowerTables;
             });
         };
         /**
+         * Redraws row containing currently visible data object
+         *
+         * @param dataObject Data object
+         * @param idx
+         * @returns {}
+         */
+        Controller.prototype.redrawVisibleDataObject = function (dataObject, idx) {
+            if (!idx) {
+                var dispIndex = this._masterTable.DataHolder.localLookupDisplayedData(dataObject);
+                if (dispIndex == null)
+                    throw new Error('Cannot redraw object because it is not displaying currently');
+                idx = dispIndex.DisplayedIndex;
+            }
+            var row = this.produceRow(dataObject, idx);
+            this._masterTable.Renderer.redrawRow(row);
+        };
+        /**
          * Redraws locally visible data
          */
         Controller.prototype.redrawVisibleData = function () {
@@ -300,51 +302,76 @@ var PowerTables;
             this._rowDomSubscriptions[subscription.EventId].push(subscription);
             this.ensureEventSubscription(subscription.EventId);
         };
+        //#region event delegation hell
         Controller.prototype.ensureEventSubscription = function (eventId) {
             var fn = this.onTableEvent.bind(this);
-            this._attachFn(eventId, fn);
+            this._attachFn.call(this._masterTable.Renderer.BodyElement, eventId, fn);
             this._domEvents[eventId] = fn;
         };
-        Controller.prototype.onTableEvent = function (e) {
-            var subscriptions = null;
-            var isCell = false;
-            if (this._masterTable.Renderer.Locator.isCell(e.currentTarget)) {
-                subscriptions = this._cellDomSubscriptions[e.type];
-                isCell = true;
-            }
-            if (this._masterTable.Renderer.Locator.isRow(e.currentTarget)) {
-                subscriptions = this._rowDomSubscriptions[e.type];
-            }
-            if (!subscriptions)
-                return;
-            if (subscriptions.length === 0)
-                return;
-            var eventArgs;
-            if (isCell) {
-                var location = PowerTables.TrackHelper.getCellLocation(e.currentTarget);
-                eventArgs = {
-                    Table: this._masterTable,
-                    DisplayingRowIndex: location.RowIndex,
-                    ColumnIndex: location.ColumnIndex,
-                    OriginalEvent: e
-                };
-            }
-            else {
-                var ridx = PowerTables.TrackHelper.getRowIndex(e.currentTarget);
-                eventArgs = {
-                    Table: this._masterTable,
-                    DisplayingRowIndex: ridx,
-                    OriginalEvent: e
-                };
-            }
-            for (var i = 0; i < subscriptions.length; i++) {
-                if (subscriptions[i].Selector) {
-                    if (!this._matches.apply(e.target, subscriptions[i].Selector))
-                        continue;
+        Controller.prototype.traverseSubscriptions = function (target, eventType, originalEvent) {
+            var t = target;
+            var forRow = this._rowDomSubscriptions[eventType];
+            var forCell = this._cellDomSubscriptions[eventType];
+            var result = [];
+            if (!forRow)
+                forRow = [];
+            if (!forCell)
+                forCell = [];
+            if (forRow.length === 0 && forCell.length === 0)
+                return result;
+            var pathToCell = [];
+            var pathToRow = [];
+            var cellLocation = null, rowIndex = null;
+            while (t !== this._masterTable.Renderer.BodyElement) {
+                if (this._masterTable.Renderer.Locator.isCell(t)) {
+                    cellLocation = PowerTables.TrackHelper.getCellLocation(t);
                 }
-                subscriptions[i].Handler(eventArgs);
+                if (this._masterTable.Renderer.Locator.isRow(t)) {
+                    rowIndex = PowerTables.TrackHelper.getRowIndex(t);
+                }
+                if (cellLocation == null)
+                    pathToCell.push(t);
+                if (rowIndex == null)
+                    pathToRow.push(t);
+                t = t.parentElement;
+            }
+            if (cellLocation != null) {
+                var cellArgs = {
+                    Table: this._masterTable,
+                    OriginalEvent: originalEvent,
+                    DisplayingRowIndex: cellLocation.RowIndex,
+                    ColumnIndex: cellLocation.ColumnIndex
+                };
+                this.traverseAndFire(forCell, pathToCell, cellArgs);
+            }
+            if (rowIndex != null) {
+                var rowArgs = {
+                    Table: this._masterTable,
+                    OriginalEvent: originalEvent,
+                    DisplayingRowIndex: rowIndex
+                };
+                this.traverseAndFire(forRow, pathToRow, rowArgs);
             }
         };
+        Controller.prototype.traverseAndFire = function (subscriptions, path, args) {
+            for (var i = 0; i < subscriptions.length; i++) {
+                if (subscriptions[i].Selector) {
+                    for (var j = 0; j < path.length; j++) {
+                        if (this._matches.call(path[j], subscriptions[i].Selector)) {
+                            subscriptions[i].Handler(args);
+                            break;
+                        }
+                    }
+                }
+                else {
+                    subscriptions[i].Handler(args);
+                }
+            }
+        };
+        Controller.prototype.onTableEvent = function (e) {
+            this.traverseSubscriptions((e.target || e.srcElement), e.type, e);
+        };
+        //#endregion
         /**
          * Inserts data entry to local storage
          *
@@ -431,6 +458,14 @@ var PowerTables;
             this._masterTable.DataHolder.DisplayedData = this._masterTable.DataHolder.orderSet(this._masterTable.DataHolder.DisplayedData, this._masterTable.DataHolder.RecentClientQuery);
             this.redrawVisibleData();
         };
+        /**
+         * Converts data object to display row
+         *
+         * @param dataObject Data object
+         * @param idx Object's displaying index
+         * @param columns Optional displaying columns set
+         * @returns {IRow} Row representing displayed object
+         */
         Controller.prototype.produceRow = function (dataObject, idx, columns) {
             if (!dataObject)
                 return null;
@@ -443,6 +478,7 @@ var PowerTables;
             };
             if (dataObject.IsMessage) {
                 rw.renderElement = function (hb) { return hb.getCachedTemplate('messages')(dataObject); };
+                rw.IsSpecial = true;
                 return rw;
             }
             var cells = {};
@@ -672,16 +708,14 @@ var PowerTables;
         DataHolder.prototype.filterStoredData = function (query) {
             this._events.BeforeClientDataProcessing.invoke(this, query);
             this.DisplayedData = this.StoredData;
+            this._previouslyFiltered = this.StoredData;
+            this._previouslyOrdered = this.StoredData;
             this.RecentClientQuery = query;
             if (this.isClientFiltrationPending() && (!(!query))) {
                 var copy = this.StoredData.slice();
                 var filtered = this.filterSet(copy, query);
                 var ordered = this.orderSet(filtered, query);
                 var selected = ordered;
-                this._events.ClientDataFiltered.invoke(this, {
-                    Filtered: filtered,
-                    Ordered: ordered
-                });
                 var startingIndex = query.Paging.PageIndex * query.Paging.PageSize;
                 if (startingIndex > filtered.length)
                     startingIndex = 0;
@@ -702,9 +736,16 @@ var PowerTables;
                         }
                     }
                 }
+                this._previouslyFiltered = filtered;
+                this._previouslyOrdered = ordered;
                 this.DisplayedData = selected;
             }
-            this._events.AfterClientDataProcessing.invoke(this, query);
+            this._events.AfterClientDataProcessing.invoke(this, {
+                Displaying: this.DisplayedData,
+                Filtered: this._previouslyFiltered,
+                Ordered: this._previouslyOrdered,
+                Source: this.StoredData
+            });
         };
         /**
          * Filter recent data and store it to currently displaying data
@@ -738,6 +779,44 @@ var PowerTables;
                     result[j].DisplayedIndex = idx;
                 }
             }
+            return result;
+        };
+        /**
+         * Finds data object among currently displayed and returns ILocalLookupResult
+         * containing also Loaded-set index of this data object
+         *
+         * @param index Index of desired data object among locally displaying data
+         * @returns ILocalLookupResult
+         */
+        DataHolder.prototype.localLookupDisplayedDataObject = function (dataObject) {
+            var index = this.DisplayedData.indexOf(dataObject);
+            if (index < 0)
+                return null;
+            var result = {
+                DataObject: dataObject,
+                IsCurrentlyDisplaying: true,
+                DisplayedIndex: index,
+                LoadedIndex: this.StoredData.indexOf(dataObject)
+            };
+            return result;
+        };
+        /**
+         * Finds data object among currently displayed and returns ILocalLookupResult
+         * containing also Loaded-set index of this data object
+         *
+         * @param index Index of desired data object among locally displaying data
+         * @returns ILocalLookupResult
+         */
+        DataHolder.prototype.localLookupStoredDataObject = function (dataObject) {
+            var index = this.StoredData.indexOf(dataObject);
+            if (index < 0)
+                return null;
+            var result = {
+                DataObject: dataObject,
+                IsCurrentlyDisplaying: true,
+                DisplayedIndex: this.DisplayedData.indexOf(dataObject),
+                LoadedIndex: index
+            };
             return result;
         };
         /**
@@ -1442,6 +1521,15 @@ var PowerTables;
                 }
                 ;
             };
+            /**
+             * Adds/replaces column rendering function for specified column
+             *
+             * @param column Column to cache renderer for
+             * @param fn Rendering function
+             */
+            ContentRenderer.prototype.cacheColumnRenderingFunction = function (column, fn) {
+                this._columnsRenderFunctions[column.Configuration.RawColumnName] = fn;
+            };
             return ContentRenderer;
         })();
         Rendering.ContentRenderer = ContentRenderer;
@@ -1997,6 +2085,8 @@ var PowerTables;
                 if (!e.getAttribute)
                     return false;
                 var trk = e.getAttribute('data-track');
+                if (!trk)
+                    return false;
                 return (trk.charAt(0) === 'r') && (trk.charAt(1) === '-');
             };
             /**
@@ -2011,6 +2101,8 @@ var PowerTables;
                 if (!e.getAttribute)
                     return false;
                 var trk = e.getAttribute('data-track');
+                if (!trk)
+                    return false;
                 return (trk.charAt(0) === 'c')
                     && (trk.charAt(1) === '-')
                     && (trk.charAt(2) === 'r');
@@ -2036,8 +2128,8 @@ var PowerTables;
                 this._rootId = rootId;
                 this._events = events;
                 this.HandlebarsInstance = Handlebars.create();
-                this._layoutRenderer = new Rendering.LayoutRenderer(this, this._stack, this._instances);
-                this._contentRenderer = new Rendering.ContentRenderer(this, this._stack, this._instances);
+                this.LayoutRenderer = new Rendering.LayoutRenderer(this, this._stack, this._instances);
+                this.ContentRenderer = new Rendering.ContentRenderer(this, this._stack, this._instances);
                 this.BackBinder = new Rendering.BackBinder(this.HandlebarsInstance, instances, this._stack);
                 this.HandlebarsInstance.registerHelper("ifq", this.ifqHelper);
                 this.HandlebarsInstance.registerHelper("ifloc", this.iflocHelper.bind(this));
@@ -2091,7 +2183,7 @@ var PowerTables;
             Renderer.prototype.body = function (rows) {
                 this._events.BeforeClientRowsRendering.invoke(this, rows);
                 this.clearBody();
-                var html = this._contentRenderer.renderBody(rows);
+                var html = this.ContentRenderer.renderBody(rows);
                 this.BodyElement.innerHTML = html;
                 this._events.AfterDataRendered.invoke(this, null);
             };
@@ -2106,7 +2198,7 @@ var PowerTables;
                 var oldPluginElement = this.Locator.getPluginElement(plugin);
                 var parent = oldPluginElement.parentElement;
                 var parser = new PowerTables.Rendering.Html2Dom.HtmlParser();
-                var html = this._layoutRenderer.renderPlugin(plugin);
+                var html = this.LayoutRenderer.renderPlugin(plugin);
                 var newPluginElement = parser.html2Dom(html);
                 parent.replaceChild(newPluginElement, oldPluginElement);
                 this.BackBinder.backBind(newPluginElement);
@@ -2119,6 +2211,7 @@ var PowerTables;
              */
             Renderer.prototype.redrawRow = function (row) {
                 this._stack.clear();
+                this._stack.push(Rendering.RenderingContextType.Row, row);
                 var wrapper = this.getCachedTemplate('rowWrapper');
                 var html;
                 if (row.renderElement) {
@@ -2127,6 +2220,7 @@ var PowerTables;
                 else {
                     html = wrapper(row);
                 }
+                this._stack.popContext();
                 var oldElement = this.Locator.getRowElement(row);
                 this.replaceElement(oldElement, html);
             };
@@ -2167,10 +2261,10 @@ var PowerTables;
              */
             Renderer.prototype.redrawHeader = function (column) {
                 this._stack.clear();
-                var html = this._layoutRenderer.renderHeader(column);
+                var html = this.LayoutRenderer.renderHeader(column);
                 var oldHeaderElement = this.Locator.getHeaderElement(column.Header);
                 var newElement = this.replaceElement(oldHeaderElement, html);
-                this.BackBinder.backBind(newElement.parentElement);
+                this.BackBinder.backBind(newElement);
             };
             Renderer.prototype.createElement = function (html) {
                 var parser = new PowerTables.Rendering.Html2Dom.HtmlParser();
@@ -2202,10 +2296,10 @@ var PowerTables;
                     switch (this._stack.Current.Type) {
                         case Rendering.RenderingContextType.Header:
                         case Rendering.RenderingContextType.Plugin:
-                            return this._layoutRenderer.renderContent(columnName);
+                            return this.LayoutRenderer.renderContent(columnName);
                         case Rendering.RenderingContextType.Row:
                         case Rendering.RenderingContextType.Cell:
-                            return this._contentRenderer.renderContent(columnName);
+                            return this.ContentRenderer.renderContent(columnName);
                         default:
                             throw new Error("Unknown rendering context type");
                     }
@@ -2309,7 +2403,7 @@ var PowerTables;
                 return null;
             if (!e.getAttribute)
                 return null;
-            var trk = e.getAttribute('data-track').substring(2).split('-c');
+            var trk = e.getAttribute('data-track').substring(3).split('-c');
             return {
                 RowIndex: parseInt(trk[0]),
                 ColumnIndex: parseInt(trk[1])
@@ -2938,7 +3032,7 @@ var PowerTables;
                     this.MasterTable.Events.DataReceived.subscribe(this.onResponse.bind(this), 'paging');
                 }
                 else {
-                    this.MasterTable.Events.ClientDataFiltered.subscribe(this.onClientDataProcessing.bind(this), 'paging');
+                    this.MasterTable.Events.AfterClientDataProcessing.subscribe(this.onClientDataProcessing.bind(this), 'paging');
                 }
                 this.MasterTable.Events.ColumnsCreation.subscribe(this.onColumnsCreation.bind(this), 'paging');
                 if (this.Configuration.EnableClientPaging) {
@@ -3522,7 +3616,7 @@ var PowerTables;
                     };
                 }
             };
-            ResponseInfoPlugin.prototype.onClientDataProcessed = function () {
+            ResponseInfoPlugin.prototype.onClientDataProcessed = function (e) {
                 if (this.Configuration.ResponseObjectOverriden)
                     return;
                 if (!this.Configuration.ClientEvaluationFunction) {
@@ -3536,7 +3630,7 @@ var PowerTables;
                     };
                 }
                 else {
-                    this._recentData = this.Configuration.ClientEvaluationFunction(this.MasterTable.DataHolder.DisplayedData, this.MasterTable.DataHolder.StoredData, (!this._pagingPlugin) ? 0 : (this._pagingPlugin.getCurrentPage()), (!this._pagingPlugin) ? 0 : (this._pagingPlugin.getTotalPages()));
+                    this._recentData = this.Configuration.ClientEvaluationFunction(e.EventArgs, (!this._pagingPlugin) ? 0 : (this._pagingPlugin.getCurrentPage()), (!this._pagingPlugin) ? 0 : (this._pagingPlugin.getTotalPages()));
                 }
                 this._isServerRequest = false;
                 this._isReadyForRendering = true;
@@ -3605,7 +3699,8 @@ var PowerTables;
                     DataObject: dataObject,
                     Cells: {},
                     renderContent: null,
-                    renderElement: null
+                    renderElement: null,
+                    IsSpecial: true
                 };
                 for (var i = 0; i < cols.length; i++) {
                     var col = cols[i];
@@ -3635,15 +3730,127 @@ var PowerTables;
                     }
                 }
             };
+            TotalsPlugin.prototype.onClientDataProcessed = function (e) {
+                if (!this._totalsForColumns)
+                    this._totalsForColumns = {};
+                for (var k in this.Configuration.ColumnsCalculatorFunctions) {
+                    if (this.Configuration.ColumnsCalculatorFunctions.hasOwnProperty(k)) {
+                        this._totalsForColumns[k] = this.Configuration.ColumnsCalculatorFunctions[k](e.EventArgs).toString();
+                    }
+                }
+            };
             TotalsPlugin.prototype.init = function (masterTable) {
                 _super.prototype.init.call(this, masterTable);
                 this.MasterTable.Events.DataReceived.subscribe(this.onResponse.bind(this), 'totals');
                 this.MasterTable.Events.BeforeClientRowsRendering.subscribe(this.onClientRowsRendering.bind(this), 'totals');
+                this.MasterTable.Events.AfterClientDataProcessing.subscribe(this.onClientDataProcessed.bind(this), 'totals');
             };
             return TotalsPlugin;
         })(Plugins.PluginBase);
         Plugins.TotalsPlugin = TotalsPlugin;
         PowerTables.ComponentsContainer.registerComponent('Total', TotalsPlugin);
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var CheckboxifyPlugin = (function (_super) {
+            __extends(CheckboxifyPlugin, _super);
+            function CheckboxifyPlugin() {
+                _super.apply(this, arguments);
+                this._selectedItems = [];
+                this._visibleAll = false;
+                this._allSelected = false;
+            }
+            CheckboxifyPlugin.prototype.selectAll = function () {
+                this._allSelected = !this._allSelected;
+                this.MasterTable.Renderer.redrawHeader(this._ourColumn);
+            };
+            CheckboxifyPlugin.prototype.createColumn = function () {
+                var _this = this;
+                var conf = {
+                    IsDataOnly: false,
+                    IsEnum: false,
+                    IsNullable: false,
+                    RawColumnName: '_checkboxify',
+                    CellRenderingTemplateId: null,
+                    CellRenderingValueFunction: null,
+                    Title: 'Checkboxify',
+                    ColumnType: 'Int32'
+                };
+                var col = {
+                    Configuration: conf,
+                    Header: null,
+                    IsBoolean: false,
+                    IsDateTime: false,
+                    IsEnum: false,
+                    IsFloat: false,
+                    IsInteger: false,
+                    IsString: false,
+                    MasterTable: this.MasterTable,
+                    Order: -1,
+                    RawName: '_checkboxify'
+                };
+                var header = {
+                    Column: col,
+                    renderContent: null,
+                    renderElement: function (tp) { return tp.getCachedTemplate('checkboxifySelectAll')({ IsAllSelected: _this._allSelected }); },
+                    selectAllEvent: function (e) { return _this.selectAll(); }
+                };
+                col.Header = header;
+                this.MasterTable.Renderer.ContentRenderer.cacheColumnRenderingFunction(col, function (x) {
+                    var value = x.DataObject[_this._valueColumnName].toString();
+                    var selected = _this._selectedItems.indexOf(value) > -1;
+                    var canCheck = _this.canCheck(x.DataObject, x.Row);
+                    return _this.MasterTable.Renderer.getCachedTemplate('checkboxifyCell')({ Value: value, IsChecked: selected, CanCheck: canCheck });
+                });
+                return col;
+            };
+            CheckboxifyPlugin.prototype.canCheck = function (dataObject, row) {
+                return dataObject != null && !row.IsSpecial;
+            };
+            CheckboxifyPlugin.prototype.selectByRowIndex = function (rowIndex) {
+                var displayedLookup = this.MasterTable.DataHolder.localLookupDisplayedData(rowIndex);
+                var v = displayedLookup.DataObject[this._valueColumnName].toString();
+                var idx = this._selectedItems.indexOf(v);
+                var overrideRow = false;
+                if (idx > -1) {
+                    this._selectedItems.splice(idx, 1);
+                }
+                else {
+                    this._selectedItems.push(v);
+                    overrideRow = true;
+                }
+                var row = this.MasterTable.Controller.produceRow(displayedLookup.DataObject, displayedLookup.DisplayedIndex);
+                if (overrideRow) {
+                    row.renderElement = function (e) { return e.getCachedTemplate('checkboxifyRow')(row); };
+                }
+                this.MasterTable.Renderer.redrawRow(row);
+            };
+            CheckboxifyPlugin.prototype.afterLayoutRender = function () {
+                var _this = this;
+                this.MasterTable.Controller.subscribeCellEvent({
+                    EventId: 'click',
+                    Selector: '[data-checkboxify]',
+                    SubscriptionId: 'checkboxify',
+                    Handler: function (e) {
+                        _this.selectByRowIndex(e.DisplayingRowIndex);
+                    }
+                });
+            };
+            CheckboxifyPlugin.prototype.init = function (masterTable) {
+                _super.prototype.init.call(this, masterTable);
+                var col = this.createColumn();
+                this.MasterTable.InstanceManager.Columns['_checkboxify'] = col;
+                this._ourColumn = col;
+                this._valueColumnName = this.Configuration.SelectionColumnName;
+                this.MasterTable.Events.AfterLayoutRendered.subscribe(this.afterLayoutRender.bind(this), 'checkboxify');
+            };
+            return CheckboxifyPlugin;
+        })(Plugins.PluginBase);
+        Plugins.CheckboxifyPlugin = CheckboxifyPlugin;
+        PowerTables.ComponentsContainer.registerComponent('Checkboxify', CheckboxifyPlugin);
     })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
 })(PowerTables || (PowerTables = {}));
 //# sourceMappingURL=powertables.js.map

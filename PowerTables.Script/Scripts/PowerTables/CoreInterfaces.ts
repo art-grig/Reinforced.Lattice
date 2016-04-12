@@ -217,6 +217,12 @@
          * Cells collection for this particular row
          */
         Cells: { [key: string]: PowerTables.ICell };
+
+        /**
+         * Special rows are bein added automatically. 
+         * This mark denotes them to avoid confusion
+         */
+        IsSpecial?:boolean;
     }
 
     export interface ITemplatesProvider {

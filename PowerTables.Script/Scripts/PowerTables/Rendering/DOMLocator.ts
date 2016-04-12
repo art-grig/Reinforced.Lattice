@@ -142,6 +142,7 @@
             if (!e) return false;
             if (!e.getAttribute) return false;
             var trk = e.getAttribute('data-track');
+            if (!trk) return false;
             return (trk.charAt(0) === 'r') && (trk.charAt(1) === '-');
         }
 
@@ -155,6 +156,7 @@
             if (!e) return false;
             if (!e.getAttribute) return false;
             var trk = e.getAttribute('data-track');
+            if (!trk) return false;
             return (trk.charAt(0) === 'c')
                 && (trk.charAt(1) === '-')
                 && (trk.charAt(2) === 'r');

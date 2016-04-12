@@ -33,7 +33,7 @@
                 if (rw.renderElement) {
                     result += rw.renderElement(this._templatesProvider);
                 } else {
-                    
+
                     result += wrapper(rw);
                 }
                 this._stack.popContext();
@@ -85,6 +85,17 @@
                     (x: ICell) => ((x.Data !== null && x.Data !== undefined) ? x.Data : '');
                 }
             };
+        }
+
+
+        /**
+         * Adds/replaces column rendering function for specified column
+         * 
+         * @param column Column to cache renderer for
+         * @param fn Rendering function          
+         */
+        public cacheColumnRenderingFunction(column: IColumn, fn: (x: ICell) => string) {
+            this._columnsRenderFunctions[column.Configuration.RawColumnName] = fn;
         }
     }
 } 

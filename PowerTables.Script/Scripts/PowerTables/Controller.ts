@@ -14,7 +14,7 @@
                 var p = el.prototype;
                 return (p.matches || p.matchesSelector || p.webkitMatchesSelector || p.mozMatchesSelector || p.msMatchesSelector || p.oMatchesSelector);
             } (Element));
-            this._masterTable.Events.LoadingError.subscribe(this.onLoadingError.bind(this),'controller');
+            this._masterTable.Events.LoadingError.subscribe(this.onLoadingError.bind(this), 'controller');
         }
 
         private onLoadingError(e: ITableEventArgs<ILoadingErrorEventArgs>) {
@@ -46,9 +46,26 @@
         }
 
         /**
+         * Redraws row containing currently visible data object
+         * 
+         * @param dataObject Data object
+         * @param idx 
+         * @returns {} 
+         */
+        public redrawVisibleDataObject(dataObject: any, idx?:number) {
+            if (!idx) {
+                var dispIndex = this._masterTable.DataHolder.localLookupDisplayedData(dataObject);
+                if (dispIndex == null) throw new Error('Cannot redraw object because it is not displaying currently');
+                idx = dispIndex.DisplayedIndex;
+            }
+            var row = this.produceRow(dataObject, idx);
+            this._masterTable.Renderer.redrawRow(row);
+        }
+
+        /**
          * Redraws locally visible data
          */
-        public redrawVisibleData() :void {
+        public redrawVisibleData(): void {
             var rows = this.produceRows();
             this._masterTable.Renderer.body(rows);
         }
@@ -92,49 +109,76 @@
             this.ensureEventSubscription(subscription.EventId);
         }
 
+        //#region event delegation hell
         private ensureEventSubscription(eventId: string) {
             var fn = this.onTableEvent.bind(this);
-            this._attachFn(eventId, fn);
+            this._attachFn.call(this._masterTable.Renderer.BodyElement, eventId, fn);
             this._domEvents[eventId] = fn;
         }
 
-        private onTableEvent(e: UIEvent) {
-            var subscriptions: ISubscription[] = null;
-            var isCell = false;
-            if (this._masterTable.Renderer.Locator.isCell(<HTMLElement>e.currentTarget)) {
-                subscriptions = this._cellDomSubscriptions[e.type];
-                isCell = true;
+        private traverseSubscriptions(target: HTMLElement, eventType: string, originalEvent: Event) {
+            var t = target;
+            var forRow = this._rowDomSubscriptions[eventType];
+            var forCell = this._cellDomSubscriptions[eventType];
+            var result: ISubscription[] = [];
+            if (!forRow) forRow = [];
+            if (!forCell) forCell = [];
+            if (forRow.length === 0 && forCell.length === 0) return result;
+            var pathToCell = [];
+            var pathToRow = [];
+            var cellLocation = null, rowIndex = null;
+
+            while (t !== this._masterTable.Renderer.BodyElement) {
+                if (this._masterTable.Renderer.Locator.isCell(t)) {
+                    cellLocation = TrackHelper.getCellLocation(t);
+                }
+                if (this._masterTable.Renderer.Locator.isRow(t)) {
+                    rowIndex = TrackHelper.getRowIndex(t);
+                }
+                if (cellLocation == null) pathToCell.push(t);
+                if (rowIndex == null) pathToRow.push(t);
+                t = t.parentElement;
             }
-            if (this._masterTable.Renderer.Locator.isRow(<HTMLElement>e.currentTarget)) {
-                subscriptions = this._rowDomSubscriptions[e.type];
-            }
-            if (!subscriptions) return;
-            if (subscriptions.length === 0) return;
-            var eventArgs: any;
-            if (isCell) {
-                var location = TrackHelper.getCellLocation(<HTMLElement>e.currentTarget);
-                eventArgs = <ICellEventArgs>{
+
+            if (cellLocation != null) {
+                var cellArgs = {
                     Table: this._masterTable,
-                    DisplayingRowIndex: location.RowIndex,
-                    ColumnIndex: location.ColumnIndex,
-                    OriginalEvent: e
-                }
-            } else {
-                var ridx = TrackHelper.getRowIndex(<HTMLElement>e.currentTarget);
-                eventArgs = <IRowEventArgs>{
-                    Table: this._masterTable,
-                    DisplayingRowIndex: ridx,
-                    OriginalEvent: e
-                }
+                    OriginalEvent: originalEvent,
+                    DisplayingRowIndex: cellLocation.RowIndex,
+                    ColumnIndex: cellLocation.ColumnIndex
+                };
+                this.traverseAndFire(forCell,pathToCell,cellArgs);
             }
-            for (var i = 0; i < subscriptions.length; i++) {
-                if (subscriptions[i].Selector) {
-                    if (!this._matches.apply(e.target, subscriptions[i].Selector))
-                        continue;
-                }
-                subscriptions[i].Handler(eventArgs);
+
+            if (rowIndex != null) {
+                var rowArgs = {
+                    Table: this._masterTable,
+                    OriginalEvent: originalEvent,
+                    DisplayingRowIndex: rowIndex
+                };
+                this.traverseAndFire(forRow,pathToRow,rowArgs);
             }
         }
+
+        private traverseAndFire(subscriptions:ISubscription[],path:any[],args:any) {
+            for (var i = 0; i < subscriptions.length; i++) {
+                if (subscriptions[i].Selector) {
+                    for (var j = 0; j < path.length; j++) {
+                        if (this._matches.call(path[j], subscriptions[i].Selector)) {
+                            subscriptions[i].Handler(args);
+                            break;
+                        }
+                    }
+                } else {
+                    subscriptions[i].Handler(args);
+                }
+            }
+        }
+
+        private onTableEvent(e: UIEvent) {
+            this.traverseSubscriptions(<HTMLElement>(e.target || e.srcElement), e.type, e);
+        }
+        //#endregion
 
         /**
          * Inserts data entry to local storage 
@@ -224,11 +268,18 @@
             this.redrawVisibleData();
         }
 
-
+        /**
+         * Converts data object to display row
+         * 
+         * @param dataObject Data object
+         * @param idx Object's displaying index
+         * @param columns Optional displaying columns set
+         * @returns {IRow} Row representing displayed object
+         */
         public produceRow(dataObject: any, idx: number, columns?: IColumn[]): IRow {
             if (!dataObject) return null;
             if (!columns) columns = this._masterTable.InstanceManager.getUiColumns();
-            
+
             var rw = <IRow>{
                 DataObject: dataObject,
                 Index: idx,
@@ -236,6 +287,7 @@
             }
             if (dataObject.IsMessage) {
                 rw.renderElement = hb => hb.getCachedTemplate('messages')(dataObject);
+                rw.IsSpecial = true;
                 return rw;
             }
             var cells: { [key: string]: ICell } = {};
@@ -256,9 +308,9 @@
             return rw;
         }
 
-        private produceRows(): IRow[]{
+        private produceRows(): IRow[] {
             this._masterTable.Events.BeforeDataRendered.invoke(this, null);
-            
+
             var result: IRow[] = [];
             var columns = this._masterTable.InstanceManager.getUiColumns();
 
@@ -442,6 +494,6 @@
         AdditionalData: string;
         MessageType: string;
         UiColumnsCount?: number;
-        IsMessage?:boolean;
+        IsMessage?: boolean;
     }
 } 

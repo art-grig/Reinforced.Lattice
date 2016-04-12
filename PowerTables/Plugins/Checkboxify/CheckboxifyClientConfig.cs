@@ -17,18 +17,8 @@ namespace PowerTables.Plugins.Checkboxify
 
         public bool SelectAllSelectsUndisplayedData { get; set; }
 
-        public string SelectedRowClass { get; set; }
-
         public bool SelectAllOnlyIfAllData { get; set; }
-
-        public string CheckboxifyColumnName { get; set; }
-
-        public SelectAllLocation SelectAllLocation { get; set; }
+       
     }
-
-    public enum SelectAllLocation
-    {
-        FiltersHeader,
-        ColumnHeader
-    }
+    
 }

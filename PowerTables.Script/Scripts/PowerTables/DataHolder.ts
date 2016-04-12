@@ -192,7 +192,7 @@
                 var filtered = this.filterSet(copy, query);
                 var ordered = this.orderSet(filtered, query);
                 var selected = ordered;
-                
+
                 var startingIndex = query.Paging.PageIndex * query.Paging.PageSize;
                 if (startingIndex > filtered.length) startingIndex = 0;
                 var take = query.Paging.PageSize;
@@ -213,7 +213,7 @@
                 this._previouslyOrdered = ordered;
 
                 this.DisplayedData = selected;
-            } 
+            }
 
             this._events.AfterClientDataProcessing.invoke(this, {
                 Displaying: this.DisplayedData,
@@ -257,6 +257,46 @@
                     result[j].DisplayedIndex = idx;
                 }
             }
+            return result;
+        }
+
+        /**
+         * Finds data object among currently displayed and returns ILocalLookupResult 
+         * containing also Loaded-set index of this data object
+         * 
+         * @param index Index of desired data object among locally displaying data
+         * @returns ILocalLookupResult
+         */
+        public localLookupDisplayedDataObject(dataObject: any): ILocalLookupResult {
+            var index = this.DisplayedData.indexOf(dataObject);
+            if (index < 0) return null;
+            var result: ILocalLookupResult = {
+                DataObject: dataObject,
+                IsCurrentlyDisplaying: true,
+                DisplayedIndex: index,
+                LoadedIndex: this.StoredData.indexOf(dataObject)
+            };
+
+            return result;
+        }
+
+        /**
+         * Finds data object among currently displayed and returns ILocalLookupResult 
+         * containing also Loaded-set index of this data object
+         * 
+         * @param index Index of desired data object among locally displaying data
+         * @returns ILocalLookupResult
+         */
+        public localLookupStoredDataObject(dataObject: any): ILocalLookupResult {
+            var index = this.StoredData.indexOf(dataObject);
+            if (index < 0) return null;
+            var result: ILocalLookupResult = {
+                DataObject: dataObject,
+                IsCurrentlyDisplaying: true,
+                DisplayedIndex: this.DisplayedData.indexOf(dataObject),
+                LoadedIndex: index
+            };
+
             return result;
         }
 

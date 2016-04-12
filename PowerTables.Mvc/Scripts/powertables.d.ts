@@ -177,14 +177,7 @@ declare module PowerTables.Plugins.Checkboxify {
         ResetOnReload: boolean;
         EnableSelectAll: boolean;
         SelectAllSelectsUndisplayedData: boolean;
-        SelectedRowClass: string;
         SelectAllOnlyIfAllData: boolean;
-        CheckboxifyColumnName: string;
-        SelectAllLocation: PowerTables.Plugins.Checkboxify.SelectAllLocation;
-    }
-    enum SelectAllLocation {
-        FiltersHeader = 0,
-        ColumnHeader = 1,
     }
 }
 declare module PowerTables.Plugins.Formwatch {
@@ -277,13 +270,11 @@ declare module PowerTables.Plugins.ResponseInfo {
         /** Use handlebars syntax with IResponse as context */
         TemplateText: string;
         /** Client function for evaluating template information */
-        ClientEvaluationFunction: (displayedData: any[], storedData: any[], currentPage: number, totalPages: number) => any;
+        ClientEvaluationFunction: (data: IClientDataResults, currentPage: number, totalPages: number) => any;
         /** Client function for template rendering */
         ClientTemplateFunction: (data: any) => string;
         /** Used to point that response info resulting object has been changed */
         ResponseObjectOverriden: boolean;
-        /** When true, response information will be refreshed during pure client queries */
-        ReloadOnClientQueries: boolean;
     }
 }
 declare module System.Web.Mvc {
@@ -400,15 +391,24 @@ declare module PowerTables.Plugins.Toolbar {
     }
 }
 declare module PowerTables.Plugins.Total {
+    /** Additional data that will be used to calculate totals */
     interface ITotalResponse {
+        /** Totals for particular columns */
         TotalsForColumns: {
             [key: string]: string;
         };
     }
+    /** Client configuration for totals */
     interface ITotalClientConfiguration {
+        /** Show totals on the top of the displayed lines or not */
         ShowOnTop: boolean;
+        /** Functions for formatting of received values */
         ColumnsValueFunctions: {
             [key: string]: (a: any) => string;
+        };
+        /** Functions for calculating totals */
+        ColumnsCalculatorFunctions: {
+            [key: string]: (data: IClientDataResults) => any;
         };
     }
 }
@@ -640,6 +640,11 @@ declare module PowerTables {
         Cells: {
             [key: string]: PowerTables.ICell;
         };
+        /**
+         * Special rows are bein added automatically.
+         * This mark denotes them to avoid confusion
+         */
+        IsSpecial?: boolean;
     }
     interface ITemplatesProvider {
         /** Current handlebars.js engine instance */
@@ -789,8 +794,7 @@ declare module PowerTables {
          */
         DataReceived: TableEvent<IDataEventArgs>;
         BeforeClientDataProcessing: TableEvent<IQuery>;
-        AfterClientDataProcessing: TableEvent<IQuery>;
-        ClientDataFiltered: TableEvent<IClientData>;
+        AfterClientDataProcessing: TableEvent<IClientDataResults>;
         AfterLayoutRendered: TableEvent<any>;
         AfterDataRendered: TableEvent<any>;
         BeforeDataRendered: TableEvent<any>;
@@ -819,6 +823,27 @@ declare module PowerTables {
          * @returns {}
          */
         registerEvent<TEventArgs>(eventName: string): void;
+    }
+    /**
+     * Interface for client data results event args
+     */
+    interface IClientDataResults {
+        /**
+         * Source data
+         */
+        Source: any[];
+        /**
+         * Filtered data
+         */
+        Filtered: any[];
+        /**
+         * Ordered data
+         */
+        Ordered: any[];
+        /**
+         * Actually displaying data
+         */
+        Displaying: any[];
     }
     /**
      * Event args wrapper for table
@@ -900,10 +925,6 @@ declare module PowerTables {
          */
         Scope: QueryScope;
     }
-    interface IClientData {
-        Filtered: any[];
-        Ordered: any[];
-    }
 }
 declare module PowerTables {
     /**
@@ -926,6 +947,14 @@ declare module PowerTables {
          * @returns {}
          */
         reload(): void;
+        /**
+         * Redraws row containing currently visible data object
+         *
+         * @param dataObject Data object
+         * @param idx
+         * @returns {}
+         */
+        redrawVisibleDataObject(dataObject: any, idx?: number): void;
         /**
          * Redraws locally visible data
          */
@@ -950,6 +979,8 @@ declare module PowerTables {
          */
         subscribeRowEvent(subscription: IUiSubscription<IRowEventArgs>): void;
         private ensureEventSubscription(eventId);
+        private traverseSubscriptions(target, eventType, originalEvent);
+        private traverseAndFire(subscriptions, path, args);
         private onTableEvent(e);
         /**
          * Inserts data entry to local storage
@@ -971,6 +1002,14 @@ declare module PowerTables {
         updateLocalRow(update: IUpdateRequest): void;
         private localFullRefresh();
         private localVisibleReorder();
+        /**
+         * Converts data object to display row
+         *
+         * @param dataObject Data object
+         * @param idx Object's displaying index
+         * @param columns Optional displaying columns set
+         * @returns {IRow} Row representing displayed object
+         */
         produceRow(dataObject: any, idx: number, columns?: IColumn[]): IRow;
         private produceRows();
     }
@@ -1196,6 +1235,8 @@ declare module PowerTables {
         * @returns {Array} Array of ordered items
         */
         orderSet(objects: any[], query: IQuery): any[];
+        private _previouslyFiltered;
+        private _previouslyOrdered;
         /**
          * Filter recent data and store it to currently displaying data
          *
@@ -1215,6 +1256,22 @@ declare module PowerTables {
          * @returns Array of ILocalLookupResults
          */
         localLookup(predicate: (object: any) => boolean): ILocalLookupResult[];
+        /**
+         * Finds data object among currently displayed and returns ILocalLookupResult
+         * containing also Loaded-set index of this data object
+         *
+         * @param index Index of desired data object among locally displaying data
+         * @returns ILocalLookupResult
+         */
+        localLookupDisplayedDataObject(dataObject: any): ILocalLookupResult;
+        /**
+         * Finds data object among currently displayed and returns ILocalLookupResult
+         * containing also Loaded-set index of this data object
+         *
+         * @param index Index of desired data object among locally displaying data
+         * @returns ILocalLookupResult
+         */
+        localLookupStoredDataObject(dataObject: any): ILocalLookupResult;
         /**
          * Finds data object among currently displayed and returns ILocalLookupResult
          * containing also Loaded-set index of this data object
@@ -1429,6 +1486,13 @@ declare module PowerTables.Rendering {
         renderBody(rows: IRow[]): string;
         renderContent(columnName?: string): string;
         private cacheColumnRenderers(columns);
+        /**
+         * Adds/replaces column rendering function for specified column
+         *
+         * @param column Column to cache renderer for
+         * @param fn Rendering function
+         */
+        cacheColumnRenderingFunction(column: IColumn, fn: (x: ICell) => string): void;
     }
 }
 declare module PowerTables.Rendering.Html2Dom {
@@ -1739,8 +1803,8 @@ declare module PowerTables.Rendering {
          */
         BackBinder: BackBinder;
         private _instances;
-        private _layoutRenderer;
-        private _contentRenderer;
+        LayoutRenderer: LayoutRenderer;
+        ContentRenderer: ContentRenderer;
         private _stack;
         private _datepickerFunction;
         private _templatesCache;
@@ -2181,7 +2245,7 @@ declare module PowerTables.Plugins {
         private _isServerRequest;
         private _isReadyForRendering;
         onResponse(e: ITableEventArgs<IDataEventArgs>): void;
-        onClientDataProcessed(): void;
+        onClientDataProcessed(e: ITableEventArgs<IClientDataResults>): void;
         renderContent(templatesProvider: ITemplatesProvider): string;
         init(masterTable: IMasterTable): void;
     }
@@ -2193,6 +2257,23 @@ declare module PowerTables.Plugins {
         private makeTotalsRow();
         onResponse(e: ITableEventArgs<IDataEventArgs>): void;
         onClientRowsRendering(e: ITableEventArgs<IRow[]>): void;
+        onClientDataProcessed(e: ITableEventArgs<IClientDataResults>): void;
+        init(masterTable: IMasterTable): void;
+    }
+}
+declare module PowerTables.Plugins {
+    import CheckboxifyClientConfig = PowerTables.Plugins.Checkboxify.ICheckboxifyClientConfig;
+    class CheckboxifyPlugin extends PluginBase<CheckboxifyClientConfig> {
+        private _selectedItems;
+        private _visibleAll;
+        private _allSelected;
+        private _ourColumn;
+        private _valueColumnName;
+        selectAll(): void;
+        private createColumn();
+        private canCheck(dataObject, row);
+        private selectByRowIndex(rowIndex);
+        private afterLayoutRender();
         init(masterTable: IMasterTable): void;
     }
 }
