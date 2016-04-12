@@ -7,6 +7,9 @@ using PowerTables.ResponseProcessing;
 
 namespace PowerTables.Plugins.Total
 {
+    /// <summary>
+    /// Response modifier that prepares data for totals plugin
+    /// </summary>
     public class TotalResponseModifier<TSourceData, TTableData> : IResponseModifier where TTableData : new()
     {
         private readonly TotalCalculatorBuilder<TSourceData, TTableData> _calculator;

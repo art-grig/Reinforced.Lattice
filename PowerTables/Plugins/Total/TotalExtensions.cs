@@ -13,13 +13,19 @@ namespace PowerTables.Plugins.Total
     {
         public const string PluginId = "Total";
 
+        /// <summary>
+        /// Provides table with totals row representing subtotals for particular columns
+        /// </summary>
+        /// <param name="calculators">Totals calculator builder</param>
+        /// <param name="showOnTop">When true, totals line will be shown before data on current page. When false, it will be shown on the bottom of them</param>
+        /// <returns></returns>
         public static Configurator<TSourceData, TTableData> Totals<TSourceData, TTableData>(
             this Configurator<TSourceData, TTableData> conf,
             Action<TotalCalculatorBuilder<TSourceData, TTableData>> calculators,
             bool showOnTop = false
             ) where TTableData : new()
         {
-            TotalCalculatorBuilder<TSourceData, TTableData> calc = new TotalCalculatorBuilder<TSourceData, TTableData>(conf);
+            TotalCalculatorBuilder<TSourceData, TTableData> calc = new TotalCalculatorBuilder<TSourceData, TTableData>();
             calculators(calc);
 
             TotalClientConfiguration tcc = new TotalClientConfiguration()

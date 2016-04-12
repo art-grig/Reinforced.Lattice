@@ -286,7 +286,9 @@ module PowerTables.Plugins.ResponseInfo {
 		/** Use handlebars syntax with IResponse as context */
 		TemplateText: string;
 		/** Client function for evaluating template information */
-		ClientEvaluationFunction: (clientInfo:any, table: IMasterTable)=>any;
+		ClientEvaluationFunction: (displayedData:any[], storedData:any[], currentPage:number, totalPages:number) => any;
+		/** Client function for template rendering */
+		ClientTemplateFunction: (data:any) => string;
 		/** Used to point that response info resulting object has been changed */
 		ResponseObjectOverriden: boolean;
 		/** When true, response information will be refreshed during pure client queries */
@@ -340,10 +342,11 @@ module PowerTables.Plugins.Limit {
 	{
 		/** Value selected by default */
 		DefaultValue: string;
-		/** List of limit values */
+		/** Integer values for limit menu. By default set is equal to Corresponding labels */
 		LimitValues: number[];
-		/** List of corresponding limit labels */
+		/** Values for limit menu. By default is { "All", "10", "50", "100" } */
 		LimitLabels: string[];
+		/** When true, data will be re-queried on table change */
 		ReloadTableOnLimitChange: boolean;
 		/**
 		* When true, limiting will not be passed to server. 

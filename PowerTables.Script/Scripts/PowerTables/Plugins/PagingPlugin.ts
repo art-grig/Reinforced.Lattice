@@ -2,7 +2,7 @@
     import TemplateBoundEvent = PowerTables.Rendering.ITemplateBoundEvent;
     import PagingClientConfiguration = PowerTables.Plugins.Paging.IPagingClientConfiguration;
 
-    export class PagingPlugin extends FilterBase<PagingClientConfiguration> {
+    export class PagingPlugin extends FilterBase<PagingClientConfiguration> implements IPagingPlugin {
         public Pages: IPagesElement[];
         public Shown: boolean;
         public NextArrow: boolean;
@@ -15,6 +15,18 @@
         public GotoPanel: HTMLElement;
         public GotoBtn: HTMLElement;
         public GotoInput: HTMLInputElement;
+
+        public getCurrentPage() {
+            return this._selectedPage;
+        }
+
+        public getTotalPages() {
+            return this._totalPages;
+        }
+
+        public getPageSize() {
+            return this._pageSize;
+        }
 
         private onFilterGathered(e: ITableEventArgs<IQueryGatheringEventArgs>) {
             this._pageSize = e.EventArgs.Query.Paging.PageSize;
@@ -52,7 +64,7 @@
             this.MasterTable.Renderer.redrawPlugin(this);
         }
 
-        private pageClick(page: string) {
+        public goToPage(page: string) {
             this._selectedPage = parseInt(page);
             this.MasterTable.Controller.reload();
         }
@@ -61,20 +73,20 @@
             if (this.GotoInput) {
                 var v = this.GotoInput.value;
                 v = (parseInt(v) - 1).toString();
-                this.pageClick(v);
+                this.goToPage(v);
             }
         }
 
         public navigateToPage(e: TemplateBoundEvent<PagingPlugin>) {
-            this.pageClick(e.EventArguments[0]);
+            this.goToPage(e.EventArguments[0]);
         }
 
         public nextClick(e: TemplateBoundEvent<PagingPlugin>) {
-            if (this._selectedPage < this._totalPages) this.pageClick((this._selectedPage + 1).toString());
+            if (this._selectedPage < this._totalPages) this.goToPage((this._selectedPage + 1).toString());
         }
 
         public previousClick(e: TemplateBoundEvent<PagingPlugin>) {
-            if (this._selectedPage > 0) this.pageClick((this._selectedPage - 1).toString());
+            if (this._selectedPage > 0) this.goToPage((this._selectedPage - 1).toString());
         }
 
         private constructPagesElements() {
@@ -182,5 +194,8 @@
         InActivePage?: boolean;
         DisPage?: () => string;
     }
+
+    
+
     ComponentsContainer.registerComponent('Paging',PagingPlugin);
 } 

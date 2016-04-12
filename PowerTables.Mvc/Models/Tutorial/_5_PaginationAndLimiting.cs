@@ -22,7 +22,7 @@ namespace PowerTables.Mvc.Models.Tutorial
             
             conf.Paging(
                 ui =>
-                    ui.PlaceAt("lb")
+                    ui.PlaceAt("rb")
                     .Configuration
                     .EnableClientPaging() // Client limiting cannot work without client paging
                     .PagingWithPeriods(   // lets pick most complex pagin

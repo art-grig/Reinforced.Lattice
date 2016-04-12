@@ -20,9 +20,7 @@ namespace PowerTables.Plugins.ResponseInfo
     {
         int CurrentlyShown { get; }
 
-        int TotalLocal { get; }
-
-        int TotalServer { get; }
+        int TotalCount { get; }
 
         bool IsLocalRequest { get; }
 

@@ -105,7 +105,7 @@
             for (var l = 0; l < pluginsConfiguration.length; l++) {
                 var conf = pluginsConfiguration[l];
                 var plugin = ComponentsContainer.resolveComponent<IPlugin>(conf.PluginId);
-                plugin.PluginLocation = (!conf.Placement)?conf.PluginId:`${conf.Placement}-${conf.PluginId}`;
+                plugin.PluginLocation = (!conf.Placement) ? conf.PluginId : `${conf.Placement}-${conf.PluginId}`;
                 plugin.RawConfig = conf;
                 plugin.Order = conf.Order;
 
@@ -119,7 +119,7 @@
             }
             for (var pluginId in pluginsConfiguration) {
                 if (pluginsConfiguration.hasOwnProperty(pluginId)) {
-                    
+
                 }
             }
 
@@ -175,12 +175,13 @@
         public getPlugin(pluginId: string, placement?: string): IPlugin;
         public getPlugin<TPlugin>(pluginId: string, placement?: string): TPlugin {
             if (!placement) placement = '';
-            var key = `${placement}-${pluginId}`;
+            var key = placement.length === 0 ? pluginId : `${placement}-${pluginId}`;
             if (this.Plugins[key]) return <any>(this.Plugins[key]);
             else {
                 for (var k in this.Plugins) {
                     if (this.Plugins.hasOwnProperty(k)) {
-                        if (this.startsWith(k, pluginId)) return <any>this.Plugins[k];
+                        var plg = this.Plugins[k];
+                        if (this.startsWith(plg.RawConfig.PluginId, pluginId)) return <any>plg;
                     }
                 }
             }

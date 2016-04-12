@@ -57,7 +57,11 @@ namespace PowerTables.Typings
             builder.ExportAsInterface<HideoutPluginConfiguration>().WithPublicProperties();
             builder.ExportAsInterface<RangeFilterUiConfig>().WithPublicProperties().WithProperty(c => c.ClientFilteringFunction, c => c.Type("(object: any, fromValue:string, toValue:string, query: IQuery)=>boolean"));
             builder.ExportAsInterface<ValueFilterUiConfig>().WithPublicProperties().WithProperty(c => c.ClientFilteringFunction, c => c.Type("(object: any, filterValue:string, query: IQuery)=>boolean"));
-            builder.ExportAsInterface<ResponseInfoClientConfiguration>().WithPublicProperties().WithProperty(c => c.ClientEvaluationFunction, c => c.Type("(clientInfo:any, table: IMasterTable)=>any"));
+            builder.ExportAsInterface<ResponseInfoClientConfiguration>().WithPublicProperties()
+                .WithProperty(c => c.ClientEvaluationFunction, c => c.Type("(displayedData:any[], storedData:any[], currentPage:number, totalPages:number) => any"))
+                .WithProperty(c => c.ClientTemplateFunction, c => c.Type("(data:any) => string"))
+                
+                ;
             builder.ExportAsInterface<SelectListItem>()
                 .WithPublicProperties()
                 .WithProperty(c => c.Group, c => c.Ignore()); //todo use mvc

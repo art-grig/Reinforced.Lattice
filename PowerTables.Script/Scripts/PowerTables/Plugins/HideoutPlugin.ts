@@ -9,7 +9,7 @@
         DoesNotExists: boolean;
     }
 
-    export class HideoutPlugin extends PluginBase<HideoutClientConfiguration> implements IQueryPartProvider {
+    export class HideoutPlugin extends PluginBase<HideoutClientConfiguration> implements IQueryPartProvider, IHideoutPlugin {
 
         public ColumnStates: IColumnState[] = [];
         private _columnStates: { [key: string]: IColumnState } = {};

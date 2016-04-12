@@ -277,7 +277,9 @@ declare module PowerTables.Plugins.ResponseInfo {
         /** Use handlebars syntax with IResponse as context */
         TemplateText: string;
         /** Client function for evaluating template information */
-        ClientEvaluationFunction: (clientInfo: any, table: IMasterTable) => any;
+        ClientEvaluationFunction: (displayedData: any[], storedData: any[], currentPage: number, totalPages: number) => any;
+        /** Client function for template rendering */
+        ClientTemplateFunction: (data: any) => string;
         /** Used to point that response info resulting object has been changed */
         ResponseObjectOverriden: boolean;
         /** When true, response information will be refreshed during pure client queries */
@@ -328,10 +330,11 @@ declare module PowerTables.Plugins.Limit {
     interface ILimitClientConfiguration {
         /** Value selected by default */
         DefaultValue: string;
-        /** List of limit values */
+        /** Integer values for limit menu. By default set is equal to Corresponding labels */
         LimitValues: number[];
-        /** List of corresponding limit labels */
+        /** Values for limit menu. By default is { "All", "10", "50", "100" } */
         LimitLabels: string[];
+        /** When true, data will be re-queried on table change */
         ReloadTableOnLimitChange: boolean;
         /**
         * When true, limiting will not be passed to server.
@@ -2036,31 +2039,11 @@ declare module PowerTables.Plugins {
         Value: number;
         Label: string;
     }
-    /**
-     * Limit plugin interface
-     */
-    interface ILimitPlugin {
-        /**
-         * Changeable. Will refresh after plugin redraw
-         */
-        SelectedValue: string;
-        /**
-         * Changeable. Will refresh after plugin redraw
-         */
-        Sizes: ILimitSize[];
-        /**
-         * Changes limit settings and updates UI
-         *
-         * @param limit Selected limit
-         * @returns {}
-         */
-        changeLimit(limit: number): any;
-    }
 }
 declare module PowerTables.Plugins {
     import TemplateBoundEvent = PowerTables.Rendering.ITemplateBoundEvent;
     import PagingClientConfiguration = PowerTables.Plugins.Paging.IPagingClientConfiguration;
-    class PagingPlugin extends FilterBase<PagingClientConfiguration> {
+    class PagingPlugin extends FilterBase<PagingClientConfiguration> implements IPagingPlugin {
         Pages: IPagesElement[];
         Shown: boolean;
         NextArrow: boolean;
@@ -2071,11 +2054,14 @@ declare module PowerTables.Plugins {
         GotoPanel: HTMLElement;
         GotoBtn: HTMLElement;
         GotoInput: HTMLInputElement;
+        getCurrentPage(): number;
+        getTotalPages(): number;
+        getPageSize(): number;
         private onFilterGathered(e);
         private onColumnsCreation();
         private onResponse(e);
         private onClientDataProcessing(e);
-        private pageClick(page);
+        goToPage(page: string): void;
         gotoPageClick(e: TemplateBoundEvent<PagingPlugin>): void;
         navigateToPage(e: TemplateBoundEvent<PagingPlugin>): void;
         nextClick(e: TemplateBoundEvent<PagingPlugin>): void;
@@ -2156,7 +2142,7 @@ declare module PowerTables.Plugins {
         Name: string;
         DoesNotExists: boolean;
     }
-    class HideoutPlugin extends PluginBase<HideoutClientConfiguration> implements IQueryPartProvider {
+    class HideoutPlugin extends PluginBase<HideoutClientConfiguration> implements IQueryPartProvider, IHideoutPlugin {
         ColumnStates: IColumnState[];
         private _columnStates;
         private _isInitializing;
@@ -2188,7 +2174,14 @@ declare module PowerTables.Plugins {
     import ResponseInfoClientConfiguration = PowerTables.Plugins.ResponseInfo.IResponseInfoClientConfiguration;
     class ResponseInfoPlugin extends PluginBase<ResponseInfoClientConfiguration> {
         private _recentData;
+        private _recentServerData;
         private _recentTemplate;
+        private _pagingEnabled;
+        private _pagingPlugin;
+        private _isServerRequest;
+        private _isReadyForRendering;
+        onResponse(e: ITableEventArgs<IDataEventArgs>): void;
+        onClientDataProcessed(): void;
         renderContent(templatesProvider: ITemplatesProvider): string;
         init(masterTable: IMasterTable): void;
     }

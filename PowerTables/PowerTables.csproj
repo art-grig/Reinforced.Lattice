@@ -149,7 +149,6 @@
     <Compile Include="Plugins\Toolbar\ToolbarExtensions.cs" />
     <Compile Include="Plugins\Toolbar\ToolbarItemBuilder.cs" />
     <Compile Include="Plugins\Toolbar\ToolbarSubmenuBuilder.cs" />
-    <Compile Include="Plugins\Total\TotalAdditionalData.cs" />
     <Compile Include="Plugins\Total\TotalCalculatorBuilder.cs" />
     <Compile Include="Plugins\Total\TotalClientConfiguration.cs" />
     <Compile Include="Plugins\Total\TotalExtensions.cs" />

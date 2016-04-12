@@ -56,8 +56,9 @@ namespace PowerTables.Mvc.Models
 
             conf
                 .DatePicker("function(v,f){ v.datepicker({ format: f, weekStart: 1 }); }", "mm/dd/yyyy", "MM/dd/yyyy")
-                .Limit(ui=>ui.PlaceAt("lt").Configuration.Values(new[] { "Every", "-", "5", "10", "-", "50", "100" }, "10"))
-                .Paging(ui=>ui.Configuration.PagingSimple(useFirstLasPage: true, useGotoPage: true))
+                .Limit(
+                    ui => ui.PlaceAt("lt").Configuration.Values(new[] {"Every", "-", "5", "10", "-", "50", "100"}, "10"))
+                .Paging(ui => ui.Configuration.PagingSimple(useFirstLasPage: true, useGotoPage: true))
                 .Toolbar("rt-toolbar", a =>
                 {
                     //a.AddSimpleButton("filter".GlyphIcon() + "Toggle filters")
@@ -73,7 +74,8 @@ namespace PowerTables.Mvc.Models
                     a.AddMenu("th".GlyphIcon() + "Excel export", b =>
                     {
                         b.AddCommandItem("star".GlyphIcon("left") + "Export all", ExportAll);
-                        b.AddCommandItem("save".GlyphIcon("left") + "Export selected", ExportSelected).DisableIfNothingChecked();
+                        b.AddCommandItem("save".GlyphIcon("left") + "Export selected", ExportSelected)
+                            .DisableIfNothingChecked();
                     }).Css("btn-primary");
 
                     a.AddMenuButton("record".GlyphIcon() + "And this is button menu", "something", b =>
@@ -84,22 +86,24 @@ namespace PowerTables.Mvc.Models
 
                     }).Css("btn-primary");
                 }
-                    )
+                )
                 .LoadingIndicator()
-                .HideoutMenu(c => c.IncludeAll().Except(a => a.Id), ui=>ui.PlaceAt("lt"))
-                .Checkboxify(c => c.Id, selectedClass: "warning", selectAllBehavior: SelectAllBehavior.InvolveServer, selectAllLocation: SelectAllLocation.FiltersHeader)
-                .WithResponseInfo(a => new ResponseInfo()
-                {
-                    QueryTime = DateTime.Now.ToString("dd MMM yyyy"),
-                    Shown = a.Mapped.Value.Length,
-                    TotalRecords = a.ResultsCount
-                }, ui =>
-                {
-                    ui.Configuration.TemplateText = ResponseInfo.ResponseInfoTemplate;
-                })
-                .Totals(a => a
-                        .AddTotalFormat(c => c.ItemsCount, q => q.Paged.Any() ? q.Paged.Sum(c => c.ItemsCount) : 0, "Total: {v} pcs.")
-                        .AddTotalFormat(c => c.Cost, q => q.Paged.Any() ? Math.Round(q.Paged.Average(c => c.Cost), 2) : 0, "Avg.: {v} EUR"), showOnTop: true);
+                .HideoutMenu(c => c.IncludeAll().Except(a => a.Id), ui => ui.PlaceAt("lt"))
+                .Checkboxify(c => c.Id, selectedClass: "warning", selectAllBehavior: SelectAllBehavior.InvolveServer,
+                    selectAllLocation: SelectAllLocation.FiltersHeader)
+                //.WithResponseInfo(a => new ResponseInfo()
+                //{
+                //    QueryTime = DateTime.Now.ToString("dd MMM yyyy"),
+                //    Shown = a.Mapped.Value.Length,
+                //    TotalRecords = a.ResultsCount
+                //}, ui =>
+                //{
+                //    ui.Configuration.TemplateText = ResponseInfo.ResponseInfoTemplate;
+                //})
+                //.Totals(a => a
+                //        .AddTotalFormat(c => c.ItemsCount, q => q.Paged.Any() ? q.Paged.Sum(c => c.ItemsCount) : 0, "Total: {v} pcs.")
+                //        .AddTotalFormat(c => c.Cost, q => q.Paged.Any() ? Math.Round(q.Paged.Average(c => c.Cost), 2) : 0, "Avg.: {v} EUR"), showOnTop: true);
+                ;
 
             conf.ProjectDataWith(c => c.Select(q => new TargetData()
             {

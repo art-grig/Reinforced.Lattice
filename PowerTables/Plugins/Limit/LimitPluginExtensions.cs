@@ -41,6 +41,9 @@ namespace PowerTables.Plugins.Limit
         /// <returns></returns>
         public static LimitClientConfiguration Values(this LimitClientConfiguration conf, string[] values, string defaultValue = null)
         {
+            conf.LimitLabels.Clear();
+            conf.LimitValues.Clear();
+
             foreach (var value in values)
             {
                 int v = 0;

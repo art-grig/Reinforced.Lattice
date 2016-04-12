@@ -71,7 +71,7 @@
         @using (t.IfPlacement("lt"))
         { <span @t.Track()> @t.Content() </span> }
         @using (t.IfPlacement("lb"))
-        { <div style="float: left;" @t.Track()> @t.Content() </div> }
+        { <div @t.Track()> @t.Content() </div> }
         @using (t.IfPlacement("rt"))
         { <div style="float: right;" @t.Track()> @t.Content() </div> }
         @using (t.IfPlacement("rb"))
@@ -186,59 +186,72 @@
 {
     using (t.If(c => c.Shown))
     {
-        using (var m = t.ArrowsMode())
-        {
-            <nav style="margin:0;width:100px;margin-left:auto;">
+        <div class="col-md-10">
+            @using (var m = t.ArrowsMode())
+            {
+            <nav style="margin: 0; width: 100px; margin-left: auto;">
                 <ul class="pager">
                     @using (m.If(c => c.PrevArrow))
                     {
-                        <li><a @t.BindPreviousPage("click")><span class="glyphicon glyphicon-chevron-left"></span></a></li> }
+                        <li><a @t.BindPreviousPage("click")><span class="glyphicon glyphicon-chevron-left"></span></a></li>
+                    }
                     @using (m.If(c => c.NextArrow))
                     {
-                        <li><a @t.BindNextPage("click")><span class="glyphicon glyphicon-chevron-right"></span></a></li> }
+                        <li><a @t.BindNextPage("click")><span class="glyphicon glyphicon-chevron-right"></span></a></li>
+                    }
                 </ul>
             </nav>
-        }
+            }
 
-        using (var m = t.PeriodsMode())
-        {
+            @using (var m = t.PeriodsMode())
+            {
             <ul class="pagination" style="margin: 0;">
                 @using (var pg = m.Each(c => c.Pages))
                 {
                     using (pg.If(c => c.First))
                     {
-                        <li class="first"><a style="cursor:pointer" @pg.BindNavigateToPage("click")><span class="glyphicon glyphicon-fast-backward"></span></a></li> }
+                        <li class="first"><a style="cursor: pointer" @pg.BindNavigateToPage("click")><span class="glyphicon glyphicon-fast-backward"></span></a></li>
+                    }
                     using (pg.If(c => c.Prev))
                     {
-                        <li class="prev"><a style="cursor:pointer" @t.BindPreviousPage("click")><span class="glyphicon glyphicon-chevron-left"></span></a></li> }
+                        <li class="prev"><a style="cursor: pointer" @t.BindPreviousPage("click")><span class="glyphicon glyphicon-chevron-left"></span></a></li>
+                    }
                     using (pg.If(c => c.Period))
                     {
-                        <li><span>. . .</span></li> }
+                        <li><span>. . .</span></li>
+                    }
                     using (pg.If(c => c.ActivePage))
                     {
-                        <li class="active"><span>@pg.Value(c => c.DisPage)</span></li> }
+                        <li class="active"><span>@pg.Value(c => c.DisPage)</span></li>
+                    }
                     using (pg.If(c => c.InActivePage))
                     {
-                        <li><a @pg.BindNavigateToPage("click") style="cursor:pointer">@pg.Value(c => c.DisPage)</a></li> }
+                        <li><a @pg.BindNavigateToPage("click") style="cursor: pointer">@pg.Value(c => c.DisPage)</a></li>
+                    }
                     using (pg.If(c => c.Next))
                     {
-                        <li class="next"><a style="cursor:pointer" @t.BindNextPage("click")><span class="glyphicon glyphicon-chevron-right"></span></a></li> }
+                        <li class="next"><a style="cursor: pointer" @t.BindNextPage("click")><span class="glyphicon glyphicon-chevron-right"></span></a></li>
+                    }
                     using (pg.If(c => c.Last))
                     {
-                        <li class="last"><a style="cursor:pointer" @pg.BindNavigateToPage("click")><span class="glyphicon glyphicon-fast-forward"></span></a></li> }
+                        <li class="last"><a style="cursor: pointer" @pg.BindNavigateToPage("click")><span class="glyphicon glyphicon-fast-forward"></span></a></li>
+                    }
                 }
             </ul>
-        }
-
-        using (var m = t.GotoPage())
-        {
-            <div class="input-group" @m.ThisIsGotoPanel()>
-                <input type="text" class="form-control" @m.ThisIsGotoPageTextbox() style="width:60px;" placeholder="Page">
-                <span class="input-group-btn">
-                    <button class="btn btn-default" type="button" @m.ThisIsGotoPageButton()><span class="glyphicon glyphicon-circle-arrow-right"></span></button>
-                </span>
-            </div>
-        }
+            }
+        </div>
+        <div class="col-md-2">
+            @using (var m = t.GotoPage())
+            {
+                <div class="input-group" @m.ThisIsGotoPanel() >
+                    <input type="text" class="form-control" @m.ThisIsGotoPageTextbox() style="width: 60px;" placeholder="Page">
+                    <span class="input-group-btn">
+                <button class="btn btn-default" type="button" @m.ThisIsGotoPageButton()><span class="glyphicon glyphicon-circle-arrow-right"></span></button>
+            </span>
+                </div>
+            }
+        </div>
+        <div class="clearfix"></div>
     }
 }
 
@@ -302,9 +315,9 @@
         @using (t.If(c => c.IsLocalRequest))
         {
             <br />
-        <p>Data fetched locally.</p>
+            <p>Data fetched locally.</p>
         }
-        Currently shown <strong>@t.Value(c => c.CurrentlyShown)</strong> of <strong>@t.Value(c => c.TotalServer)</strong> records
+        Currently shown <strong>@t.Value(c => c.CurrentlyShown)</strong> of <strong>@t.Value(c => c.TotalCount)</strong> records
         <br />
         @using (t.If(c => c.PagingEnabled))
         {
@@ -312,5 +325,5 @@
                 Page <strong>@t.Value(c => c.CurrentPage)</strong> of @t.Value(c => c.TotalPages)
             </p>
         }
-        </p>
+   </p>
 }
