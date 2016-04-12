@@ -12,7 +12,7 @@
         }
 
         private _queryPartProviders: IQueryPartProvider[] = [];
-        private _previousRequest: XMLHttpRequest;
+        private _previousRequest: any;
         private _staticData: any; // from ctor
         private _operationalAjaxUrl: string; // from ctor
         private _events: EventsManager; // from ctor
@@ -132,7 +132,7 @@
 
         private doServerQuery(data: IPowerTableRequest, clientQuery: IQuery, callback: (data: any) => void, errorCallback?: (data: any) => void): void {
             var dataText: string = JSON.stringify(data);
-            var req: boolean | XMLHttpRequest = this.getXmlHttp();
+            var req: any = this.getXmlHttp();
 
             this._events.BeforeLoading.invoke(this, {
                 Request: data,

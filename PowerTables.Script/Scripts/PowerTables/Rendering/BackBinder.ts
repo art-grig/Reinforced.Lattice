@@ -23,6 +23,11 @@
                 fn.call(this, backbindDescription, element);
                 element.removeAttribute(attribute);
             }
+            if (parentElement.hasAttribute(attribute)) {
+                var meIdx: number = parseInt(parentElement.getAttribute(attribute));
+                var descr: T = backbindCollection[meIdx];
+                fn.call(this, descr, parentElement);
+            }
         }
 
         /**

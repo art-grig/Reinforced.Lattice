@@ -13,6 +13,7 @@ module PowerTables {
 	}
 	export interface IPowerTablesResponse
 	{
+		IsLatticeResponse: boolean;
 		ResultsCount: number;
 		PageIndex: number;
 		Data: any[];

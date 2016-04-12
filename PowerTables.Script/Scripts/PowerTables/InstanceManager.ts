@@ -140,13 +140,13 @@
                             specialPlugin = <IPlugin>{
                                 PluginLocation: `${id}-empty`,
                                 renderContent: () => { return ''; },
-                                Order: i,
+                                Order: 0,
                                 RawConfig: null,
                                 renderElement: null,
                                 init:null
                             };
                         }
-                        
+                        specialPlugin.Order = i;
                         this.Plugins[specialPlugin.PluginLocation] = specialPlugin;
                     }
                 }
