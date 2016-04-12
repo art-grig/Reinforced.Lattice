@@ -31,24 +31,24 @@ namespace PowerTables
             return t.GetGenericArguments()[0];
         }
 
-        public static TTarget Convert<TTarget>(string src,IConfigurator conf)
+        public static TTarget Convert<TTarget>(string src)
         {
-            return (TTarget) Convert(src, typeof (TTarget), conf);
+            return (TTarget)Convert(src, typeof(TTarget));
         }
 
-        public static object Convert(string src, Type targetType, IConfigurator conf)
+        public static object Convert(string src, Type targetType)
         {
             if (string.IsNullOrEmpty(src)) return null;
-            
+
             if (targetType == typeof(DateTime))
             {
-                return conf.ParseDateTime(src);
+                return DateTime.Parse(src, null, System.Globalization.DateTimeStyles.RoundtripKind);
             }
 
             if (targetType.IsNullable())
             {
                 var tw = targetType.GetArg();
-                object arg = Convert(src, tw,conf);
+                object arg = Convert(src, tw);
                 return Activator.CreateInstance(targetType, arg);
             }
 
@@ -76,9 +76,9 @@ namespace PowerTables
                     return null;
                 }
             }
-            if (targetType == typeof (DateTime) && src is string)
+            if (targetType == typeof(DateTime) && src is string)
             {
-                return conf.ParseDateTime((string) src);
+                return DateTime.Parse((string)src, null, System.Globalization.DateTimeStyles.RoundtripKind); ;
             }
 
             if (targetType.IsNullable())

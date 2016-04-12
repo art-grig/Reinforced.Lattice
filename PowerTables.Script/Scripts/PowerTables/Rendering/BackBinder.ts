@@ -5,13 +5,15 @@
         private _datepickersQueue: IDatepickerDescriptor[] = [];
         private _instances: InstanceManager;
         private _stack: RenderingStack;
-
-        constructor(hb: Handlebars.IHandlebars, instances: InstanceManager, stack: RenderingStack) {
+        private _dateService:DateService;
+        
+        constructor(hb: Handlebars.IHandlebars, instances: InstanceManager, stack: RenderingStack,dateService:DateService) {
             this._instances = instances;
             hb.registerHelper('BindEvent', this.bindEventHelper.bind(this));
             hb.registerHelper('Mark', this.markHelper.bind(this));
             hb.registerHelper('Datepicker', this.datepickerHelper.bind(this));
             this._stack = stack;
+            this._dateService = dateService;
         }
 
         private traverseBackbind<T>(parentElement: HTMLElement, backbindCollection: T[], attribute: string, fn: (backbind: T, element: HTMLElement) => void) {
@@ -40,7 +42,7 @@
 
             // back binding of datepickers
             this.traverseBackbind<IDatepickerDescriptor>(parentElement, this._datepickersQueue, 'data-dp', (b, e) => {
-                this._instances.createDatePicker(e);
+                this._dateService.createDatePicker(e);
             });
             // back binding of componens needed HTML elements
             this.traverseBackbind<IMarkDescriptor>(parentElement, this._markQueue, 'data-mrk', (b, e) => {

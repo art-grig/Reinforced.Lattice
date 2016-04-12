@@ -11,6 +11,12 @@ module PowerTables {
 		resetSelection() : void;
 		selectItem(itemId: string, selected: boolean) : void;
 	}
+	export interface IDatepickerOptions
+	{
+		CreateDatePicker: (element:HTMLElement, isNullableDate: boolean) => void;
+		PutToDatePicker: (element:HTMLElement, date?:Date) => void;
+		GetFromDatePicker: (element:HTMLElement) => Date;
+	}
 	export interface IPowerTablesResponse
 	{
 		IsLatticeResponse: boolean;
@@ -54,9 +60,7 @@ module PowerTables.Configuration.Json {
 		TableRootId: string;
 		OperationalAjaxUrl: string;
 		LoadImmediately: boolean;
-		ServerDateTimeFormat: string;
-		ClientDateTimeFormat: string;
-		DatePickerFunction: (e:any, format:string) => void;
+		DatepickerOptions: PowerTables.IDatepickerOptions;
 		Columns: PowerTables.Configuration.Json.IColumnConfiguration[];
 		PluginsConfiguration: PowerTables.Configuration.Json.IPluginConfiguration[];
 		StaticData: string;
@@ -109,6 +113,7 @@ module PowerTables.Plugins.Formwatch {
 		SearchTriggerDelay: number;
 		SetConstantIfNotSupplied: boolean;
 		AutomaticallyAttachDatepicker: boolean;
+		IsDateTime: boolean;
 	}
 	export interface IFormWatchFilteringsMappings
 	{

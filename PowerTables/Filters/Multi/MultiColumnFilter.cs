@@ -37,7 +37,7 @@ namespace PowerTables.Filters.Multi
         protected override IEnumerable<TVal> Parse(string filterArgument)
         {
             string[] filterArguments = filterArgument.Split('|');
-            return filterArguments.Select(c => ValueConverter.Convert<TVal>(c, Configurator)).ToList();
+            return filterArguments.Select(ValueConverter.Convert<TVal>).ToList();
         }
 
         protected override IQueryable<TSourceData> DefaultFilter(IQueryable<TSourceData> source, IEnumerable<TVal> key)

@@ -44,14 +44,14 @@ namespace PowerTables.Filters.Range
             if (values.Length == 0) return range;
             if (!string.IsNullOrEmpty(values[0]))
             {
-                range.From = ValueConverter.Convert<TVal>(values[0], Configurator);
+                range.From = ValueConverter.Convert<TVal>(values[0]);
                 range.HasFrom = true;
             }
             if (values.Length > 1)
             {
                 if (!string.IsNullOrEmpty(values[1]))
                 {
-                    range.To = ValueConverter.Convert<TVal>(values[1], Configurator);
+                    range.To = ValueConverter.Convert<TVal>(values[1]);
                     range.HasTo = true;
                 }
             }

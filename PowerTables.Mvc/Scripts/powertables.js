@@ -101,6 +101,132 @@ var PowerTables;
 var PowerTables;
 (function (PowerTables) {
     /**
+     * API responsible for dates operations
+     */
+    var DateService = (function () {
+        function DateService(datepickerOptions) {
+            this._datepickerOptions = datepickerOptions;
+        }
+        /**
+         * Determines is passed object valid Date object
+         * @param date
+         * @returns {}
+         */
+        DateService.prototype.isValidDate = function (date) {
+            if (date === null)
+                return true;
+            if (date == undefined)
+                return false;
+            if (Object.prototype.toString.call(date) === "[object Date]") {
+                if (isNaN(date.getTime()))
+                    return false;
+                else
+                    return true;
+            }
+            return false;
+        };
+        /**
+         * Converts jsDate object to server's understandable format
+         *
+         * @param date Date object
+         * @returns {string} Date in ISO 8601 format
+         */
+        DateService.prototype.serialize = function (date) {
+            if (date === null || date == undefined)
+                return '';
+            if (Object.prototype.toString.call(date) === "[object Date]") {
+                if (isNaN(date.getTime()))
+                    return '';
+                else
+                    return Date.prototype.toISOString.call(date);
+            }
+            else
+                throw new Error(date + " is not a date at all");
+        };
+        /**
+         * Parses ISO date string to regular Date object
+         *
+         * @param dateString Date string containing date in ISO 8601
+         * @returns {}
+         */
+        DateService.prototype.parse = function (dateString) {
+            var date = new Date(dateString);
+            if (Object.prototype.toString.call(date) === "[object Date]") {
+                if (isNaN(date.getTime()))
+                    return null;
+                else
+                    return date;
+            }
+            throw new Error(dateString + " is not a date at all");
+        };
+        /**
+         * Retrieves Date object from 3rd party datepicker exposed by HTML element
+         *
+         * @param element HTML element containing datepicker componen
+         * @returns {Date} Date object or null
+         */
+        DateService.prototype.getDateFromDatePicker = function (element) {
+            if (!element)
+                return null;
+            var date = this._datepickerOptions.GetFromDatePicker(element);
+            if (date == null)
+                return null;
+            if (Object.prototype.toString.call(date) === "[object Date]") {
+                if (isNaN(date.getTime()))
+                    return null;
+                else
+                    return date;
+            }
+            throw new Error(date + " from datepicker is not a date at all");
+        };
+        /**
+         * Creates datepicker object of HTML element using configured function
+         *
+         * @param element HTML element that should be converted to datepicker
+         */
+        DateService.prototype.createDatePicker = function (element, isNullableDate) {
+            if (!element)
+                return;
+            this._datepickerOptions.CreateDatePicker(element, isNullableDate);
+        };
+        /**
+         * Passes Date object to datepicker element
+         *
+         * @param element HTML element containing datepicker componen
+         * @param date Date object to supply to datepicker or null
+         */
+        DateService.prototype.putDateToDatePicker = function (element, date) {
+            if (!element)
+                return;
+            this._datepickerOptions.PutToDatePicker(element, date);
+        };
+        return DateService;
+    })();
+    PowerTables.DateService = DateService;
+})(PowerTables || (PowerTables = {}));
+if (!Date.prototype.toISOString) {
+    (function () {
+        function pad(number) {
+            if (number < 10) {
+                return '0' + number;
+            }
+            return number;
+        }
+        Date.prototype.toISOString = function () {
+            return this.getUTCFullYear() +
+                '-' + pad(this.getUTCMonth() + 1) +
+                '-' + pad(this.getUTCDate()) +
+                'T' + pad(this.getUTCHours()) +
+                ':' + pad(this.getUTCMinutes()) +
+                ':' + pad(this.getUTCSeconds()) +
+                '.' + (this.getUTCMilliseconds() / 1000).toFixed(3).slice(2, 5) +
+                'Z';
+        };
+    }());
+}
+var PowerTables;
+(function (PowerTables) {
+    /**
      * Wrapper for table event with ability to subscribe/unsubscribe
      */
     var TableEvent = (function () {
@@ -565,13 +691,14 @@ var PowerTables;
      * Class that is responsible for holding and managing data loaded from server
      */
     var DataHolder = (function () {
-        function DataHolder(rawColumnNames, events, instances) {
+        function DataHolder(masterTable) {
             this._comparators = {};
             this._filters = [];
             this._anyClientFiltration = false;
-            this._rawColumnNames = rawColumnNames;
-            this._events = events;
-            this._instances = instances;
+            this._rawColumnNames = masterTable.InstanceManager.getColumnNames();
+            this._events = masterTable.Events;
+            this._instances = masterTable.InstanceManager;
+            this._masterTable = masterTable;
         }
         /**
          * Registers client filter
@@ -611,7 +738,7 @@ var PowerTables;
             for (var i = 0; i < response.Data.length; i++) {
                 if (this._instances.Columns[currentCol].IsDateTime) {
                     if (response.Data[i]) {
-                        obj[currentCol] = Date.parse(response.Data[i]);
+                        obj[currentCol] = this._masterTable.Date.parse(response.Data[i]);
                     }
                     else {
                         obj[currentCol] = null;
@@ -886,14 +1013,6 @@ var PowerTables;
             this._specialCasePlaceholder = this.Configuration.EmptyFiltersPlaceholder;
             this.initColumns();
         }
-        /**
-         * Attaches datepicker component to HTML element
-         *
-         * @param element HTML element
-         */
-        InstanceManager.prototype.createDatePicker = function (element) {
-            this.Configuration.DatePickerFunction(element, this.Configuration.ClientDateTimeFormat);
-        };
         InstanceManager.prototype.initColumns = function () {
             var columns = [];
             for (var i = 0; i < this.Configuration.Columns.length; i++) {
@@ -1332,47 +1451,10 @@ var PowerTables;
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        /**
-         * Base class for plugins.
-         * It contains necessary infrastructure for convinence of plugins creation
-         */
-        var PluginBase = (function () {
-            function PluginBase() {
-            }
-            PluginBase.prototype.init = function (masterTable) {
-                this.MasterTable = masterTable;
-                this.Configuration = this.RawConfig.Configuration;
-                this.subscribe(masterTable.Events);
-                this.registerAdditionalHelpers(masterTable.Renderer.HandlebarsInstance);
-            };
-            /**
-             * Events subscription method.
-             * In derived class here should be subscription to various events
-             *
-             * @param e Events manager
-             */
-            PluginBase.prototype.subscribe = function (e) { };
-            /**
-             * In this method you can register any additional Handlebars.js helpers in case of your
-             * templates needs ones
-             *
-             * @param hb Handlebars instance
-             * @returns {}
-             */
-            PluginBase.prototype.registerAdditionalHelpers = function (hb) { };
-            return PluginBase;
-        })();
-        Plugins.PluginBase = PluginBase;
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
     var Rendering;
     (function (Rendering) {
         var BackBinder = (function () {
-            function BackBinder(hb, instances, stack) {
+            function BackBinder(hb, instances, stack, dateService) {
                 this._eventsQueue = [];
                 this._markQueue = [];
                 this._datepickersQueue = [];
@@ -1381,6 +1463,7 @@ var PowerTables;
                 hb.registerHelper('Mark', this.markHelper.bind(this));
                 hb.registerHelper('Datepicker', this.datepickerHelper.bind(this));
                 this._stack = stack;
+                this._dateService = dateService;
             }
             BackBinder.prototype.traverseBackbind = function (parentElement, backbindCollection, attribute, fn) {
                 var elements = parentElement.querySelectorAll("[" + attribute + "]");
@@ -1407,7 +1490,7 @@ var PowerTables;
                 var _this = this;
                 // back binding of datepickers
                 this.traverseBackbind(parentElement, this._datepickersQueue, 'data-dp', function (b, e) {
-                    _this._instances.createDatePicker(e);
+                    _this._dateService.createDatePicker(e);
                 });
                 // back binding of componens needed HTML elements
                 this.traverseBackbind(parentElement, this._markQueue, 'data-mrk', function (b, e) {
@@ -1579,7 +1662,7 @@ var PowerTables;
                             continue;
                         }
                         this._columnsRenderFunctions[columnConfig.RawColumnName] =
-                            function (x) { return ((x.Data !== null && x.Data !== undefined) ? x.Data : ''); };
+                            function (x) { return ((x.Data !== null && x.Data != undefined) ? x.Data : ''); };
                     }
                 }
                 ;
@@ -2183,7 +2266,7 @@ var PowerTables;
          * Enity responsible for displaying table
          */
         var Renderer = (function () {
-            function Renderer(rootId, prefix, instances, events) {
+            function Renderer(rootId, prefix, instances, events, dateService) {
                 this._templatesCache = {};
                 this._instances = instances;
                 this._stack = new Rendering.RenderingStack();
@@ -2193,7 +2276,7 @@ var PowerTables;
                 this.HandlebarsInstance = Handlebars.create();
                 this.LayoutRenderer = new Rendering.LayoutRenderer(this, this._stack, this._instances);
                 this.ContentRenderer = new Rendering.ContentRenderer(this, this._stack, this._instances);
-                this.BackBinder = new Rendering.BackBinder(this.HandlebarsInstance, instances, this._stack);
+                this.BackBinder = new Rendering.BackBinder(this.HandlebarsInstance, instances, this._stack, dateService);
                 this.HandlebarsInstance.registerHelper('ifq', this.ifqHelper);
                 this.HandlebarsInstance.registerHelper('ifloc', this.iflocHelper.bind(this));
                 this.HandlebarsInstance.registerHelper('Content', this.contentHelper.bind(this));
@@ -2534,11 +2617,12 @@ var PowerTables;
         };
         PowerTable.prototype.initialize = function () {
             this._isReady = true;
+            this.Date = new PowerTables.DateService(this._configuration.DatepickerOptions);
             this.Events = new PowerTables.EventsManager(this);
             this.InstanceManager = new PowerTables.InstanceManager(this._configuration, this, this.Events);
-            this.DataHolder = new PowerTables.DataHolder(this.InstanceManager.getColumnNames(), this.Events, this.InstanceManager);
+            this.DataHolder = new PowerTables.DataHolder(this);
             this.Loader = new PowerTables.Loader(this._configuration.StaticData, this._configuration.OperationalAjaxUrl, this.Events, this.DataHolder);
-            this.Renderer = new PowerTables.Rendering.Renderer(this._configuration.TableRootId, this._configuration.Prefix, this.InstanceManager, this.Events);
+            this.Renderer = new PowerTables.Rendering.Renderer(this._configuration.TableRootId, this._configuration.Prefix, this.InstanceManager, this.Events, this.Date);
             this.Controller = new PowerTables.Controller(this);
             this.InstanceManager.initPlugins();
             this.Renderer.layout();
@@ -2580,6 +2664,48 @@ var PowerTables;
         return PowerTable;
     })();
     PowerTables.PowerTable = PowerTable;
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        /**
+         * Base class for plugins.
+         * It contains necessary infrastructure for convinence of plugins creation
+         */
+        var PluginBase = (function () {
+            function PluginBase() {
+                this.afterDrawn = null;
+            }
+            PluginBase.prototype.init = function (masterTable) {
+                this.MasterTable = masterTable;
+                this.Configuration = this.RawConfig.Configuration;
+                this.subscribe(masterTable.Events);
+                this.registerAdditionalHelpers(masterTable.Renderer.HandlebarsInstance);
+            };
+            /**
+             * Events subscription method.
+             * In derived class here should be subscription to various events
+             *
+             * @param e Events manager
+             */
+            PluginBase.prototype.subscribe = function (e) {
+                if (this.afterDrawn != null) {
+                    this.MasterTable.Events.AfterLayoutRendered.subscribe(this.afterDrawn.bind(this), this.RawConfig.PluginId);
+                }
+            };
+            /**
+             * In this method you can register any additional Handlebars.js helpers in case of your
+             * templates needs ones
+             *
+             * @param hb Handlebars instance
+             * @returns {}
+             */
+            PluginBase.prototype.registerAdditionalHelpers = function (hb) { };
+            return PluginBase;
+        })();
+        Plugins.PluginBase = PluginBase;
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
 })(PowerTables || (PowerTables = {}));
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -3074,14 +3200,30 @@ var PowerTables;
         var ValueFilterPlugin = (function (_super) {
             __extends(ValueFilterPlugin, _super);
             function ValueFilterPlugin() {
+                var _this = this;
                 _super.apply(this, arguments);
                 this._filteringIsBeingExecuted = false;
+                this._isInitializing = true;
+                this.afterDrawn = function (e) {
+                    if (_this.Configuration.Hidden)
+                        return;
+                    if (_this._associatedColumn.IsDateTime) {
+                        var date = _this.MasterTable.Date.parse(_this.Configuration.DefaultValue);
+                        _this.MasterTable.Date.putDateToDatePicker(_this.FilterValueProvider, date);
+                    }
+                    _this._isInitializing = false;
+                };
             }
             ValueFilterPlugin.prototype.getValue = function () {
+                if (this._associatedColumn.IsDateTime) {
+                    return this.MasterTable.Date.serialize(this.MasterTable.Date.getDateFromDatePicker(this.FilterValueProvider));
+                }
                 return this.FilterValueProvider.value;
             };
             ValueFilterPlugin.prototype.handleValueChanged = function () {
                 var _this = this;
+                if (this._isInitializing)
+                    return;
                 if (this._filteringIsBeingExecuted)
                     return;
                 if (this.getValue() === this._previousValue) {
@@ -3152,6 +3294,10 @@ var PowerTables;
                     }
                     return objVal === bv;
                 }
+                if (this._associatedColumn.IsDateTime) {
+                    var date = this.MasterTable.Date.parse(fval);
+                    return date === objVal;
+                }
                 return true;
             };
             ValueFilterPlugin.prototype.modifyQuery = function (query, scope) {
@@ -3180,17 +3326,40 @@ var PowerTables;
         var RangeFilterPlugin = (function (_super) {
             __extends(RangeFilterPlugin, _super);
             function RangeFilterPlugin() {
+                var _this = this;
                 _super.apply(this, arguments);
                 this._filteringIsBeingExecuted = false;
+                this._isInitializing = true;
+                this.afterDrawn = function (e) {
+                    if (_this.Configuration.Hidden)
+                        return;
+                    if (_this._associatedColumn.IsDateTime) {
+                        var fromDate = _this.MasterTable.Date.parse(_this.Configuration.FromValue);
+                        var toDate = _this.MasterTable.Date.parse(_this.Configuration.ToValue);
+                        _this.MasterTable.Date.putDateToDatePicker(_this.FromValueProvider, fromDate);
+                        _this.MasterTable.Date.putDateToDatePicker(_this.ToValueProvider, toDate);
+                    }
+                    _this._isInitializing = false;
+                };
             }
             RangeFilterPlugin.prototype.getFromValue = function () {
+                if (this._associatedColumn.IsDateTime) {
+                    var date = this.MasterTable.Date.getDateFromDatePicker(this.FromValueProvider);
+                    return this.MasterTable.Date.serialize(date);
+                }
                 return this.FromValueProvider.value;
             };
             RangeFilterPlugin.prototype.getToValue = function () {
+                if (this._associatedColumn.IsDateTime) {
+                    var date = this.MasterTable.Date.getDateFromDatePicker(this.ToValueProvider);
+                    return this.MasterTable.Date.serialize(date);
+                }
                 return this.ToValueProvider.value;
             };
             RangeFilterPlugin.prototype.handleValueChanged = function () {
                 var _this = this;
+                if (this._isInitializing)
+                    return;
                 if (this._filteringIsBeingExecuted)
                     return;
                 if ((this._fromPreviousValue === this.getFromValue())
@@ -3274,6 +3443,9 @@ var PowerTables;
                 }
                 if (this._associatedColumn.IsInteger || this._associatedColumn.IsEnum) {
                     return ((frmEmpty) || objVal >= parseInt(fromValue)) && ((toEmpty) || objVal <= parseInt(toValue));
+                }
+                if (this._associatedColumn.IsDateTime) {
+                    return ((frmEmpty) || objVal >= this.MasterTable.Date.parse(fromValue)) && ((toEmpty) || objVal <= this.MasterTable.Date.parse(toValue));
                 }
                 return true;
             };
@@ -4127,7 +4299,18 @@ var PowerTables;
                                     value = element.checked;
                                 }
                                 else {
-                                    value = element.value;
+                                    if (fieldConf.IsDateTime) {
+                                        value = this.MasterTable.Date.getDateFromDatePicker(element);
+                                        if (!this.MasterTable.Date.isValidDate(value)) {
+                                            value = this.MasterTable.Date.parse(element.value);
+                                            if (!this.MasterTable.Date.isValidDate(value)) {
+                                                value = null;
+                                            }
+                                        }
+                                    }
+                                    else {
+                                        value = element.value;
+                                    }
                                 }
                             }
                         }
@@ -4180,7 +4363,7 @@ var PowerTables;
                                 _this.fieldChange(c.FieldSelector, c.SearchTriggerDelay, el, evt);
                             }; })(conf, element));
                             if (conf.AutomaticallyAttachDatepicker) {
-                                this.MasterTable.InstanceManager.createDatePicker(element);
+                                this.MasterTable.Date.createDatePicker(element);
                             }
                         }
                         this._existingValues[conf.FieldSelector] = element.value;

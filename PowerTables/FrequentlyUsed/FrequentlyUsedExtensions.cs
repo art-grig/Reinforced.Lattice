@@ -101,12 +101,8 @@ namespace PowerTables.FrequentlyUsed
             });
         }
 
-        private static void DoDateFormatColumnUsage<TSourceData, TTableData, TTableColumn>(ColumnUsage<TSourceData, TTableData, TTableColumn> col, string format = null, bool utc = false) where TTableData : new()
+        private static void DoDateFormatColumnUsage<TSourceData, TTableData, TTableColumn>(ColumnUsage<TSourceData, TTableData, TTableColumn> col, string format, bool utc = false) where TTableData : new()
         {
-            if (string.IsNullOrEmpty(format))
-            {
-                format = col.Configurator.TableConfiguration.ClientDateTimeFormat;
-            }
             const string template = "function(v) {{ if (v.{0}) return dateFormat(v.{0},'{1}',{2}); else return ''; }}";
             var code = string.Format(template, col.ColumnProperty.Name, format, utc ? "true" : "false");
 

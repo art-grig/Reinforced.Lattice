@@ -44,13 +44,14 @@ module PowerTables {
 
         private initialize() {
             this._isReady = true;
+            this.Date = new DateService(this._configuration.DatepickerOptions);
             this.Events = new EventsManager(this);
             this.InstanceManager = new InstanceManager(this._configuration, this, this.Events);
-
-            this.DataHolder = new DataHolder(this.InstanceManager.getColumnNames(), this.Events, this.InstanceManager);
+            this.DataHolder = new DataHolder(this);
             this.Loader = new Loader(this._configuration.StaticData, this._configuration.OperationalAjaxUrl, this.Events, this.DataHolder);
-            this.Renderer = new Rendering.Renderer(this._configuration.TableRootId, this._configuration.Prefix, this.InstanceManager, this.Events);
+            this.Renderer = new Rendering.Renderer(this._configuration.TableRootId, this._configuration.Prefix, this.InstanceManager, this.Events,this.Date);
             this.Controller = new Controller(this);
+            
             this.InstanceManager.initPlugins();
             this.Renderer.layout();
             if (this._configuration.LoadImmediately) {
@@ -63,6 +64,11 @@ module PowerTables {
                 });
             }
         }
+
+        /**
+         * API for working with dates
+         */
+        Date: DateService;
 
         /**
          * Reloads table content. 

@@ -39,7 +39,7 @@ namespace PowerTables.Filters.Value
 
         protected override TFilteringKey Parse(string filterArgument)
         {
-            return ValueConverter.Convert<TFilteringKey>(filterArgument, Configurator);
+            return ValueConverter.Convert<TFilteringKey>(filterArgument);
         }
 
         public static ValueColumnFilter<TSourceData, TFilteringKey> Create<TSourceColumn>(PropertyInfo columnProp, IConfigurator conf,

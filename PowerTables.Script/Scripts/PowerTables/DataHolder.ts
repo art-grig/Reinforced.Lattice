@@ -4,12 +4,11 @@
      * Class that is responsible for holding and managing data loaded from server
      */
     export class DataHolder {
-        constructor(rawColumnNames: string[],
-            events: EventsManager,
-            instances: InstanceManager) {
-            this._rawColumnNames = rawColumnNames;
-            this._events = events;
-            this._instances = instances;
+        constructor(masterTable:IMasterTable) {
+            this._rawColumnNames = masterTable.InstanceManager.getColumnNames();
+            this._events = masterTable.Events;
+            this._instances = masterTable.InstanceManager;
+            this._masterTable = masterTable;
         }
 
         private _rawColumnNames: string[];
@@ -18,7 +17,8 @@
         private _anyClientFiltration: boolean = false;
         private _events: EventsManager;
         private _instances: InstanceManager;
-
+        private _masterTable :IMasterTable;
+        
         /**
          * Data that actually is currently displayed in table
          */
@@ -81,7 +81,7 @@
             for (var i: number = 0; i < response.Data.length; i++) {
                 if (this._instances.Columns[currentCol].IsDateTime) {
                     if (response.Data[i]) {
-                        obj[currentCol] = Date.parse(response.Data[i]);
+                        obj[currentCol] = this._masterTable.Date.parse(response.Data[i]);
                     } else {
                         obj[currentCol] = null;
                     }

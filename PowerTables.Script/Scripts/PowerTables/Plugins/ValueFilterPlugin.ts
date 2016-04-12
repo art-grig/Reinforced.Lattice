@@ -6,15 +6,19 @@
         private _inpTimeout: any;
         private _previousValue: string;
         private _associatedColumn: IColumn;
+        private _isInitializing: boolean = true;
 
         public FilterValueProvider: HTMLInputElement;
 
         private getValue() {
+            if (this._associatedColumn.IsDateTime) {
+                return this.MasterTable.Date.serialize(this.MasterTable.Date.getDateFromDatePicker(this.FilterValueProvider));
+            }
             return this.FilterValueProvider.value;
         }
 
         public handleValueChanged() {
-
+            if (this._isInitializing) return;
             if (this._filteringIsBeingExecuted) return;
 
             if (this.getValue() === this._previousValue) {
@@ -47,8 +51,8 @@
                 this.itIsClientFilter();
             }
             this._associatedColumn = this.MasterTable.InstanceManager.Columns[this.Configuration.ColumnName];
+            
         }
-
 
         public filterPredicate(rowObject: any, query: IQuery): boolean {
             var fval: string = query.Filterings[this._associatedColumn.RawName];
@@ -90,6 +94,11 @@
                 return objVal === bv;
             }
 
+            if (this._associatedColumn.IsDateTime) {
+                var date = this.MasterTable.Date.parse(fval);
+                return date === objVal;
+            }
+
             return true;
         }
 
@@ -103,6 +112,15 @@
             if ((!this.Configuration.ClientFiltering) && scope === QueryScope.Server || scope === QueryScope.Transboundary) {
                 query.Filterings[this._associatedColumn.RawName] = val;
             }
+        }
+
+        public afterDrawn = (e) => {
+            if (this.Configuration.Hidden) return;
+            if (this._associatedColumn.IsDateTime) {
+                var date = this.MasterTable.Date.parse(this.Configuration.DefaultValue);
+                this.MasterTable.Date.putDateToDatePicker(this.FilterValueProvider, date);
+            }
+            this._isInitializing = false;
         }
     }
 

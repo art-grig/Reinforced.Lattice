@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using PowerTables.Configuration;
 using PowerTables.Configuration.Json;
 using PowerTables.Filters;
 using PowerTables.Filters.Range;
@@ -38,11 +39,13 @@ namespace PowerTables.Typings
 
 
             builder.ExportAsInterface<TableConfiguration>()
-                .WithPublicProperties()
-                .WithProperty(c => c.DatePickerFunction, c => c.Type("(e:any, format:string) => void"))
+                .WithPublicProperties();
+            builder.ExportAsInterface<DatepickerOptions>()
+                .WithProperty(c => c.CreateDatePicker, c => c.Type("(element:HTMLElement, isNullableDate: boolean) => void"))
+                .WithProperty(c => c.PutToDatePicker, c => c.Type("(element:HTMLElement, date?:Date) => void"))
+                .WithProperty(c => c.GetFromDatePicker, c => c.Type("(element:HTMLElement) => Date"))
+                .OverrideNamespace("PowerTables")
                 ;
-
-
             builder.ExportAsInterface<ColumnConfiguration>()
                 .WithPublicProperties()
                 .WithProperty(c => c.CellRenderingValueFunction, c => c.Type("(a:any) => string"))

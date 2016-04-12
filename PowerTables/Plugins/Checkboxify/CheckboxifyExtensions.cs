@@ -26,7 +26,7 @@ namespace PowerTables.Plugins.Checkboxify
         {
             if (!req.Query.AdditionalData.ContainsKey("Selection")) return new T[0];
             var s = req.Query.AdditionalData["Selection"];
-            var result = s.Split('|').Select(c=>ValueConverter.Convert<T>(c,req.Configurator)).ToArray();
+            var result = s.Split('|').Select(ValueConverter.Convert<T>).ToArray();
             return result;
         }
 
@@ -41,7 +41,7 @@ namespace PowerTables.Plugins.Checkboxify
         {
             if (!req.AdditionalData.ContainsKey("Selection")) return new T[0];
             var s = req.AdditionalData["Selection"];
-            var result = s.Split('|').Select(c => ValueConverter.Convert<T>(c, configurator)).ToArray();
+            var result = s.Split('|').Select(ValueConverter.Convert<T>).ToArray();
             return result;
         }
 

@@ -60,11 +60,8 @@ namespace PowerTables.Plugins.Formwatch
         public bool SetConstantIfNotSupplied { get; set; }
 
         public string Key { get; set; }
-
-        
-
         public bool AutomaticallyAttachDatepicker { get; set; }
-
+        public bool IsDateTime { get; set; }
         
     }
 }

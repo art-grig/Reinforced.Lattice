@@ -31,7 +31,11 @@
          * 
          * @param e Events manager         
          */
-        protected subscribe(e: EventsManager): void {}
+        protected subscribe(e: EventsManager): void {
+            if (this.afterDrawn != null) {
+                this.MasterTable.Events.AfterLayoutRendered.subscribe(this.afterDrawn.bind(this), this.RawConfig.PluginId);
+            }
+        }
 
         /**
          * In this method you can register any additional Handlebars.js helpers in case of your 
@@ -40,7 +44,9 @@
          * @param hb Handlebars instance
          * @returns {} 
          */
-        protected registerAdditionalHelpers(hb: Handlebars.IHandlebars): void {}
+        protected registerAdditionalHelpers(hb: Handlebars.IHandlebars): void { }
+
+        protected afterDrawn: (e: ITableEventArgs<any>) => void = null;
 
         public Order: number;
     }

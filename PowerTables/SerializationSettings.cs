@@ -16,12 +16,5 @@ namespace PowerTables
             NullValueHandling = NullValueHandling.Ignore,
             Converters = new List<JsonConverter>() { new IsoDateTimeConverter() }
         };
-
-        public static JsonSerializerSettings ConfigSerializationSettings = new JsonSerializerSettings()
-        {
-            Formatting = Formatting.Indented,
-            NullValueHandling = NullValueHandling.Ignore,
-            Converters = new List<JsonConverter>() { new JavaScriptDateTimeConverter() }
-        };
     }
 }

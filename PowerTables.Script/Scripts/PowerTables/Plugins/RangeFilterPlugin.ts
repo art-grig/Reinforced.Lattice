@@ -7,19 +7,29 @@
         private _fromPreviousValue: string;
         private _toPreviousValue: string;
         private _associatedColumn: IColumn;
+        private _isInitializing: boolean = true;
 
         public FromValueProvider: HTMLInputElement;
         public ToValueProvider: HTMLInputElement;
 
         private getFromValue(): string {
+            if (this._associatedColumn.IsDateTime) {
+                var date = this.MasterTable.Date.getDateFromDatePicker(this.FromValueProvider);
+                return this.MasterTable.Date.serialize(date);
+            }
             return this.FromValueProvider.value;
         }
 
         private getToValue(): string {
+            if (this._associatedColumn.IsDateTime) {
+                var date = this.MasterTable.Date.getDateFromDatePicker(this.ToValueProvider);
+                return this.MasterTable.Date.serialize(date);
+            }
             return this.ToValueProvider.value;
         }
 
         public handleValueChanged() {
+            if (this._isInitializing) return;
             if (this._filteringIsBeingExecuted) return;
 
             if ((this._fromPreviousValue === this.getFromValue())
@@ -110,7 +120,23 @@
                 return ((frmEmpty) || objVal >= parseInt(fromValue)) && ((toEmpty) || objVal <= parseInt(toValue));
             }
 
+            if (this._associatedColumn.IsDateTime) {
+                return ((frmEmpty) || objVal >= this.MasterTable.Date.parse(fromValue)) && ((toEmpty) || objVal <= this.MasterTable.Date.parse(toValue));
+            }
+
             return true;
+        }
+
+        public afterDrawn = (e) => {
+            if (this.Configuration.Hidden) return;
+            if (this._associatedColumn.IsDateTime) {
+                var fromDate = this.MasterTable.Date.parse(this.Configuration.FromValue);
+                var toDate = this.MasterTable.Date.parse(this.Configuration.ToValue);
+
+                this.MasterTable.Date.putDateToDatePicker(this.FromValueProvider, fromDate);
+                this.MasterTable.Date.putDateToDatePicker(this.ToValueProvider, toDate);
+            }
+            this._isInitializing = false;
         }
     }
 

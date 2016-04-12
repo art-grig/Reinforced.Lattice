@@ -4,7 +4,7 @@
      * Enity responsible for displaying table
      */
     export class Renderer implements ITemplatesProvider {
-        constructor(rootId: string, prefix: string, instances: InstanceManager, events: EventsManager) {
+        constructor(rootId: string, prefix: string, instances: InstanceManager, events: EventsManager,dateService:DateService) {
             this._instances = instances;
             this._stack = new RenderingStack();
             this.RootElement = document.getElementById(rootId);
@@ -15,7 +15,7 @@
 
             this.LayoutRenderer = new LayoutRenderer(this, this._stack, this._instances);
             this.ContentRenderer = new ContentRenderer(this, this._stack, this._instances);
-            this.BackBinder = new BackBinder(this.HandlebarsInstance, instances, this._stack);
+            this.BackBinder = new BackBinder(this.HandlebarsInstance, instances, this._stack, dateService);
 
             this.HandlebarsInstance.registerHelper('ifq', this.ifqHelper);
             this.HandlebarsInstance.registerHelper('ifloc', this.iflocHelper.bind(this));

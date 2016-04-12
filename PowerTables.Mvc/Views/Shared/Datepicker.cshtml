@@ -3,12 +3,20 @@
         It is very important for datepicker do not to overlap DOM events on text input
         bootstrap-datepicker does, so we are using such hack
     *@
-    var createDatePicker = function (element, format) {
+    var createDatePicker = function (element) {
         $(element)
-            .datepicker({ format: format, weekStart: 1 })
+            .datepicker({ format: 'dd/MM/yyyy', weekStart: 1 })
             .on('changeDate', function () {
                 PowerTables.PowerTable.fireDomEvent('keyup', element);
             });
 
+    }
+
+    var putDateToDatepicker = function(element, date) {
+        $(element).datepicker('update', date);
+    }
+
+    var getDateFromDatepicker = function (element, date) {
+        return $(element).datepicker('getDate');
     }
 </script>

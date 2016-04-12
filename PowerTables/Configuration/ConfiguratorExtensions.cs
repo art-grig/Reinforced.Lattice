@@ -103,21 +103,17 @@ namespace PowerTables.Configuration
         }
 
         /// <summary>
-        /// Sets up datetime configuration for table.
+        /// Sets up datepickers configuration for table.
         /// Since handling DateTime through JSON, JS/HTML and MVC is big problem then here
         /// we have this method which will allow you to specify custom JS function for constructing datepicker
         /// and also specifying client and server date formats.
         /// </summary>
         /// <param name="c">Table configurator</param>
-        /// <param name="datePickerFunction">JS function text to create datepicker. It supplies "input" element to be datepickered as first argument and client format string as second argument</param>
-        /// <param name="clientDateTimeFormat">DateTime format that will be used on client-side</param>
-        /// <param name="serverDateTimeFormat">DateTime format that will be used to deserialize client datetime string on server</param>
+        /// <param name="dpo">Datepicker options object</param>
         /// <returns></returns>
-        public static Configurator<TSourceData, TTableData> DatePicker<TSourceData, TTableData>(this Configurator<TSourceData, TTableData> c, string datePickerFunction, string clientDateTimeFormat, string serverDateTimeFormat) where TTableData : new()
+        public static Configurator<TSourceData, TTableData> DatePicker<TSourceData, TTableData>(this Configurator<TSourceData, TTableData> c, DatepickerOptions dpo) where TTableData : new()
         {
-            c.TableConfiguration.DatePickerFunction = new JRaw(datePickerFunction);
-            c.TableConfiguration.ClientDateTimeFormat = clientDateTimeFormat;
-            c.TableConfiguration.ServerDateTimeFormat = serverDateTimeFormat;
+            c.TableConfiguration.DatepickerOptions = dpo;
             return c;
         }
 
@@ -132,22 +128,6 @@ namespace PowerTables.Configuration
         {
             c.Projection = projectionExpression;
             return c;
-        }
-
-        /// <summary>
-        /// Parses DateTime from string according to table configuration settings
-        /// </summary>
-        /// <param name="conf">Table configurator</param>
-        /// <param name="dateTime">Date-Time in string form</param>
-        /// <returns>Datetime instance</returns>
-        public static DateTime ParseDateTime(this IConfigurator conf, string dateTime)
-        {
-            if (!string.IsNullOrEmpty(conf.TableConfiguration.ServerDateTimeFormat))
-            {
-                return DateTime.ParseExact(dateTime, conf.TableConfiguration.ServerDateTimeFormat,
-                    CultureInfo.InvariantCulture);
-            }
-            return DateTime.Parse(dateTime);
         }
 
         /// <summary>

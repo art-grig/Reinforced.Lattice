@@ -73,7 +73,8 @@ namespace PowerTables.Plugins.Formwatch
                 FieldJsonName = prop.Name,
                 FieldSelector = "#" + prop.Name,
                 SearchTriggerDelay = 500,
-                Key = prop.Name
+                Key = prop.Name,
+                IsDateTime = typeof(DateTime)==prop.PropertyType || typeof(DateTime?) == prop.PropertyType
             };
             return fld;
         }

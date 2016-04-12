@@ -8,7 +8,7 @@ namespace PowerTables.Mvc.Models.Tutorial
         public static Configurator<SourceData, TargetData> Basic(this Configurator<SourceData, TargetData> conf)
         {
             conf
-                .DatePicker("createDatePicker", "mm/dd/yyyy", "MM/dd/yyyy")
+                .DatePicker(new DatepickerOptions("createDatePicker", "putDateToDatepicker", "getDateFromDatepicker"))
                 .AppendEmptyFilters();
             return conf;
         }

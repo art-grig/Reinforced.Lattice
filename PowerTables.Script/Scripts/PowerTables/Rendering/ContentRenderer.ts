@@ -82,7 +82,7 @@
                         continue;
                     }
                     this._columnsRenderFunctions[columnConfig.RawColumnName] =
-                    (x: ICell) => ((x.Data !== null && x.Data !== undefined) ? x.Data : '');
+                    (x: ICell) => ((x.Data !== null && x.Data != undefined) ? x.Data : '');
                 }
             };
         }

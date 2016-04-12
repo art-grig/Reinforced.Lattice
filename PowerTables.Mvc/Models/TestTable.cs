@@ -56,7 +56,7 @@ namespace PowerTables.Mvc.Models
             conf.Column(c => c.BehindProperty).Title("Behind");
 
             conf
-                .DatePicker("function(v,f){ v.datepicker({ format: f, weekStart: 1 }); }", "mm/dd/yyyy", "MM/dd/yyyy")
+                .DatePicker(new DatepickerOptions("createDatePicker", "putDateToDatepicker", "getDateFromDatepicker"))
                 .Limit(
                     ui => ui.PlaceAt("lt").Configuration.Values(new[] {"Every", "-", "5", "10", "-", "50", "100"}, "10"))
                 .Paging(ui => ui.Configuration.PagingSimple(useFirstLasPage: true, useGotoPage: true))

@@ -86,6 +86,11 @@
          * API for overall workflow controlling
          */
         Controller: Controller;
+
+        /**
+         * API for working with dates
+         */
+        Date: DateService;
     }
 
     /**

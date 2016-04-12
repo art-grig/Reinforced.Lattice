@@ -33,7 +33,17 @@
                                 value = element.checked;
                             }
                             else {
-                                value = element.value;
+                                if (fieldConf.IsDateTime) {
+                                    value = this.MasterTable.Date.getDateFromDatePicker(element);
+                                    if (!this.MasterTable.Date.isValidDate(value)) {
+                                        value = this.MasterTable.Date.parse(element.value);
+                                        if (!this.MasterTable.Date.isValidDate(value)) {
+                                            value = null;
+                                        }
+                                    }
+                                } else {
+                                    value = element.value;
+                                }
                             }
                         }
                     }
@@ -88,7 +98,7 @@
                             })(conf, element)
                             );
                         if (conf.AutomaticallyAttachDatepicker) {
-                            this.MasterTable.InstanceManager.createDatePicker(element);
+                            this.MasterTable.Date.createDatePicker(element);
                         }
                     }
                     this._existingValues[conf.FieldSelector] = element.value;

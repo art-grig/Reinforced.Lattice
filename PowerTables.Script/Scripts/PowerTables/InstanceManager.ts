@@ -13,7 +13,7 @@
             this._events = events;
             this._isHandlingSpecialPlacementCase = !(!this.Configuration.EmptyFiltersPlaceholder);
             this._specialCasePlaceholder = this.Configuration.EmptyFiltersPlaceholder;
-
+            
             this.initColumns();
         }
 
@@ -38,15 +38,6 @@
          * Table configuration
          */
         public Configuration: TableConfiguration;
-
-        /**
-         * Attaches datepicker component to HTML element
-         * 
-         * @param element HTML element         
-         */
-        public createDatePicker(element: HTMLElement): void {
-            this.Configuration.DatePickerFunction(element, this.Configuration.ClientDateTimeFormat);
-        }
 
         private _rawColumnNames: string[] = [];
         private _masterTable: IMasterTable;

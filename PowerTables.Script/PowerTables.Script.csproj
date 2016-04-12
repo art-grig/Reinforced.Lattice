@@ -17,9 +17,7 @@
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
   </PropertyGroup>
-  <ItemGroup>
-    <None Include="Scripts\_references.js" />
-    <Content Include="Scripts\powertables.js" />
+  <ItemGroup>    
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -36,13 +34,13 @@
     </TypeScriptCompile>
     <TypeScriptCompile Include="Scripts\PowerTables\ComponentsContainer.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\CoreInterfaces.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\DateService.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\ExternalTypings.d.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Events.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Controller.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\DataHolder.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\InstanceManager.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Loader.ts" />    
-    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\PluginBase.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Loader.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\BackBinder.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\ContentRenderer.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\HtmlToDom.ts" />
@@ -52,6 +50,7 @@
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\RenderingStack.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\TrackHelper.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\PowerTables.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\PluginBase.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\FilterBase.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Loading.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Ordering.ts" />
@@ -69,7 +68,7 @@
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\FormwatchPlugin.ts" />
     <TypeScriptCompile Include="Scripts\Typings\HideoutPlugin.d.ts" />
     <TypeScriptCompile Include="Scripts\Typings\Limit.d.ts" />
-    <TypeScriptCompile Include="Scripts\Typings\PagingPlugin.d.ts" />
+    <TypeScriptCompile Include="Scripts\Typings\PagingPlugin.d.ts" />    
   </ItemGroup>
   <ItemGroup />
   <PropertyGroup>

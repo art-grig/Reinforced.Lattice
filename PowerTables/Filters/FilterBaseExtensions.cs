@@ -53,22 +53,12 @@ namespace PowerTables.Filters
             var type = value.GetType();
             if (type == typeof(DateTime))
             {
-                if (!string.IsNullOrEmpty(configurator.TableConfiguration.ServerDateTimeFormat))
-                {
-                    s = ((DateTime)(object)value).ToString(configurator.TableConfiguration.ServerDateTimeFormat);
-                }
+                s = ((DateTime)(object)value).ToString("o");
             }
             if (type == typeof(DateTime?))
             {
                 var t = value as DateTime?;
-                if (t != null)
-                {
-                    if (!string.IsNullOrEmpty(configurator.TableConfiguration.ServerDateTimeFormat))
-                    {
-                        s =
-                            t.Value.ToString(configurator.TableConfiguration.ServerDateTimeFormat);
-                    }
-                }
+                if (t != null) s = t.Value.ToString("o");
             }
             return s;
         }

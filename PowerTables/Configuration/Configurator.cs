@@ -345,7 +345,7 @@ namespace PowerTables.Configuration
             {
                 tc.StaticData = JsonConvert.SerializeObject(staticData);
             }
-            string json = JsonConvert.SerializeObject(tc, SerializationSettings.ConfigSerializationSettings);
+            string json = JsonConvert.SerializeObject(tc, SerializationSettings.ResponseSerializationSettings);
             return json;
         }
 

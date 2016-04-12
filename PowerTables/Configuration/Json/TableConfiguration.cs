@@ -37,19 +37,9 @@ namespace PowerTables.Configuration.Json
         public bool LoadImmediately { get; set; }
 
         /// <summary>
-        /// DateTime format used on server to parse dates from client
+        /// Mandatory object to interact with datepicker
         /// </summary>
-        public string ServerDateTimeFormat { get; set; }
-
-        /// <summary>
-        /// JS-Date format used as literal on client-side
-        /// </summary>
-        public string ClientDateTimeFormat { get; set; }
-
-        /// <summary>
-        /// Function that turns input element to datapicker
-        /// </summary>
-        public JRaw DatePickerFunction { get; set; }
+        public DatepickerOptions DatepickerOptions { get; set; }
 
         /// <summary>
         /// Table columns
