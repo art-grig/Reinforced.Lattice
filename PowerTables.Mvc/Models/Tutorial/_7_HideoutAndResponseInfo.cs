@@ -36,10 +36,10 @@ namespace PowerTables.Mvc.Models.Tutorial
 
             conf.Totals(totals =>
             {
-                totals.AddTotalFormat(c => c.ItemsCount, c => c.Source.Sum(v => v.ItemsCount), "{v} pcs.");
-                totals.AddTotalTemplate(c => c.Id, c => c.Source.Max(v => v.Id), 
+                totals.AddTotalFormat(c => c.ItemsCount, c => c.Source.Select(v=>v.ItemsCount).DefaultIfEmpty(0).Sum(), "{v} pcs.");
+                totals.AddTotalTemplate(c => c.Id, c => c.Source.Select(v=>v.Id).DefaultIfEmpty(0).Max(), 
                     c => c.EmptyIfNotPresentSelf().Returns(v => v.Tag("strong").Attr("class","text-center").Inside("Max ID: {@}")));
-                totals.AddTotal(c => c.Cost, c => c.Source.Average(v => v.Cost), "function(v) { return 'AVG cost: $' + parseFloat(v).toFixed(2); }");
+                totals.AddTotal(c => c.Cost, c => c.Source.Select(v=>v.Cost).DefaultIfEmpty(0).Average(), "function(v) { return 'AVG cost: $' + parseFloat(v).toFixed(2); }");
             });
             return conf;
         }

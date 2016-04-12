@@ -11,7 +11,7 @@ namespace PowerTables.Filters.Value
     /// <summary>
     /// UI configuration for value filter
     /// </summary>
-    public class ValueFilterUiConfig
+    public class ValueFilterUiConfig : IHideableFilter
     {
         /// <summary>
         /// Placeholder text
@@ -48,6 +48,11 @@ namespace PowerTables.Filters.Value
         /// </summary>
         public JRaw ClientFilteringFunction { get; set; }
 
+        /// <summary>
+        /// When true, filter UI is not being rendered but client query modifier persists
+        /// </summary>
+        public bool Hidden { get; set; }
+
         public ValueFilterUiConfig()
         {
             InputDelay = 500;
@@ -71,5 +76,7 @@ namespace PowerTables.Filters.Value
             c.ClientFilteringFunction = new JRaw(string.IsNullOrEmpty(function) ? "null" : function);
             return c;
         }
+
+        
     }
 }

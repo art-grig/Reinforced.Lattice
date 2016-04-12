@@ -11,7 +11,7 @@ namespace PowerTables.Configuration
     /// <typeparam name="TSourceData">Table source query type</typeparam>
     /// <typeparam name="TTableData">Type of table row</typeparam>
     /// <typeparam name="TTableColumn">Type of column property</typeparam>
-    public class ColumnUsage<TSourceData, TTableData, TTableColumn> : IColumnConfigurator
+    public class ColumnUsage<TSourceData, TTableData, TTableColumn> : IColumnTargetProperty<TTableColumn>
         where TTableData : new()
     {
         private readonly ColumnConfiguration _columnConfiguration;

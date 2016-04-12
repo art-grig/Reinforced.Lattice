@@ -1343,9 +1343,9 @@ var PowerTables;
             }
             PluginBase.prototype.init = function (masterTable) {
                 this.MasterTable = masterTable;
+                this.Configuration = this.RawConfig.Configuration;
                 this.subscribe(masterTable.Events);
                 this.registerAdditionalHelpers(masterTable.Renderer.HandlebarsInstance);
-                this.Configuration = this.RawConfig.Configuration;
             };
             /**
              * Events subscription method.
@@ -3103,6 +3103,8 @@ var PowerTables;
                 }
             };
             ValueFilterPlugin.prototype.renderContent = function (templatesProvider) {
+                if (this.Configuration.Hidden)
+                    return '';
                 return templatesProvider.getCachedTemplate('valueFilter')(this);
             };
             ValueFilterPlugin.prototype.init = function (masterTable) {
@@ -3153,6 +3155,8 @@ var PowerTables;
                 return true;
             };
             ValueFilterPlugin.prototype.modifyQuery = function (query, scope) {
+                if (this.Configuration.Hidden)
+                    return;
                 var val = this.getValue();
                 if (!val || val.length === 0)
                     return;
@@ -3218,6 +3222,8 @@ var PowerTables;
                 return result;
             };
             RangeFilterPlugin.prototype.modifyQuery = function (query, scope) {
+                if (this.Configuration.Hidden)
+                    return;
                 var val = this.getFilterArgument();
                 if (!val || val.length === 0)
                     return;
@@ -3236,6 +3242,8 @@ var PowerTables;
                 this._associatedColumn = this.MasterTable.InstanceManager.Columns[this.Configuration.ColumnName];
             };
             RangeFilterPlugin.prototype.renderContent = function (templatesProvider) {
+                if (this.Configuration.Hidden)
+                    return '';
                 return templatesProvider.getCachedTemplate('rangeFilter')(this);
             };
             RangeFilterPlugin.prototype.filterPredicate = function (rowObject, query) {
@@ -3304,6 +3312,8 @@ var PowerTables;
                 }
             };
             SelectFilterPlugin.prototype.modifyQuery = function (query, scope) {
+                if (this.Configuration.Hidden)
+                    return;
                 var val = this.getArgument();
                 if (!val || val.length === 0)
                     return;
@@ -3315,6 +3325,8 @@ var PowerTables;
                 }
             };
             SelectFilterPlugin.prototype.renderContent = function (templatesProvider) {
+                if (this.Configuration.Hidden)
+                    return '';
                 return templatesProvider.getCachedTemplate('selectFilter')(this);
             };
             SelectFilterPlugin.prototype.handleValueChanged = function () {
@@ -4087,7 +4099,7 @@ var PowerTables;
                 this._filteringExecuted = {};
                 this._timeouts = {};
             }
-            FormwatchPlugin.prototype.modifyQuery = function (query) {
+            FormwatchPlugin.prototype.modifyQuery = function (query, scope) {
                 var result = {};
                 for (var i = 0; i < this.Configuration.FieldsConfiguration.length; i++) {
                     var fieldConf = this.Configuration.FieldsConfiguration[i];
@@ -4125,6 +4137,34 @@ var PowerTables;
                     }
                     result[name] = value;
                 }
+                for (var fm in this.Configuration.FiltersMappings) {
+                    if (this.Configuration.FiltersMappings.hasOwnProperty(fm)) {
+                        var mppg = this.Configuration.FiltersMappings[fm];
+                        var needToApply = (mppg.ForClient && mppg.ForServer)
+                            || (mppg.ForClient && scope === PowerTables.QueryScope.Client)
+                            || (mppg.ForServer && scope === PowerTables.QueryScope.Server)
+                            || (scope === PowerTables.QueryScope.Transboundary);
+                        if (needToApply) {
+                            switch (mppg.FilterType) {
+                                case 0:
+                                    query.Filterings[fm] = result[mppg.FieldKeys[0]];
+                                    break;
+                                case 1:
+                                    query.Filterings[fm] = result[mppg.FieldKeys[0]] + "|" + result[mppg.FieldKeys[1]];
+                                    break;
+                                case 2:
+                                    var values = [];
+                                    for (var m = 0; m < mppg.FieldKeys.length; m++) {
+                                        values.push(result[mppg.FieldKeys[m]]);
+                                    }
+                                    query.Filterings[fm] = values.join('|');
+                                    break;
+                            }
+                        }
+                    }
+                }
+                if (this.Configuration.DoNotEmbed)
+                    return;
                 var str = JSON.stringify(result);
                 query.AdditionalData['Formwatch'] = str;
             };
@@ -4139,6 +4179,9 @@ var PowerTables;
                             element.addEventListener(evtToTrigger, (function (c, el) { return function (evt) {
                                 _this.fieldChange(c.FieldSelector, c.SearchTriggerDelay, el, evt);
                             }; })(conf, element));
+                            if (conf.AutomaticallyAttachDatepicker) {
+                                this.MasterTable.InstanceManager.createDatePicker(element);
+                            }
                         }
                         this._existingValues[conf.FieldSelector] = element.value;
                     }
@@ -4159,13 +4202,17 @@ var PowerTables;
                         _this._filteringExecuted[fieldSelector] = true;
                         _this.MasterTable.Controller.reload();
                         _this._filteringExecuted[fieldSelector] = false;
-                    }, 500);
+                    }, delay);
                 }
                 else {
                     this._filteringExecuted[fieldSelector] = true;
                     this.MasterTable.Controller.reload();
                     this._filteringExecuted[fieldSelector] = false;
                 }
+            };
+            FormwatchPlugin.prototype.init = function (masterTable) {
+                _super.prototype.init.call(this, masterTable);
+                this.MasterTable.Loader.registerQueryPartProvider(this);
             };
             return FormwatchPlugin;
         })(Plugins.PluginBase);

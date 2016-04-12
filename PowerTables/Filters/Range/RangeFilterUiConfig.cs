@@ -12,7 +12,7 @@ namespace PowerTables.Filters.Range
     /// <summary>
     /// UI configuration for range filterr
     /// </summary>
-    public class RangeFilterUiConfig
+    public class RangeFilterUiConfig : IHideableFilter
     {
         /// <summary>
         /// Column name this filter associated with
@@ -67,6 +67,8 @@ namespace PowerTables.Filters.Range
             ToPlaceholder = "To";
             InputDelay = 500;
         }
+
+        public bool Hidden { get; set; }
     }
     public static class ValueFilterUiExtensions
     {

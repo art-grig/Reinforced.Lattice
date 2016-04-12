@@ -28,6 +28,7 @@
         }
 
         public modifyQuery(query: IQuery, scope: QueryScope): void {
+            if (this.Configuration.Hidden) return;
             var val: string = this.getArgument();
             if (!val || val.length === 0) return;
 
@@ -40,6 +41,7 @@
         }
 
         public renderContent(templatesProvider: ITemplatesProvider): string {
+            if (this.Configuration.Hidden) return '';
             return templatesProvider.getCachedTemplate('selectFilter')(this);
         }
 

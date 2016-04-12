@@ -12,7 +12,7 @@ namespace PowerTables.Filters.Select
     /// <summary>
     /// UI configuration for select filter 
     /// </summary>
-    public class SelectFilterUiConfig
+    public class SelectFilterUiConfig : IHideableFilter
     {
         /// <summary>
         /// Preselected filter value
@@ -43,6 +43,9 @@ namespace PowerTables.Filters.Select
         /// Select filter value list
         /// </summary>
         public List<SelectListItem> Items { get; set; }
+
+        
+        public bool Hidden { get; set; }
 
         /// <summary>
         /// Turn this filter to be working on client-side

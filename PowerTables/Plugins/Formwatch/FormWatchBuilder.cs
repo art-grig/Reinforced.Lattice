@@ -33,6 +33,17 @@ namespace PowerTables.Plugins.Formwatch
         }
 
         /// <summary>
+        /// Prevent FormWatch from embedding additional data to query
+        /// </summary>
+        /// <param name="dont"></param>
+        /// <returns></returns>
+        public FormWatchBuilder<TFormViewModel> DoNotEmbedAdditionalData(bool dont = true)
+        {
+            _clientConfig.DoNotEmbed = dont;
+            return this;
+        }
+
+        /// <summary>
         /// Retrieves fluent configuration wrapper for form field
         /// </summary>
         /// <typeparam name="TData">Field type</typeparam>

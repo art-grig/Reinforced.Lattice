@@ -20,6 +20,20 @@ namespace PowerTables
         /// <summary>
         /// Parses supplied lambda expression and retrieves PropertyInfo from it
         /// </summary>
+        /// <param name="lambda">Property Lambda expression</param>
+        /// <returns>PropertyInfo referenced by this expression</returns>
+        public static PropertyInfo ParsePropertyLambda(LambdaExpression lambda)
+        {
+            var mex = lambda.Body as MemberExpression;
+            if (mex == null) throw new Exception("Here should be property");
+            var pi = mex.Member as PropertyInfo;
+            if (pi == null) throw new Exception("Here should be property");
+            return pi;
+        }
+
+        /// <summary>
+        /// Parses supplied lambda expression and retrieves PropertyInfo from it
+        /// </summary>
         /// <typeparam name="T1">T1</typeparam>
         /// <typeparam name="T2">T2</typeparam>
         /// <param name="lambda">Property Lambda expression</param>

@@ -77,6 +77,7 @@
   <ItemGroup>
     <Compile Include="Configuration\ConfiguratorExtensions.cs" />
     <Compile Include="Configuration\IColumnConfigurator.cs" />
+    <Compile Include="Configuration\IColumnTargetProperty.cs" />
     <Compile Include="Configuration\IConfigurator.cs" />
     <Compile Include="Configuration\IPluginConfiguration.cs" />
     <Compile Include="Configuration\Json\JsonConfigurationExtensions.cs" />
@@ -86,6 +87,7 @@
     <Compile Include="Defaults\DelegateCommandHandler.cs" />
     <Compile Include="Filters\ColumnFilterBase.cs" />
     <Compile Include="Filters\ColumnFilterExtensions.cs" />
+    <Compile Include="Filters\CommonFiltersUiExtensions.cs" />
     <Compile Include="Filters\FilterBase.cs" />
     <Compile Include="Filters\FilterBaseExtensions.cs" />
     <Compile Include="Filters\FreeFilter.cs" />
@@ -126,6 +128,7 @@
     <Compile Include="Plugins\Formwatch\FormwatchClientConfiguration.cs" />
     <Compile Include="Plugins\Formwatch\FormWatchExtensions.cs" />
     <Compile Include="Plugins\Formwatch\FormWatchFieldBuilder.cs" />
+    <Compile Include="Plugins\Formwatch\FormWatchAutofilterConfiguration.cs" />
     <Compile Include="Plugins\Formwatch\IFormWatchFieldBuilder.cs" />
     <Compile Include="Plugins\Hideout\HideoutPluginConfiguration.cs" />
     <Compile Include="Plugins\Hideout\HideoutExtensions.cs" />

@@ -37,6 +37,7 @@
         }
 
         public renderContent(templatesProvider: ITemplatesProvider): string {
+            if (this.Configuration.Hidden) return '';
             return templatesProvider.getCachedTemplate('valueFilter')(this);
         }
 
@@ -93,6 +94,7 @@
         }
 
         public modifyQuery(query: IQuery, scope: QueryScope): void {
+            if (this.Configuration.Hidden) return;
             var val: string = this.getValue();
             if (!val || val.length === 0) return;
             if (this.Configuration.ClientFiltering && scope === QueryScope.Client || scope === QueryScope.Transboundary) {

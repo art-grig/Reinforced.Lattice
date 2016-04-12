@@ -95,7 +95,9 @@ module PowerTables.Plugins.Checkboxify {
 module PowerTables.Plugins.Formwatch {
 	export interface IFormwatchClientConfiguration
 	{
+		DoNotEmbed: boolean;
 		FieldsConfiguration: PowerTables.Plugins.Formwatch.IFormwatchFieldData[];
+		FiltersMappings: { [key:string]: PowerTables.Plugins.Formwatch.IFormWatchFilteringsMappings };
 	}
 	export interface IFormwatchFieldData
 	{
@@ -106,6 +108,14 @@ module PowerTables.Plugins.Formwatch {
 		ConstantValue: string;
 		SearchTriggerDelay: number;
 		SetConstantIfNotSupplied: boolean;
+		AutomaticallyAttachDatepicker: boolean;
+	}
+	export interface IFormWatchFilteringsMappings
+	{
+		FilterType: number;
+		FieldKeys: string[];
+		ForServer: boolean;
+		ForClient: boolean;
 	}
 }
 module PowerTables.Plugins.Hideout {
@@ -128,6 +138,7 @@ module PowerTables.Filters.Range {
 		ToValue: string;
 		ClientFiltering: boolean;
 		ClientFilteringFunction: (object: any, fromValue:string, toValue:string, query: IQuery)=>boolean;
+		Hidden: boolean;
 	}
 }
 module PowerTables.Filters.Value {
@@ -139,6 +150,7 @@ module PowerTables.Filters.Value {
 		ColumnName: string;
 		ClientFiltering: boolean;
 		ClientFilteringFunction: (object: any, filterValue:string, query: IQuery)=>boolean;
+		Hidden: boolean;
 	}
 }
 module PowerTables.Plugins.ResponseInfo {
@@ -168,6 +180,7 @@ module PowerTables.Filters.Select {
 		NothingText: string;
 		ColumnName: string;
 		Items: System.Web.Mvc.ISelectListItem[];
+		Hidden: boolean;
 		ClientFiltering: boolean;
 		ClientFilteringFunction: (object: any, selectedValues:string[], query: IQuery)=>boolean;
 	}

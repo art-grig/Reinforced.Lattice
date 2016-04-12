@@ -8,7 +8,7 @@
         private _filteringExecuted: { [key: string]: boolean } = {};
         private _timeouts: { [key: string]: number } = {};
 
-        modifyQuery(query: IQuery): void {
+        modifyQuery(query: IQuery, scope: QueryScope): void {
             var result = {}
             for (var i = 0; i < this.Configuration.FieldsConfiguration.length; i++) {
                 var fieldConf = this.Configuration.FieldsConfiguration[i];
@@ -43,6 +43,33 @@
                 }
                 result[name] = value;
             }
+            for (var fm in this.Configuration.FiltersMappings) {
+                if (this.Configuration.FiltersMappings.hasOwnProperty(fm)) {
+                    var mppg = this.Configuration.FiltersMappings[fm];
+                    var needToApply = (mppg.ForClient && mppg.ForServer)
+                        || (mppg.ForClient && scope === QueryScope.Client)
+                        || (mppg.ForServer && scope === QueryScope.Server)
+                        || (scope === QueryScope.Transboundary);
+                    if (needToApply) {
+                        switch (mppg.FilterType) {
+                            case 0:
+                                query.Filterings[fm] = result[mppg.FieldKeys[0]];
+                                break;
+                            case 1:
+                                query.Filterings[fm] = `${result[mppg.FieldKeys[0]]}|${result[mppg.FieldKeys[1]]}`;
+                                break;
+                            case 2:
+                                var values = [];
+                                for (var m = 0; m < mppg.FieldKeys.length; m++) {
+                                    values.push(result[mppg.FieldKeys[m]]);
+                                }
+                                query.Filterings[fm] = values.join('|');
+                                break;
+                        }
+                    }
+                }
+            }
+            if (this.Configuration.DoNotEmbed) return;
             var str = JSON.stringify(result);
             query.AdditionalData['Formwatch'] = str;
         }
@@ -54,11 +81,15 @@
                     var element = <HTMLInputElement>document.querySelector(conf.FieldSelector);
                     for (var j = 0; j < conf.TriggerSearchOnEvents.length; j++) {
                         var evtToTrigger = conf.TriggerSearchOnEvents[j];
+
                         element.addEventListener(evtToTrigger,
                             ((c, el) => (evt: Event) => {
                                 this.fieldChange(c.FieldSelector, c.SearchTriggerDelay, el, evt);
                             })(conf, element)
                             );
+                        if (conf.AutomaticallyAttachDatepicker) {
+                            this.MasterTable.InstanceManager.createDatePicker(element);
+                        }
                     }
                     this._existingValues[conf.FieldSelector] = element.value;
                 }
@@ -79,13 +110,18 @@
                     this._filteringExecuted[fieldSelector] = true;
                     this.MasterTable.Controller.reload();
                     this._filteringExecuted[fieldSelector] = false;
-                }, 500);
+                }, delay);
 
             } else {
                 this._filteringExecuted[fieldSelector] = true;
                 this.MasterTable.Controller.reload();
                 this._filteringExecuted[fieldSelector] = false;
             }
+        }
+
+        public init(masterTable: IMasterTable): void {
+            super.init(masterTable);
+            this.MasterTable.Loader.registerQueryPartProvider(this);
         }
     }
     ComponentsContainer.registerComponent('Formwatch', FormwatchPlugin);

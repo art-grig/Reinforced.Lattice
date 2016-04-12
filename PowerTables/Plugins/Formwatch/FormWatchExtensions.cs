@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -106,6 +107,43 @@ namespace PowerTables.Plugins.Formwatch
             var builder = new FormWatchBuilder<T>(configurator);
             formWatchConfig(builder);
             configurator.TableConfiguration.ReplacePluginConfig(PluginId, builder.ClientConfig);
+        }
+
+        /// <summary>
+        /// Allows to filter specified column by FormWatch fields value
+        /// </summary>
+        /// <param name="column">Column to filter</param>
+        /// <param name="c">FormWatch builder</param>
+        /// <returns></returns>
+        public static FormWatchAutofilterConfiguration<TCol, TForm> ByForm<TCol, TForm>(this IColumnTargetProperty<TCol> column, FormWatchBuilder<TForm> c)
+        {
+            return new FormWatchAutofilterConfiguration<TCol, TForm>(c.ClientConfig, column.ColumnConfiguration.RawColumnName);
+        }
+
+        /// <summary>
+        /// Allow FormWatch to equip client field with Datepicker according to common table settings
+        /// </summary>
+        /// <param name="v"></param>
+        /// <param name="auto"></param>
+        /// <returns></returns>
+        public static FormWatchFieldBuilder<DateTime> AutoDatePicker(this FormWatchFieldBuilder<DateTime> v,
+            bool auto = true)
+        {
+            v.FieldData.AutomaticallyAttachDatepicker = auto;
+            return v;
+        }
+
+        /// <summary>
+        /// Allow FormWatch to equip client field with Datepicker according to common table settings
+        /// </summary>
+        /// <param name="v"></param>
+        /// <param name="auto"></param>
+        /// <returns></returns>
+        public static FormWatchFieldBuilder<DateTime?> AutoDatePicker(this FormWatchFieldBuilder<DateTime?> v,
+            bool auto = true)
+        {
+            v.FieldData.AutomaticallyAttachDatepicker = auto;
+            return v;
         }
     }
 }
