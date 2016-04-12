@@ -41,6 +41,10 @@
             this.traverseBackbind<IMarkDescriptor>(parentElement, this._markQueue, 'data-mrk', (b, e) => {
                 if (Object.prototype.toString.call(b.ElementReceiver[b.FieldName]) === '[object Array]') {
                     b.ElementReceiver[b.FieldName].push(e);
+                } else if (b.Key!=null&&b.Key!=undefined) {
+                    if (typeof b.ElementReceiver[b.FieldName] === "object") {
+                        b.ElementReceiver[b.FieldName][b.Key] = e;
+                    }
                 } else {
                     b.ElementReceiver[b.FieldName] = e;
                 }
@@ -107,11 +111,12 @@
             return `data-be="${index}"`;
         }
 
-        private markHelper(fieldName): string {
+        private markHelper(fieldName,key): string {
             var index = this._markQueue.length;
             var md = <IMarkDescriptor>{
                 ElementReceiver: this._stack.Current.Object,
-                FieldName: fieldName
+                FieldName: fieldName,
+                Key:key
             };
             this._markQueue.push(md);
             return `data-mrk="${index}"`;
@@ -132,6 +137,7 @@
     interface IMarkDescriptor {
         ElementReceiver: any;
         FieldName: string;
+        Key:any;
     }
 
     interface IDatepickerDescriptor {

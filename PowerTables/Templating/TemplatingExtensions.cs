@@ -47,11 +47,12 @@ namespace PowerTables.Templating
         /// </summary>
         /// <param name="t"></param>
         /// <param name="fieldName">Where to put HTMLElement</param>
+        /// <param name="key">Key to place element to hash</param>
         /// <returns></returns>
-        public static MvcHtmlString Mark(this IProvidesMarking t, string fieldName)
+        public static MvcHtmlString Mark(this IProvidesMarking t, string fieldName, string key = null)
         {
             return
-                MvcHtmlString.Create(string.Format("{{{{{{Mark \"{0}\"}}}}}}", fieldName));
+                MvcHtmlString.Create(string.Format("{{{{{{Mark \"{0}\" {1}}}}}}}", fieldName, string.IsNullOrEmpty(key) ? "null" : key));
         }
 
         private static readonly MvcHtmlString _track = MvcHtmlString.Create("{{{Track}}}");

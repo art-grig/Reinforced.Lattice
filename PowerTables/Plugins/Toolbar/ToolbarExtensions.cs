@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using PowerTables.Configuration;
 using PowerTables.Configuration.Json;
 
@@ -22,6 +23,7 @@ namespace PowerTables.Plugins.Toolbar
             {
                 ToolbarBuilder tb = new ToolbarBuilder(c.Configuration.Buttons);
                 toolbar(tb);
+                tb.AssignIds();
             }, where);
             return conf;
         }

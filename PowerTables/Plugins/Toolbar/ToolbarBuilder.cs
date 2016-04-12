@@ -14,6 +14,25 @@ namespace PowerTables.Plugins.Toolbar
             _buttons = existing;
         }
 
+        internal void AssignIds()
+        {
+            int counter = 0;
+            foreach (var b in Buttons)
+            {
+                counter = AssignInternalIds(b, counter);
+            }
+        }
+
+        private int AssignInternalIds(ToolbarButtonClientConfiguration btn, int counter)
+        {
+            btn.InternalId = counter++;
+            foreach (var sbm in btn.Submenu)
+            {
+                counter = AssignInternalIds(sbm, counter);
+            }
+            return counter;
+        }
+
         internal ToolbarBuilder()
         {
             _buttons = new List<ToolbarButtonClientConfiguration>();

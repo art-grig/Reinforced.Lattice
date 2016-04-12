@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
@@ -92,7 +93,7 @@ namespace PowerTables.Typings
 
             builder.ExportAsInterface<ToolbarButtonsClientConfiguration>().WithPublicProperties();
             builder.ExportAsInterface<ToolbarButtonClientConfiguration>()
-                .WithPublicProperties()
+                .WithProperties(BindingFlags.Public | BindingFlags.NonPublic| BindingFlags.Instance)
                 .WithProperty(c => c.CommandCallbackFunction,
                     c => c.Type("(table:any /*PowerTables.PowerTable*/,response:IPowerTablesResponse)=>void"))
                 .WithProperty(c => c.ConfirmationFunction,

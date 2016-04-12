@@ -3,13 +3,9 @@
 //     the code is regenerated.
 var PowerTables;
 (function (PowerTables) {
-    /** Ordering */
     (function (Ordering) {
-        /** Ascending */
         Ordering[Ordering["Ascending"] = 0] = "Ascending";
-        /** Descending */
         Ordering[Ordering["Descending"] = 1] = "Descending";
-        /** Ordering is not applied */
         Ordering[Ordering["Neutral"] = 2] = "Neutral";
     })(PowerTables.Ordering || (PowerTables.Ordering = {}));
     var Ordering = PowerTables.Ordering;
@@ -1394,6 +1390,11 @@ var PowerTables;
                     if (Object.prototype.toString.call(b.ElementReceiver[b.FieldName]) === '[object Array]') {
                         b.ElementReceiver[b.FieldName].push(e);
                     }
+                    else if (b.Key != null && b.Key != undefined) {
+                        if (typeof b.ElementReceiver[b.FieldName] === "object") {
+                            b.ElementReceiver[b.FieldName][b.Key] = e;
+                        }
+                    }
                     else {
                         b.ElementReceiver[b.FieldName] = e;
                     }
@@ -1448,11 +1449,12 @@ var PowerTables;
                 this._eventsQueue.push(ed);
                 return "data-be=\"" + index + "\"";
             };
-            BackBinder.prototype.markHelper = function (fieldName) {
+            BackBinder.prototype.markHelper = function (fieldName, key) {
                 var index = this._markQueue.length;
                 var md = {
                     ElementReceiver: this._stack.Current.Object,
-                    FieldName: fieldName
+                    FieldName: fieldName,
+                    Key: key
                 };
                 this._markQueue.push(md);
                 return "data-mrk=\"" + index + "\"";
@@ -3947,7 +3949,12 @@ var PowerTables;
             __extends(ToolbarPlugin, _super);
             function ToolbarPlugin() {
                 _super.apply(this, arguments);
+                this.AllButtons = {};
             }
+            ToolbarPlugin.prototype.buttonHandleEvent = function (e) {
+                var btnId = e.EventArguments[0];
+                alert(btnId);
+            };
             ToolbarPlugin.prototype.renderContent = function (templatesProvider) {
                 return templatesProvider.getCachedTemplate('toolbar')(this);
             };

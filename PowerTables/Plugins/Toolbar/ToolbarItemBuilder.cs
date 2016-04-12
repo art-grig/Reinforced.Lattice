@@ -68,5 +68,11 @@ namespace PowerTables.Plugins.Toolbar
             _configuration.OnClick = new JRaw(function);
             return this;
         }
+
+        public ToolbarItemBuilder Disabled(bool disabled = true)
+        {
+            _configuration.IsDisabled = disabled;
+            return this;
+        }
     }
 }

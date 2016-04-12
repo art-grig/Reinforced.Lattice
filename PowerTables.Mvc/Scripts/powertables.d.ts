@@ -2290,7 +2290,9 @@ declare module PowerTables.Plugins {
 }
 declare module PowerTables.Plugins {
     import ToolbarButtonsClientConfiguration = PowerTables.Plugins.Toolbar.IToolbarButtonsClientConfiguration;
+    import TemplateBoundEvent = PowerTables.Rendering.ITemplateBoundEvent;
     class ToolbarPlugin extends PluginBase<ToolbarButtonsClientConfiguration> {
+        buttonHandleEvent(e: TemplateBoundEvent<TotalsPlugin>): void;
         renderContent(templatesProvider: ITemplatesProvider): string;
     }
 }

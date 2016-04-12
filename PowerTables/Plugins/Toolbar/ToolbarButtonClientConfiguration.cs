@@ -50,6 +50,8 @@ namespace PowerTables.Plugins.Toolbar
 
         public bool Separator { get; set; }
 
-        public string TempId { get; set; }
+        public int InternalId { get; set; }
+
+        public bool IsDisabled { get; set; }
     }
 }
