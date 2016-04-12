@@ -3,11 +3,11 @@
     /**
      * Base class for creating filters
      */
-    export class FilterBase<T> extends PluginBase<T> implements IQueryPartProvider, IClientFilter,IClientTruncator {
-        
-        modifyQuery(query: IQuery, scope: QueryScope): void { }
+    export class FilterBase<T> extends PluginBase<T> implements IQueryPartProvider, IClientFilter {
 
-        init(masterTable: IMasterTable): void {
+        public modifyQuery(query: IQuery, scope: QueryScope): void {}
+
+        public init(masterTable: IMasterTable): void {
             super.init(masterTable);
             this.MasterTable.Loader.registerQueryPartProvider(this);
         }
@@ -16,12 +16,10 @@
          * Call this method inside init and override filterPredicate method to make this filter 
          * participate in client-side filtering
          */
-        protected itIsClientFilter() :void {
+        protected itIsClientFilter(): void {
             this.MasterTable.DataHolder.registerClientFilter(this);
         }
 
-        filterPredicate(rowObject, query: IQuery): boolean { throw new Error("Please override this method"); }
-
-        selectData(sourceDataSet: any[], query: IQuery): any[] { throw new Error("Please override this method"); }
+        public filterPredicate(rowObject: any, query: IQuery): boolean { throw new Error('Please override this method'); }
     }
-} 
+}

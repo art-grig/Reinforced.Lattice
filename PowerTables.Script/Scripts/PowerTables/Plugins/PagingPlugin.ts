@@ -1,6 +1,6 @@
 ﻿module PowerTables.Plugins {
-    import TemplateBoundEvent = PowerTables.Rendering.ITemplateBoundEvent;
-    import PagingClientConfiguration = PowerTables.Plugins.Paging.IPagingClientConfiguration;
+    import TemplateBoundEvent = Rendering.ITemplateBoundEvent;
+    import PagingClientConfiguration = Plugins.Paging.IPagingClientConfiguration;
 
     export class PagingPlugin extends FilterBase<PagingClientConfiguration> implements IPagingPlugin {
         public Pages: IPagesElement[];
@@ -33,7 +33,7 @@
         }
         private onColumnsCreation() {
             if (this.Configuration.EnableClientPaging && !this.MasterTable.DataHolder.EnableClientTake) {
-                var limit = null;
+                var limit: any = null;
                 try {
                     limit = this.MasterTable.InstanceManager.getPlugin('Limit');
                 } catch (a) { }
@@ -44,7 +44,7 @@
 
         private onResponse(e: ITableEventArgs<IDataEventArgs>) {
             this._selectedPage = e.EventArgs.Data.PageIndex;
-            var tp = e.EventArgs.Data.ResultsCount / this._pageSize;
+            var tp: number = e.EventArgs.Data.ResultsCount / this._pageSize;
             if (tp !== parseInt(<any>tp)) {
                 tp = parseInt(<any>tp) + 1;
             }
@@ -53,7 +53,7 @@
         }
 
         private onClientDataProcessing(e: ITableEventArgs<IClientDataResults>) {
-            var tp = e.EventArgs.Filtered.length / this._pageSize;
+            var tp: number = e.EventArgs.Filtered.length / this._pageSize;
             if (tp !== parseInt(<any>tp)) {
                 tp = parseInt(<any>tp) + 1;
             }
@@ -71,7 +71,7 @@
 
         public gotoPageClick(e: TemplateBoundEvent<PagingPlugin>) {
             if (this.GotoInput) {
-                var v = this.GotoInput.value;
+                var v: string = this.GotoInput.value;
                 v = (parseInt(v) - 1).toString();
                 this.goToPage(v);
             }
@@ -91,9 +91,9 @@
 
         private constructPagesElements() {
             var a: IPagesElement[] = [];
-            var total = this._totalPages;
-            var cur = this._selectedPage;
-            var pdiff = this.Configuration.PagesToHideUnderPeriod;
+            var total: number = this._totalPages;
+            var cur: number = this._selectedPage;
+            var pdiff: number = this.Configuration.PagesToHideUnderPeriod;
 
             if (total > 1) {
                 this.Shown = true;
@@ -110,7 +110,7 @@
 
                         if (total - (cur + 1) >= pdiff) a.push({ Page: 0, Period: true });
                     } else {
-                        for (var i = 0; i < total; i++) {
+                        for (var i: number = 0; i < total; i++) {
                             if (cur === i) {
                                 a.push({ Page: i, ActivePage: true });
                             } else {
@@ -122,8 +122,8 @@
 
                     if (this.Configuration.UseFirstLastPage) a.push({ Page: total - 1, Last: true });
 
-                    var disFunction = function () { return this.Page + 1; }
-                    for (var j = 0; j < a.length; j++) {
+                    var disFunction: () => any = function () { return this.Page + 1; }
+                    for (var j: number = 0; j < a.length; j++) {
                         a[j].DisPage = disFunction;
                     }
                     this.Pages = a;
@@ -136,15 +136,15 @@
             }
         }
 
-        renderContent(templatesProvider: ITemplatesProvider): string {
+        public renderContent(templatesProvider: ITemplatesProvider): string {
             this.constructPagesElements();
             return templatesProvider.getCachedTemplate('paging')(this);
         }
 
         public validateGotopage() {
-            var v = this.GotoInput.value;
-            var i = parseInt(v);
-            var valid = !isNaN(i) && (i > 0) && (i <= this._totalPages);
+            var v: string = this.GotoInput.value;
+            var i: number = parseInt(v);
+            var valid: boolean = !isNaN(i) && (i > 0) && (i <= this._totalPages);
             if (valid) {
                 this.GotoPanel.classList.remove('has-error');
                 this.GotoBtn.removeAttribute('disabled');
@@ -154,7 +154,7 @@
             }
         }
 
-        modifyQuery(query: IQuery, scope: QueryScope): void {
+        public modifyQuery(query: IQuery, scope: QueryScope): void {
             if (this.Configuration.EnableClientPaging && scope===QueryScope.Client) {
                 query.Paging.PageIndex = this._selectedPage;
             }
@@ -164,7 +164,7 @@
             }
         }
 
-        init(masterTable: IMasterTable): void {
+        public init(masterTable: IMasterTable): void {
             super.init(masterTable);
             if (!this.Configuration.EnableClientPaging) {
                 this.MasterTable.Events.AfterQueryGathering.subscribe(this.onFilterGathered.bind(this), 'paging');

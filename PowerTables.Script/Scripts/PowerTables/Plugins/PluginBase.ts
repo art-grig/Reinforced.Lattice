@@ -5,15 +5,15 @@
      */
     export class PluginBase<TConfiguration> implements IPlugin {
 
-        init(masterTable: IMasterTable): void {
+        public init(masterTable: IMasterTable): void {
             this.MasterTable = masterTable;
             this.subscribe(masterTable.Events);
             this.registerAdditionalHelpers(masterTable.Renderer.HandlebarsInstance);
             this.Configuration = this.RawConfig.Configuration;
         }
 
-        RawConfig: PowerTables.Configuration.Json.IPluginConfiguration;
-        PluginLocation: string;
+        public RawConfig: Configuration.Json.IPluginConfiguration;
+        public PluginLocation: string;
 
         /**
          * Plugin configuration object
@@ -40,8 +40,8 @@
          * @param hb Handlebars instance
          * @returns {} 
          */
-        protected registerAdditionalHelpers(hb: Handlebars.IHandlebars): void { }
+        protected registerAdditionalHelpers(hb: Handlebars.IHandlebars): void {}
 
-        Order: number;
+        public Order: number;
     }
-} 
+}

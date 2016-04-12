@@ -42,6 +42,7 @@
     <TypeScriptCompile Include="Scripts\PowerTables\DataHolder.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\InstanceManager.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Loader.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\FormwatchPlugin.ts" />
     <TypeScriptCompile Include="Scripts\Typings\HideoutPlugin.d.ts" />
     <TypeScriptCompile Include="Scripts\Typings\Limit.d.ts" />
     <TypeScriptCompile Include="Scripts\Typings\PagingPlugin.d.ts" />

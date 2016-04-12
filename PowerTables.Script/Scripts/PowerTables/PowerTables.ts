@@ -1,6 +1,6 @@
 ﻿
 module PowerTables {
-    import TableConfiguration = PowerTables.Configuration.Json.ITableConfiguration; /**
+    import TableConfiguration = Configuration.Json.ITableConfiguration; /**
      * Main entry point for all tables functionality
      */
     export class PowerTable implements IMasterTable {
@@ -8,25 +8,25 @@ module PowerTables {
             this._configuration = configuration;
             this.bindReady();
         }
-        private _isReady;
+        private _isReady:boolean;
         private bindReady() {
             var _self = this;
             if (document.addEventListener) {
-                document.addEventListener("DOMContentLoaded", function () {
-                    document.removeEventListener("DOMContentLoaded", <any>arguments.callee, false);
+                document.addEventListener('DOMContentLoaded', function () {
+                    document.removeEventListener('DOMContentLoaded', <any>arguments.callee, false);
                     _self.initialize();
                 }, false);
             } else if ((<any>document).attachEvent) {
-                (<any>document).attachEvent("onreadystatechange", function () {
-                    if (document.readyState === "complete") {
-                        (<any>document).detachEvent("onreadystatechange", arguments.callee);
+                (<any>document).attachEvent('onreadystatechange', function () {
+                    if (document.readyState === 'complete') {
+                        (<any>document).detachEvent('onreadystatechange', arguments.callee);
                         _self.initialize();
                     }
                 });
                 if ((<any>document.documentElement).doScroll && window == window.top) (function () {
                     if (_self._isReady) return;
                     try {
-                        (<any>document.documentElement).doScroll("left");
+                        (<any>document.documentElement).doScroll('left');
                     } catch (error) {
                         setTimeout(arguments.callee, 0);
                         return;
@@ -111,8 +111,8 @@ module PowerTables {
          * @param element Element is about to dispatch event
          */
         public static fireDomEvent(eventName: string, element: HTMLElement): void {
-            if ("createEvent" in document) {
-                var evt = document.createEvent("HTMLEvents");
+            if ('createEvent' in document) {
+                var evt = document.createEvent('HTMLEvents');
                 evt.initEvent(eventName, false, true);
                 element.dispatchEvent(evt);
             }

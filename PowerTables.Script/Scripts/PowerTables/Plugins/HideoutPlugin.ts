@@ -217,13 +217,19 @@ included into hideable columns list.
                 this._columnStates[hideable] = instanceInfo;
                 this.ColumnStates.push(instanceInfo);
             }
-            this.MasterTable.Events.AfterDataRendered.subscribe(this.onDataRendered.bind(this), 'hideout');
-            this.MasterTable.Events.BeforeDataRendered.subscribe(this.onBeforeDataRendered.bind(this), 'hideout');
-            this.MasterTable.Events.AfterLayoutRendered.subscribe(this.onLayourRendered.bind(this), 'hideout');
+
         }
+
+
 
         renderContent(templatesProvider: ITemplatesProvider): string {
             return templatesProvider.getCachedTemplate('hideout')(this);
+        }
+
+        subscribe(e: EventsManager): void {
+            e.AfterDataRendered.subscribe(this.onDataRendered.bind(this), 'hideout');
+            e.BeforeDataRendered.subscribe(this.onBeforeDataRendered.bind(this), 'hideout');
+            e.AfterLayoutRendered.subscribe(this.onLayourRendered.bind(this), 'hideout');
         }
     }
 

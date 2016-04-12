@@ -13,10 +13,10 @@
 
         private _queryPartProviders: IQueryPartProvider[] = [];
         private _previousRequest: XMLHttpRequest;
-        private _staticData: any;                           // from ctor
-        private _operationalAjaxUrl: string;                // from ctor
-        private _events: EventsManager;                     // from ctor
-        private _dataHolder: DataHolder;                     // from ctor
+        private _staticData: any; // from ctor
+        private _operationalAjaxUrl: string; // from ctor
+        private _events: EventsManager; // from ctor
+        private _dataHolder: DataHolder; // from ctor
         private _isFirstTimeLoading: boolean = false;
 
         /**
@@ -47,7 +47,7 @@
                 this._events.BeforeQueryGathering.invoke(this, { Query: a, Scope: queryScope });
             }
 
-            for (var i = 0; i < this._queryPartProviders.length; i++) {
+            for (var i: number = 0; i < this._queryPartProviders.length; i++) {
                 this._queryPartProviders[i].modifyQuery(a, queryScope);
             }
 
@@ -64,7 +64,7 @@
                 this._previousRequest.abort();
                 this._previousRequest = null;
             }
-            var xmlhttp;
+            var xmlhttp: boolean | XMLHttpRequest;
             try {
                 xmlhttp = new ActiveXObject('Msxml2.XMLHTTP');
             } catch (e) {
@@ -83,7 +83,7 @@
 
         private _previousQueryString: string;
 
-        private checkError(json: any, data, req): boolean {
+        private checkError(json: any, data: any, req: any): boolean {
             if (json['__ZBnpwvibZm'] && json['Success'] != undefined && !json.Success) {
                 this._events.LoadingError.invoke(this, {
                     Request: data,
@@ -96,9 +96,9 @@
             return false;
         }
 
-        private handleRegularJsonResponse(req, data, clientQuery, callback, errorCallback) {
+        private handleRegularJsonResponse(req: any, data: any, clientQuery: any, callback: any, errorCallback: any) {
             var json = JSON.parse(req.responseText);
-            var error = this.checkError(json, data, req);
+            var error: boolean = this.checkError(json, data, req);
             if (!error) {
                 this._events.DataReceived.invoke(this, {
                     Request: data,
@@ -117,9 +117,9 @@
             }
         }
 
-        private handleDeferredResponse(req, data, callback) {
+        private handleDeferredResponse(req: any, data: any, callback: any) {
             if (req.responseText.indexOf('$Token=') === 0) {
-                var token = req.responseText.substr(7, req.responseText.length - 7);
+                var token: string = req.responseText.substr(7, req.responseText.length - 7);
                 this._events.DeferredDataReceived.invoke(this, {
                     Request: data,
                     XMLHttp: req,
@@ -131,8 +131,8 @@
         }
 
         private doServerQuery(data: IPowerTableRequest, clientQuery: IQuery, callback: (data: any) => void, errorCallback?: (data: any) => void): void {
-            var dataText = JSON.stringify(data);
-            var req = this.getXmlHttp();
+            var dataText: string = JSON.stringify(data);
+            var req: boolean | XMLHttpRequest = this.getXmlHttp();
 
             this._events.BeforeLoading.invoke(this, {
                 Request: data,
@@ -142,17 +142,17 @@
             req.open('POST', this._operationalAjaxUrl, 1);
             req.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
             req.setRequestHeader('Content-type', 'application/json');
-            var reqEvent = req.onload ? 'onload' : 'onreadystatechange'; // for IE
+            var reqEvent: string = req.onload ? 'onload' : 'onreadystatechange'; // for IE
 
             req[reqEvent] = (() => {
                 if (req.readyState !== 4) return false;
 
                 if (req.status === 200) {
-                    var ctype = req.getResponseHeader('content-type');
+                    var ctype: string = req.getResponseHeader('content-type');
                     if (ctype) ctype = ctype.toLowerCase();
 
                     if (ctype && ctype.indexOf('application/json') >= 0) {
-                        this.handleRegularJsonResponse(req, data, clientQuery, callback,errorCallback);
+                        this.handleRegularJsonResponse(req, data, clientQuery, callback, errorCallback);
                     } else if (ctype && ctype.indexOf('lattice/service') >= 0) {
                         this.handleDeferredResponse(req, data, callback);
                     }
@@ -175,10 +175,10 @@
             //req.onabort = (e => {
             //    this.Events.AfterLoading.invoke(this, [this]);
             //});
-            
+
             //failTimeout = setTimeout(() => { req.abort(); this.Renderer.showError('Network error: network unreacheable'); }, 10000);
 
-           
+
             req.send(dataText);
         }
 
@@ -195,10 +195,10 @@
          */
         public requestServer(command: string, callback: (data: any) => void, queryModifier?: (a: IQuery) => IQuery, errorCallback?: (data: any) => void): void {
 
-            var scope = QueryScope.Transboundary;
+            var scope: QueryScope = QueryScope.Transboundary;
             if (command === 'query') scope = QueryScope.Server;
 
-            var serverQuery = this.gatherQuery(scope);
+            var serverQuery: IQuery = this.gatherQuery(scope);
 
             var clientQuery: IQuery = null;
             if (command === 'query') clientQuery = this.gatherQuery(QueryScope.Client);
@@ -207,7 +207,7 @@
                 queryModifier(serverQuery);
                 queryModifier(clientQuery);
             }
-            var queriesEqual = (command === 'query') && (JSON.stringify(serverQuery) === this._previousQueryString);
+            var queriesEqual: boolean = (command === 'query') && (JSON.stringify(serverQuery) === this._previousQueryString);
 
             if (!queriesEqual) {
                 var data: IPowerTableRequest = {
@@ -222,4 +222,4 @@
             }
         }
     }
-} 
+}

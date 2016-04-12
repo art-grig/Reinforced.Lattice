@@ -12,12 +12,14 @@
         compile(input: any, options?: any): HandlebarsTemplateDelegate;
         templates: HandlebarsTemplates;
     }
+
     export function create(): IHandlebars;
-    
+
     interface HandlebarsTemplates {
         [index: string]: HandlebarsTemplateDelegate;
     }
 }
+
 interface HandlebarsTemplateDelegate {
     (context: any, options?: any): string;
 }

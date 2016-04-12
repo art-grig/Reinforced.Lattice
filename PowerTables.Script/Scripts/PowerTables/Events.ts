@@ -4,10 +4,11 @@
      */
     export class TableEvent<TEventArgs> {
         constructor(masterTable: any) { this._masterTable = masterTable; }
-        private _masterTable; //todo
+
+        private _masterTable: IMasterTable;
 
         private _handlers: { [key: string]: ((e: ITableEventArgs<TEventArgs>) => any)[] } = {};
-        
+
         /**
          * Invokes event with overridden this arg and specified event args
          * 
@@ -19,11 +20,11 @@
                 MasterTable: this._masterTable,
                 EventArgs: eventArgs
             };
-            var hndlrs = this._handlers;
-            var i = 0;
+            var hndlrs: { [index: string]: { (e: ITableEventArgs<TEventArgs>): any; }[]; } = this._handlers;
+            var i: number = 0;
             for (var k in hndlrs) {
                 if (hndlrs.hasOwnProperty(k)) {
-                    var kHandlers = hndlrs[k];
+                    var kHandlers: { (e: ITableEventArgs<TEventArgs>): any; }[] = hndlrs[k];
                     for (i = 0; i < kHandlers.length; i++) {
                         (<any>kHandlers[i]).apply(thisArg, [ea]);
                     }
@@ -76,7 +77,7 @@
             this.DataReceived = new TableEvent(masterTable);
             this.AfterLoading = new TableEvent(masterTable);
             this.BeforeLayoutRendered = new TableEvent(masterTable);
-            
+
             this.BeforeClientDataProcessing = new TableEvent(masterTable);
             this.AfterClientDataProcessing = new TableEvent(masterTable);
             this.BeforeLayoutRendered = new TableEvent(masterTable);
@@ -84,7 +85,7 @@
             this.BeforeDataRendered = new TableEvent(masterTable);
             this.AfterDataRendered = new TableEvent(masterTable);
             this.BeforeClientRowsRendering = new TableEvent(masterTable);
-            
+
         }
 
         /**
@@ -93,9 +94,8 @@
          */
         public BeforeLayoutRendered: TableEvent<any>;
 
-        
-        
-        /**
+
+/**
          * "Before Filter Gathering" event. 
          * Occurs every time before sending request to server via Loader before 
          * filtering information is being gathered. Here you can add your own 
@@ -156,13 +156,13 @@
          * Event argument is deserialized JSON data from server. 
          */
         public DataReceived: TableEvent<IDataEventArgs>;
-        
+
         public BeforeClientDataProcessing: TableEvent<IQuery>;
         public AfterClientDataProcessing: TableEvent<IClientDataResults>;
         public AfterLayoutRendered: TableEvent<any>;
         public AfterDataRendered: TableEvent<any>;
         public BeforeDataRendered: TableEvent<any>;
-        
+
         /**
          * "After Loading" event.
          * Occurs every time after EVERY operation connected to server response handling 
@@ -192,6 +192,7 @@
         public registerEvent<TEventArgs>(eventName: string) {
             this[eventName] = new TableEvent(this._masterTable);
         }
+
         public SelectionChanged: TableEvent<string[]>; //registered by Checkboxify
 
     }
@@ -215,7 +216,7 @@
         /**
          * Actually displaying data
          */
-        Displaying:any[];
+        Displaying: any[];
     }
 
     /**
@@ -274,7 +275,7 @@
      * Event args for deferred data received event
      */
     export interface IDeferredDataEventArgs extends ILoadingEventArgs {
-        
+
         /**
          * Token to obtain deferred data
          */
@@ -290,7 +291,7 @@
      * Event args for data received event
      */
     export interface IDataEventArgs extends ILoadingEventArgs {
-        
+
         /**
          * Query response
          */
@@ -311,4 +312,4 @@
          */
         Scope: QueryScope;
     }
-} 
+}

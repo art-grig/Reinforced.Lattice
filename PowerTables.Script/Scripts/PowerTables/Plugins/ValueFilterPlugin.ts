@@ -1,5 +1,5 @@
 ﻿module PowerTables.Plugins {
-    import ValueFilterUiConfig = PowerTables.Filters.Value.IValueFilterUiConfig;
+    import ValueFilterUiConfig = Filters.Value.IValueFilterUiConfig;
 
     export class ValueFilterPlugin extends FilterBase<ValueFilterUiConfig> {
         private _filteringIsBeingExecuted: boolean = false;
@@ -36,11 +36,11 @@
             }
         }
 
-        renderContent(templatesProvider: ITemplatesProvider): string {
+        public renderContent(templatesProvider: ITemplatesProvider): string {
             return templatesProvider.getCachedTemplate('valueFilter')(this);
         }
 
-        init(masterTable: IMasterTable): void {
+        public init(masterTable: IMasterTable): void {
             super.init(masterTable);
             if (this.Configuration.ClientFiltering) {
                 this.itIsClientFilter();
@@ -49,8 +49,8 @@
         }
 
 
-        filterPredicate(rowObject, query: IQuery): boolean {
-            var fval = query.Filterings[this._associatedColumn.RawName];
+        public filterPredicate(rowObject: any, query: IQuery): boolean {
+            var fval: string = query.Filterings[this._associatedColumn.RawName];
             if (!fval) return true;
 
             if (this.Configuration.ClientFilteringFunction) {
@@ -61,9 +61,9 @@
             var objVal = rowObject[this._associatedColumn.RawName];
             if (objVal == null) return false;
             if (this._associatedColumn.IsString) {
-                var entries = fval.split(/\s/);
-                for (var i = 0; i < entries.length; i++) {
-                    var e = entries[i].trim();
+                var entries: string[] = fval.split(/\s/);
+                for (var i: number = 0; i < entries.length; i++) {
+                    var e: string = entries[i].trim();
                     if (e.length > 0) {
                         if (objVal.indexOf(e) > -1) return true;
                     }
@@ -71,17 +71,17 @@
             }
 
             if (this._associatedColumn.IsFloat) {
-                var f = parseFloat(fval);
+                var f: number = parseFloat(fval);
                 return objVal === f;
             }
 
             if (this._associatedColumn.IsInteger || this._associatedColumn.IsEnum) {
-                var int = parseInt(fval);
+                var int: number = parseInt(fval);
                 return objVal === int;
             }
 
             if (this._associatedColumn.IsBoolean) {
-                var bv = fval.toLocaleUpperCase() === 'TRUE' ? true :
+                var bv: boolean = fval.toLocaleUpperCase() === 'TRUE' ? true :
                     fval.toLocaleUpperCase() === 'FALSE' ? false : null;
                 if (bv == null) {
                     bv = parseInt(fval) > 0;
@@ -92,8 +92,8 @@
             return true;
         }
 
-        modifyQuery(query: IQuery, scope: QueryScope): void {
-            var val = this.getValue();
+        public modifyQuery(query: IQuery, scope: QueryScope): void {
+            var val: string = this.getValue();
             if (!val || val.length === 0) return;
             if (this.Configuration.ClientFiltering && scope === QueryScope.Client || scope === QueryScope.Transboundary) {
                 query.Filterings[this._associatedColumn.RawName] = val;
@@ -103,5 +103,6 @@
             }
         }
     }
+
     ComponentsContainer.registerComponent('ValueFilter', ValueFilterPlugin);
-} 
+}

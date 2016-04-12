@@ -1,6 +1,6 @@
 ﻿module PowerTables {
-    import TableConfiguration = Configuration.Json.ITableConfiguration; 
-    
+    import TableConfiguration = Configuration.Json.ITableConfiguration;
+
     /**
      * This thing is used to manage instances of columns, plugins etc. 
      * It consumes PT configuration as source and provides caller with 
@@ -15,8 +15,8 @@
             this._specialCasePlaceholder = this.Configuration.EmptyFiltersPlaceholder;
 
             this.initColumns();
-        } 
-        
+        }
+
         /**
          * Dictionary containing current table columns configurations.
          * Key - raw column name. Value - IColumn instance
@@ -52,16 +52,16 @@
         private _masterTable: IMasterTable;
         private _isHandlingSpecialPlacementCase: boolean;
         private _specialCasePlaceholder: string;
-        private static _datetimeTypes = ['DateTime', 'DateTime?'];
-        private static _stringTypes = ['String'];
-        private static _floatTypes = ['Single', 'Double', 'Decimal', 'Single?', 'Double?', 'Decimal?'];
-        private static _integerTypes = ['Int32', 'Int64', 'Int16', 'SByte', 'Byte', 'UInt32', 'UInt64', 'UInt16', 'Int32?', 'Int64?', 'Int16?', 'SByte?', 'Byte?', 'UInt32?', 'UInt64?', 'UInt16?'];
-        private static _booleanTypes = ['Boolean', 'Boolean?'];
+        private static _datetimeTypes: string[] = ['DateTime', 'DateTime?'];
+        private static _stringTypes: string[] = ['String'];
+        private static _floatTypes: string[] = ['Single', 'Double', 'Decimal', 'Single?', 'Double?', 'Decimal?'];
+        private static _integerTypes: string[] = ['Int32', 'Int64', 'Int16', 'SByte', 'Byte', 'UInt32', 'UInt64', 'UInt16', 'Int32?', 'Int64?', 'Int16?', 'SByte?', 'Byte?', 'UInt32?', 'UInt64?', 'UInt16?'];
+        private static _booleanTypes: string[] = ['Boolean', 'Boolean?'];
 
         private initColumns(): void {
             var columns: IColumn[] = [];
-            for (var i = 0; i < this.Configuration.Columns.length; i++) {
-                var cnf = this.Configuration.Columns[i];
+            for (var i: number = 0; i < this.Configuration.Columns.length; i++) {
+                var cnf: Configuration.Json.IColumnConfiguration = this.Configuration.Columns[i];
                 var c: IColumn = {
                     Configuration: cnf,
                     RawName: cnf.RawColumnName,
@@ -77,34 +77,34 @@
                 };
                 c.Header = {
                     Column: c,
-                    renderContent: null,
-                    renderElement: null
+                    renderContent: <any>null,
+                    renderElement: <any>null
                 };
                 this.Columns[c.RawName] = c;
                 columns.push(c);
             }
             columns = columns.sort((a: IColumn, b: IColumn) => a.Order - b.Order);
-            for (var j = 0; j < columns.length; j++) {
+            for (var j: number = 0; j < columns.length; j++) {
                 this._rawColumnNames.push(columns[j].RawName);
             }
 
         }
 
         public initPlugins(): void {
-            var pluginsConfiguration = this.Configuration.PluginsConfiguration;
+            var pluginsConfiguration: Configuration.Json.IPluginConfiguration[] = this.Configuration.PluginsConfiguration;
             var specialCases: { [key: string]: IPlugin } = {};
-            var anySpecialCases = false;
+            var anySpecialCases: boolean = false;
 
             // registering additional events
-            for (var j = 0; j < pluginsConfiguration.length; j++) {
-                var epConf = pluginsConfiguration[j];
+            for (var j: number = 0; j < pluginsConfiguration.length; j++) {
+                var epConf: Configuration.Json.IPluginConfiguration = pluginsConfiguration[j];
                 ComponentsContainer.registerComponentEvents(epConf.PluginId, this._events, this._masterTable);
             }
-           
+
             // instantiating and initializing plugins
-            for (var l = 0; l < pluginsConfiguration.length; l++) {
-                var conf = pluginsConfiguration[l];
-                var plugin = ComponentsContainer.resolveComponent<IPlugin>(conf.PluginId);
+            for (var l: number = 0; l < pluginsConfiguration.length; l++) {
+                var conf: Configuration.Json.IPluginConfiguration = pluginsConfiguration[l];
+                var plugin: IPlugin = ComponentsContainer.resolveComponent<IPlugin>(conf.PluginId);
                 plugin.PluginLocation = (!conf.Placement) ? conf.PluginId : `${conf.Placement}-${conf.PluginId}`;
                 plugin.RawConfig = conf;
                 plugin.Order = conf.Order;
@@ -126,35 +126,40 @@
             // handling special filters case
             if (this._isHandlingSpecialPlacementCase) {
                 if (anySpecialCases) {
-                    var columns = this.getUiColumnNames();
-                    for (var i = 0; i < columns.length; i++) {
-                        var c = columns[i];
-                        var id = `${this._specialCasePlaceholder}-${c}`;
-                        var specialPlugin = null;
+                    var columns: string[] = this.getUiColumnNames();
+                    for (var i: number = 0; i < columns.length; i++) {
+                        var c: string = columns[i];
+                        var id: string = `${this._specialCasePlaceholder}-${c}`;
+                        var specialPlugin: IPlugin = null;
                         for (var k in specialCases) {
                             if (this.startsWith(k, id)) {
                                 specialPlugin = specialCases[k];
                             }
                         }
                         if (specialPlugin == null) {
-                            specialPlugin = {
+                            specialPlugin = <IPlugin>{
                                 PluginLocation: `${id}-empty`,
-                                renderContent: () => { return ''; }
+                                renderContent: () => { return ''; },
+                                Order: i,
+                                RawConfig: null,
+                                renderElement: null,
+                                init:null
                             };
                         }
-                        specialPlugin.Order = i;
+                        
                         this.Plugins[specialPlugin.PluginLocation] = specialPlugin;
                     }
                 }
             }
             this._events.ColumnsCreation.invoke(this, this.Columns);
         }
+
         private startsWith(s1: string, prefix: string): boolean {
             if (s1 == undefined || s1 === null) return false;
             if (prefix.length > s1.length) return false;
             if (s1 === prefix) return true;
 
-            var part = s1.substring(0, prefix.length);
+            var part: string = s1.substring(0, prefix.length);
             return part === prefix;
         }
 
@@ -163,10 +168,11 @@
             if (postfix.length > s1.length) return false;
             if (s1 === postfix) return true;
 
-            var part = s1.substring(s1.length - postfix.length - 1, postfix.length);
+            var part: string = s1.substring(s1.length - postfix.length - 1, postfix.length);
             return part === postfix;
         }
-        /**
+
+/**
          * Reteives plugin at specified placement
          * @param pluginId Plugin ID 
          * @param placement Pluign placement
@@ -174,12 +180,12 @@
          */
         public getPlugin<TPlugin>(pluginId: string, placement?: string): TPlugin {
             if (!placement) placement = '';
-            var key = placement.length === 0 ? pluginId : `${placement}-${pluginId}`;
+            var key: string = placement.length === 0 ? pluginId : `${placement}-${pluginId}`;
             if (this.Plugins[key]) return <any>(this.Plugins[key]);
             else {
                 for (var k in this.Plugins) {
                     if (this.Plugins.hasOwnProperty(k)) {
-                        var plg = this.Plugins[k];
+                        var plg: IPlugin = this.Plugins[k];
                         if (this.startsWith(plg.RawConfig.PluginId, pluginId)) return <any>plg;
                     }
                 }
@@ -217,7 +223,7 @@
          * @returns {} 
          */
         public getColumnFilter<TPlugin>(columnName: string): TPlugin {
-            var filterId = 'filter-' + columnName;
+            var filterId: string = `filter-${columnName}`;
             for (var k in this.Plugins) {
                 if (this.Plugins.hasOwnProperty(k)) {
                     var kp = k.substring(0, filterId.length);
@@ -240,9 +246,9 @@
          * @returns {} 
          */
         public getUiColumnNames(): string[] {
-            var result = [];
-            var uiCol = this.getUiColumns();
-            for (var i = 0; i < uiCol.length; i++) {
+            var result: any[] = [];
+            var uiCol: IColumn[] = this.getUiColumns();
+            for (var i: number = 0; i < uiCol.length; i++) {
                 result.push(uiCol[i].RawName);
             }
             return result;
@@ -254,10 +260,10 @@
          * @returns {} 
          */
         public getUiColumns(): IColumn[] {
-            var result = [];
+            var result: any[] = [];
             for (var ck in this.Columns) {
                 if (this.Columns.hasOwnProperty(ck)) {
-                    var col = this.Columns[ck];
+                    var col: IColumn = this.Columns[ck];
                     if (col.Configuration.IsDataOnly) continue;
                     result.push(col);
                 }
@@ -278,4 +284,4 @@
             return this.Columns[columnName];
         }
     }
-} 
+}

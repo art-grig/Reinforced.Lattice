@@ -1,27 +1,26 @@
 ﻿module PowerTables.Plugins {
     export class LoadingPlugin extends PluginBase<any> implements ILoadingPlugin {
-        subscribe(e: EventsManager): void {
+        public BlinkElement: HTMLElement;
+        public subscribe(e: EventsManager): void {
             e.BeforeLoading.subscribe(() => this.showLoadingIndicator(), "loading");
             e.AfterLoading.subscribe(() => this.hideLoadingIndicator(), "loading");
             e.AfterLayoutRendered.subscribe(() => {
-                var me = this.MasterTable.Renderer.Locator.getPluginElement(this);
-                this._blinkElement = <HTMLElement>me.querySelector('[data-blink]');
                 this.hideLoadingIndicator();
             }, 'loading');
             
         }
-        private _blinkElement:HTMLElement;
+        
         public showLoadingIndicator() {
-            this._blinkElement.style.visibility = 'visible';
+            this.BlinkElement.style.visibility = 'visible';
         }
 
         public hideLoadingIndicator() {
-            this._blinkElement.style.visibility = 'collapse';
+            this.BlinkElement.style.visibility = 'collapse';
         }
 
-        public static Id: string = 'Loading';
+        public static Id = 'Loading';
 
-        renderContent(templatesProvider: ITemplatesProvider): string {
+        public renderContent(templatesProvider: ITemplatesProvider): string {
             return templatesProvider.getCachedTemplate('loading')(null);
         }
     }

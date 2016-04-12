@@ -15,11 +15,11 @@
         }
 
         private traverseBackbind<T>(parentElement: HTMLElement, backbindCollection: T[], attribute: string, fn: (backbind: T, element: HTMLElement) => void) {
-            var elements = parentElement.querySelectorAll(`[${attribute}]`);
-            for (var i = 0; i < elements.length; i++) {
-                var element = <HTMLElement>elements.item(i);
-                var idx = parseInt(element.getAttribute(attribute));
-                var backbindDescription = backbindCollection[idx];
+            var elements: NodeList = parentElement.querySelectorAll(`[${attribute}]`);
+            for (var i: number = 0; i < elements.length; i++) {
+                var element: HTMLElement = <HTMLElement>elements.item(i);
+                var idx: number = parseInt(element.getAttribute(attribute));
+                var backbindDescription: T = backbindCollection[idx];
                 fn.call(this, backbindDescription, element);
                 element.removeAttribute(attribute);
             }
@@ -32,7 +32,7 @@
          * @returns {} 
          */
         public backBind(parentElement: HTMLElement): void {
-            
+
             // back binding of datepickers
             this.traverseBackbind<IDatepickerDescriptor>(parentElement, this._datepickersQueue, 'data-dp', (b, e) => {
                 this._instances.createDatePicker(e);
@@ -41,33 +41,33 @@
             this.traverseBackbind<IMarkDescriptor>(parentElement, this._markQueue, 'data-mrk', (b, e) => {
                 if (Object.prototype.toString.call(b.ElementReceiver[b.FieldName]) === '[object Array]') {
                     b.ElementReceiver[b.FieldName].push(e);
-                } else if (b.Key!=null&&b.Key!=undefined) {
-                    if (typeof b.ElementReceiver[b.FieldName] === "object") {
+                } else if (b.Key != null && b.Key != undefined) {
+                    if (typeof b.ElementReceiver[b.FieldName] === 'object') {
                         b.ElementReceiver[b.FieldName][b.Key] = e;
                     }
                 } else {
                     b.ElementReceiver[b.FieldName] = e;
                 }
             });
-            
+
             // backbinding of events
             this.traverseBackbind<IEventDescriptor>(parentElement, this._eventsQueue, 'data-be', (subscription, domSource) => {
-                for (var j = 0; j < subscription.Functions.length; j++) {
-                    var bindFn = subscription.Functions[j];
-                    var handler = null;
+                for (var j: number = 0; j < subscription.Functions.length; j++) {
+                    var bindFn: string = subscription.Functions[j];
+                    var handler: void | Object = null;
                     if (subscription.EventReceiver[bindFn] && (typeof subscription.EventReceiver[bindFn] === 'function')) {
                         handler = subscription.EventReceiver[bindFn];
                     } else {
                         handler = eval(bindFn);
                     }
 
-                    for (var k = 0; k < subscription.Events.length; k++) {
-                        (function (receiver,
-                            domSource,
-                            handler,
-                            eventId,
+                    for (var k: number = 0; k < subscription.Events.length; k++) {
+                        (function(receiver: any,
+                            domSource: any,
+                            handler: any,
+                            eventId: any,
                             eventArguments: any[]) {
-                            domSource.addEventListener(eventId, (evt) => {
+                            domSource.addEventListener(eventId, (evt: any) => {
                                 handler.apply(receiver, [
                                     {
                                         Element: domSource,
@@ -94,38 +94,38 @@
         private bindEventHelper(): string {
             var commaSeparatedFunctions = arguments[0];
             var commaSeparatedEvents = arguments[1];
-            var eventArgs = [];
+            var eventArgs: any[] = [];
             if (arguments.length > 3) {
-                for (var i = 2; i <= arguments.length - 2; i++) {
+                for (var i: number = 2; i <= arguments.length - 2; i++) {
                     eventArgs.push(arguments[i]);
                 }
             }
-            var ed = <IEventDescriptor>{
+            var ed: IEventDescriptor = <IEventDescriptor>{
                 EventReceiver: this._stack.Current.Object,
                 Functions: commaSeparatedFunctions.split(','),
                 Events: commaSeparatedEvents.split(','),
                 EventArguments: eventArgs
             };
-            var index = this._eventsQueue.length;
+            var index: number = this._eventsQueue.length;
             this._eventsQueue.push(ed);
             return `data-be="${index}"`;
         }
 
-        private markHelper(fieldName,key): string {
-            var index = this._markQueue.length;
-            var md = <IMarkDescriptor>{
+        private markHelper(fieldName: any, key: any): string {
+            var index: number = this._markQueue.length;
+            var md: IMarkDescriptor = <IMarkDescriptor>{
                 ElementReceiver: this._stack.Current.Object,
                 FieldName: fieldName,
-                Key:key
+                Key: key
             };
             this._markQueue.push(md);
             return `data-mrk="${index}"`;
         }
 
         private datepickerHelper(columnName: string): string {
-            var index = this._datepickersQueue.length;
+            var index: number = this._datepickersQueue.length;
             if (this._instances.Columns[columnName].IsDateTime) {
-                var md = <IDatepickerDescriptor>{
+                var md: IDatepickerDescriptor = <IDatepickerDescriptor>{
                     ElementReceiver: this._stack.Current.Object
                 };
                 this._datepickersQueue.push(md);
@@ -134,10 +134,11 @@
             return '';
         }
     }
+
     interface IMarkDescriptor {
         ElementReceiver: any;
         FieldName: string;
-        Key:any;
+        Key: any;
     }
 
     interface IDatepickerDescriptor {
@@ -167,4 +168,4 @@
          */
         EventArguments: any[];
     }
-} 
+}

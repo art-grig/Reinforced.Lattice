@@ -27,7 +27,6 @@ module PowerTables.Rendering {
             this._hb.registerHelper('Headers', this.headersHelper.bind(this));
         }
 
-       
 
         //#region Handlebars helpers
 
@@ -37,24 +36,25 @@ module PowerTables.Rendering {
 
         //#region Plugin helpers
         private pluginHelper(pluginPosition: string, pluginId: string): string {
-            var plugin = this._instances.getPlugin<IPlugin>(pluginId, pluginPosition);
+            var plugin: IPlugin = this._instances.getPlugin<IPlugin>(pluginId, pluginPosition);
             return this.renderPlugin(plugin);
         }
 
         private pluginsHelper(pluginPosition: string): string {
-            var plugins = this._instances.getPlugins(pluginPosition);
+            var plugins: IPlugin[] = this._instances.getPlugins(pluginPosition);
             if (!plugins) return '';
-            var result = '';
+            var result: string = '';
 
             for (var a in plugins) {
                 if (plugins.hasOwnProperty(a)) {
-                    var v = plugins[a];
+                    var v: IPlugin = plugins[a];
                     result += this.renderPlugin(v);
                 }
             }
             return result;
         }
-        /**
+
+/**
          * Renders specified plugin into string including its wrapper
          * 
          * @param plugin Plugin interface
@@ -64,11 +64,12 @@ module PowerTables.Rendering {
             if (plugin.renderElement) return plugin.renderElement(this._templatesProvider);
             if (!plugin.renderContent) return '';
             this._stack.push(RenderingContextType.Plugin, plugin);
-            var result = this._templatesProvider.getCachedTemplate('pluginWrapper')(plugin);
+            var result: string = this._templatesProvider.getCachedTemplate('pluginWrapper')(plugin);
             this._stack.popContext();
             return result;
         }
-        //#endregion
+
+//#endregion
 
         // #region headers helper
         private headerHelper(columnName: string): string {
@@ -83,7 +84,7 @@ module PowerTables.Rendering {
          */
         public renderHeader(column: IColumn): string {
             this._stack.push(RenderingContextType.Header, column.Header, column.RawName);
-            var result;
+            var result: string;
 
             if (column.Header.renderElement) result = column.Header.renderElement(this._templatesProvider);
             else result = this._templatesProvider.getCachedTemplate('headerWrapper')(column.Header);
@@ -93,39 +94,39 @@ module PowerTables.Rendering {
         }
 
         private headersHelper(): string {
-            var columns = this._instances.getUiColumns();
-            var result = '';
+            var columns: IColumn[] = this._instances.getUiColumns();
+            var result: string = '';
             for (var a in columns) {
                 if (columns.hasOwnProperty(a)) {
-                    var v = columns[a];
+                    var v: IColumn = columns[a];
                     result += this.renderHeader(v);
                 }
             }
             return result;
         }
+
+//#endregion
+
         //#endregion
-        
-        //#region
 
         public renderContent(columnName?: string): string {
             switch (this._stack.Current.Type) {
-                case RenderingContextType.Header:
-                    return (<IColumnHeader>this._stack.Current.Object).Column.Configuration.Title
-                        || (<IColumnHeader>this._stack.Current.Object).Column.RawName;
+            case RenderingContextType.Header:
+                return (<IColumnHeader>this._stack.Current.Object).Column.Configuration.Title
+                    || (<IColumnHeader>this._stack.Current.Object).Column.RawName;
 
-                case RenderingContextType.Plugin:
-                    // if we are here then plugin's renderContent is not 
-                    // overriden
-                    throw new Error("It is required to override renderContent for plugin");
+            case RenderingContextType.Plugin:
+                // if we are here then plugin's renderContent is not 
+                // overriden
+                throw new Error('It is required to override renderContent for plugin');
             }
             return '';
         }
 
     }
 
-   
 
-    /**
+/**
      * Event that was bound from template
      */
     export interface ITemplateBoundEvent<T> {
@@ -149,4 +150,4 @@ module PowerTables.Rendering {
          */
         EventArguments: any[];
     }
-} 
+}

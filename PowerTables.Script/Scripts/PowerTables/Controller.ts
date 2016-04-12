@@ -9,11 +9,11 @@
         constructor(masterTable: IMasterTable) {
             this._masterTable = masterTable;
             this._attachFn = document['addEventListener'] || document['attachEvent'];
-            this._matches = (function (el) {
+            this._matches = (function(el: any) {
                 if (!el) return null;
                 var p = el.prototype;
                 return (p.matches || p.matchesSelector || p.webkitMatchesSelector || p.mozMatchesSelector || p.msMatchesSelector || p.oMatchesSelector);
-            } (Element));
+            }(Element));
             this._masterTable.Events.LoadingError.subscribe(this.onLoadingError.bind(this), 'controller');
         }
 
@@ -52,13 +52,13 @@
          * @param idx 
          * @returns {} 
          */
-        public redrawVisibleDataObject(dataObject: any, idx?:number) {
+        public redrawVisibleDataObject(dataObject: any, idx?: number) {
             if (!idx) {
-                var dispIndex = this._masterTable.DataHolder.localLookupDisplayedData(dataObject);
+                var dispIndex: ILocalLookupResult = this._masterTable.DataHolder.localLookupDisplayedData(dataObject);
                 if (dispIndex == null) throw new Error('Cannot redraw object because it is not displaying currently');
                 idx = dispIndex.DisplayedIndex;
             }
-            var row = this.produceRow(dataObject, idx);
+            var row: IRow = this.produceRow(dataObject, idx);
             this._masterTable.Renderer.redrawRow(row);
         }
 
@@ -66,7 +66,7 @@
          * Redraws locally visible data
          */
         public redrawVisibleData(): void {
-            var rows = this.produceRows();
+            var rows: IRow[] = this.produceRows();
             this._masterTable.Renderer.body(rows);
         }
 
@@ -117,16 +117,16 @@
         }
 
         private traverseSubscriptions(target: HTMLElement, eventType: string, originalEvent: Event) {
-            var t = target;
-            var forRow = this._rowDomSubscriptions[eventType];
-            var forCell = this._cellDomSubscriptions[eventType];
+            var t: HTMLElement = target;
+            var forRow: ISubscription[] = this._rowDomSubscriptions[eventType];
+            var forCell: ISubscription[] = this._cellDomSubscriptions[eventType];
             var result: ISubscription[] = [];
             if (!forRow) forRow = [];
             if (!forCell) forCell = [];
             if (forRow.length === 0 && forCell.length === 0) return result;
-            var pathToCell = [];
-            var pathToRow = [];
-            var cellLocation = null, rowIndex = null;
+            var pathToCell: any[] = [];
+            var pathToRow: any[] = [];
+            var cellLocation: ICellLocation = null, rowIndex: number = null;
 
             while (t !== this._masterTable.Renderer.BodyElement) {
                 if (this._masterTable.Renderer.Locator.isCell(t)) {
@@ -141,29 +141,29 @@
             }
 
             if (cellLocation != null) {
-                var cellArgs = {
+                var cellArgs: { Table: IMasterTable;OriginalEvent: Event;DisplayingRowIndex: any;ColumnIndex: any } = {
                     Table: this._masterTable,
                     OriginalEvent: originalEvent,
                     DisplayingRowIndex: cellLocation.RowIndex,
                     ColumnIndex: cellLocation.ColumnIndex
                 };
-                this.traverseAndFire(forCell,pathToCell,cellArgs);
+                this.traverseAndFire(forCell, pathToCell, cellArgs);
             }
 
             if (rowIndex != null) {
-                var rowArgs = {
+                var rowArgs: { Table: IMasterTable;OriginalEvent: Event;DisplayingRowIndex: any } = {
                     Table: this._masterTable,
                     OriginalEvent: originalEvent,
                     DisplayingRowIndex: rowIndex
                 };
-                this.traverseAndFire(forRow,pathToRow,rowArgs);
+                this.traverseAndFire(forRow, pathToRow, rowArgs);
             }
         }
 
-        private traverseAndFire(subscriptions:ISubscription[],path:any[],args:any) {
-            for (var i = 0; i < subscriptions.length; i++) {
+        private traverseAndFire(subscriptions: ISubscription[], path: any[], args: any) {
+            for (var i: number = 0; i < subscriptions.length; i++) {
                 if (subscriptions[i].Selector) {
-                    for (var j = 0; j < path.length; j++) {
+                    for (var j: number = 0; j < path.length; j++) {
                         if (this._matches.call(path[j], subscriptions[i].Selector)) {
                             subscriptions[i].Handler(args);
                             break;
@@ -178,7 +178,8 @@
         private onTableEvent(e: UIEvent) {
             this.traverseSubscriptions(<HTMLElement>(e.target || e.srcElement), e.type, e);
         }
-        //#endregion
+
+//#endregion
 
         /**
          * Inserts data entry to local storage 
@@ -198,7 +199,7 @@
                     if (insertion.RedrawBehavior === RedrawBehavior.RedrawVisible) this.redrawVisibleData();
                     else if (insertion.RedrawBehavior === RedrawBehavior.LocalVisibleReorder) this.localVisibleReorder();
                     else if (insertion.RedrawBehavior === RedrawBehavior.ParticularRowUpdate) {
-                        var row = this.produceRow(insertion.DataObject, insertion.DisplayRowIndex);
+                        var row: IRow = this.produceRow(insertion.DataObject, insertion.DisplayRowIndex);
                         this._masterTable.Renderer.appendRow(row, insertion.DisplayRowIndex);
                     }
                 }
@@ -239,7 +240,7 @@
                 this.reload();
             } else {
 
-                var object = this._masterTable.DataHolder.localLookupStoredData(update.StorageRowIndex);
+                var object: ILocalLookupResult = this._masterTable.DataHolder.localLookupStoredData(update.StorageRowIndex);
                 update.UpdateFn(object);
 
                 if (update.RedrawBehavior === RedrawBehavior.LocalFullRefresh) this.localFullRefresh();
@@ -250,7 +251,7 @@
                     if (update.RedrawBehavior === RedrawBehavior.RedrawVisible) this.redrawVisibleData();
                     else if (update.RedrawBehavior === RedrawBehavior.LocalVisibleReorder) this.localVisibleReorder();
                     else if (update.RedrawBehavior === RedrawBehavior.ParticularRowUpdate) {
-                        var row = this.produceRow(object, update.DisplayRowIndex);
+                        var row: IRow = this.produceRow(object, update.DisplayRowIndex);
                         this._masterTable.Renderer.redrawRow(row);
                     }
                 }
@@ -280,7 +281,7 @@
             if (!dataObject) return null;
             if (!columns) columns = this._masterTable.InstanceManager.getUiColumns();
 
-            var rw = <IRow>{
+            var rw: IRow = <IRow>{
                 DataObject: dataObject,
                 Index: idx,
                 MasterTable: this._masterTable
@@ -292,8 +293,8 @@
             }
             var cells: { [key: string]: ICell } = {};
 
-            for (var j = 0; j < columns.length; j++) {
-                var col = columns[j];
+            for (var j: number = 0; j < columns.length; j++) {
+                var col: IColumn = columns[j];
                 var cell: ICell = {
                     Column: col,
                     Data: dataObject[col.RawName],
@@ -312,10 +313,10 @@
             this._masterTable.Events.BeforeDataRendered.invoke(this, null);
 
             var result: IRow[] = [];
-            var columns = this._masterTable.InstanceManager.getUiColumns();
+            var columns: IColumn[] = this._masterTable.InstanceManager.getUiColumns();
 
-            for (var i = 0; i < this._masterTable.DataHolder.DisplayedData.length; i++) {
-                var row = this.produceRow(this._masterTable.DataHolder.DisplayedData[i], i, columns);
+            for (var i: number = 0; i < this._masterTable.DataHolder.DisplayedData.length; i++) {
+                var row: IRow = this.produceRow(this._masterTable.DataHolder.DisplayedData[i], i, columns);
                 if (!row) continue;
                 result.push(row);
             }
@@ -325,6 +326,7 @@
 
 
     }
+
     export interface IRowEventArgs {
         /**
         * Master table reference
@@ -496,4 +498,4 @@
         UiColumnsCount?: number;
         IsMessage?: boolean;
     }
-} 
+}

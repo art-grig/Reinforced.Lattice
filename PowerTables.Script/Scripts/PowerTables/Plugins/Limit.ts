@@ -1,11 +1,13 @@
 ﻿module PowerTables.Plugins {
-    import LimitClientConfiguration = PowerTables.Plugins.Limit.ILimitClientConfiguration;
-    import TemplateBoundEvent = PowerTables.Rendering.ITemplateBoundEvent;
+    import LimitClientConfiguration = Plugins.Limit.ILimitClientConfiguration;
+    import TemplateBoundEvent = Rendering.ITemplateBoundEvent;
 
     export class LimitPlugin extends FilterBase<LimitClientConfiguration> implements ILimitPlugin {
+        public SelectedValue: string;
+        private _limitSize = 0;
+        public Sizes: ILimitSize[] = [];
 
-
-        renderContent(templatesProvider: ITemplatesProvider): string {
+        public renderContent(templatesProvider: ITemplatesProvider): string {
             return templatesProvider.getCachedTemplate('limit')(this);
         }
 
@@ -31,13 +33,7 @@
             if (this.Configuration.ReloadTableOnLimitChange) this.MasterTable.Controller.reload();
         }
 
-
-        public SelectedValue: string;
-        private _limitSize: number = 0;
-
-        public Sizes: ILimitSize[] = [];
-
-        modifyQuery(query: IQuery, scope: QueryScope): void {
+        public modifyQuery(query: IQuery, scope: QueryScope): void {
             var client = this.Configuration.EnableClientLimiting;
 
             if (client && (scope === QueryScope.Client || scope === QueryScope.Transboundary)) {
@@ -49,7 +45,7 @@
             }
         }
 
-        init(masterTable: IMasterTable): void {
+        public init(masterTable: IMasterTable): void {
             super.init(masterTable);
             var def = null;
             for (var i = 0; i < this.Configuration.LimitValues.length; i++) {
@@ -84,7 +80,8 @@
                 var paging = null;
                 try {
                     paging = this.MasterTable.InstanceManager.getPlugin('Paging');
-                } catch (a) { }
+                } catch (a) {
+                }
                 if (paging != null)
                     throw new Error('Limit ang paging plugin must both work locally or both remote. Please enable client paging');
             }
@@ -100,6 +97,6 @@
         Label: string;
     }
 
-    
+
     ComponentsContainer.registerComponent('Limit', LimitPlugin);
-} 
+}

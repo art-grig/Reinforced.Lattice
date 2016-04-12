@@ -28,7 +28,7 @@
             if (!args) return new this._components[key];
             else {
                 var ctor = this._components[key];
-                var boundCtor = Function.prototype.bind.apply(ctor,[null].concat(args));
+                var boundCtor = Function.prototype.bind.apply(ctor, [null].concat(args));
                 return new boundCtor();
             }
         }
@@ -45,7 +45,7 @@
          * @param eventsManager Events manager instance
          * @returns {} 
          */
-        public static registerComponentEvents(key: string, eventsManager: EventsManager, masterTable:IMasterTable) {
+        public static registerComponentEvents(key: string, eventsManager: EventsManager, masterTable: IMasterTable) {
             if (!this._components[key])
                 throw new Error(`Component ${key} is not registered. Please ensure that you have connected all the additional scripts`);
             if (this._components[key].registerEvents && {}.toString.call(this._components[key].registerEvents) === '[object Function]') {
@@ -54,4 +54,4 @@
         }
 
     }
-} 
+}

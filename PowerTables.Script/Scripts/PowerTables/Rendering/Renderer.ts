@@ -17,14 +17,14 @@
             this.ContentRenderer = new ContentRenderer(this, this._stack, this._instances);
             this.BackBinder = new BackBinder(this.HandlebarsInstance, instances, this._stack);
 
-            this.HandlebarsInstance.registerHelper("ifq", this.ifqHelper);
-            this.HandlebarsInstance.registerHelper("ifloc", this.iflocHelper.bind(this));
+            this.HandlebarsInstance.registerHelper('ifq', this.ifqHelper);
+            this.HandlebarsInstance.registerHelper('ifloc', this.iflocHelper.bind(this));
             this.HandlebarsInstance.registerHelper('Content', this.contentHelper.bind(this));
             this.HandlebarsInstance.registerHelper('Track', this.trackHelper.bind(this));
 
             this.cacheTemplates(prefix);
-        } 
-        
+        }
+
         /**
          * Parent element for whole table
          */
@@ -50,9 +50,17 @@
          */
         public BackBinder: BackBinder;
 
-        private _instances: InstanceManager;
+        /**
+         * Renderer that is responsible for layout rendering
+         */
         public LayoutRenderer: LayoutRenderer;
+
+        /**
+         * Entity that is responsible for content rendering
+         */
         public ContentRenderer: ContentRenderer;
+
+        private _instances: InstanceManager;
         private _stack: RenderingStack;
         private _datepickerFunction: (e: HTMLElement) => void;
         private _templatesCache: { [key: string]: HandlebarsTemplateDelegate } = {};
@@ -61,11 +69,11 @@
 
         //#region Templates caching
         private cacheTemplates(templatesPrefix: string): void {
-            var selector = `script[type="text/x-handlebars-template"][id^="${templatesPrefix}-"]`;
-            var templates = document.querySelectorAll(selector);
-            for (var i = 0; i < templates.length; i++) {
-                var item = <HTMLElement>templates.item(i);
-                var key = item.id.substring(templatesPrefix.length + 1);
+            var selector: string = `script[type="text/x-handlebars-template"][id^="${templatesPrefix}-"]`;
+            var templates: NodeList = document.querySelectorAll(selector);
+            for (var i: number = 0; i < templates.length; i++) {
+                var item: HTMLElement = <HTMLElement>templates.item(i);
+                var key: string = item.id.substring(templatesPrefix.length + 1);
                 this._templatesCache[key] = this.HandlebarsInstance.compile(item.innerHTML);
             }
         }
@@ -90,10 +98,10 @@
         public layout(): void {
             this._events.BeforeLayoutRendered.invoke(this, null);
 
-            var rendered = this.getCachedTemplate('layout')(null);
+            var rendered: string = this.getCachedTemplate('layout')(null);
             this.RootElement.innerHTML = rendered;
 
-            var bodyMarker = this.RootElement.querySelector('[data-track="tableBodyHere"]');
+            var bodyMarker: Element = this.RootElement.querySelector('[data-track="tableBodyHere"]');
             if (!bodyMarker) throw new Error('{{Body}} placeholder is missing in table layout template');
             this.BodyElement = bodyMarker.parentElement;
             this.BodyElement.removeChild(bodyMarker);
@@ -111,7 +119,7 @@
         public body(rows: IRow[]): void {
             this._events.BeforeClientRowsRendering.invoke(this, rows);
             this.clearBody();
-            var html = this.ContentRenderer.renderBody(rows);
+            var html: string = this.ContentRenderer.renderBody(rows);
             this.BodyElement.innerHTML = html;
             this._events.AfterDataRendered.invoke(this, null);
         }
@@ -124,11 +132,11 @@
          */
         public redrawPlugin(plugin: IPlugin): void {
             this._stack.clear();
-            var oldPluginElement = this.Locator.getPluginElement(plugin);
-            var parent = oldPluginElement.parentElement;
-            var parser = new PowerTables.Rendering.Html2Dom.HtmlParser();
-            var html = this.LayoutRenderer.renderPlugin(plugin);
-            var newPluginElement = parser.html2Dom(html);
+            var oldPluginElement: HTMLElement = this.Locator.getPluginElement(plugin);
+            var parent: HTMLElement = oldPluginElement.parentElement;
+            var parser: Rendering.Html2Dom.HtmlParser = new Rendering.Html2Dom.HtmlParser();
+            var html: string = this.LayoutRenderer.renderPlugin(plugin);
+            var newPluginElement: HTMLElement = parser.html2Dom(html);
 
             parent.replaceChild(newPluginElement, oldPluginElement);
             this.BackBinder.backBind(newPluginElement);
@@ -143,15 +151,15 @@
         public redrawRow(row: IRow): void {
             this._stack.clear();
             this._stack.push(RenderingContextType.Row, row);
-            var wrapper = this.getCachedTemplate('rowWrapper');
-            var html;
+            var wrapper: (arg: any) => string = this.getCachedTemplate('rowWrapper');
+            var html: string;
             if (row.renderElement) {
                 html = row.renderElement(this);
             } else {
                 html = wrapper(row);
             }
             this._stack.popContext();
-            var oldElement = this.Locator.getRowElement(row);
+            var oldElement: HTMLElement = this.Locator.getRowElement(row);
             this.replaceElement(oldElement, html);
         }
 
@@ -163,15 +171,15 @@
          */
         public appendRow(row: IRow, afterRowAtIndex: number): void {
             this._stack.clear();
-            var wrapper = this.getCachedTemplate('rowWrapper');
-            var html;
+            var wrapper: (arg: any) => string = this.getCachedTemplate('rowWrapper');
+            var html: string;
             if (row.renderElement) {
                 html = row.renderElement(this);
             } else {
                 html = wrapper(row);
             }
-            var referenceNode = this.Locator.getRowElementByIndex(afterRowAtIndex);
-            var newRowElement = this.createElement(html);
+            var referenceNode: HTMLElement = this.Locator.getRowElementByIndex(afterRowAtIndex);
+            var newRowElement: HTMLElement = this.createElement(html);
             referenceNode.parentNode.insertBefore(newRowElement, referenceNode.nextSibling);
         }
 
@@ -182,7 +190,7 @@
          * @returns {} 
          */
         public removeRowByIndex(rowDisplayIndex: number): void {
-            var referenceNode = this.Locator.getRowElementByIndex(rowDisplayIndex);
+            var referenceNode: HTMLElement = this.Locator.getRowElementByIndex(rowDisplayIndex);
             referenceNode.parentElement.removeChild(referenceNode);
         }
 
@@ -193,22 +201,23 @@
          */
         public redrawHeader(column: IColumn): void {
             this._stack.clear();
-            var html = this.LayoutRenderer.renderHeader(column);
-            var oldHeaderElement = this.Locator.getHeaderElement(column.Header);
-            var newElement = this.replaceElement(oldHeaderElement, html);
+            var html: string = this.LayoutRenderer.renderHeader(column);
+            var oldHeaderElement: HTMLElement = this.Locator.getHeaderElement(column.Header);
+            var newElement: HTMLElement = this.replaceElement(oldHeaderElement, html);
             this.BackBinder.backBind(newElement);
         }
 
         private createElement(html: string): HTMLElement {
-            var parser = new PowerTables.Rendering.Html2Dom.HtmlParser();
+            var parser: Rendering.Html2Dom.HtmlParser = new Rendering.Html2Dom.HtmlParser();
             return parser.html2Dom(html);
         }
 
         private replaceElement(element: HTMLElement, html: string): HTMLElement {
-            var node = this.createElement(html);
+            var node: HTMLElement = this.createElement(html);
             element.parentElement.replaceChild(node, element);
             return node;
         }
+
         /**
          * Removes all dynamically loaded content in table
          * 
@@ -220,6 +229,7 @@
                 this.BodyElement.removeChild(this.BodyElement.firstChild);
             }
         }
+
         //#endregion
 
         //#region Helpers
@@ -228,21 +238,21 @@
                 return this._stack.Current.Object.renderContent(this);
             } else {
                 switch (this._stack.Current.Type) {
-                    case RenderingContextType.Header:
-                    case RenderingContextType.Plugin:
-                        return this.LayoutRenderer.renderContent(columnName);
-                    case RenderingContextType.Row:
-                    case RenderingContextType.Cell:
-                        return this.ContentRenderer.renderContent(columnName);
-                    default:
-                        throw new Error("Unknown rendering context type");
+                case RenderingContextType.Header:
+                case RenderingContextType.Plugin:
+                    return this.LayoutRenderer.renderContent(columnName);
+                case RenderingContextType.Row:
+                case RenderingContextType.Cell:
+                    return this.ContentRenderer.renderContent(columnName);
+                default:
+                    throw new Error('Unknown rendering context type');
 
                 }
             }
         }
 
         private trackHelper(): string {
-            var trk = this._stack.Current.CurrentTrack;
+            var trk: string = this._stack.Current.CurrentTrack;
             if (trk.length === 0) return '';
             return `data-track="${trk}"`;
         }
@@ -256,13 +266,14 @@
 
         private iflocHelper(location: string, opts: any) {
             if (this._stack.Current.Type === RenderingContextType.Plugin) {
-                var loc = (<IPlugin>this._stack.Current.Object).PluginLocation;
+                var loc: string = (<IPlugin>this._stack.Current.Object).PluginLocation;
                 if (loc.length < location.length) return opts.inverse(this);
                 if (loc.length === location.length && loc === location) return opts.fn(this);
                 if (loc.substring(0, location.length) === location) return opts.fn(this);
             }
             return opts.inverse(this);
         }
-        //#endregion
+
+//#endregion
     }
-} 
+}

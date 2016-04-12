@@ -1,11 +1,11 @@
 ﻿module PowerTables.Plugins.Ordering {
-    import TemplateBoundEvent = PowerTables.Rendering.ITemplateBoundEvent;
+    import TemplateBoundEvent = Rendering.ITemplateBoundEvent;
 
     export class OrderingPlugin extends FilterBase<IOrderingConfiguration> {
         private _clientOrderings: { [key: string]: PowerTables.Ordering } = {};
         private _serverOrderings: { [key: string]: PowerTables.Ordering } = {};
 
-        subscribe(e: EventsManager): void {
+        public subscribe(e: EventsManager): void {
             e.ColumnsCreation.subscribe(v => {
                 this.overrideHeadersTemplates(v.EventArgs);
             }, 'ordering');
@@ -92,10 +92,10 @@
             })(fieldName);
         }
 
-        init(masterTable: IMasterTable): void {
+        public init(masterTable: IMasterTable): void {
             super.init(masterTable);
             var hasClientOrderings = false;
-            var fn;
+            var fn: (a: any, b: any) => any;
             for (var cls in this.Configuration.ClientSortableColumns) {
                 if (this.Configuration.ClientSortableColumns.hasOwnProperty(cls)) {
                     hasClientOrderings = true;
@@ -129,7 +129,7 @@
             }
         }
 
-        modifyQuery(query: IQuery, scope: QueryScope): void {
+        public modifyQuery(query: IQuery, scope: QueryScope): void {
             this.mixinOrderings(this._serverOrderings, query);
             if (scope === QueryScope.Client || scope === QueryScope.Transboundary) {
                this.mixinOrderings(this._clientOrderings,query);
@@ -144,5 +144,6 @@
         IsDescending?: boolean;
         IsClientOrdering: boolean;
     }
+
     ComponentsContainer.registerComponent('Ordering', OrderingPlugin);
 } 

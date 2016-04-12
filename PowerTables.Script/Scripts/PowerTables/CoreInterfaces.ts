@@ -1,14 +1,14 @@
 ﻿module PowerTables {
 
-    import PluginConfiguration = PowerTables.Configuration.Json.IPluginConfiguration; 
-    
+    import PluginConfiguration = Configuration.Json.IPluginConfiguration;
+
     /**
      * Client filter interface. 
      * This interface is registerable in the DataHolder as 
      * one of the part of filtering pipeline
      */
     export interface IClientFilter {
-        
+
         /**
          * Predicate function that must return 'true' for 
          * row that is actually suitable to be displayed according to 
@@ -19,24 +19,6 @@
          * @returns True if row is suitable to be shown. False otherwise
          */
         filterPredicate(rowObject: any, query: IQuery): boolean;
-    }
-
-    /**
-     * Interface for modifying of source data set on client side
-     */
-    export interface IClientTruncator {
-        /**
-         * This method should consume source 
-         * data set and produce resulting set. 
-         * Here you can truncate results e.g. apply paging.
-         * 
-         * By technical reasons it can be only one client selector registered on table. 
-         * 
-         * 
-         * @param sourceDataSet Array of data objects received from server
-         * @param query Data query
-         */
-        selectData(sourceDataSet: any[], query: IQuery): any[];
     }
 
     /**
@@ -68,7 +50,6 @@
          */
         init(masterTable: IMasterTable): void;
 
-        
 
     }
 
@@ -151,33 +132,33 @@
          * @param scope Query scope
          * @returns {} 
          */
-        modifyQuery(query: PowerTables.IQuery, scope: QueryScope): void;
+        modifyQuery(query: IQuery, scope: QueryScope): void;
     }
 
     /** Renderable entity */
     export interface IRenderable {
-		/**
+        /**
 		* Renders whole element to string using templates provider
 		*
 		* @param templatesProvider Cached templates provider
 		* @returns String containing HTML code for element
 		*/
-        renderElement?: (templatesProvider: PowerTables.ITemplatesProvider) => string;
-		/**
+        renderElement?: (templatesProvider: ITemplatesProvider) => string;
+        /**
 		* Renders element to HTML string using templates provider
 		*
 		* @param templatesProvider Cached templates provider
 		* @returns String containing HTML code for element
 		*/
-        renderContent?: (templatesProvider: PowerTables.ITemplatesProvider) => string;
+        renderContent?: (templatesProvider: ITemplatesProvider) => string;
     }
 
     /** Cell object */
-    export interface ICell extends PowerTables.IRenderable {
+    export interface ICell extends IRenderable {
         /** Associated row */
-        Row: PowerTables.IRow;
+        Row: IRow;
         /** Associated column */
-        Column: PowerTables.IColumn;
+        Column: IColumn;
         /** Data for this specific cell */
         Data: any;
         /** Whole data object associated with this specific cell */
@@ -187,17 +168,17 @@
     /**
      * Colun header rendering object
      */
-    export interface IColumnHeader extends PowerTables.IRenderable {
+    export interface IColumnHeader extends IRenderable {
         /**
          * Reference to containing column
          */
-        Column: PowerTables.IColumn;
+        Column: IColumn;
     }
 
     /** 
      * Row object
      */
-    export interface IRow extends PowerTables.IRenderable {
+    export interface IRow extends IRenderable {
         /** 
          * Data object for row 
          */
@@ -216,19 +197,19 @@
         /**
          * Cells collection for this particular row
          */
-        Cells: { [key: string]: PowerTables.ICell };
+        Cells: { [key: string]: ICell };
 
         /**
          * Special rows are bein added automatically. 
          * This mark denotes them to avoid confusion
          */
-        IsSpecial?:boolean;
+        IsSpecial?: boolean;
     }
 
     export interface ITemplatesProvider {
         /** Current handlebars.js engine instance */
         HandlebarsInstance: Handlebars.IHandlebars;
-		/**
+        /**
 		* Retrieves cached template handlebars function
 		*
 		* @param templateId Template id
@@ -241,7 +222,7 @@
         /** Raw column name */
         RawName: string;
         /** Column configuration */
-        Configuration: PowerTables.Configuration.Json.IColumnConfiguration;
+        Configuration: Configuration.Json.IColumnConfiguration;
         /** Reference to master table */
         MasterTable: IMasterTable;
         /** Column header */

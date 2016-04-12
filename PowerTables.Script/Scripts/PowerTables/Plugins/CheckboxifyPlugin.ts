@@ -1,7 +1,7 @@
 ﻿module PowerTables.Plugins {
-    import TemplateBoundEvent = PowerTables.Rendering.ITemplateBoundEvent;
-    import CheckboxifyClientConfig = PowerTables.Plugins.Checkboxify.ICheckboxifyClientConfig;
-    import ColumnConfiguration = PowerTables.Configuration.Json.IColumnConfiguration;
+    import TemplateBoundEvent = Rendering.ITemplateBoundEvent;
+    import CheckboxifyClientConfig = Plugins.Checkboxify.ICheckboxifyClientConfig;
+    import ColumnConfiguration = Configuration.Json.IColumnConfiguration;
 
     export class CheckboxifyPlugin extends PluginBase<CheckboxifyClientConfig> implements IQueryPartProvider {
         private _selectedItems: string[] = [];
@@ -18,29 +18,29 @@
             this._selectedItems.splice(0, this._selectedItems.length);
             if (this._allSelected) {
                 if (this.Configuration.SelectAllSelectsClientUndisplayedData) {
-                    for (var i = 0; i < this.MasterTable.DataHolder.StoredData.length; i++) {
+                    for (var i: number = 0; i < this.MasterTable.DataHolder.StoredData.length; i++) {
                         this._selectedItems.push(this.MasterTable.DataHolder.StoredData[i][this._valueColumnName].toString());
                     }
                     this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
                     this.MasterTable.Controller.redrawVisibleData();
                 } else if (this.Configuration.SelectAllSelectsServerUndisplayedData) {
-                    this.MasterTable.Loader.requestServer('checkboxify_all',data => {
+                    this.MasterTable.Loader.requestServer('checkboxify_all', data => {
                         this._selectedItems = data;
                         this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
                         this.MasterTable.Controller.redrawVisibleData();
                     });
                 } else {
-                    for (var j = 0; j < this.MasterTable.DataHolder.DisplayedData.length; j++) {
+                    for (var j: number = 0; j < this.MasterTable.DataHolder.DisplayedData.length; j++) {
                         this._selectedItems.push(this.MasterTable.DataHolder.DisplayedData[j][this._valueColumnName].toString());
                     }
                     this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
                     this.MasterTable.Controller.redrawVisibleData();
                 }
             } else {
-                this.MasterTable.Events.SelectionChanged.invoke(this,this._selectedItems);
+                this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
                 this.MasterTable.Controller.redrawVisibleData();
             }
-            
+
         }
 
         private redrawHeader() {
@@ -84,8 +84,8 @@
 
             this.MasterTable.Renderer.ContentRenderer.cacheColumnRenderingFunction(col, x => {
                 var value = x.DataObject[this._valueColumnName].toString();
-                var selected = this._selectedItems.indexOf(value) > -1;
-                var canCheck = this.canCheck(x.DataObject, x.Row);
+                var selected: boolean = this._selectedItems.indexOf(value) > -1;
+                var canCheck: boolean = this.canCheck(x.DataObject, x.Row);
                 return this.MasterTable.Renderer.getCachedTemplate('checkboxifyCell')({ Value: value, IsChecked: selected, CanCheck: canCheck });
             });
             return col;
@@ -94,14 +94,16 @@
         private canCheck(dataObject: any, row: IRow) {
             return dataObject != null && !row.IsSpecial;
         }
+
         public getSelection(): string[] {
             return this._selectedItems;
         }
+
         public selectByRowIndex(rowIndex: number): void {
-            var displayedLookup = this.MasterTable.DataHolder.localLookupDisplayedData(rowIndex);
+            var displayedLookup: ILocalLookupResult = this.MasterTable.DataHolder.localLookupDisplayedData(rowIndex);
             var v = displayedLookup.DataObject[this._valueColumnName].toString();
-            var idx = this._selectedItems.indexOf(v);
-            var overrideRow = false;
+            var idx: number = this._selectedItems.indexOf(v);
+            var overrideRow: boolean = false;
             if (idx > -1) {
                 this._selectedItems.splice(idx, 1);
                 this._allSelected = false;
@@ -111,13 +113,14 @@
                 this._allSelected = this.MasterTable.DataHolder.DisplayedData.length === this._selectedItems.length;
             }
             this.redrawHeader();
-            var row = this.MasterTable.Controller.produceRow(displayedLookup.DataObject, displayedLookup.DisplayedIndex);
+            var row: IRow = this.MasterTable.Controller.produceRow(displayedLookup.DataObject, displayedLookup.DisplayedIndex);
             if (overrideRow) {
                 row.renderElement = (e) => e.getCachedTemplate('checkboxifyRow')(row);
             }
             this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
             this.MasterTable.Renderer.redrawRow(row);
         }
+
         private afterLayoutRender() {
             this.MasterTable.Controller.subscribeCellEvent({
                 EventId: 'click',
@@ -128,9 +131,10 @@
                 }
             });
         }
+
         private beforeRowsRendering(e: ITableEventArgs<IRow[]>) {
-            for (var i = 0; i < e.EventArgs.length; i++) {
-                var row = e.EventArgs[i];
+            for (var i: number = 0; i < e.EventArgs.length; i++) {
+                var row: IRow = e.EventArgs[i];
                 if (row.IsSpecial) continue;
                 if (this._selectedItems.indexOf(row.DataObject[this._valueColumnName].toString()) > -1) {
                     row.renderElement = (e) => e.getCachedTemplate('checkboxifyRow')(row);
@@ -139,7 +143,7 @@
         }
 
         private enableSelectAll(enabled: boolean) {
-            var prev = this._canSelectAll;
+            var prev: boolean = this._canSelectAll;
             if (!this.Configuration.EnableSelectAll) this._canSelectAll = false;
             else this._canSelectAll = enabled;
             if (prev !== this._canSelectAll) {
@@ -150,7 +154,7 @@
         private onClientReload(e: ITableEventArgs<IClientDataResults>) {
             if (this.Configuration.ResetOnClientReload) {
                 this.selectAll(false);
-            } 
+            }
             if (this.Configuration.SelectAllOnlyIfAllData) {
                 if (e.EventArgs.Displaying.length === e.EventArgs.Source.length) this.enableSelectAll(true);
                 else this.enableSelectAll(false);
@@ -165,26 +169,30 @@
             }
         }
 
-        init(masterTable: IMasterTable): void {
+        public init(masterTable: IMasterTable): void {
             super.init(masterTable);
-            var col = this.createColumn();
+            var col: IColumn = this.createColumn();
             this.MasterTable.InstanceManager.Columns['_checkboxify'] = col;
             this._ourColumn = col;
             this._valueColumnName = this.Configuration.SelectionColumnName;
-            this.MasterTable.Events.AfterLayoutRendered.subscribe(this.afterLayoutRender.bind(this), 'checkboxify');
-            this.MasterTable.Events.BeforeClientRowsRendering.subscribe(this.beforeRowsRendering.bind(this), 'checkboxify');
-            this.MasterTable.Events.AfterClientDataProcessing.subscribe(this.onClientReload.bind(this), 'checkboxify');
-            this.MasterTable.Events.DataReceived.subscribe(this.onServerReload.bind(this), 'checkboxify');
             this._canSelectAll = this.Configuration.EnableSelectAll;
         }
 
-        modifyQuery(query: IQuery, scope: QueryScope): void {
+
+        public modifyQuery(query: IQuery, scope: QueryScope): void {
             query.AdditionalData['Selection'] = this._selectedItems.join('|');
             query.AdditionalData['SelectionColumn'] = this._valueColumnName;
         }
 
-        static registerEvents(e: EventsManager, masterTable: IMasterTable):void {
+        public static registerEvents(e: EventsManager, masterTable: IMasterTable): void {
             e['SelectionChanged'] = new TableEvent(masterTable);
+        }
+
+        public subscribe(e: EventsManager): void {
+            e.AfterLayoutRendered.subscribe(this.afterLayoutRender.bind(this), 'checkboxify');
+            e.BeforeClientRowsRendering.subscribe(this.beforeRowsRendering.bind(this), 'checkboxify');
+            e.AfterClientDataProcessing.subscribe(this.onClientReload.bind(this), 'checkboxify');
+            e.DataReceived.subscribe(this.onServerReload.bind(this), 'checkboxify');
         }
     }
 
@@ -194,5 +202,5 @@
 
     ComponentsContainer.registerComponent('Checkboxify', CheckboxifyPlugin);
 
-    
-} 
+
+}

@@ -40,19 +40,19 @@ module PowerTables.Rendering {
          * @returns {} 
          */
         public push(elementType: RenderingContextType, element: IRenderable, columnName: string = ''): void {
-            var ctx = <IRenderingContext>{
+            var ctx: IRenderingContext = <IRenderingContext>{
                 Type: elementType,
                 Object: element,
                 ColumnName: columnName,
-                CurrentTrack: this.getTrack(elementType,element)
+                CurrentTrack: this.getTrack(elementType, element)
             }
             this._contextStack.push(ctx);
             this.Current = ctx;
         }
 
         private getTrack(elementType: RenderingContextType, element: IRenderable): string {
-            
-            var trk;
+
+            var trk: string;
             switch (elementType) {
             case RenderingContextType.Plugin:
                 trk = TrackHelper.getPluginTrack(<IPlugin>element);
@@ -67,7 +67,7 @@ module PowerTables.Rendering {
                 trk = TrackHelper.getRowTrack(<any>element);
                 break;
             default:
-                throw new Error("Invalid context element type");
+                throw new Error('Invalid context element type');
             }
             return trk;
         }
@@ -95,7 +95,7 @@ module PowerTables.Rendering {
          * Reference to object is being rendered
          */
         Object?: IRenderable;
-        
+
         /**
          * Optional column name - for column-contexted rendering objects
          */
@@ -104,7 +104,7 @@ module PowerTables.Rendering {
         /**
          * Rendering object track attribute
          */
-        CurrentTrack:string;
+        CurrentTrack: string;
     }
 
     /**
@@ -127,6 +127,6 @@ module PowerTables.Rendering {
          * Cell (belonging to row and column) (3)
          */
         Cell
-        
+
     }
-} 
+}

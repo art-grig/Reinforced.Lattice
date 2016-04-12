@@ -8,8 +8,8 @@ module PowerTables {
          * Returns string track ID for cell
          */
         public static getCellTrack(cell: ICell): string {
-            var colIdx = cell.Column.MasterTable.InstanceManager.getUiColumnNames().indexOf(cell.Column.RawName);
-            var rowIdx = cell.Row.Index;
+            var colIdx: number = cell.Column.MasterTable.InstanceManager.getUiColumnNames().indexOf(cell.Column.RawName);
+            var rowIdx: number = cell.Row.Index;
             return TrackHelper.getCellTrackByIndexes(rowIdx, colIdx);
         }
 
@@ -71,7 +71,7 @@ module PowerTables {
         public static getCellLocation(e: HTMLElement): ICellLocation {
             if (!e) return null;
             if (!e.getAttribute) return null;
-            var trk = e.getAttribute('data-track').substring(3).split('-c');
+            var trk: string[] = e.getAttribute('data-track').substring(3).split('-c');
             return {
                 RowIndex: parseInt(trk[0]),
                 ColumnIndex: parseInt(trk[1])
@@ -87,7 +87,7 @@ module PowerTables {
         public static getRowIndex(e: HTMLElement): number {
             if (!e) return null;
             if (!e.getAttribute) return null;
-            var trk = e.getAttribute('data-track').substring(1);
+            var trk: string = e.getAttribute('data-track').substring(1);
             return parseInt(trk);
         }
 

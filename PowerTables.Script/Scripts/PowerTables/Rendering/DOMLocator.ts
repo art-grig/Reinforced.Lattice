@@ -1,5 +1,5 @@
 ﻿module PowerTables.Rendering {
-    
+
     /**
      * This module allows you to locate particular elements in table's DOM
      */
@@ -13,7 +13,7 @@
         private _bodyElement: HTMLElement;
         private _rootElement: HTMLElement;
         private _rootIdPrefix: string;
-        
+
         /**
          * Retrieves cell element by cell object
          * 
@@ -21,7 +21,7 @@
          * @returns {HTMLElement} Element containing cell (with wrapper)
          */
         public getCellElement(cell: ICell): HTMLElement {
-            var track = TrackHelper.getCellTrack(cell);
+            var track: string = TrackHelper.getCellTrack(cell);
             return <HTMLElement>this._bodyElement.querySelector(`${this._rootIdPrefix} [data-track="${track}"]`);
         }
 
@@ -31,8 +31,8 @@
          * @param cell Cell element
          * @returns {HTMLElement} Element containing cell (with wrapper)
          */
-        public getCellElementByIndex(rowDisplayIndex:number,columnIndex:number): HTMLElement {
-            var track = TrackHelper.getCellTrackByIndexes(rowDisplayIndex,columnIndex);
+        public getCellElementByIndex(rowDisplayIndex: number, columnIndex: number): HTMLElement {
+            var track: string = TrackHelper.getCellTrackByIndexes(rowDisplayIndex, columnIndex);
             return <HTMLElement>this._bodyElement.querySelector(`${this._rootIdPrefix} [data-track="${track}"]`);
         }
 
@@ -43,7 +43,7 @@
          * @returns HTML element
          */
         public getRowElement(row: IRow): HTMLElement {
-            var track = TrackHelper.getRowTrack(row);
+            var track: string = TrackHelper.getRowTrack(row);
             return <HTMLElement>this._bodyElement.querySelector(`${this._rootIdPrefix} [data-track="${track}"]`);
         }
 
@@ -53,8 +53,8 @@
         * @param row Row
         * @returns HTML element
         */
-        public getRowElementByIndex(rowDisplayingIndex:number): HTMLElement {
-            var track = TrackHelper.getRowTrackByIndex(rowDisplayingIndex);
+        public getRowElementByIndex(rowDisplayingIndex: number): HTMLElement {
+            var track: string = TrackHelper.getRowTrackByIndex(rowDisplayingIndex);
             return <HTMLElement>this._bodyElement.querySelector(`${this._rootIdPrefix} [data-track="${track}"]`);
         }
 
@@ -65,7 +65,7 @@
          * @returns HTML NodeList containing results
          */
         public getColumnCellsElements(column: IColumn): NodeList {
-            var colIdx = column.MasterTable.InstanceManager.getUiColumnNames().indexOf(column.RawName);
+            var colIdx: number = column.MasterTable.InstanceManager.getUiColumnNames().indexOf(column.RawName);
             return this._bodyElement.querySelectorAll(`${this._rootIdPrefix} [data-track$="-c${colIdx}"]`);
         }
 
@@ -75,7 +75,7 @@
          * @param column Column desired data cells belongs to
          * @returns HTML NodeList containing results
          */
-        public getColumnCellsElementsByColumnIndex(columnIndex:number): NodeList {
+        public getColumnCellsElementsByColumnIndex(columnIndex: number): NodeList {
             return this._bodyElement.querySelectorAll(`${this._rootIdPrefix} [data-track$="-c${columnIndex}"]`);
         }
 
@@ -106,7 +106,7 @@
          * @returns HTML element 
          */
         public getHeaderElement(header: IColumnHeader): HTMLElement {
-            var track = TrackHelper.getHeaderTrack(header);
+            var track: string = TrackHelper.getHeaderTrack(header);
             return <HTMLElement>this._rootElement.querySelector(`${this._rootIdPrefix} [data-track="${track}"]`);
         }
 
@@ -117,7 +117,7 @@
          * @returns HTML element 
          */
         public getPluginElement(plugin: IPlugin): HTMLElement {
-            var track = TrackHelper.getPluginTrack(plugin);
+            var track: string = TrackHelper.getPluginTrack(plugin);
             return <HTMLElement>this._rootElement.querySelector(`${this._rootIdPrefix} [data-track="${track}"]`);
         }
 
@@ -127,8 +127,8 @@
          * @param plugin Plugin
          * @returns HTML element 
          */
-        public getPluginElementsByPositionPart(placement:string): NodeList {
-            var track = TrackHelper.getPluginTrackByLocation(placement);
+        public getPluginElementsByPositionPart(placement: string): NodeList {
+            var track: string = TrackHelper.getPluginTrackByLocation(placement);
             return this._rootElement.querySelectorAll(`${this._rootIdPrefix} [data-track^="${track}"]`);
         }
 
@@ -141,7 +141,7 @@
         public isRow(e: HTMLElement): boolean {
             if (!e) return false;
             if (!e.getAttribute) return false;
-            var trk = e.getAttribute('data-track');
+            var trk: string = e.getAttribute('data-track');
             if (!trk) return false;
             return (trk.charAt(0) === 'r') && (trk.charAt(1) === '-');
         }
@@ -155,7 +155,7 @@
         public isCell(e: HTMLElement): boolean {
             if (!e) return false;
             if (!e.getAttribute) return false;
-            var trk = e.getAttribute('data-track');
+            var trk: string = e.getAttribute('data-track');
             if (!trk) return false;
             return (trk.charAt(0) === 'c')
                 && (trk.charAt(1) === '-')
@@ -163,4 +163,4 @@
         }
 
     }
-} 
+}

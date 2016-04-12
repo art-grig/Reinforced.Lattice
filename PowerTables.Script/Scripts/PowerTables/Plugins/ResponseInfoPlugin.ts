@@ -1,16 +1,16 @@
 ﻿module PowerTables.Plugins {
-    import ResponseInfoClientConfiguration = PowerTables.Plugins.ResponseInfo.IResponseInfoClientConfiguration;
+    import ResponseInfoClientConfiguration = Plugins.ResponseInfo.IResponseInfoClientConfiguration;
 
     export class ResponseInfoPlugin extends PluginBase<ResponseInfoClientConfiguration> {
         private _recentData: any;
-        private _recentServerData;
+        private _recentServerData: any;
         private _recentTemplate: HandlebarsTemplateDelegate;
         private _pagingEnabled: boolean;
         private _pagingPlugin: IPagingPlugin;
         private _isServerRequest: boolean;
         private _isReadyForRendering: boolean = false;
 
-        onResponse(e: ITableEventArgs<IDataEventArgs>) {
+        public onResponse(e: ITableEventArgs<IDataEventArgs>) {
             this._isServerRequest = true;
             if (this.Configuration.ResponseObjectOverriden) {
                 this._recentData = e.EventArgs.Data.AdditionalData['ResponseInfo'];
@@ -25,7 +25,8 @@
                 };
             }
         }
-        onClientDataProcessed(e:ITableEventArgs<IClientDataResults>) {
+
+        public onClientDataProcessed(e: ITableEventArgs<IClientDataResults>) {
             if (this.Configuration.ResponseObjectOverriden) return;
 
             if (!this.Configuration.ClientEvaluationFunction) {
@@ -42,13 +43,14 @@
                     e.EventArgs,
                     (!this._pagingPlugin) ? 0 : (this._pagingPlugin.getCurrentPage()),
                     (!this._pagingPlugin) ? 0 : (this._pagingPlugin.getTotalPages())
-                    );
+                );
             }
             this._isServerRequest = false;
             this._isReadyForRendering = true;
             this.MasterTable.Renderer.redrawPlugin(this);
         }
-        renderContent(templatesProvider: ITemplatesProvider): string {
+
+        public renderContent(templatesProvider: ITemplatesProvider): string {
             if (!this._isReadyForRendering) return '';
             if (this.Configuration.ClientTemplateFunction) {
                 return this.Configuration.ClientTemplateFunction(this._recentData);
@@ -57,7 +59,7 @@
             }
         }
 
-        init(masterTable: IMasterTable): void {
+        public init(masterTable: IMasterTable): void {
             super.init(masterTable);
             if (this.Configuration.TemplateText && this.Configuration.TemplateText.length > 0) {
                 this._recentTemplate = this.MasterTable.Renderer.HandlebarsInstance.compile(this.Configuration.TemplateText);
@@ -69,10 +71,12 @@
             try {
                 this._pagingPlugin = <IPagingPlugin>this.MasterTable.InstanceManager.getPlugin('Paging');
                 this._pagingEnabled = true;
-            } catch (v) { this._pagingEnabled = false }
+            } catch (v) {
+                this._pagingEnabled = false;
+            }
 
         }
     }
+
     ComponentsContainer.registerComponent('ResponseInfo', ResponseInfoPlugin);
 }
- 

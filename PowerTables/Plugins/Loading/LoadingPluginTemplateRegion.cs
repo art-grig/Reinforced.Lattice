@@ -16,8 +16,6 @@ namespace PowerTables.Plugins.Loading
         {
         }
 
-        private static readonly MvcHtmlString elementMarker = MvcHtmlString.Create("data-blink");
-
         /// <summary>
         /// Inidicates element that will be hidden when no loading and 
         /// element that will be shown when loading in progress
@@ -25,7 +23,7 @@ namespace PowerTables.Plugins.Loading
         /// <returns></returns>
         public MvcHtmlString ThisElementWillBlink()
         {
-            return elementMarker;
+            return this.Mark("BlinkElement");
         }
     }
 

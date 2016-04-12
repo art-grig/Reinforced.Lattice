@@ -1,5 +1,5 @@
 ﻿module PowerTables.Plugins {
-    import RangeFilterUiConfig = PowerTables.Filters.Range.IRangeFilterUiConfig;
+    import RangeFilterUiConfig = Filters.Range.IRangeFilterUiConfig;
 
     export class RangeFilterPlugin extends FilterBase<RangeFilterUiConfig> {
         private _filteringIsBeingExecuted: boolean = false;
@@ -11,7 +11,7 @@
         public FromValueProvider: HTMLInputElement;
         public ToValueProvider: HTMLInputElement;
 
-        private getFromValue() :string {
+        private getFromValue(): string {
             return this.FromValueProvider.value;
         }
 
@@ -40,18 +40,19 @@
                 this._filteringIsBeingExecuted = false;
             }
         }
-        getFilterArgument(): string {
-            var args = [];
-            var frm = this.getFromValue();
-            var to = this.getToValue();
+
+        public getFilterArgument(): string {
+            var args: any[] = [];
+            var frm: string = this.getFromValue();
+            var to: string = this.getToValue();
             args.push(frm);
             args.push(to);
-            var result = args.join('|');
+            var result: string = args.join('|');
             return result;
         }
 
-        modifyQuery(query: IQuery, scope: QueryScope): void {
-            var val = this.getFilterArgument();
+        public modifyQuery(query: IQuery, scope: QueryScope): void {
+            var val: string = this.getFilterArgument();
             if (!val || val.length === 0) return;
             if (this.Configuration.ClientFiltering && scope === QueryScope.Client || scope === QueryScope.Transboundary) {
                 query.Filterings[this._associatedColumn.RawName] = val;
@@ -61,7 +62,7 @@
             }
         }
 
-        init(masterTable: IMasterTable): void {
+        public init(masterTable: IMasterTable): void {
             super.init(masterTable);
             if (this.Configuration.ClientFiltering) {
                 this.itIsClientFilter();
@@ -69,31 +70,31 @@
             this._associatedColumn = this.MasterTable.InstanceManager.Columns[this.Configuration.ColumnName];
         }
 
-        renderContent(templatesProvider: ITemplatesProvider): string {
+        public renderContent(templatesProvider: ITemplatesProvider): string {
             return templatesProvider.getCachedTemplate('rangeFilter')(this);
         }
 
-        filterPredicate(rowObject, query: IQuery): boolean {
-            var fval = query.Filterings[this._associatedColumn.RawName];
+        public filterPredicate(rowObject: any, query: IQuery): boolean {
+            var fval: string = query.Filterings[this._associatedColumn.RawName];
             if (!fval) return true;
-            var args = fval.split('|');
-            var fromValue = args[0];
-            var toValue = args[1];
-            
+            var args: string[] = fval.split('|');
+            var fromValue: string = args[0];
+            var toValue: string = args[1];
+
             if (this.Configuration.ClientFilteringFunction) {
-                return this.Configuration.ClientFilteringFunction(rowObject,fromValue,toValue, query);
+                return this.Configuration.ClientFilteringFunction(rowObject, fromValue, toValue, query);
             }
 
-            var frmEmpty = fromValue.trim().length === 0;
-            var toEmpty = toValue.trim().length === 0;
+            var frmEmpty: boolean = fromValue.trim().length === 0;
+            var toEmpty: boolean = toValue.trim().length === 0;
             if (frmEmpty && toEmpty) return true;
 
             if (!query.Filterings.hasOwnProperty(this._associatedColumn.RawName)) return true;
-            
+
             var objVal = rowObject[this._associatedColumn.RawName];
             if (objVal == null) return false;
 
-            
+
             if (this._associatedColumn.IsString) {
                 var str = objVal.toString();
                 return ((frmEmpty) || str.localeCompare(fromValue) >= 0) && ((toEmpty) || str.localeCompare(toValue) <= 0);
@@ -110,5 +111,6 @@
             return true;
         }
     }
+
     ComponentsContainer.registerComponent('RangeFilter', RangeFilterPlugin);
-} 
+}

@@ -73,12 +73,12 @@
         * Parses response from server and turns it to objects array
         */
         public storeResponse(response: IPowerTablesResponse, clientQuery: IQuery) {
-            var data = [];
-            var obj = {};
-            var currentColIndex = 0;
-            var currentCol = this._rawColumnNames[currentColIndex];
+            var data: any[] = [];
+            var obj: {} = {};
+            var currentColIndex: number = 0;
+            var currentCol: string = this._rawColumnNames[currentColIndex];
 
-            for (var i = 0; i < response.Data.length; i++) {
+            for (var i: number = 0; i < response.Data.length; i++) {
                 if (this._instances.Columns[currentCol].IsDateTime) {
                     if (response.Data[i]) {
                         obj[currentCol] = Date.parse(response.Data[i]);
@@ -113,13 +113,13 @@
          * @returns {Array} Array of filtered items
          */
         public filterSet(objects: any[], query: IQuery): any[] {
-            var result = [];
+            var result: any[] = [];
             if (this._filters.length !== 0) {
-                for (var i = 0; i < objects.length; i++) {
+                for (var i: number = 0; i < objects.length; i++) {
                     var obj = objects[i];
                     var acceptable: boolean = true;
-                    for (var j = 0; j < this._filters.length; j++) {
-                        var filter = this._filters[j];
+                    for (var j: number = 0; j < this._filters.length; j++) {
+                        var filter: IClientFilter = this._filters[j];
                         acceptable = filter.filterPredicate(obj, query);
                         if (!acceptable) break;
                     }
@@ -140,18 +140,18 @@
         */
         public orderSet(objects: any[], query: IQuery): any[] {
             if (query.Orderings) {
-                var sortFn = '';
-                var comparersArg = '';
-                var orderFns = [];
+                var sortFn: string = '';
+                var comparersArg: string = '';
+                var orderFns: any[] = [];
 
 
-                for (var i = 0; i < this._rawColumnNames.length; i++) {
-                    var orderingKey = this._rawColumnNames[i];
+                for (var i: number = 0; i < this._rawColumnNames.length; i++) {
+                    var orderingKey: string = this._rawColumnNames[i];
                     if (query.Orderings.hasOwnProperty(orderingKey)) {
-                        var orderingDirection = query.Orderings[orderingKey];
+                        var orderingDirection: Ordering = query.Orderings[orderingKey];
                         if (orderingDirection === Ordering.Neutral) continue;
                         if (!this._comparators[orderingKey]) continue;
-                        var negate = orderingDirection === Ordering.Descending;
+                        var negate: boolean = orderingDirection === Ordering.Descending;
 
                         sortFn += `cc=f${orderFns.length}(a,b); `;
                         comparersArg += `f${orderFns.length},`;
@@ -164,11 +164,12 @@
 
                 sortFn = `(function(${comparersArg}){ return (function (a,b) { var cc = 0; ${sortFn} return 0; }); })`;
                 var sortFunction = eval(sortFn).apply(null, orderFns);
-                var ordered = objects.sort(sortFunction);
+                var ordered: any[] = objects.sort(sortFunction);
                 return ordered;
             }
             return objects;
         }
+
         private _previouslyFiltered: any[];
         private _previouslyOrdered: any[];
 
@@ -188,14 +189,14 @@
             this.RecentClientQuery = query;
 
             if (this.isClientFiltrationPending() && (!(!query))) {
-                var copy = this.StoredData.slice();
-                var filtered = this.filterSet(copy, query);
-                var ordered = this.orderSet(filtered, query);
-                var selected = ordered;
+                var copy: any[] = this.StoredData.slice();
+                var filtered: any[] = this.filterSet(copy, query);
+                var ordered: any[] = this.orderSet(filtered, query);
+                var selected: any[] = ordered;
 
-                var startingIndex = query.Paging.PageIndex * query.Paging.PageSize;
+                var startingIndex: number = query.Paging.PageIndex * query.Paging.PageSize;
                 if (startingIndex > filtered.length) startingIndex = 0;
-                var take = query.Paging.PageSize;
+                var take: number = query.Paging.PageSize;
                 if (this.EnableClientSkip && this.EnableClientTake) {
                     if (take === 0) selected = ordered.slice(startingIndex);
                     else selected = ordered.slice(startingIndex, startingIndex + take);
@@ -239,7 +240,7 @@
          */
         public localLookup(predicate: (object: any) => boolean): ILocalLookupResult[] {
             var result: ILocalLookupResult[] = [];
-            for (var i = 0; i < this.StoredData.length; i++) {
+            for (var i: number = 0; i < this.StoredData.length; i++) {
                 if (predicate(this.StoredData[i])) {
                     result.push({
                         DataObject: this.StoredData[i],
@@ -250,8 +251,8 @@
                 }
             }
 
-            for (var j = 0; j < result.length; j++) {
-                var idx = this.DisplayedData.indexOf(result[j].DataObject);
+            for (var j: number = 0; j < result.length; j++) {
+                var idx: number = this.DisplayedData.indexOf(result[j].DataObject);
                 if (idx >= 0) {
                     result[j].IsCurrentlyDisplaying = true;
                     result[j].DisplayedIndex = idx;
@@ -268,7 +269,7 @@
          * @returns ILocalLookupResult
          */
         public localLookupDisplayedDataObject(dataObject: any): ILocalLookupResult {
-            var index = this.DisplayedData.indexOf(dataObject);
+            var index: number = this.DisplayedData.indexOf(dataObject);
             if (index < 0) return null;
             var result: ILocalLookupResult = {
                 DataObject: dataObject,
@@ -288,7 +289,7 @@
          * @returns ILocalLookupResult
          */
         public localLookupStoredDataObject(dataObject: any): ILocalLookupResult {
-            var index = this.StoredData.indexOf(dataObject);
+            var index: number = this.StoredData.indexOf(dataObject);
             if (index < 0) return null;
             var result: ILocalLookupResult = {
                 DataObject: dataObject,
@@ -349,7 +350,7 @@
          * Data object reference itself
          */
         DataObject: any;
-        
+
         /**
          * Is data object currently displaying or not
          */
@@ -365,4 +366,4 @@
          */
         DisplayedIndex: number;
     }
-} 
+}
