@@ -12,7 +12,7 @@
             el =>
                 el.Tag("button")
                     .Class("btn btn-sm")
-                    .Inside(icon => icon.Tag("span").Class("glyphicon glyphicon-time").Inside("`{GroupName} + '%'`"))
+                    .Content(icon => icon.Tag("span").Class("glyphicon glyphicon-time").Content("`{GroupName} + '%'`"))
                     .OnClick("alert('{GroupName}');"));
     });
 }
