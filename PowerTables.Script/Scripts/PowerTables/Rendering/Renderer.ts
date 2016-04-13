@@ -4,7 +4,7 @@
      * Enity responsible for displaying table
      */
     export class Renderer implements ITemplatesProvider {
-        constructor(rootId: string, prefix: string, instances: InstanceManager, events: EventsManager,dateService:DateService) {
+        constructor(rootId: string, prefix: string, instances: InstanceManager, events: EventsManager, dateService: DateService) {
             this._instances = instances;
             this._stack = new RenderingStack();
             this.RootElement = document.getElementById(rootId);
@@ -16,6 +16,7 @@
             this.LayoutRenderer = new LayoutRenderer(this, this._stack, this._instances);
             this.ContentRenderer = new ContentRenderer(this, this._stack, this._instances);
             this.BackBinder = new BackBinder(this.HandlebarsInstance, instances, this._stack, dateService);
+            this.Modifier = new DOMModifier(this._stack, this.Locator, this.BackBinder, this, this.LayoutRenderer,instances);
 
             this.HandlebarsInstance.registerHelper('ifq', this.ifqHelper);
             this.HandlebarsInstance.registerHelper('ifloc', this.iflocHelper.bind(this));
@@ -59,6 +60,11 @@
          * Entity that is responsible for content rendering
          */
         public ContentRenderer: ContentRenderer;
+
+        /**
+         * Entity that is responsible for existing DOM modifications
+         */
+        public Modifier: DOMModifier;
 
         private _instances: InstanceManager;
         private _stack: RenderingStack;
@@ -125,100 +131,6 @@
         }
 
         /**
-         * Redraws specified plugin refreshing all its graphical state 
-         * 
-         * @param plugin Plugin to redraw
-         * @returns {} 
-         */
-        public redrawPlugin(plugin: IPlugin): void {
-            this._stack.clear();
-            var oldPluginElement: HTMLElement = this.Locator.getPluginElement(plugin);
-            var parent: HTMLElement = oldPluginElement.parentElement;
-            var parser: Rendering.Html2Dom.HtmlParser = new Rendering.Html2Dom.HtmlParser();
-            var html: string = this.LayoutRenderer.renderPlugin(plugin);
-            var newPluginElement: HTMLElement = parser.html2Dom(html);
-
-            parent.replaceChild(newPluginElement, oldPluginElement);
-            this.BackBinder.backBind(newPluginElement);
-        }
-
-        /**
-         * Redraws specified row refreshing all its graphical state
-         * 
-         * @param row 
-         * @returns {} 
-         */
-        public redrawRow(row: IRow): void {
-            this._stack.clear();
-            this._stack.push(RenderingContextType.Row, row);
-            var wrapper: (arg: any) => string = this.getCachedTemplate('rowWrapper');
-            var html: string;
-            if (row.renderElement) {
-                html = row.renderElement(this);
-            } else {
-                html = wrapper(row);
-            }
-            this._stack.popContext();
-            var oldElement: HTMLElement = this.Locator.getRowElement(row);
-            this.replaceElement(oldElement, html);
-        }
-
-        /**
-         * Redraws specified row refreshing all its graphical state
-         * 
-         * @param row 
-         * @returns {} 
-         */
-        public appendRow(row: IRow, afterRowAtIndex: number): void {
-            this._stack.clear();
-            var wrapper: (arg: any) => string = this.getCachedTemplate('rowWrapper');
-            var html: string;
-            if (row.renderElement) {
-                html = row.renderElement(this);
-            } else {
-                html = wrapper(row);
-            }
-            var referenceNode: HTMLElement = this.Locator.getRowElementByIndex(afterRowAtIndex);
-            var newRowElement: HTMLElement = this.createElement(html);
-            referenceNode.parentNode.insertBefore(newRowElement, referenceNode.nextSibling);
-        }
-
-        /**
-         * Removes referenced row by its index
-         * 
-         * @param rowDisplayIndex 
-         * @returns {} 
-         */
-        public removeRowByIndex(rowDisplayIndex: number): void {
-            var referenceNode: HTMLElement = this.Locator.getRowElementByIndex(rowDisplayIndex);
-            referenceNode.parentElement.removeChild(referenceNode);
-        }
-
-        /**
-         * Redraws header for specified column
-         * 
-         * @param column Column which header is to be redrawn         
-         */
-        public redrawHeader(column: IColumn): void {
-            this._stack.clear();
-            var html: string = this.LayoutRenderer.renderHeader(column);
-            var oldHeaderElement: HTMLElement = this.Locator.getHeaderElement(column.Header);
-            var newElement: HTMLElement = this.replaceElement(oldHeaderElement, html);
-            this.BackBinder.backBind(newElement);
-        }
-
-        private createElement(html: string): HTMLElement {
-            var parser: Rendering.Html2Dom.HtmlParser = new Rendering.Html2Dom.HtmlParser();
-            return parser.html2Dom(html);
-        }
-
-        private replaceElement(element: HTMLElement, html: string): HTMLElement {
-            var node: HTMLElement = this.createElement(html);
-            element.parentElement.replaceChild(node, element);
-            return node;
-        }
-
-        /**
          * Removes all dynamically loaded content in table
          * 
          * @returns {} 
@@ -238,14 +150,14 @@
                 return this._stack.Current.Object.renderContent(this);
             } else {
                 switch (this._stack.Current.Type) {
-                case RenderingContextType.Header:
-                case RenderingContextType.Plugin:
-                    return this.LayoutRenderer.renderContent(columnName);
-                case RenderingContextType.Row:
-                case RenderingContextType.Cell:
-                    return this.ContentRenderer.renderContent(columnName);
-                default:
-                    throw new Error('Unknown rendering context type');
+                    case RenderingContextType.Header:
+                    case RenderingContextType.Plugin:
+                        return this.LayoutRenderer.renderContent(columnName);
+                    case RenderingContextType.Row:
+                    case RenderingContextType.Cell:
+                        return this.ContentRenderer.renderContent(columnName);
+                    default:
+                        throw new Error('Unknown rendering context type');
 
                 }
             }
@@ -274,6 +186,6 @@
             return opts.inverse(this);
         }
 
-//#endregion
+        //#endregion
     }
 }

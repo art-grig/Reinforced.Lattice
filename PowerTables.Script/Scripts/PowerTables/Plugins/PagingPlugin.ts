@@ -56,7 +56,7 @@
                 tp = parseInt(<any>tp) + 1;
             }
             this._totalPages = tp;
-            this.MasterTable.Renderer.redrawPlugin(this);
+            this.MasterTable.Renderer.Modifier.redrawPlugin(this);
         }
 
         private onClientDataProcessing(e: ITableEventArgs<IClientDataResults>) {
@@ -68,7 +68,7 @@
                 this._selectedPage = 0;
             }
             this._totalPages = tp;
-            this.MasterTable.Renderer.redrawPlugin(this);
+            this.MasterTable.Renderer.Modifier.redrawPlugin(this);
         }
 
         public goToPage(page: string) {

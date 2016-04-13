@@ -15,7 +15,7 @@
             if (this.Configuration.ResponseObjectOverriden) {
                 this._recentData = e.EventArgs.Data.AdditionalData['ResponseInfo'];
                 this._isReadyForRendering = true;
-                this.MasterTable.Renderer.redrawPlugin(this);
+                this.MasterTable.Renderer.Modifier.redrawPlugin(this);
             } else {
                 this._recentServerData = {
                     TotalCount: e.EventArgs.Data.ResultsCount,
@@ -47,7 +47,7 @@
             }
             this._isServerRequest = false;
             this._isReadyForRendering = true;
-            this.MasterTable.Renderer.redrawPlugin(this);
+            this.MasterTable.Renderer.Modifier.redrawPlugin(this);
         }
 
         public renderContent(templatesProvider: ITemplatesProvider): string {

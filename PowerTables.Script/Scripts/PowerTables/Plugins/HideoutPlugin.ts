@@ -47,61 +47,7 @@
         //#endregion
 
         //#region Correct showing/hiding
-        private getRealDisplay(elem): string {
-            if (elem.currentStyle) return elem.currentStyle.display;
-            else if (window.getComputedStyle) {
-                var computedStyle = window.getComputedStyle(elem, null);
-                return computedStyle.getPropertyValue('display');
-            }
-            return '';
-        }
-
-        private displayCache = {}
-
-        private _hideElement(el: HTMLElement) {
-            if (!el) return;
-            if (!el.getAttribute('displayOld')) el.setAttribute("displayOld", el.style.display);
-            el.style.display = "none";
-        }
-
-        private _showElement(el: HTMLElement) {
-            if (!el) return;
-            if (this.getRealDisplay(el) !== 'none') return;
-
-            var old = el.getAttribute("displayOld");
-            el.style.display = old || "";
-
-            if (this.getRealDisplay(el) === "none") {
-                var nodeName = el.nodeName, body = document.body, display;
-
-                if (this.displayCache[nodeName]) display = this.displayCache[nodeName];
-                else {
-                    var testElem = document.createElement(nodeName);
-                    body.appendChild(testElem);
-                    display = this.getRealDisplay(testElem);
-                    if (display === "none") display = "block";
-                    body.removeChild(testElem);
-                    this.displayCache[nodeName] = display;
-                }
-
-                el.setAttribute('displayOld', display);
-                el.style.display = display;
-            }
-        }
-
-        private _hideElements(element: NodeList) {
-            if (!element) return;
-            for (var i = 0; i < element.length; i++) {
-                this._hideElement(<HTMLElement>element.item(i));
-            }
-        }
-
-        private _showElements(element: NodeList) {
-            if (!element) return;
-            for (var i = 0; i < element.length; i++) {
-                this._showElement(<HTMLElement>element.item(i));
-            }
-        }
+        
         //#endregion
 
         public toggleColumnByName(columnName: string): boolean {
@@ -135,13 +81,13 @@
             this._columnStates[c.RawName].DoesNotExists = false;
 
 
-            this._hideElement(this.MasterTable.Renderer.Locator.getHeaderElement(c.Header));
-            this._hideElements(this.MasterTable.Renderer.Locator.getPluginElementsByPositionPart(`filter-${c.RawName}`));
-            if (this._isInitializing) return;
-            this._hideElements(this.MasterTable.Renderer.Locator.getColumnCellsElements(c));
+            this.MasterTable.Renderer.Modifier.hideHeader(c);
+            this.MasterTable.Renderer.Modifier.hidePluginsByPosition(`filter-${c.RawName}`);
 
+            if (this._isInitializing) return;
+            this.MasterTable.Renderer.Modifier.hideCellsByColumn(c);
             if (this.Configuration.ColumnInitiatingReload.indexOf(c.RawName) > -1) this.MasterTable.Controller.reload();
-            this.MasterTable.Renderer.redrawPlugin(this);
+            this.MasterTable.Renderer.Modifier.redrawPlugin(this);
         }
 
         public showColumnInstance(c: IColumn) {
@@ -150,9 +96,9 @@
             var wasNotExist = this._columnStates[c.RawName].DoesNotExists;
             this._columnStates[c.RawName].DoesNotExists = false;
 
-            this._showElement(this.MasterTable.Renderer.Locator.getHeaderElement(c.Header));
-            this._showElements(this.MasterTable.Renderer.Locator.getPluginElementsByPositionPart(`filter-${c.RawName}`));
-
+            this.MasterTable.Renderer.Modifier.showHeader(c);
+            this.MasterTable.Renderer.Modifier.showPluginsByPosition(`filter-${c.RawName}`);
+            
             if (this._isInitializing) return;
 
             if (wasNotExist) {
@@ -162,12 +108,12 @@
                     this.MasterTable.Controller.redrawVisibleData();;
                 }
             } else {
-                this._showElements(this.MasterTable.Renderer.Locator.getColumnCellsElements(c));
+                this.MasterTable.Renderer.Modifier.showCellsByColumn(c);
                 if (this.Configuration.ColumnInitiatingReload.indexOf(c.RawName) > -1) {
                     this.MasterTable.Controller.reload();
                 }
             }
-            this.MasterTable.Renderer.redrawPlugin(this);
+            this.MasterTable.Renderer.Modifier.redrawPlugin(this);
         }
 
         private onBeforeDataRendered() {
@@ -185,7 +131,7 @@
             for (var i = 0; i < this.ColumnStates.length; i++) {
                 if (!this.ColumnStates[i].Visible) this.ColumnStates[i].DoesNotExists = true;
             }
-            this.MasterTable.Renderer.redrawPlugin(this);
+            this.MasterTable.Renderer.Modifier.redrawPlugin(this);
         }
 
         private onLayourRendered() {

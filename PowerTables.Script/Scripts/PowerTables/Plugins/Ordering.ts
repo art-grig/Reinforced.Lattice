@@ -65,7 +65,7 @@
             var coolHeader = <ICustomHeader>this.MasterTable.InstanceManager.Columns[columnName].Header;
             this.specifyOrdering(coolHeader, ordering);
             this.updateOrdering(columnName, ordering);
-            this.MasterTable.Renderer.redrawHeader(coolHeader.Column);
+            this.MasterTable.Renderer.Modifier.redrawHeader(coolHeader.Column);
             this.MasterTable.Controller.reload();
         }
 

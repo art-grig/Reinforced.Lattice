@@ -29,7 +29,7 @@
                 }
             }
             if (labelPair != null) this.SelectedValue = labelPair.Label;
-            this.MasterTable.Renderer.redrawPlugin(this);
+            this.MasterTable.Renderer.Modifier.redrawPlugin(this);
             if (this.Configuration.ReloadTableOnLimitChange) this.MasterTable.Controller.reload();
         }
 

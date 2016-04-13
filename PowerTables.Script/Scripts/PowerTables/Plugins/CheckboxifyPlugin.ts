@@ -44,7 +44,7 @@
         }
 
         private redrawHeader() {
-            this.MasterTable.Renderer.redrawHeader(this._ourColumn);
+            this.MasterTable.Renderer.Modifier.redrawHeader(this._ourColumn);
         }
 
         private createColumn(): IColumn {
@@ -118,7 +118,7 @@
                 row.renderElement = (e) => e.getCachedTemplate('checkboxifyRow')(row);
             }
             this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
-            this.MasterTable.Renderer.redrawRow(row);
+            this.MasterTable.Renderer.Modifier.redrawRow(row);
         }
 
         private afterLayoutRender() {

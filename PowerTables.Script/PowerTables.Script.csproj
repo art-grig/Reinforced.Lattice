@@ -17,7 +17,7 @@
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
   </PropertyGroup>
-  <ItemGroup>    
+  <ItemGroup>
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -41,8 +41,10 @@
     <TypeScriptCompile Include="Scripts\PowerTables\DataHolder.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\InstanceManager.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Loader.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Editor.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\BackBinder.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\ContentRenderer.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Rendering\DOMModifier.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\HtmlToDom.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\LayoutRenderer.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\DOMLocator.ts" />
@@ -68,9 +70,11 @@
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\FormwatchPlugin.ts" />
     <TypeScriptCompile Include="Scripts\Typings\HideoutPlugin.d.ts" />
     <TypeScriptCompile Include="Scripts\Typings\Limit.d.ts" />
-    <TypeScriptCompile Include="Scripts\Typings\PagingPlugin.d.ts" />    
+    <TypeScriptCompile Include="Scripts\Typings\PagingPlugin.d.ts" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Scripts\PowerTables\Plugins\Editors\" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
   </PropertyGroup>

@@ -379,7 +379,7 @@ var PowerTables;
                 idx = dispIndex.DisplayedIndex;
             }
             var row = this.produceRow(dataObject, idx);
-            this._masterTable.Renderer.redrawRow(row);
+            this._masterTable.Renderer.Modifier.redrawRow(row);
         };
         /**
          * Redraws locally visible data
@@ -524,7 +524,7 @@ var PowerTables;
                         this.localVisibleReorder();
                     else if (insertion.RedrawBehavior === RedrawBehavior.ParticularRowUpdate) {
                         var row = this.produceRow(insertion.DataObject, insertion.DisplayRowIndex);
-                        this._masterTable.Renderer.appendRow(row, insertion.DisplayRowIndex);
+                        this._masterTable.Renderer.Modifier.appendRow(row, insertion.DisplayRowIndex);
                     }
                 }
             }
@@ -549,7 +549,7 @@ var PowerTables;
                     else if (deletion.RedrawBehavior === RedrawBehavior.LocalVisibleReorder)
                         this.localVisibleReorder();
                     else if (deletion.RedrawBehavior === RedrawBehavior.ParticularRowUpdate) {
-                        this._masterTable.Renderer.removeRowByIndex(deletion.DisplayRowIndex);
+                        this._masterTable.Renderer.Modifier.destroyRowByIndex(deletion.DisplayRowIndex);
                     }
                 }
             }
@@ -576,7 +576,7 @@ var PowerTables;
                         this.localVisibleReorder();
                     else if (update.RedrawBehavior === RedrawBehavior.ParticularRowUpdate) {
                         var row = this.produceRow(object, update.DisplayRowIndex);
-                        this._masterTable.Renderer.redrawRow(row);
+                        this._masterTable.Renderer.Modifier.redrawRow(row);
                     }
                 }
             }
@@ -1468,6 +1468,18 @@ var PowerTables;
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var Editor = (function () {
+            function Editor() {
+            }
+            return Editor;
+        })();
+        Plugins.Editor = Editor;
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
     var Rendering;
     (function (Rendering) {
         var BackBinder = (function () {
@@ -1696,6 +1708,308 @@ var PowerTables;
             return ContentRenderer;
         })();
         Rendering.ContentRenderer = ContentRenderer;
+    })(Rendering = PowerTables.Rendering || (PowerTables.Rendering = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Rendering;
+    (function (Rendering) {
+        var DOMModifier = (function () {
+            function DOMModifier(stack, locator, backBinder, templatesProvider, layoutRenderer, instances) {
+                this.displayCache = {};
+                this._stack = stack;
+                this._locator = locator;
+                this._backBinder = backBinder;
+                this._templatesProvider = templatesProvider;
+                this._layoutRenderer = layoutRenderer;
+                this._instances = instances;
+            }
+            //#region Show/hide infrastructure
+            DOMModifier.prototype.getRealDisplay = function (elem) {
+                if (elem.currentStyle)
+                    return elem.currentStyle.display;
+                else if (window.getComputedStyle) {
+                    var computedStyle = window.getComputedStyle(elem, null);
+                    return computedStyle.getPropertyValue('display');
+                }
+                return '';
+            };
+            DOMModifier.prototype.hideElement = function (el) {
+                if (!el)
+                    return;
+                if (!el.getAttribute('displayOld'))
+                    el.setAttribute("displayOld", el.style.display);
+                el.style.display = "none";
+            };
+            DOMModifier.prototype.showElement = function (el) {
+                if (!el)
+                    return;
+                if (this.getRealDisplay(el) !== 'none')
+                    return;
+                var old = el.getAttribute("displayOld");
+                el.style.display = old || "";
+                if (this.getRealDisplay(el) === "none") {
+                    var nodeName = el.nodeName, body = document.body, display;
+                    if (this.displayCache[nodeName])
+                        display = this.displayCache[nodeName];
+                    else {
+                        var testElem = document.createElement(nodeName);
+                        body.appendChild(testElem);
+                        display = this.getRealDisplay(testElem);
+                        if (display === "none")
+                            display = "block";
+                        body.removeChild(testElem);
+                        this.displayCache[nodeName] = display;
+                    }
+                    el.setAttribute('displayOld', display);
+                    el.style.display = display;
+                }
+            };
+            DOMModifier.prototype.destroyElement = function (element) {
+                element.parentElement.removeChild(element);
+            };
+            DOMModifier.prototype.destroyElements = function (elements) {
+                for (var i = 0; i < elements.length; i++) {
+                    this.destroyElement(elements.item(i));
+                }
+            };
+            DOMModifier.prototype.hideElements = function (element) {
+                if (!element)
+                    return;
+                for (var i = 0; i < element.length; i++) {
+                    this.hideElement(element.item(i));
+                }
+            };
+            DOMModifier.prototype.showElements = function (element) {
+                if (!element)
+                    return;
+                for (var i = 0; i < element.length; i++) {
+                    this.showElement(element.item(i));
+                }
+            };
+            //#endregion
+            //#region Plugins
+            /**
+             * Redraws specified plugin refreshing all its graphical state
+             *
+             * @param plugin Plugin to redraw
+             * @returns {}
+             */
+            DOMModifier.prototype.redrawPlugin = function (plugin) {
+                this._stack.clear();
+                var oldPluginElement = this._locator.getPluginElement(plugin);
+                var parent = oldPluginElement.parentElement;
+                var parser = new Rendering.Html2Dom.HtmlParser();
+                var html = this._layoutRenderer.renderPlugin(plugin);
+                var newPluginElement = parser.html2Dom(html);
+                parent.replaceChild(newPluginElement, oldPluginElement);
+                this._backBinder.backBind(newPluginElement);
+            };
+            /**
+             * Redraws specified plugins refreshing all them graphical state (by position)
+             *
+             * @param position Plugin position
+             * @returns {}
+             */
+            DOMModifier.prototype.redrawPluginsByPosition = function (position) {
+                var plugins = this._instances.getPlugins(position);
+                for (var i = 0; i < plugins.length; i++) {
+                    this.redrawPlugin(plugins[i]);
+                }
+            };
+            DOMModifier.prototype.hidePlugin = function (plugin) {
+                var pluginElement = this._locator.getPluginElement(plugin);
+                this.hideElement(pluginElement);
+            };
+            DOMModifier.prototype.showPlugin = function (plugin) {
+                var pluginElement = this._locator.getPluginElement(plugin);
+                this.showElement(pluginElement);
+            };
+            DOMModifier.prototype.destroyPlugin = function (plugin) {
+                var pluginElement = this._locator.getPluginElement(plugin);
+                this.destroyElement(pluginElement);
+            };
+            DOMModifier.prototype.hidePluginsByPosition = function (position) {
+                var plugins = this._instances.getPlugins(position);
+                for (var i = 0; i < plugins.length; i++) {
+                    this.hidePlugin(plugins[i]);
+                }
+            };
+            DOMModifier.prototype.showPluginsByPosition = function (position) {
+                var plugins = this._instances.getPlugins(position);
+                for (var i = 0; i < plugins.length; i++) {
+                    this.showPlugin(plugins[i]);
+                }
+            };
+            DOMModifier.prototype.destroyPluginsByPosition = function (position) {
+                var plugins = this._instances.getPlugins(position);
+                for (var i = 0; i < plugins.length; i++) {
+                    this.destroyPlugin(plugins[i]);
+                }
+            };
+            //#endregion
+            //#region Rows
+            /**
+             * Redraws specified row refreshing all its graphical state
+             *
+             * @param row
+             * @returns {}
+             */
+            DOMModifier.prototype.redrawRow = function (row) {
+                this._stack.clear();
+                this._stack.push(Rendering.RenderingContextType.Row, row);
+                var wrapper = this._templatesProvider.getCachedTemplate('rowWrapper');
+                var html;
+                if (row.renderElement) {
+                    html = row.renderElement(this._templatesProvider);
+                }
+                else {
+                    html = wrapper(row);
+                }
+                this._stack.popContext();
+                var oldElement = this._locator.getRowElement(row);
+                this.replaceElement(oldElement, html);
+            };
+            DOMModifier.prototype.destroyRow = function (row) {
+                var rowElement = this._locator.getRowElement(row);
+                this.destroyElement(rowElement);
+            };
+            DOMModifier.prototype.hideRow = function (row) {
+                var rowElement = this._locator.getRowElement(row);
+                this.hideElement(rowElement);
+            };
+            DOMModifier.prototype.showRow = function (row) {
+                var rowElement = this._locator.getRowElement(row);
+                this.showElement(rowElement);
+            };
+            /**
+             * Redraws specified row refreshing all its graphical state
+             *
+             * @param row
+             * @returns {}
+             */
+            DOMModifier.prototype.appendRow = function (row, afterRowAtIndex) {
+                this._stack.clear();
+                var wrapper = this._templatesProvider.getCachedTemplate('rowWrapper');
+                var html;
+                if (row.renderElement) {
+                    html = row.renderElement(this._templatesProvider);
+                }
+                else {
+                    html = wrapper(row);
+                }
+                var referenceNode = this._locator.getRowElementByIndex(afterRowAtIndex);
+                var newRowElement = this.createElement(html);
+                referenceNode.parentNode.insertBefore(newRowElement, referenceNode.nextSibling);
+            };
+            /**
+             * Removes referenced row by its index
+             *
+             * @param rowDisplayIndex
+             * @returns {}
+             */
+            DOMModifier.prototype.destroyRowByIndex = function (rowDisplayIndex) {
+                var referenceNode = this._locator.getRowElementByIndex(rowDisplayIndex);
+                referenceNode.parentElement.removeChild(referenceNode);
+            };
+            DOMModifier.prototype.hideRowByIndex = function (rowDisplayIndex) {
+                var rowElement = this._locator.getRowElementByIndex(rowDisplayIndex);
+                this.hideElement(rowElement);
+            };
+            DOMModifier.prototype.showRowByIndex = function (rowDisplayIndex) {
+                var rowElement = this._locator.getRowElementByIndex(rowDisplayIndex);
+                this.showElement(rowElement);
+            };
+            //#endregion
+            //#region Cells
+            DOMModifier.prototype.redrawCell = function (cell) {
+                this._stack.clear();
+                this._stack.push(Rendering.RenderingContextType.Cell, cell);
+                var wrapper = this._templatesProvider.getCachedTemplate('cellWrapper');
+                var html;
+                if (cell.renderElement) {
+                    html = cell.renderElement(this._templatesProvider);
+                }
+                else {
+                    html = wrapper(cell);
+                }
+                this._stack.popContext();
+                var oldElement = this._locator.getCellElement(cell);
+                this.replaceElement(oldElement, html);
+            };
+            DOMModifier.prototype.destroyCell = function (cell) {
+                var e = this._locator.getCellElement(cell);
+                e.parentElement.removeChild(e);
+            };
+            DOMModifier.prototype.hideCell = function (cell) {
+                var e = this._locator.getCellElement(cell);
+                this.hideElement(e);
+            };
+            DOMModifier.prototype.showCell = function (cell) {
+                var e = this._locator.getCellElement(cell);
+                this.hideElement(e);
+            };
+            DOMModifier.prototype.destroyCellsByColumn = function (column) {
+                var e = this._locator.getColumnCellsElements(column);
+                this.destroyElements(e);
+            };
+            DOMModifier.prototype.hideCellsByColumn = function (column) {
+                var e = this._locator.getColumnCellsElements(column);
+                this.hideElements(e);
+            };
+            DOMModifier.prototype.showCellsByColumn = function (column) {
+                var e = this._locator.getColumnCellsElements(column);
+                this.showElements(e);
+            };
+            DOMModifier.prototype.destroyColumnCellsElementsByColumnIndex = function (columnIndex) {
+                var e = this._locator.getColumnCellsElementsByColumnIndex(columnIndex);
+                this.destroyElements(e);
+            };
+            DOMModifier.prototype.hideColumnCellsElementsByColumnIndex = function (columnIndex) {
+                var e = this._locator.getColumnCellsElementsByColumnIndex(columnIndex);
+                this.hideElements(e);
+            };
+            DOMModifier.prototype.showColumnCellsElementsByColumnIndex = function (columnIndex) {
+                var e = this._locator.getColumnCellsElementsByColumnIndex(columnIndex);
+                this.showElements(e);
+            };
+            //#endregion
+            /**
+             * Redraws header for specified column
+             *
+             * @param column Column which header is to be redrawn
+             */
+            DOMModifier.prototype.redrawHeader = function (column) {
+                this._stack.clear();
+                var html = this._layoutRenderer.renderHeader(column);
+                var oldHeaderElement = this._locator.getHeaderElement(column.Header);
+                var newElement = this.replaceElement(oldHeaderElement, html);
+                this._backBinder.backBind(newElement);
+            };
+            DOMModifier.prototype.destroyHeader = function (column) {
+                var e = this._locator.getHeaderElement(column.Header);
+                this.destroyElement(e);
+            };
+            DOMModifier.prototype.hideHeader = function (column) {
+                var e = this._locator.getHeaderElement(column.Header);
+                this.hideElement(e);
+            };
+            DOMModifier.prototype.showHeader = function (column) {
+                var e = this._locator.getHeaderElement(column.Header);
+                this.hideElement(e);
+            };
+            DOMModifier.prototype.createElement = function (html) {
+                var parser = new Rendering.Html2Dom.HtmlParser();
+                return parser.html2Dom(html);
+            };
+            DOMModifier.prototype.replaceElement = function (element, html) {
+                var node = this.createElement(html);
+                element.parentElement.replaceChild(node, element);
+                return node;
+            };
+            return DOMModifier;
+        })();
+        Rendering.DOMModifier = DOMModifier;
     })(Rendering = PowerTables.Rendering || (PowerTables.Rendering = {}));
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
@@ -2294,6 +2608,7 @@ var PowerTables;
                 this.LayoutRenderer = new Rendering.LayoutRenderer(this, this._stack, this._instances);
                 this.ContentRenderer = new Rendering.ContentRenderer(this, this._stack, this._instances);
                 this.BackBinder = new Rendering.BackBinder(this.HandlebarsInstance, instances, this._stack, dateService);
+                this.Modifier = new Rendering.DOMModifier(this._stack, this.Locator, this.BackBinder, this, this.LayoutRenderer, instances);
                 this.HandlebarsInstance.registerHelper('ifq', this.ifqHelper);
                 this.HandlebarsInstance.registerHelper('ifloc', this.iflocHelper.bind(this));
                 this.HandlebarsInstance.registerHelper('Content', this.contentHelper.bind(this));
@@ -2349,94 +2664,6 @@ var PowerTables;
                 var html = this.ContentRenderer.renderBody(rows);
                 this.BodyElement.innerHTML = html;
                 this._events.AfterDataRendered.invoke(this, null);
-            };
-            /**
-             * Redraws specified plugin refreshing all its graphical state
-             *
-             * @param plugin Plugin to redraw
-             * @returns {}
-             */
-            Renderer.prototype.redrawPlugin = function (plugin) {
-                this._stack.clear();
-                var oldPluginElement = this.Locator.getPluginElement(plugin);
-                var parent = oldPluginElement.parentElement;
-                var parser = new Rendering.Html2Dom.HtmlParser();
-                var html = this.LayoutRenderer.renderPlugin(plugin);
-                var newPluginElement = parser.html2Dom(html);
-                parent.replaceChild(newPluginElement, oldPluginElement);
-                this.BackBinder.backBind(newPluginElement);
-            };
-            /**
-             * Redraws specified row refreshing all its graphical state
-             *
-             * @param row
-             * @returns {}
-             */
-            Renderer.prototype.redrawRow = function (row) {
-                this._stack.clear();
-                this._stack.push(Rendering.RenderingContextType.Row, row);
-                var wrapper = this.getCachedTemplate('rowWrapper');
-                var html;
-                if (row.renderElement) {
-                    html = row.renderElement(this);
-                }
-                else {
-                    html = wrapper(row);
-                }
-                this._stack.popContext();
-                var oldElement = this.Locator.getRowElement(row);
-                this.replaceElement(oldElement, html);
-            };
-            /**
-             * Redraws specified row refreshing all its graphical state
-             *
-             * @param row
-             * @returns {}
-             */
-            Renderer.prototype.appendRow = function (row, afterRowAtIndex) {
-                this._stack.clear();
-                var wrapper = this.getCachedTemplate('rowWrapper');
-                var html;
-                if (row.renderElement) {
-                    html = row.renderElement(this);
-                }
-                else {
-                    html = wrapper(row);
-                }
-                var referenceNode = this.Locator.getRowElementByIndex(afterRowAtIndex);
-                var newRowElement = this.createElement(html);
-                referenceNode.parentNode.insertBefore(newRowElement, referenceNode.nextSibling);
-            };
-            /**
-             * Removes referenced row by its index
-             *
-             * @param rowDisplayIndex
-             * @returns {}
-             */
-            Renderer.prototype.removeRowByIndex = function (rowDisplayIndex) {
-                var referenceNode = this.Locator.getRowElementByIndex(rowDisplayIndex);
-                referenceNode.parentElement.removeChild(referenceNode);
-            };
-            /**
-             * Redraws header for specified column
-             *
-             * @param column Column which header is to be redrawn
-             */
-            Renderer.prototype.redrawHeader = function (column) {
-                this._stack.clear();
-                var html = this.LayoutRenderer.renderHeader(column);
-                var oldHeaderElement = this.Locator.getHeaderElement(column.Header);
-                var newElement = this.replaceElement(oldHeaderElement, html);
-                this.BackBinder.backBind(newElement);
-            };
-            Renderer.prototype.createElement = function (html) {
-                var parser = new Rendering.Html2Dom.HtmlParser();
-                return parser.html2Dom(html);
-            };
-            Renderer.prototype.replaceElement = function (element, html) {
-                var node = this.createElement(html);
-                element.parentElement.replaceChild(node, element);
-                return node;
             };
             /**
              * Removes all dynamically loaded content in table
@@ -2867,7 +3094,7 @@ var PowerTables;
                     var coolHeader = this.MasterTable.InstanceManager.Columns[columnName].Header;
                     this.specifyOrdering(coolHeader, ordering);
                     this.updateOrdering(columnName, ordering);
-                    this.MasterTable.Renderer.redrawHeader(coolHeader.Column);
+                    this.MasterTable.Renderer.Modifier.redrawHeader(coolHeader.Column);
                     this.MasterTable.Controller.reload();
                 };
                 OrderingPlugin.prototype.nextOrdering = function (currentOrdering) {
@@ -2976,7 +3203,7 @@ var PowerTables;
                 }
                 if (labelPair != null)
                     this.SelectedValue = labelPair.Label;
-                this.MasterTable.Renderer.redrawPlugin(this);
+                this.MasterTable.Renderer.Modifier.redrawPlugin(this);
                 if (this.Configuration.ReloadTableOnLimitChange)
                     this.MasterTable.Controller.reload();
             };
@@ -3076,7 +3303,7 @@ var PowerTables;
                     tp = parseInt(tp) + 1;
                 }
                 this._totalPages = tp;
-                this.MasterTable.Renderer.redrawPlugin(this);
+                this.MasterTable.Renderer.Modifier.redrawPlugin(this);
             };
             PagingPlugin.prototype.onClientDataProcessing = function (e) {
                 var tp = e.EventArgs.Filtered.length / this._pageSize;
@@ -3087,7 +3314,7 @@ var PowerTables;
                     this._selectedPage = 0;
                 }
                 this._totalPages = tp;
-                this.MasterTable.Renderer.redrawPlugin(this);
+                this.MasterTable.Renderer.Modifier.redrawPlugin(this);
             };
             PagingPlugin.prototype.goToPage = function (page) {
                 this._selectedPage = parseInt(page);
@@ -3619,7 +3846,6 @@ var PowerTables;
                 this.ColumnStates = [];
                 this._columnStates = {};
                 this._isInitializing = true;
-                this.displayCache = {};
             }
             HideoutPlugin.prototype.isColumnVisible = function (columnName) {
                 return this.isColumnInstanceVisible(this.MasterTable.InstanceManager.Columns[columnName]);
@@ -3647,60 +3873,6 @@ var PowerTables;
             };
             //#endregion
             //#region Correct showing/hiding
-            HideoutPlugin.prototype.getRealDisplay = function (elem) {
-                if (elem.currentStyle)
-                    return elem.currentStyle.display;
-                else if (window.getComputedStyle) {
-                    var computedStyle = window.getComputedStyle(elem, null);
-                    return computedStyle.getPropertyValue('display');
-                }
-                return '';
-            };
-            HideoutPlugin.prototype._hideElement = function (el) {
-                if (!el)
-                    return;
-                if (!el.getAttribute('displayOld'))
-                    el.setAttribute("displayOld", el.style.display);
-                el.style.display = "none";
-            };
-            HideoutPlugin.prototype._showElement = function (el) {
-                if (!el)
-                    return;
-                if (this.getRealDisplay(el) !== 'none')
-                    return;
-                var old = el.getAttribute("displayOld");
-                el.style.display = old || "";
-                if (this.getRealDisplay(el) === "none") {
-                    var nodeName = el.nodeName, body = document.body, display;
-                    if (this.displayCache[nodeName])
-                        display = this.displayCache[nodeName];
-                    else {
-                        var testElem = document.createElement(nodeName);
-                        body.appendChild(testElem);
-                        display = this.getRealDisplay(testElem);
-                        if (display === "none")
-                            display = "block";
-                        body.removeChild(testElem);
-                        this.displayCache[nodeName] = display;
-                    }
-                    el.setAttribute('displayOld', display);
-                    el.style.display = display;
-                }
-            };
-            HideoutPlugin.prototype._hideElements = function (element) {
-                if (!element)
-                    return;
-                for (var i = 0; i < element.length; i++) {
-                    this._hideElement(element.item(i));
-                }
-            };
-            HideoutPlugin.prototype._showElements = function (element) {
-                if (!element)
-                    return;
-                for (var i = 0; i < element.length; i++) {
-                    this._showElement(element.item(i));
-                }
-            };
             //#endregion
             HideoutPlugin.prototype.toggleColumnByName = function (columnName) {
                 if (this.isColumnVisible(columnName)) {
@@ -3731,14 +3903,14 @@ var PowerTables;
                     return;
                 this._columnStates[c.RawName].Visible = false;
                 this._columnStates[c.RawName].DoesNotExists = false;
-                this._hideElement(this.MasterTable.Renderer.Locator.getHeaderElement(c.Header));
-                this._hideElements(this.MasterTable.Renderer.Locator.getPluginElementsByPositionPart("filter-" + c.RawName));
+                this.MasterTable.Renderer.Modifier.hideHeader(c);
+                this.MasterTable.Renderer.Modifier.hidePluginsByPosition("filter-" + c.RawName);
                 if (this._isInitializing)
                     return;
-                this._hideElements(this.MasterTable.Renderer.Locator.getColumnCellsElements(c));
+                this.MasterTable.Renderer.Modifier.hideCellsByColumn(c);
                 if (this.Configuration.ColumnInitiatingReload.indexOf(c.RawName) > -1)
                     this.MasterTable.Controller.reload();
-                this.MasterTable.Renderer.redrawPlugin(this);
+                this.MasterTable.Renderer.Modifier.redrawPlugin(this);
             };
             HideoutPlugin.prototype.showColumnInstance = function (c) {
                 if (!c)
@@ -3746,8 +3918,8 @@ var PowerTables;
                 this._columnStates[c.RawName].Visible = true;
                 var wasNotExist = this._columnStates[c.RawName].DoesNotExists;
                 this._columnStates[c.RawName].DoesNotExists = false;
-                this._showElement(this.MasterTable.Renderer.Locator.getHeaderElement(c.Header));
-                this._showElements(this.MasterTable.Renderer.Locator.getPluginElementsByPositionPart("filter-" + c.RawName));
+                this.MasterTable.Renderer.Modifier.showHeader(c);
+                this.MasterTable.Renderer.Modifier.showPluginsByPosition("filter-" + c.RawName);
                 if (this._isInitializing)
                     return;
                 if (wasNotExist) {
@@ -3760,12 +3932,12 @@ var PowerTables;
                     }
                 }
                 else {
-                    this._showElements(this.MasterTable.Renderer.Locator.getColumnCellsElements(c));
+                    this.MasterTable.Renderer.Modifier.showCellsByColumn(c);
                     if (this.Configuration.ColumnInitiatingReload.indexOf(c.RawName) > -1) {
                         this.MasterTable.Controller.reload();
                     }
                 }
-                this.MasterTable.Renderer.redrawPlugin(this);
+                this.MasterTable.Renderer.Modifier.redrawPlugin(this);
             };
             HideoutPlugin.prototype.onBeforeDataRendered = function () {
                 for (var i = 0; i < this.ColumnStates.length; i++) {
@@ -3783,7 +3955,7 @@ var PowerTables;
                     if (!this.ColumnStates[i].Visible)
                         this.ColumnStates[i].DoesNotExists = true;
                 }
-                this.MasterTable.Renderer.redrawPlugin(this);
+                this.MasterTable.Renderer.Modifier.redrawPlugin(this);
             };
             HideoutPlugin.prototype.onLayourRendered = function () {
                 for (var j = 0; j < this.ColumnStates.length; j++) {
@@ -3841,7 +4013,7 @@ var PowerTables;
                 if (this.Configuration.ResponseObjectOverriden) {
                     this._recentData = e.EventArgs.Data.AdditionalData['ResponseInfo'];
                     this._isReadyForRendering = true;
-                    this.MasterTable.Renderer.redrawPlugin(this);
+                    this.MasterTable.Renderer.Modifier.redrawPlugin(this);
                 }
                 else {
                     this._recentServerData = {
@@ -3870,7 +4042,7 @@ var PowerTables;
                 }
                 this._isServerRequest = false;
                 this._isReadyForRendering = true;
-                this.MasterTable.Renderer.redrawPlugin(this);
+                this.MasterTable.Renderer.Modifier.redrawPlugin(this);
             };
             ResponseInfoPlugin.prototype.renderContent = function (templatesProvider) {
                 if (!this._isReadyForRendering)
@@ -4034,7 +4206,7 @@ var PowerTables;
                 }
             };
             CheckboxifyPlugin.prototype.redrawHeader = function () {
-                this.MasterTable.Renderer.redrawHeader(this._ourColumn);
+                this.MasterTable.Renderer.Modifier.redrawHeader(this._ourColumn);
             };
             CheckboxifyPlugin.prototype.createColumn = function () {
                 var _this = this;
@@ -4102,7 +4274,7 @@ var PowerTables;
                     row.renderElement = function (e) { return e.getCachedTemplate('checkboxifyRow')(row); };
                 }
                 this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
-                this.MasterTable.Renderer.redrawRow(row);
+                this.MasterTable.Renderer.Modifier.redrawRow(row);
             };
             CheckboxifyPlugin.prototype.afterLayoutRender = function () {
                 var _this = this;
@@ -4197,7 +4369,7 @@ var PowerTables;
                 this.handleButtonAction(this._buttonsConfig[btnId]);
             };
             ToolbarPlugin.prototype.redrawMe = function () {
-                this.MasterTable.Renderer.redrawPlugin(this);
+                this.MasterTable.Renderer.Modifier.redrawPlugin(this);
             };
             ToolbarPlugin.prototype.handleButtonAction = function (btn) {
                 if (btn.OnClick) {
@@ -4263,7 +4435,7 @@ var PowerTables;
                     }
                 }
                 if (atleastOne)
-                    this.MasterTable.Renderer.redrawPlugin(this);
+                    this.MasterTable.Renderer.Modifier.redrawPlugin(this);
             };
             ToolbarPlugin.prototype.init = function (masterTable) {
                 _super.prototype.init.call(this, masterTable);

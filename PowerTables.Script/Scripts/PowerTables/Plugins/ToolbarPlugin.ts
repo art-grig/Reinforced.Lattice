@@ -13,7 +13,7 @@
         }
 
         private redrawMe() {
-            this.MasterTable.Renderer.redrawPlugin(this);
+            this.MasterTable.Renderer.Modifier.redrawPlugin(this);
         }
 
         private handleButtonAction(btn: ToolbarButtonClientConfiguration) {
@@ -83,7 +83,7 @@
                     }
                 }
             }
-            if (atleastOne) this.MasterTable.Renderer.redrawPlugin(this);
+            if (atleastOne) this.MasterTable.Renderer.Modifier.redrawPlugin(this);
         }
 
         public init(masterTable: IMasterTable): void {

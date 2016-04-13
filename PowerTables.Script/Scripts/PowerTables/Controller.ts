@@ -59,7 +59,7 @@
                 idx = dispIndex.DisplayedIndex;
             }
             var row: IRow = this.produceRow(dataObject, idx);
-            this._masterTable.Renderer.redrawRow(row);
+            this._masterTable.Renderer.Modifier.redrawRow(row);
         }
 
         /**
@@ -208,7 +208,7 @@
                     else if (insertion.RedrawBehavior === RedrawBehavior.LocalVisibleReorder) this.localVisibleReorder();
                     else if (insertion.RedrawBehavior === RedrawBehavior.ParticularRowUpdate) {
                         var row: IRow = this.produceRow(insertion.DataObject, insertion.DisplayRowIndex);
-                        this._masterTable.Renderer.appendRow(row, insertion.DisplayRowIndex);
+                        this._masterTable.Renderer.Modifier.appendRow(row, insertion.DisplayRowIndex);
                     }
                 }
             }
@@ -232,7 +232,7 @@
                     if (deletion.RedrawBehavior === RedrawBehavior.RedrawVisible) this.redrawVisibleData();
                     else if (deletion.RedrawBehavior === RedrawBehavior.LocalVisibleReorder) this.localVisibleReorder();
                     else if (deletion.RedrawBehavior === RedrawBehavior.ParticularRowUpdate) {
-                        this._masterTable.Renderer.removeRowByIndex(deletion.DisplayRowIndex);
+                        this._masterTable.Renderer.Modifier.destroyRowByIndex(deletion.DisplayRowIndex);
                     }
                 }
             }
@@ -260,7 +260,7 @@
                     else if (update.RedrawBehavior === RedrawBehavior.LocalVisibleReorder) this.localVisibleReorder();
                     else if (update.RedrawBehavior === RedrawBehavior.ParticularRowUpdate) {
                         var row: IRow = this.produceRow(object, update.DisplayRowIndex);
-                        this._masterTable.Renderer.redrawRow(row);
+                        this._masterTable.Renderer.Modifier.redrawRow(row);
                     }
                 }
             }
