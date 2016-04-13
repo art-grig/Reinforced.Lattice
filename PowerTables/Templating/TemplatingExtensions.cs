@@ -1,6 +1,8 @@
-﻿using System.Web.Mvc;
+﻿using System;
+using System.Web.Mvc;
 using System.Web.Mvc.Html;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
 using PowerTables.Configuration;
 using PowerTables.Templating.BuiltIn;
 
@@ -79,7 +81,14 @@ namespace PowerTables.Templating
             return MvcHtmlString.Create(string.Format("{{{{{{Content \"{0}\"}}}}}}", columnName));
         }
 
+        public static MvcHtmlString State(this IProvidesVisualState state, string stateName, Action<VisualState> visualState)
+        {
+            VisualState vs = new VisualState();
+            visualState(vs);
+            var json = JsonConvert.SerializeObject(vs.Description, Formatting.None);
+            return MvcHtmlString.Create(string.Format("{{{{{{VState \"{0}\" \"{1}\" }}}}}}", stateName, json));
 
+        }
 
     }
 

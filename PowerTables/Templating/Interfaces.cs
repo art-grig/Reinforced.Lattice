@@ -27,4 +27,6 @@ namespace PowerTables.Templating
 
     public interface IProvidesMarking : ITemplateRegion { }
     public interface IProvidesDatepicker : ITemplateRegion { }
+
+    public interface IProvidesVisualState : ITemplateRegion { }
 }

@@ -16,6 +16,51 @@
         private _layoutRenderer: LayoutRenderer;
         private _instances: InstanceManager;
 
+        public changeState(state: string, states: { [key: string]: IState[] }) {
+            this.applyNormal(states['_normal']);
+            this.applyState(states[state]);
+        }
+
+        private applyState(desired: IState[]) {
+            for (var i = 0; i < desired.length; i++) {
+                var ns: IState = desired[i];
+                for (var k = 0; k < ns.classes.length; k++) {
+                    var cls = ns.classes[k].substring(1);
+                    if (ns.classes[k].charAt(0) === '+') ns.Element.classList.remove(cls);
+                    else ns.Element.classList.add(cls);
+                }
+                for (var ak in ns.attrs) {
+                    if (ns.attrs.hasOwnProperty(ak)) {
+                        if (ns.attrs[ak] == null) ns.Element.removeAttribute(ak);
+                        else ns.Element.setAttribute(ak, ns.attrs[ak]);
+                    }
+                }
+                for (var sk in ns.styles) {
+                    if (ns.styles.hasOwnProperty(sk)) {
+                        ns.Element.style.setProperty(sk, ns.styles[sk]);
+                    }
+                }
+            }
+        }
+
+        private applyNormal(normal: IState[]) {
+            for (var i = 0; i < normal.length; i++) {
+                var ns = normal[i];
+                ns.Element.setAttribute('class', ns.classes.join(' '));
+                for (var ak in ns.attrs) {
+                    if (ns.attrs.hasOwnProperty(ak)) {
+                        if (ns.attrs[ak] == null) ns.Element.removeAttribute(ak);
+                        else ns.Element.setAttribute(ak, ns.attrs[ak]);
+                    }
+                }
+                for (var sk in ns.styles) {
+                    if (ns.styles.hasOwnProperty(sk)) {
+                        ns.Element.style.setProperty(sk, ns.styles[sk]);
+                    }
+                }
+            }
+        }
+
         //#region Show/hide infrastructure
         private getRealDisplay(elem): string {
             if (elem.currentStyle) return elem.currentStyle.display;

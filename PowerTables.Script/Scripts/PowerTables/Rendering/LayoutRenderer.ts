@@ -126,28 +126,5 @@ module PowerTables.Rendering {
     }
 
 
-/**
-     * Event that was bound from template
-     */
-    export interface ITemplateBoundEvent<T> {
-        /**
-         * Element triggered particular event
-         */
-        Element: HTMLElement;
-
-        /**
-         * Original DOM event
-         */
-        EventObject: Event;
-
-        /**
-         * Event received (to avoid using "this" in come cases)
-         */
-        Receiver: T;
-
-        /**
-         * Event argumetns
-         */
-        EventArguments: any[];
-    }
+   
 }
