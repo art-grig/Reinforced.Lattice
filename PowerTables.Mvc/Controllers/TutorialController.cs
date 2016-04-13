@@ -163,7 +163,7 @@ namespace PowerTables.Mvc.Controllers
             return Handle(c => c.Filtering());
         }
 
-        [Tutorial("Redirecting Filters", 8)]
+        [Tutorial("Filters shuffling", 8)]
         public ActionResult RedirectingFilters()
         {
             return TutPage(c => c.RedirectingFilters());

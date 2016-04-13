@@ -353,9 +353,9 @@
     {
         using (t.If(c => c.IsChecked))
         {
-            <span class="" @t.ThisWillTriggerSelection()>Wooohoo!</span>
+            <div @t.ThisWillTriggerSelection()><input style="width: 20px;height: 20px" type="checkbox" checked="checked" /></div>
             @t.Else()
-            <span class="" @t.ThisWillTriggerSelection()>Okay</span>
+    <div @t.ThisWillTriggerSelection()><input style="width: 20px;height: 20px" type="checkbox" /></div>
         }
     }
 }
