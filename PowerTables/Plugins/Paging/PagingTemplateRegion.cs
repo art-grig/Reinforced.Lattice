@@ -66,6 +66,9 @@ namespace PowerTables.Plugins.Paging
     {
         bool PrevArrow { get; }
         bool NextArrow { get; }
+        int CurrentPage { get; }
+        int TotalPages { get; }
+        int PageSize { get; }
     }
 
     public interface IPagingConfiguration

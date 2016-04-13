@@ -9,6 +9,13 @@
         public PrevArrow: boolean;
 
         private _selectedPage: number = 0;
+
+        public CurrentPage() { return this._selectedPage + 1; }
+
+        public TotalPages() { return this._totalPages; }
+
+        public PageSize() { return this._pageSize; }
+
         private _totalPages: number;
         private _pageSize: number;
 

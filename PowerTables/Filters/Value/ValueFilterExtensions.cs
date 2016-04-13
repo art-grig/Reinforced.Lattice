@@ -48,13 +48,13 @@ namespace PowerTables.Filters.Value
         /// <param name="filterDelegate">Matching source column to be filtered</param>
         /// <param name="ui">Filter UI builder</param>
         /// <returns></returns>
-        public static ValueColumnFilter<TSourceData, TSourceColumn> FilterValue<TSourceData, TTableData, TTableColumn, TSourceColumn>(
+        public static ValueColumnFilter<TSourceData, TTableColumn> FilterValueBy<TSourceData, TTableData, TTableColumn>(
             this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
-            Func<IQueryable<TSourceData>, TSourceColumn, IQueryable<TSourceData>> filterDelegate,
+            Func<IQueryable<TSourceData>, TTableColumn, IQueryable<TSourceData>> filterDelegate,
             Action<IPluginConfiguration<ValueFilterUiConfig>> ui = null
             ) where TTableData : new()
         {
-            var filter = FilterValueNoUi(column, filterDelegate);
+            var filter = FilterValueNoUiBy(column, filterDelegate);
             FilterValueUi(column, ui);
             return filter;
         }
@@ -86,12 +86,12 @@ namespace PowerTables.Filters.Value
         /// <param name="column">Column</param>
         /// <param name="filterDelegate">Matching source column to be filtered</param>
         /// <returns></returns>
-        public static ValueColumnFilter<TSourceData, TSourceColumn> FilterValueNoUi<TSourceData, TTableData, TTableColumn, TSourceColumn>(
+        public static ValueColumnFilter<TSourceData, TTableColumn> FilterValueNoUiBy<TSourceData, TTableData, TTableColumn>(
             this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
-            Func<IQueryable<TSourceData>, TSourceColumn, IQueryable<TSourceData>> filterDelegate
+            Func<IQueryable<TSourceData>, TTableColumn, IQueryable<TSourceData>> filterDelegate
             ) where TTableData : new()
         {
-            var filter = ValueColumnFilter<TSourceData, TSourceColumn>.Create(column.ColumnProperty, column.Configurator, filterDelegate);
+            var filter = ValueColumnFilter<TSourceData, TTableColumn>.Create(column.ColumnProperty, column.Configurator, filterDelegate);
             column.Configurator.RegisterFilter(filter);
             return filter;
         }

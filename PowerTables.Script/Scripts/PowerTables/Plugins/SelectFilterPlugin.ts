@@ -10,6 +10,8 @@
         }
 
         public getSelectionArray(): string[] {
+            if (!this.FilterValueProvider) return [];
+
             if (!this.Configuration.IsMultiple) {
                 var selected = this.FilterValueProvider.options[this.FilterValueProvider.selectedIndex];
                 return [selected.value];

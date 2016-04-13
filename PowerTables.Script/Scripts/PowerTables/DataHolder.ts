@@ -22,12 +22,12 @@
         /**
          * Data that actually is currently displayed in table
          */
-        public DisplayedData: any[];
+        public DisplayedData: any[] = [];
 
         /**
          * Data that was recently loaded from server
          */
-        public StoredData: any[];
+        public StoredData: any[] = [];
 
         /**
          * Enable query truncation from beginning during executing client queries

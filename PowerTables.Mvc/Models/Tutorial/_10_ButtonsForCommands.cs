@@ -14,7 +14,7 @@ namespace PowerTables.Mvc.Models.Tutorial
 
         public static Configurator<Toy, Row> ButtonsForCommands(this Configurator<Toy, Row> conf)
         {
-            conf.HideoutAndResponseInfo();
+            conf.RedirectingFilters();
             conf.Checkboxify(c => c.Id, SelectAllBehavior.CurrentPage,resetOnClientLoad:false,resetOnLoad:true);
             conf.Toolbar("toolbar-rt", a =>
             {

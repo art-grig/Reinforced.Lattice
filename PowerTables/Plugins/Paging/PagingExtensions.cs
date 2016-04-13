@@ -35,19 +35,13 @@ namespace PowerTables.Plugins.Paging
         /// Optionally you can use "Go To Page" feature.
         /// </summary>
         /// <param name="conf">Table configurator</param>
-        /// <param name="useGotoPage">
-        /// When true, adds visual element that consists of small textbox and "go" button 
-        /// to make it easier to navigate to page specified
-        /// </param>
         /// <returns></returns>
         public static PagingClientConfiguration PagingWithArrows(
-            this PagingClientConfiguration conf,
-            bool useGotoPage = false
+            this PagingClientConfiguration conf
             )
         {
 
             conf.ArrowsMode = true;
-            conf.UseGotoPage = useGotoPage;
             return conf;
         }
 
@@ -60,23 +54,17 @@ namespace PowerTables.Plugins.Paging
         /// </summary>
         /// <param name="conf">Table configurator</param>
         /// <param name="hidePages">Minimum number of pages to hide behind periods</param>
-        /// <param name="useGotoPage">
-        /// When true, adds visual element that consists of small textbox and "go" button 
-        /// to make it easier to navigate to page specified
-        /// </param>
         /// <param name="useFirstLasPage">Display buttons for quick navigation to first and last page</param>
         /// <returns></returns>
         public static PagingClientConfiguration PagingWithPeriods(
             this PagingClientConfiguration conf,
             int hidePages = 3,
-            bool useGotoPage = false,
             bool useFirstLasPage = false
             )
         {
             conf.ArrowsMode = false;
             conf.UsePeriods = true;
             conf.PagesToHideUnderPeriod = hidePages;
-            conf.UseGotoPage = useGotoPage;
             conf.UseFirstLastPage = useFirstLasPage;
             return conf;
         }
@@ -87,22 +75,16 @@ namespace PowerTables.Plugins.Paging
         /// to each page directly.
         /// </summary>
         /// <param name="conf">Table configurator</param>
-        /// <param name="useGotoPage">
-        /// When true, adds visual element that consists of small textbox and "go" button 
-        /// to make it easier to navigate to page specified
-        /// </param>
         /// <param name="useFirstLasPage">Display buttons for quick navigation to first and last page</param>
         /// <returns></returns>
         public static PagingClientConfiguration PagingSimple(
             this PagingClientConfiguration conf,
-            bool useGotoPage = false,
             bool useFirstLasPage = false
             )
         {
 
             conf.ArrowsMode = false;
             conf.UsePeriods = false;
-            conf.UseGotoPage = useGotoPage;
             conf.UseFirstLastPage = useFirstLasPage;
             return conf;
         }
@@ -116,6 +98,19 @@ namespace PowerTables.Plugins.Paging
         public static PagingClientConfiguration EnableClientPaging(this PagingClientConfiguration c, bool enable = true)
         {
             c.EnableClientPaging = enable;
+            return c;
+        }
+
+        /// <summary>
+        /// Adds visual element that consists of small textbox and "go" button 
+        /// to make it easier to navigate to page specified
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="use">Use goto page</param>
+        /// <returns></returns>
+        public static PagingClientConfiguration UseGotoPage(this PagingClientConfiguration c, bool use = true)
+        {
+            c.UseGotoPage = use;
             return c;
         }
     }

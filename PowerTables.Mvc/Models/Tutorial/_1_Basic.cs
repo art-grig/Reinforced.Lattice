@@ -23,6 +23,7 @@ namespace PowerTables.Mvc.Models.Tutorial
 
             conf.Column(c => c.Name).MappedFrom(c => c.ToyName);
             conf.Column(c => c.ResponsibleUserName).MappedFrom(c => c.ResponsibleUser.FirstName + " " + c.ResponsibleUser.LastName);
+            conf.Column(c => c.ResponsibleUserId).MappedFrom(c => c.ResponsibleUser.Id);
             conf.Column(c => c.Preorders).MappedFrom(c => c.PreordersCount);
             conf.Column(c => c.TypeOfToy).MappedFrom(c => c.GroupType);
 
@@ -67,6 +68,7 @@ namespace PowerTables.Mvc.Models.Tutorial
         public DateTime? LastSoldDate { get; set; }
         public int ResponsibleUserId { get; set; }
         public string ResponsibleUserName { get; set; }
+        public string SupplierAddress { get; set; }
     }
 
     public enum ToyType
@@ -122,6 +124,7 @@ namespace PowerTables.Mvc.Models.Tutorial
         public DateTime? LastSoldDate { get; set; }
         public int DeliveryDelay { get; set; }
         public ManagerUser ResponsibleUser { get; set; }
+        public string SupplierAddress { get; set; }
         public Toy Clone()
         {
             return new Toy()

@@ -21,7 +21,7 @@ namespace PowerTables.Filters
         /// <param name="columnFilter">Filter itself</param>
         /// <param name="parseFunction">Function that will be used to convert client's string value for filter to <typeparamref name="TFilteringKey"/></param>
         /// <returns></returns>
-        public static ColumnFilterBase<TSourceData, TFilteringKey> Value<TSourceData, TFilteringKey>(
+        public static ColumnFilterBase<TSourceData, TFilteringKey> RawValue<TSourceData, TFilteringKey>(
             this ColumnFilterBase<TSourceData, TFilteringKey> columnFilter, Func<string, TFilteringKey> parseFunction)
         {
             columnFilter.ParseFunction = parseFunction;

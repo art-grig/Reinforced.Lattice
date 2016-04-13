@@ -30,7 +30,8 @@ namespace PowerTables.Mvc.Models.Tutorial
                 DeliveryDelay = q.DeliveryDelay,
                 ResponsibleUserId = q.ResponsibleUser.Id,
                 ResponsibleUserName = q.ResponsibleUser.FirstName + " " + q.ResponsibleUser.LastName,
-                State = (State)q.StateCode
+                State = (State)q.StateCode,
+                SupplierAddress = q.SupplierAddress
             }));
 
             conf.Column(c => c.TypeOfToy).Title("Class");
@@ -39,6 +40,8 @@ namespace PowerTables.Mvc.Models.Tutorial
             conf.Column(c => c.IsPaid).Title("Paid");
             conf.Column(c => c.CreatedDate).Title("Created");
             conf.Column(c => c.LastSoldDate).Title("Last sell");
+            conf.Column(c => c.ResponsibleUserName).Title("Responsible");
+            conf.Column(c => c.SupplierAddress).Title("Supp. Address");
 
             /* 
              * .DataOnly columns are passed to clien-side but are not displayed
@@ -48,6 +51,7 @@ namespace PowerTables.Mvc.Models.Tutorial
              */
             conf.Column(c => c.ItemsLeft).DataOnly();
             conf.Column(c => c.ResponsibleUserId).DataOnly();
+            conf.Column(c => c.SupplierAddress).DataOnly(); // we hide it because it is long
 
             /*
              * We didnt use .Basec here, so I have to repeat dates displaying configuration

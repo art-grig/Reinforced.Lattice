@@ -11,6 +11,7 @@
         public FilterValueProvider: HTMLInputElement;
 
         private getValue() {
+            if (!this.FilterValueProvider) return '';
             if (this._associatedColumn.IsDateTime) {
                 return this.MasterTable.Date.serialize(this.MasterTable.Date.getDateFromDatePicker(this.FilterValueProvider));
             }

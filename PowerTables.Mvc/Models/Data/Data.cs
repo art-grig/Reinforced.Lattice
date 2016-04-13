@@ -11,6 +11,7 @@ namespace PowerTables.Mvc.Models
     public class Data
     {
         private static readonly List<Toy> _sourceData;
+        private static readonly string[] _addresses;
 
         public static List<Toy> SourceData
         {
@@ -25,6 +26,8 @@ namespace PowerTables.Mvc.Models
 
             var usersFile = HttpContext.Current.Server.MapPath("~/Content/users.json");
             var toysFile = HttpContext.Current.Server.MapPath("~/Content/toys.txt");
+            var addressesFile = HttpContext.Current.Server.MapPath("~/Content/addresses.txt");
+            _addresses = File.ReadAllLines(addressesFile);
 
             _users = JsonConvert.DeserializeObject<List<ManagerUser>>(File.ReadAllText(usersFile));
             Dictionary<ToyType, List<string>> typestoNames = new Dictionary<ToyType, List<string>>();
@@ -80,7 +83,8 @@ namespace PowerTables.Mvc.Models
                             Price = r.NextDouble() * 500,
                             ResponsibleUser = _users[r.Next(_users.Count)],
                             StateCode = (byte)r.Next(5),
-                            ToyName = i > 0 ? string.Format("{0} ({1})", name, i) : name
+                            ToyName = i > 0 ? string.Format("{0} ({1})", name, i) : name,
+                            SupplierAddress = _addresses[r.Next(_addresses.Length)]
                         };
                         _sourceData.Add(sd);
                     }

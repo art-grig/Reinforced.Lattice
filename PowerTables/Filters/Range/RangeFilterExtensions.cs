@@ -47,13 +47,13 @@ namespace PowerTables.Filters.Range
         /// <param name="filterDelegate">Filtering delegate</param>
         /// <param name="ui">Filter UI builder</param>
         /// <returns>Fluent</returns>
-        public static RangeColumnFilter<TSourceData, TTableColumn> FilterRange<TSourceData, TTableData, TTableColumn>(
+        public static RangeColumnFilter<TSourceData, TTableColumn> FilterRangeBy<TSourceData, TTableData, TTableColumn>(
             this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
             Func<IQueryable<TSourceData>, RangeTuple<TTableColumn>, IQueryable<TSourceData>> filterDelegate,
             Action<IPluginConfiguration<RangeFilterUiConfig>> ui = null
             ) where TTableData : new()
         {
-            var filter = FilterRangeNoUi(column, filterDelegate);
+            var filter = FilterRangeNoUiBy(column, filterDelegate);
             FilterRangeUi(column, ui);
             return filter;
         }
@@ -84,7 +84,7 @@ namespace PowerTables.Filters.Range
         /// <param name="column">Column</param>
         /// <param name="filterDelegate">Filtering delegate</param>
         /// <returns>Fluent</returns>
-        public static RangeColumnFilter<TSourceData, TTableColumn> FilterRangeNoUi<TSourceData, TTableData, TTableColumn>(
+        public static RangeColumnFilter<TSourceData, TTableColumn> FilterRangeNoUiBy<TSourceData, TTableData, TTableColumn>(
             this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
             Func<IQueryable<TSourceData>, RangeTuple<TTableColumn>, IQueryable<TSourceData>> filterDelegate) where TTableData : new()
         {

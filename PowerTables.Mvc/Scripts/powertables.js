@@ -704,6 +704,14 @@ var PowerTables;
             this._comparators = {};
             this._filters = [];
             this._anyClientFiltration = false;
+            /**
+             * Data that actually is currently displayed in table
+             */
+            this.DisplayedData = [];
+            /**
+             * Data that was recently loaded from server
+             */
+            this.StoredData = [];
             this._rawColumnNames = masterTable.InstanceManager.getColumnNames();
             this._events = masterTable.Events;
             this._instances = masterTable.InstanceManager;
@@ -3035,6 +3043,9 @@ var PowerTables;
                 _super.apply(this, arguments);
                 this._selectedPage = 0;
             }
+            PagingPlugin.prototype.CurrentPage = function () { return this._selectedPage + 1; };
+            PagingPlugin.prototype.TotalPages = function () { return this._totalPages; };
+            PagingPlugin.prototype.PageSize = function () { return this._pageSize; };
             PagingPlugin.prototype.getCurrentPage = function () {
                 return this._selectedPage;
             };

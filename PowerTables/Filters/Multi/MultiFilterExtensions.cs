@@ -22,14 +22,14 @@ namespace PowerTables.Filters.Multi
         /// <param name="filterDelegate">Filtering function base on value received from filter</param>
         /// <param name="ui">Filter UI builder</param>
         /// <returns></returns>
-        public static MultiColumnFilter<TSourceData, TSourceColumn> FilterMultiSelect<TSourceData, TTableData, TTableColumn, TSourceColumn>(
+        public static MultiColumnFilter<TSourceData, TTableColumn> FilterMultiSelectBy<TSourceData, TTableData, TTableColumn>(
             this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
-            Func<IQueryable<TSourceData>, IEnumerable<TSourceColumn>, IQueryable<TSourceData>> filterDelegate,
+            Func<IQueryable<TSourceData>, IEnumerable<TTableColumn>, IQueryable<TSourceData>> filterDelegate,
             Action<IPluginConfiguration<SelectFilterUiConfig>> ui = null
             )
             where TTableData : new()
         {
-            var filter = FilterMultiSelectNoUi(column,filterDelegate);
+            var filter = FilterMultiSelectNoUiBy(column,filterDelegate);
             FilterMultiSelectUi(column,ui);
             return filter;
         }
@@ -59,7 +59,7 @@ namespace PowerTables.Filters.Multi
         /// <param name="column">Column configuration</param>
         /// <param name="filterDelegate">Filtering function base on value received from filter</param>
         /// <returns></returns>
-        public static MultiColumnFilter<TSourceData, TSourceColumn> FilterMultiSelectNoUi<TSourceData, TTableData, TTableColumn, TSourceColumn>(
+        public static MultiColumnFilter<TSourceData, TSourceColumn> FilterMultiSelectNoUiBy<TSourceData, TTableData, TTableColumn, TSourceColumn>(
             this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
             Func<IQueryable<TSourceData>, IEnumerable<TSourceColumn>, IQueryable<TSourceData>> filterDelegate) 
             where TTableData : new()

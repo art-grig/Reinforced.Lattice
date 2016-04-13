@@ -6,11 +6,12 @@ namespace PowerTables.Mvc.Models.Tutorial
 {
     public static partial class Tutorial
     {
-        public static Configurator<Toy, Row> Pagination(this Configurator<Toy, Row> conf)
+        public static Configurator<Toy, Row> ClientPagination(this Configurator<Toy, Row> conf)
         {
             conf.OrderingAndLoadingInidicator();
             conf.LoadImmediately(false);
             conf.Limit(ui => ui.PlaceAt("lt").Configuration
+                .EnableClientLimiting() // lets enable client limiting
                 .Values(new[]
             {
                 "Everything",           // any text will be interpreted as "all records"
@@ -23,7 +24,10 @@ namespace PowerTables.Mvc.Models.Tutorial
                 ui =>
                     ui.PlaceAt("rb")
                     .Configuration
-                    .PagingWithArrows()); // lets pick simple arrows left/right paging
+                    .EnableClientPaging()                       // Client limiting cannot work without client paging
+                    .PagingWithPeriods(useFirstLasPage: true)   // lets pick most complex paging
+                    .UseGotoPage()                              // and also enable "Go to page" functionality
+                );
             return conf;
         }
     }

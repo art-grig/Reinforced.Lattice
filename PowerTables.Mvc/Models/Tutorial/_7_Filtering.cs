@@ -25,12 +25,6 @@ namespace PowerTables.Mvc.Models.Tutorial
                 .AppendEmptyFilters()              // tell table to draw empty filters for columns without filters
                                                    // it is needed when using table-look-like templating
                     ;
-            
-            // Value filter (single textbox) on Name column
-            conf.Column(c => c.Name).FilterValue(c => c.ToyName, ui =>
-            {
-                ui.Configuration.DefaultValue = conf.ToFilterDefaultString("Jacks");
-            });
 
             conf.Column(c => c.Price).FilterRange(c => c.Price, ui =>
             {

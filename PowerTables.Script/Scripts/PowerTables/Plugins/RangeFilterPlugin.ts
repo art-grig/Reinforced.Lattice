@@ -13,6 +13,7 @@
         public ToValueProvider: HTMLInputElement;
 
         private getFromValue(): string {
+            if (!this.FromValueProvider) return '';
             if (this._associatedColumn.IsDateTime) {
                 var date = this.MasterTable.Date.getDateFromDatePicker(this.FromValueProvider);
                 return this.MasterTable.Date.serialize(date);
@@ -21,6 +22,7 @@
         }
 
         private getToValue(): string {
+            if (!this.ToValueProvider) return '';
             if (this._associatedColumn.IsDateTime) {
                 var date = this.MasterTable.Date.getDateFromDatePicker(this.ToValueProvider);
                 return this.MasterTable.Date.serialize(date);

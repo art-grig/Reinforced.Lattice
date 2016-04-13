@@ -40,13 +40,13 @@ namespace PowerTables.Filters.Select
         /// <param name="filterDelegate">Filtering function base on value received from filter</param>
         /// <param name="ui">UI builder</param>
         /// <returns>Filter fluent</returns>
-        public static ValueColumnFilter<TSourceData, TSourceColumn> FilterSelect<TSourceData, TTableData, TTableColumn, TSourceColumn>(
+        public static ValueColumnFilter<TSourceData, TTableColumn> FilterSelectBy<TSourceData, TTableData, TTableColumn>(
             this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
-            Func<IQueryable<TSourceData>, TSourceColumn, IQueryable<TSourceData>> filterDelegate,
+            Func<IQueryable<TSourceData>, TTableColumn, IQueryable<TSourceData>> filterDelegate,
             Action<IPluginConfiguration<SelectFilterUiConfig>> ui = null) where TTableData : new()
         {
 
-            var filter = column.FilterValueNoUi(filterDelegate);
+            var filter = column.FilterValueNoUiBy(filterDelegate);
             FilterSelectUi(column, ui);
             return filter;
         }

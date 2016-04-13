@@ -17,10 +17,20 @@ namespace PowerTables.Mvc.Models.Tutorial
     {
         public static Configurator<Toy, Row> HideoutAndResponseInfo(this Configurator<Toy, Row> conf)
         {
-            conf.Filtering();
-            conf.HideoutMenu(c => c.IncludeAll().Except(a => a.Id)
+            conf.RedirectingFilters();
+            conf.Column(c => c.DeliveryDelay).DataOnly();
+            conf.Column(c => c.Id).DataOnly();
+            conf.Column(c => c.ResponsibleUserName).DataOnly(false);
+            conf.Column(c => c.ItemsWasInitially).DataOnly();
+
+            conf.HideoutMenu(c => c.IncludeAll()
+                .Except(a => a.Id)
                 .Except(a => a.ResponsibleUserId)
-                .Except(a => a.ItemsLeft), ui => ui.PlaceAt("lt"));
+                .Except(a => a.ItemsLeft)
+                .Except(a => a.DeliveryDelay)
+                .Except(a => a.ItemsWasInitially)
+
+                , ui => ui.PlaceAt("lt"));
 
             conf.Column(c => c.TypeOfToy).Hide(false, true);
             conf.Column(c => c.Preorders).Hide();

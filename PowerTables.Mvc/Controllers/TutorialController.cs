@@ -141,7 +141,18 @@ namespace PowerTables.Mvc.Controllers
             return Handle(c => c.Pagination());
         }
 
-        [Tutorial("Filtering", 6, "/Views/Shared/Datepicker.cshtml")]
+        [Tutorial("Client-side pagination and limiting", 6)]
+        public ActionResult ClientPagination()
+        {
+            return TutPage(c => c.ClientPagination());
+        }
+
+        public ActionResult ClientPaginationHandle()
+        {
+            return Handle(c => c.ClientPagination());
+        }
+
+        [Tutorial("Filtering", 7, "/Views/Shared/Datepicker.cshtml")]
         public ActionResult Filtering()
         {
             return TutPage(c => c.Filtering());
@@ -152,7 +163,7 @@ namespace PowerTables.Mvc.Controllers
             return Handle(c => c.Filtering());
         }
 
-        [Tutorial("Redirecting Filters", 7)]
+        [Tutorial("Redirecting Filters", 8)]
         public ActionResult RedirectingFilters()
         {
             return TutPage(c => c.RedirectingFilters());
@@ -163,7 +174,7 @@ namespace PowerTables.Mvc.Controllers
             return Handle(c => c.RedirectingFilters());
         }
         
-        [Tutorial("Checkboxify and simple buttons", 8)]
+        [Tutorial("Checkboxify and simple buttons", 9)]
         public ActionResult ButtonsAndCheckboxify()
         {
             return TutPage(c => c.ButtonsAndCheckboxify());
@@ -174,7 +185,7 @@ namespace PowerTables.Mvc.Controllers
             return Handle(c => c.ButtonsAndCheckboxify());
         }
 
-        [Tutorial("Buttons for server commands", 9)]
+        [Tutorial("Buttons for server commands", 10)]
         public ActionResult ButtonsForCommands()
         {
             return TutPage(c => c.ButtonsForCommands());
@@ -185,7 +196,7 @@ namespace PowerTables.Mvc.Controllers
             return Handle(c => c.ButtonsForCommands());
         }
 
-        [Tutorial("Hideout and ResponseInfo", 10)]
+        [Tutorial("Hideout and ResponseInfo", 14)]
         public ActionResult HideoutAndResponseInfo()
         {
             return TutPage(c => c.HideoutAndResponseInfo());

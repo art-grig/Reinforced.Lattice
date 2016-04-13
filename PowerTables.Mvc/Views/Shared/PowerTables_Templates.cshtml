@@ -192,15 +192,16 @@
         <div class="col-md-10">
             @using (var m = t.ArrowsMode())
             {
-                <nav style="margin: 0; width: 100px; margin-left: auto;">
+                <nav style="margin: 0; width: 250px; margin-left: auto;">
                     <ul class="pager">
                         @using (m.If(c => c.PrevArrow))
                         {
-                            <li><a @t.BindPreviousPage("click")><span class="glyphicon glyphicon-chevron-left"></span></a></li>
+                            <li><a @t.BindPreviousPage("click") style="cursor: pointer"><span class="glyphicon glyphicon-chevron-left"></span></a></li>
                         }
+                        <li><span>Page @m.Value(c => c.CurrentPage) of @m.Value(c=>c.TotalPages)</span></li>
                         @using (m.If(c => c.NextArrow))
                         {
-                            <li><a @t.BindNextPage("click")><span class="glyphicon glyphicon-chevron-right"></span></a></li>
+                            <li><a @t.BindNextPage("click") style="cursor: pointer"><span class="glyphicon glyphicon-chevron-right"></span></a></li>
                         }
                     </ul>
                 </nav>
@@ -352,9 +353,9 @@
     {
         using (t.If(c => c.IsChecked))
         {
-            <span class="glyphicon glyphicon-check" @t.ThisWillTriggerSelection()></span>
+            <span class="" @t.ThisWillTriggerSelection()>Wooohoo!</span>
             @t.Else()
-            <span class="glyphicon glyphicon-unchecked" @t.ThisWillTriggerSelection()></span>
+            <span class="" @t.ThisWillTriggerSelection()>Okay</span>
         }
     }
 }
