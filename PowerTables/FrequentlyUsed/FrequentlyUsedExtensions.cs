@@ -24,8 +24,6 @@ namespace PowerTables.FrequentlyUsed
             this ColumnUsage<TSourceData, TTableData, TTableColumn> column
             ) where TTableData : new()
         {
-            const string funtemplate = "function (a) {{ switch(a.{1}) {{ {0} }} }}";
-
             var enumType = typeof(TTableColumn);
             if (typeof(Nullable<>).IsAssignableFrom(enumType))
             {
@@ -40,10 +38,16 @@ namespace PowerTables.FrequentlyUsed
                     ));
             }
             var items = EnumHelper.GetSelectList(enumType);
-            var cases = items.Select(c => string.Format("case {0}: return \"{1}\";", c.Value, c.Text)).ToList();
-            cases.Add("default: return \"\";");
-            var code = string.Format(funtemplate, string.Join(String.Empty, cases), column.ColumnProperty.Name);
-            column.ValueFunction(code);
+
+            column.Template(a => a.EmptyIfNotPresent(column.ColumnConfiguration.RawColumnName)
+                .Switch("{" + column.ColumnConfiguration.RawColumnName + "}",
+                    swtch => 
+                        swtch
+                        .Cases(items, c => c.Value, (tpl, v) => tpl.Content(v.Text))
+                        .DefaultEmpty()
+                        )
+                        
+                );
             return column;
         }
 
@@ -61,8 +65,10 @@ namespace PowerTables.FrequentlyUsed
             this ColumnUsage<TSourceData, TTableData, bool> column, string trueText, string falseText
             ) where TTableData : new()
         {
-            const string funtemplate = "function (a) {{  if (!a.{0}) return \"{2}\"; else return \"{1}\"; }}";
-            column.ColumnConfiguration.CellRenderingValueFunction = new JRaw(String.Format(funtemplate, column.ColumnProperty.Name, trueText, falseText));
+            column.Template(
+                tpl =>
+                    tpl.ReturnsIf("{" + column.ColumnConfiguration.RawColumnName + "}", v => v.Content(trueText),
+                        v => v.Content(falseText)));
             return column;
         }
 
@@ -102,10 +108,10 @@ namespace PowerTables.FrequentlyUsed
             {
                 format = col.Configurator.TableConfiguration.ClientDateTimeFormat;
             }
-            const string template = "function(v) {{ if (v.{0}) return dateFormat(v.{0},'{1}',{2}); else return ''; }}";
-            var code = string.Format(template, col.ColumnProperty.Name, format, utc ? "true" : "false");
-
-            col.ValueFunction(code);
+            col.Template(
+                c =>
+                    c.EmptyIfNotPresent(col.ColumnConfiguration.RawColumnName)
+                        .Returns(string.Format("`dateFormat({{{0}}},'{1}',{2})`", col.ColumnConfiguration.RawColumnName, format, utc ? "true" : "false")));
         }
 
         /// <summary>

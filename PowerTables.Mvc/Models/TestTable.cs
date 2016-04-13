@@ -139,7 +139,6 @@ namespace PowerTables.Mvc.Models
                 .FilterValue(c => c.VeryName).Default("Alpha");
 
             conf.Column(c => c.EnumValue)
-                .Hide()
                 .FormatEnumWithDisplayAttribute()
                 .FilterMultiSelect(c => c.GroupType, EnumHelper.GetSelectList(typeof(SomeEnum)))
                 ;

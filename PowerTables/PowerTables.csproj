@@ -106,7 +106,8 @@
     <Compile Include="Filters\Value\ValueFilterExtensions.cs" />
     <Compile Include="FilterTuple.cs" />
     <Compile Include="FrequentlyUsed\FrequentlyUsedExtensions.cs" />
-    <Compile Include="FrequentlyUsed\TemplateElementBuilder.cs" />
+    <Compile Include="FrequentlyUsed\SwitchBuilder.cs" />
+    <Compile Include="FrequentlyUsed\Template.cs" />
     <Compile Include="FrequentlyUsed\CellTemplateBuilder.cs" />
     <Compile Include="FrequentlyUsed\TemplatesExtensions.cs" />
     <Compile Include="IQueryHandler.cs" />

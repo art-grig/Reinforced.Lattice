@@ -40,7 +40,7 @@ namespace PowerTables.FrequentlyUsed
         /// <param name="b"></param>
         /// <param name="functionCall">Function call onclick. {Something} syntax supported </param>
         /// <returns>Fluent</returns>
-        public static TemplateElementBuilder OnClick(this TemplateElementBuilder b, string functionCall)
+        public static Template OnClick(this Template b, string functionCall)
         {
             return b.Attr("onclick", functionCall);
         }
@@ -51,7 +51,7 @@ namespace PowerTables.FrequentlyUsed
         /// <param name="b"></param>
         /// <param name="target">Target value </param>
         /// <returns>Fluent</returns>
-        public static TemplateElementBuilder Target(this TemplateElementBuilder b, string target)
+        public static Template Target(this Template b, string target)
         {
             return b.Attr("target", target);
         }
@@ -73,7 +73,7 @@ namespace PowerTables.FrequentlyUsed
             return col.Template(c =>
             {
                 c.EmptyIfNotPresent(col.ColumnConfiguration.RawColumnName);
-                c.Returns(a => a.Tag("a").Attr("href", linkFormat).Inside(textFormat).Attr("target", target));
+                c.Returns(a => a.Tag("a").Attr("href", linkFormat).Content(textFormat).Attr("target", target));
             });
         }
     }
