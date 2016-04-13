@@ -41,7 +41,7 @@ namespace PowerTables.Templating
     {
         public static VisualState AddClass(this VisualState state, string @class)
         {
-            state.Description.Classes.Add(string.Format("+{0}",@class));
+            state.Description.Classes.Add(string.Format("+{0}", @class));
             return state;
         }
 
@@ -63,9 +63,27 @@ namespace PowerTables.Templating
             return state;
         }
 
+        public static VisualState RemoveAttr(this VisualState state, string attrName)
+        {
+            state.Description.Attrs[attrName] = null;
+            return state;
+        }
+
         public static VisualState Style(this VisualState state, string styleName, string styleValue)
         {
             state.Description.Styles[styleName] = styleValue;
+            return state;
+        }
+
+        public static VisualState Disabled(this VisualState state)
+        {
+            state.Attr("disabled", "disabled");
+            return state;
+        }
+
+        public static VisualState Color(this VisualState state, string color)
+        {
+            state.Style("color", color);
             return state;
         }
     }

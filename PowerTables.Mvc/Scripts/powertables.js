@@ -1683,6 +1683,44 @@ var PowerTables;
 (function (PowerTables) {
     var Plugins;
     (function (Plugins) {
+        var Editors;
+        (function (Editors) {
+            var CellEditorBase = (function (_super) {
+                __extends(CellEditorBase, _super);
+                function CellEditorBase() {
+                    _super.apply(this, arguments);
+                }
+                /**
+                 * Returns entered editor value
+                 *
+                 * @returns {}
+                 */
+                CellEditorBase.prototype.getValue = function () { throw new Error("Not implemented"); };
+                /**
+                 * Sets editor value from the outside
+                 */
+                CellEditorBase.prototype.setValue = function (value) { throw new Error("Not implemented"); };
+                /**
+                 * Validates entered value and returns set of error messages
+                 * or null if entered value is valid
+                 *
+                 * @returns {Array} Array of
+                 */
+                CellEditorBase.prototype.validate = function () { return []; };
+                /**
+                 * Called by Editor when editing finishes
+                 */
+                CellEditorBase.prototype.finishEditing = function () { };
+                return CellEditorBase;
+            })(Plugins.PluginBase);
+            Editors.CellEditorBase = CellEditorBase;
+        })(Editors = Plugins.Editors || (Plugins.Editors = {}));
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
         /**
          * Base class for creating filters
          */
@@ -2438,12 +2476,10 @@ var PowerTables;
                 var i = parseInt(v);
                 var valid = !isNaN(i) && (i > 0) && (i <= this._totalPages);
                 if (valid) {
-                    this.GotoPanel.classList.remove('has-error');
-                    this.GotoBtn.removeAttribute('disabled');
+                    this.MasterTable.Renderer.Modifier.normalState(this.VisualStates);
                 }
                 else {
-                    this.GotoPanel.classList.add('has-error');
-                    this.GotoBtn.setAttribute('disabled', 'disabled');
+                    this.MasterTable.Renderer.Modifier.changeState("invalid", this.VisualStates);
                 }
             };
             PagingPlugin.prototype.modifyQuery = function (query, scope) {
@@ -2483,10 +2519,6 @@ var PowerTables;
 (function (PowerTables) {
     var Plugins;
     (function (Plugins) {
-        /**
-         * Base class for plugins.
-         * It contains necessary infrastructure for convinence of plugins creation
-         */
         var PluginBase = (function () {
             function PluginBase() {
                 this.afterDrawn = null;
@@ -3377,6 +3409,7 @@ var PowerTables;
                             for (var i = 0; i < elements.length; i++) {
                                 var element = elements.item(i);
                                 state[i].Element = element;
+                                element.removeAttribute("data-state-" + vsk);
                                 var target = this._stealer || state[i].Receiver;
                                 if (!target['VisualStates'])
                                     target['VisualStates'] = {};
@@ -3388,6 +3421,7 @@ var PowerTables;
                             }
                         }
                     }
+                    this._hasVisualStates = false;
                     this.resolveNormalStates(targetPendingNormal);
                     this._cachedVisualStates = {};
                 }
@@ -3777,9 +3811,25 @@ var PowerTables;
                 this._layoutRenderer = layoutRenderer;
                 this._instances = instances;
             }
+            /**
+             * Applies settings for specified state
+             *
+             * @param state State id
+             * @param states VisualStates collection
+             */
             DOMModifier.prototype.changeState = function (state, states) {
                 this.applyNormal(states['_normal']);
+                if (!states[state])
+                    return;
                 this.applyState(states[state]);
+            };
+            /**
+             * Reverts elements back to normal state
+             *
+             * @param states VisualStates collection
+             */
+            DOMModifier.prototype.normalState = function (states) {
+                this.applyNormal(states['_normal']);
             };
             DOMModifier.prototype.applyState = function (desired) {
                 for (var i = 0; i < desired.length; i++) {
@@ -3787,9 +3837,9 @@ var PowerTables;
                     for (var k = 0; k < ns.classes.length; k++) {
                         var cls = ns.classes[k].substring(1);
                         if (ns.classes[k].charAt(0) === '+')
-                            ns.Element.classList.remove(cls);
-                        else
                             ns.Element.classList.add(cls);
+                        else
+                            ns.Element.classList.remove(cls);
                     }
                     for (var ak in ns.attrs) {
                         if (ns.attrs.hasOwnProperty(ak)) {
@@ -4550,7 +4600,6 @@ var PowerTables;
                 this.LayoutRenderer = new Rendering.LayoutRenderer(this, this._stack, this._instances);
                 this.ContentRenderer = new Rendering.ContentRenderer(this, this._stack, this._instances);
                 this.BackBinder = new Rendering.BackBinder(this.HandlebarsInstance, instances, this._stack, dateService);
-                this.Modifier = new Rendering.DOMModifier(this._stack, this.Locator, this.BackBinder, this, this.LayoutRenderer, instances);
                 this.HandlebarsInstance.registerHelper('ifq', this.ifqHelper);
                 this.HandlebarsInstance.registerHelper('ifloc', this.iflocHelper.bind(this));
                 this.HandlebarsInstance.registerHelper('Content', this.contentHelper.bind(this));
@@ -4593,6 +4642,7 @@ var PowerTables;
                 this.BodyElement.removeChild(bodyMarker);
                 this.BackBinder.backBind(this.RootElement);
                 this.Locator = new Rendering.DOMLocator(this.BodyElement, this.RootElement, this._rootId);
+                this.Modifier = new Rendering.DOMModifier(this._stack, this.Locator, this.BackBinder, this, this.LayoutRenderer, this._instances);
                 this._events.AfterLayoutRendered.invoke(this, null);
             };
             /**

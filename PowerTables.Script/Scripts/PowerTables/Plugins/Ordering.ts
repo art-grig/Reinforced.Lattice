@@ -140,7 +140,7 @@
     }
 
     interface ICustomHeader extends IColumnHeader {
-        switchOrdering: (e: TemplateBoundEvent<ICustomHeader>) => void;
+        switchOrdering: (e: TemplateBoundEvent) => void;
         IsNeutral?: boolean;
         IsAscending?: boolean;
         IsDescending?: boolean;

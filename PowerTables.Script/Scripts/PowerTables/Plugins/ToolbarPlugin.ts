@@ -7,7 +7,7 @@
         public AllButtons: { [id: number]: HTMLElement } = {};
         private _buttonsConfig: { [key: number]: ToolbarButtonClientConfiguration } = {}
 
-        public buttonHandleEvent(e: TemplateBoundEvent<TotalsPlugin>) {
+        public buttonHandleEvent(e: TemplateBoundEvent) {
             var btnId = e.EventArguments[0];
             this.handleButtonAction(this._buttonsConfig[btnId]);
         }

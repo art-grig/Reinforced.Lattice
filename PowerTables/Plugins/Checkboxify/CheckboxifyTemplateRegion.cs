@@ -83,7 +83,7 @@ namespace PowerTables.Plugins.Checkboxify
 
         public static MvcHtmlString ThisWillTriggerSelection(this CheckboxifiedCellTemplateRegion t)
         {
-            return MvcHtmlString.Create("data-checkboxify=\"Value\"");
+            return MvcHtmlString.Create("data-checkboxify=\"true\"");
         }
     }
 }

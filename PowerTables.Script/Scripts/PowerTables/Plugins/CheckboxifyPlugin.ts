@@ -1,5 +1,4 @@
 ﻿module PowerTables.Plugins {
-    import TemplateBoundEvent = Rendering.ITemplateBoundEvent;
     import CheckboxifyClientConfig = Plugins.Checkboxify.ICheckboxifyClientConfig;
     import ColumnConfiguration = Configuration.Json.IColumnConfiguration;
 
@@ -197,7 +196,7 @@
     }
 
     interface ISpecialHeader extends IColumnHeader {
-        selectAllEvent(e: TemplateBoundEvent<CheckboxifyPlugin>): void;
+        selectAllEvent(e: TemplateBoundEvent): void;
     }
 
     ComponentsContainer.registerComponent('Checkboxify', CheckboxifyPlugin);

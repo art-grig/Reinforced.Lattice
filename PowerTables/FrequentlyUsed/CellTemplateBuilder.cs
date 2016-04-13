@@ -30,6 +30,16 @@ namespace PowerTables.FrequentlyUsed
             _lines.Add(string.Format("if ((v.{0}==null)||(v.{0}==undefined)) return ''; ", columnName));
             return this;
         }
+        /// <summary>
+        /// Template will return empty cell is specified column is null or 0 or undefined
+        /// </summary>
+        /// <param name="columnName">Column</param>
+        /// <returns></returns>
+        public CellTemplateBuilder EmptyIfNotPresentSelf()
+        {
+            _lines.Add("if ((v==null)||(v==undefined)) return \'\'; ");
+            return this;
+        }
 
         /// <summary>
         /// Template will return empty cell is specified expression met. 

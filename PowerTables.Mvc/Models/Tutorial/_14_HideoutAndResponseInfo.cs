@@ -40,8 +40,8 @@ namespace PowerTables.Mvc.Models.Tutorial
                 ui => ui.PlaceAt("rb").Configuration
                 .ClientTemplate(tpl =>
                     tpl.Returns(v => v.Tag("span")
-                        .Inside("Filtered out:")
-                        .After(t => t.Tag("strong").Inside("{FilteredOut}")))),
+                        .Content("Filtered out:")
+                        .After(t => t.Tag("strong").Content("{FilteredOut}")))),
             rdi => new TutorialResponseInfo() { FilteredOut = rdi.Source.Count() - rdi.Filtered.Count() },
               "rb"
             );
@@ -50,7 +50,7 @@ namespace PowerTables.Mvc.Models.Tutorial
             {
                 totals.AddTotalFormat(c => c.ItemsLeft, c => c.Source.Select(v => v.ItemsLeft).DefaultIfEmpty(0).Sum(), "{v} pcs.");
                 totals.AddTotalTemplate(c => c.Id, c => c.Source.Select(v => v.Id).DefaultIfEmpty(0).Max(),
-                    c => c.EmptyIfNotPresentSelf().Returns(v => v.Tag("strong").Attr("class", "text-center").Inside("Max ID: {@}")));
+                    c => c.EmptyIfNotPresentSelf().Returns(v => v.Tag("strong").Attr("class", "text-center").Content("Max ID: {@}")));
                 totals.AddTotal(c => c.Price, c => c.Source.Select(v => v.Price).DefaultIfEmpty(0).Average(), "function(v) { return 'Avg. Price: $' + parseFloat(v).toFixed(2); }");
             });
             return conf;

@@ -16,8 +16,7 @@
             this.LayoutRenderer = new LayoutRenderer(this, this._stack, this._instances);
             this.ContentRenderer = new ContentRenderer(this, this._stack, this._instances);
             this.BackBinder = new BackBinder(this.HandlebarsInstance, instances, this._stack, dateService);
-            this.Modifier = new DOMModifier(this._stack, this.Locator, this.BackBinder, this, this.LayoutRenderer,instances);
-
+            
             this.HandlebarsInstance.registerHelper('ifq', this.ifqHelper);
             this.HandlebarsInstance.registerHelper('ifloc', this.iflocHelper.bind(this));
             this.HandlebarsInstance.registerHelper('Content', this.contentHelper.bind(this));
@@ -113,6 +112,7 @@
             this.BodyElement.removeChild(bodyMarker);
             this.BackBinder.backBind(this.RootElement);
             this.Locator = new DOMLocator(this.BodyElement, this.RootElement, this._rootId);
+            this.Modifier = new DOMModifier(this._stack, this.Locator, this.BackBinder, this, this.LayoutRenderer, this._instances);
 
             this._events.AfterLayoutRendered.invoke(this, null);
         }

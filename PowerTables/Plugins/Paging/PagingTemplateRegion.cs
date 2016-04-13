@@ -43,7 +43,7 @@ namespace PowerTables.Plugins.Paging
         public string ExistingModel { get; private set; }
     }
 
-    public class PagingGotoPageTemplate : HbTagRegion, IProvidesMarking, IProvidesEventsBinding
+    public class PagingGotoPageTemplate : HbTagRegion, IProvidesMarking, IProvidesEventsBinding, IProvidesVisualState
     {
         public PagingGotoPageTemplate(TextWriter writer)
             : base("if", "Configuration.UseGotoPage", writer)
@@ -141,19 +141,20 @@ namespace PowerTables.Plugins.Paging
             return t.BindEvent<T, IPageViewModel, int>("navigateToPage", eventId, c => c.Page);
         }
 
-        public static MvcHtmlString ThisIsGotoPanel(this PagingGotoPageTemplate t)
+        
+        public static MvcHtmlString BindGotoPage(this PagingGotoPageTemplate t,string eventId)
         {
-            return t.Mark("GotoPanel");
+            return t.BindEvent("gotoPageClick", eventId);
         }
 
-        public static MvcHtmlString ThisIsGotoPageButton(this PagingGotoPageTemplate t)
+        public static MvcHtmlString BindValidateGotoPage(this PagingGotoPageTemplate t,string eventId)
         {
-            return MvcHtmlString.Create(t.Mark("GotoBtn") + " " + t.BindEvent("gotoPageClick", "click"));
+            return t.BindEvent("validateGotopage", eventId);
         }
 
-        public static MvcHtmlString ThisIsGotoPageTextbox(this PagingGotoPageTemplate t)
+        public static MvcHtmlString WhenEnteredPageInvalid(this PagingGotoPageTemplate t, Action<VisualState> state)
         {
-            return MvcHtmlString.Create(t.Mark("GotoInput") + " " + t.BindEvent("validateGotopage", "keyup"));
+            return t.State("invalid", state);
         }
 
     }

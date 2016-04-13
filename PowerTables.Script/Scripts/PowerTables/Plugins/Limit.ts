@@ -11,7 +11,7 @@
             return templatesProvider.getCachedTemplate('limit')(this);
         }
 
-        public changeLimitHandler(e: TemplateBoundEvent<ILimitPlugin>) {
+        public changeLimitHandler(e: TemplateBoundEvent) {
             var limit = parseInt(e.EventArguments[0]);
             if (isNaN(limit)) limit = 0;
             this.changeLimit(limit);

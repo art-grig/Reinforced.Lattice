@@ -33,16 +33,16 @@
         }
 
         //#region Events handling
-        public toggleColumn(e: TemplateBoundEvent<HideoutPlugin>) {
-            e.Receiver.toggleColumnByName(e.EventArguments[0]);
+        public toggleColumn(e: TemplateBoundEvent) {
+            this.toggleColumnByName(e.EventArguments[0]);
         }
 
-        public showColumn(e: TemplateBoundEvent<HideoutPlugin>) {
-            e.Receiver.showColumnByName(e.EventArguments[0]);
+        public showColumn(e: TemplateBoundEvent) {
+            this.showColumnByName(e.EventArguments[0]);
         }
 
-        public hideColumn(e: TemplateBoundEvent<HideoutPlugin>) {
-            e.Receiver.hideColumnByName(e.EventArguments[0]);
+        public hideColumn(e: TemplateBoundEvent) {
+            this.hideColumnByName(e.EventArguments[0]);
         }
         //#endregion
 

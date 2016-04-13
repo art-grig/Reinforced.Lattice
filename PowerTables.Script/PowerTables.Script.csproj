@@ -42,6 +42,7 @@
     <TypeScriptCompile Include="Scripts\PowerTables\InstanceManager.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Loader.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Editor.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Editors\CellEditorBase.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\BackBinder.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\ContentRenderer.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\DOMModifier.ts" />
@@ -72,9 +73,7 @@
     <TypeScriptCompile Include="Scripts\Typings\Limit.d.ts" />
     <TypeScriptCompile Include="Scripts\Typings\PagingPlugin.d.ts" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Scripts\PowerTables\Plugins\Editors\" />
-  </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
   </PropertyGroup>

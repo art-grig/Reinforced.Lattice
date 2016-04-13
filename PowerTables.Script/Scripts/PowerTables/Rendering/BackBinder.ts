@@ -121,14 +121,18 @@
                         for (var i = 0; i < elements.length; i++) {
                             var element = <HTMLElement>elements.item(i);
                             state[i].Element = element;
+                            element.removeAttribute(`data-state-${vsk}`);
+
                             var target = this._stealer || state[i].Receiver;
                             if (!target['VisualStates']) target['VisualStates'] = {}
                             if (!target['VisualStates'].hasOwnProperty(vsk)) target['VisualStates'][vsk] = [];
                             target['VisualStates'][vsk].push(state[i]);
                             if (targetPendingNormal.indexOf(target) < 0) targetPendingNormal.push(target);
+
                         }
                     }
                 }
+                this._hasVisualStates = false;
                 this.resolveNormalStates(targetPendingNormal);
                 this._cachedVisualStates = {};
             }
@@ -295,7 +299,7 @@
     /**
     * Event that was bound from template
     */
-    export interface ITemplateBoundEvent<T> {
+    export interface ITemplateBoundEvent {
         /**
          * Element triggered particular event
          */
@@ -309,7 +313,7 @@
         /**
          * Event received (to avoid using "this" in come cases)
          */
-        Receiver: T;
+        Receiver: any;
 
         /**
          * Event argumetns

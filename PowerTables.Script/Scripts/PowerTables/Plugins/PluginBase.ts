@@ -1,5 +1,5 @@
 ﻿module PowerTables.Plugins {
-    /**
+    import State = PowerTables.Rendering.IState; /**
      * Base class for plugins. 
      * It contains necessary infrastructure for convinence of plugins creation
      */
@@ -14,6 +14,12 @@
 
         public RawConfig: Configuration.Json.IPluginConfiguration;
         public PluginLocation: string;
+
+        /**
+         * Plugin's visual states collection. 
+         * Usually it is not used, but always it is better to have one 
+         */
+        public VisualStates: { [key: string]: State[] };
 
         /**
          * Plugin configuration object

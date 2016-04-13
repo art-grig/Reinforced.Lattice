@@ -16,9 +16,25 @@
         private _layoutRenderer: LayoutRenderer;
         private _instances: InstanceManager;
 
-        public changeState(state: string, states: { [key: string]: IState[] }) {
+        /**
+         * Applies settings for specified state  
+         * 
+         * @param state State id
+         * @param states VisualStates collection
+         */
+        public changeState(state: string, states: { [key: string]: IState[] }) : void {
             this.applyNormal(states['_normal']);
+            if (!states[state]) return;
             this.applyState(states[state]);
+        }
+
+        /**
+         * Reverts elements back to normal state
+         * 
+         * @param states VisualStates collection 
+         */
+        public normalState(states: { [key: string]: IState[] }) :void {
+            this.applyNormal(states['_normal']);
         }
 
         private applyState(desired: IState[]) {
@@ -26,8 +42,8 @@
                 var ns: IState = desired[i];
                 for (var k = 0; k < ns.classes.length; k++) {
                     var cls = ns.classes[k].substring(1);
-                    if (ns.classes[k].charAt(0) === '+') ns.Element.classList.remove(cls);
-                    else ns.Element.classList.add(cls);
+                    if (ns.classes[k].charAt(0) === '+') ns.Element.classList.add(cls);
+                    else ns.Element.classList.remove(cls);
                 }
                 for (var ak in ns.attrs) {
                     if (ns.attrs.hasOwnProperty(ak)) {

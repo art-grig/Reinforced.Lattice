@@ -86,6 +86,8 @@
     <Compile Include="Defaults\DefaultCommandHandler.cs" />
     <Compile Include="Defaults\DefaultQueryHandler.cs" />
     <Compile Include="Defaults\DelegateCommandHandler.cs" />
+    <Compile Include="Editors\CellEditorConfigurationBase.cs" />
+    <Compile Include="Editors\EditorClientConfiguration.cs" />
     <Compile Include="Filters\ColumnFilterBase.cs" />
     <Compile Include="Filters\ColumnFilterExtensions.cs" />
     <Compile Include="Filters\CommonFiltersUiExtensions.cs" />
@@ -202,15 +204,14 @@
     <Compile Include="Templating\TemplateRegion.cs" />
     <Compile Include="Templating\TemplatesPageBase.cs" />
     <Compile Include="Templating\TemplatingExtensions.cs" />
+    <Compile Include="Templating\VisualStateDescription.cs" />
     <Compile Include="TokenStorage.cs" />
     <Compile Include="ValueConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Editors\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

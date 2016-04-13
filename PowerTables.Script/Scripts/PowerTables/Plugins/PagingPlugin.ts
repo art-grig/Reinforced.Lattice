@@ -3,6 +3,7 @@
     import PagingClientConfiguration = Plugins.Paging.IPagingClientConfiguration;
 
     export class PagingPlugin extends FilterBase<PagingClientConfiguration> implements IPagingPlugin {
+
         public Pages: IPagesElement[];
         public Shown: boolean;
         public NextArrow: boolean;
@@ -19,8 +20,6 @@
         private _totalPages: number;
         private _pageSize: number;
 
-        public GotoPanel: HTMLElement;
-        public GotoBtn: HTMLElement;
         public GotoInput: HTMLInputElement;
 
         public getCurrentPage() {
@@ -76,7 +75,7 @@
             this.MasterTable.Controller.reload();
         }
 
-        public gotoPageClick(e: TemplateBoundEvent<PagingPlugin>) {
+        public gotoPageClick(e: TemplateBoundEvent) {
             if (this.GotoInput) {
                 var v: string = this.GotoInput.value;
                 v = (parseInt(v) - 1).toString();
@@ -84,15 +83,15 @@
             }
         }
 
-        public navigateToPage(e: TemplateBoundEvent<PagingPlugin>) {
+        public navigateToPage(e: TemplateBoundEvent) {
             this.goToPage(e.EventArguments[0]);
         }
 
-        public nextClick(e: TemplateBoundEvent<PagingPlugin>) {
+        public nextClick(e: TemplateBoundEvent) {
             if (this._selectedPage < this._totalPages) this.goToPage((this._selectedPage + 1).toString());
         }
 
-        public previousClick(e: TemplateBoundEvent<PagingPlugin>) {
+        public previousClick(e: TemplateBoundEvent) {
             if (this._selectedPage > 0) this.goToPage((this._selectedPage - 1).toString());
         }
 
@@ -153,11 +152,9 @@
             var i: number = parseInt(v);
             var valid: boolean = !isNaN(i) && (i > 0) && (i <= this._totalPages);
             if (valid) {
-                this.GotoPanel.classList.remove('has-error');
-                this.GotoBtn.removeAttribute('disabled');
+                this.MasterTable.Renderer.Modifier.normalState(this.VisualStates);
             } else {
-                this.GotoPanel.classList.add('has-error');
-                this.GotoBtn.setAttribute('disabled', 'disabled');
+                this.MasterTable.Renderer.Modifier.changeState("invalid", this.VisualStates);
             }
         }
 
