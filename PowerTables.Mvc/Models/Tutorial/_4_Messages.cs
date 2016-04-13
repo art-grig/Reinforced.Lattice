@@ -4,7 +4,7 @@ namespace PowerTables.Mvc.Models.Tutorial
 {
     public static partial class Tutorial
     {
-        public static Configurator<SourceData, TargetData> Messages(this Configurator<SourceData, TargetData> conf)
+        public static Configurator<Toy, Row> Messages(this Configurator<Toy, Row> conf)
         {
             conf.OrderingAndLoadingInidicator();
             conf.LoadImmediately(false);

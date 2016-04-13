@@ -55,25 +55,33 @@
             }
             for (var fm in this.Configuration.FiltersMappings) {
                 if (this.Configuration.FiltersMappings.hasOwnProperty(fm)) {
-                    var mppg = this.Configuration.FiltersMappings[fm];
-                    var needToApply = (mppg.ForClient && mppg.ForServer)
-                        || (mppg.ForClient && scope === QueryScope.Client)
-                        || (mppg.ForServer && scope === QueryScope.Server)
+                    var mappingConf = this.Configuration.FiltersMappings[fm];
+                    var needToApply = (mappingConf.ForClient && mappingConf.ForServer)
+                        || (mappingConf.ForClient && scope === QueryScope.Client)
+                        || (mappingConf.ForServer && scope === QueryScope.Server)
                         || (scope === QueryScope.Transboundary);
                     if (needToApply) {
-                        switch (mppg.FilterType) {
+                        switch (mappingConf.FilterType) {
                             case 0:
-                                query.Filterings[fm] = result[mppg.FieldKeys[0]];
+                                query.Filterings[fm] = result[mappingConf.FieldKeys[0]];
                                 break;
                             case 1:
-                                query.Filterings[fm] = `${result[mppg.FieldKeys[0]]}|${result[mppg.FieldKeys[1]]}`;
+                                if (mappingConf.FieldKeys.length === 1 && (Object.prototype.toString.call(result[mappingConf[0]]) === '[object Array]')) {
+                                    query.Filterings[fm] = `${result[mappingConf[0]][0]}|${result[mappingConf[0]][1]}`;
+                                } else {
+                                    query.Filterings[fm] = `${result[mappingConf.FieldKeys[0]]}|${result[mappingConf.FieldKeys[1]]}`;
+                                }
                                 break;
                             case 2:
-                                var values = [];
-                                for (var m = 0; m < mppg.FieldKeys.length; m++) {
-                                    values.push(result[mppg.FieldKeys[m]]);
+                                if (mappingConf.FieldKeys.length === 1 && (Object.prototype.toString.call(result[mappingConf[0]]) === '[object Array]')) {
+                                    query.Filterings[fm] = result[mappingConf[0]].join('|');
+                                } else {
+                                    var values = [];
+                                    for (var m = 0; m < mappingConf.FieldKeys.length; m++) {
+                                        values.push(result[mappingConf.FieldKeys[m]]);
+                                    }
+                                    query.Filterings[fm] = values.join('|');
                                 }
-                                query.Filterings[fm] = values.join('|');
                                 break;
                         }
                     }

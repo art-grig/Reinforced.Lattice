@@ -218,10 +218,11 @@ namespace PowerTables.Configuration
         /// but still used for Value/HTML function
         /// </summary>
         /// <param name="conf">Column configuration</param>
+        /// <param name="isDataOnly">Enable or disable .DataOnly</param>
         public static void DataOnly<TSourceData, TTableData, TTableColumn>
-            (this ColumnUsage<TSourceData, TTableData, TTableColumn> conf) where TTableData : new()
+            (this ColumnUsage<TSourceData, TTableData, TTableColumn> conf, bool isDataOnly = true) where TTableData : new()
         {
-            conf.ColumnConfiguration.IsDataOnly = true;
+            conf.ColumnConfiguration.IsDataOnly = isDataOnly;
         }
 
         /// <summary>

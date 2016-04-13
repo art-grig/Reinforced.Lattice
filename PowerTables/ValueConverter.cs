@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -96,5 +97,19 @@ namespace PowerTables
 
             return System.Convert.ChangeType(src, targetType);
         }
+
+        private static readonly Dictionary<Type, PropertyInfo> _nullableValueProperties = new Dictionary<Type, PropertyInfo>();
+
+        public static object ExtractValueFromNullable(object nullable)
+        {
+            var objType = nullable.GetType();
+            if (!objType.IsNullable()) return nullable;
+            if (!_nullableValueProperties.ContainsKey(objType))
+            {
+                _nullableValueProperties[objType] = objType.GetProperty("Value");
+            }
+            return _nullableValueProperties[objType].GetValue(nullable);
+        }
+
     }
 }

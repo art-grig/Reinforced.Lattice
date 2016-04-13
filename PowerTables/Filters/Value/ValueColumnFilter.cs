@@ -33,7 +33,7 @@ namespace PowerTables.Filters.Value
 
         protected override IQueryable<TSourceData> DefaultFilter(IQueryable<TSourceData> source, TFilteringKey key)
         {
-            var lambda = LambdaHelpers.BinaryLambdaExpression(ExpressionType.Equal, _sourceExpression, key);
+            var lambda = LambdaHelpers.BinaryLambdaExpression(ExpressionType.Equal, _sourceExpression, ValueConverter.ExtractValueFromNullable(key));
             return ReflectionCache.CallWhere(source, lambda);
         }
 

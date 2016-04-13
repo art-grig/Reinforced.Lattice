@@ -15,14 +15,16 @@ namespace PowerTables.Mvc.Models.Tutorial
 {
     public static partial class Tutorial
     {
-        public static Configurator<SourceData, TargetData> HideoutAndResponseInfo(this Configurator<SourceData, TargetData> conf)
+        public static Configurator<Toy, Row> HideoutAndResponseInfo(this Configurator<Toy, Row> conf)
         {
             conf.Filtering();
             conf.HideoutMenu(c => c.IncludeAll().Except(a => a.Id)
-                .Except(a => a.BehindProperty)
-                .Except(a => a.SomethingDataOnly), ui => ui.PlaceAt("lt"));
-            conf.Column(c => c.NullableDate).Hide(false, true);
-            conf.Column(c => c.SomeCustomTemplate).Hide();
+                .Except(a => a.ResponsibleUserId)
+                .Except(a => a.ItemsLeft), ui => ui.PlaceAt("lt"));
+
+            conf.Column(c => c.TypeOfToy).Hide(false, true);
+            conf.Column(c => c.Preorders).Hide();
+
             conf.ResponseInfo(ui => ui.PlaceAt("lb"), "lb");
             conf.ResponseInfo(
                 ui => ui.PlaceAt("rb").Configuration
@@ -36,10 +38,10 @@ namespace PowerTables.Mvc.Models.Tutorial
 
             conf.Totals(totals =>
             {
-                totals.AddTotalFormat(c => c.ItemsCount, c => c.Source.Select(v=>v.ItemsCount).DefaultIfEmpty(0).Sum(), "{v} pcs.");
-                totals.AddTotalTemplate(c => c.Id, c => c.Source.Select(v=>v.Id).DefaultIfEmpty(0).Max(), 
-                    c => c.EmptyIfNotPresentSelf().Returns(v => v.Tag("strong").Attr("class","text-center").Inside("Max ID: {@}")));
-                totals.AddTotal(c => c.Cost, c => c.Source.Select(v=>v.Cost).DefaultIfEmpty(0).Average(), "function(v) { return 'AVG cost: $' + parseFloat(v).toFixed(2); }");
+                totals.AddTotalFormat(c => c.ItemsLeft, c => c.Source.Select(v => v.ItemsLeft).DefaultIfEmpty(0).Sum(), "{v} pcs.");
+                totals.AddTotalTemplate(c => c.Id, c => c.Source.Select(v => v.Id).DefaultIfEmpty(0).Max(),
+                    c => c.EmptyIfNotPresentSelf().Returns(v => v.Tag("strong").Attr("class", "text-center").Inside("Max ID: {@}")));
+                totals.AddTotal(c => c.Price, c => c.Source.Select(v => v.Price).DefaultIfEmpty(0).Average(), "function(v) { return 'Avg. Price: $' + parseFloat(v).toFixed(2); }");
             });
             return conf;
         }

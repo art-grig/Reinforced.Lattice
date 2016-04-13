@@ -5,7 +5,7 @@
     *@
     var createDatePicker = function (element) {
         $(element)
-            .datepicker({ format: 'dd/MM/yyyy', weekStart: 1 })
+            .datepicker({ format: 'dd MM yyyy', weekStart: 1 })
             .on('changeDate', function () {
                 PowerTables.PowerTable.fireDomEvent('keyup', element);
             });

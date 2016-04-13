@@ -67,7 +67,15 @@
          */
         public redrawVisibleData(): void {
             var rows: IRow[] = this.produceRows();
-            this._masterTable.Renderer.body(rows);
+            if (rows.length === 0) {
+                this.showTableMessage({
+                    MessageType: 'noresults',
+                    Message: 'No data found',
+                    AdditionalData: 'Try specifying different filter settings'
+                });
+            } else {
+                this._masterTable.Renderer.body(rows);
+            }
         }
 
         /**

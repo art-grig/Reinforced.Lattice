@@ -49,6 +49,7 @@ namespace PowerTables
         /// Select method of Queryable
         /// </summary>
         public static MethodInfo SelectMethod;
+
         static ReflectionCache()
         {
             QueryableType = typeof(Queryable);
@@ -65,13 +66,14 @@ namespace PowerTables
         private static readonly Dictionary<string, MethodInfo> _genericMethodsCache = new Dictionary<string, MethodInfo>();
         private static readonly Dictionary<Type,PropertyInfo[]> _propertiesCache = new Dictionary<Type, PropertyInfo[]>();
         private static readonly Dictionary<Type,IReadOnlyDictionary<string,PropertyInfo>> _propertyDictionariesCache = new Dictionary<Type, IReadOnlyDictionary<string, PropertyInfo>>();
-
+        
         private static PropertyInfo[] ExtractProperties(Type t)
         {
             return (t.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty |
                                             BindingFlags.SetProperty | BindingFlags.FlattenHierarchy).OrderByDescending(c=>c.DeclaringType!=t).ToArray());
         }
 
+       
         public static void GetCachedProperties<T>(out PropertyInfo[] properties,
             out IReadOnlyDictionary<string, PropertyInfo> propDictionary)
         {

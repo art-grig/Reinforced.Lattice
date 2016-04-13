@@ -63,8 +63,8 @@ namespace PowerTables.Filters
         /// <param name="key">Filter key converted from client arguments using ParseFunction</param>
         /// <returns>resulting sequence</returns>
         protected abstract IQueryable<TSourceData> DefaultFilter(IQueryable<TSourceData> source, TFilteringKey key);
-        
 
+        
 
     }
 }

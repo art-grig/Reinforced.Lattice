@@ -13,9 +13,9 @@ namespace PowerTables.Mvc.Controllers
 {
     public partial class TutorialController : Controller
     {
-        private Configurator<SourceData, TargetData> Table()
+        private Configurator<Toy, Row> Table()
         {
-            var conf = new Configurator<SourceData, TargetData>();
+            var conf = new Configurator<Toy, Row>();
             if (!string.IsNullOrEmpty(_tutorialId))
             {
                 conf.Url(Url.Action(string.Format("{0}Handle", _tutorialId)));
@@ -86,15 +86,15 @@ namespace PowerTables.Mvc.Controllers
             return View();
         }
 
-        [Tutorial("Basic setup", 1, "Models/Data.cs", "Views/Tutorial/BaseTutorial.cshtml")]
+        [Tutorial("Basic setup", 1, "Models/Data/Data.cs", "Views/Tutorial/BaseTutorial.cshtml")]
         public ActionResult Basic()
         {
-            return TutPage(c => TestTables.Basic(c));
+            return TutPage(c => c.Basic());
         }
 
         public ActionResult BasicHandle()
         {
-            return Handle(c => TestTables.Basic(c));
+            return Handle(c => c.Basic());
         }
 
         [Tutorial("Projection, Titles and .DataOnly", 2)]
@@ -151,19 +151,19 @@ namespace PowerTables.Mvc.Controllers
         {
             return Handle(c => c.Filtering());
         }
+
+        [Tutorial("Redirecting Filters", 7)]
+        public ActionResult RedirectingFilters()
+        {
+            return TutPage(c => c.RedirectingFilters());
+        }
+
+        public ActionResult RedirectingFiltersHandle()
+        {
+            return Handle(c => c.RedirectingFilters());
+        }
         
-        [Tutorial("Hideout, Response info and Totals", 7)]
-        public ActionResult HideoutAndResponseInfo()
-        {
-            return TutPage(c => c.HideoutAndResponseInfo());
-        }
-
-        public ActionResult HideoutAndResponseInfoHandle()
-        {
-            return Handle(c => c.HideoutAndResponseInfo());
-        }
-
-        [Tutorial("Buttons and Checkboxify", 8)]
+        [Tutorial("Checkboxify and simple buttons", 8)]
         public ActionResult ButtonsAndCheckboxify()
         {
             return TutPage(c => c.ButtonsAndCheckboxify());
@@ -174,21 +174,43 @@ namespace PowerTables.Mvc.Controllers
             return Handle(c => c.ButtonsAndCheckboxify());
         }
 
+        [Tutorial("Buttons for server commands", 9)]
+        public ActionResult ButtonsForCommands()
+        {
+            return TutPage(c => c.ButtonsForCommands());
+        }
+
+        public ActionResult ButtonsForCommandsHandle()
+        {
+            return Handle(c => c.ButtonsForCommands());
+        }
+
+        [Tutorial("Hideout and ResponseInfo", 10)]
+        public ActionResult HideoutAndResponseInfo()
+        {
+            return TutPage(c => c.HideoutAndResponseInfo());
+        }
+
+        public ActionResult HideoutAndResponseInfoHandle()
+        {
+            return Handle(c => c.HideoutAndResponseInfo());
+        }
+
         
 
         #region Utility
-        private ActionResult TutPage(Action<Configurator<SourceData, TargetData>> config)
+        private ActionResult TutPage(Action<Configurator<Toy, Row>> config)
         {
             var t = Table();
             config(t);
             return View("BaseTutorial", t);
         }
 
-        private ActionResult Handle(Action<Configurator<SourceData, TargetData>> config)
+        private ActionResult Handle(Action<Configurator<Toy, Row>> config)
         {
             var t = Table();
             config(t);
-            var handler = new PowerTablesHandler<SourceData, TargetData>(t);
+            var handler = new PowerTablesHandler<Toy, Row>(t);
             //Thread.Sleep(500); // simulate working
             return handler.Handle(Data.SourceData.AsQueryable(), ControllerContext);
         }

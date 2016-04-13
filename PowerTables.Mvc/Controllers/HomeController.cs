@@ -32,7 +32,7 @@ namespace PowerTables.Mvc.Controllers
 
         public ActionResult HandleTable()
         {
-            var handler = new PowerTablesHandler<SourceData, TargetData>(new Configurator<SourceData, TargetData>().Configure());
+            var handler = new PowerTablesHandler<Toy, Row>(new Configurator<Toy, Row>().Configure());
             var statData = handler.ExtractStaticData<RequestStaticData>(ControllerContext);
 
             var req = handler.ExtractRequest(ControllerContext);
@@ -46,12 +46,12 @@ namespace PowerTables.Mvc.Controllers
             return handler.Handle(Data.SourceData.AsQueryable(), ControllerContext);
         }
 
-        public FileResult DownloadSome(PowerTablesData<SourceData, TargetData> request)
+        public FileResult DownloadSome(PowerTablesData<Toy, Row> request)
         {
             return File(@"K:\Temp\mr-101-20150608-002.csv", "text/csv");
         }
 
-        public OperationResult Delete(PowerTablesData<SourceData, TargetData> request)
+        public OperationResult Delete(PowerTablesData<Toy, Row> request)
         {
             int[] selectedIds = request.Request.GetSelectionIds<int>();
             var rc = Data.SourceData.RemoveAll(c => selectedIds.Contains(c.Id));

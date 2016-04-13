@@ -11,32 +11,16 @@ namespace PowerTables.Mvc.Models.Tutorial
 {
     public static partial class Tutorial
     {
-        public static Configurator<SourceData, TargetData> FormWatchForm(this Configurator<SourceData, TargetData> conf)
+        public static Configurator<Toy, Row> FormWatchForAdditionalData(this Configurator<Toy, Row> conf)
         {
             conf.ButtonsAndCheckboxify();
-            conf.Column(c => c.GroupName).FilterValueUi(c => c.Configuration.DefaultValue = "");
-            conf.WatchForm<FormWatchTutorialModel>(c =>
-            {
-                c.WatchAllFields();
-                c.DoNotEmbedAdditionalData();
-                c.Field(f => f.MinimumCost).TriggerSearchOnEvents("change", "keyup");
-                c.Field(f => f.GroupNamePart).Selector("._part").TriggerSearchOnEvents("change", "keyup");
-
-                conf.Column(v => v.Id).ByForm(c).FilterRange(v => v.IdFrom, v => v.IdTo);
-                c.Field(v => v.IdFrom).TriggerSearchOnEvents(10, "change", "keyup");
-                c.Field(v => v.IdTo).TriggerSearchOnEvents(10, "change", "keyup");
-
-            });
-
-            conf.Column(c => c.Id).FilterRangeUi(ui => ui.Configuration.HideFilter());
-
             return conf;
         }
     }
 
     public class FormWatchTutorialModel
     {
-        public Configurator<SourceData, TargetData> Table { get; set; }
+        public Configurator<Toy, Row> Table { get; set; }
         [Display(Name = "Change this and reload")]
         public int MinimumCost { get; set; }
         [Display(Name = "This too")]

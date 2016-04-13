@@ -31,7 +31,7 @@ namespace PowerTables.Mvc.Models
 
     public class AboutViewModel
     {
-        public Configurator<SourceData, TargetData> Configuration { get; set; }
+        public Configurator<Toy, Row> Configuration { get; set; }
 
         public RequestStaticData Statics { get; set; }
     }

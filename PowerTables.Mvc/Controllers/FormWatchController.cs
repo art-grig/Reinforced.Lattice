@@ -13,8 +13,8 @@ namespace PowerTables.Mvc.Controllers
 {
     public partial class TutorialController
     {
-        [Tutorial("Form watcher", 9, "Views/Tutorial/FormWatch.cshtml", "Controllers/FormWatchController.cs")]
-        public ActionResult FormWatchForm()
+        [Tutorial("Form watcher", 11, "Views/Tutorial/FormWatch.cshtml", "Controllers/FormWatchController.cs")]
+        public ActionResult FormWatchForAdditionalData()
         {
             var vm = new FormWatchTutorialModel()
             {
@@ -25,15 +25,15 @@ namespace PowerTables.Mvc.Controllers
                     new SelectListItem(){Text = "Not matter",Value = "Notmatter"},
                 },
                 Types = EnumHelper.GetSelectList(typeof(SomeType)),
-                Table = new Configurator<SourceData, TargetData>().FormWatchForm().Url(Url.Action("FormWatchFormHandle"))
+                Table = new Configurator<Toy, Row>().FormWatchForAdditionalData().Url(Url.Action("FormWatchForAdditionalDataHandle"))
             };
             return View("FormWatch",vm);
         }
 
-        public ActionResult FormWatchFormHandle()
+        public ActionResult FormWatchForAdditionalDataHandle()
         {
-            var table = new Configurator<SourceData, TargetData>().FormWatchForm();
-            var handler = new PowerTablesHandler<SourceData, TargetData>(table);
+            var table = new Configurator<Toy, Row>().FormWatchForAdditionalData();
+            var handler = new PowerTablesHandler<Toy, Row>(table);
 
             var request = handler.ExtractRequest(ControllerContext);
             //var formValues = request.Form<FormWatchTutorialModel>();

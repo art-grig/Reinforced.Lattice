@@ -7,13 +7,17 @@ namespace PowerTables.Mvc.Models.Tutorial
 {
     public static partial class Tutorial
     {
-       public static Configurator<Toy, Row> ButtonsAndCheckboxify(this Configurator<Toy, Row> conf)
+        public const string Remove = "remove";
+        public const string Download = "download";
+        public const string ExportSelected = "export-selected";
+        public const string ExportAll = "export-selected";
+
+        public static Configurator<Toy, Row> ButtonsForCommands(this Configurator<Toy, Row> conf)
         {
             conf.HideoutAndResponseInfo();
             conf.Checkboxify(c => c.Id, SelectAllBehavior.CurrentPage,resetOnClientLoad:false,resetOnLoad:true);
             conf.Toolbar("toolbar-rt", a =>
             {
-
                 a.AddCommandButton("remove".GlyphIcon() + "Remove selected", Remove)
                     .DisableIfNothingChecked()
                     .ShowMessageResponseCallback();

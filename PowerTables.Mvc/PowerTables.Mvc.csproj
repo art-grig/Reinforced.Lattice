@@ -132,14 +132,21 @@
     </Compile>
     <Compile Include="Models\AboutViewModel.cs" />
     <Compile Include="Models\AdditionalSearchData.cs" />
-    <Compile Include="Models\Data.cs" />
+    <Compile Include="Models\Data\Data.cs" />
     <Compile Include="Models\TargetData.cs" />
-    <Compile Include="Models\TestsModel.cs" />
     <Compile Include="Models\TestTable.cs" />
     <Compile Include="Models\Tutorial\FormWatchTutorialModel.cs" />
-    <Compile Include="Models\Tutorial\_9_FormWatchForm.cs" />
+    <Compile Include="Models\Tutorial\_17_PermanentQueryPartProvider.cs" />
+    <Compile Include="Models\Tutorial\_16_ClientReloadingWithQueryPartProvider.cs" />
+    <Compile Include="Models\Tutorial\_15_SubscribingCellAndRowEvents.cs" />
+    <Compile Include="Models\Tutorial\_14_TableAdvancedTemplating.cs" />
+    <Compile Include="Models\Tutorial\_13_CellsTemplating.cs" />
+    <Compile Include="Models\Tutorial\_12_FormWatchAutofilter.cs" />
+    <Compile Include="Models\Tutorial\_11_FormWatchForAdditionalData.cs" />
+    <Compile Include="Models\Tutorial\_7_RedirectingFilters.cs" />
+    <Compile Include="Models\Tutorial\_9_ButtonsForCommands.cs" />
     <Compile Include="Models\Tutorial\_8_ButtonsAndCheckboxify.cs" />
-    <Compile Include="Models\Tutorial\_7_HideoutAndResponseInfo.cs" />
+    <Compile Include="Models\Tutorial\_10_HideoutAndResponseInfo.cs" />
     <Compile Include="Models\Tutorial\_6_Filtering.cs" />
     <Compile Include="Models\Tutorial\_5_PaginationAndLimiting.cs" />
     <Compile Include="Models\Tutorial\_4_Messages.cs" />
@@ -165,6 +172,9 @@
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
+    <Content Include="Content\toys.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Scripts\bootstrap-datepicker.js" />
     <Content Include="Scripts\bootstrap-datepicker.min.js" />
     <Content Include="Scripts\bootstrap.js" />
@@ -181,6 +191,9 @@
     <Content Include="Scripts\handlebars.runtime.amd.min.js" />
     <Content Include="Scripts\handlebars.runtime.js" />
     <Content Include="Scripts\handlebars.runtime.min.js" />
+    <Content Include="Content\users.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="Scripts\jquery-2.1.4.intellisense.js" />
     <Content Include="Scripts\jquery-2.1.4.js" />
     <Content Include="Scripts\jquery-2.1.4.min.js" />

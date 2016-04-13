@@ -61,21 +61,22 @@ namespace PowerTables.Filters.Range
         protected override IQueryable<TSourceData> DefaultFilter(IQueryable<TSourceData> source, RangeTuple<TVal> key)
         {
             if (_sourceExpression == null) throw new Exception("Trying to call FilterDelegate with null source expression");
+            
             if (key.HasTo && key.HasFrom)
             {
-                var between = LambdaHelpers.BetweenLambdaExpression(_sourceExpression, key.From, key.To, _inclusive);
+                var between = LambdaHelpers.BetweenLambdaExpression(_sourceExpression, ValueConverter.ExtractValueFromNullable(key.From), ValueConverter.ExtractValueFromNullable(key.To), _inclusive);
                 return ReflectionCache.CallWhere(source, between);
             }
             if (key.HasTo)
             {
                 ExpressionType lt = _inclusive ? ExpressionType.LessThanOrEqual : ExpressionType.LessThan;
-                var less = LambdaHelpers.BinaryLambdaExpression(lt, _sourceExpression, key.To);
+                var less = LambdaHelpers.BinaryLambdaExpression(lt, _sourceExpression, ValueConverter.ExtractValueFromNullable(key.To));
                 return ReflectionCache.CallWhere(source, less);
             }
             if (key.HasFrom)
             {
                 ExpressionType gt = _inclusive ? ExpressionType.GreaterThanOrEqual : ExpressionType.GreaterThan;
-                var greater = LambdaHelpers.BinaryLambdaExpression(gt, _sourceExpression, key.From);
+                var greater = LambdaHelpers.BinaryLambdaExpression(gt, _sourceExpression, ValueConverter.ExtractValueFromNullable(key.From));
                 return ReflectionCache.CallWhere(source, greater);
             }
             return source;

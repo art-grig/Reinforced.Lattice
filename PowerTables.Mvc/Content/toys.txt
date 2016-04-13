@@ -1,0 +1,568 @@
+-- ModelBuilding
+Model aircraft
+Model car
+Model railway
+Carpet railway
+Lionel Trains
+-- PhysicalActivity
+BB guns
+Big Wheel
+Bilibo
+Bop It
+Bungee balls
+Contact juggling (acrylic ball)
+Devil Sticks (juggling sticks)
+Footbag (dirt bag / hacky sack)
+Gee-haw whammy diddle
+Get in Shape Girl
+Jacks
+Juggling clubs
+Jump rope
+Laser tag
+Leapfrog
+Marbles
+Moon shoes
+Nerf
+Pogo stick
+Radio Flyer
+Roller Skates
+Skip It
+Slinky
+Slip 'n Slide
+Soap-box cart
+Space Pets
+Toy weapon
+Water gun
+Wiffle bat and ball
+-- Puzzle
+Jigsaw Puzzle
+Mr. Potato Head
+Puzzle
+Rubik's Cube
+Tangrams
+-- Science
+Chemistry set
+Etch A Sketch
+Kaleidoscope
+Magic 8-Ball
+Magna Doodle
+Sea Monkeys
+Spinning top
+View-Master
+Wooly Willy
+Zoetrope
+-- Sound
+Noise makers
+Synthesizer
+Toy piano
+Toy rattle
+Whistle
+-- Spinning 
+Chinese yo-yo (Diabolo)
+Frisbee (1950s)
+Gyroscope
+Hula hoop (1950s)
+Magnet Space Wheel (Whee-Lo)
+Pinwheel
+Top
+Yo-yo (1930s onwards)
+-- Games
+Atari 2600
+Barrel O' Monkeys
+Battleship
+Candy Land
+Chutes and Ladders
+Clue
+Concentration (aka Memory)
+Connect Four
+Dominoes
+Dungeons & Dragons
+Game Boy
+Hungry Hungry Hippos
+Life
+Mad Libs
+Mattel Auto Race
+Monopoly
+Mouse Trap
+Nintendo Entertainment System
+Operation
+Pong
+Pretty Pretty Princess
+Risk
+Rock 'Em Sock 'Em Robots
+Scrabble
+Simon
+Sorry!
+Trivial Pursuit
+Twister
+Uno
+Xbox
+-- FoodRelated
+Easy-Bake Oven
+Pez dispenser
+Snow cone machine
+Tea set
+-- Executive
+Newton's cradle
+Pin Art
+-- Electronic
+Digital pet
+Entertainment robot
+Robot dog
+Robot kit
+USB toy
+-- Educational
+Ant Farm
+Lego Mindstorms
+Lego Mindstorms NXT
+Little Golden Books
+qfix robot kits
+See 'n Say
+Speak & Spell
+-- Dolls
+African doll
+Amish doll
+Anatomically correct doll
+Apple doll
+Art doll
+Ball-jointed doll
+Bisque doll
+Black doll
+Celebrity doll
+China doll
+Composition doll
+Fashion doll
+Frozen Charlotte
+Inuit doll
+Japanese traditional dolls
+Lupita dolls
+Matryoshka doll
+Paper doll
+Parian doll
+Peg wooden doll
+Rag doll
+Reborn doll
+Shopkins
+Tanjore doll
+Topsy-Turvy doll
+-- Creative
+Cleversticks
+Colorforms
+Crayola Crayons
+Creepy Crawlers
+Lego
+Lite-Brite
+Magnetic Poetry
+Play-Doh
+Rainbow Loom
+Shrinky Dinks
+Silly Putty
+Spirograph
+Stickers
+-- Construction
+Lego
+Lincoln Logs
+Märklin
+Meccano
+Mega Bloks
+Rasti
+Rokenbok
+Stickle bricks
+STIKFAS
+Tinkertoy
+Tog'l
+Zaks
+Zome
+-- CarsAndRc
+Corgi toy cars
+Dinky toy cars
+Hot Wheels toy cars
+Matchbox cars
+Micro Machines
+Model cars
+Radio-controlled aircraft
+Radio-controlled boat
+Radio-controlled cars
+Slot cars
+Tonka Toys
+Walkie-talkie
+-- Animals
+Breyer Animal Creations
+Littlest Pet Shop
+My Little Pony
+Puppy in My Pocket
+Pound Puppies
+-- ActionFigures
+B-Daman
+Digital pet
+Evel Knievel Action Figure
+G.I. Joe
+Gumby
+He-Man
+Jumping Jack
+Kenner Star Wars action figures
+Monster in My Pocket
+Playmobil
+Power Rangers
+Smurfs
+Street Sharks
+Stretch Armstrong
+Teenage Mutant Ninja Turtles
+Toy soldier
+Transformers
+Weebles
+-- BoardGames
+Abalone
+Agon
+Backgammon
+Battleship
+Blockade
+Blood Bowl
+Bul
+Camelot
+Checkers
+Chess
+Cross and Circle game
+Daldøs
+Diamond
+Downfall
+DVONN
+Fanorona
+Game of the Generals
+Ghosts
+Go
+Gipf
+Guess Who?
+Hare and Hounds
+Hex
+Hijara
+Isola
+Janggi (Korean chess)
+Le Jeu de la Guerre
+Kalah
+Kamisado
+Liu po
+Lost Cities
+Mad Gab
+Master Mind
+Nine Men's Morris
+Obsession
+Onyx
+Othello
+Patolli
+Plateau
+PÜNCT
+Quarto
+Rithmomachy
+Sáhkku
+Senet
+Shogi
+Space Hulk
+Stratego
+Sugoroku
+Tâb
+Tablut
+Tantrix
+Twilight Struggle
+Wari
+Xiangqi (Chinese chess)
+YINSH
+ZÈRTZ
+13 Dead End Drive
+1313 Dead End Drive
+American Megafauna
+Anti-Monopoly
+Attack!
+Axis & Allies
+Bang!
+Battle Sheep
+Betrayal at House on the Hill
+Blokus
+Blood Feud in New York
+Blue Max
+Bookchase
+Castle Risk
+Clue Jr.: Case of the Missing Pet
+Coppit
+Crash! The bankrupt game
+Diplomacy
+Djambi
+Doom: The Boardgame
+Eclipse
+Finance
+Ghettopoly
+The Great Train Robbery
+Heroscape
+Hey, That's My Fish!
+Hotels
+Jenga
+Khet
+King of Tokyo
+King Oil
+Ludo
+Monopoly
+Monopoly Junior
+Poleconomy
+Risk
+Shadow Hunters
+Shogun/Samurai Swords
+Solarquest
+Spy Alley
+Star Wars Epic Duels
+Star Wars Tactics
+StarCraft: The Board Game
+Strange Synergy
+Summit
+TEG
+Titan
+Tsuro
+Tsuro of the Seas
+War on Terror
+18XX
+221B Baker Street
+30 Seconds
+About Time
+Acquire
+Acronymble
+Adel Verpflichtet
+Afrikan tähti
+Agricola
+Air Charter
+Aksharit
+Aladdin's Dragons
+Alhambra
+Alias
+Amun-Re
+Arkham Horror
+Articulate!
+Ashta Chamma
+Auf Achse
+Australia
+Balderdash
+Barbarossa
+Battlestar Galactica Board Game & Expansions
+Bezzerwizzer
+Blankety Blank
+Blokus
+(This Game Is) Bonkers!
+Brain Chain
+Brainstorm
+Break the Safe
+Buccaneer
+Camel Up
+Candy Land
+Can't Stop
+Capitol
+Carcassonne
+Careers
+Caribbean
+Cartagena
+Caylus
+Chromino
+CirKis
+Civilization
+Clans
+Clue/Cluedo
+Codenames
+Concept
+Conspiracy
+Cosmic Encounter
+Cranium
+Crosstrack
+Dark Tower
+Dead of Winter: A Cross Roads Game
+Diamant
+Dixit
+Domaine
+Dominion
+Don't Miss The Boat
+Don't Quote Me
+Dorn
+Drunter und Drüber
+Dune
+El Grande
+Elfenland
+Enchanted Forest
+Entdecker
+Escape from Atlantis
+Evo
+Farlander
+Figure It Out
+Fireball Island
+Focus
+Fresco
+Game For Fame the Party Board Game
+GiftTRAP
+Giganten
+Girl Talk
+Go
+Great Train Robbery
+GridIron Master
+History of the World
+Hooop!
+Husker Du?
+I'm the Boss!
+Imperial
+Indigo
+Ingenious
+Inkan aarre
+Java
+Journey through Europe
+Junta
+Kill Doctor Lucky
+Kingdoms
+Landslide
+Las Vegas
+Le Havre
+Life
+Logo Board Game
+The London Game
+Lords of Waterdeep
+Löwenherz
+Luck of the Draw
+Die Macher
+The Mad Magazine Game
+The Magic Labyrinth
+Mahjong
+Malefiz
+Mall Madness
+Manhattan
+Master Labyrinth
+Masterpiece
+Medici
+Medina
+Mensch ärgere dich nicht
+Merchant of Venus
+Mexica
+Mine a million
+Modern Art
+Niagara
+Okey
+Omega Virus
+Outrage!
+Pack & Stack
+Pandemic
+Parcheesi
+Parqués
+Pay Day
+Personal Preference
+Pictionary
+Pirate's Cove
+Power Grid
+Primordial Soup
+Princes of Florence
+Puerto Rico
+Qin
+Quoridor
+Qwirkle
+Ra
+Rail Baron
+Rappakalja
+Razzia
+The Really Nasty Horse Racing Game
+Ricochet Robots
+Rivers, Roads & Rails
+RoboRally
+Rummikub
+Rummoli
+Saint Petersburg
+Samurai
+San Marco
+Scattergories
+Scene It
+Scotland Yard
+Scoundrels of Skullport
+Scrabble
+Sequence
+The Settlers of Catan
+Shadows over Camelot
+Sherlock Holmes: Consulting Detective
+Skirrid
+Small World
+Snakes and Ladders
+Sorry!
+Splendor
+Squatter
+Stock Ticker
+Taj Mahal
+Take It Easy
+Take Off!
+Terra Mystica
+Through the Desert
+Thurn and Taxis
+Ticket to Ride
+Tigris & Euphrates
+Tikal
+Timberland
+Time's Up!
+Top Secret Spies
+Torres
+Totopoly
+Tracks to Telluride
+TransAmerica
+Trivial Pursuit
+Trouble
+Twilight Imperium
+Twin Tin Bots
+Ubongo
+Upwords
+Vanished Planet
+Vinci
+Yahtzee
+Yut
+Zombies!!!
+Zoophoria
+Acquire
+Junta
+Kolejka
+København
+Monopoly
+Power Grid
+Risk
+Risk 2210 AD
+Sentinels of the Multiverse
+The Settlers of Catan
+Ticket to Ride
+Blockhead!
+Buckaroo
+Camp Granada
+Carrom
+Chapayev
+Crokinole
+Dart Wars
+Gnip Gnop
+Hungry Hungry Hippos
+Jenga
+Kerplunk
+Krazy Maze
+MagnetX
+Operation
+Perfection
+Polarity
+Subbuteo
+Twister
+Villa Paletti
+Candy Land
+Catan Junior
+Chicken Cha Cha Cha
+Don't Break the Ice
+Don't Wake Daddy
+Forbidden Bridge
+Hey Pa! There's a Goat on the Roof
+Hi Ho! Cherry-O
+Hungry Hungry Hippos
+The Kids of Catan
+Ludo
+Mouse Trap
+Snakes and ladders (aka Chutes and Ladders)
+Sorry!
+Space Hop
+Uncle Wiggily
+Battlestar Galactica: The Board Game
+Freedom: The Underground Railroad
+Lord of the Rings
+Pandemic
+Sentinels of the Multiverse
+Shadows Over Camelot
+Space Alert
+X-COM

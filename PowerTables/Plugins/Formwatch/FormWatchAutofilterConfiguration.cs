@@ -156,6 +156,39 @@ namespace PowerTables.Plugins.Formwatch
         {
             FilterRangeExpr(af, from, to);
         }
+
+        /// <summary>
+        /// Filters specified target table field with form field treated as Range Filter. 
+        /// Warning! RangeFilter should be configured for column
+        /// </summary>
+        /// <param name="from">Field containig from value</param>
+        /// <param name="to">Field containing to value</param>
+        public static void FilterRange<TCol, TForm>(this FormWatchAutofilterConfiguration<TCol, TForm> af, Expression<Func<TForm, IEnumerable<TCol>>> values)
+            where TCol : struct
+        {
+            af.Update(new FormWatchFilteringsMappings()
+            {
+                FilterType = 1,
+                FieldKeys = new[] { LambdaHelpers.ParsePropertyLambda(values).Name }
+            });
+        }
+
+        /// <summary>
+        /// Filters specified target table field with form field treated as Range Filter. 
+        /// Warning! RangeFilter should be configured for column
+        /// </summary>
+        /// <param name="from">Field containig from value</param>
+        /// <param name="to">Field containing to value</param>
+        public static void FilterRange<TCol, TForm>(this FormWatchAutofilterConfiguration<TCol, TForm> af, Expression<Func<TForm, IEnumerable<TCol?>>> values)
+            where TCol : struct
+        {
+            af.Update(new FormWatchFilteringsMappings()
+            {
+                FilterType = 1,
+                FieldKeys = new[] { LambdaHelpers.ParsePropertyLambda(values).Name }
+            });
+        }
+
         /// <summary>
         /// Filters specified target table field with form field treated as Range Filter. 
         /// Warning! SelectFilter with multiple options should be configured for column
@@ -198,7 +231,36 @@ namespace PowerTables.Plugins.Formwatch
                 FieldKeys = fields.Select(c => LambdaHelpers.ParsePropertyLambda(c).Name).ToArray()
             });
         }
+        /// <summary>
+        /// Filters specified target table field with form field treated as Range Filter. 
+        /// In this case field is list or array (e.g. mapped to multiple select)
+        /// Warning! SelectFilter with multiple options should be configured for column
+        /// </summary>
+        /// <param name="field">Fields that will be merged into multiple filter values</param>
+        public static void FilterMultiple<TCol, TForm>(this FormWatchAutofilterConfiguration<TCol, TForm> af, Expression<Func<TForm, IEnumerable<TCol>>> field)
+        {
+            af.Update(new FormWatchFilteringsMappings()
+            {
+                FilterType = 2,
+                FieldKeys = new []{LambdaHelpers.ParsePropertyLambda(field).Name}
+            });
+        }
 
+        /// <summary>
+        /// Filters specified target table field with form field treated as Range Filter. 
+        /// In this case field is list or array (e.g. mapped to multiple select)
+        /// Warning! SelectFilter with multiple options should be configured for column
+        /// </summary>
+        /// <param name="field">Fields that will be merged into multiple filter values</param>
+        public static void FilterMultiple<TCol, TForm>(this FormWatchAutofilterConfiguration<TCol, TForm> af, Expression<Func<TForm, IEnumerable<TCol?>>> field)
+            where TCol : struct
+        {
+            af.Update(new FormWatchFilteringsMappings()
+            {
+                FilterType = 2,
+                FieldKeys = new[] { LambdaHelpers.ParsePropertyLambda(field).Name }
+            });
+        }
         
     }
 }

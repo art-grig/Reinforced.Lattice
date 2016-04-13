@@ -386,7 +386,16 @@ var PowerTables;
          */
         Controller.prototype.redrawVisibleData = function () {
             var rows = this.produceRows();
-            this._masterTable.Renderer.body(rows);
+            if (rows.length === 0) {
+                this.showTableMessage({
+                    MessageType: 'noresults',
+                    Message: 'No data found',
+                    AdditionalData: 'Try specifying different filter settings'
+                });
+            }
+            else {
+                this._masterTable.Renderer.body(rows);
+            }
         };
         /**
          * Shows full-width table message
@@ -3215,6 +3224,8 @@ var PowerTables;
                 };
             }
             ValueFilterPlugin.prototype.getValue = function () {
+                if (!this.FilterValueProvider)
+                    return '';
                 if (this._associatedColumn.IsDateTime) {
                     return this.MasterTable.Date.serialize(this.MasterTable.Date.getDateFromDatePicker(this.FilterValueProvider));
                 }
@@ -3343,6 +3354,8 @@ var PowerTables;
                 };
             }
             RangeFilterPlugin.prototype.getFromValue = function () {
+                if (!this.FromValueProvider)
+                    return '';
                 if (this._associatedColumn.IsDateTime) {
                     var date = this.MasterTable.Date.getDateFromDatePicker(this.FromValueProvider);
                     return this.MasterTable.Date.serialize(date);
@@ -3350,6 +3363,8 @@ var PowerTables;
                 return this.FromValueProvider.value;
             };
             RangeFilterPlugin.prototype.getToValue = function () {
+                if (!this.ToValueProvider)
+                    return '';
                 if (this._associatedColumn.IsDateTime) {
                     var date = this.MasterTable.Date.getDateFromDatePicker(this.ToValueProvider);
                     return this.MasterTable.Date.serialize(date);
@@ -3468,6 +3483,8 @@ var PowerTables;
                 return this.getSelectionArray().join('|');
             };
             SelectFilterPlugin.prototype.getSelectionArray = function () {
+                if (!this.FilterValueProvider)
+                    return [];
                 if (!this.Configuration.IsMultiple) {
                     var selected = this.FilterValueProvider.options[this.FilterValueProvider.selectedIndex];
                     return [selected.value];
@@ -4322,25 +4339,35 @@ var PowerTables;
                 }
                 for (var fm in this.Configuration.FiltersMappings) {
                     if (this.Configuration.FiltersMappings.hasOwnProperty(fm)) {
-                        var mppg = this.Configuration.FiltersMappings[fm];
-                        var needToApply = (mppg.ForClient && mppg.ForServer)
-                            || (mppg.ForClient && scope === PowerTables.QueryScope.Client)
-                            || (mppg.ForServer && scope === PowerTables.QueryScope.Server)
+                        var mappingConf = this.Configuration.FiltersMappings[fm];
+                        var needToApply = (mappingConf.ForClient && mappingConf.ForServer)
+                            || (mappingConf.ForClient && scope === PowerTables.QueryScope.Client)
+                            || (mappingConf.ForServer && scope === PowerTables.QueryScope.Server)
                             || (scope === PowerTables.QueryScope.Transboundary);
                         if (needToApply) {
-                            switch (mppg.FilterType) {
+                            switch (mappingConf.FilterType) {
                                 case 0:
-                                    query.Filterings[fm] = result[mppg.FieldKeys[0]];
+                                    query.Filterings[fm] = result[mappingConf.FieldKeys[0]];
                                     break;
                                 case 1:
-                                    query.Filterings[fm] = result[mppg.FieldKeys[0]] + "|" + result[mppg.FieldKeys[1]];
+                                    if (mappingConf.FieldKeys.length === 1 && (Object.prototype.toString.call(result[mappingConf[0]]) === '[object Array]')) {
+                                        query.Filterings[fm] = result[mappingConf[0]][0] + "|" + result[mappingConf[0]][1];
+                                    }
+                                    else {
+                                        query.Filterings[fm] = result[mappingConf.FieldKeys[0]] + "|" + result[mappingConf.FieldKeys[1]];
+                                    }
                                     break;
                                 case 2:
-                                    var values = [];
-                                    for (var m = 0; m < mppg.FieldKeys.length; m++) {
-                                        values.push(result[mppg.FieldKeys[m]]);
+                                    if (mappingConf.FieldKeys.length === 1 && (Object.prototype.toString.call(result[mappingConf[0]]) === '[object Array]')) {
+                                        query.Filterings[fm] = result[mappingConf[0]].join('|');
                                     }
-                                    query.Filterings[fm] = values.join('|');
+                                    else {
+                                        var values = [];
+                                        for (var m = 0; m < mappingConf.FieldKeys.length; m++) {
+                                            values.push(result[mappingConf.FieldKeys[m]]);
+                                        }
+                                        query.Filterings[fm] = values.join('|');
+                                    }
                                     break;
                             }
                         }

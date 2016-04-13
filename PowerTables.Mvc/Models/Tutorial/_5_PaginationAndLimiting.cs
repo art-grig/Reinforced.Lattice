@@ -6,7 +6,7 @@ namespace PowerTables.Mvc.Models.Tutorial
 {
     public static partial class Tutorial
     {
-        public static Configurator<SourceData, TargetData> Pagination(this Configurator<SourceData, TargetData> conf)
+        public static Configurator<Toy, Row> Pagination(this Configurator<Toy, Row> conf)
         {
             conf.OrderingAndLoadingInidicator();
             conf.LoadImmediately(false);
