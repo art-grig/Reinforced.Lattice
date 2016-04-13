@@ -24,7 +24,7 @@ namespace PowerTables.FrequentlyUsed
         {
             Template tpl = new Template();
             template(tpl);
-            _lines.Add(string.Format(" case {0}: return '{1}'; ", Template.CompileExpression(caseExpression, "v"), tpl.Compile("v")));
+            _lines.Add(string.Format(" case {0}: return {1}; ", Template.CompileExpression(caseExpression, "v"), tpl.Compile("v")));
             return this;
         }
 
@@ -32,7 +32,7 @@ namespace PowerTables.FrequentlyUsed
         {
             Template tpl = new Template();
             template(tpl);
-            _default = string.Format(" default: return '{0}'; ", tpl.Compile("v"));
+            _default = string.Format(" default: return {0}; ", tpl.Compile("v"));
             return this;
         }
 
@@ -49,7 +49,7 @@ namespace PowerTables.FrequentlyUsed
             {
                 Template tpl = new Template();
                 template(tpl, option);
-                _lines.Add(string.Format(" case {0}: return '{1}'; ", Template.CompileExpression(expression(option), "v"), tpl.Compile("v")));
+                _lines.Add(string.Format(" case {0}: return {1}; ", Template.CompileExpression(expression(option), "v"), tpl.Compile("v")));
             }
             return this;
         }

@@ -27,7 +27,7 @@ namespace PowerTables.FrequentlyUsed
         /// <returns></returns>
         public CellTemplateBuilder EmptyIfNotPresent(string columnName)
         {
-            _lines.Add(string.Format("if ((v.{0}==null)||(v.{0}==undefined)) return '';", columnName));
+            _lines.Add(string.Format("if ((v.{0}==null)||(v.{0}==undefined)) return ''; ", columnName));
             return this;
         }
 
@@ -40,7 +40,7 @@ namespace PowerTables.FrequentlyUsed
         /// <returns></returns>
         public CellTemplateBuilder EmptyIf(string expression)
         {
-            _lines.Add(string.Format("if ({0}) return '';", Template.CompileExpression(expression, "v")));
+            _lines.Add(string.Format("if ({0}) return ''; ", Template.CompileExpression(expression, "v")));
             return this;
         }
 
@@ -77,7 +77,7 @@ namespace PowerTables.FrequentlyUsed
         /// <returns></returns>
         public CellTemplateBuilder ReturnsIf(string expression, string text)
         {
-            _lines.Add(string.Format("if ({0}) return '{1}';", Template.CompileExpression(expression, "v"), Template.Compile(text, "v")));
+            _lines.Add(string.Format("if ({0}) return {1}; ", Template.CompileExpression(expression, "v"), Template.Compile(text, "v")));
             return this;
         }
 
@@ -103,7 +103,7 @@ namespace PowerTables.FrequentlyUsed
         /// <returns></returns>
         public CellTemplateBuilder ReturnsIf(string expression, string positiveContent, string negativeContent)
         {
-            _lines.Add(string.Format("if ({0}) {{ return '{1}'; }} else {{ return '{2}';}}",
+            _lines.Add(string.Format("if ({0}) {{ return {1}; }} else {{ return {2};}} ",
                 Template.CompileExpression(expression, "v"),
                 Template.Compile(positiveContent, "v"),
                 Template.Compile(negativeContent, "v")));
@@ -128,7 +128,7 @@ namespace PowerTables.FrequentlyUsed
         public CellTemplateBuilder Returns(string content)
         {
             var text = Template.Compile(content, "v");
-            _result = string.Format("return '{0}';", text);
+            _result = string.Format("return {0}; ", text);
             return this;
         }
 

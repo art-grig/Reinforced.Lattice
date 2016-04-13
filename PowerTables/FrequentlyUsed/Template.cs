@@ -141,56 +141,76 @@ namespace PowerTables.FrequentlyUsed
         public static string CompileExpression(string expression, string modelName)
         {
             StringBuilder sb = new StringBuilder();
-            bool isOpenFieldReference = false;
-            for (int i = 0; i < expression.Length; i++)
-            {
-                if (expression[i] == '{' && (i < expression.Length - 2 && char.IsLetter(expression[i + 1])))
-                {
-                    sb.AppendFormat("{0}.", modelName);
-                    isOpenFieldReference = true;
-                }
-                else if (expression[i] == '}' && isOpenFieldReference)
-                {
-                    isOpenFieldReference = false;
-                }
-                else
-                {
-                    sb.Append(expression[i]);
-                }
-            }
+            CrunchExpression(expression, modelName, sb, 0);
             return sb.ToString();
         }
 
-        public static string Compile(string templateString, string modelName)
+        private static int CrunchExpression(string tpl, string modelName, StringBuilder sb,
+            int beginIndex)
+        {
+            for (int i = beginIndex; i < tpl.Length; i++)
+            {
+                if (tpl[i] == '`') return i;
+
+                if (tpl[i] == '{' && (i < tpl.Length - 2 && IsValidToken(tpl[i + 1])))
+                {
+                    i = CrunchFieldReference(tpl, modelName, sb, i + 1);
+                    continue;
+                }
+                sb.Append(tpl[i]);
+            }
+            return tpl.Length;
+        }
+
+        private static int CrunchFieldReference(string tpl, string modelName, StringBuilder sb, int i)
+        {
+            sb.Append(modelName);
+            if (tpl[i] == '@' && tpl[i + 1] == '}') return i + 1;
+            sb.Append('.');
+
+            for (; i < tpl.Length; i++)
+            {
+                if (tpl[i] == '}') return i;
+                sb.Append(tpl[i]);
+            }
+            return i;
+        }
+        private static bool IsValidToken(char token)
+        {
+            return char.IsLetter(token) || token == '@';
+        }
+
+        public static string Compile(string tpl, string modelName)
         {
             StringBuilder sb = new StringBuilder();
-            bool isOpenFieldReference = false;
-            bool isOpenExpression = false;
-            for (int i = 0; i < templateString.Length; i++)
+
+            if (tpl[0] != '`' && tpl[0] != '{') sb.Append("'");
+
+            for (int i = 0; i < tpl.Length; i++)
             {
-                if (templateString[i] == '`')
+
+
+                if (tpl[i] == '`')
                 {
-                    sb.Append(isOpenExpression ? " + '" : "' + ");
-                    isOpenExpression = !isOpenExpression;
+                    if (i > 0) sb.Append("' +");
+                    i = CrunchExpression(tpl, modelName, sb, i + 1);
+                    if (i < tpl.Length - 1) sb.Append("+ '");
                     continue;
                 }
 
-                if (templateString[i] == '\'' && !isOpenFieldReference && !isOpenExpression) sb.Append("\\\'");
-                else if (templateString[i] == '{' && (i < templateString.Length - 2 && char.IsLetter(templateString[i + 1])))
+                if (tpl[i] == '{' && IsValidToken(tpl[i + 1]))
                 {
-                    sb.AppendFormat(isOpenExpression ? "{0}." : "' + {0}.", modelName);
-                    isOpenFieldReference = true;
+                    if (i > 0) sb.Append("' +");
+                    i = CrunchFieldReference(tpl, modelName, sb, i + 1);
+                    if (i < tpl.Length - 1) sb.Append("+ '");
+                    continue;
                 }
-                else if (templateString[i] == '}' && isOpenFieldReference)
-                {
-                    if (!isOpenExpression) sb.Append(" + '");
-                    isOpenFieldReference = false;
-                }
-                else
-                {
-                    sb.Append(templateString[i]);
-                }
+                if (tpl[i] == '\'') sb.Append("\\\'");
+                else sb.Append(tpl[i]);
             }
+
+            if (tpl[tpl.Length - 1] != '`' && tpl[tpl.Length - 1] != '}')
+                sb.Append("'");
             return sb.ToString();
         }
 
