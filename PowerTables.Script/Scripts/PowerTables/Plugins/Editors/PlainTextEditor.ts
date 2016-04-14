@@ -2,19 +2,19 @@
     import PlainTextEditorUiConfig = PowerTables.Editors.PlainText.IPlainTextEditorUiConfig;
 
     export class PlainTextEditor extends CellEditorBase<PlainTextEditorUiConfig> {
-        Input: HTMLElement;
+        Input: HTMLInputElement;
         ValidationRegex: RegExp;
         private _removeSeparators: RegExp;
         private _dotSeparators: RegExp;
-        
+
         private _formatFunction: (value: any, column: IColumn) => string;
         private _parseFunction: (value: string, column: IColumn, errors: string[]) => any;
 
         public getValue(errors: string[]): any {
             if (this.Column.IsDateTime) {
-                this.MasterTable.Date.getDateFromDatePicker(this.Input);
+                return this.MasterTable.Date.getDateFromDatePicker(this.Input);
             } else {
-                this._parseFunction(this.Input.nodeValue, this.Column, errors);
+                return this._parseFunction(this.Input.value, this.Column, errors);
             }
         }
 
@@ -22,7 +22,8 @@
             if (this.Column.IsDateTime) {
                 this.MasterTable.Date.putDateToDatePicker(this.Input, value);
             } else {
-                this.Input.nodeValue = this._formatFunction(value, this.Column);
+                this.Input.value = this._formatFunction(value, this.Column);
+                this.Input.setSelectionRange(0, this.Input.value.length);
             }
         }
 
@@ -100,6 +101,10 @@
 
         public changedHandler(e: PowerTables.Rendering.ITemplateBoundEvent): void {
             super.changedHandler(e);
+        }
+
+        public renderContent(templatesProvider: ITemplatesProvider): string {
+            return templatesProvider.getCachedTemplate('plainTextEditor')(this);
         }
     }
 

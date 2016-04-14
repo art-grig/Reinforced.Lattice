@@ -81,6 +81,18 @@ namespace PowerTables.Templating
             return state;
         }
 
+        public static VisualState Hide(this VisualState state)
+        {
+            state.Style("display", "none");
+            return state;
+        }
+
+        public static VisualState Show(this VisualState state, string display = "block")
+        {
+            state.Style("display", display);
+            return state;
+        }
+
         public static VisualState Color(this VisualState state, string color)
         {
             state.Style("color", color);

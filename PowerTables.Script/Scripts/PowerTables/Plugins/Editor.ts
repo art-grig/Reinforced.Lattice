@@ -62,36 +62,46 @@
                 this.MasterTable.Renderer.Modifier.changeState('saving', this._activeEditors[i].VisualStates);
             }
 
-            this.MasterTable.Loader.requestServer('Edit', (response) => {
-                var serverObject = response;
-                for (var cd in serverObject) {
-                    if (serverObject.hasOwnProperty(cd)) {
-                        this.DataObject[cd] = serverObject[cd];
+            if (!this.Configuration.IsServerPowered) {
+                this.MasterTable.Loader.requestServer('Edit', (response) => {
+                    var serverObject = response;
+                    for (var cd in serverObject) {
+                        if (serverObject.hasOwnProperty(cd)) {
+                            this.DataObject[cd] = serverObject[cd];
+                        }
                     }
-                }
-                for (var i = 0; i < this._activeEditors.length; i++) {
-                    this.MasterTable.Renderer.Modifier.normalState(this._activeEditors[i].VisualStates);
-                }
-                switch (this.Configuration.RefreshMode) {
+                    for (var i = 0; i < this._activeEditors.length; i++) {
+                        this.MasterTable.Renderer.Modifier.normalState(this._activeEditors[i].VisualStates);
+                    }
+                    switch (this.Configuration.RefreshMode) {
                     case EditorRefreshMode.RedrawCell:
                     case EditorRefreshMode.RedrawRow:
                     case EditorRefreshMode.RedrawAllVisible:
                     case EditorRefreshMode.ReloadFromServer:
 
                     default:
-                }
-            }, (q) => {
+                    }
+                }, (q) => {
                     q.AdditionalData['Edit'] = JSON.stringify(this.DataObject);
                     return q;
                 });
-
+            } else {
+                setTimeout(() => {
+                    for (var i = 0; i < this._activeEditors.length; i++) {
+                        this.MasterTable.Renderer.Modifier.normalState(this._activeEditors[i].VisualStates);
+                    }
+                    this.MasterTable.Controller.redrawVisibleData();
+                }, 1000);
+            }
 
         }
 
-        public redrawEditingRow() {
+        public redrawEditingRow(collectData:boolean) {
             if (!this._isEditing) return;
             this.MasterTable.Renderer.Modifier.redrawRow(this);
-            this.retrieveAllEditorsData();
+            if (collectData) {
+                this.retrieveAllEditorsData();
+            }
         }
 
         public reject(editor: CellEditorBase) {
@@ -114,6 +124,7 @@
             }
             var row = this.MasterTable.Controller.produceRow(lookup.DataObject, lookup.DisplayedIndex);
             this.Cells = row.Cells;
+            this.Index = lookup.DisplayedIndex;
             this._isEditing = true;
         }
 
@@ -141,12 +152,12 @@
             if (!this.isEditable(column)) return;
             var editor = this.createEditor(column, canComplete, isForm, isRow);
             this.ensureEditing(rowIndex);
-            this.redrawEditingRow();
+            this.Cells[column.RawName] = editor;
+            this._activeEditors.push(editor);
+            this.redrawEditingRow(false);
             editor.IsInitialValueSetting = true;
             editor.setValue(this._currentDataObjectModified[editor.Column.RawName]);
             editor.IsInitialValueSetting = false;
-            this._activeEditors.push(editor);
-            this.Cells[column.RawName] = editor;
         }
         //#endregion
 
@@ -180,6 +191,10 @@
 
         }
         //#endregion
+
+        //public renderContent(templatesProvider: ITemplatesProvider): string {
+        //    return templatesProvider.getCachedTemplate('rowWrapper')(this);
+        //}
 
         public afterDrawn: (e: ITableEventArgs<any>) => void = (e) => {
             this.MasterTable.Renderer.Delegator.subscribeCellEvent({
@@ -218,4 +233,5 @@
             });
         }
     }
+    ComponentsContainer.registerComponent('Editor',Editor);
 } 

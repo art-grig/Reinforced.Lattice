@@ -5,7 +5,6 @@ namespace PowerTables.Editors
     public class EditorUiConfig
     {
         public string BeginEditEventId { get; set; }
-
         public string CommitEventId { get; set; }
         public string RejectEventId { get; set; }
 
@@ -18,6 +17,7 @@ namespace PowerTables.Editors
             CommitEventId = "click";
             RejectEventId = "click";
             RefreshMode = EditorRefreshMode.RedrawCell;
+            IsServerPowered = true;
         }
 
         public EditorRefreshMode RefreshMode { get; set; }

@@ -193,7 +193,7 @@
          * @param errorCallback Will be called if error occures
          * @returns {} 
          */
-        public requestServer(command: string, callback: (data: any) => void, queryModifier?: (a: IQuery) => IQuery, errorCallback?: (data: any) => void): void {
+        public requestServer(command: string, callback: (data: any) => void, queryModifier?: (a: IQuery) => IQuery, errorCallback?: (data: any) => void, force?:boolean): void {
 
             var scope: QueryScope = QueryScope.Transboundary;
             if (command === 'query') scope = QueryScope.Server;
@@ -207,9 +207,10 @@
                 queryModifier(serverQuery);
                 queryModifier(clientQuery);
             }
+            
             var queriesEqual: boolean = (command === 'query') && (JSON.stringify(serverQuery) === this._previousQueryString);
 
-            if (!queriesEqual) {
+            if (force||!queriesEqual) {
                 var data: IPowerTableRequest = {
                     Command: command,
                     Query: serverQuery

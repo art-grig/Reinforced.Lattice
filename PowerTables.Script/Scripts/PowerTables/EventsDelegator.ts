@@ -31,12 +31,14 @@
         private _outEvents: { [key: string]: any } = {};
 
         private ensureEventSubscription(eventId: string) {
+            if (this._domEvents.hasOwnProperty(eventId)) return;
             var fn = this.onTableEvent.bind(this);
             this._attachFn.call(this._bodyElement, eventId, fn);
             this._domEvents[eventId] = fn;
         }
 
         private ensureOutSubscription(eventId: string) {
+            if (this._outEvents.hasOwnProperty(eventId)) return;
             var fn = this.onOutTableEvent.bind(this);
             this._attachFn.call(this._layoutElement, eventId, fn);
             this._outEvents[eventId] = fn;
@@ -76,7 +78,13 @@
 
                 if (cellLocation == null) pathToCell.push(t);
                 if (rowIndex == null) pathToRow.push(t);
+
                 t = t.parentElement;
+                if (t.parentElement == null) {
+                    // we encountered event on detached element
+                    // just return
+                    return;
+                }
             }
 
             if (cellLocation != null) {
@@ -151,6 +159,9 @@
                         break;
                     }
                     ct = ct.parentElement;
+                    if (ct.parentElement == null) {
+                        return;
+                    }
                 }
                 if (!found) {
                     sub.EventObject = e;
@@ -173,30 +184,28 @@
         }
 
         public unsubscribeOutEvents(e: HTMLElement) {
-            this.unsubscripeParentOutEvents(e);
-            for (var os in this._outSubscriptions) {
-                if (this._outSubscriptions[os].length === 0) {
-                    this._layoutElement.removeEventListener(os, this._outEvents[os]);
-                }
+            var allOut = e.querySelectorAll('[data-outlistener]');
+            var arr: HTMLElement[] = [];
+            for (var i = 0; i < allOut.length; i++) {
+                arr.push(<HTMLElement>allOut[i]);
             }
-        }
+            if (e.hasAttribute('data-outlistener')) arr.push(e);
+            if (arr.length === 0) return;
 
-        private unsubscripeParentOutEvents(e: HTMLElement) {
             for (var os in this._outSubscriptions) {
                 var sub = this._outSubscriptions[os];
-                for (var i = 0; i < sub.length; i++) {
-                    if (sub[i].Element === e) {
-                        sub.splice(i, 1);
+                for (var j = 0; j < sub.length; j++) {
+                    if (arr.indexOf(sub[j].Element) > -1) {
+                        sub.splice(j, 1);
                         break;
                     }
                 }
-            }
-            for (var j = 0; j < e.childElementCount; j++) {
-                this.unsubscripeParentOutEvents(<HTMLElement>e.childNodes.item(j));
+                if (this._outSubscriptions[os].length === 0) {
+                    this._layoutElement.removeEventListener(os, this._outEvents[os]);
+                    delete this._outEvents[os];
+                }
             }
         }
-
-        
     }
 
     interface IOutSubscription {

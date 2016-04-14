@@ -90,6 +90,9 @@
     <Compile Include="Editors\CellEditorUiConfigBase.cs" />
     <Compile Include="Editors\EditorExtensions.cs" />
     <Compile Include="Editors\EditorUiConfig.cs" />
+    <Compile Include="Editors\EditorConfig.cs" />
+    <Compile Include="Editors\PlainText\PlainTextEditorConfigurationExtensions.cs" />
+    <Compile Include="Editors\PlainText\PlainTextEditorTemplateRegion.cs" />
     <Compile Include="Editors\PlainText\PlainTextEditorUiConfig.cs" />
     <Compile Include="Filters\ColumnFilterBase.cs" />
     <Compile Include="Filters\ColumnFilterExtensions.cs" />

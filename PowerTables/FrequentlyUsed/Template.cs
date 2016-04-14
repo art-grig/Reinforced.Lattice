@@ -54,6 +54,11 @@ namespace PowerTables.FrequentlyUsed
             return this;
         }
 
+        public Template Data(string dataName, string dataValue)
+        {
+            return Attr("data-" + dataName, dataValue);
+        }
+
         /// <summary>
         /// Specifies in-element content
         /// Supports {- and `-syntax

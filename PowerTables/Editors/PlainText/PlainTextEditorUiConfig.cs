@@ -21,8 +21,6 @@ namespace PowerTables.Editors.PlainText
 
         public bool EnableBasicValidation { get; set; }
 
-        public string BasicValidationErrorMessage { get; set; }
-
         public JRaw FormatFunction { get; set; }
 
         public JRaw ParseFunction { get; set; }

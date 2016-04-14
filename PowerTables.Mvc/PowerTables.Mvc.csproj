@@ -141,7 +141,7 @@
     <Compile Include="Models\Tutorial\_15_SubscribingCellAndRowEvents.cs" />
     <Compile Include="Models\Tutorial\_18_TableAdvancedTemplating.cs" />
     <Compile Include="Models\Tutorial\_13_CellsTemplating.cs" />
-    <Compile Include="Models\Tutorial\_12_FormWatchAutofilter.cs" />
+    <Compile Include="Models\Tutorial\_12_Editor.cs" />
     <Compile Include="Models\Tutorial\_11_FormWatchForAdditionalData.cs" />
     <Compile Include="Models\Tutorial\_6_ClientPagination.cs" />
     <Compile Include="Models\Tutorial\_8_RedirectingFilters.cs" />

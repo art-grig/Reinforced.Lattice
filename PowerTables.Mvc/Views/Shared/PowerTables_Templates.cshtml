@@ -1,5 +1,7 @@
 ﻿@using System.IdentityModel.Tokens
 @using PowerTables
+@using PowerTables.Editors
+@using PowerTables.Editors.PlainText
 @using PowerTables.Filters.Range
 @using PowerTables.Filters.Select
 @using PowerTables.Filters.Value
@@ -71,14 +73,22 @@
 @using (var t = this.PluginWrapper())
 {
     <text>
-        @using (t.IfPlacement("lt")) { <span @t.Track()> @t.Content() </span> }
-        @using (t.IfPlacement("toolbar-lt")) { <span @t.Track()> @t.Content() </span> }
-        @using (t.IfPlacement("lb")) { <div @t.Track()> @t.Content() </div> }
-        @using (t.IfPlacement("toolbar-lb")) { <div @t.Track()> @t.Content() </div> }
-        @using (t.IfPlacement("rt")){ <div style="float: right;" @t.Track()> @t.Content() </div> }
-        @using (t.IfPlacement("toolbar-rt")) { <div style="float: right;" @t.Track()> @t.Content() </div> }
-        @using (t.IfPlacement("rb")) { <div style="float: right;" @t.Track()> @t.Content() </div> }
-        @using (t.IfPlacement("toolbar-rb")) { <div style="float: right;" @t.Track()> @t.Content() </div> }
+        @using (t.IfPlacement("lt"))
+        { <span @t.Track()> @t.Content() </span> }
+        @using (t.IfPlacement("toolbar-lt"))
+        { <span @t.Track()> @t.Content() </span> }
+        @using (t.IfPlacement("lb"))
+        { <div @t.Track()> @t.Content() </div> }
+        @using (t.IfPlacement("toolbar-lb"))
+        { <div @t.Track()> @t.Content() </div> }
+        @using (t.IfPlacement("rt"))
+        { <div style="float: right;" @t.Track()> @t.Content() </div> }
+        @using (t.IfPlacement("toolbar-rt"))
+        { <div style="float: right;" @t.Track()> @t.Content() </div> }
+        @using (t.IfPlacement("rb"))
+        { <div style="float: right;" @t.Track()> @t.Content() </div> }
+        @using (t.IfPlacement("toolbar-rb"))
+        { <div style="float: right;" @t.Track()> @t.Content() </div> }
         @using (t.IfPlacement("filter"))
         { <th @t.Track()>@t.Content()</th> }
     </text>
@@ -157,11 +167,11 @@
     <th @t.Track() @t.BindSwitchOrdering("click") style="cursor: pointer">
         <span><strong>@t.HtmlValue(c => c.Column.Configuration.Title)</strong></span>
         @using (t.If(c => c.IsNeutral))
-        { <span class="glyphicon glyphicon-th-large" style="color: #bac5d3; float: right;"></span> }
+        { <span class="glyphicon glyphicon-sort" style="color: #bac5d3; float: right;"></span> }
         @using (t.If(c => c.IsAscending))
-        { <span class="glyphicon glyphicon-chevron-up" style="color: #bac5d3; float: right;"></span> }
+        { <span class="glyphicon glyphicon-arrow-down" style="color: #bac5d3; float: right;"></span> }
         @using (t.If(c => c.IsDescending))
-        { <span class="glyphicon glyphicon-chevron-down" style="color: #bac5d3; float: right;"></span> }
+        { <span class="glyphicon glyphicon-arrow-up" style="color: #bac5d3; float: right;"></span> }
     </th>
 }
 
@@ -198,7 +208,7 @@
                         {
                             <li><a @t.BindPreviousPage("click") style="cursor: pointer"><span class="glyphicon glyphicon-chevron-left"></span></a></li>
                         }
-                        <li><span>Page @m.Value(c => c.CurrentPage) of @m.Value(c=>c.TotalPages)</span></li>
+                        <li><span>Page @m.Value(c => c.CurrentPage) of @m.Value(c => c.TotalPages)</span></li>
                         @using (m.If(c => c.NextArrow))
                         {
                             <li><a @t.BindNextPage("click") style="cursor: pointer"><span class="glyphicon glyphicon-chevron-right"></span></a></li>
@@ -247,10 +257,10 @@
         <div class="col-md-2">
             @using (var m = t.GotoPage())
             {
-                <div class="input-group" @m.WhenEnteredPageInvalid(c=>c.AddClass("has-error"))>
-                    <input type="text" @m.WhenEnteredPageInvalid(c=>c.Color("red")) class="form-control" @m.BindValidateGotoPage("keyup") style="width: 60px;" placeholder="Page">
+                <div class="input-group" @m.WhenEnteredPageInvalid(c => c.AddClass("has-error"))>
+                    <input type="text" @m.WhenEnteredPageInvalid(c => c.Color("red")) class="form-control" @m.BindValidateGotoPage("keyup") style="width: 60px;" placeholder="Page">
                     <span class="input-group-btn">
-                        <button class="btn btn-default" @m.WhenEnteredPageInvalid(c=>c.Disabled()) type="button" @m.BindGotoPage("click")><span class="glyphicon glyphicon-circle-arrow-right"></span></button>
+                        <button class="btn btn-default" @m.WhenEnteredPageInvalid(c => c.Disabled()) type="button" @m.BindGotoPage("click")><span class="glyphicon glyphicon-circle-arrow-right"></span></button>
                     </span>
                 </div>
             }
@@ -420,4 +430,27 @@
             </div>
         }
     }
+}
+
+
+@using (var t = Plugin.Editor_PlainText())
+{
+    <div @t.BindReject("out-click")>
+        <div class="input-group" @t.WhenInvalid(c => c.AddClass("has-error")) style="max-width: 200px;" @t.WhenSaving(c => c.Hide())>
+            <input @t.ThisIsInput() @t.BindChanged("keyup") type="text" @t.WhenInvalid(c => c.Color("red")) class="form-control input-sm" aria-label="..." style="height: 28px; margin-top: -10px;margin-bottom:-10px" />
+            <div class="input-group-btn">
+                <button style="margin: -4px 0px; padding: 4px 10px;" type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right">
+                    <li @t.WhenInvalid(c => c.Disabled().AddClass("disabled"))><a style="cursor: pointer;" @t.BindCommit("click")><span class="glyphicon glyphicon-floppy-disk"></span> Save</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a style="cursor: pointer;"><span class="glyphicon glyphicon-remove"></span> Cancel</a></li>
+                </ul>
+            </div>
+        </div>
+        <span class="text-center" style="display: none" @t.WhenSaving(c => c.Show())>
+            <span class="badge"><span class="glyphicon glyphicon-refresh"></span> Saving...</span>
+        </span>
+    </div>
 }

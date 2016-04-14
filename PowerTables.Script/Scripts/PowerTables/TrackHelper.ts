@@ -87,7 +87,7 @@ module PowerTables {
         public static getRowIndex(e: HTMLElement): number {
             if (!e) return null;
             if (!e.getAttribute) return null;
-            var trk: string = e.getAttribute('data-track').substring(1);
+            var trk: string = e.getAttribute('data-track').substring(2);
             return parseInt(trk);
         }
 
