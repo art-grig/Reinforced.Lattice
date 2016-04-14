@@ -56,6 +56,11 @@ namespace PowerTables.Templating
             return _sb.ToString();
         }
 
+        public static implicit operator string(DOMEvent de)
+        {
+            return de.ToString();
+        }
+
         public static DOMEvent Filter(string eventId)
         {
             return new DOMEvent(eventId);

@@ -1,19 +1,37 @@
 ﻿module PowerTables {
     import DOMLocator = PowerTables.Rendering.DOMLocator;
 
-    export class EventsDelegatator {
+    export class EventsDelegator {
         constructor(locator: DOMLocator, bodyElement: HTMLElement, layoutElement: HTMLElement, rootId: string) {
             this._locator = locator;
             this._bodyElement = bodyElement;
             this._layoutElement = layoutElement;
             this._rootId = rootId;
 
-            this._attachFn = document['addEventListener'] || document['attachEvent'];
             this._matches = (function (el: any) {
                 if (!el) return null;
                 var p = el.prototype;
                 return (p.matches || p.matchesSelector || p.webkitMatchesSelector || p.mozMatchesSelector || p.msMatchesSelector || p.oMatchesSelector);
             } (Element));
+        }
+
+        private static addHandler(element: HTMLElement, type: string, handler: any) {
+            if (element.addEventListener) {
+                element.addEventListener(type, handler, false);
+            } else if (element['attachEvent']) {
+                element['attachEvent'].call(element, "on" + type, handler);
+            } else {
+                element["on" + type] = handler;
+            }
+        }
+        private static removeHandler(element: HTMLElement, type: string, handler: any) {
+            if (element.removeEventListener) {
+                element.removeEventListener(type, handler, false);
+            } else if (element['detachEvent']) {
+                element['detachEvent'].call(element, "on" + type, handler);
+            } else {
+                element["on" + type] = null;
+            }
         }
 
         private _rootId: string;
@@ -25,7 +43,6 @@
 
         private _cellDomSubscriptions: { [key: string]: ISubscription[] } = {};
         private _rowDomSubscriptions: { [key: string]: ISubscription[] } = {};
-        private _attachFn: (eventId: string, handler: (e: UIEvent) => any) => void;
         private _matches: (e: HTMLElement) => boolean;
         private _domEvents: { [key: string]: any } = {};
         private _outEvents: { [key: string]: any } = {};
@@ -33,20 +50,20 @@
         private ensureEventSubscription(eventId: string) {
             if (this._domEvents.hasOwnProperty(eventId)) return;
             var fn = this.onTableEvent.bind(this);
-            this._attachFn.call(this._bodyElement, eventId, fn);
+            EventsDelegator.addHandler(this._bodyElement, eventId, fn);
             this._domEvents[eventId] = fn;
         }
 
         private ensureOutSubscription(eventId: string) {
             if (this._outEvents.hasOwnProperty(eventId)) return;
             var fn = this.onOutTableEvent.bind(this);
-            this._attachFn.call(this._layoutElement, eventId, fn);
+            EventsDelegator.addHandler(this._layoutElement, eventId, fn);
             this._outEvents[eventId] = fn;
         }
 
         private traverseAndFire(subscriptions: ISubscription[], path: any[], args: any) {
             for (var i: number = 0; i < subscriptions.length; i++) {
-                
+
                 if (subscriptions[i].Selector) {
                     for (var j: number = 0; j < path.length; j++) {
                         if (this._matches.call(path[j], `#${this._rootId} ${subscriptions[i].Selector}`)) {
@@ -183,34 +200,37 @@
             return true;
         }
 
+        private _directSubscriptions: IDirectSubscription[] = [];
+
         public subscribeEvent(el: HTMLElement, eventId: string, handler: any, receiver: any, eventArguments: any[]) {
             var eo = this.parseEventId(eventId);
+            var fn: any;
             if (!eo['__no']) {
                 eventId = eo['__event'];
                 var mef = this.filterEvent;
-                this._attachFn.call(el, eventId, (e: any) => {
+                fn = (e: any) => {
                     if (!mef(e, eo)) return;
-                    handler.apply(receiver, [
-                        {
-                            Element: el,
-                            EventObject: e,
-                            Receiver: receiver,
-                            EventArguments: eventArguments
-                        }
-                    ]);
-                });
+                    handler.call(receiver, {
+                        Element: el,
+                        EventObject: e,
+                        Receiver: receiver,
+                        EventArguments: eventArguments
+                    });
+                };
+                EventsDelegator.addHandler(el, eventId, fn);
             } else {
-                this._attachFn.call(el, eventId, (e: any) => {
-                    handler.apply(receiver, [
-                        {
-                            Element: el,
-                            EventObject: e,
-                            Receiver: receiver,
-                            EventArguments: eventArguments
-                        }
-                    ]);
-                });
+                fn = (e: any) => {
+                    handler.call(receiver, {
+                        Element: el,
+                        EventObject: e,
+                        Receiver: receiver,
+                        EventArguments: eventArguments
+                    });
+                };
+                EventsDelegator.addHandler(el, eventId, fn);
             }
+            el.setAttribute('data-dsub', 'true');
+            this._directSubscriptions.push({ Element: el, Handler: fn, EventId: eventId });
         }
 
         private onOutTableEvent(e: UIEvent) {
@@ -250,14 +270,14 @@
                 EventObject: null,
                 Receiver: receiver,
                 handler: handler,
-                filter:eo
+                filter: eo
             });
+            el.setAttribute('data-outsub', 'true');
         }
 
         public unsubscribeRedundantEvents(e: HTMLElement) {
-            var arr: HTMLElement[] = this.collectElementsHavingAttribute(e, 'data-outlistener');
+            var arr: HTMLElement[] = this.collectElementsHavingAttribute(e, 'data-outsub');
             if (arr.length !== 0) {
-
                 for (var os in this._outSubscriptions) {
                     var sub = this._outSubscriptions[os];
                     for (var j = 0; j < sub.length; j++) {
@@ -267,8 +287,18 @@
                         }
                     }
                     if (this._outSubscriptions[os].length === 0) {
-                        this._layoutElement.removeEventListener(os, this._outEvents[os]);
+                        EventsDelegator.removeHandler(this._layoutElement, os, this._outEvents[os]);
                         delete this._outEvents[os];
+                    }
+                }
+            }
+            arr = this.collectElementsHavingAttribute(e, 'data-dsub');
+            if (arr.length !== 0) {
+                for (var i = 0; i < this._directSubscriptions.length; i++) {
+                    if (arr.indexOf(this._directSubscriptions[i].Element) > -1) {
+                        EventsDelegator.removeHandler(this._directSubscriptions[i].Element,
+                            this._directSubscriptions[i].EventId,
+                            this._directSubscriptions[i].Handler);
                     }
                 }
             }
@@ -283,6 +313,12 @@
             if (parent.hasAttribute(attribute)) arr.push(parent);
             return arr;
         }
+    }
+
+    interface IDirectSubscription {
+        Element: HTMLElement;
+        EventId: string;
+        Handler: any;
     }
 
     interface IOutSubscription {

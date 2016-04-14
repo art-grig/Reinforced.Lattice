@@ -1,6 +1,6 @@
 ﻿module PowerTables.Rendering {
     export class DOMModifier {
-        constructor(stack: RenderingStack, locator: DOMLocator, backBinder: BackBinder, templatesProvider: ITemplatesProvider, layoutRenderer: LayoutRenderer, instances: InstanceManager, ed: EventsDelegatator) {
+        constructor(stack: RenderingStack, locator: DOMLocator, backBinder: BackBinder, templatesProvider: ITemplatesProvider, layoutRenderer: LayoutRenderer, instances: InstanceManager, ed: EventsDelegator) {
             this._stack = stack;
             this._locator = locator;
             this._backBinder = backBinder;
@@ -10,7 +10,7 @@
             this._ed = ed;
         }
 
-        private _ed: EventsDelegatator;
+        private _ed: EventsDelegator;
         private _stack: RenderingStack;
         private _locator: DOMLocator;
         private _backBinder: BackBinder;

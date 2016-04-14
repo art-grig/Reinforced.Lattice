@@ -923,18 +923,18 @@ var PowerTables;
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
-    var EventsDelegatator = (function () {
-        function EventsDelegatator(locator, bodyElement, layoutElement, rootId) {
+    var EventsDelegator = (function () {
+        function EventsDelegator(locator, bodyElement, layoutElement, rootId) {
             this._outSubscriptions = {};
             this._cellDomSubscriptions = {};
             this._rowDomSubscriptions = {};
             this._domEvents = {};
             this._outEvents = {};
+            this._directSubscriptions = [];
             this._locator = locator;
             this._bodyElement = bodyElement;
             this._layoutElement = layoutElement;
             this._rootId = rootId;
-            this._attachFn = document['addEventListener'] || document['attachEvent'];
             this._matches = (function (el) {
                 if (!el)
                     return null;
@@ -942,21 +942,43 @@ var PowerTables;
                 return (p.matches || p.matchesSelector || p.webkitMatchesSelector || p.mozMatchesSelector || p.msMatchesSelector || p.oMatchesSelector);
             }(Element));
         }
-        EventsDelegatator.prototype.ensureEventSubscription = function (eventId) {
+        EventsDelegator.addHandler = function (element, type, handler) {
+            if (element.addEventListener) {
+                element.addEventListener(type, handler, false);
+            }
+            else if (element['attachEvent']) {
+                element['attachEvent'].call(element, "on" + type, handler);
+            }
+            else {
+                element["on" + type] = handler;
+            }
+        };
+        EventsDelegator.removeHandler = function (element, type, handler) {
+            if (element.removeEventListener) {
+                element.removeEventListener(type, handler, false);
+            }
+            else if (element['detachEvent']) {
+                element['detachEvent'].call(element, "on" + type, handler);
+            }
+            else {
+                element["on" + type] = null;
+            }
+        };
+        EventsDelegator.prototype.ensureEventSubscription = function (eventId) {
             if (this._domEvents.hasOwnProperty(eventId))
                 return;
             var fn = this.onTableEvent.bind(this);
-            this._attachFn.call(this._bodyElement, eventId, fn);
+            EventsDelegator.addHandler(this._bodyElement, eventId, fn);
             this._domEvents[eventId] = fn;
         };
-        EventsDelegatator.prototype.ensureOutSubscription = function (eventId) {
+        EventsDelegator.prototype.ensureOutSubscription = function (eventId) {
             if (this._outEvents.hasOwnProperty(eventId))
                 return;
             var fn = this.onOutTableEvent.bind(this);
-            this._attachFn.call(this._layoutElement, eventId, fn);
+            EventsDelegator.addHandler(this._layoutElement, eventId, fn);
             this._outEvents[eventId] = fn;
         };
-        EventsDelegatator.prototype.traverseAndFire = function (subscriptions, path, args) {
+        EventsDelegator.prototype.traverseAndFire = function (subscriptions, path, args) {
             for (var i = 0; i < subscriptions.length; i++) {
                 if (subscriptions[i].Selector) {
                     for (var j = 0; j < path.length; j++) {
@@ -973,7 +995,7 @@ var PowerTables;
                 }
             }
         };
-        EventsDelegatator.prototype.onTableEvent = function (e) {
+        EventsDelegator.prototype.onTableEvent = function (e) {
             var t = (e.target || e.srcElement), eventType = e.type;
             var forRow = this._rowDomSubscriptions[eventType];
             var forCell = this._cellDomSubscriptions[eventType];
@@ -1023,7 +1045,7 @@ var PowerTables;
          *
          * @param subscription Event subscription
          */
-        EventsDelegatator.prototype.subscribeCellEvent = function (subscription) {
+        EventsDelegator.prototype.subscribeCellEvent = function (subscription) {
             var eo = this.parseEventId(subscription.EventId);
             subscription.EventId = eo['__event'];
             subscription.filter = eo;
@@ -1039,7 +1061,7 @@ var PowerTables;
          *
          * @param subscription Event subscription
          */
-        EventsDelegatator.prototype.subscribeRowEvent = function (subscription) {
+        EventsDelegator.prototype.subscribeRowEvent = function (subscription) {
             var eo = this.parseEventId(subscription.EventId);
             subscription.EventId = eo['__event'];
             subscription.filter = eo;
@@ -1052,7 +1074,7 @@ var PowerTables;
         // custom events like |key=b`value`|keyup
         // b is type bool
         // b,s,i,f available
-        EventsDelegatator.prototype.parseEventId = function (eventId) {
+        EventsDelegator.prototype.parseEventId = function (eventId) {
             if (eventId.indexOf('|') < 0)
                 return { __event: eventId, __no: true };
             var eo = {};
@@ -1083,7 +1105,7 @@ var PowerTables;
             }
             return eo;
         };
-        EventsDelegatator.prototype.filterEvent = function (e, propsObject) {
+        EventsDelegator.prototype.filterEvent = function (e, propsObject) {
             if (propsObject['__no'])
                 return true;
             for (var p in propsObject) {
@@ -1092,38 +1114,39 @@ var PowerTables;
             }
             return true;
         };
-        EventsDelegatator.prototype.subscribeEvent = function (el, eventId, handler, receiver, eventArguments) {
+        EventsDelegator.prototype.subscribeEvent = function (el, eventId, handler, receiver, eventArguments) {
             var eo = this.parseEventId(eventId);
+            var fn;
             if (!eo['__no']) {
                 eventId = eo['__event'];
                 var mef = this.filterEvent;
-                this._attachFn.call(el, eventId, function (e) {
+                fn = function (e) {
                     if (!mef(e, eo))
                         return;
-                    handler.apply(receiver, [
-                        {
-                            Element: el,
-                            EventObject: e,
-                            Receiver: receiver,
-                            EventArguments: eventArguments
-                        }
-                    ]);
-                });
+                    handler.call(receiver, {
+                        Element: el,
+                        EventObject: e,
+                        Receiver: receiver,
+                        EventArguments: eventArguments
+                    });
+                };
+                EventsDelegator.addHandler(el, eventId, fn);
             }
             else {
-                this._attachFn.call(el, eventId, function (e) {
-                    handler.apply(receiver, [
-                        {
-                            Element: el,
-                            EventObject: e,
-                            Receiver: receiver,
-                            EventArguments: eventArguments
-                        }
-                    ]);
-                });
+                fn = function (e) {
+                    handler.call(receiver, {
+                        Element: el,
+                        EventObject: e,
+                        Receiver: receiver,
+                        EventArguments: eventArguments
+                    });
+                };
+                EventsDelegator.addHandler(el, eventId, fn);
             }
+            el.setAttribute('data-dsub', 'true');
+            this._directSubscriptions.push({ Element: el, Handler: fn, EventId: eventId });
         };
-        EventsDelegatator.prototype.onOutTableEvent = function (e) {
+        EventsDelegator.prototype.onOutTableEvent = function (e) {
             var subscriptions = this._outSubscriptions[e.type];
             var target = (e.target || e.srcElement);
             for (var i = 0; i < subscriptions.length; i++) {
@@ -1148,7 +1171,7 @@ var PowerTables;
                 }
             }
         };
-        EventsDelegatator.prototype.subscribeOutOfElementEvent = function (el, eventId, handler, receiver, eventArguments) {
+        EventsDelegator.prototype.subscribeOutOfElementEvent = function (el, eventId, handler, receiver, eventArguments) {
             var eo = this.parseEventId(eventId);
             eventId = eo['__event'];
             this.ensureOutSubscription(eventId);
@@ -1162,9 +1185,10 @@ var PowerTables;
                 handler: handler,
                 filter: eo
             });
+            el.setAttribute('data-outsub', 'true');
         };
-        EventsDelegatator.prototype.unsubscribeRedundantEvents = function (e) {
-            var arr = this.collectElementsHavingAttribute(e, 'data-outlistener');
+        EventsDelegator.prototype.unsubscribeRedundantEvents = function (e) {
+            var arr = this.collectElementsHavingAttribute(e, 'data-outsub');
             if (arr.length !== 0) {
                 for (var os in this._outSubscriptions) {
                     var sub = this._outSubscriptions[os];
@@ -1175,13 +1199,21 @@ var PowerTables;
                         }
                     }
                     if (this._outSubscriptions[os].length === 0) {
-                        this._layoutElement.removeEventListener(os, this._outEvents[os]);
+                        EventsDelegator.removeHandler(this._layoutElement, os, this._outEvents[os]);
                         delete this._outEvents[os];
                     }
                 }
             }
+            arr = this.collectElementsHavingAttribute(e, 'data-dsub');
+            if (arr.length !== 0) {
+                for (var i = 0; i < this._directSubscriptions.length; i++) {
+                    if (arr.indexOf(this._directSubscriptions[i].Element) > -1) {
+                        EventsDelegator.removeHandler(this._directSubscriptions[i].Element, this._directSubscriptions[i].EventId, this._directSubscriptions[i].Handler);
+                    }
+                }
+            }
         };
-        EventsDelegatator.prototype.collectElementsHavingAttribute = function (parent, attribute) {
+        EventsDelegator.prototype.collectElementsHavingAttribute = function (parent, attribute) {
             var matching = parent.querySelectorAll("[" + attribute + "]");
             var arr = [];
             for (var i = 0; i < matching.length; i++) {
@@ -1191,9 +1223,9 @@ var PowerTables;
                 arr.push(parent);
             return arr;
         };
-        return EventsDelegatator;
+        return EventsDelegator;
     })();
-    PowerTables.EventsDelegatator = EventsDelegatator;
+    PowerTables.EventsDelegator = EventsDelegator;
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
@@ -3916,7 +3948,6 @@ var PowerTables;
                             handler = eval(bindFn);
                         for (var k = 0; k < subscription.Events.length; k++) {
                             if (subscription.Events[k].length > 4 && subscription.Events[k].substring(0, 4) === 'out-') {
-                                element.setAttribute('data-outlistener', 'true');
                                 _this.Delegator.subscribeOutOfElementEvent(element, subscription.Events[k].substring(4), handler, target, subscription.EventArguments);
                             }
                             else {
@@ -5200,7 +5231,7 @@ var PowerTables;
                 this.BodyElement = bodyMarker.parentElement;
                 this.BodyElement.removeChild(bodyMarker);
                 this.Locator = new Rendering.DOMLocator(this.BodyElement, this.RootElement, this._rootId);
-                this.Delegator = new PowerTables.EventsDelegatator(this.Locator, this.BodyElement, this.RootElement, this._rootId);
+                this.Delegator = new PowerTables.EventsDelegator(this.Locator, this.BodyElement, this.RootElement, this._rootId);
                 this.BackBinder.Delegator = this.Delegator;
                 this.Modifier = new Rendering.DOMModifier(this._stack, this.Locator, this.BackBinder, this, this.LayoutRenderer, this._instances, this.Delegator);
                 this.BackBinder.backBind(this.RootElement);

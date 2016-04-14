@@ -68,7 +68,7 @@
         /**
          * API that is responsible for UI events delegation
          */
-        public Delegator: EventsDelegatator;
+        public Delegator: EventsDelegator;
 
         private _instances: InstanceManager;
         private _stack: RenderingStack;
@@ -117,7 +117,7 @@
             this.BodyElement.removeChild(bodyMarker);
 
             this.Locator = new DOMLocator(this.BodyElement, this.RootElement, this._rootId);
-            this.Delegator = new EventsDelegatator(this.Locator, this.BodyElement, this.RootElement, this._rootId);
+            this.Delegator = new EventsDelegator(this.Locator, this.BodyElement, this.RootElement, this._rootId);
             this.BackBinder.Delegator = this.Delegator;
             this.Modifier = new DOMModifier(this._stack, this.Locator, this.BackBinder, this, this.LayoutRenderer, this._instances,this.Delegator);
             

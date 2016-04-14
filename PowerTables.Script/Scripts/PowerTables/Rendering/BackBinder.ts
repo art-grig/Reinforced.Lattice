@@ -10,7 +10,7 @@
         private _cachedVisualStates: { [key: string]: IState[] } = {};
         private _hasVisualStates: boolean = false;
 
-        public Delegator: EventsDelegatator;
+        public Delegator: EventsDelegator;
 
         constructor(hb: Handlebars.IHandlebars, instances: InstanceManager, stack: RenderingStack, dateService: DateService) {
             this._instances = instances;
@@ -87,7 +87,6 @@
 
                     for (var k: number = 0; k < subscription.Events.length; k++) {
                         if (subscription.Events[k].length > 4 && subscription.Events[k].substring(0, 4) === 'out-') {
-                            element.setAttribute('data-outlistener','true');
                             this.Delegator.subscribeOutOfElementEvent(element, subscription.Events[k].substring(4), handler, target, subscription.EventArguments);
                         } else {
                             this.Delegator.subscribeEvent(element, subscription.Events[k], handler, target, subscription.EventArguments);
