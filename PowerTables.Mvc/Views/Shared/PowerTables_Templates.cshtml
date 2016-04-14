@@ -457,7 +457,10 @@
 @*@using (var t = Plugin.Editor_PlainText())
 {
     <div class="input-group" @t.WhenInvalid(c => c.AddClass("has-error")) style="max-width: 200px;" @t.WhenSaving(c => c.Hide())>
-        <input @t.ThisIsInput() @t.BindChanged("keyup") @t.BindCommit(DOMEvent.Filter("keyup").Prop(13, "keyCode", "which")) type="text" @t.WhenInvalid(c => c.Color("red")) class="form-control input-sm" aria-label="..." style="height: 28px; margin-top: -10px;margin-bottom:-10px" />
+        <input @t.ThisIsInput() @t.BindChanged("keyup") @t.BindCommit(DOMEvent.Filter("keyup").Prop(13, "keyCode", "which")) type="text" @t.WhenInvalid(c => c.Color("red")) class="form-control input-sm" aria-label="..." style="height: 28px; margin-top: -10px; margin-bottom: -10px" />
+        <div class="tooltip right" role="tooltip" style="display: none" @t.WhenInvalid(c=>c.Show())>
+            <div class="tooltip-arrow"></div> <div class="tooltip-inner"> Entered value is invalid </div>
+        </div>
         <div class="input-group-btn">
             <button style="margin: -4px 0px; padding: 4px 10px;" type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span class="caret"></span>
