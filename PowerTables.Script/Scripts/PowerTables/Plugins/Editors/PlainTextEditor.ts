@@ -51,10 +51,16 @@
             }
 
             if (value == null || value == undefined || value.length === 0) {
-                if (!column.Configuration.IsNullable) {
+                if (!column.Configuration.IsNullable && (!column.IsString)) {
                     errors.push(`Value should be provided for ${column.Configuration.Title}`);
+                    return null;
                 }
-                return null;
+                
+                if (column.IsString && !this.Configuration.AllowEmptyString) {
+                    errors.push(`${column.Configuration.Title} must not be an empty string`);
+                    return null;
+                }
+                return '';
             }
 
             var i;

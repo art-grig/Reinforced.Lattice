@@ -285,10 +285,10 @@ module PowerTables.Editors.PlainText {
 		ValidationRegex: string;
 		RegexValidationErrorText: string;
 		EnableBasicValidation: boolean;
-		BasicValidationErrorMessage: string;
 		FormatFunction: (value:any,column:IColumn) => string;
 		ParseFunction: (value:string,column:IColumn,errors:string[]) => any;
 		FloatRemoveSeparatorsRegex: string;
 		FloatDotReplaceSeparatorsRegex: string;
+		AllowEmptyString: boolean;
 	}
 }

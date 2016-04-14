@@ -46,11 +46,14 @@
 
         private traverseAndFire(subscriptions: ISubscription[], path: any[], args: any) {
             for (var i: number = 0; i < subscriptions.length; i++) {
+                
                 if (subscriptions[i].Selector) {
                     for (var j: number = 0; j < path.length; j++) {
                         if (this._matches.call(path[j], `#${this._rootId} ${subscriptions[i].Selector}`)) {
-                            subscriptions[i].Handler(args);
-                            break;
+                            if (this.filterEvent(args['OriginalEvent'], subscriptions[i].filter)) {
+                                subscriptions[i].Handler(args);
+                                break;
+                            }
                         }
                     }
                 } else {
@@ -112,6 +115,10 @@
          * @param subscription Event subscription
          */
         public subscribeCellEvent(subscription: IUiSubscription<ICellEventArgs>): void {
+            var eo = this.parseEventId(subscription.EventId);
+            subscription.EventId = eo['__event'];
+            subscription.filter = eo;
+
             if (!this._cellDomSubscriptions[subscription.EventId]) {
                 this._cellDomSubscriptions[subscription.EventId] = [];
             }
@@ -126,6 +133,9 @@
          * @param subscription Event subscription
          */
         public subscribeRowEvent(subscription: IUiSubscription<IRowEventArgs>) {
+            var eo = this.parseEventId(subscription.EventId);
+            subscription.EventId = eo['__event'];
+            subscription.filter = eo;
             if (!this._rowDomSubscriptions[subscription.EventId]) {
                 this._rowDomSubscriptions[subscription.EventId] = [];
             }
@@ -133,17 +143,74 @@
             this.ensureEventSubscription(subscription.EventId);
         }
 
-        public subscribeEvent(el: HTMLElement, eventId: string, handler: any, receiver: any, eventArguments: any[]) {
-            this._attachFn.call(el, eventId, (e: any) => {
-                handler.apply(receiver, [
-                    {
-                        Element: el,
-                        EventObject: e,
-                        Receiver: receiver,
-                        EventArguments: eventArguments
+        // custom events like |key=b`value`|keyup
+        // b is type bool
+        // b,s,i,f available
+        private parseEventId(eventId: string): { [key: string]: any } {
+            if (eventId.indexOf('|') < 0) return { __event: eventId, __no: true };
+            var eo: { [key: string]: any } = {};
+            if (eventId.substr(0, '|'.length) === '|') {
+                var evtSplit = eventId.split('|');
+                eo['__event'] = evtSplit[evtSplit.length];
+                for (var i = 0; i < evtSplit.length; i++) {
+                    var eqidx = evtSplit[i].indexOf('=');
+                    var key = evtSplit[i].substring(0, eqidx);
+                    var right = evtSplit[i].substring(eqidx + 1);
+                    var rightRaw = right.substring(2, right.length - 1);
+
+                    var val;
+                    switch (right.charAt(0)) {
+                        case 'b': val = (rightRaw.toUpperCase() === 'TRUE');
+                            break;
+                        case 'i': val = parseInt(rightRaw);
+                            break;
+                        case 'f': val = parseFloat(rightRaw);
+                            break;
+                        default:
+                            val = rightRaw;
                     }
-                ]);
-            });
+                    eo[key] = val;
+                }
+            }
+            return eo;
+        }
+
+        private filterEvent(e: Event, propsObject: { [key: string]: any }): boolean {
+            if (propsObject['__no']) return true;
+            for (var p in propsObject) {
+                if (e[p] !== propsObject[p]) return false;
+            }
+            return true;
+        }
+
+        public subscribeEvent(el: HTMLElement, eventId: string, handler: any, receiver: any, eventArguments: any[]) {
+            var eo = this.parseEventId(eventId);
+            if (!eo['__no']) {
+                eventId = eo['__event'];
+                var mef = this.filterEvent;
+                this._attachFn.call(el, eventId, (e: any) => {
+                    if (!mef(e, eo)) return;
+                    handler.apply(receiver, [
+                        {
+                            Element: el,
+                            EventObject: e,
+                            Receiver: receiver,
+                            EventArguments: eventArguments
+                        }
+                    ]);
+                });
+            } else {
+                this._attachFn.call(el, eventId, (e: any) => {
+                    handler.apply(receiver, [
+                        {
+                            Element: el,
+                            EventObject: e,
+                            Receiver: receiver,
+                            EventArguments: eventArguments
+                        }
+                    ]);
+                });
+            }
         }
 
         private onOutTableEvent(e: UIEvent) {
@@ -164,14 +231,17 @@
                     }
                 }
                 if (!found) {
-                    sub.EventObject = e;
-                    sub.handler.apply(sub.Receiver, sub);
+                    if (this.filterEvent(e, sub.filter)) {
+                        sub.EventObject = e;
+                        sub.handler.apply(sub.Receiver, sub);
+                    }
                 }
             }
         }
 
-
         public subscribeOutOfElementEvent(el: HTMLElement, eventId: string, handler: any, receiver: any, eventArguments: any[]) {
+            var eo = this.parseEventId(eventId);
+            eventId = eo['__event'];
             this.ensureOutSubscription(eventId);
             if (!this._outSubscriptions.hasOwnProperty(eventId)) this._outSubscriptions[eventId] = [];
             this._outSubscriptions[eventId].push({
@@ -179,32 +249,39 @@
                 EventArguments: eventArguments,
                 EventObject: null,
                 Receiver: receiver,
-                handler: handler
+                handler: handler,
+                filter:eo
             });
         }
 
-        public unsubscribeOutEvents(e: HTMLElement) {
-            var allOut = e.querySelectorAll('[data-outlistener]');
-            var arr: HTMLElement[] = [];
-            for (var i = 0; i < allOut.length; i++) {
-                arr.push(<HTMLElement>allOut[i]);
-            }
-            if (e.hasAttribute('data-outlistener')) arr.push(e);
-            if (arr.length === 0) return;
+        public unsubscribeRedundantEvents(e: HTMLElement) {
+            var arr: HTMLElement[] = this.collectElementsHavingAttribute(e, 'data-outlistener');
+            if (arr.length !== 0) {
 
-            for (var os in this._outSubscriptions) {
-                var sub = this._outSubscriptions[os];
-                for (var j = 0; j < sub.length; j++) {
-                    if (arr.indexOf(sub[j].Element) > -1) {
-                        sub.splice(j, 1);
-                        break;
+                for (var os in this._outSubscriptions) {
+                    var sub = this._outSubscriptions[os];
+                    for (var j = 0; j < sub.length; j++) {
+                        if (arr.indexOf(sub[j].Element) > -1) {
+                            sub.splice(j, 1);
+                            break;
+                        }
+                    }
+                    if (this._outSubscriptions[os].length === 0) {
+                        this._layoutElement.removeEventListener(os, this._outEvents[os]);
+                        delete this._outEvents[os];
                     }
                 }
-                if (this._outSubscriptions[os].length === 0) {
-                    this._layoutElement.removeEventListener(os, this._outEvents[os]);
-                    delete this._outEvents[os];
-                }
             }
+        }
+
+        private collectElementsHavingAttribute(parent: HTMLElement, attribute: string): HTMLElement[] {
+            var matching = parent.querySelectorAll(`[${attribute}]`);
+            var arr: HTMLElement[] = [];
+            for (var i = 0; i < matching.length; i++) {
+                arr.push(<HTMLElement>matching[i]);
+            }
+            if (parent.hasAttribute(attribute)) arr.push(parent);
+            return arr;
         }
     }
 
@@ -214,6 +291,7 @@
         Receiver: any;
         EventArguments: any[];
         handler: any;
+        filter: { [key: string]: any };
     }
 
     export interface IRowEventArgs {
@@ -255,6 +333,8 @@
         SubscriptionId: string;
 
         Handler: any;
+
+        filter?: { [key: string]: any };
     }
 
     /**

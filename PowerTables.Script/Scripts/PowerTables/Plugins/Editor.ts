@@ -104,10 +104,11 @@
             }
         }
 
-        public reject(editor: CellEditorBase) {
+        public reject() {
             this._isEditing = false;
             this.MasterTable.Controller.redrawVisibleDataObject(this.DataObject, this.Index);
         }
+        
         //#endregion
 
         //#region Private members
@@ -163,6 +164,7 @@
 
         //#region Event handlers
         public beginCellEditHandle(e: ICellEventArgs) {
+            if (this._isEditing) return;
             var col = this.MasterTable.InstanceManager.getUiColumns()[e.ColumnIndex];
             this.beginCellEdit(col, true, false, false, e.DisplayingRowIndex);
         }

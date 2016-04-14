@@ -8,7 +8,11 @@
         }
 
         private _datepickerOptions: IDatepickerOptions;
-
+        private ensureDpo() {
+            if (this._datepickerOptions == null || this._datepickerOptions == undefined) {
+                throw new Error('For this functionality you need 3rd-party datepicker. Please connect one using .Datepicker method');
+            }
+        }
         /**
          * Determines is passed object valid Date object
          * @param date 
@@ -62,6 +66,7 @@
          * @returns {Date} Date object or null
          */
         public getDateFromDatePicker(element: HTMLElement): Date {
+            this.ensureDpo();
             if (!element) return null;
             var date = this._datepickerOptions.GetFromDatePicker(element);
             if (date == null) return null;
@@ -78,6 +83,7 @@
          * @param element HTML element that should be converted to datepicker
          */
         public createDatePicker(element: HTMLElement, isNullableDate?: boolean): void {
+            this.ensureDpo();
             if (!element) return;
             this._datepickerOptions.CreateDatePicker(element, isNullableDate);
         }
@@ -89,6 +95,7 @@
          * @param date Date object to supply to datepicker or null
          */
         public putDateToDatePicker(element: HTMLElement, date: Date): void {
+            this.ensureDpo();
             if (!element) return;
             this._datepickerOptions.PutToDatePicker(element, date);
         }

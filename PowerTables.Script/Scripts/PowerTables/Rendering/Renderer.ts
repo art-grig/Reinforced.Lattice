@@ -145,7 +145,9 @@
          * @returns {} 
          */
         public clearBody(): void {
-            //this.BodyElement.innerHTML = '';
+            if (this.Delegator) {
+                this.Delegator.unsubscribeRedundantEvents(this.BodyElement);
+            }
             while (this.BodyElement.firstChild) {
                 this.BodyElement.removeChild(this.BodyElement.firstChild);
             }

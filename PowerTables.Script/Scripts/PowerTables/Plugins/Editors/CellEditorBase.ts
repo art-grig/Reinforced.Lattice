@@ -98,7 +98,7 @@
          * Cell editor should be notified
          */
         public rejectHandler(e: TemplateBoundEvent): void {
-            this.Row.reject(this);
+            this.Row.reject();
         }
 
         /**

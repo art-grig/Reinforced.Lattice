@@ -26,99 +26,6 @@ var PowerTables;
 var PowerTables;
 (function (PowerTables) {
     /**
-    * Helper class for producing track ids
-    */
-    var TrackHelper = (function () {
-        function TrackHelper() {
-        }
-        /**
-         * Returns string track ID for cell
-         */
-        TrackHelper.getCellTrack = function (cell) {
-            var colIdx = cell.Column.MasterTable.InstanceManager.getUiColumnNames().indexOf(cell.Column.RawName);
-            var rowIdx = cell.Row.Index;
-            return TrackHelper.getCellTrackByIndexes(rowIdx, colIdx);
-        };
-        /**
-         * Returns string track ID for cell
-         */
-        TrackHelper.getCellTrackByIndexes = function (rowIndex, columnIndex) {
-            return "c-r" + rowIndex + "-c" + columnIndex;
-        };
-        /**
-         * Returns string track ID for plugin
-         */
-        TrackHelper.getPluginTrack = function (plugin) {
-            return "p-" + plugin.PluginLocation;
-        };
-        /**
-         * Returns string track ID for plugin
-         */
-        TrackHelper.getPluginTrackByLocation = function (pluginLocation) {
-            return "p-" + pluginLocation;
-        };
-        /**
-         * Returns string track ID for header
-         */
-        TrackHelper.getHeaderTrack = function (header) {
-            return "h-" + header.Column.RawName;
-        };
-        /**
-         * Returns string track ID for header
-         */
-        TrackHelper.getHeaderTrackByColumnName = function (columnName) {
-            return "h-" + columnName;
-        };
-        /**
-         * Returns string track ID for row
-         */
-        TrackHelper.getRowTrack = function (row) {
-            return this.getRowTrackByIndex(row.Index);
-        };
-        /**
-         * Returns string track ID for row
-         */
-        TrackHelper.getRowTrackByIndex = function (index) {
-            return "r-" + index;
-        };
-        /**
-         * Parses cell track to retrieve column and row index
-         *
-         * @param e HTML element containing cell with wrapper
-         * @returns {ICellLocation} Cell location
-         */
-        TrackHelper.getCellLocation = function (e) {
-            if (!e)
-                return null;
-            if (!e.getAttribute)
-                return null;
-            var trk = e.getAttribute('data-track').substring(3).split('-c');
-            return {
-                RowIndex: parseInt(trk[0]),
-                ColumnIndex: parseInt(trk[1])
-            };
-        };
-        /**
-         * Parses row track to retrieve row index
-         *
-         * @param e HTML element containing row with wrapper
-         * @returns {number} Row index
-         */
-        TrackHelper.getRowIndex = function (e) {
-            if (!e)
-                return null;
-            if (!e.getAttribute)
-                return null;
-            var trk = e.getAttribute('data-track').substring(2);
-            return parseInt(trk);
-        };
-        return TrackHelper;
-    })();
-    PowerTables.TrackHelper = TrackHelper;
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    /**
      * Components container for registration/resolving plugins
      */
     var ComponentsContainer = (function () {
@@ -173,457 +80,6 @@ var PowerTables;
         return ComponentsContainer;
     })();
     PowerTables.ComponentsContainer = ComponentsContainer;
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    /**
-     * This enumeration distinguishes which way
-     * underlying query will be used
-     */
-    (function (QueryScope) {
-        /**
-         * Mentioned query will be sent to server to obtain
-         * data (probably) for further local filtration.
-         * All locally filtered fields should be excluded from
-         * underlying query
-         */
-        QueryScope[QueryScope["Server"] = 0] = "Server";
-        /**
-         * Mentioned query will be used for local data filtration.
-         * To gain performance, please exclude all data settings that were
-         * applied during server request
-         */
-        QueryScope[QueryScope["Client"] = 1] = "Client";
-        /**
-         * This query should contain both data for client and server filtering.
-         * Transboundary queries are used to obtain query settings
-         * that will be used on server side to retrieve data set that
-         * will be used for server command handling, so server needs all filtering settings
-         */
-        QueryScope[QueryScope["Transboundary"] = 2] = "Transboundary";
-    })(PowerTables.QueryScope || (PowerTables.QueryScope = {}));
-    var QueryScope = PowerTables.QueryScope;
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    /**
-     * API responsible for dates operations
-     */
-    var DateService = (function () {
-        function DateService(datepickerOptions) {
-            this._datepickerOptions = datepickerOptions;
-        }
-        /**
-         * Determines is passed object valid Date object
-         * @param date
-         * @returns {}
-         */
-        DateService.prototype.isValidDate = function (date) {
-            if (date === null)
-                return true;
-            if (date == undefined)
-                return false;
-            if (Object.prototype.toString.call(date) === "[object Date]") {
-                if (isNaN(date.getTime()))
-                    return false;
-                else
-                    return true;
-            }
-            return false;
-        };
-        /**
-         * Converts jsDate object to server's understandable format
-         *
-         * @param date Date object
-         * @returns {string} Date in ISO 8601 format
-         */
-        DateService.prototype.serialize = function (date) {
-            if (date === null || date == undefined)
-                return '';
-            if (Object.prototype.toString.call(date) === "[object Date]") {
-                if (isNaN(date.getTime()))
-                    return '';
-                else
-                    return Date.prototype.toISOString.call(date);
-            }
-            else
-                throw new Error(date + " is not a date at all");
-        };
-        /**
-         * Parses ISO date string to regular Date object
-         *
-         * @param dateString Date string containing date in ISO 8601
-         * @returns {}
-         */
-        DateService.prototype.parse = function (dateString) {
-            var date = new Date(dateString);
-            if (Object.prototype.toString.call(date) === "[object Date]") {
-                if (isNaN(date.getTime()))
-                    return null;
-                else
-                    return date;
-            }
-            throw new Error(dateString + " is not a date at all");
-        };
-        /**
-         * Retrieves Date object from 3rd party datepicker exposed by HTML element
-         *
-         * @param element HTML element containing datepicker componen
-         * @returns {Date} Date object or null
-         */
-        DateService.prototype.getDateFromDatePicker = function (element) {
-            if (!element)
-                return null;
-            var date = this._datepickerOptions.GetFromDatePicker(element);
-            if (date == null)
-                return null;
-            if (Object.prototype.toString.call(date) === "[object Date]") {
-                if (isNaN(date.getTime()))
-                    return null;
-                else
-                    return date;
-            }
-            throw new Error(date + " from datepicker is not a date at all");
-        };
-        /**
-         * Creates datepicker object of HTML element using configured function
-         *
-         * @param element HTML element that should be converted to datepicker
-         */
-        DateService.prototype.createDatePicker = function (element, isNullableDate) {
-            if (!element)
-                return;
-            this._datepickerOptions.CreateDatePicker(element, isNullableDate);
-        };
-        /**
-         * Passes Date object to datepicker element
-         *
-         * @param element HTML element containing datepicker componen
-         * @param date Date object to supply to datepicker or null
-         */
-        DateService.prototype.putDateToDatePicker = function (element, date) {
-            if (!element)
-                return;
-            this._datepickerOptions.PutToDatePicker(element, date);
-        };
-        return DateService;
-    })();
-    PowerTables.DateService = DateService;
-})(PowerTables || (PowerTables = {}));
-if (!Date.prototype.toISOString) {
-    (function () {
-        function pad(number) {
-            if (number < 10) {
-                return '0' + number;
-            }
-            return number;
-        }
-        Date.prototype.toISOString = function () {
-            return this.getUTCFullYear() +
-                '-' + pad(this.getUTCMonth() + 1) +
-                '-' + pad(this.getUTCDate()) +
-                'T' + pad(this.getUTCHours()) +
-                ':' + pad(this.getUTCMinutes()) +
-                ':' + pad(this.getUTCSeconds()) +
-                '.' + (this.getUTCMilliseconds() / 1000).toFixed(3).slice(2, 5) +
-                'Z';
-        };
-    }());
-}
-var PowerTables;
-(function (PowerTables) {
-    var EventsDelegatator = (function () {
-        function EventsDelegatator(locator, bodyElement, layoutElement, rootId) {
-            this._outSubscriptions = {};
-            this._cellDomSubscriptions = {};
-            this._rowDomSubscriptions = {};
-            this._domEvents = {};
-            this._outEvents = {};
-            this._locator = locator;
-            this._bodyElement = bodyElement;
-            this._layoutElement = layoutElement;
-            this._rootId = rootId;
-            this._attachFn = document['addEventListener'] || document['attachEvent'];
-            this._matches = (function (el) {
-                if (!el)
-                    return null;
-                var p = el.prototype;
-                return (p.matches || p.matchesSelector || p.webkitMatchesSelector || p.mozMatchesSelector || p.msMatchesSelector || p.oMatchesSelector);
-            }(Element));
-        }
-        EventsDelegatator.prototype.ensureEventSubscription = function (eventId) {
-            if (this._domEvents.hasOwnProperty(eventId))
-                return;
-            var fn = this.onTableEvent.bind(this);
-            this._attachFn.call(this._bodyElement, eventId, fn);
-            this._domEvents[eventId] = fn;
-        };
-        EventsDelegatator.prototype.ensureOutSubscription = function (eventId) {
-            if (this._outEvents.hasOwnProperty(eventId))
-                return;
-            var fn = this.onOutTableEvent.bind(this);
-            this._attachFn.call(this._layoutElement, eventId, fn);
-            this._outEvents[eventId] = fn;
-        };
-        EventsDelegatator.prototype.traverseAndFire = function (subscriptions, path, args) {
-            for (var i = 0; i < subscriptions.length; i++) {
-                if (subscriptions[i].Selector) {
-                    for (var j = 0; j < path.length; j++) {
-                        if (this._matches.call(path[j], "#" + this._rootId + " " + subscriptions[i].Selector)) {
-                            subscriptions[i].Handler(args);
-                            break;
-                        }
-                    }
-                }
-                else {
-                    subscriptions[i].Handler(args);
-                }
-            }
-        };
-        EventsDelegatator.prototype.onTableEvent = function (e) {
-            var t = (e.target || e.srcElement), eventType = e.type;
-            var forRow = this._rowDomSubscriptions[eventType];
-            var forCell = this._cellDomSubscriptions[eventType];
-            if (!forRow)
-                forRow = [];
-            if (!forCell)
-                forCell = [];
-            if (forRow.length === 0 && forCell.length === 0)
-                return;
-            var pathToCell = [];
-            var pathToRow = [];
-            var cellLocation = null, rowIndex = null;
-            while (t !== this._bodyElement) {
-                if (this._locator.isCell(t))
-                    cellLocation = PowerTables.TrackHelper.getCellLocation(t);
-                if (this._locator.isRow(t))
-                    rowIndex = PowerTables.TrackHelper.getRowIndex(t);
-                if (cellLocation == null)
-                    pathToCell.push(t);
-                if (rowIndex == null)
-                    pathToRow.push(t);
-                t = t.parentElement;
-                if (t.parentElement == null) {
-                    // we encountered event on detached element
-                    // just return
-                    return;
-                }
-            }
-            if (cellLocation != null) {
-                var cellArgs = {
-                    OriginalEvent: e,
-                    DisplayingRowIndex: cellLocation.RowIndex,
-                    ColumnIndex: cellLocation.ColumnIndex
-                };
-                this.traverseAndFire(forCell, pathToCell, cellArgs);
-            }
-            if (rowIndex != null) {
-                var rowArgs = {
-                    OriginalEvent: e,
-                    DisplayingRowIndex: rowIndex
-                };
-                this.traverseAndFire(forRow, pathToRow, rowArgs);
-            }
-        };
-        /**
-         * Subscribe handler to any DOM event happening on particular table cell
-         *
-         * @param subscription Event subscription
-         */
-        EventsDelegatator.prototype.subscribeCellEvent = function (subscription) {
-            if (!this._cellDomSubscriptions[subscription.EventId]) {
-                this._cellDomSubscriptions[subscription.EventId] = [];
-            }
-            this._cellDomSubscriptions[subscription.EventId].push(subscription);
-            this.ensureEventSubscription(subscription.EventId);
-        };
-        /**
-         * Subscribe handler to any DOM event happening on particular table row.
-         * Note that handler will fire even if particular table cell event happened
-         *
-         * @param subscription Event subscription
-         */
-        EventsDelegatator.prototype.subscribeRowEvent = function (subscription) {
-            if (!this._rowDomSubscriptions[subscription.EventId]) {
-                this._rowDomSubscriptions[subscription.EventId] = [];
-            }
-            this._rowDomSubscriptions[subscription.EventId].push(subscription);
-            this.ensureEventSubscription(subscription.EventId);
-        };
-        EventsDelegatator.prototype.subscribeEvent = function (el, eventId, handler, receiver, eventArguments) {
-            this._attachFn.call(el, eventId, function (e) {
-                handler.apply(receiver, [
-                    {
-                        Element: el,
-                        EventObject: e,
-                        Receiver: receiver,
-                        EventArguments: eventArguments
-                    }
-                ]);
-            });
-        };
-        EventsDelegatator.prototype.onOutTableEvent = function (e) {
-            var subscriptions = this._outSubscriptions[e.type];
-            var target = (e.target || e.srcElement);
-            for (var i = 0; i < subscriptions.length; i++) {
-                var sub = subscriptions[i];
-                var ct = target;
-                var found = false;
-                while (ct !== this._layoutElement) {
-                    if (ct === sub.Element) {
-                        found = true;
-                        break;
-                    }
-                    ct = ct.parentElement;
-                    if (ct.parentElement == null) {
-                        return;
-                    }
-                }
-                if (!found) {
-                    sub.EventObject = e;
-                    sub.handler.apply(sub.Receiver, sub);
-                }
-            }
-        };
-        EventsDelegatator.prototype.subscribeOutOfElementEvent = function (el, eventId, handler, receiver, eventArguments) {
-            this.ensureOutSubscription(eventId);
-            if (!this._outSubscriptions.hasOwnProperty(eventId))
-                this._outSubscriptions[eventId] = [];
-            this._outSubscriptions[eventId].push({
-                Element: el,
-                EventArguments: eventArguments,
-                EventObject: null,
-                Receiver: receiver,
-                handler: handler
-            });
-        };
-        EventsDelegatator.prototype.unsubscribeOutEvents = function (e) {
-            var allOut = e.querySelectorAll('[data-outlistener]');
-            var arr = [];
-            for (var i = 0; i < allOut.length; i++) {
-                arr.push(allOut[i]);
-            }
-            if (e.hasAttribute('data-outlistener'))
-                arr.push(e);
-            if (arr.length === 0)
-                return;
-            for (var os in this._outSubscriptions) {
-                var sub = this._outSubscriptions[os];
-                for (var j = 0; j < sub.length; j++) {
-                    if (arr.indexOf(sub[j].Element) > -1) {
-                        sub.splice(j, 1);
-                        break;
-                    }
-                }
-                if (this._outSubscriptions[os].length === 0) {
-                    this._layoutElement.removeEventListener(os, this._outEvents[os]);
-                    delete this._outEvents[os];
-                }
-            }
-        };
-        return EventsDelegatator;
-    })();
-    PowerTables.EventsDelegatator = EventsDelegatator;
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    /**
-     * Wrapper for table event with ability to subscribe/unsubscribe
-     */
-    var TableEvent = (function () {
-        function TableEvent(masterTable) {
-            this._handlers = {};
-            this._masterTable = masterTable;
-        }
-        /**
-         * Invokes event with overridden this arg and specified event args
-         *
-         * @param thisArg "this" argument to be substituted to callee
-         * @param eventArgs Event args will be passed to callee
-         */
-        TableEvent.prototype.invoke = function (thisArg, eventArgs) {
-            var ea = {
-                MasterTable: this._masterTable,
-                EventArgs: eventArgs
-            };
-            var hndlrs = this._handlers;
-            var i = 0;
-            for (var k in hndlrs) {
-                if (hndlrs.hasOwnProperty(k)) {
-                    var kHandlers = hndlrs[k];
-                    for (i = 0; i < kHandlers.length; i++) {
-                        kHandlers[i].apply(thisArg, [ea]);
-                    }
-                    i = 0;
-                }
-            }
-        };
-        /**
-         * Subscribes specified function to event with supplied string key.
-         * Subscriber key is needed to have an ability to unsubscribe from event
-         * and should reflect entity that has been subscriben
-         *
-         * @param handler Event handler to subscribe
-         * @param subscriber Subscriber key to associate with handler
-         */
-        TableEvent.prototype.subscribe = function (handler, subscriber) {
-            if (!this._handlers[subscriber]) {
-                this._handlers[subscriber] = [];
-            }
-            this._handlers[subscriber].push(handler);
-        };
-        /**
-         * Unsubscribes specified addressee from event
-         * @param subscriber Subscriber key associated with handler
-         */
-        TableEvent.prototype.unsubscribe = function (subscriber) {
-            this._handlers[subscriber] = null;
-            delete this._handlers[subscriber];
-        };
-        return TableEvent;
-    })();
-    PowerTables.TableEvent = TableEvent;
-    /**
-     * Events manager for table.
-     * Contains all available events
-     */
-    var EventsManager = (function () {
-        function EventsManager(masterTable) {
-            this._masterTable = masterTable;
-            this.BeforeQueryGathering = new TableEvent(masterTable);
-            this.AfterQueryGathering = new TableEvent(masterTable);
-            this.BeforeClientQueryGathering = new TableEvent(masterTable);
-            this.AfterClientQueryGathering = new TableEvent(masterTable);
-            this.BeforeLoading = new TableEvent(masterTable);
-            this.LoadingError = new TableEvent(masterTable);
-            this.ColumnsCreation = new TableEvent(masterTable);
-            this.DataReceived = new TableEvent(masterTable);
-            this.AfterLoading = new TableEvent(masterTable);
-            this.BeforeLayoutRendered = new TableEvent(masterTable);
-            this.BeforeClientDataProcessing = new TableEvent(masterTable);
-            this.AfterClientDataProcessing = new TableEvent(masterTable);
-            this.BeforeLayoutRendered = new TableEvent(masterTable);
-            this.AfterLayoutRendered = new TableEvent(masterTable);
-            this.BeforeDataRendered = new TableEvent(masterTable);
-            this.AfterDataRendered = new TableEvent(masterTable);
-            this.BeforeClientRowsRendering = new TableEvent(masterTable);
-        }
-        /**
-         * Registers new event for events manager.
-         * This method is to be used by plugins to provide their
-         * own events.
-         *
-         * Events being added should be described in plugin's .d.ts file
-         * as extensions to Events manager
-         * @param eventName Event name
-         * @returns {}
-         */
-        EventsManager.prototype.registerEvent = function (eventName) {
-            this[eventName] = new TableEvent(this._masterTable);
-        };
-        return EventsManager;
-    })();
-    PowerTables.EventsManager = EventsManager;
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
@@ -891,6 +347,36 @@ var PowerTables;
         RedrawBehavior[RedrawBehavior["DoNothing"] = 5] = "DoNothing";
     })(PowerTables.RedrawBehavior || (PowerTables.RedrawBehavior = {}));
     var RedrawBehavior = PowerTables.RedrawBehavior;
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    /**
+     * This enumeration distinguishes which way
+     * underlying query will be used
+     */
+    (function (QueryScope) {
+        /**
+         * Mentioned query will be sent to server to obtain
+         * data (probably) for further local filtration.
+         * All locally filtered fields should be excluded from
+         * underlying query
+         */
+        QueryScope[QueryScope["Server"] = 0] = "Server";
+        /**
+         * Mentioned query will be used for local data filtration.
+         * To gain performance, please exclude all data settings that were
+         * applied during server request
+         */
+        QueryScope[QueryScope["Client"] = 1] = "Client";
+        /**
+         * This query should contain both data for client and server filtering.
+         * Transboundary queries are used to obtain query settings
+         * that will be used on server side to retrieve data set that
+         * will be used for server command handling, so server needs all filtering settings
+         */
+        QueryScope[QueryScope["Transboundary"] = 2] = "Transboundary";
+    })(PowerTables.QueryScope || (PowerTables.QueryScope = {}));
+    var QueryScope = PowerTables.QueryScope;
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
@@ -1200,6 +686,514 @@ var PowerTables;
         return DataHolder;
     })();
     PowerTables.DataHolder = DataHolder;
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    /**
+     * API responsible for dates operations
+     */
+    var DateService = (function () {
+        function DateService(datepickerOptions) {
+            this._datepickerOptions = datepickerOptions;
+        }
+        DateService.prototype.ensureDpo = function () {
+            if (this._datepickerOptions == null || this._datepickerOptions == undefined) {
+                throw new Error('For this functionality you need 3rd-party datepicker. Please connect one using .Datepicker method');
+            }
+        };
+        /**
+         * Determines is passed object valid Date object
+         * @param date
+         * @returns {}
+         */
+        DateService.prototype.isValidDate = function (date) {
+            if (date === null)
+                return true;
+            if (date == undefined)
+                return false;
+            if (Object.prototype.toString.call(date) === "[object Date]") {
+                if (isNaN(date.getTime()))
+                    return false;
+                else
+                    return true;
+            }
+            return false;
+        };
+        /**
+         * Converts jsDate object to server's understandable format
+         *
+         * @param date Date object
+         * @returns {string} Date in ISO 8601 format
+         */
+        DateService.prototype.serialize = function (date) {
+            if (date === null || date == undefined)
+                return '';
+            if (Object.prototype.toString.call(date) === "[object Date]") {
+                if (isNaN(date.getTime()))
+                    return '';
+                else
+                    return Date.prototype.toISOString.call(date);
+            }
+            else
+                throw new Error(date + " is not a date at all");
+        };
+        /**
+         * Parses ISO date string to regular Date object
+         *
+         * @param dateString Date string containing date in ISO 8601
+         * @returns {}
+         */
+        DateService.prototype.parse = function (dateString) {
+            var date = new Date(dateString);
+            if (Object.prototype.toString.call(date) === "[object Date]") {
+                if (isNaN(date.getTime()))
+                    return null;
+                else
+                    return date;
+            }
+            throw new Error(dateString + " is not a date at all");
+        };
+        /**
+         * Retrieves Date object from 3rd party datepicker exposed by HTML element
+         *
+         * @param element HTML element containing datepicker componen
+         * @returns {Date} Date object or null
+         */
+        DateService.prototype.getDateFromDatePicker = function (element) {
+            this.ensureDpo();
+            if (!element)
+                return null;
+            var date = this._datepickerOptions.GetFromDatePicker(element);
+            if (date == null)
+                return null;
+            if (Object.prototype.toString.call(date) === "[object Date]") {
+                if (isNaN(date.getTime()))
+                    return null;
+                else
+                    return date;
+            }
+            throw new Error(date + " from datepicker is not a date at all");
+        };
+        /**
+         * Creates datepicker object of HTML element using configured function
+         *
+         * @param element HTML element that should be converted to datepicker
+         */
+        DateService.prototype.createDatePicker = function (element, isNullableDate) {
+            this.ensureDpo();
+            if (!element)
+                return;
+            this._datepickerOptions.CreateDatePicker(element, isNullableDate);
+        };
+        /**
+         * Passes Date object to datepicker element
+         *
+         * @param element HTML element containing datepicker componen
+         * @param date Date object to supply to datepicker or null
+         */
+        DateService.prototype.putDateToDatePicker = function (element, date) {
+            this.ensureDpo();
+            if (!element)
+                return;
+            this._datepickerOptions.PutToDatePicker(element, date);
+        };
+        return DateService;
+    })();
+    PowerTables.DateService = DateService;
+})(PowerTables || (PowerTables = {}));
+if (!Date.prototype.toISOString) {
+    (function () {
+        function pad(number) {
+            if (number < 10) {
+                return '0' + number;
+            }
+            return number;
+        }
+        Date.prototype.toISOString = function () {
+            return this.getUTCFullYear() +
+                '-' + pad(this.getUTCMonth() + 1) +
+                '-' + pad(this.getUTCDate()) +
+                'T' + pad(this.getUTCHours()) +
+                ':' + pad(this.getUTCMinutes()) +
+                ':' + pad(this.getUTCSeconds()) +
+                '.' + (this.getUTCMilliseconds() / 1000).toFixed(3).slice(2, 5) +
+                'Z';
+        };
+    }());
+}
+var PowerTables;
+(function (PowerTables) {
+    /**
+     * Wrapper for table event with ability to subscribe/unsubscribe
+     */
+    var TableEvent = (function () {
+        function TableEvent(masterTable) {
+            this._handlers = {};
+            this._masterTable = masterTable;
+        }
+        /**
+         * Invokes event with overridden this arg and specified event args
+         *
+         * @param thisArg "this" argument to be substituted to callee
+         * @param eventArgs Event args will be passed to callee
+         */
+        TableEvent.prototype.invoke = function (thisArg, eventArgs) {
+            var ea = {
+                MasterTable: this._masterTable,
+                EventArgs: eventArgs
+            };
+            var hndlrs = this._handlers;
+            var i = 0;
+            for (var k in hndlrs) {
+                if (hndlrs.hasOwnProperty(k)) {
+                    var kHandlers = hndlrs[k];
+                    for (i = 0; i < kHandlers.length; i++) {
+                        kHandlers[i].apply(thisArg, [ea]);
+                    }
+                    i = 0;
+                }
+            }
+        };
+        /**
+         * Subscribes specified function to event with supplied string key.
+         * Subscriber key is needed to have an ability to unsubscribe from event
+         * and should reflect entity that has been subscriben
+         *
+         * @param handler Event handler to subscribe
+         * @param subscriber Subscriber key to associate with handler
+         */
+        TableEvent.prototype.subscribe = function (handler, subscriber) {
+            if (!this._handlers[subscriber]) {
+                this._handlers[subscriber] = [];
+            }
+            this._handlers[subscriber].push(handler);
+        };
+        /**
+         * Unsubscribes specified addressee from event
+         * @param subscriber Subscriber key associated with handler
+         */
+        TableEvent.prototype.unsubscribe = function (subscriber) {
+            this._handlers[subscriber] = null;
+            delete this._handlers[subscriber];
+        };
+        return TableEvent;
+    })();
+    PowerTables.TableEvent = TableEvent;
+    /**
+     * Events manager for table.
+     * Contains all available events
+     */
+    var EventsManager = (function () {
+        function EventsManager(masterTable) {
+            this._masterTable = masterTable;
+            this.BeforeQueryGathering = new TableEvent(masterTable);
+            this.AfterQueryGathering = new TableEvent(masterTable);
+            this.BeforeClientQueryGathering = new TableEvent(masterTable);
+            this.AfterClientQueryGathering = new TableEvent(masterTable);
+            this.BeforeLoading = new TableEvent(masterTable);
+            this.LoadingError = new TableEvent(masterTable);
+            this.ColumnsCreation = new TableEvent(masterTable);
+            this.DataReceived = new TableEvent(masterTable);
+            this.AfterLoading = new TableEvent(masterTable);
+            this.BeforeLayoutRendered = new TableEvent(masterTable);
+            this.BeforeClientDataProcessing = new TableEvent(masterTable);
+            this.AfterClientDataProcessing = new TableEvent(masterTable);
+            this.BeforeLayoutRendered = new TableEvent(masterTable);
+            this.AfterLayoutRendered = new TableEvent(masterTable);
+            this.BeforeDataRendered = new TableEvent(masterTable);
+            this.AfterDataRendered = new TableEvent(masterTable);
+            this.BeforeClientRowsRendering = new TableEvent(masterTable);
+        }
+        /**
+         * Registers new event for events manager.
+         * This method is to be used by plugins to provide their
+         * own events.
+         *
+         * Events being added should be described in plugin's .d.ts file
+         * as extensions to Events manager
+         * @param eventName Event name
+         * @returns {}
+         */
+        EventsManager.prototype.registerEvent = function (eventName) {
+            this[eventName] = new TableEvent(this._masterTable);
+        };
+        return EventsManager;
+    })();
+    PowerTables.EventsManager = EventsManager;
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var EventsDelegatator = (function () {
+        function EventsDelegatator(locator, bodyElement, layoutElement, rootId) {
+            this._outSubscriptions = {};
+            this._cellDomSubscriptions = {};
+            this._rowDomSubscriptions = {};
+            this._domEvents = {};
+            this._outEvents = {};
+            this._locator = locator;
+            this._bodyElement = bodyElement;
+            this._layoutElement = layoutElement;
+            this._rootId = rootId;
+            this._attachFn = document['addEventListener'] || document['attachEvent'];
+            this._matches = (function (el) {
+                if (!el)
+                    return null;
+                var p = el.prototype;
+                return (p.matches || p.matchesSelector || p.webkitMatchesSelector || p.mozMatchesSelector || p.msMatchesSelector || p.oMatchesSelector);
+            }(Element));
+        }
+        EventsDelegatator.prototype.ensureEventSubscription = function (eventId) {
+            if (this._domEvents.hasOwnProperty(eventId))
+                return;
+            var fn = this.onTableEvent.bind(this);
+            this._attachFn.call(this._bodyElement, eventId, fn);
+            this._domEvents[eventId] = fn;
+        };
+        EventsDelegatator.prototype.ensureOutSubscription = function (eventId) {
+            if (this._outEvents.hasOwnProperty(eventId))
+                return;
+            var fn = this.onOutTableEvent.bind(this);
+            this._attachFn.call(this._layoutElement, eventId, fn);
+            this._outEvents[eventId] = fn;
+        };
+        EventsDelegatator.prototype.traverseAndFire = function (subscriptions, path, args) {
+            for (var i = 0; i < subscriptions.length; i++) {
+                if (subscriptions[i].Selector) {
+                    for (var j = 0; j < path.length; j++) {
+                        if (this._matches.call(path[j], "#" + this._rootId + " " + subscriptions[i].Selector)) {
+                            if (this.filterEvent(args['OriginalEvent'], subscriptions[i].filter)) {
+                                subscriptions[i].Handler(args);
+                                break;
+                            }
+                        }
+                    }
+                }
+                else {
+                    subscriptions[i].Handler(args);
+                }
+            }
+        };
+        EventsDelegatator.prototype.onTableEvent = function (e) {
+            var t = (e.target || e.srcElement), eventType = e.type;
+            var forRow = this._rowDomSubscriptions[eventType];
+            var forCell = this._cellDomSubscriptions[eventType];
+            if (!forRow)
+                forRow = [];
+            if (!forCell)
+                forCell = [];
+            if (forRow.length === 0 && forCell.length === 0)
+                return;
+            var pathToCell = [];
+            var pathToRow = [];
+            var cellLocation = null, rowIndex = null;
+            while (t !== this._bodyElement) {
+                if (this._locator.isCell(t))
+                    cellLocation = PowerTables.TrackHelper.getCellLocation(t);
+                if (this._locator.isRow(t))
+                    rowIndex = PowerTables.TrackHelper.getRowIndex(t);
+                if (cellLocation == null)
+                    pathToCell.push(t);
+                if (rowIndex == null)
+                    pathToRow.push(t);
+                t = t.parentElement;
+                if (t.parentElement == null) {
+                    // we encountered event on detached element
+                    // just return
+                    return;
+                }
+            }
+            if (cellLocation != null) {
+                var cellArgs = {
+                    OriginalEvent: e,
+                    DisplayingRowIndex: cellLocation.RowIndex,
+                    ColumnIndex: cellLocation.ColumnIndex
+                };
+                this.traverseAndFire(forCell, pathToCell, cellArgs);
+            }
+            if (rowIndex != null) {
+                var rowArgs = {
+                    OriginalEvent: e,
+                    DisplayingRowIndex: rowIndex
+                };
+                this.traverseAndFire(forRow, pathToRow, rowArgs);
+            }
+        };
+        /**
+         * Subscribe handler to any DOM event happening on particular table cell
+         *
+         * @param subscription Event subscription
+         */
+        EventsDelegatator.prototype.subscribeCellEvent = function (subscription) {
+            var eo = this.parseEventId(subscription.EventId);
+            subscription.EventId = eo['__event'];
+            subscription.filter = eo;
+            if (!this._cellDomSubscriptions[subscription.EventId]) {
+                this._cellDomSubscriptions[subscription.EventId] = [];
+            }
+            this._cellDomSubscriptions[subscription.EventId].push(subscription);
+            this.ensureEventSubscription(subscription.EventId);
+        };
+        /**
+         * Subscribe handler to any DOM event happening on particular table row.
+         * Note that handler will fire even if particular table cell event happened
+         *
+         * @param subscription Event subscription
+         */
+        EventsDelegatator.prototype.subscribeRowEvent = function (subscription) {
+            var eo = this.parseEventId(subscription.EventId);
+            subscription.EventId = eo['__event'];
+            subscription.filter = eo;
+            if (!this._rowDomSubscriptions[subscription.EventId]) {
+                this._rowDomSubscriptions[subscription.EventId] = [];
+            }
+            this._rowDomSubscriptions[subscription.EventId].push(subscription);
+            this.ensureEventSubscription(subscription.EventId);
+        };
+        // custom events like |key=b`value`|keyup
+        // b is type bool
+        // b,s,i,f available
+        EventsDelegatator.prototype.parseEventId = function (eventId) {
+            if (eventId.indexOf('|') < 0)
+                return { __event: eventId, __no: true };
+            var eo = {};
+            if (eventId.substr(0, '|'.length) === '|') {
+                var evtSplit = eventId.split('|');
+                eo['__event'] = evtSplit[evtSplit.length];
+                for (var i = 0; i < evtSplit.length; i++) {
+                    var eqidx = evtSplit[i].indexOf('=');
+                    var key = evtSplit[i].substring(0, eqidx);
+                    var right = evtSplit[i].substring(eqidx + 1);
+                    var rightRaw = right.substring(2, right.length - 1);
+                    var val;
+                    switch (right.charAt(0)) {
+                        case 'b':
+                            val = (rightRaw.toUpperCase() === 'TRUE');
+                            break;
+                        case 'i':
+                            val = parseInt(rightRaw);
+                            break;
+                        case 'f':
+                            val = parseFloat(rightRaw);
+                            break;
+                        default:
+                            val = rightRaw;
+                    }
+                    eo[key] = val;
+                }
+            }
+            return eo;
+        };
+        EventsDelegatator.prototype.filterEvent = function (e, propsObject) {
+            if (propsObject['__no'])
+                return true;
+            for (var p in propsObject) {
+                if (e[p] !== propsObject[p])
+                    return false;
+            }
+            return true;
+        };
+        EventsDelegatator.prototype.subscribeEvent = function (el, eventId, handler, receiver, eventArguments) {
+            var eo = this.parseEventId(eventId);
+            if (!eo['__no']) {
+                eventId = eo['__event'];
+                var mef = this.filterEvent;
+                this._attachFn.call(el, eventId, function (e) {
+                    if (!mef(e, eo))
+                        return;
+                    handler.apply(receiver, [
+                        {
+                            Element: el,
+                            EventObject: e,
+                            Receiver: receiver,
+                            EventArguments: eventArguments
+                        }
+                    ]);
+                });
+            }
+            else {
+                this._attachFn.call(el, eventId, function (e) {
+                    handler.apply(receiver, [
+                        {
+                            Element: el,
+                            EventObject: e,
+                            Receiver: receiver,
+                            EventArguments: eventArguments
+                        }
+                    ]);
+                });
+            }
+        };
+        EventsDelegatator.prototype.onOutTableEvent = function (e) {
+            var subscriptions = this._outSubscriptions[e.type];
+            var target = (e.target || e.srcElement);
+            for (var i = 0; i < subscriptions.length; i++) {
+                var sub = subscriptions[i];
+                var ct = target;
+                var found = false;
+                while (ct !== this._layoutElement) {
+                    if (ct === sub.Element) {
+                        found = true;
+                        break;
+                    }
+                    ct = ct.parentElement;
+                    if (ct.parentElement == null) {
+                        return;
+                    }
+                }
+                if (!found) {
+                    if (this.filterEvent(e, sub.filter)) {
+                        sub.EventObject = e;
+                        sub.handler.apply(sub.Receiver, sub);
+                    }
+                }
+            }
+        };
+        EventsDelegatator.prototype.subscribeOutOfElementEvent = function (el, eventId, handler, receiver, eventArguments) {
+            var eo = this.parseEventId(eventId);
+            eventId = eo['__event'];
+            this.ensureOutSubscription(eventId);
+            if (!this._outSubscriptions.hasOwnProperty(eventId))
+                this._outSubscriptions[eventId] = [];
+            this._outSubscriptions[eventId].push({
+                Element: el,
+                EventArguments: eventArguments,
+                EventObject: null,
+                Receiver: receiver,
+                handler: handler,
+                filter: eo
+            });
+        };
+        EventsDelegatator.prototype.unsubscribeRedundantEvents = function (e) {
+            var arr = this.collectElementsHavingAttribute(e, 'data-outlistener');
+            if (arr.length !== 0) {
+                for (var os in this._outSubscriptions) {
+                    var sub = this._outSubscriptions[os];
+                    for (var j = 0; j < sub.length; j++) {
+                        if (arr.indexOf(sub[j].Element) > -1) {
+                            sub.splice(j, 1);
+                            break;
+                        }
+                    }
+                    if (this._outSubscriptions[os].length === 0) {
+                        this._layoutElement.removeEventListener(os, this._outEvents[os]);
+                        delete this._outEvents[os];
+                    }
+                }
+            }
+        };
+        EventsDelegatator.prototype.collectElementsHavingAttribute = function (parent, attribute) {
+            var matching = parent.querySelectorAll("[" + attribute + "]");
+            var arr = [];
+            for (var i = 0; i < matching.length; i++) {
+                arr.push(matching[i]);
+            }
+            if (parent.hasAttribute(attribute))
+                arr.push(parent);
+            return arr;
+        };
+        return EventsDelegatator;
+    })();
+    PowerTables.EventsDelegatator = EventsDelegatator;
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
@@ -1664,6 +1658,2186 @@ var PowerTables;
     })();
     PowerTables.Loader = Loader;
 })(PowerTables || (PowerTables = {}));
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var CheckboxifyPlugin = (function (_super) {
+            __extends(CheckboxifyPlugin, _super);
+            function CheckboxifyPlugin() {
+                _super.apply(this, arguments);
+                this._selectedItems = [];
+                this._visibleAll = false;
+                this._allSelected = false;
+            }
+            CheckboxifyPlugin.prototype.selectAll = function (selected) {
+                var _this = this;
+                if (!this._canSelectAll)
+                    return;
+                this._allSelected = selected == null ? !this._allSelected : selected;
+                this.redrawHeader();
+                this._selectedItems.splice(0, this._selectedItems.length);
+                if (this._allSelected) {
+                    if (this.Configuration.SelectAllSelectsClientUndisplayedData) {
+                        for (var i = 0; i < this.MasterTable.DataHolder.StoredData.length; i++) {
+                            this._selectedItems.push(this.MasterTable.DataHolder.StoredData[i][this._valueColumnName].toString());
+                        }
+                        this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
+                        this.MasterTable.Controller.redrawVisibleData();
+                    }
+                    else if (this.Configuration.SelectAllSelectsServerUndisplayedData) {
+                        this.MasterTable.Loader.requestServer('checkboxify_all', function (data) {
+                            _this._selectedItems = data;
+                            _this.MasterTable.Events.SelectionChanged.invoke(_this, _this._selectedItems);
+                            _this.MasterTable.Controller.redrawVisibleData();
+                        });
+                    }
+                    else {
+                        for (var j = 0; j < this.MasterTable.DataHolder.DisplayedData.length; j++) {
+                            this._selectedItems.push(this.MasterTable.DataHolder.DisplayedData[j][this._valueColumnName].toString());
+                        }
+                        this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
+                        this.MasterTable.Controller.redrawVisibleData();
+                    }
+                }
+                else {
+                    this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
+                    this.MasterTable.Controller.redrawVisibleData();
+                }
+            };
+            CheckboxifyPlugin.prototype.redrawHeader = function () {
+                this.MasterTable.Renderer.Modifier.redrawHeader(this._ourColumn);
+            };
+            CheckboxifyPlugin.prototype.createColumn = function () {
+                var _this = this;
+                var conf = {
+                    IsDataOnly: false,
+                    IsEnum: false,
+                    IsNullable: false,
+                    RawColumnName: '_checkboxify',
+                    CellRenderingTemplateId: null,
+                    CellRenderingValueFunction: null,
+                    Title: 'Checkboxify',
+                    ColumnType: 'Int32'
+                };
+                var col = {
+                    Configuration: conf,
+                    Header: null,
+                    IsBoolean: false,
+                    IsDateTime: false,
+                    IsEnum: false,
+                    IsFloat: false,
+                    IsInteger: false,
+                    IsString: false,
+                    MasterTable: this.MasterTable,
+                    Order: -1,
+                    RawName: '_checkboxify'
+                };
+                var header = {
+                    Column: col,
+                    renderContent: null,
+                    renderElement: function (tp) { return tp.getCachedTemplate('checkboxifySelectAll')({ IsAllSelected: _this._allSelected, CanSelectAll: _this._canSelectAll }); },
+                    selectAllEvent: function (e) { return _this.selectAll(); }
+                };
+                col.Header = header;
+                this.MasterTable.Renderer.ContentRenderer.cacheColumnRenderingFunction(col, function (x) {
+                    var value = x.DataObject[_this._valueColumnName].toString();
+                    var selected = _this._selectedItems.indexOf(value) > -1;
+                    var canCheck = _this.canCheck(x.DataObject, x.Row);
+                    return _this.MasterTable.Renderer.getCachedTemplate('checkboxifyCell')({ Value: value, IsChecked: selected, CanCheck: canCheck });
+                });
+                return col;
+            };
+            CheckboxifyPlugin.prototype.canCheck = function (dataObject, row) {
+                return dataObject != null && !row.IsSpecial;
+            };
+            CheckboxifyPlugin.prototype.getSelection = function () {
+                return this._selectedItems;
+            };
+            CheckboxifyPlugin.prototype.selectByRowIndex = function (rowIndex) {
+                var displayedLookup = this.MasterTable.DataHolder.localLookupDisplayedData(rowIndex);
+                var v = displayedLookup.DataObject[this._valueColumnName].toString();
+                var idx = this._selectedItems.indexOf(v);
+                var overrideRow = false;
+                if (idx > -1) {
+                    this._selectedItems.splice(idx, 1);
+                    this._allSelected = false;
+                }
+                else {
+                    this._selectedItems.push(v);
+                    overrideRow = true;
+                    this._allSelected = this.MasterTable.DataHolder.DisplayedData.length === this._selectedItems.length;
+                }
+                this.redrawHeader();
+                var row = this.MasterTable.Controller.produceRow(displayedLookup.DataObject, displayedLookup.DisplayedIndex);
+                if (overrideRow) {
+                    row.renderElement = function (e) { return e.getCachedTemplate('checkboxifyRow')(row); };
+                }
+                this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
+                this.MasterTable.Renderer.Modifier.redrawRow(row);
+            };
+            CheckboxifyPlugin.prototype.afterLayoutRender = function () {
+                var _this = this;
+                this.MasterTable.Renderer.Delegator.subscribeCellEvent({
+                    EventId: 'click',
+                    Selector: '[data-checkboxify]',
+                    SubscriptionId: 'checkboxify',
+                    Handler: function (e) {
+                        _this.selectByRowIndex(e.DisplayingRowIndex);
+                    }
+                });
+            };
+            CheckboxifyPlugin.prototype.beforeRowsRendering = function (e) {
+                for (var i = 0; i < e.EventArgs.length; i++) {
+                    var row = e.EventArgs[i];
+                    if (row.IsSpecial)
+                        continue;
+                    if (this._selectedItems.indexOf(row.DataObject[this._valueColumnName].toString()) > -1) {
+                        row.renderElement = function (e) { return e.getCachedTemplate('checkboxifyRow')(row); };
+                    }
+                }
+            };
+            CheckboxifyPlugin.prototype.enableSelectAll = function (enabled) {
+                var prev = this._canSelectAll;
+                if (!this.Configuration.EnableSelectAll)
+                    this._canSelectAll = false;
+                else
+                    this._canSelectAll = enabled;
+                if (prev !== this._canSelectAll) {
+                    this.redrawHeader();
+                }
+            };
+            CheckboxifyPlugin.prototype.onClientReload = function (e) {
+                if (this.Configuration.ResetOnClientReload) {
+                    this.selectAll(false);
+                }
+                if (this.Configuration.SelectAllOnlyIfAllData) {
+                    if (e.EventArgs.Displaying.length === e.EventArgs.Source.length)
+                        this.enableSelectAll(true);
+                    else
+                        this.enableSelectAll(false);
+                }
+                else {
+                    this.enableSelectAll(true);
+                }
+            };
+            CheckboxifyPlugin.prototype.onServerReload = function (e) {
+                if (this.Configuration.ResetOnReload) {
+                    this.selectAll(false);
+                }
+            };
+            CheckboxifyPlugin.prototype.init = function (masterTable) {
+                _super.prototype.init.call(this, masterTable);
+                var col = this.createColumn();
+                this.MasterTable.InstanceManager.Columns['_checkboxify'] = col;
+                this._ourColumn = col;
+                this._valueColumnName = this.Configuration.SelectionColumnName;
+                this._canSelectAll = this.Configuration.EnableSelectAll;
+            };
+            CheckboxifyPlugin.prototype.modifyQuery = function (query, scope) {
+                query.AdditionalData['Selection'] = this._selectedItems.join('|');
+                query.AdditionalData['SelectionColumn'] = this._valueColumnName;
+            };
+            CheckboxifyPlugin.registerEvents = function (e, masterTable) {
+                e['SelectionChanged'] = new PowerTables.TableEvent(masterTable);
+            };
+            CheckboxifyPlugin.prototype.subscribe = function (e) {
+                e.AfterLayoutRendered.subscribe(this.afterLayoutRender.bind(this), 'checkboxify');
+                e.BeforeClientRowsRendering.subscribe(this.beforeRowsRendering.bind(this), 'checkboxify');
+                e.AfterClientDataProcessing.subscribe(this.onClientReload.bind(this), 'checkboxify');
+                e.DataReceived.subscribe(this.onServerReload.bind(this), 'checkboxify');
+            };
+            return CheckboxifyPlugin;
+        })(Plugins.PluginBase);
+        Plugins.CheckboxifyPlugin = CheckboxifyPlugin;
+        PowerTables.ComponentsContainer.registerComponent('Checkboxify', CheckboxifyPlugin);
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var EditorRefreshMode = PowerTables.Editors.EditorRefreshMode;
+        var Editor = (function (_super) {
+            __extends(Editor, _super);
+            function Editor() {
+                var _this = this;
+                _super.apply(this, arguments);
+                //#region IRow members
+                this.Cells = {};
+                this.IsSpecial = true;
+                //#endregion
+                this._activeEditors = [];
+                this._isEditing = false;
+                //#endregion
+                //public renderContent(templatesProvider: ITemplatesProvider): string {
+                //    return templatesProvider.getCachedTemplate('rowWrapper')(this);
+                //}
+                this.afterDrawn = function (e) {
+                    _this.MasterTable.Renderer.Delegator.subscribeCellEvent({
+                        EventId: _this.Configuration.BeginEditEventId,
+                        Handler: _this.beginCellEditHandle.bind(_this),
+                        Selector: '[data-editcell]',
+                        SubscriptionId: 'editor'
+                    });
+                    _this.MasterTable.Renderer.Delegator.subscribeRowEvent({
+                        EventId: _this.Configuration.BeginEditEventId,
+                        Handler: _this.beginRowEditHandle.bind(_this),
+                        Selector: '[data-editrow]',
+                        SubscriptionId: 'editor'
+                    });
+                    _this.MasterTable.Renderer.Delegator.subscribeRowEvent({
+                        EventId: _this.Configuration.CommitEventId,
+                        Handler: _this.commitRowEditHandle.bind(_this),
+                        Selector: '[data-rowcommit]',
+                        SubscriptionId: 'editor'
+                    });
+                    _this.MasterTable.Renderer.Delegator.subscribeRowEvent({
+                        EventId: _this.Configuration.RejectEventId,
+                        Handler: _this.rejectRowEditHandle.bind(_this),
+                        Selector: '[data-rowreject]',
+                        SubscriptionId: 'editor'
+                    });
+                    _this.MasterTable.Renderer.Delegator.subscribeRowEvent({
+                        EventId: _this.Configuration.CommitEventId,
+                        Handler: _this.beginRowEditHandle.bind(_this),
+                        Selector: '[data-editform]',
+                        SubscriptionId: 'editor'
+                    });
+                };
+            }
+            //#region Public interface
+            Editor.prototype.notifyChanged = function (editor) {
+                this.retrieveEditorData(editor);
+            };
+            Editor.prototype.retrieveEditorData = function (editor, errors) {
+                var errorsArrayPresent = (!(!errors));
+                errors = errors || [];
+                this._currentDataObjectModified[editor.Column.RawName] = editor.getValue(errors);
+                if (errors.length > 0) {
+                    this.MasterTable.Renderer.Modifier.changeState('invalid', editor.VisualStates);
+                }
+                else {
+                    this.MasterTable.Renderer.Modifier.normalState(editor.VisualStates);
+                }
+                if (!errorsArrayPresent) {
+                    this._validationErrors = errors;
+                }
+            };
+            Editor.prototype.retrieveAllEditorsData = function () {
+                var errors = [];
+                for (var i = 0; i < this._activeEditors.length; i++) {
+                    this.retrieveEditorData(this._activeEditors[i], errors);
+                }
+                this._validationErrors = errors; //todo draw validation errors
+            };
+            Editor.prototype.commit = function (editor) {
+                var _this = this;
+                this.retrieveAllEditorsData();
+                if (this._validationErrors.length > 0) {
+                    return;
+                }
+                this._isEditing = false;
+                for (var cd in this._currentDataObjectModified) {
+                    if (this._currentDataObjectModified.hasOwnProperty(cd)) {
+                        this.DataObject[cd] = this._currentDataObjectModified[cd];
+                    }
+                }
+                for (var i = 0; i < this._activeEditors.length; i++) {
+                    this.MasterTable.Renderer.Modifier.changeState('saving', this._activeEditors[i].VisualStates);
+                }
+                if (!this.Configuration.IsServerPowered) {
+                    this.MasterTable.Loader.requestServer('Edit', function (response) {
+                        var serverObject = response;
+                        for (var cd in serverObject) {
+                            if (serverObject.hasOwnProperty(cd)) {
+                                _this.DataObject[cd] = serverObject[cd];
+                            }
+                        }
+                        for (var i = 0; i < _this._activeEditors.length; i++) {
+                            _this.MasterTable.Renderer.Modifier.normalState(_this._activeEditors[i].VisualStates);
+                        }
+                        switch (_this.Configuration.RefreshMode) {
+                            case EditorRefreshMode.RedrawCell:
+                            case EditorRefreshMode.RedrawRow:
+                            case EditorRefreshMode.RedrawAllVisible:
+                            case EditorRefreshMode.ReloadFromServer:
+                            default:
+                        }
+                    }, function (q) {
+                        q.AdditionalData['Edit'] = JSON.stringify(_this.DataObject);
+                        return q;
+                    });
+                }
+                else {
+                    setTimeout(function () {
+                        for (var i = 0; i < _this._activeEditors.length; i++) {
+                            _this.MasterTable.Renderer.Modifier.normalState(_this._activeEditors[i].VisualStates);
+                        }
+                        _this.MasterTable.Controller.redrawVisibleData();
+                    }, 1000);
+                }
+            };
+            Editor.prototype.redrawEditingRow = function (collectData) {
+                if (!this._isEditing)
+                    return;
+                this.MasterTable.Renderer.Modifier.redrawRow(this);
+                if (collectData) {
+                    this.retrieveAllEditorsData();
+                }
+            };
+            Editor.prototype.reject = function () {
+                this._isEditing = false;
+                this.MasterTable.Controller.redrawVisibleDataObject(this.DataObject, this.Index);
+            };
+            //#endregion
+            //#region Private members
+            Editor.prototype.ensureEditing = function (rowDisplayIndex) {
+                if (this._isEditing)
+                    return;
+                var lookup = this.MasterTable.DataHolder.localLookupDisplayedData(rowDisplayIndex);
+                this.DataObject = lookup.DataObject;
+                this._currentDataObjectModified = {};
+                for (var cd in this.DataObject) {
+                    if (this.DataObject.hasOwnProperty(cd)) {
+                        this._currentDataObjectModified[cd] = this.DataObject[cd];
+                    }
+                }
+                var row = this.MasterTable.Controller.produceRow(lookup.DataObject, lookup.DisplayedIndex);
+                this.Cells = row.Cells;
+                this.Index = lookup.DisplayedIndex;
+                this._isEditing = true;
+            };
+            Editor.prototype.isEditable = function (column) {
+                return this.Configuration.EditorsForColumns.hasOwnProperty(column.RawName);
+            };
+            Editor.prototype.createEditor = function (column, canComplete, isForm, isRow) {
+                var editorConf = this.Configuration.EditorsForColumns[column.RawName];
+                var editor = PowerTables.ComponentsContainer.resolveComponent(editorConf.PluginId);
+                editor.DataObject = this.DataObject;
+                editor.ModifiedDataObject = this._currentDataObjectModified;
+                editor.Column = column;
+                editor.CanComplete = canComplete;
+                editor.IsFormEdit = isForm;
+                editor.IsRowEdit = isRow;
+                editor.Row = this;
+                editor.RawConfig = { Configuration: editorConf, Order: 0, PluginId: editorConf.PluginId, Placement: '' };
+                editor.init(this.MasterTable);
+                return editor;
+            };
+            Editor.prototype.beginCellEdit = function (column, canComplete, isForm, isRow, rowIndex) {
+                if (!this.isEditable(column))
+                    return;
+                var editor = this.createEditor(column, canComplete, isForm, isRow);
+                this.ensureEditing(rowIndex);
+                this.Cells[column.RawName] = editor;
+                this._activeEditors.push(editor);
+                this.redrawEditingRow(false);
+                editor.IsInitialValueSetting = true;
+                editor.setValue(this._currentDataObjectModified[editor.Column.RawName]);
+                editor.IsInitialValueSetting = false;
+            };
+            //#endregion
+            //#region Event handlers
+            Editor.prototype.beginCellEditHandle = function (e) {
+                if (this._isEditing)
+                    return;
+                var col = this.MasterTable.InstanceManager.getUiColumns()[e.ColumnIndex];
+                this.beginCellEdit(col, true, false, false, e.DisplayingRowIndex);
+            };
+            Editor.prototype.beginRowEditHandle = function (e) {
+            };
+            Editor.prototype.beginFormEditHandle = function (e) {
+            };
+            Editor.prototype.commitRowEditHandle = function (e) {
+            };
+            Editor.prototype.commitFormEditHandle = function (e) {
+            };
+            Editor.prototype.rejectRowEditHandle = function (e) {
+            };
+            Editor.prototype.rejectFormEditHandle = function (e) {
+            };
+            return Editor;
+        })(Plugins.PluginBase);
+        Plugins.Editor = Editor;
+        PowerTables.ComponentsContainer.registerComponent('Editor', Editor);
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var Editors;
+        (function (Editors) {
+            var CellEditorBase = (function (_super) {
+                __extends(CellEditorBase, _super);
+                function CellEditorBase() {
+                    _super.apply(this, arguments);
+                }
+                /**
+                 * Retrieves original value for this particular cell editor
+                 *
+                 * @returns {Any} Original, unchanged value
+                 */
+                CellEditorBase.prototype.getThisOriginalValue = function () {
+                    return this.DataObject[this.Column.RawName];
+                };
+                /**
+                 * Resets editor value to initial settings
+                 */
+                CellEditorBase.prototype.reset = function () {
+                    this.setValue(this.getThisOriginalValue());
+                };
+                /**
+                 * Returns entered editor value
+                 *
+                 * @returns {}
+                 */
+                CellEditorBase.prototype.getValue = function (errors) { throw new Error("Not implemented"); };
+                /**
+                 * Sets editor value from the outside
+                 */
+                CellEditorBase.prototype.setValue = function (value) { throw new Error("Not implemented"); };
+                /**
+                 * Template-bound event raising on changing this editor's value
+                 */
+                CellEditorBase.prototype.changedHandler = function (e) {
+                    if (this.IsInitialValueSetting)
+                        return;
+                    this.Row.notifyChanged(this);
+                };
+                /**
+                 * Event handler for commit (save edited, ok, submit etc) event raised from inside of CellEditor
+                 * Commit leads to validation. Cell editor should be notified
+                 */
+                CellEditorBase.prototype.commitHandler = function (e) {
+                    this.Row.commit(this);
+                };
+                /**
+                 * Event handler for reject (cancel editing) event raised from inside of CellEditor
+                 * Cell editor should be notified
+                 */
+                CellEditorBase.prototype.rejectHandler = function (e) {
+                    this.Row.reject();
+                };
+                /**
+                 * Called when cell editor has been drawn
+                 *
+                 * @param e HTML element where editor is rendered
+                 * @returns {}
+                 */
+                CellEditorBase.prototype.onAfterRender = function (e) { };
+                return CellEditorBase;
+            })(Plugins.PluginBase);
+            Editors.CellEditorBase = CellEditorBase;
+        })(Editors = Plugins.Editors || (Plugins.Editors = {}));
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var Editors;
+        (function (Editors) {
+            var PlainTextEditor = (function (_super) {
+                __extends(PlainTextEditor, _super);
+                function PlainTextEditor() {
+                    _super.apply(this, arguments);
+                }
+                PlainTextEditor.prototype.getValue = function (errors) {
+                    if (this.Column.IsDateTime) {
+                        return this.MasterTable.Date.getDateFromDatePicker(this.Input);
+                    }
+                    else {
+                        return this._parseFunction(this.Input.value, this.Column, errors);
+                    }
+                };
+                PlainTextEditor.prototype.setValue = function (value) {
+                    if (this.Column.IsDateTime) {
+                        this.MasterTable.Date.putDateToDatePicker(this.Input, value);
+                    }
+                    else {
+                        this.Input.value = this._formatFunction(value, this.Column);
+                        this.Input.setSelectionRange(0, this.Input.value.length);
+                    }
+                };
+                PlainTextEditor.prototype.init = function (masterTable) {
+                    _super.prototype.init.call(this, masterTable);
+                    if (this.Configuration.ValidationRegex) {
+                        this.ValidationRegex = new RegExp(this.Configuration.ValidationRegex);
+                    }
+                    this._dotSeparators = new RegExp(this.Configuration.FloatDotReplaceSeparatorsRegex);
+                    this._removeSeparators = new RegExp(this.Configuration.FloatRemoveSeparatorsRegex);
+                    this._parseFunction = this.Configuration.ParseFunction || this.defaultParse;
+                    this._formatFunction = this.Configuration.FormatFunction || this.defaultFormat;
+                };
+                PlainTextEditor.prototype.defaultParse = function (value, column, errors) {
+                    if (this.ValidationRegex) {
+                        var mtch = this.ValidationRegex.test(value);
+                        if (!mtch) {
+                            errors.push(this.Configuration.RegexValidationErrorText);
+                            return null;
+                        }
+                        return value;
+                    }
+                    if (value == null || value == undefined || value.length === 0) {
+                        if (!column.Configuration.IsNullable && (!column.IsString)) {
+                            errors.push("Value should be provided for " + column.Configuration.Title);
+                            return null;
+                        }
+                        if (column.IsString && !this.Configuration.AllowEmptyString) {
+                            errors.push(column.Configuration.Title + " must not be an empty string");
+                            return null;
+                        }
+                        return '';
+                    }
+                    var i;
+                    if (column.IsInteger || column.IsEnum) {
+                        value = value.replace(this._removeSeparators, '');
+                        i = parseInt(value);
+                        if (isNaN(i)) {
+                            errors.push("Invalid number provided for " + column.Configuration.Title);
+                            return null;
+                        }
+                        return i;
+                    }
+                    if (column.IsFloat) {
+                        value = value.replace(this._removeSeparators, '');
+                        value = value.replace(this._dotSeparators, '.');
+                        i = parseFloat(value);
+                        if (isNaN(i)) {
+                            errors.push("Invalid number provided for " + column.Configuration.Title);
+                            return null;
+                        }
+                        return i;
+                    }
+                    if (column.IsBoolean) {
+                        var bs = value.toUpperCase().trim();
+                        if (bs === 'TRUE')
+                            return true;
+                        if (bs === 'FALSE')
+                            return false;
+                        errors.push("Invalid boolean value provided for " + column.Configuration.Title);
+                        return null;
+                    }
+                    return value;
+                };
+                PlainTextEditor.prototype.defaultFormat = function (value, column) {
+                    if (value == null || value == undefined)
+                        return '';
+                    return value.toString();
+                };
+                PlainTextEditor.prototype.changedHandler = function (e) {
+                    _super.prototype.changedHandler.call(this, e);
+                };
+                PlainTextEditor.prototype.renderContent = function (templatesProvider) {
+                    return templatesProvider.getCachedTemplate('plainTextEditor')(this);
+                };
+                return PlainTextEditor;
+            })(Editors.CellEditorBase);
+            Editors.PlainTextEditor = PlainTextEditor;
+            PowerTables.ComponentsContainer.registerComponent('PlainTextEditor', PlainTextEditor);
+        })(Editors = Plugins.Editors || (Plugins.Editors = {}));
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        /**
+         * Base class for creating filters
+         */
+        var FilterBase = (function (_super) {
+            __extends(FilterBase, _super);
+            function FilterBase() {
+                _super.apply(this, arguments);
+            }
+            FilterBase.prototype.modifyQuery = function (query, scope) { };
+            FilterBase.prototype.init = function (masterTable) {
+                _super.prototype.init.call(this, masterTable);
+                this.MasterTable.Loader.registerQueryPartProvider(this);
+            };
+            /**
+             * Call this method inside init and override filterPredicate method to make this filter
+             * participate in client-side filtering
+             */
+            FilterBase.prototype.itIsClientFilter = function () {
+                this.MasterTable.DataHolder.registerClientFilter(this);
+            };
+            FilterBase.prototype.filterPredicate = function (rowObject, query) { throw new Error('Please override this method'); };
+            return FilterBase;
+        })(Plugins.PluginBase);
+        Plugins.FilterBase = FilterBase;
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var FormwatchPlugin = (function (_super) {
+            __extends(FormwatchPlugin, _super);
+            function FormwatchPlugin() {
+                _super.apply(this, arguments);
+                this._existingValues = {};
+                this._filteringExecuted = {};
+                this._timeouts = {};
+            }
+            FormwatchPlugin.prototype.modifyQuery = function (query, scope) {
+                var result = {};
+                for (var i = 0; i < this.Configuration.FieldsConfiguration.length; i++) {
+                    var fieldConf = this.Configuration.FieldsConfiguration[i];
+                    var value = null;
+                    var name = fieldConf.FieldJsonName;
+                    if (fieldConf.ConstantValue) {
+                        value = fieldConf.ConstantValue;
+                    }
+                    else {
+                        if (fieldConf.FieldValueFunction) {
+                            value = fieldConf.FieldValueFunction();
+                        }
+                        else {
+                            var element = document.querySelector(fieldConf.FieldSelector);
+                            if (element) {
+                                if (element.type === 'select-multiple') {
+                                    var o = element;
+                                    value = [];
+                                    for (var k = 0; k < o.options.length; k++) {
+                                        if (o.options[k].selected)
+                                            value.push(o.options[k].value);
+                                    }
+                                }
+                                else if (element.type === 'checkbox') {
+                                    value = element.checked;
+                                }
+                                else {
+                                    if (fieldConf.IsDateTime) {
+                                        value = this.MasterTable.Date.getDateFromDatePicker(element);
+                                        if (!this.MasterTable.Date.isValidDate(value)) {
+                                            value = this.MasterTable.Date.parse(element.value);
+                                            if (!this.MasterTable.Date.isValidDate(value)) {
+                                                value = null;
+                                            }
+                                        }
+                                    }
+                                    else {
+                                        value = element.value;
+                                    }
+                                }
+                            }
+                        }
+                        if (fieldConf.SetConstantIfNotSupplied && !value) {
+                            value = fieldConf.ConstantValue;
+                        }
+                    }
+                    result[name] = value;
+                }
+                for (var fm in this.Configuration.FiltersMappings) {
+                    if (this.Configuration.FiltersMappings.hasOwnProperty(fm)) {
+                        var mappingConf = this.Configuration.FiltersMappings[fm];
+                        var needToApply = (mappingConf.ForClient && mappingConf.ForServer)
+                            || (mappingConf.ForClient && scope === PowerTables.QueryScope.Client)
+                            || (mappingConf.ForServer && scope === PowerTables.QueryScope.Server)
+                            || (scope === PowerTables.QueryScope.Transboundary);
+                        if (needToApply) {
+                            switch (mappingConf.FilterType) {
+                                case 0:
+                                    query.Filterings[fm] = result[mappingConf.FieldKeys[0]];
+                                    break;
+                                case 1:
+                                    if (mappingConf.FieldKeys.length === 1 && (Object.prototype.toString.call(result[mappingConf[0]]) === '[object Array]')) {
+                                        query.Filterings[fm] = result[mappingConf[0]][0] + "|" + result[mappingConf[0]][1];
+                                    }
+                                    else {
+                                        query.Filterings[fm] = result[mappingConf.FieldKeys[0]] + "|" + result[mappingConf.FieldKeys[1]];
+                                    }
+                                    break;
+                                case 2:
+                                    if (mappingConf.FieldKeys.length === 1 && (Object.prototype.toString.call(result[mappingConf[0]]) === '[object Array]')) {
+                                        query.Filterings[fm] = result[mappingConf[0]].join('|');
+                                    }
+                                    else {
+                                        var values = [];
+                                        for (var m = 0; m < mappingConf.FieldKeys.length; m++) {
+                                            values.push(result[mappingConf.FieldKeys[m]]);
+                                        }
+                                        query.Filterings[fm] = values.join('|');
+                                    }
+                                    break;
+                            }
+                        }
+                    }
+                }
+                if (this.Configuration.DoNotEmbed)
+                    return;
+                var str = JSON.stringify(result);
+                query.AdditionalData['Formwatch'] = str;
+            };
+            FormwatchPlugin.prototype.subscribe = function (e) {
+                var _this = this;
+                for (var i = 0; i < this.Configuration.FieldsConfiguration.length; i++) {
+                    var conf = this.Configuration.FieldsConfiguration[i];
+                    if (conf.TriggerSearchOnEvents && conf.TriggerSearchOnEvents.length > 0) {
+                        var element = document.querySelector(conf.FieldSelector);
+                        for (var j = 0; j < conf.TriggerSearchOnEvents.length; j++) {
+                            var evtToTrigger = conf.TriggerSearchOnEvents[j];
+                            element.addEventListener(evtToTrigger, (function (c, el) { return function (evt) {
+                                _this.fieldChange(c.FieldSelector, c.SearchTriggerDelay, el, evt);
+                            }; })(conf, element));
+                            if (conf.AutomaticallyAttachDatepicker) {
+                                this.MasterTable.Date.createDatePicker(element);
+                            }
+                        }
+                        this._existingValues[conf.FieldSelector] = element.value;
+                    }
+                }
+            };
+            FormwatchPlugin.prototype.fieldChange = function (fieldSelector, delay, element, e) {
+                var _this = this;
+                if (this._filteringExecuted[fieldSelector])
+                    return;
+                if (element.value === this._existingValues[fieldSelector]) {
+                    return;
+                }
+                this._existingValues[fieldSelector] = element.value;
+                if (delay > 0) {
+                    if (this._timeouts[fieldSelector])
+                        clearTimeout(this._timeouts[fieldSelector]);
+                    this._timeouts[fieldSelector] = setTimeout(function () {
+                        _this._filteringExecuted[fieldSelector] = true;
+                        _this.MasterTable.Controller.reload();
+                        _this._filteringExecuted[fieldSelector] = false;
+                    }, delay);
+                }
+                else {
+                    this._filteringExecuted[fieldSelector] = true;
+                    this.MasterTable.Controller.reload();
+                    this._filteringExecuted[fieldSelector] = false;
+                }
+            };
+            FormwatchPlugin.prototype.init = function (masterTable) {
+                _super.prototype.init.call(this, masterTable);
+                this.MasterTable.Loader.registerQueryPartProvider(this);
+            };
+            return FormwatchPlugin;
+        })(Plugins.PluginBase);
+        Plugins.FormwatchPlugin = FormwatchPlugin;
+        PowerTables.ComponentsContainer.registerComponent('Formwatch', FormwatchPlugin);
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var HideoutPlugin = (function (_super) {
+            __extends(HideoutPlugin, _super);
+            function HideoutPlugin() {
+                _super.apply(this, arguments);
+                this.ColumnStates = [];
+                this._columnStates = {};
+                this._isInitializing = true;
+            }
+            HideoutPlugin.prototype.isColumnVisible = function (columnName) {
+                return this.isColumnInstanceVisible(this.MasterTable.InstanceManager.Columns[columnName]);
+            };
+            HideoutPlugin.prototype.isColumnInstanceVisible = function (col) {
+                if (!col)
+                    return true;
+                return this._columnStates[col.RawName].Visible;
+            };
+            HideoutPlugin.prototype.hideColumnByName = function (rawColname) {
+                this.hideColumnInstance(this.MasterTable.InstanceManager.Columns[rawColname]);
+            };
+            HideoutPlugin.prototype.showColumnByName = function (rawColname) {
+                this.showColumnInstance(this.MasterTable.InstanceManager.Columns[rawColname]);
+            };
+            //#region Events handling
+            HideoutPlugin.prototype.toggleColumn = function (e) {
+                this.toggleColumnByName(e.EventArguments[0]);
+            };
+            HideoutPlugin.prototype.showColumn = function (e) {
+                this.showColumnByName(e.EventArguments[0]);
+            };
+            HideoutPlugin.prototype.hideColumn = function (e) {
+                this.hideColumnByName(e.EventArguments[0]);
+            };
+            //#endregion
+            //#region Correct showing/hiding
+            //#endregion
+            HideoutPlugin.prototype.toggleColumnByName = function (columnName) {
+                if (this.isColumnVisible(columnName)) {
+                    this.hideColumnByName(columnName);
+                    return false;
+                }
+                else {
+                    this.showColumnByName(columnName);
+                    return true;
+                }
+            };
+            HideoutPlugin.prototype.modifyQuery = function (query, scope) {
+                var hidden = '';
+                var shown = '';
+                for (var i = 0; i < this.ColumnStates.length; i++) {
+                    if (!this.ColumnStates[i].Visible) {
+                        hidden = hidden + ',' + this.ColumnStates[i].RawName;
+                    }
+                    else {
+                        shown = shown + ',' + this.ColumnStates[i].RawName;
+                    }
+                }
+                query.AdditionalData['HideoutHidden'] = hidden;
+                query.AdditionalData['HideoutShown'] = shown;
+            };
+            HideoutPlugin.prototype.hideColumnInstance = function (c) {
+                if (!c)
+                    return;
+                this._columnStates[c.RawName].Visible = false;
+                this._columnStates[c.RawName].DoesNotExists = false;
+                this.MasterTable.Renderer.Modifier.hideHeader(c);
+                this.MasterTable.Renderer.Modifier.hidePluginsByPosition("filter-" + c.RawName);
+                if (this._isInitializing)
+                    return;
+                this.MasterTable.Renderer.Modifier.hideCellsByColumn(c);
+                if (this.Configuration.ColumnInitiatingReload.indexOf(c.RawName) > -1)
+                    this.MasterTable.Controller.reload();
+                this.MasterTable.Renderer.Modifier.redrawPlugin(this);
+            };
+            HideoutPlugin.prototype.showColumnInstance = function (c) {
+                if (!c)
+                    return;
+                this._columnStates[c.RawName].Visible = true;
+                var wasNotExist = this._columnStates[c.RawName].DoesNotExists;
+                this._columnStates[c.RawName].DoesNotExists = false;
+                this.MasterTable.Renderer.Modifier.showHeader(c);
+                this.MasterTable.Renderer.Modifier.showPluginsByPosition("filter-" + c.RawName);
+                if (this._isInitializing)
+                    return;
+                if (wasNotExist) {
+                    if (this.Configuration.ColumnInitiatingReload.indexOf(c.RawName) > -1) {
+                        this.MasterTable.Controller.reload();
+                    }
+                    else {
+                        this.MasterTable.Controller.redrawVisibleData();
+                        ;
+                    }
+                }
+                else {
+                    this.MasterTable.Renderer.Modifier.showCellsByColumn(c);
+                    if (this.Configuration.ColumnInitiatingReload.indexOf(c.RawName) > -1) {
+                        this.MasterTable.Controller.reload();
+                    }
+                }
+                this.MasterTable.Renderer.Modifier.redrawPlugin(this);
+            };
+            HideoutPlugin.prototype.onBeforeDataRendered = function () {
+                for (var i = 0; i < this.ColumnStates.length; i++) {
+                    var col = this.MasterTable.InstanceManager.Columns[this.ColumnStates[i].RawName];
+                    if (!this.ColumnStates[i].Visible) {
+                        col.Configuration.IsDataOnly = true;
+                    }
+                    else {
+                        col.Configuration.IsDataOnly = false;
+                    }
+                }
+            };
+            HideoutPlugin.prototype.onDataRendered = function () {
+                for (var i = 0; i < this.ColumnStates.length; i++) {
+                    if (!this.ColumnStates[i].Visible)
+                        this.ColumnStates[i].DoesNotExists = true;
+                }
+                this.MasterTable.Renderer.Modifier.redrawPlugin(this);
+            };
+            HideoutPlugin.prototype.onLayourRendered = function () {
+                for (var j = 0; j < this.ColumnStates.length; j++) {
+                    if (this.Configuration.HiddenColumns[this.ColumnStates[j].RawName]) {
+                        this.hideColumnByName(this.ColumnStates[j].RawName);
+                    }
+                }
+                this._isInitializing = false;
+            };
+            HideoutPlugin.prototype.init = function (masterTable) {
+                _super.prototype.init.call(this, masterTable);
+                this.MasterTable.Loader.registerQueryPartProvider(this);
+                for (var i = 0; i < this.Configuration.HideableColumnsNames.length; i++) {
+                    var hideable = this.Configuration.HideableColumnsNames[i];
+                    var col = this.MasterTable.InstanceManager.Columns[hideable];
+                    var instanceInfo = {
+                        DoesNotExists: false,
+                        Visible: true,
+                        RawName: hideable,
+                        Name: col.Configuration.Title
+                    };
+                    if (col.Configuration.IsDataOnly) {
+                        throw new Error("Column " + col.RawName + " is .DataOnly but\nincluded into hideable columns list.\n.DataOnly columns are invalid for Hideout plugin. Please remove it from selectable columns list");
+                    }
+                    this._columnStates[hideable] = instanceInfo;
+                    this.ColumnStates.push(instanceInfo);
+                }
+            };
+            HideoutPlugin.prototype.renderContent = function (templatesProvider) {
+                return templatesProvider.getCachedTemplate('hideout')(this);
+            };
+            HideoutPlugin.prototype.subscribe = function (e) {
+                e.AfterDataRendered.subscribe(this.onDataRendered.bind(this), 'hideout');
+                e.BeforeDataRendered.subscribe(this.onBeforeDataRendered.bind(this), 'hideout');
+                e.AfterLayoutRendered.subscribe(this.onLayourRendered.bind(this), 'hideout');
+            };
+            return HideoutPlugin;
+        })(Plugins.PluginBase);
+        Plugins.HideoutPlugin = HideoutPlugin;
+        PowerTables.ComponentsContainer.registerComponent('Hideout', HideoutPlugin);
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var LimitPlugin = (function (_super) {
+            __extends(LimitPlugin, _super);
+            function LimitPlugin() {
+                _super.apply(this, arguments);
+                this._limitSize = 0;
+                this.Sizes = [];
+            }
+            LimitPlugin.prototype.renderContent = function (templatesProvider) {
+                return templatesProvider.getCachedTemplate('limit')(this);
+            };
+            LimitPlugin.prototype.changeLimitHandler = function (e) {
+                var limit = parseInt(e.EventArguments[0]);
+                if (isNaN(limit))
+                    limit = 0;
+                this.changeLimit(limit);
+            };
+            LimitPlugin.prototype.changeLimit = function (limit) {
+                var changed = this._limitSize !== limit;
+                if (!changed)
+                    return;
+                this._limitSize = limit;
+                var labelPair = null;
+                for (var i = 0; i < this.Sizes.length; i++) {
+                    labelPair = this.Sizes[i];
+                    if (labelPair.Value === limit) {
+                        break;
+                    }
+                }
+                if (labelPair != null)
+                    this.SelectedValue = labelPair.Label;
+                this.MasterTable.Renderer.Modifier.redrawPlugin(this);
+                if (this.Configuration.ReloadTableOnLimitChange)
+                    this.MasterTable.Controller.reload();
+            };
+            LimitPlugin.prototype.modifyQuery = function (query, scope) {
+                var client = this.Configuration.EnableClientLimiting;
+                if (client && (scope === PowerTables.QueryScope.Client || scope === PowerTables.QueryScope.Transboundary)) {
+                    query.Paging.PageSize = this._limitSize;
+                }
+                if (!client && (scope === PowerTables.QueryScope.Server || scope === PowerTables.QueryScope.Transboundary)) {
+                    query.Paging.PageSize = this._limitSize;
+                }
+            };
+            LimitPlugin.prototype.init = function (masterTable) {
+                _super.prototype.init.call(this, masterTable);
+                var def = null;
+                for (var i = 0; i < this.Configuration.LimitValues.length; i++) {
+                    var a = {
+                        Value: this.Configuration.LimitValues[i],
+                        Label: this.Configuration.LimitLabels[i],
+                        IsSeparator: this.Configuration.LimitLabels[i] === '-'
+                    };
+                    this.Sizes.push(a);
+                    if (a.Label === this.Configuration.DefaultValue) {
+                        def = a;
+                    }
+                }
+                if (def) {
+                    this.SelectedValue = def.Label;
+                    this._limitSize = def.Value;
+                }
+                else {
+                    this._limitSize = 0;
+                }
+                if (this.Configuration.EnableClientLimiting) {
+                    this.MasterTable.DataHolder.EnableClientTake = true;
+                }
+                this.MasterTable.Events.ColumnsCreation.subscribe(this.onColumnsCreation.bind(this), 'paging');
+            };
+            LimitPlugin.prototype.onColumnsCreation = function () {
+                if (this.Configuration.EnableClientLimiting && !this.MasterTable.DataHolder.EnableClientSkip) {
+                    var paging = null;
+                    try {
+                        paging = this.MasterTable.InstanceManager.getPlugin('Paging');
+                    }
+                    catch (a) {
+                    }
+                    if (paging != null)
+                        throw new Error('Limit ang paging plugin must both work locally or both remote. Please enable client paging');
+                }
+            };
+            return LimitPlugin;
+        })(Plugins.FilterBase);
+        Plugins.LimitPlugin = LimitPlugin;
+        PowerTables.ComponentsContainer.registerComponent('Limit', LimitPlugin);
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var LoadingPlugin = (function (_super) {
+            __extends(LoadingPlugin, _super);
+            function LoadingPlugin() {
+                _super.apply(this, arguments);
+            }
+            LoadingPlugin.prototype.subscribe = function (e) {
+                var _this = this;
+                e.BeforeLoading.subscribe(function () { return _this.showLoadingIndicator(); }, "loading");
+                e.AfterLoading.subscribe(function () { return _this.hideLoadingIndicator(); }, "loading");
+                e.AfterLayoutRendered.subscribe(function () {
+                    _this.hideLoadingIndicator();
+                }, 'loading');
+            };
+            LoadingPlugin.prototype.showLoadingIndicator = function () {
+                this.BlinkElement.style.visibility = 'visible';
+            };
+            LoadingPlugin.prototype.hideLoadingIndicator = function () {
+                this.BlinkElement.style.visibility = 'collapse';
+            };
+            LoadingPlugin.prototype.renderContent = function (templatesProvider) {
+                return templatesProvider.getCachedTemplate('loading')(null);
+            };
+            LoadingPlugin.Id = 'Loading';
+            return LoadingPlugin;
+        })(Plugins.PluginBase);
+        Plugins.LoadingPlugin = LoadingPlugin;
+        PowerTables.ComponentsContainer.registerComponent('Loading', LoadingPlugin);
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var Ordering;
+        (function (Ordering) {
+            var OrderingPlugin = (function (_super) {
+                __extends(OrderingPlugin, _super);
+                function OrderingPlugin() {
+                    _super.apply(this, arguments);
+                    this._clientOrderings = {};
+                    this._serverOrderings = {};
+                }
+                OrderingPlugin.prototype.subscribe = function (e) {
+                    var _this = this;
+                    e.ColumnsCreation.subscribe(function (v) {
+                        _this.overrideHeadersTemplates(v.EventArgs);
+                    }, 'ordering');
+                };
+                OrderingPlugin.prototype.overrideHeadersTemplates = function (columns) {
+                    var _this = this;
+                    for (var ck in columns) {
+                        if (columns.hasOwnProperty(ck)) {
+                            var ordering = this.Configuration.DefaultOrderingsForColumns[ck];
+                            if (!ordering)
+                                continue;
+                            var newHeader = {
+                                Column: columns[ck],
+                                switchOrdering: function (e) {
+                                    _this.switchOrderingForColumn(e.Receiver.Column.RawName);
+                                },
+                                renderElement: function (tpl) { return tpl.getCachedTemplate('ordering')(this); },
+                                IsClientOrdering: this.isClient(ck)
+                            };
+                            this.updateOrdering(ck, ordering);
+                            this.specifyOrdering(newHeader, ordering);
+                            columns[ck].Header = newHeader;
+                        }
+                    }
+                };
+                OrderingPlugin.prototype.updateOrdering = function (columnName, ordering) {
+                    if (this.isClient(columnName))
+                        this._clientOrderings[columnName] = ordering;
+                    else
+                        this._serverOrderings[columnName] = ordering;
+                };
+                OrderingPlugin.prototype.specifyOrdering = function (object, ordering) {
+                    object.IsNeutral = object.IsDescending = object.IsAscending = false;
+                    switch (ordering) {
+                        case PowerTables.Ordering.Neutral:
+                            object.IsNeutral = true;
+                            break;
+                        case PowerTables.Ordering.Descending:
+                            object.IsDescending = true;
+                            break;
+                        case PowerTables.Ordering.Ascending:
+                            object.IsAscending = true;
+                            break;
+                    }
+                };
+                OrderingPlugin.prototype.isClient = function (columnName) {
+                    return this.Configuration.ClientSortableColumns.hasOwnProperty(columnName);
+                };
+                OrderingPlugin.prototype.switchOrderingForColumn = function (columnName) {
+                    if (!this.Configuration.DefaultOrderingsForColumns[columnName])
+                        throw new Error("Ordering is not configured for column " + columnName);
+                    var orderingsCollection = this.isClient(columnName) ? this._clientOrderings : this._serverOrderings;
+                    var next = this.nextOrdering(orderingsCollection[columnName]);
+                    this.setOrderingForColumn(columnName, next);
+                };
+                OrderingPlugin.prototype.setOrderingForColumn = function (columnName, ordering) {
+                    var coolHeader = this.MasterTable.InstanceManager.Columns[columnName].Header;
+                    this.specifyOrdering(coolHeader, ordering);
+                    this.updateOrdering(columnName, ordering);
+                    this.MasterTable.Renderer.Modifier.redrawHeader(coolHeader.Column);
+                    this.MasterTable.Controller.reload();
+                };
+                OrderingPlugin.prototype.nextOrdering = function (currentOrdering) {
+                    switch (currentOrdering) {
+                        case PowerTables.Ordering.Neutral: return PowerTables.Ordering.Ascending;
+                        case PowerTables.Ordering.Descending: return PowerTables.Ordering.Neutral;
+                        case PowerTables.Ordering.Ascending: return PowerTables.Ordering.Descending;
+                    }
+                };
+                OrderingPlugin.prototype.makeDefaultOrderingFunction = function (fieldName) {
+                    var self = this;
+                    return (function (field) {
+                        return function (a, b) {
+                            var x = a[field], y = b[field];
+                            if (x === y)
+                                return 0;
+                            if (x == null || x == undefined)
+                                return -1;
+                            if (y == null || y == undefined)
+                                return 1;
+                            if (typeof x === "string") {
+                                return x.localeCompare(y);
+                            }
+                            return (x > y) ? 1 : -1;
+                        };
+                    })(fieldName);
+                };
+                OrderingPlugin.prototype.init = function (masterTable) {
+                    _super.prototype.init.call(this, masterTable);
+                    var hasClientOrderings = false;
+                    var fn;
+                    for (var cls in this.Configuration.ClientSortableColumns) {
+                        if (this.Configuration.ClientSortableColumns.hasOwnProperty(cls)) {
+                            hasClientOrderings = true;
+                            fn = this.Configuration.ClientSortableColumns[cls];
+                            if (!fn) {
+                                fn = this.makeDefaultOrderingFunction(cls);
+                                this.Configuration.ClientSortableColumns[cls] = fn;
+                            }
+                            this.MasterTable.DataHolder.registerClientOrdering(cls, fn);
+                        }
+                    }
+                    if (hasClientOrderings) {
+                        // if we have at least 1 client ordering then we have to reorder whole 
+                        // received data on client
+                        // to avoid client ordering priority
+                        for (var serverColumn in this.Configuration.DefaultOrderingsForColumns) {
+                            if (this.isClient(serverColumn))
+                                continue;
+                            fn = this.makeDefaultOrderingFunction(serverColumn);
+                            this.MasterTable.DataHolder.registerClientOrdering(serverColumn, fn);
+                        }
+                    }
+                };
+                OrderingPlugin.prototype.mixinOrderings = function (orderingsCollection, query) {
+                    for (var clo in orderingsCollection) {
+                        if (orderingsCollection.hasOwnProperty(clo)) {
+                            query.Orderings[clo] = orderingsCollection[clo];
+                        }
+                    }
+                };
+                OrderingPlugin.prototype.modifyQuery = function (query, scope) {
+                    this.mixinOrderings(this._serverOrderings, query);
+                    if (scope === PowerTables.QueryScope.Client || scope === PowerTables.QueryScope.Transboundary) {
+                        this.mixinOrderings(this._clientOrderings, query);
+                    }
+                };
+                return OrderingPlugin;
+            })(Plugins.FilterBase);
+            Ordering.OrderingPlugin = OrderingPlugin;
+            PowerTables.ComponentsContainer.registerComponent('Ordering', OrderingPlugin);
+        })(Ordering = Plugins.Ordering || (Plugins.Ordering = {}));
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var PagingPlugin = (function (_super) {
+            __extends(PagingPlugin, _super);
+            function PagingPlugin() {
+                _super.apply(this, arguments);
+                this._selectedPage = 0;
+            }
+            PagingPlugin.prototype.CurrentPage = function () { return this._selectedPage + 1; };
+            PagingPlugin.prototype.TotalPages = function () { return this._totalPages; };
+            PagingPlugin.prototype.PageSize = function () { return this._pageSize; };
+            PagingPlugin.prototype.getCurrentPage = function () {
+                return this._selectedPage;
+            };
+            PagingPlugin.prototype.getTotalPages = function () {
+                return this._totalPages;
+            };
+            PagingPlugin.prototype.getPageSize = function () {
+                return this._pageSize;
+            };
+            PagingPlugin.prototype.onFilterGathered = function (e) {
+                this._pageSize = e.EventArgs.Query.Paging.PageSize;
+            };
+            PagingPlugin.prototype.onColumnsCreation = function () {
+                if (this.Configuration.EnableClientPaging && !this.MasterTable.DataHolder.EnableClientTake) {
+                    var limit = null;
+                    try {
+                        limit = this.MasterTable.InstanceManager.getPlugin('Limit');
+                    }
+                    catch (a) { }
+                    if (limit != null)
+                        throw new Error('Paging ang Limit plugins must both work locally or both remote. Please enable client limiting');
+                }
+            };
+            PagingPlugin.prototype.onResponse = function (e) {
+                this._selectedPage = e.EventArgs.Data.PageIndex;
+                var tp = e.EventArgs.Data.ResultsCount / this._pageSize;
+                if (tp !== parseInt(tp)) {
+                    tp = parseInt(tp) + 1;
+                }
+                this._totalPages = tp;
+                this.MasterTable.Renderer.Modifier.redrawPlugin(this);
+            };
+            PagingPlugin.prototype.onClientDataProcessing = function (e) {
+                var tp = e.EventArgs.Filtered.length / this._pageSize;
+                if (tp !== parseInt(tp)) {
+                    tp = parseInt(tp) + 1;
+                }
+                if (tp < this._selectedPage) {
+                    this._selectedPage = 0;
+                }
+                this._totalPages = tp;
+                this.MasterTable.Renderer.Modifier.redrawPlugin(this);
+            };
+            PagingPlugin.prototype.goToPage = function (page) {
+                this._selectedPage = parseInt(page);
+                this.MasterTable.Controller.reload();
+            };
+            PagingPlugin.prototype.gotoPageClick = function (e) {
+                if (this.GotoInput) {
+                    var v = this.GotoInput.value;
+                    v = (parseInt(v) - 1).toString();
+                    this.goToPage(v);
+                }
+            };
+            PagingPlugin.prototype.navigateToPage = function (e) {
+                this.goToPage(e.EventArguments[0]);
+            };
+            PagingPlugin.prototype.nextClick = function (e) {
+                if (this._selectedPage < this._totalPages)
+                    this.goToPage((this._selectedPage + 1).toString());
+            };
+            PagingPlugin.prototype.previousClick = function (e) {
+                if (this._selectedPage > 0)
+                    this.goToPage((this._selectedPage - 1).toString());
+            };
+            PagingPlugin.prototype.constructPagesElements = function () {
+                var a = [];
+                var total = this._totalPages;
+                var cur = this._selectedPage;
+                var pdiff = this.Configuration.PagesToHideUnderPeriod;
+                if (total > 1) {
+                    this.Shown = true;
+                    if (!this.Configuration.ArrowsMode) {
+                        if (this.Configuration.UseFirstLastPage)
+                            a.push({ Page: 0, First: true });
+                        if (cur > 0)
+                            a.push({ Page: 0, Prev: true });
+                        if (this.Configuration.UsePeriods) {
+                            if (cur - 1 >= pdiff)
+                                a.push({ Page: 0, Period: true });
+                            if (cur - 1 > 0)
+                                a.push({ Page: cur - 1, InActivePage: true });
+                            a.push({ Page: cur, ActivePage: true });
+                            if (cur + 1 < total)
+                                a.push({ Page: cur + 1, InActivePage: true });
+                            if (total - (cur + 1) >= pdiff)
+                                a.push({ Page: 0, Period: true });
+                        }
+                        else {
+                            for (var i = 0; i < total; i++) {
+                                if (cur === i) {
+                                    a.push({ Page: i, ActivePage: true });
+                                }
+                                else {
+                                    a.push({ Page: i, InActivePage: true });
+                                }
+                            }
+                        }
+                        if (cur < total - 1)
+                            a.push({ Page: 0, Next: true });
+                        if (this.Configuration.UseFirstLastPage)
+                            a.push({ Page: total - 1, Last: true });
+                        var disFunction = function () { return this.Page + 1; };
+                        for (var j = 0; j < a.length; j++) {
+                            a[j].DisPage = disFunction;
+                        }
+                        this.Pages = a;
+                    }
+                    else {
+                        this.NextArrow = cur < total - 1;
+                        this.PrevArrow = cur > 0;
+                    }
+                }
+                else {
+                    this.Shown = false;
+                }
+            };
+            PagingPlugin.prototype.renderContent = function (templatesProvider) {
+                this.constructPagesElements();
+                return templatesProvider.getCachedTemplate('paging')(this);
+            };
+            PagingPlugin.prototype.validateGotopage = function () {
+                var v = this.GotoInput.value;
+                var i = parseInt(v);
+                var valid = !isNaN(i) && (i > 0) && (i <= this._totalPages);
+                if (valid) {
+                    this.MasterTable.Renderer.Modifier.normalState(this.VisualStates);
+                }
+                else {
+                    this.MasterTable.Renderer.Modifier.changeState("invalid", this.VisualStates);
+                }
+            };
+            PagingPlugin.prototype.modifyQuery = function (query, scope) {
+                if (this.Configuration.EnableClientPaging && scope === PowerTables.QueryScope.Client) {
+                    query.Paging.PageIndex = this._selectedPage;
+                }
+                if ((!this.Configuration.EnableClientPaging) && scope !== PowerTables.QueryScope.Client) {
+                    query.Paging.PageIndex = this._selectedPage;
+                }
+            };
+            PagingPlugin.prototype.init = function (masterTable) {
+                _super.prototype.init.call(this, masterTable);
+                if (!this.Configuration.EnableClientPaging) {
+                    this.MasterTable.Events.AfterQueryGathering.subscribe(this.onFilterGathered.bind(this), 'paging');
+                }
+                else {
+                    this.MasterTable.Events.AfterClientQueryGathering.subscribe(this.onFilterGathered.bind(this), 'paging');
+                }
+                if (!this.Configuration.EnableClientPaging) {
+                    this.MasterTable.Events.DataReceived.subscribe(this.onResponse.bind(this), 'paging');
+                }
+                else {
+                    this.MasterTable.Events.AfterClientDataProcessing.subscribe(this.onClientDataProcessing.bind(this), 'paging');
+                }
+                this.MasterTable.Events.ColumnsCreation.subscribe(this.onColumnsCreation.bind(this), 'paging');
+                if (this.Configuration.EnableClientPaging) {
+                    this.MasterTable.DataHolder.EnableClientSkip = true;
+                }
+            };
+            return PagingPlugin;
+        })(Plugins.FilterBase);
+        Plugins.PagingPlugin = PagingPlugin;
+        PowerTables.ComponentsContainer.registerComponent('Paging', PagingPlugin);
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var PluginBase = (function () {
+            function PluginBase() {
+                this.afterDrawn = null;
+            }
+            PluginBase.prototype.init = function (masterTable) {
+                this.MasterTable = masterTable;
+                this.Configuration = this.RawConfig.Configuration;
+                this.subscribe(masterTable.Events);
+                this.registerAdditionalHelpers(masterTable.Renderer.HandlebarsInstance);
+            };
+            /**
+             * Events subscription method.
+             * In derived class here should be subscription to various events
+             *
+             * @param e Events manager
+             */
+            PluginBase.prototype.subscribe = function (e) {
+                if (this.afterDrawn != null) {
+                    this.MasterTable.Events.AfterLayoutRendered.subscribe(this.afterDrawn.bind(this), this.RawConfig.PluginId);
+                }
+            };
+            /**
+             * In this method you can register any additional Handlebars.js helpers in case of your
+             * templates needs ones
+             *
+             * @param hb Handlebars instance
+             * @returns {}
+             */
+            PluginBase.prototype.registerAdditionalHelpers = function (hb) { };
+            return PluginBase;
+        })();
+        Plugins.PluginBase = PluginBase;
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var RangeFilterPlugin = (function (_super) {
+            __extends(RangeFilterPlugin, _super);
+            function RangeFilterPlugin() {
+                var _this = this;
+                _super.apply(this, arguments);
+                this._filteringIsBeingExecuted = false;
+                this._isInitializing = true;
+                this.afterDrawn = function (e) {
+                    if (_this.Configuration.Hidden)
+                        return;
+                    if (_this._associatedColumn.IsDateTime) {
+                        var fromDate = _this.MasterTable.Date.parse(_this.Configuration.FromValue);
+                        var toDate = _this.MasterTable.Date.parse(_this.Configuration.ToValue);
+                        _this.MasterTable.Date.putDateToDatePicker(_this.FromValueProvider, fromDate);
+                        _this.MasterTable.Date.putDateToDatePicker(_this.ToValueProvider, toDate);
+                    }
+                    _this._isInitializing = false;
+                };
+            }
+            RangeFilterPlugin.prototype.getFromValue = function () {
+                if (!this.FromValueProvider)
+                    return '';
+                if (this._associatedColumn.IsDateTime) {
+                    var date = this.MasterTable.Date.getDateFromDatePicker(this.FromValueProvider);
+                    return this.MasterTable.Date.serialize(date);
+                }
+                return this.FromValueProvider.value;
+            };
+            RangeFilterPlugin.prototype.getToValue = function () {
+                if (!this.ToValueProvider)
+                    return '';
+                if (this._associatedColumn.IsDateTime) {
+                    var date = this.MasterTable.Date.getDateFromDatePicker(this.ToValueProvider);
+                    return this.MasterTable.Date.serialize(date);
+                }
+                return this.ToValueProvider.value;
+            };
+            RangeFilterPlugin.prototype.handleValueChanged = function () {
+                var _this = this;
+                if (this._isInitializing)
+                    return;
+                if (this._filteringIsBeingExecuted)
+                    return;
+                if ((this._fromPreviousValue === this.getFromValue())
+                    && (this._toPreviousValue === this.getToValue()))
+                    return;
+                this._fromPreviousValue = this.getFromValue();
+                this._toPreviousValue = this.getToValue();
+                if (this.Configuration.InputDelay > 0) {
+                    clearTimeout(this._inpTimeout);
+                    this._inpTimeout = setTimeout(function () {
+                        _this._filteringIsBeingExecuted = true;
+                        _this.MasterTable.Controller.reload();
+                        _this._filteringIsBeingExecuted = false;
+                    }, this.Configuration.InputDelay);
+                }
+                else {
+                    this._filteringIsBeingExecuted = true;
+                    this.MasterTable.Controller.reload();
+                    this._filteringIsBeingExecuted = false;
+                }
+            };
+            RangeFilterPlugin.prototype.getFilterArgument = function () {
+                var args = [];
+                var frm = this.getFromValue();
+                var to = this.getToValue();
+                args.push(frm);
+                args.push(to);
+                var result = args.join('|');
+                return result;
+            };
+            RangeFilterPlugin.prototype.modifyQuery = function (query, scope) {
+                if (this.Configuration.Hidden)
+                    return;
+                var val = this.getFilterArgument();
+                if (!val || val.length === 0)
+                    return;
+                if (this.Configuration.ClientFiltering && scope === PowerTables.QueryScope.Client || scope === PowerTables.QueryScope.Transboundary) {
+                    query.Filterings[this._associatedColumn.RawName] = val;
+                }
+                if ((!this.Configuration.ClientFiltering) && scope === PowerTables.QueryScope.Server || scope === PowerTables.QueryScope.Transboundary) {
+                    query.Filterings[this._associatedColumn.RawName] = val;
+                }
+            };
+            RangeFilterPlugin.prototype.init = function (masterTable) {
+                _super.prototype.init.call(this, masterTable);
+                if (this.Configuration.ClientFiltering) {
+                    this.itIsClientFilter();
+                }
+                this._associatedColumn = this.MasterTable.InstanceManager.Columns[this.Configuration.ColumnName];
+            };
+            RangeFilterPlugin.prototype.renderContent = function (templatesProvider) {
+                if (this.Configuration.Hidden)
+                    return '';
+                return templatesProvider.getCachedTemplate('rangeFilter')(this);
+            };
+            RangeFilterPlugin.prototype.filterPredicate = function (rowObject, query) {
+                var fval = query.Filterings[this._associatedColumn.RawName];
+                if (!fval)
+                    return true;
+                var args = fval.split('|');
+                var fromValue = args[0];
+                var toValue = args[1];
+                if (this.Configuration.ClientFilteringFunction) {
+                    return this.Configuration.ClientFilteringFunction(rowObject, fromValue, toValue, query);
+                }
+                var frmEmpty = fromValue.trim().length === 0;
+                var toEmpty = toValue.trim().length === 0;
+                if (frmEmpty && toEmpty)
+                    return true;
+                if (!query.Filterings.hasOwnProperty(this._associatedColumn.RawName))
+                    return true;
+                var objVal = rowObject[this._associatedColumn.RawName];
+                if (objVal == null)
+                    return false;
+                if (this._associatedColumn.IsString) {
+                    var str = objVal.toString();
+                    return ((frmEmpty) || str.localeCompare(fromValue) >= 0) && ((toEmpty) || str.localeCompare(toValue) <= 0);
+                }
+                if (this._associatedColumn.IsFloat) {
+                    return ((frmEmpty) || objVal >= parseFloat(fromValue)) && ((toEmpty) || objVal <= parseFloat(toValue));
+                }
+                if (this._associatedColumn.IsInteger || this._associatedColumn.IsEnum) {
+                    return ((frmEmpty) || objVal >= parseInt(fromValue)) && ((toEmpty) || objVal <= parseInt(toValue));
+                }
+                if (this._associatedColumn.IsDateTime) {
+                    return ((frmEmpty) || objVal >= this.MasterTable.Date.parse(fromValue)) && ((toEmpty) || objVal <= this.MasterTable.Date.parse(toValue));
+                }
+                return true;
+            };
+            return RangeFilterPlugin;
+        })(Plugins.FilterBase);
+        Plugins.RangeFilterPlugin = RangeFilterPlugin;
+        PowerTables.ComponentsContainer.registerComponent('RangeFilter', RangeFilterPlugin);
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var ResponseInfoPlugin = (function (_super) {
+            __extends(ResponseInfoPlugin, _super);
+            function ResponseInfoPlugin() {
+                _super.apply(this, arguments);
+                this._isReadyForRendering = false;
+            }
+            ResponseInfoPlugin.prototype.onResponse = function (e) {
+                this._isServerRequest = true;
+                if (this.Configuration.ResponseObjectOverriden) {
+                    this._recentData = e.EventArgs.Data.AdditionalData['ResponseInfo'];
+                    this._isReadyForRendering = true;
+                    this.MasterTable.Renderer.Modifier.redrawPlugin(this);
+                }
+                else {
+                    this._recentServerData = {
+                        TotalCount: e.EventArgs.Data.ResultsCount,
+                        IsLocalRequest: false,
+                        CurrentPage: e.EventArgs.Data.PageIndex,
+                        PagingEnabled: this._pagingEnabled
+                    };
+                }
+            };
+            ResponseInfoPlugin.prototype.onClientDataProcessed = function (e) {
+                if (this.Configuration.ResponseObjectOverriden)
+                    return;
+                if (!this.Configuration.ClientEvaluationFunction) {
+                    this._recentData = {
+                        TotalCount: this._recentServerData.TotalCount || this.MasterTable.DataHolder.StoredData.length,
+                        IsLocalRequest: !this._isServerRequest,
+                        CurrentPage: this._recentServerData.CurrentPage || ((!this._pagingPlugin) ? 0 : this._pagingPlugin.getCurrentPage() + 1),
+                        TotalPages: ((!this._pagingPlugin) ? 0 : this._pagingPlugin.getTotalPages()),
+                        PagingEnabled: this._pagingEnabled,
+                        CurrentlyShown: this.MasterTable.DataHolder.DisplayedData.length
+                    };
+                }
+                else {
+                    this._recentData = this.Configuration.ClientEvaluationFunction(e.EventArgs, (!this._pagingPlugin) ? 0 : (this._pagingPlugin.getCurrentPage()), (!this._pagingPlugin) ? 0 : (this._pagingPlugin.getTotalPages()));
+                }
+                this._isServerRequest = false;
+                this._isReadyForRendering = true;
+                this.MasterTable.Renderer.Modifier.redrawPlugin(this);
+            };
+            ResponseInfoPlugin.prototype.renderContent = function (templatesProvider) {
+                if (!this._isReadyForRendering)
+                    return '';
+                if (this.Configuration.ClientTemplateFunction) {
+                    return this.Configuration.ClientTemplateFunction(this._recentData);
+                }
+                else {
+                    return this._recentTemplate(this._recentData);
+                }
+            };
+            ResponseInfoPlugin.prototype.init = function (masterTable) {
+                _super.prototype.init.call(this, masterTable);
+                if (this.Configuration.TemplateText && this.Configuration.TemplateText.length > 0) {
+                    this._recentTemplate = this.MasterTable.Renderer.HandlebarsInstance.compile(this.Configuration.TemplateText);
+                }
+                else {
+                    this._recentTemplate = this.MasterTable.Renderer.getCachedTemplate('responseInfo');
+                }
+                this.MasterTable.Events.AfterClientDataProcessing.subscribe(this.onClientDataProcessed.bind(this), 'responseInfo');
+                this.MasterTable.Events.DataReceived.subscribe(this.onResponse.bind(this), 'responseInfo');
+                try {
+                    this._pagingPlugin = this.MasterTable.InstanceManager.getPlugin('Paging');
+                    this._pagingEnabled = true;
+                }
+                catch (v) {
+                    this._pagingEnabled = false;
+                }
+            };
+            return ResponseInfoPlugin;
+        })(Plugins.PluginBase);
+        Plugins.ResponseInfoPlugin = ResponseInfoPlugin;
+        PowerTables.ComponentsContainer.registerComponent('ResponseInfo', ResponseInfoPlugin);
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var SelectFilterPlugin = (function (_super) {
+            __extends(SelectFilterPlugin, _super);
+            function SelectFilterPlugin() {
+                _super.apply(this, arguments);
+            }
+            SelectFilterPlugin.prototype.getArgument = function () {
+                return this.getSelectionArray().join('|');
+            };
+            SelectFilterPlugin.prototype.getSelectionArray = function () {
+                if (!this.FilterValueProvider)
+                    return [];
+                if (!this.Configuration.IsMultiple) {
+                    var selected = this.FilterValueProvider.options[this.FilterValueProvider.selectedIndex];
+                    return [selected.value];
+                }
+                else {
+                    var elemValues = [];
+                    for (var i = 0, iLen = this.FilterValueProvider.options.length; i < iLen; i++) {
+                        var opt = this.FilterValueProvider.options[i];
+                        if (opt.selected) {
+                            elemValues.push(opt.value);
+                        }
+                    }
+                    return elemValues;
+                }
+            };
+            SelectFilterPlugin.prototype.modifyQuery = function (query, scope) {
+                if (this.Configuration.Hidden)
+                    return;
+                var val = this.getArgument();
+                if (!val || val.length === 0)
+                    return;
+                if (this.Configuration.ClientFiltering && scope === PowerTables.QueryScope.Client || scope === PowerTables.QueryScope.Transboundary) {
+                    query.Filterings[this._associatedColumn.RawName] = val;
+                }
+                if ((!this.Configuration.ClientFiltering) && scope === PowerTables.QueryScope.Server || scope === PowerTables.QueryScope.Transboundary) {
+                    query.Filterings[this._associatedColumn.RawName] = val;
+                }
+            };
+            SelectFilterPlugin.prototype.renderContent = function (templatesProvider) {
+                if (this.Configuration.Hidden)
+                    return '';
+                return templatesProvider.getCachedTemplate('selectFilter')(this);
+            };
+            SelectFilterPlugin.prototype.handleValueChanged = function () {
+                this.MasterTable.Controller.reload();
+            };
+            SelectFilterPlugin.prototype.init = function (masterTable) {
+                _super.prototype.init.call(this, masterTable);
+                this._associatedColumn = this.MasterTable.InstanceManager.Columns[this.Configuration.ColumnName];
+                if (this.Configuration.AllowSelectNothing) {
+                    var nothingItem = { Value: '', Text: this.Configuration.NothingText || '-', Disabled: false, Selected: false };
+                    this.Configuration.Items = [nothingItem].concat(this.Configuration.Items);
+                }
+                var sv = this.Configuration.SelectedValue;
+                if (sv !== undefined && sv !== null) {
+                    for (var i = 0; i < this.Configuration.Items.length; i++) {
+                        if (this.Configuration.Items[i].Value !== sv) {
+                            this.Configuration.Items[i].Selected = false;
+                        }
+                        else {
+                            this.Configuration.Items[i].Selected = true;
+                        }
+                    }
+                }
+                if (this.Configuration.ClientFiltering) {
+                    this.itIsClientFilter();
+                }
+            };
+            SelectFilterPlugin.prototype.filterPredicate = function (rowObject, query) {
+                var fval = query.Filterings[this._associatedColumn.RawName];
+                if (!fval)
+                    return true;
+                var arr = fval.split('|');
+                if (this.Configuration.ClientFilteringFunction) {
+                    return this.Configuration.ClientFilteringFunction(rowObject, arr, query);
+                }
+                if (!query.Filterings.hasOwnProperty(this._associatedColumn.RawName))
+                    return true;
+                var objVal = rowObject[this._associatedColumn.RawName];
+                if (objVal == null)
+                    return false;
+                if (this._associatedColumn.IsString) {
+                    return arr.indexOf(objVal) >= 0;
+                }
+                var single = false;
+                if (this._associatedColumn.IsFloat) {
+                    arr.map(function (v) {
+                        if (parseFloat(v) === objVal)
+                            single = true;
+                    });
+                    return single;
+                }
+                if (this._associatedColumn.IsInteger || this._associatedColumn.IsEnum) {
+                    single = false;
+                    arr.map(function (v) {
+                        if (parseInt(v) === objVal)
+                            single = true;
+                    });
+                    return single;
+                }
+                if (this._associatedColumn.IsBoolean) {
+                    single = false;
+                    arr.map(function (v) {
+                        var bv = v.toLocaleUpperCase() === 'TRUE' ? true :
+                            v.toLocaleUpperCase() === 'FALSE' ? false : null;
+                        if (bv == null) {
+                            bv = parseInt(fval) > 0;
+                        }
+                        if (bv === objVal) {
+                            single = true;
+                        }
+                    });
+                    return single;
+                }
+                return true;
+            };
+            return SelectFilterPlugin;
+        })(Plugins.FilterBase);
+        Plugins.SelectFilterPlugin = SelectFilterPlugin;
+        PowerTables.ComponentsContainer.registerComponent('SelectFilter', SelectFilterPlugin);
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var ToolbarPlugin = (function (_super) {
+            __extends(ToolbarPlugin, _super);
+            function ToolbarPlugin() {
+                _super.apply(this, arguments);
+                this.AllButtons = {};
+                this._buttonsConfig = {};
+            }
+            ToolbarPlugin.prototype.buttonHandleEvent = function (e) {
+                var btnId = e.EventArguments[0];
+                this.handleButtonAction(this._buttonsConfig[btnId]);
+            };
+            ToolbarPlugin.prototype.redrawMe = function () {
+                this.MasterTable.Renderer.Modifier.redrawPlugin(this);
+            };
+            ToolbarPlugin.prototype.handleButtonAction = function (btn) {
+                if (btn.OnClick) {
+                    btn.OnClick.call(this.MasterTable, this.MasterTable, this.AllButtons[btn.InternalId]);
+                }
+                if (btn.Command) {
+                    var _self = this;
+                    // ReSharper disable Lambda
+                    var f = function (queryModifier) {
+                        if (btn.BlackoutWhileCommand) {
+                            btn.IsDisabled = true;
+                            _self.redrawMe();
+                        }
+                        _self.MasterTable.Loader.requestServer(btn.Command, function (response) {
+                            if (btn.CommandCallbackFunction) {
+                                btn.CommandCallbackFunction.apply(_self.MasterTable, [_self.MasterTable, response]);
+                            }
+                            else {
+                                if (response.$isDeferred && response.$url) {
+                                    window.location.href = response.$url;
+                                }
+                            }
+                            if (btn.BlackoutWhileCommand) {
+                                btn.IsDisabled = false;
+                                _self.redrawMe();
+                            }
+                        }, queryModifier, function () {
+                            if (btn.BlackoutWhileCommand) {
+                                btn.IsDisabled = false;
+                                _self.redrawMe();
+                            }
+                        });
+                    };
+                    // ReSharper restore Lambda
+                    if (btn.ConfirmationFunction)
+                        btn.ConfirmationFunction.apply(this.MasterTable, [f]);
+                    else
+                        f();
+                }
+            };
+            ToolbarPlugin.prototype.renderContent = function (templatesProvider) {
+                return templatesProvider.getCachedTemplate('toolbar')(this);
+            };
+            ToolbarPlugin.prototype.traverseButtons = function (arr) {
+                for (var i = 0; i < arr.length; i++) {
+                    this._buttonsConfig[arr[i].InternalId] = arr[i];
+                    if (arr[i].HasSubmenu) {
+                        this.traverseButtons(arr[i].Submenu);
+                    }
+                }
+            };
+            ToolbarPlugin.prototype.onSelectionChanged = function (e) {
+                var atleastOne = false;
+                var disabled = e.EventArgs.length === 0;
+                for (var bc in this._buttonsConfig) {
+                    if (this._buttonsConfig.hasOwnProperty(bc)) {
+                        if (this._buttonsConfig[bc].DisableIfNothingChecked) {
+                            if (this._buttonsConfig[bc].IsDisabled !== disabled) {
+                                atleastOne = true;
+                                this._buttonsConfig[bc].IsDisabled = disabled;
+                            }
+                        }
+                    }
+                }
+                if (atleastOne)
+                    this.MasterTable.Renderer.Modifier.redrawPlugin(this);
+            };
+            ToolbarPlugin.prototype.init = function (masterTable) {
+                _super.prototype.init.call(this, masterTable);
+                try {
+                    var p = this.MasterTable.InstanceManager.getPlugin('Checkboxify');
+                    var nothingSelected = p.getSelection().length === 0;
+                    for (var i = 0; i < this.Configuration.Buttons.length; i++) {
+                        if (this.Configuration.Buttons[i].DisableIfNothingChecked) {
+                            this.Configuration.Buttons[i].IsDisabled = nothingSelected;
+                        }
+                    }
+                }
+                catch (e) {
+                }
+                this.traverseButtons(this.Configuration.Buttons);
+                this.MasterTable.Events.SelectionChanged.subscribe(this.onSelectionChanged.bind(this), 'toolbar');
+            };
+            return ToolbarPlugin;
+        })(Plugins.PluginBase);
+        Plugins.ToolbarPlugin = ToolbarPlugin;
+        PowerTables.ComponentsContainer.registerComponent('Toolbar', ToolbarPlugin);
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var TotalsPlugin = (function (_super) {
+            __extends(TotalsPlugin, _super);
+            function TotalsPlugin() {
+                _super.apply(this, arguments);
+            }
+            TotalsPlugin.prototype.makeTotalsRow = function () {
+                var cols = this.MasterTable.InstanceManager.getUiColumns();
+                var dataObject = {};
+                for (var j = 0; j < cols.length; j++) {
+                    var v = null;
+                    var cl = cols[j];
+                    if (this._totalsForColumns.hasOwnProperty(cl.RawName)) {
+                        v = this._totalsForColumns[cl.RawName];
+                        if (this.Configuration.ColumnsValueFunctions[cl.RawName]) {
+                            v = this.Configuration.ColumnsValueFunctions[cl.RawName](v);
+                        }
+                    }
+                    dataObject[cols[j].RawName] = v;
+                }
+                var result = {
+                    Index: -1,
+                    MasterTable: this.MasterTable,
+                    DataObject: dataObject,
+                    Cells: {},
+                    renderContent: null,
+                    renderElement: null,
+                    IsSpecial: true
+                };
+                for (var i = 0; i < cols.length; i++) {
+                    var col = cols[i];
+                    var cell = {
+                        DataObject: dataObject,
+                        renderElement: null,
+                        Column: cols[i],
+                        Row: result,
+                        Data: dataObject[col.RawName]
+                    };
+                    result.Cells[col.RawName] = cell;
+                }
+                return result;
+            };
+            TotalsPlugin.prototype.onResponse = function (e) {
+                var response = e.EventArgs.Data;
+                var total = response.AdditionalData['Total'];
+                this._totalsForColumns = total.TotalsForColumns;
+            };
+            TotalsPlugin.prototype.onClientRowsRendering = function (e) {
+                if (this._totalsForColumns) {
+                    if (this.Configuration.ShowOnTop) {
+                        e.EventArgs.splice(0, 0, this.makeTotalsRow());
+                    }
+                    else {
+                        e.EventArgs.push(this.makeTotalsRow());
+                    }
+                }
+            };
+            TotalsPlugin.prototype.onClientDataProcessed = function (e) {
+                if (!this._totalsForColumns)
+                    this._totalsForColumns = {};
+                for (var k in this.Configuration.ColumnsCalculatorFunctions) {
+                    if (this.Configuration.ColumnsCalculatorFunctions.hasOwnProperty(k)) {
+                        this._totalsForColumns[k] = this.Configuration.ColumnsCalculatorFunctions[k](e.EventArgs).toString();
+                    }
+                }
+            };
+            TotalsPlugin.prototype.subscribe = function (e) {
+                e.DataReceived.subscribe(this.onResponse.bind(this), 'totals');
+                e.BeforeClientRowsRendering.subscribe(this.onClientRowsRendering.bind(this), 'totals');
+                e.AfterClientDataProcessing.subscribe(this.onClientDataProcessed.bind(this), 'totals');
+            };
+            return TotalsPlugin;
+        })(Plugins.PluginBase);
+        Plugins.TotalsPlugin = TotalsPlugin;
+        PowerTables.ComponentsContainer.registerComponent('Total', TotalsPlugin);
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var ValueFilterPlugin = (function (_super) {
+            __extends(ValueFilterPlugin, _super);
+            function ValueFilterPlugin() {
+                var _this = this;
+                _super.apply(this, arguments);
+                this._filteringIsBeingExecuted = false;
+                this._isInitializing = true;
+                this.afterDrawn = function (e) {
+                    if (_this.Configuration.Hidden)
+                        return;
+                    if (_this._associatedColumn.IsDateTime) {
+                        var date = _this.MasterTable.Date.parse(_this.Configuration.DefaultValue);
+                        _this.MasterTable.Date.putDateToDatePicker(_this.FilterValueProvider, date);
+                    }
+                    _this._isInitializing = false;
+                };
+            }
+            ValueFilterPlugin.prototype.getValue = function () {
+                if (!this.FilterValueProvider)
+                    return '';
+                if (this._associatedColumn.IsDateTime) {
+                    return this.MasterTable.Date.serialize(this.MasterTable.Date.getDateFromDatePicker(this.FilterValueProvider));
+                }
+                return this.FilterValueProvider.value;
+            };
+            ValueFilterPlugin.prototype.handleValueChanged = function () {
+                var _this = this;
+                if (this._isInitializing)
+                    return;
+                if (this._filteringIsBeingExecuted)
+                    return;
+                if (this.getValue() === this._previousValue) {
+                    return;
+                }
+                this._previousValue = this.getValue();
+                if (this.Configuration.InputDelay > 0) {
+                    clearTimeout(this._inpTimeout);
+                    this._inpTimeout = setTimeout(function () {
+                        _this._filteringIsBeingExecuted = true;
+                        _this.MasterTable.Controller.reload();
+                        _this._filteringIsBeingExecuted = false;
+                    }, this.Configuration.InputDelay);
+                }
+                else {
+                    this._filteringIsBeingExecuted = true;
+                    this.MasterTable.Controller.reload();
+                    this._filteringIsBeingExecuted = false;
+                }
+            };
+            ValueFilterPlugin.prototype.renderContent = function (templatesProvider) {
+                if (this.Configuration.Hidden)
+                    return '';
+                return templatesProvider.getCachedTemplate('valueFilter')(this);
+            };
+            ValueFilterPlugin.prototype.init = function (masterTable) {
+                _super.prototype.init.call(this, masterTable);
+                if (this.Configuration.ClientFiltering) {
+                    this.itIsClientFilter();
+                }
+                this._associatedColumn = this.MasterTable.InstanceManager.Columns[this.Configuration.ColumnName];
+            };
+            ValueFilterPlugin.prototype.filterPredicate = function (rowObject, query) {
+                var fval = query.Filterings[this._associatedColumn.RawName];
+                if (!fval)
+                    return true;
+                if (this.Configuration.ClientFilteringFunction) {
+                    return this.Configuration.ClientFilteringFunction(rowObject, fval, query);
+                }
+                if (!query.Filterings.hasOwnProperty(this._associatedColumn.RawName))
+                    return true;
+                var objVal = rowObject[this._associatedColumn.RawName];
+                if (objVal == null)
+                    return false;
+                if (this._associatedColumn.IsString) {
+                    var entries = fval.split(/\s/);
+                    for (var i = 0; i < entries.length; i++) {
+                        var e = entries[i].trim();
+                        if (e.length > 0) {
+                            if (objVal.indexOf(e) > -1)
+                                return true;
+                        }
+                    }
+                }
+                if (this._associatedColumn.IsFloat) {
+                    var f = parseFloat(fval);
+                    return objVal === f;
+                }
+                if (this._associatedColumn.IsInteger || this._associatedColumn.IsEnum) {
+                    var int = parseInt(fval);
+                    return objVal === int;
+                }
+                if (this._associatedColumn.IsBoolean) {
+                    var bv = fval.toLocaleUpperCase() === 'TRUE' ? true :
+                        fval.toLocaleUpperCase() === 'FALSE' ? false : null;
+                    if (bv == null) {
+                        bv = parseInt(fval) > 0;
+                    }
+                    return objVal === bv;
+                }
+                if (this._associatedColumn.IsDateTime) {
+                    var date = this.MasterTable.Date.parse(fval);
+                    return date === objVal;
+                }
+                return true;
+            };
+            ValueFilterPlugin.prototype.modifyQuery = function (query, scope) {
+                if (this.Configuration.Hidden)
+                    return;
+                var val = this.getValue();
+                if (!val || val.length === 0)
+                    return;
+                if (this.Configuration.ClientFiltering && scope === PowerTables.QueryScope.Client || scope === PowerTables.QueryScope.Transboundary) {
+                    query.Filterings[this._associatedColumn.RawName] = val;
+                }
+                if ((!this.Configuration.ClientFiltering) && scope === PowerTables.QueryScope.Server || scope === PowerTables.QueryScope.Transboundary) {
+                    query.Filterings[this._associatedColumn.RawName] = val;
+                }
+            };
+            return ValueFilterPlugin;
+        })(Plugins.FilterBase);
+        Plugins.ValueFilterPlugin = ValueFilterPlugin;
+        PowerTables.ComponentsContainer.registerComponent('ValueFilter', ValueFilterPlugin);
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var PowerTable = (function () {
+        function PowerTable(configuration) {
+            this._configuration = configuration;
+            this.bindReady();
+        }
+        PowerTable.prototype.bindReady = function () {
+            var _self = this;
+            if (document.addEventListener) {
+                document.addEventListener('DOMContentLoaded', function () {
+                    document.removeEventListener('DOMContentLoaded', arguments.callee, false);
+                    _self.initialize();
+                }, false);
+            }
+            else if (document.attachEvent) {
+                document.attachEvent('onreadystatechange', function () {
+                    if (document.readyState === 'complete') {
+                        document.detachEvent('onreadystatechange', arguments.callee);
+                        _self.initialize();
+                    }
+                });
+                if (document.documentElement.doScroll && window == window.top)
+                    (function () {
+                        if (_self._isReady)
+                            return;
+                        try {
+                            document.documentElement.doScroll('left');
+                        }
+                        catch (error) {
+                            setTimeout(arguments.callee, 0);
+                            return;
+                        }
+                        _self.initialize();
+                    })();
+            }
+            window.addEventListener('load', function (e) {
+                if (_self._isReady)
+                    return;
+                _self.initialize();
+            });
+        };
+        PowerTable.prototype.initialize = function () {
+            this._isReady = true;
+            if (!window['__latticeInstances'])
+                window['__latticeInstances'] = {};
+            window['__latticeInstances'][this._configuration.TableRootId] = this;
+            this.Date = new PowerTables.DateService(this._configuration.DatepickerOptions);
+            this.Events = new PowerTables.EventsManager(this);
+            this.InstanceManager = new PowerTables.InstanceManager(this._configuration, this, this.Events);
+            this.DataHolder = new PowerTables.DataHolder(this);
+            this.Loader = new PowerTables.Loader(this._configuration.StaticData, this._configuration.OperationalAjaxUrl, this.Events, this.DataHolder);
+            this.Renderer = new PowerTables.Rendering.Renderer(this._configuration.TableRootId, this._configuration.Prefix, this.InstanceManager, this.Events, this.Date);
+            this.Controller = new PowerTables.Controller(this);
+            this.InstanceManager.initPlugins();
+            this.Renderer.layout();
+            if (this._configuration.LoadImmediately) {
+                this.Controller.reload();
+            }
+            else {
+                this.Controller.showTableMessage({
+                    MessageType: 'initial',
+                    Message: 'No filtering specified',
+                    AdditionalData: 'To retrieve query results please specify several filters'
+                });
+            }
+        };
+        /**
+         * Reloads table content.
+         * This method is left for backward compatibility
+         *
+         * @returns {}
+         */
+        PowerTable.prototype.reload = function () {
+            this.Controller.reload();
+        };
+        /**
+         * Fires specified DOM event on specified element
+         *
+         * @param eventName DOM event id
+         * @param element Element is about to dispatch event
+         */
+        PowerTable.fireDomEvent = function (eventName, element) {
+            if ('createEvent' in document) {
+                var evt = document.createEvent('HTMLEvents');
+                evt.initEvent(eventName, false, true);
+                element.dispatchEvent(evt);
+            }
+            else
+                element['fireEvent'](eventName);
+        };
+        return PowerTable;
+    })();
+    PowerTables.PowerTable = PowerTable;
+})(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
     var Rendering;
@@ -1995,6 +4169,165 @@ var PowerTables;
 (function (PowerTables) {
     var Rendering;
     (function (Rendering) {
+        /**
+         * This module allows you to locate particular elements in table's DOM
+         */
+        var DOMLocator = (function () {
+            function DOMLocator(bodyElement, rootElement, rootId) {
+                this._bodyElement = bodyElement;
+                this._rootElement = rootElement;
+                this._rootIdPrefix = "#" + rootId;
+            }
+            /**
+             * Retrieves cell element by cell object
+             *
+             * @param cell Cell element
+             * @returns {HTMLElement} Element containing cell (with wrapper)
+             */
+            DOMLocator.prototype.getCellElement = function (cell) {
+                var track = PowerTables.TrackHelper.getCellTrack(cell);
+                return this._bodyElement.querySelector(this._rootIdPrefix + " [data-track=\"" + track + "\"]");
+            };
+            /**
+             * Retrieves cell element using supplied coordinates
+             *
+             * @param cell Cell element
+             * @returns {HTMLElement} Element containing cell (with wrapper)
+             */
+            DOMLocator.prototype.getCellElementByIndex = function (rowDisplayIndex, columnIndex) {
+                var track = PowerTables.TrackHelper.getCellTrackByIndexes(rowDisplayIndex, columnIndex);
+                return this._bodyElement.querySelector(this._rootIdPrefix + " [data-track=\"" + track + "\"]");
+            };
+            /**
+             * Retrieves row element (including wrapper)
+             *
+             * @param row Row
+             * @returns HTML element
+             */
+            DOMLocator.prototype.getRowElement = function (row) {
+                var track = PowerTables.TrackHelper.getRowTrack(row);
+                return this._bodyElement.querySelector(this._rootIdPrefix + " [data-track=\"" + track + "\"]");
+            };
+            /**
+            * Retrieves row element (including wrapper) by specified row index
+            *
+            * @param row Row
+            * @returns HTML element
+            */
+            DOMLocator.prototype.getRowElementByIndex = function (rowDisplayingIndex) {
+                var track = PowerTables.TrackHelper.getRowTrackByIndex(rowDisplayingIndex);
+                return this._bodyElement.querySelector(this._rootIdPrefix + " [data-track=\"" + track + "\"]");
+            };
+            /**
+             * Retrieves data cells for specified column (including wrappers)
+             *
+             * @param column Column desired data cells belongs to
+             * @returns HTML NodeList containing results
+             */
+            DOMLocator.prototype.getColumnCellsElements = function (column) {
+                var colIdx = column.MasterTable.InstanceManager.getUiColumnNames().indexOf(column.RawName);
+                return this._bodyElement.querySelectorAll(this._rootIdPrefix + " [data-track$=\"-c" + colIdx + "\"]");
+            };
+            /**
+             * Retrieves data cells for specified column (including wrappers) by column index
+             *
+             * @param column Column desired data cells belongs to
+             * @returns HTML NodeList containing results
+             */
+            DOMLocator.prototype.getColumnCellsElementsByColumnIndex = function (columnIndex) {
+                return this._bodyElement.querySelectorAll(this._rootIdPrefix + " [data-track$=\"-c" + columnIndex + "\"]");
+            };
+            /**
+             * Retrieves data cells for whole row (including wrapper)
+             *
+             * @param row Row with data cells
+             * @returns NodeList containing results
+             */
+            DOMLocator.prototype.getRowCellsElements = function (row) {
+                return this.getRowCellsElementsByIndex(row.Index);
+            };
+            /**
+             * Retrieves data cells for whole row (including wrapper)
+             *
+             * @param row Row with data cells
+             * @returns NodeList containing results
+             */
+            DOMLocator.prototype.getRowCellsElementsByIndex = function (rowDisplayingIndex) {
+                return this._bodyElement.querySelectorAll(this._rootIdPrefix + " [data-track^=\"c-r" + rowDisplayingIndex + "-\"]");
+            };
+            /**
+             * Retrieves HTML element for column header (including wrapper)
+             *
+             * @param header Column header
+             * @returns HTML element
+             */
+            DOMLocator.prototype.getHeaderElement = function (header) {
+                var track = PowerTables.TrackHelper.getHeaderTrack(header);
+                return this._rootElement.querySelector(this._rootIdPrefix + " [data-track=\"" + track + "\"]");
+            };
+            /**
+             * Retrieves HTML element for plugin (including wrapper)
+             *
+             * @param plugin Plugin
+             * @returns HTML element
+             */
+            DOMLocator.prototype.getPluginElement = function (plugin) {
+                var track = PowerTables.TrackHelper.getPluginTrack(plugin);
+                return this._rootElement.querySelector(this._rootIdPrefix + " [data-track=\"" + track + "\"]");
+            };
+            /**
+             * Retrieves HTML element for plugin (including wrapper)
+             *
+             * @param plugin Plugin
+             * @returns HTML element
+             */
+            DOMLocator.prototype.getPluginElementsByPositionPart = function (placement) {
+                var track = PowerTables.TrackHelper.getPluginTrackByLocation(placement);
+                return this._rootElement.querySelectorAll(this._rootIdPrefix + " [data-track^=\"" + track + "\"]");
+            };
+            /**
+             * Determines if supplied element is table row
+             *
+             * @param e Testing element
+             * @returns {boolean} True when supplied element is row, false otherwise
+             */
+            DOMLocator.prototype.isRow = function (e) {
+                if (!e)
+                    return false;
+                if (!e.getAttribute)
+                    return false;
+                var trk = e.getAttribute('data-track');
+                if (!trk)
+                    return false;
+                return (trk.charAt(0) === 'r') && (trk.charAt(1) === '-');
+            };
+            /**
+             * Determines if supplied element is table cell
+             *
+             * @param e Testing element
+             * @returns {boolean} True when supplied element is cell, false otherwise
+             */
+            DOMLocator.prototype.isCell = function (e) {
+                if (!e)
+                    return false;
+                if (!e.getAttribute)
+                    return false;
+                var trk = e.getAttribute('data-track');
+                if (!trk)
+                    return false;
+                return (trk.charAt(0) === 'c')
+                    && (trk.charAt(1) === '-')
+                    && (trk.charAt(2) === 'r');
+            };
+            return DOMLocator;
+        })();
+        Rendering.DOMLocator = DOMLocator;
+    })(Rendering = PowerTables.Rendering || (PowerTables.Rendering = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Rendering;
+    (function (Rendering) {
         var DOMModifier = (function () {
             function DOMModifier(stack, locator, backBinder, templatesProvider, layoutRenderer, instances, ed) {
                 this.displayCache = {};
@@ -2136,7 +4469,7 @@ var PowerTables;
             };
             DOMModifier.prototype.destroyElement = function (element) {
                 element.parentElement.removeChild(element);
-                this._ed.unsubscribeOutEvents(element);
+                this._ed.unsubscribeRedundantEvents(element);
             };
             DOMModifier.prototype.destroyElements = function (elements) {
                 for (var i = 0; i < elements.length; i++) {
@@ -2381,7 +4714,7 @@ var PowerTables;
             DOMModifier.prototype.replaceElement = function (element, html) {
                 var node = this.createElement(html);
                 element.parentElement.replaceChild(node, element);
-                this._ed.unsubscribeOutEvents(element);
+                this._ed.unsubscribeRedundantEvents(element);
                 return node;
             };
             return DOMModifier;
@@ -2812,165 +5145,6 @@ var PowerTables;
     var Rendering;
     (function (Rendering) {
         /**
-         * This module allows you to locate particular elements in table's DOM
-         */
-        var DOMLocator = (function () {
-            function DOMLocator(bodyElement, rootElement, rootId) {
-                this._bodyElement = bodyElement;
-                this._rootElement = rootElement;
-                this._rootIdPrefix = "#" + rootId;
-            }
-            /**
-             * Retrieves cell element by cell object
-             *
-             * @param cell Cell element
-             * @returns {HTMLElement} Element containing cell (with wrapper)
-             */
-            DOMLocator.prototype.getCellElement = function (cell) {
-                var track = PowerTables.TrackHelper.getCellTrack(cell);
-                return this._bodyElement.querySelector(this._rootIdPrefix + " [data-track=\"" + track + "\"]");
-            };
-            /**
-             * Retrieves cell element using supplied coordinates
-             *
-             * @param cell Cell element
-             * @returns {HTMLElement} Element containing cell (with wrapper)
-             */
-            DOMLocator.prototype.getCellElementByIndex = function (rowDisplayIndex, columnIndex) {
-                var track = PowerTables.TrackHelper.getCellTrackByIndexes(rowDisplayIndex, columnIndex);
-                return this._bodyElement.querySelector(this._rootIdPrefix + " [data-track=\"" + track + "\"]");
-            };
-            /**
-             * Retrieves row element (including wrapper)
-             *
-             * @param row Row
-             * @returns HTML element
-             */
-            DOMLocator.prototype.getRowElement = function (row) {
-                var track = PowerTables.TrackHelper.getRowTrack(row);
-                return this._bodyElement.querySelector(this._rootIdPrefix + " [data-track=\"" + track + "\"]");
-            };
-            /**
-            * Retrieves row element (including wrapper) by specified row index
-            *
-            * @param row Row
-            * @returns HTML element
-            */
-            DOMLocator.prototype.getRowElementByIndex = function (rowDisplayingIndex) {
-                var track = PowerTables.TrackHelper.getRowTrackByIndex(rowDisplayingIndex);
-                return this._bodyElement.querySelector(this._rootIdPrefix + " [data-track=\"" + track + "\"]");
-            };
-            /**
-             * Retrieves data cells for specified column (including wrappers)
-             *
-             * @param column Column desired data cells belongs to
-             * @returns HTML NodeList containing results
-             */
-            DOMLocator.prototype.getColumnCellsElements = function (column) {
-                var colIdx = column.MasterTable.InstanceManager.getUiColumnNames().indexOf(column.RawName);
-                return this._bodyElement.querySelectorAll(this._rootIdPrefix + " [data-track$=\"-c" + colIdx + "\"]");
-            };
-            /**
-             * Retrieves data cells for specified column (including wrappers) by column index
-             *
-             * @param column Column desired data cells belongs to
-             * @returns HTML NodeList containing results
-             */
-            DOMLocator.prototype.getColumnCellsElementsByColumnIndex = function (columnIndex) {
-                return this._bodyElement.querySelectorAll(this._rootIdPrefix + " [data-track$=\"-c" + columnIndex + "\"]");
-            };
-            /**
-             * Retrieves data cells for whole row (including wrapper)
-             *
-             * @param row Row with data cells
-             * @returns NodeList containing results
-             */
-            DOMLocator.prototype.getRowCellsElements = function (row) {
-                return this.getRowCellsElementsByIndex(row.Index);
-            };
-            /**
-             * Retrieves data cells for whole row (including wrapper)
-             *
-             * @param row Row with data cells
-             * @returns NodeList containing results
-             */
-            DOMLocator.prototype.getRowCellsElementsByIndex = function (rowDisplayingIndex) {
-                return this._bodyElement.querySelectorAll(this._rootIdPrefix + " [data-track^=\"c-r" + rowDisplayingIndex + "-\"]");
-            };
-            /**
-             * Retrieves HTML element for column header (including wrapper)
-             *
-             * @param header Column header
-             * @returns HTML element
-             */
-            DOMLocator.prototype.getHeaderElement = function (header) {
-                var track = PowerTables.TrackHelper.getHeaderTrack(header);
-                return this._rootElement.querySelector(this._rootIdPrefix + " [data-track=\"" + track + "\"]");
-            };
-            /**
-             * Retrieves HTML element for plugin (including wrapper)
-             *
-             * @param plugin Plugin
-             * @returns HTML element
-             */
-            DOMLocator.prototype.getPluginElement = function (plugin) {
-                var track = PowerTables.TrackHelper.getPluginTrack(plugin);
-                return this._rootElement.querySelector(this._rootIdPrefix + " [data-track=\"" + track + "\"]");
-            };
-            /**
-             * Retrieves HTML element for plugin (including wrapper)
-             *
-             * @param plugin Plugin
-             * @returns HTML element
-             */
-            DOMLocator.prototype.getPluginElementsByPositionPart = function (placement) {
-                var track = PowerTables.TrackHelper.getPluginTrackByLocation(placement);
-                return this._rootElement.querySelectorAll(this._rootIdPrefix + " [data-track^=\"" + track + "\"]");
-            };
-            /**
-             * Determines if supplied element is table row
-             *
-             * @param e Testing element
-             * @returns {boolean} True when supplied element is row, false otherwise
-             */
-            DOMLocator.prototype.isRow = function (e) {
-                if (!e)
-                    return false;
-                if (!e.getAttribute)
-                    return false;
-                var trk = e.getAttribute('data-track');
-                if (!trk)
-                    return false;
-                return (trk.charAt(0) === 'r') && (trk.charAt(1) === '-');
-            };
-            /**
-             * Determines if supplied element is table cell
-             *
-             * @param e Testing element
-             * @returns {boolean} True when supplied element is cell, false otherwise
-             */
-            DOMLocator.prototype.isCell = function (e) {
-                if (!e)
-                    return false;
-                if (!e.getAttribute)
-                    return false;
-                var trk = e.getAttribute('data-track');
-                if (!trk)
-                    return false;
-                return (trk.charAt(0) === 'c')
-                    && (trk.charAt(1) === '-')
-                    && (trk.charAt(2) === 'r');
-            };
-            return DOMLocator;
-        })();
-        Rendering.DOMLocator = DOMLocator;
-    })(Rendering = PowerTables.Rendering || (PowerTables.Rendering = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var Rendering;
-    (function (Rendering) {
-        /**
          * Enity responsible for displaying table
          */
         var Renderer = (function () {
@@ -3050,7 +5224,9 @@ var PowerTables;
              * @returns {}
              */
             Renderer.prototype.clearBody = function () {
-                //this.BodyElement.innerHTML = '';
+                if (this.Delegator) {
+                    this.Delegator.unsubscribeRedundantEvents(this.BodyElement);
+                }
                 while (this.BodyElement.firstChild) {
                     this.BodyElement.removeChild(this.BodyElement.firstChild);
                 }
@@ -3105,2175 +5281,95 @@ var PowerTables;
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
-    var PowerTable = (function () {
-        function PowerTable(configuration) {
-            this._configuration = configuration;
-            this.bindReady();
+    /**
+    * Helper class for producing track ids
+    */
+    var TrackHelper = (function () {
+        function TrackHelper() {
         }
-        PowerTable.prototype.bindReady = function () {
-            var _self = this;
-            if (document.addEventListener) {
-                document.addEventListener('DOMContentLoaded', function () {
-                    document.removeEventListener('DOMContentLoaded', arguments.callee, false);
-                    _self.initialize();
-                }, false);
-            }
-            else if (document.attachEvent) {
-                document.attachEvent('onreadystatechange', function () {
-                    if (document.readyState === 'complete') {
-                        document.detachEvent('onreadystatechange', arguments.callee);
-                        _self.initialize();
-                    }
-                });
-                if (document.documentElement.doScroll && window == window.top)
-                    (function () {
-                        if (_self._isReady)
-                            return;
-                        try {
-                            document.documentElement.doScroll('left');
-                        }
-                        catch (error) {
-                            setTimeout(arguments.callee, 0);
-                            return;
-                        }
-                        _self.initialize();
-                    })();
-            }
-            window.addEventListener('load', function (e) {
-                if (_self._isReady)
-                    return;
-                _self.initialize();
-            });
-        };
-        PowerTable.prototype.initialize = function () {
-            this._isReady = true;
-            if (!window['__latticeInstances'])
-                window['__latticeInstances'] = {};
-            window['__latticeInstances'][this._configuration.TableRootId] = this;
-            this.Date = new PowerTables.DateService(this._configuration.DatepickerOptions);
-            this.Events = new PowerTables.EventsManager(this);
-            this.InstanceManager = new PowerTables.InstanceManager(this._configuration, this, this.Events);
-            this.DataHolder = new PowerTables.DataHolder(this);
-            this.Loader = new PowerTables.Loader(this._configuration.StaticData, this._configuration.OperationalAjaxUrl, this.Events, this.DataHolder);
-            this.Renderer = new PowerTables.Rendering.Renderer(this._configuration.TableRootId, this._configuration.Prefix, this.InstanceManager, this.Events, this.Date);
-            this.Controller = new PowerTables.Controller(this);
-            this.InstanceManager.initPlugins();
-            this.Renderer.layout();
-            if (this._configuration.LoadImmediately) {
-                this.Controller.reload();
-            }
-            else {
-                this.Controller.showTableMessage({
-                    MessageType: 'initial',
-                    Message: 'No filtering specified',
-                    AdditionalData: 'To retrieve query results please specify several filters'
-                });
-            }
+        /**
+         * Returns string track ID for cell
+         */
+        TrackHelper.getCellTrack = function (cell) {
+            var colIdx = cell.Column.MasterTable.InstanceManager.getUiColumnNames().indexOf(cell.Column.RawName);
+            var rowIdx = cell.Row.Index;
+            return TrackHelper.getCellTrackByIndexes(rowIdx, colIdx);
         };
         /**
-         * Reloads table content.
-         * This method is left for backward compatibility
-         *
-         * @returns {}
+         * Returns string track ID for cell
          */
-        PowerTable.prototype.reload = function () {
-            this.Controller.reload();
+        TrackHelper.getCellTrackByIndexes = function (rowIndex, columnIndex) {
+            return "c-r" + rowIndex + "-c" + columnIndex;
         };
         /**
-         * Fires specified DOM event on specified element
-         *
-         * @param eventName DOM event id
-         * @param element Element is about to dispatch event
+         * Returns string track ID for plugin
          */
-        PowerTable.fireDomEvent = function (eventName, element) {
-            if ('createEvent' in document) {
-                var evt = document.createEvent('HTMLEvents');
-                evt.initEvent(eventName, false, true);
-                element.dispatchEvent(evt);
-            }
-            else
-                element['fireEvent'](eventName);
+        TrackHelper.getPluginTrack = function (plugin) {
+            return "p-" + plugin.PluginLocation;
         };
-        return PowerTable;
+        /**
+         * Returns string track ID for plugin
+         */
+        TrackHelper.getPluginTrackByLocation = function (pluginLocation) {
+            return "p-" + pluginLocation;
+        };
+        /**
+         * Returns string track ID for header
+         */
+        TrackHelper.getHeaderTrack = function (header) {
+            return "h-" + header.Column.RawName;
+        };
+        /**
+         * Returns string track ID for header
+         */
+        TrackHelper.getHeaderTrackByColumnName = function (columnName) {
+            return "h-" + columnName;
+        };
+        /**
+         * Returns string track ID for row
+         */
+        TrackHelper.getRowTrack = function (row) {
+            return this.getRowTrackByIndex(row.Index);
+        };
+        /**
+         * Returns string track ID for row
+         */
+        TrackHelper.getRowTrackByIndex = function (index) {
+            return "r-" + index;
+        };
+        /**
+         * Parses cell track to retrieve column and row index
+         *
+         * @param e HTML element containing cell with wrapper
+         * @returns {ICellLocation} Cell location
+         */
+        TrackHelper.getCellLocation = function (e) {
+            if (!e)
+                return null;
+            if (!e.getAttribute)
+                return null;
+            var trk = e.getAttribute('data-track').substring(3).split('-c');
+            return {
+                RowIndex: parseInt(trk[0]),
+                ColumnIndex: parseInt(trk[1])
+            };
+        };
+        /**
+         * Parses row track to retrieve row index
+         *
+         * @param e HTML element containing row with wrapper
+         * @returns {number} Row index
+         */
+        TrackHelper.getRowIndex = function (e) {
+            if (!e)
+                return null;
+            if (!e.getAttribute)
+                return null;
+            var trk = e.getAttribute('data-track').substring(2);
+            return parseInt(trk);
+        };
+        return TrackHelper;
     })();
-    PowerTables.PowerTable = PowerTable;
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        var PluginBase = (function () {
-            function PluginBase() {
-                this.afterDrawn = null;
-            }
-            PluginBase.prototype.init = function (masterTable) {
-                this.MasterTable = masterTable;
-                this.Configuration = this.RawConfig.Configuration;
-                this.subscribe(masterTable.Events);
-                this.registerAdditionalHelpers(masterTable.Renderer.HandlebarsInstance);
-            };
-            /**
-             * Events subscription method.
-             * In derived class here should be subscription to various events
-             *
-             * @param e Events manager
-             */
-            PluginBase.prototype.subscribe = function (e) {
-                if (this.afterDrawn != null) {
-                    this.MasterTable.Events.AfterLayoutRendered.subscribe(this.afterDrawn.bind(this), this.RawConfig.PluginId);
-                }
-            };
-            /**
-             * In this method you can register any additional Handlebars.js helpers in case of your
-             * templates needs ones
-             *
-             * @param hb Handlebars instance
-             * @returns {}
-             */
-            PluginBase.prototype.registerAdditionalHelpers = function (hb) { };
-            return PluginBase;
-        })();
-        Plugins.PluginBase = PluginBase;
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
-})(PowerTables || (PowerTables = {}));
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
-var PowerTables;
-(function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        /**
-         * Base class for creating filters
-         */
-        var FilterBase = (function (_super) {
-            __extends(FilterBase, _super);
-            function FilterBase() {
-                _super.apply(this, arguments);
-            }
-            FilterBase.prototype.modifyQuery = function (query, scope) { };
-            FilterBase.prototype.init = function (masterTable) {
-                _super.prototype.init.call(this, masterTable);
-                this.MasterTable.Loader.registerQueryPartProvider(this);
-            };
-            /**
-             * Call this method inside init and override filterPredicate method to make this filter
-             * participate in client-side filtering
-             */
-            FilterBase.prototype.itIsClientFilter = function () {
-                this.MasterTable.DataHolder.registerClientFilter(this);
-            };
-            FilterBase.prototype.filterPredicate = function (rowObject, query) { throw new Error('Please override this method'); };
-            return FilterBase;
-        })(Plugins.PluginBase);
-        Plugins.FilterBase = FilterBase;
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        var LoadingPlugin = (function (_super) {
-            __extends(LoadingPlugin, _super);
-            function LoadingPlugin() {
-                _super.apply(this, arguments);
-            }
-            LoadingPlugin.prototype.subscribe = function (e) {
-                var _this = this;
-                e.BeforeLoading.subscribe(function () { return _this.showLoadingIndicator(); }, "loading");
-                e.AfterLoading.subscribe(function () { return _this.hideLoadingIndicator(); }, "loading");
-                e.AfterLayoutRendered.subscribe(function () {
-                    _this.hideLoadingIndicator();
-                }, 'loading');
-            };
-            LoadingPlugin.prototype.showLoadingIndicator = function () {
-                this.BlinkElement.style.visibility = 'visible';
-            };
-            LoadingPlugin.prototype.hideLoadingIndicator = function () {
-                this.BlinkElement.style.visibility = 'collapse';
-            };
-            LoadingPlugin.prototype.renderContent = function (templatesProvider) {
-                return templatesProvider.getCachedTemplate('loading')(null);
-            };
-            LoadingPlugin.Id = 'Loading';
-            return LoadingPlugin;
-        })(Plugins.PluginBase);
-        Plugins.LoadingPlugin = LoadingPlugin;
-        PowerTables.ComponentsContainer.registerComponent('Loading', LoadingPlugin);
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        var Ordering;
-        (function (Ordering) {
-            var OrderingPlugin = (function (_super) {
-                __extends(OrderingPlugin, _super);
-                function OrderingPlugin() {
-                    _super.apply(this, arguments);
-                    this._clientOrderings = {};
-                    this._serverOrderings = {};
-                }
-                OrderingPlugin.prototype.subscribe = function (e) {
-                    var _this = this;
-                    e.ColumnsCreation.subscribe(function (v) {
-                        _this.overrideHeadersTemplates(v.EventArgs);
-                    }, 'ordering');
-                };
-                OrderingPlugin.prototype.overrideHeadersTemplates = function (columns) {
-                    var _this = this;
-                    for (var ck in columns) {
-                        if (columns.hasOwnProperty(ck)) {
-                            var ordering = this.Configuration.DefaultOrderingsForColumns[ck];
-                            if (!ordering)
-                                continue;
-                            var newHeader = {
-                                Column: columns[ck],
-                                switchOrdering: function (e) {
-                                    _this.switchOrderingForColumn(e.Receiver.Column.RawName);
-                                },
-                                renderElement: function (tpl) { return tpl.getCachedTemplate('ordering')(this); },
-                                IsClientOrdering: this.isClient(ck)
-                            };
-                            this.updateOrdering(ck, ordering);
-                            this.specifyOrdering(newHeader, ordering);
-                            columns[ck].Header = newHeader;
-                        }
-                    }
-                };
-                OrderingPlugin.prototype.updateOrdering = function (columnName, ordering) {
-                    if (this.isClient(columnName))
-                        this._clientOrderings[columnName] = ordering;
-                    else
-                        this._serverOrderings[columnName] = ordering;
-                };
-                OrderingPlugin.prototype.specifyOrdering = function (object, ordering) {
-                    object.IsNeutral = object.IsDescending = object.IsAscending = false;
-                    switch (ordering) {
-                        case PowerTables.Ordering.Neutral:
-                            object.IsNeutral = true;
-                            break;
-                        case PowerTables.Ordering.Descending:
-                            object.IsDescending = true;
-                            break;
-                        case PowerTables.Ordering.Ascending:
-                            object.IsAscending = true;
-                            break;
-                    }
-                };
-                OrderingPlugin.prototype.isClient = function (columnName) {
-                    return this.Configuration.ClientSortableColumns.hasOwnProperty(columnName);
-                };
-                OrderingPlugin.prototype.switchOrderingForColumn = function (columnName) {
-                    if (!this.Configuration.DefaultOrderingsForColumns[columnName])
-                        throw new Error("Ordering is not configured for column " + columnName);
-                    var orderingsCollection = this.isClient(columnName) ? this._clientOrderings : this._serverOrderings;
-                    var next = this.nextOrdering(orderingsCollection[columnName]);
-                    this.setOrderingForColumn(columnName, next);
-                };
-                OrderingPlugin.prototype.setOrderingForColumn = function (columnName, ordering) {
-                    var coolHeader = this.MasterTable.InstanceManager.Columns[columnName].Header;
-                    this.specifyOrdering(coolHeader, ordering);
-                    this.updateOrdering(columnName, ordering);
-                    this.MasterTable.Renderer.Modifier.redrawHeader(coolHeader.Column);
-                    this.MasterTable.Controller.reload();
-                };
-                OrderingPlugin.prototype.nextOrdering = function (currentOrdering) {
-                    switch (currentOrdering) {
-                        case PowerTables.Ordering.Neutral: return PowerTables.Ordering.Ascending;
-                        case PowerTables.Ordering.Descending: return PowerTables.Ordering.Neutral;
-                        case PowerTables.Ordering.Ascending: return PowerTables.Ordering.Descending;
-                    }
-                };
-                OrderingPlugin.prototype.makeDefaultOrderingFunction = function (fieldName) {
-                    var self = this;
-                    return (function (field) {
-                        return function (a, b) {
-                            var x = a[field], y = b[field];
-                            if (x === y)
-                                return 0;
-                            if (x == null || x == undefined)
-                                return -1;
-                            if (y == null || y == undefined)
-                                return 1;
-                            if (typeof x === "string") {
-                                return x.localeCompare(y);
-                            }
-                            return (x > y) ? 1 : -1;
-                        };
-                    })(fieldName);
-                };
-                OrderingPlugin.prototype.init = function (masterTable) {
-                    _super.prototype.init.call(this, masterTable);
-                    var hasClientOrderings = false;
-                    var fn;
-                    for (var cls in this.Configuration.ClientSortableColumns) {
-                        if (this.Configuration.ClientSortableColumns.hasOwnProperty(cls)) {
-                            hasClientOrderings = true;
-                            fn = this.Configuration.ClientSortableColumns[cls];
-                            if (!fn) {
-                                fn = this.makeDefaultOrderingFunction(cls);
-                                this.Configuration.ClientSortableColumns[cls] = fn;
-                            }
-                            this.MasterTable.DataHolder.registerClientOrdering(cls, fn);
-                        }
-                    }
-                    if (hasClientOrderings) {
-                        // if we have at least 1 client ordering then we have to reorder whole 
-                        // received data on client
-                        // to avoid client ordering priority
-                        for (var serverColumn in this.Configuration.DefaultOrderingsForColumns) {
-                            if (this.isClient(serverColumn))
-                                continue;
-                            fn = this.makeDefaultOrderingFunction(serverColumn);
-                            this.MasterTable.DataHolder.registerClientOrdering(serverColumn, fn);
-                        }
-                    }
-                };
-                OrderingPlugin.prototype.mixinOrderings = function (orderingsCollection, query) {
-                    for (var clo in orderingsCollection) {
-                        if (orderingsCollection.hasOwnProperty(clo)) {
-                            query.Orderings[clo] = orderingsCollection[clo];
-                        }
-                    }
-                };
-                OrderingPlugin.prototype.modifyQuery = function (query, scope) {
-                    this.mixinOrderings(this._serverOrderings, query);
-                    if (scope === PowerTables.QueryScope.Client || scope === PowerTables.QueryScope.Transboundary) {
-                        this.mixinOrderings(this._clientOrderings, query);
-                    }
-                };
-                return OrderingPlugin;
-            })(Plugins.FilterBase);
-            Ordering.OrderingPlugin = OrderingPlugin;
-            PowerTables.ComponentsContainer.registerComponent('Ordering', OrderingPlugin);
-        })(Ordering = Plugins.Ordering || (Plugins.Ordering = {}));
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        var LimitPlugin = (function (_super) {
-            __extends(LimitPlugin, _super);
-            function LimitPlugin() {
-                _super.apply(this, arguments);
-                this._limitSize = 0;
-                this.Sizes = [];
-            }
-            LimitPlugin.prototype.renderContent = function (templatesProvider) {
-                return templatesProvider.getCachedTemplate('limit')(this);
-            };
-            LimitPlugin.prototype.changeLimitHandler = function (e) {
-                var limit = parseInt(e.EventArguments[0]);
-                if (isNaN(limit))
-                    limit = 0;
-                this.changeLimit(limit);
-            };
-            LimitPlugin.prototype.changeLimit = function (limit) {
-                var changed = this._limitSize !== limit;
-                if (!changed)
-                    return;
-                this._limitSize = limit;
-                var labelPair = null;
-                for (var i = 0; i < this.Sizes.length; i++) {
-                    labelPair = this.Sizes[i];
-                    if (labelPair.Value === limit) {
-                        break;
-                    }
-                }
-                if (labelPair != null)
-                    this.SelectedValue = labelPair.Label;
-                this.MasterTable.Renderer.Modifier.redrawPlugin(this);
-                if (this.Configuration.ReloadTableOnLimitChange)
-                    this.MasterTable.Controller.reload();
-            };
-            LimitPlugin.prototype.modifyQuery = function (query, scope) {
-                var client = this.Configuration.EnableClientLimiting;
-                if (client && (scope === PowerTables.QueryScope.Client || scope === PowerTables.QueryScope.Transboundary)) {
-                    query.Paging.PageSize = this._limitSize;
-                }
-                if (!client && (scope === PowerTables.QueryScope.Server || scope === PowerTables.QueryScope.Transboundary)) {
-                    query.Paging.PageSize = this._limitSize;
-                }
-            };
-            LimitPlugin.prototype.init = function (masterTable) {
-                _super.prototype.init.call(this, masterTable);
-                var def = null;
-                for (var i = 0; i < this.Configuration.LimitValues.length; i++) {
-                    var a = {
-                        Value: this.Configuration.LimitValues[i],
-                        Label: this.Configuration.LimitLabels[i],
-                        IsSeparator: this.Configuration.LimitLabels[i] === '-'
-                    };
-                    this.Sizes.push(a);
-                    if (a.Label === this.Configuration.DefaultValue) {
-                        def = a;
-                    }
-                }
-                if (def) {
-                    this.SelectedValue = def.Label;
-                    this._limitSize = def.Value;
-                }
-                else {
-                    this._limitSize = 0;
-                }
-                if (this.Configuration.EnableClientLimiting) {
-                    this.MasterTable.DataHolder.EnableClientTake = true;
-                }
-                this.MasterTable.Events.ColumnsCreation.subscribe(this.onColumnsCreation.bind(this), 'paging');
-            };
-            LimitPlugin.prototype.onColumnsCreation = function () {
-                if (this.Configuration.EnableClientLimiting && !this.MasterTable.DataHolder.EnableClientSkip) {
-                    var paging = null;
-                    try {
-                        paging = this.MasterTable.InstanceManager.getPlugin('Paging');
-                    }
-                    catch (a) {
-                    }
-                    if (paging != null)
-                        throw new Error('Limit ang paging plugin must both work locally or both remote. Please enable client paging');
-                }
-            };
-            return LimitPlugin;
-        })(Plugins.FilterBase);
-        Plugins.LimitPlugin = LimitPlugin;
-        PowerTables.ComponentsContainer.registerComponent('Limit', LimitPlugin);
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        var PagingPlugin = (function (_super) {
-            __extends(PagingPlugin, _super);
-            function PagingPlugin() {
-                _super.apply(this, arguments);
-                this._selectedPage = 0;
-            }
-            PagingPlugin.prototype.CurrentPage = function () { return this._selectedPage + 1; };
-            PagingPlugin.prototype.TotalPages = function () { return this._totalPages; };
-            PagingPlugin.prototype.PageSize = function () { return this._pageSize; };
-            PagingPlugin.prototype.getCurrentPage = function () {
-                return this._selectedPage;
-            };
-            PagingPlugin.prototype.getTotalPages = function () {
-                return this._totalPages;
-            };
-            PagingPlugin.prototype.getPageSize = function () {
-                return this._pageSize;
-            };
-            PagingPlugin.prototype.onFilterGathered = function (e) {
-                this._pageSize = e.EventArgs.Query.Paging.PageSize;
-            };
-            PagingPlugin.prototype.onColumnsCreation = function () {
-                if (this.Configuration.EnableClientPaging && !this.MasterTable.DataHolder.EnableClientTake) {
-                    var limit = null;
-                    try {
-                        limit = this.MasterTable.InstanceManager.getPlugin('Limit');
-                    }
-                    catch (a) { }
-                    if (limit != null)
-                        throw new Error('Paging ang Limit plugins must both work locally or both remote. Please enable client limiting');
-                }
-            };
-            PagingPlugin.prototype.onResponse = function (e) {
-                this._selectedPage = e.EventArgs.Data.PageIndex;
-                var tp = e.EventArgs.Data.ResultsCount / this._pageSize;
-                if (tp !== parseInt(tp)) {
-                    tp = parseInt(tp) + 1;
-                }
-                this._totalPages = tp;
-                this.MasterTable.Renderer.Modifier.redrawPlugin(this);
-            };
-            PagingPlugin.prototype.onClientDataProcessing = function (e) {
-                var tp = e.EventArgs.Filtered.length / this._pageSize;
-                if (tp !== parseInt(tp)) {
-                    tp = parseInt(tp) + 1;
-                }
-                if (tp < this._selectedPage) {
-                    this._selectedPage = 0;
-                }
-                this._totalPages = tp;
-                this.MasterTable.Renderer.Modifier.redrawPlugin(this);
-            };
-            PagingPlugin.prototype.goToPage = function (page) {
-                this._selectedPage = parseInt(page);
-                this.MasterTable.Controller.reload();
-            };
-            PagingPlugin.prototype.gotoPageClick = function (e) {
-                if (this.GotoInput) {
-                    var v = this.GotoInput.value;
-                    v = (parseInt(v) - 1).toString();
-                    this.goToPage(v);
-                }
-            };
-            PagingPlugin.prototype.navigateToPage = function (e) {
-                this.goToPage(e.EventArguments[0]);
-            };
-            PagingPlugin.prototype.nextClick = function (e) {
-                if (this._selectedPage < this._totalPages)
-                    this.goToPage((this._selectedPage + 1).toString());
-            };
-            PagingPlugin.prototype.previousClick = function (e) {
-                if (this._selectedPage > 0)
-                    this.goToPage((this._selectedPage - 1).toString());
-            };
-            PagingPlugin.prototype.constructPagesElements = function () {
-                var a = [];
-                var total = this._totalPages;
-                var cur = this._selectedPage;
-                var pdiff = this.Configuration.PagesToHideUnderPeriod;
-                if (total > 1) {
-                    this.Shown = true;
-                    if (!this.Configuration.ArrowsMode) {
-                        if (this.Configuration.UseFirstLastPage)
-                            a.push({ Page: 0, First: true });
-                        if (cur > 0)
-                            a.push({ Page: 0, Prev: true });
-                        if (this.Configuration.UsePeriods) {
-                            if (cur - 1 >= pdiff)
-                                a.push({ Page: 0, Period: true });
-                            if (cur - 1 > 0)
-                                a.push({ Page: cur - 1, InActivePage: true });
-                            a.push({ Page: cur, ActivePage: true });
-                            if (cur + 1 < total)
-                                a.push({ Page: cur + 1, InActivePage: true });
-                            if (total - (cur + 1) >= pdiff)
-                                a.push({ Page: 0, Period: true });
-                        }
-                        else {
-                            for (var i = 0; i < total; i++) {
-                                if (cur === i) {
-                                    a.push({ Page: i, ActivePage: true });
-                                }
-                                else {
-                                    a.push({ Page: i, InActivePage: true });
-                                }
-                            }
-                        }
-                        if (cur < total - 1)
-                            a.push({ Page: 0, Next: true });
-                        if (this.Configuration.UseFirstLastPage)
-                            a.push({ Page: total - 1, Last: true });
-                        var disFunction = function () { return this.Page + 1; };
-                        for (var j = 0; j < a.length; j++) {
-                            a[j].DisPage = disFunction;
-                        }
-                        this.Pages = a;
-                    }
-                    else {
-                        this.NextArrow = cur < total - 1;
-                        this.PrevArrow = cur > 0;
-                    }
-                }
-                else {
-                    this.Shown = false;
-                }
-            };
-            PagingPlugin.prototype.renderContent = function (templatesProvider) {
-                this.constructPagesElements();
-                return templatesProvider.getCachedTemplate('paging')(this);
-            };
-            PagingPlugin.prototype.validateGotopage = function () {
-                var v = this.GotoInput.value;
-                var i = parseInt(v);
-                var valid = !isNaN(i) && (i > 0) && (i <= this._totalPages);
-                if (valid) {
-                    this.MasterTable.Renderer.Modifier.normalState(this.VisualStates);
-                }
-                else {
-                    this.MasterTable.Renderer.Modifier.changeState("invalid", this.VisualStates);
-                }
-            };
-            PagingPlugin.prototype.modifyQuery = function (query, scope) {
-                if (this.Configuration.EnableClientPaging && scope === PowerTables.QueryScope.Client) {
-                    query.Paging.PageIndex = this._selectedPage;
-                }
-                if ((!this.Configuration.EnableClientPaging) && scope !== PowerTables.QueryScope.Client) {
-                    query.Paging.PageIndex = this._selectedPage;
-                }
-            };
-            PagingPlugin.prototype.init = function (masterTable) {
-                _super.prototype.init.call(this, masterTable);
-                if (!this.Configuration.EnableClientPaging) {
-                    this.MasterTable.Events.AfterQueryGathering.subscribe(this.onFilterGathered.bind(this), 'paging');
-                }
-                else {
-                    this.MasterTable.Events.AfterClientQueryGathering.subscribe(this.onFilterGathered.bind(this), 'paging');
-                }
-                if (!this.Configuration.EnableClientPaging) {
-                    this.MasterTable.Events.DataReceived.subscribe(this.onResponse.bind(this), 'paging');
-                }
-                else {
-                    this.MasterTable.Events.AfterClientDataProcessing.subscribe(this.onClientDataProcessing.bind(this), 'paging');
-                }
-                this.MasterTable.Events.ColumnsCreation.subscribe(this.onColumnsCreation.bind(this), 'paging');
-                if (this.Configuration.EnableClientPaging) {
-                    this.MasterTable.DataHolder.EnableClientSkip = true;
-                }
-            };
-            return PagingPlugin;
-        })(Plugins.FilterBase);
-        Plugins.PagingPlugin = PagingPlugin;
-        PowerTables.ComponentsContainer.registerComponent('Paging', PagingPlugin);
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        var ValueFilterPlugin = (function (_super) {
-            __extends(ValueFilterPlugin, _super);
-            function ValueFilterPlugin() {
-                var _this = this;
-                _super.apply(this, arguments);
-                this._filteringIsBeingExecuted = false;
-                this._isInitializing = true;
-                this.afterDrawn = function (e) {
-                    if (_this.Configuration.Hidden)
-                        return;
-                    if (_this._associatedColumn.IsDateTime) {
-                        var date = _this.MasterTable.Date.parse(_this.Configuration.DefaultValue);
-                        _this.MasterTable.Date.putDateToDatePicker(_this.FilterValueProvider, date);
-                    }
-                    _this._isInitializing = false;
-                };
-            }
-            ValueFilterPlugin.prototype.getValue = function () {
-                if (!this.FilterValueProvider)
-                    return '';
-                if (this._associatedColumn.IsDateTime) {
-                    return this.MasterTable.Date.serialize(this.MasterTable.Date.getDateFromDatePicker(this.FilterValueProvider));
-                }
-                return this.FilterValueProvider.value;
-            };
-            ValueFilterPlugin.prototype.handleValueChanged = function () {
-                var _this = this;
-                if (this._isInitializing)
-                    return;
-                if (this._filteringIsBeingExecuted)
-                    return;
-                if (this.getValue() === this._previousValue) {
-                    return;
-                }
-                this._previousValue = this.getValue();
-                if (this.Configuration.InputDelay > 0) {
-                    clearTimeout(this._inpTimeout);
-                    this._inpTimeout = setTimeout(function () {
-                        _this._filteringIsBeingExecuted = true;
-                        _this.MasterTable.Controller.reload();
-                        _this._filteringIsBeingExecuted = false;
-                    }, this.Configuration.InputDelay);
-                }
-                else {
-                    this._filteringIsBeingExecuted = true;
-                    this.MasterTable.Controller.reload();
-                    this._filteringIsBeingExecuted = false;
-                }
-            };
-            ValueFilterPlugin.prototype.renderContent = function (templatesProvider) {
-                if (this.Configuration.Hidden)
-                    return '';
-                return templatesProvider.getCachedTemplate('valueFilter')(this);
-            };
-            ValueFilterPlugin.prototype.init = function (masterTable) {
-                _super.prototype.init.call(this, masterTable);
-                if (this.Configuration.ClientFiltering) {
-                    this.itIsClientFilter();
-                }
-                this._associatedColumn = this.MasterTable.InstanceManager.Columns[this.Configuration.ColumnName];
-            };
-            ValueFilterPlugin.prototype.filterPredicate = function (rowObject, query) {
-                var fval = query.Filterings[this._associatedColumn.RawName];
-                if (!fval)
-                    return true;
-                if (this.Configuration.ClientFilteringFunction) {
-                    return this.Configuration.ClientFilteringFunction(rowObject, fval, query);
-                }
-                if (!query.Filterings.hasOwnProperty(this._associatedColumn.RawName))
-                    return true;
-                var objVal = rowObject[this._associatedColumn.RawName];
-                if (objVal == null)
-                    return false;
-                if (this._associatedColumn.IsString) {
-                    var entries = fval.split(/\s/);
-                    for (var i = 0; i < entries.length; i++) {
-                        var e = entries[i].trim();
-                        if (e.length > 0) {
-                            if (objVal.indexOf(e) > -1)
-                                return true;
-                        }
-                    }
-                }
-                if (this._associatedColumn.IsFloat) {
-                    var f = parseFloat(fval);
-                    return objVal === f;
-                }
-                if (this._associatedColumn.IsInteger || this._associatedColumn.IsEnum) {
-                    var int = parseInt(fval);
-                    return objVal === int;
-                }
-                if (this._associatedColumn.IsBoolean) {
-                    var bv = fval.toLocaleUpperCase() === 'TRUE' ? true :
-                        fval.toLocaleUpperCase() === 'FALSE' ? false : null;
-                    if (bv == null) {
-                        bv = parseInt(fval) > 0;
-                    }
-                    return objVal === bv;
-                }
-                if (this._associatedColumn.IsDateTime) {
-                    var date = this.MasterTable.Date.parse(fval);
-                    return date === objVal;
-                }
-                return true;
-            };
-            ValueFilterPlugin.prototype.modifyQuery = function (query, scope) {
-                if (this.Configuration.Hidden)
-                    return;
-                var val = this.getValue();
-                if (!val || val.length === 0)
-                    return;
-                if (this.Configuration.ClientFiltering && scope === PowerTables.QueryScope.Client || scope === PowerTables.QueryScope.Transboundary) {
-                    query.Filterings[this._associatedColumn.RawName] = val;
-                }
-                if ((!this.Configuration.ClientFiltering) && scope === PowerTables.QueryScope.Server || scope === PowerTables.QueryScope.Transboundary) {
-                    query.Filterings[this._associatedColumn.RawName] = val;
-                }
-            };
-            return ValueFilterPlugin;
-        })(Plugins.FilterBase);
-        Plugins.ValueFilterPlugin = ValueFilterPlugin;
-        PowerTables.ComponentsContainer.registerComponent('ValueFilter', ValueFilterPlugin);
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        var RangeFilterPlugin = (function (_super) {
-            __extends(RangeFilterPlugin, _super);
-            function RangeFilterPlugin() {
-                var _this = this;
-                _super.apply(this, arguments);
-                this._filteringIsBeingExecuted = false;
-                this._isInitializing = true;
-                this.afterDrawn = function (e) {
-                    if (_this.Configuration.Hidden)
-                        return;
-                    if (_this._associatedColumn.IsDateTime) {
-                        var fromDate = _this.MasterTable.Date.parse(_this.Configuration.FromValue);
-                        var toDate = _this.MasterTable.Date.parse(_this.Configuration.ToValue);
-                        _this.MasterTable.Date.putDateToDatePicker(_this.FromValueProvider, fromDate);
-                        _this.MasterTable.Date.putDateToDatePicker(_this.ToValueProvider, toDate);
-                    }
-                    _this._isInitializing = false;
-                };
-            }
-            RangeFilterPlugin.prototype.getFromValue = function () {
-                if (!this.FromValueProvider)
-                    return '';
-                if (this._associatedColumn.IsDateTime) {
-                    var date = this.MasterTable.Date.getDateFromDatePicker(this.FromValueProvider);
-                    return this.MasterTable.Date.serialize(date);
-                }
-                return this.FromValueProvider.value;
-            };
-            RangeFilterPlugin.prototype.getToValue = function () {
-                if (!this.ToValueProvider)
-                    return '';
-                if (this._associatedColumn.IsDateTime) {
-                    var date = this.MasterTable.Date.getDateFromDatePicker(this.ToValueProvider);
-                    return this.MasterTable.Date.serialize(date);
-                }
-                return this.ToValueProvider.value;
-            };
-            RangeFilterPlugin.prototype.handleValueChanged = function () {
-                var _this = this;
-                if (this._isInitializing)
-                    return;
-                if (this._filteringIsBeingExecuted)
-                    return;
-                if ((this._fromPreviousValue === this.getFromValue())
-                    && (this._toPreviousValue === this.getToValue()))
-                    return;
-                this._fromPreviousValue = this.getFromValue();
-                this._toPreviousValue = this.getToValue();
-                if (this.Configuration.InputDelay > 0) {
-                    clearTimeout(this._inpTimeout);
-                    this._inpTimeout = setTimeout(function () {
-                        _this._filteringIsBeingExecuted = true;
-                        _this.MasterTable.Controller.reload();
-                        _this._filteringIsBeingExecuted = false;
-                    }, this.Configuration.InputDelay);
-                }
-                else {
-                    this._filteringIsBeingExecuted = true;
-                    this.MasterTable.Controller.reload();
-                    this._filteringIsBeingExecuted = false;
-                }
-            };
-            RangeFilterPlugin.prototype.getFilterArgument = function () {
-                var args = [];
-                var frm = this.getFromValue();
-                var to = this.getToValue();
-                args.push(frm);
-                args.push(to);
-                var result = args.join('|');
-                return result;
-            };
-            RangeFilterPlugin.prototype.modifyQuery = function (query, scope) {
-                if (this.Configuration.Hidden)
-                    return;
-                var val = this.getFilterArgument();
-                if (!val || val.length === 0)
-                    return;
-                if (this.Configuration.ClientFiltering && scope === PowerTables.QueryScope.Client || scope === PowerTables.QueryScope.Transboundary) {
-                    query.Filterings[this._associatedColumn.RawName] = val;
-                }
-                if ((!this.Configuration.ClientFiltering) && scope === PowerTables.QueryScope.Server || scope === PowerTables.QueryScope.Transboundary) {
-                    query.Filterings[this._associatedColumn.RawName] = val;
-                }
-            };
-            RangeFilterPlugin.prototype.init = function (masterTable) {
-                _super.prototype.init.call(this, masterTable);
-                if (this.Configuration.ClientFiltering) {
-                    this.itIsClientFilter();
-                }
-                this._associatedColumn = this.MasterTable.InstanceManager.Columns[this.Configuration.ColumnName];
-            };
-            RangeFilterPlugin.prototype.renderContent = function (templatesProvider) {
-                if (this.Configuration.Hidden)
-                    return '';
-                return templatesProvider.getCachedTemplate('rangeFilter')(this);
-            };
-            RangeFilterPlugin.prototype.filterPredicate = function (rowObject, query) {
-                var fval = query.Filterings[this._associatedColumn.RawName];
-                if (!fval)
-                    return true;
-                var args = fval.split('|');
-                var fromValue = args[0];
-                var toValue = args[1];
-                if (this.Configuration.ClientFilteringFunction) {
-                    return this.Configuration.ClientFilteringFunction(rowObject, fromValue, toValue, query);
-                }
-                var frmEmpty = fromValue.trim().length === 0;
-                var toEmpty = toValue.trim().length === 0;
-                if (frmEmpty && toEmpty)
-                    return true;
-                if (!query.Filterings.hasOwnProperty(this._associatedColumn.RawName))
-                    return true;
-                var objVal = rowObject[this._associatedColumn.RawName];
-                if (objVal == null)
-                    return false;
-                if (this._associatedColumn.IsString) {
-                    var str = objVal.toString();
-                    return ((frmEmpty) || str.localeCompare(fromValue) >= 0) && ((toEmpty) || str.localeCompare(toValue) <= 0);
-                }
-                if (this._associatedColumn.IsFloat) {
-                    return ((frmEmpty) || objVal >= parseFloat(fromValue)) && ((toEmpty) || objVal <= parseFloat(toValue));
-                }
-                if (this._associatedColumn.IsInteger || this._associatedColumn.IsEnum) {
-                    return ((frmEmpty) || objVal >= parseInt(fromValue)) && ((toEmpty) || objVal <= parseInt(toValue));
-                }
-                if (this._associatedColumn.IsDateTime) {
-                    return ((frmEmpty) || objVal >= this.MasterTable.Date.parse(fromValue)) && ((toEmpty) || objVal <= this.MasterTable.Date.parse(toValue));
-                }
-                return true;
-            };
-            return RangeFilterPlugin;
-        })(Plugins.FilterBase);
-        Plugins.RangeFilterPlugin = RangeFilterPlugin;
-        PowerTables.ComponentsContainer.registerComponent('RangeFilter', RangeFilterPlugin);
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        var SelectFilterPlugin = (function (_super) {
-            __extends(SelectFilterPlugin, _super);
-            function SelectFilterPlugin() {
-                _super.apply(this, arguments);
-            }
-            SelectFilterPlugin.prototype.getArgument = function () {
-                return this.getSelectionArray().join('|');
-            };
-            SelectFilterPlugin.prototype.getSelectionArray = function () {
-                if (!this.FilterValueProvider)
-                    return [];
-                if (!this.Configuration.IsMultiple) {
-                    var selected = this.FilterValueProvider.options[this.FilterValueProvider.selectedIndex];
-                    return [selected.value];
-                }
-                else {
-                    var elemValues = [];
-                    for (var i = 0, iLen = this.FilterValueProvider.options.length; i < iLen; i++) {
-                        var opt = this.FilterValueProvider.options[i];
-                        if (opt.selected) {
-                            elemValues.push(opt.value);
-                        }
-                    }
-                    return elemValues;
-                }
-            };
-            SelectFilterPlugin.prototype.modifyQuery = function (query, scope) {
-                if (this.Configuration.Hidden)
-                    return;
-                var val = this.getArgument();
-                if (!val || val.length === 0)
-                    return;
-                if (this.Configuration.ClientFiltering && scope === PowerTables.QueryScope.Client || scope === PowerTables.QueryScope.Transboundary) {
-                    query.Filterings[this._associatedColumn.RawName] = val;
-                }
-                if ((!this.Configuration.ClientFiltering) && scope === PowerTables.QueryScope.Server || scope === PowerTables.QueryScope.Transboundary) {
-                    query.Filterings[this._associatedColumn.RawName] = val;
-                }
-            };
-            SelectFilterPlugin.prototype.renderContent = function (templatesProvider) {
-                if (this.Configuration.Hidden)
-                    return '';
-                return templatesProvider.getCachedTemplate('selectFilter')(this);
-            };
-            SelectFilterPlugin.prototype.handleValueChanged = function () {
-                this.MasterTable.Controller.reload();
-            };
-            SelectFilterPlugin.prototype.init = function (masterTable) {
-                _super.prototype.init.call(this, masterTable);
-                this._associatedColumn = this.MasterTable.InstanceManager.Columns[this.Configuration.ColumnName];
-                if (this.Configuration.AllowSelectNothing) {
-                    var nothingItem = { Value: '', Text: this.Configuration.NothingText || '-', Disabled: false, Selected: false };
-                    this.Configuration.Items = [nothingItem].concat(this.Configuration.Items);
-                }
-                var sv = this.Configuration.SelectedValue;
-                if (sv !== undefined && sv !== null) {
-                    for (var i = 0; i < this.Configuration.Items.length; i++) {
-                        if (this.Configuration.Items[i].Value !== sv) {
-                            this.Configuration.Items[i].Selected = false;
-                        }
-                        else {
-                            this.Configuration.Items[i].Selected = true;
-                        }
-                    }
-                }
-                if (this.Configuration.ClientFiltering) {
-                    this.itIsClientFilter();
-                }
-            };
-            SelectFilterPlugin.prototype.filterPredicate = function (rowObject, query) {
-                var fval = query.Filterings[this._associatedColumn.RawName];
-                if (!fval)
-                    return true;
-                var arr = fval.split('|');
-                if (this.Configuration.ClientFilteringFunction) {
-                    return this.Configuration.ClientFilteringFunction(rowObject, arr, query);
-                }
-                if (!query.Filterings.hasOwnProperty(this._associatedColumn.RawName))
-                    return true;
-                var objVal = rowObject[this._associatedColumn.RawName];
-                if (objVal == null)
-                    return false;
-                if (this._associatedColumn.IsString) {
-                    return arr.indexOf(objVal) >= 0;
-                }
-                var single = false;
-                if (this._associatedColumn.IsFloat) {
-                    arr.map(function (v) {
-                        if (parseFloat(v) === objVal)
-                            single = true;
-                    });
-                    return single;
-                }
-                if (this._associatedColumn.IsInteger || this._associatedColumn.IsEnum) {
-                    single = false;
-                    arr.map(function (v) {
-                        if (parseInt(v) === objVal)
-                            single = true;
-                    });
-                    return single;
-                }
-                if (this._associatedColumn.IsBoolean) {
-                    single = false;
-                    arr.map(function (v) {
-                        var bv = v.toLocaleUpperCase() === 'TRUE' ? true :
-                            v.toLocaleUpperCase() === 'FALSE' ? false : null;
-                        if (bv == null) {
-                            bv = parseInt(fval) > 0;
-                        }
-                        if (bv === objVal) {
-                            single = true;
-                        }
-                    });
-                    return single;
-                }
-                return true;
-            };
-            return SelectFilterPlugin;
-        })(Plugins.FilterBase);
-        Plugins.SelectFilterPlugin = SelectFilterPlugin;
-        PowerTables.ComponentsContainer.registerComponent('SelectFilter', SelectFilterPlugin);
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        var HideoutPlugin = (function (_super) {
-            __extends(HideoutPlugin, _super);
-            function HideoutPlugin() {
-                _super.apply(this, arguments);
-                this.ColumnStates = [];
-                this._columnStates = {};
-                this._isInitializing = true;
-            }
-            HideoutPlugin.prototype.isColumnVisible = function (columnName) {
-                return this.isColumnInstanceVisible(this.MasterTable.InstanceManager.Columns[columnName]);
-            };
-            HideoutPlugin.prototype.isColumnInstanceVisible = function (col) {
-                if (!col)
-                    return true;
-                return this._columnStates[col.RawName].Visible;
-            };
-            HideoutPlugin.prototype.hideColumnByName = function (rawColname) {
-                this.hideColumnInstance(this.MasterTable.InstanceManager.Columns[rawColname]);
-            };
-            HideoutPlugin.prototype.showColumnByName = function (rawColname) {
-                this.showColumnInstance(this.MasterTable.InstanceManager.Columns[rawColname]);
-            };
-            //#region Events handling
-            HideoutPlugin.prototype.toggleColumn = function (e) {
-                this.toggleColumnByName(e.EventArguments[0]);
-            };
-            HideoutPlugin.prototype.showColumn = function (e) {
-                this.showColumnByName(e.EventArguments[0]);
-            };
-            HideoutPlugin.prototype.hideColumn = function (e) {
-                this.hideColumnByName(e.EventArguments[0]);
-            };
-            //#endregion
-            //#region Correct showing/hiding
-            //#endregion
-            HideoutPlugin.prototype.toggleColumnByName = function (columnName) {
-                if (this.isColumnVisible(columnName)) {
-                    this.hideColumnByName(columnName);
-                    return false;
-                }
-                else {
-                    this.showColumnByName(columnName);
-                    return true;
-                }
-            };
-            HideoutPlugin.prototype.modifyQuery = function (query, scope) {
-                var hidden = '';
-                var shown = '';
-                for (var i = 0; i < this.ColumnStates.length; i++) {
-                    if (!this.ColumnStates[i].Visible) {
-                        hidden = hidden + ',' + this.ColumnStates[i].RawName;
-                    }
-                    else {
-                        shown = shown + ',' + this.ColumnStates[i].RawName;
-                    }
-                }
-                query.AdditionalData['HideoutHidden'] = hidden;
-                query.AdditionalData['HideoutShown'] = shown;
-            };
-            HideoutPlugin.prototype.hideColumnInstance = function (c) {
-                if (!c)
-                    return;
-                this._columnStates[c.RawName].Visible = false;
-                this._columnStates[c.RawName].DoesNotExists = false;
-                this.MasterTable.Renderer.Modifier.hideHeader(c);
-                this.MasterTable.Renderer.Modifier.hidePluginsByPosition("filter-" + c.RawName);
-                if (this._isInitializing)
-                    return;
-                this.MasterTable.Renderer.Modifier.hideCellsByColumn(c);
-                if (this.Configuration.ColumnInitiatingReload.indexOf(c.RawName) > -1)
-                    this.MasterTable.Controller.reload();
-                this.MasterTable.Renderer.Modifier.redrawPlugin(this);
-            };
-            HideoutPlugin.prototype.showColumnInstance = function (c) {
-                if (!c)
-                    return;
-                this._columnStates[c.RawName].Visible = true;
-                var wasNotExist = this._columnStates[c.RawName].DoesNotExists;
-                this._columnStates[c.RawName].DoesNotExists = false;
-                this.MasterTable.Renderer.Modifier.showHeader(c);
-                this.MasterTable.Renderer.Modifier.showPluginsByPosition("filter-" + c.RawName);
-                if (this._isInitializing)
-                    return;
-                if (wasNotExist) {
-                    if (this.Configuration.ColumnInitiatingReload.indexOf(c.RawName) > -1) {
-                        this.MasterTable.Controller.reload();
-                    }
-                    else {
-                        this.MasterTable.Controller.redrawVisibleData();
-                        ;
-                    }
-                }
-                else {
-                    this.MasterTable.Renderer.Modifier.showCellsByColumn(c);
-                    if (this.Configuration.ColumnInitiatingReload.indexOf(c.RawName) > -1) {
-                        this.MasterTable.Controller.reload();
-                    }
-                }
-                this.MasterTable.Renderer.Modifier.redrawPlugin(this);
-            };
-            HideoutPlugin.prototype.onBeforeDataRendered = function () {
-                for (var i = 0; i < this.ColumnStates.length; i++) {
-                    var col = this.MasterTable.InstanceManager.Columns[this.ColumnStates[i].RawName];
-                    if (!this.ColumnStates[i].Visible) {
-                        col.Configuration.IsDataOnly = true;
-                    }
-                    else {
-                        col.Configuration.IsDataOnly = false;
-                    }
-                }
-            };
-            HideoutPlugin.prototype.onDataRendered = function () {
-                for (var i = 0; i < this.ColumnStates.length; i++) {
-                    if (!this.ColumnStates[i].Visible)
-                        this.ColumnStates[i].DoesNotExists = true;
-                }
-                this.MasterTable.Renderer.Modifier.redrawPlugin(this);
-            };
-            HideoutPlugin.prototype.onLayourRendered = function () {
-                for (var j = 0; j < this.ColumnStates.length; j++) {
-                    if (this.Configuration.HiddenColumns[this.ColumnStates[j].RawName]) {
-                        this.hideColumnByName(this.ColumnStates[j].RawName);
-                    }
-                }
-                this._isInitializing = false;
-            };
-            HideoutPlugin.prototype.init = function (masterTable) {
-                _super.prototype.init.call(this, masterTable);
-                this.MasterTable.Loader.registerQueryPartProvider(this);
-                for (var i = 0; i < this.Configuration.HideableColumnsNames.length; i++) {
-                    var hideable = this.Configuration.HideableColumnsNames[i];
-                    var col = this.MasterTable.InstanceManager.Columns[hideable];
-                    var instanceInfo = {
-                        DoesNotExists: false,
-                        Visible: true,
-                        RawName: hideable,
-                        Name: col.Configuration.Title
-                    };
-                    if (col.Configuration.IsDataOnly) {
-                        throw new Error("Column " + col.RawName + " is .DataOnly but\nincluded into hideable columns list.\n.DataOnly columns are invalid for Hideout plugin. Please remove it from selectable columns list");
-                    }
-                    this._columnStates[hideable] = instanceInfo;
-                    this.ColumnStates.push(instanceInfo);
-                }
-            };
-            HideoutPlugin.prototype.renderContent = function (templatesProvider) {
-                return templatesProvider.getCachedTemplate('hideout')(this);
-            };
-            HideoutPlugin.prototype.subscribe = function (e) {
-                e.AfterDataRendered.subscribe(this.onDataRendered.bind(this), 'hideout');
-                e.BeforeDataRendered.subscribe(this.onBeforeDataRendered.bind(this), 'hideout');
-                e.AfterLayoutRendered.subscribe(this.onLayourRendered.bind(this), 'hideout');
-            };
-            return HideoutPlugin;
-        })(Plugins.PluginBase);
-        Plugins.HideoutPlugin = HideoutPlugin;
-        PowerTables.ComponentsContainer.registerComponent('Hideout', HideoutPlugin);
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        var ResponseInfoPlugin = (function (_super) {
-            __extends(ResponseInfoPlugin, _super);
-            function ResponseInfoPlugin() {
-                _super.apply(this, arguments);
-                this._isReadyForRendering = false;
-            }
-            ResponseInfoPlugin.prototype.onResponse = function (e) {
-                this._isServerRequest = true;
-                if (this.Configuration.ResponseObjectOverriden) {
-                    this._recentData = e.EventArgs.Data.AdditionalData['ResponseInfo'];
-                    this._isReadyForRendering = true;
-                    this.MasterTable.Renderer.Modifier.redrawPlugin(this);
-                }
-                else {
-                    this._recentServerData = {
-                        TotalCount: e.EventArgs.Data.ResultsCount,
-                        IsLocalRequest: false,
-                        CurrentPage: e.EventArgs.Data.PageIndex,
-                        PagingEnabled: this._pagingEnabled
-                    };
-                }
-            };
-            ResponseInfoPlugin.prototype.onClientDataProcessed = function (e) {
-                if (this.Configuration.ResponseObjectOverriden)
-                    return;
-                if (!this.Configuration.ClientEvaluationFunction) {
-                    this._recentData = {
-                        TotalCount: this._recentServerData.TotalCount || this.MasterTable.DataHolder.StoredData.length,
-                        IsLocalRequest: !this._isServerRequest,
-                        CurrentPage: this._recentServerData.CurrentPage || ((!this._pagingPlugin) ? 0 : this._pagingPlugin.getCurrentPage() + 1),
-                        TotalPages: ((!this._pagingPlugin) ? 0 : this._pagingPlugin.getTotalPages()),
-                        PagingEnabled: this._pagingEnabled,
-                        CurrentlyShown: this.MasterTable.DataHolder.DisplayedData.length
-                    };
-                }
-                else {
-                    this._recentData = this.Configuration.ClientEvaluationFunction(e.EventArgs, (!this._pagingPlugin) ? 0 : (this._pagingPlugin.getCurrentPage()), (!this._pagingPlugin) ? 0 : (this._pagingPlugin.getTotalPages()));
-                }
-                this._isServerRequest = false;
-                this._isReadyForRendering = true;
-                this.MasterTable.Renderer.Modifier.redrawPlugin(this);
-            };
-            ResponseInfoPlugin.prototype.renderContent = function (templatesProvider) {
-                if (!this._isReadyForRendering)
-                    return '';
-                if (this.Configuration.ClientTemplateFunction) {
-                    return this.Configuration.ClientTemplateFunction(this._recentData);
-                }
-                else {
-                    return this._recentTemplate(this._recentData);
-                }
-            };
-            ResponseInfoPlugin.prototype.init = function (masterTable) {
-                _super.prototype.init.call(this, masterTable);
-                if (this.Configuration.TemplateText && this.Configuration.TemplateText.length > 0) {
-                    this._recentTemplate = this.MasterTable.Renderer.HandlebarsInstance.compile(this.Configuration.TemplateText);
-                }
-                else {
-                    this._recentTemplate = this.MasterTable.Renderer.getCachedTemplate('responseInfo');
-                }
-                this.MasterTable.Events.AfterClientDataProcessing.subscribe(this.onClientDataProcessed.bind(this), 'responseInfo');
-                this.MasterTable.Events.DataReceived.subscribe(this.onResponse.bind(this), 'responseInfo');
-                try {
-                    this._pagingPlugin = this.MasterTable.InstanceManager.getPlugin('Paging');
-                    this._pagingEnabled = true;
-                }
-                catch (v) {
-                    this._pagingEnabled = false;
-                }
-            };
-            return ResponseInfoPlugin;
-        })(Plugins.PluginBase);
-        Plugins.ResponseInfoPlugin = ResponseInfoPlugin;
-        PowerTables.ComponentsContainer.registerComponent('ResponseInfo', ResponseInfoPlugin);
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        var TotalsPlugin = (function (_super) {
-            __extends(TotalsPlugin, _super);
-            function TotalsPlugin() {
-                _super.apply(this, arguments);
-            }
-            TotalsPlugin.prototype.makeTotalsRow = function () {
-                var cols = this.MasterTable.InstanceManager.getUiColumns();
-                var dataObject = {};
-                for (var j = 0; j < cols.length; j++) {
-                    var v = null;
-                    var cl = cols[j];
-                    if (this._totalsForColumns.hasOwnProperty(cl.RawName)) {
-                        v = this._totalsForColumns[cl.RawName];
-                        if (this.Configuration.ColumnsValueFunctions[cl.RawName]) {
-                            v = this.Configuration.ColumnsValueFunctions[cl.RawName](v);
-                        }
-                    }
-                    dataObject[cols[j].RawName] = v;
-                }
-                var result = {
-                    Index: -1,
-                    MasterTable: this.MasterTable,
-                    DataObject: dataObject,
-                    Cells: {},
-                    renderContent: null,
-                    renderElement: null,
-                    IsSpecial: true
-                };
-                for (var i = 0; i < cols.length; i++) {
-                    var col = cols[i];
-                    var cell = {
-                        DataObject: dataObject,
-                        renderElement: null,
-                        Column: cols[i],
-                        Row: result,
-                        Data: dataObject[col.RawName]
-                    };
-                    result.Cells[col.RawName] = cell;
-                }
-                return result;
-            };
-            TotalsPlugin.prototype.onResponse = function (e) {
-                var response = e.EventArgs.Data;
-                var total = response.AdditionalData['Total'];
-                this._totalsForColumns = total.TotalsForColumns;
-            };
-            TotalsPlugin.prototype.onClientRowsRendering = function (e) {
-                if (this._totalsForColumns) {
-                    if (this.Configuration.ShowOnTop) {
-                        e.EventArgs.splice(0, 0, this.makeTotalsRow());
-                    }
-                    else {
-                        e.EventArgs.push(this.makeTotalsRow());
-                    }
-                }
-            };
-            TotalsPlugin.prototype.onClientDataProcessed = function (e) {
-                if (!this._totalsForColumns)
-                    this._totalsForColumns = {};
-                for (var k in this.Configuration.ColumnsCalculatorFunctions) {
-                    if (this.Configuration.ColumnsCalculatorFunctions.hasOwnProperty(k)) {
-                        this._totalsForColumns[k] = this.Configuration.ColumnsCalculatorFunctions[k](e.EventArgs).toString();
-                    }
-                }
-            };
-            TotalsPlugin.prototype.subscribe = function (e) {
-                e.DataReceived.subscribe(this.onResponse.bind(this), 'totals');
-                e.BeforeClientRowsRendering.subscribe(this.onClientRowsRendering.bind(this), 'totals');
-                e.AfterClientDataProcessing.subscribe(this.onClientDataProcessed.bind(this), 'totals');
-            };
-            return TotalsPlugin;
-        })(Plugins.PluginBase);
-        Plugins.TotalsPlugin = TotalsPlugin;
-        PowerTables.ComponentsContainer.registerComponent('Total', TotalsPlugin);
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        var CheckboxifyPlugin = (function (_super) {
-            __extends(CheckboxifyPlugin, _super);
-            function CheckboxifyPlugin() {
-                _super.apply(this, arguments);
-                this._selectedItems = [];
-                this._visibleAll = false;
-                this._allSelected = false;
-            }
-            CheckboxifyPlugin.prototype.selectAll = function (selected) {
-                var _this = this;
-                if (!this._canSelectAll)
-                    return;
-                this._allSelected = selected == null ? !this._allSelected : selected;
-                this.redrawHeader();
-                this._selectedItems.splice(0, this._selectedItems.length);
-                if (this._allSelected) {
-                    if (this.Configuration.SelectAllSelectsClientUndisplayedData) {
-                        for (var i = 0; i < this.MasterTable.DataHolder.StoredData.length; i++) {
-                            this._selectedItems.push(this.MasterTable.DataHolder.StoredData[i][this._valueColumnName].toString());
-                        }
-                        this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
-                        this.MasterTable.Controller.redrawVisibleData();
-                    }
-                    else if (this.Configuration.SelectAllSelectsServerUndisplayedData) {
-                        this.MasterTable.Loader.requestServer('checkboxify_all', function (data) {
-                            _this._selectedItems = data;
-                            _this.MasterTable.Events.SelectionChanged.invoke(_this, _this._selectedItems);
-                            _this.MasterTable.Controller.redrawVisibleData();
-                        });
-                    }
-                    else {
-                        for (var j = 0; j < this.MasterTable.DataHolder.DisplayedData.length; j++) {
-                            this._selectedItems.push(this.MasterTable.DataHolder.DisplayedData[j][this._valueColumnName].toString());
-                        }
-                        this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
-                        this.MasterTable.Controller.redrawVisibleData();
-                    }
-                }
-                else {
-                    this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
-                    this.MasterTable.Controller.redrawVisibleData();
-                }
-            };
-            CheckboxifyPlugin.prototype.redrawHeader = function () {
-                this.MasterTable.Renderer.Modifier.redrawHeader(this._ourColumn);
-            };
-            CheckboxifyPlugin.prototype.createColumn = function () {
-                var _this = this;
-                var conf = {
-                    IsDataOnly: false,
-                    IsEnum: false,
-                    IsNullable: false,
-                    RawColumnName: '_checkboxify',
-                    CellRenderingTemplateId: null,
-                    CellRenderingValueFunction: null,
-                    Title: 'Checkboxify',
-                    ColumnType: 'Int32'
-                };
-                var col = {
-                    Configuration: conf,
-                    Header: null,
-                    IsBoolean: false,
-                    IsDateTime: false,
-                    IsEnum: false,
-                    IsFloat: false,
-                    IsInteger: false,
-                    IsString: false,
-                    MasterTable: this.MasterTable,
-                    Order: -1,
-                    RawName: '_checkboxify'
-                };
-                var header = {
-                    Column: col,
-                    renderContent: null,
-                    renderElement: function (tp) { return tp.getCachedTemplate('checkboxifySelectAll')({ IsAllSelected: _this._allSelected, CanSelectAll: _this._canSelectAll }); },
-                    selectAllEvent: function (e) { return _this.selectAll(); }
-                };
-                col.Header = header;
-                this.MasterTable.Renderer.ContentRenderer.cacheColumnRenderingFunction(col, function (x) {
-                    var value = x.DataObject[_this._valueColumnName].toString();
-                    var selected = _this._selectedItems.indexOf(value) > -1;
-                    var canCheck = _this.canCheck(x.DataObject, x.Row);
-                    return _this.MasterTable.Renderer.getCachedTemplate('checkboxifyCell')({ Value: value, IsChecked: selected, CanCheck: canCheck });
-                });
-                return col;
-            };
-            CheckboxifyPlugin.prototype.canCheck = function (dataObject, row) {
-                return dataObject != null && !row.IsSpecial;
-            };
-            CheckboxifyPlugin.prototype.getSelection = function () {
-                return this._selectedItems;
-            };
-            CheckboxifyPlugin.prototype.selectByRowIndex = function (rowIndex) {
-                var displayedLookup = this.MasterTable.DataHolder.localLookupDisplayedData(rowIndex);
-                var v = displayedLookup.DataObject[this._valueColumnName].toString();
-                var idx = this._selectedItems.indexOf(v);
-                var overrideRow = false;
-                if (idx > -1) {
-                    this._selectedItems.splice(idx, 1);
-                    this._allSelected = false;
-                }
-                else {
-                    this._selectedItems.push(v);
-                    overrideRow = true;
-                    this._allSelected = this.MasterTable.DataHolder.DisplayedData.length === this._selectedItems.length;
-                }
-                this.redrawHeader();
-                var row = this.MasterTable.Controller.produceRow(displayedLookup.DataObject, displayedLookup.DisplayedIndex);
-                if (overrideRow) {
-                    row.renderElement = function (e) { return e.getCachedTemplate('checkboxifyRow')(row); };
-                }
-                this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
-                this.MasterTable.Renderer.Modifier.redrawRow(row);
-            };
-            CheckboxifyPlugin.prototype.afterLayoutRender = function () {
-                var _this = this;
-                this.MasterTable.Renderer.Delegator.subscribeCellEvent({
-                    EventId: 'click',
-                    Selector: '[data-checkboxify]',
-                    SubscriptionId: 'checkboxify',
-                    Handler: function (e) {
-                        _this.selectByRowIndex(e.DisplayingRowIndex);
-                    }
-                });
-            };
-            CheckboxifyPlugin.prototype.beforeRowsRendering = function (e) {
-                for (var i = 0; i < e.EventArgs.length; i++) {
-                    var row = e.EventArgs[i];
-                    if (row.IsSpecial)
-                        continue;
-                    if (this._selectedItems.indexOf(row.DataObject[this._valueColumnName].toString()) > -1) {
-                        row.renderElement = function (e) { return e.getCachedTemplate('checkboxifyRow')(row); };
-                    }
-                }
-            };
-            CheckboxifyPlugin.prototype.enableSelectAll = function (enabled) {
-                var prev = this._canSelectAll;
-                if (!this.Configuration.EnableSelectAll)
-                    this._canSelectAll = false;
-                else
-                    this._canSelectAll = enabled;
-                if (prev !== this._canSelectAll) {
-                    this.redrawHeader();
-                }
-            };
-            CheckboxifyPlugin.prototype.onClientReload = function (e) {
-                if (this.Configuration.ResetOnClientReload) {
-                    this.selectAll(false);
-                }
-                if (this.Configuration.SelectAllOnlyIfAllData) {
-                    if (e.EventArgs.Displaying.length === e.EventArgs.Source.length)
-                        this.enableSelectAll(true);
-                    else
-                        this.enableSelectAll(false);
-                }
-                else {
-                    this.enableSelectAll(true);
-                }
-            };
-            CheckboxifyPlugin.prototype.onServerReload = function (e) {
-                if (this.Configuration.ResetOnReload) {
-                    this.selectAll(false);
-                }
-            };
-            CheckboxifyPlugin.prototype.init = function (masterTable) {
-                _super.prototype.init.call(this, masterTable);
-                var col = this.createColumn();
-                this.MasterTable.InstanceManager.Columns['_checkboxify'] = col;
-                this._ourColumn = col;
-                this._valueColumnName = this.Configuration.SelectionColumnName;
-                this._canSelectAll = this.Configuration.EnableSelectAll;
-            };
-            CheckboxifyPlugin.prototype.modifyQuery = function (query, scope) {
-                query.AdditionalData['Selection'] = this._selectedItems.join('|');
-                query.AdditionalData['SelectionColumn'] = this._valueColumnName;
-            };
-            CheckboxifyPlugin.registerEvents = function (e, masterTable) {
-                e['SelectionChanged'] = new PowerTables.TableEvent(masterTable);
-            };
-            CheckboxifyPlugin.prototype.subscribe = function (e) {
-                e.AfterLayoutRendered.subscribe(this.afterLayoutRender.bind(this), 'checkboxify');
-                e.BeforeClientRowsRendering.subscribe(this.beforeRowsRendering.bind(this), 'checkboxify');
-                e.AfterClientDataProcessing.subscribe(this.onClientReload.bind(this), 'checkboxify');
-                e.DataReceived.subscribe(this.onServerReload.bind(this), 'checkboxify');
-            };
-            return CheckboxifyPlugin;
-        })(Plugins.PluginBase);
-        Plugins.CheckboxifyPlugin = CheckboxifyPlugin;
-        PowerTables.ComponentsContainer.registerComponent('Checkboxify', CheckboxifyPlugin);
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        var ToolbarPlugin = (function (_super) {
-            __extends(ToolbarPlugin, _super);
-            function ToolbarPlugin() {
-                _super.apply(this, arguments);
-                this.AllButtons = {};
-                this._buttonsConfig = {};
-            }
-            ToolbarPlugin.prototype.buttonHandleEvent = function (e) {
-                var btnId = e.EventArguments[0];
-                this.handleButtonAction(this._buttonsConfig[btnId]);
-            };
-            ToolbarPlugin.prototype.redrawMe = function () {
-                this.MasterTable.Renderer.Modifier.redrawPlugin(this);
-            };
-            ToolbarPlugin.prototype.handleButtonAction = function (btn) {
-                if (btn.OnClick) {
-                    btn.OnClick.call(this.MasterTable, this.MasterTable, this.AllButtons[btn.InternalId]);
-                }
-                if (btn.Command) {
-                    var _self = this;
-                    // ReSharper disable Lambda
-                    var f = function (queryModifier) {
-                        if (btn.BlackoutWhileCommand) {
-                            btn.IsDisabled = true;
-                            _self.redrawMe();
-                        }
-                        _self.MasterTable.Loader.requestServer(btn.Command, function (response) {
-                            if (btn.CommandCallbackFunction) {
-                                btn.CommandCallbackFunction.apply(_self.MasterTable, [_self.MasterTable, response]);
-                            }
-                            else {
-                                if (response.$isDeferred && response.$url) {
-                                    window.location.href = response.$url;
-                                }
-                            }
-                            if (btn.BlackoutWhileCommand) {
-                                btn.IsDisabled = false;
-                                _self.redrawMe();
-                            }
-                        }, queryModifier, function () {
-                            if (btn.BlackoutWhileCommand) {
-                                btn.IsDisabled = false;
-                                _self.redrawMe();
-                            }
-                        });
-                    };
-                    // ReSharper restore Lambda
-                    if (btn.ConfirmationFunction)
-                        btn.ConfirmationFunction.apply(this.MasterTable, [f]);
-                    else
-                        f();
-                }
-            };
-            ToolbarPlugin.prototype.renderContent = function (templatesProvider) {
-                return templatesProvider.getCachedTemplate('toolbar')(this);
-            };
-            ToolbarPlugin.prototype.traverseButtons = function (arr) {
-                for (var i = 0; i < arr.length; i++) {
-                    this._buttonsConfig[arr[i].InternalId] = arr[i];
-                    if (arr[i].HasSubmenu) {
-                        this.traverseButtons(arr[i].Submenu);
-                    }
-                }
-            };
-            ToolbarPlugin.prototype.onSelectionChanged = function (e) {
-                var atleastOne = false;
-                var disabled = e.EventArgs.length === 0;
-                for (var bc in this._buttonsConfig) {
-                    if (this._buttonsConfig.hasOwnProperty(bc)) {
-                        if (this._buttonsConfig[bc].DisableIfNothingChecked) {
-                            if (this._buttonsConfig[bc].IsDisabled !== disabled) {
-                                atleastOne = true;
-                                this._buttonsConfig[bc].IsDisabled = disabled;
-                            }
-                        }
-                    }
-                }
-                if (atleastOne)
-                    this.MasterTable.Renderer.Modifier.redrawPlugin(this);
-            };
-            ToolbarPlugin.prototype.init = function (masterTable) {
-                _super.prototype.init.call(this, masterTable);
-                try {
-                    var p = this.MasterTable.InstanceManager.getPlugin('Checkboxify');
-                    var nothingSelected = p.getSelection().length === 0;
-                    for (var i = 0; i < this.Configuration.Buttons.length; i++) {
-                        if (this.Configuration.Buttons[i].DisableIfNothingChecked) {
-                            this.Configuration.Buttons[i].IsDisabled = nothingSelected;
-                        }
-                    }
-                }
-                catch (e) {
-                }
-                this.traverseButtons(this.Configuration.Buttons);
-                this.MasterTable.Events.SelectionChanged.subscribe(this.onSelectionChanged.bind(this), 'toolbar');
-            };
-            return ToolbarPlugin;
-        })(Plugins.PluginBase);
-        Plugins.ToolbarPlugin = ToolbarPlugin;
-        PowerTables.ComponentsContainer.registerComponent('Toolbar', ToolbarPlugin);
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        var FormwatchPlugin = (function (_super) {
-            __extends(FormwatchPlugin, _super);
-            function FormwatchPlugin() {
-                _super.apply(this, arguments);
-                this._existingValues = {};
-                this._filteringExecuted = {};
-                this._timeouts = {};
-            }
-            FormwatchPlugin.prototype.modifyQuery = function (query, scope) {
-                var result = {};
-                for (var i = 0; i < this.Configuration.FieldsConfiguration.length; i++) {
-                    var fieldConf = this.Configuration.FieldsConfiguration[i];
-                    var value = null;
-                    var name = fieldConf.FieldJsonName;
-                    if (fieldConf.ConstantValue) {
-                        value = fieldConf.ConstantValue;
-                    }
-                    else {
-                        if (fieldConf.FieldValueFunction) {
-                            value = fieldConf.FieldValueFunction();
-                        }
-                        else {
-                            var element = document.querySelector(fieldConf.FieldSelector);
-                            if (element) {
-                                if (element.type === 'select-multiple') {
-                                    var o = element;
-                                    value = [];
-                                    for (var k = 0; k < o.options.length; k++) {
-                                        if (o.options[k].selected)
-                                            value.push(o.options[k].value);
-                                    }
-                                }
-                                else if (element.type === 'checkbox') {
-                                    value = element.checked;
-                                }
-                                else {
-                                    if (fieldConf.IsDateTime) {
-                                        value = this.MasterTable.Date.getDateFromDatePicker(element);
-                                        if (!this.MasterTable.Date.isValidDate(value)) {
-                                            value = this.MasterTable.Date.parse(element.value);
-                                            if (!this.MasterTable.Date.isValidDate(value)) {
-                                                value = null;
-                                            }
-                                        }
-                                    }
-                                    else {
-                                        value = element.value;
-                                    }
-                                }
-                            }
-                        }
-                        if (fieldConf.SetConstantIfNotSupplied && !value) {
-                            value = fieldConf.ConstantValue;
-                        }
-                    }
-                    result[name] = value;
-                }
-                for (var fm in this.Configuration.FiltersMappings) {
-                    if (this.Configuration.FiltersMappings.hasOwnProperty(fm)) {
-                        var mappingConf = this.Configuration.FiltersMappings[fm];
-                        var needToApply = (mappingConf.ForClient && mappingConf.ForServer)
-                            || (mappingConf.ForClient && scope === PowerTables.QueryScope.Client)
-                            || (mappingConf.ForServer && scope === PowerTables.QueryScope.Server)
-                            || (scope === PowerTables.QueryScope.Transboundary);
-                        if (needToApply) {
-                            switch (mappingConf.FilterType) {
-                                case 0:
-                                    query.Filterings[fm] = result[mappingConf.FieldKeys[0]];
-                                    break;
-                                case 1:
-                                    if (mappingConf.FieldKeys.length === 1 && (Object.prototype.toString.call(result[mappingConf[0]]) === '[object Array]')) {
-                                        query.Filterings[fm] = result[mappingConf[0]][0] + "|" + result[mappingConf[0]][1];
-                                    }
-                                    else {
-                                        query.Filterings[fm] = result[mappingConf.FieldKeys[0]] + "|" + result[mappingConf.FieldKeys[1]];
-                                    }
-                                    break;
-                                case 2:
-                                    if (mappingConf.FieldKeys.length === 1 && (Object.prototype.toString.call(result[mappingConf[0]]) === '[object Array]')) {
-                                        query.Filterings[fm] = result[mappingConf[0]].join('|');
-                                    }
-                                    else {
-                                        var values = [];
-                                        for (var m = 0; m < mappingConf.FieldKeys.length; m++) {
-                                            values.push(result[mappingConf.FieldKeys[m]]);
-                                        }
-                                        query.Filterings[fm] = values.join('|');
-                                    }
-                                    break;
-                            }
-                        }
-                    }
-                }
-                if (this.Configuration.DoNotEmbed)
-                    return;
-                var str = JSON.stringify(result);
-                query.AdditionalData['Formwatch'] = str;
-            };
-            FormwatchPlugin.prototype.subscribe = function (e) {
-                var _this = this;
-                for (var i = 0; i < this.Configuration.FieldsConfiguration.length; i++) {
-                    var conf = this.Configuration.FieldsConfiguration[i];
-                    if (conf.TriggerSearchOnEvents && conf.TriggerSearchOnEvents.length > 0) {
-                        var element = document.querySelector(conf.FieldSelector);
-                        for (var j = 0; j < conf.TriggerSearchOnEvents.length; j++) {
-                            var evtToTrigger = conf.TriggerSearchOnEvents[j];
-                            element.addEventListener(evtToTrigger, (function (c, el) { return function (evt) {
-                                _this.fieldChange(c.FieldSelector, c.SearchTriggerDelay, el, evt);
-                            }; })(conf, element));
-                            if (conf.AutomaticallyAttachDatepicker) {
-                                this.MasterTable.Date.createDatePicker(element);
-                            }
-                        }
-                        this._existingValues[conf.FieldSelector] = element.value;
-                    }
-                }
-            };
-            FormwatchPlugin.prototype.fieldChange = function (fieldSelector, delay, element, e) {
-                var _this = this;
-                if (this._filteringExecuted[fieldSelector])
-                    return;
-                if (element.value === this._existingValues[fieldSelector]) {
-                    return;
-                }
-                this._existingValues[fieldSelector] = element.value;
-                if (delay > 0) {
-                    if (this._timeouts[fieldSelector])
-                        clearTimeout(this._timeouts[fieldSelector]);
-                    this._timeouts[fieldSelector] = setTimeout(function () {
-                        _this._filteringExecuted[fieldSelector] = true;
-                        _this.MasterTable.Controller.reload();
-                        _this._filteringExecuted[fieldSelector] = false;
-                    }, delay);
-                }
-                else {
-                    this._filteringExecuted[fieldSelector] = true;
-                    this.MasterTable.Controller.reload();
-                    this._filteringExecuted[fieldSelector] = false;
-                }
-            };
-            FormwatchPlugin.prototype.init = function (masterTable) {
-                _super.prototype.init.call(this, masterTable);
-                this.MasterTable.Loader.registerQueryPartProvider(this);
-            };
-            return FormwatchPlugin;
-        })(Plugins.PluginBase);
-        Plugins.FormwatchPlugin = FormwatchPlugin;
-        PowerTables.ComponentsContainer.registerComponent('Formwatch', FormwatchPlugin);
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        var EditorRefreshMode = PowerTables.Editors.EditorRefreshMode;
-        var Editor = (function (_super) {
-            __extends(Editor, _super);
-            function Editor() {
-                var _this = this;
-                _super.apply(this, arguments);
-                //#region IRow members
-                this.Cells = {};
-                this.IsSpecial = true;
-                //#endregion
-                this._activeEditors = [];
-                this._isEditing = false;
-                //#endregion
-                //public renderContent(templatesProvider: ITemplatesProvider): string {
-                //    return templatesProvider.getCachedTemplate('rowWrapper')(this);
-                //}
-                this.afterDrawn = function (e) {
-                    _this.MasterTable.Renderer.Delegator.subscribeCellEvent({
-                        EventId: _this.Configuration.BeginEditEventId,
-                        Handler: _this.beginCellEditHandle.bind(_this),
-                        Selector: '[data-editcell]',
-                        SubscriptionId: 'editor'
-                    });
-                    _this.MasterTable.Renderer.Delegator.subscribeRowEvent({
-                        EventId: _this.Configuration.BeginEditEventId,
-                        Handler: _this.beginRowEditHandle.bind(_this),
-                        Selector: '[data-editrow]',
-                        SubscriptionId: 'editor'
-                    });
-                    _this.MasterTable.Renderer.Delegator.subscribeRowEvent({
-                        EventId: _this.Configuration.CommitEventId,
-                        Handler: _this.commitRowEditHandle.bind(_this),
-                        Selector: '[data-rowcommit]',
-                        SubscriptionId: 'editor'
-                    });
-                    _this.MasterTable.Renderer.Delegator.subscribeRowEvent({
-                        EventId: _this.Configuration.RejectEventId,
-                        Handler: _this.rejectRowEditHandle.bind(_this),
-                        Selector: '[data-rowreject]',
-                        SubscriptionId: 'editor'
-                    });
-                    _this.MasterTable.Renderer.Delegator.subscribeRowEvent({
-                        EventId: _this.Configuration.CommitEventId,
-                        Handler: _this.beginRowEditHandle.bind(_this),
-                        Selector: '[data-editform]',
-                        SubscriptionId: 'editor'
-                    });
-                };
-            }
-            //#region Public interface
-            Editor.prototype.notifyChanged = function (editor) {
-                this.retrieveEditorData(editor);
-            };
-            Editor.prototype.retrieveEditorData = function (editor, errors) {
-                var errorsArrayPresent = (!(!errors));
-                errors = errors || [];
-                this._currentDataObjectModified[editor.Column.RawName] = editor.getValue(errors);
-                if (errors.length > 0) {
-                    this.MasterTable.Renderer.Modifier.changeState('invalid', editor.VisualStates);
-                }
-                else {
-                    this.MasterTable.Renderer.Modifier.normalState(editor.VisualStates);
-                }
-                if (!errorsArrayPresent) {
-                    this._validationErrors = errors;
-                }
-            };
-            Editor.prototype.retrieveAllEditorsData = function () {
-                var errors = [];
-                for (var i = 0; i < this._activeEditors.length; i++) {
-                    this.retrieveEditorData(this._activeEditors[i], errors);
-                }
-                this._validationErrors = errors; //todo draw validation errors
-            };
-            Editor.prototype.commit = function (editor) {
-                var _this = this;
-                this.retrieveAllEditorsData();
-                if (this._validationErrors.length > 0) {
-                    return;
-                }
-                this._isEditing = false;
-                for (var cd in this._currentDataObjectModified) {
-                    if (this._currentDataObjectModified.hasOwnProperty(cd)) {
-                        this.DataObject[cd] = this._currentDataObjectModified[cd];
-                    }
-                }
-                for (var i = 0; i < this._activeEditors.length; i++) {
-                    this.MasterTable.Renderer.Modifier.changeState('saving', this._activeEditors[i].VisualStates);
-                }
-                if (!this.Configuration.IsServerPowered) {
-                    this.MasterTable.Loader.requestServer('Edit', function (response) {
-                        var serverObject = response;
-                        for (var cd in serverObject) {
-                            if (serverObject.hasOwnProperty(cd)) {
-                                _this.DataObject[cd] = serverObject[cd];
-                            }
-                        }
-                        for (var i = 0; i < _this._activeEditors.length; i++) {
-                            _this.MasterTable.Renderer.Modifier.normalState(_this._activeEditors[i].VisualStates);
-                        }
-                        switch (_this.Configuration.RefreshMode) {
-                            case EditorRefreshMode.RedrawCell:
-                            case EditorRefreshMode.RedrawRow:
-                            case EditorRefreshMode.RedrawAllVisible:
-                            case EditorRefreshMode.ReloadFromServer:
-                            default:
-                        }
-                    }, function (q) {
-                        q.AdditionalData['Edit'] = JSON.stringify(_this.DataObject);
-                        return q;
-                    });
-                }
-                else {
-                    setTimeout(function () {
-                        for (var i = 0; i < _this._activeEditors.length; i++) {
-                            _this.MasterTable.Renderer.Modifier.normalState(_this._activeEditors[i].VisualStates);
-                        }
-                        _this.MasterTable.Controller.redrawVisibleData();
-                    }, 1000);
-                }
-            };
-            Editor.prototype.redrawEditingRow = function (collectData) {
-                if (!this._isEditing)
-                    return;
-                this.MasterTable.Renderer.Modifier.redrawRow(this);
-                if (collectData) {
-                    this.retrieveAllEditorsData();
-                }
-            };
-            Editor.prototype.reject = function (editor) {
-                this._isEditing = false;
-                this.MasterTable.Controller.redrawVisibleDataObject(this.DataObject, this.Index);
-            };
-            //#endregion
-            //#region Private members
-            Editor.prototype.ensureEditing = function (rowDisplayIndex) {
-                if (this._isEditing)
-                    return;
-                var lookup = this.MasterTable.DataHolder.localLookupDisplayedData(rowDisplayIndex);
-                this.DataObject = lookup.DataObject;
-                this._currentDataObjectModified = {};
-                for (var cd in this.DataObject) {
-                    if (this.DataObject.hasOwnProperty(cd)) {
-                        this._currentDataObjectModified[cd] = this.DataObject[cd];
-                    }
-                }
-                var row = this.MasterTable.Controller.produceRow(lookup.DataObject, lookup.DisplayedIndex);
-                this.Cells = row.Cells;
-                this.Index = lookup.DisplayedIndex;
-                this._isEditing = true;
-            };
-            Editor.prototype.isEditable = function (column) {
-                return this.Configuration.EditorsForColumns.hasOwnProperty(column.RawName);
-            };
-            Editor.prototype.createEditor = function (column, canComplete, isForm, isRow) {
-                var editorConf = this.Configuration.EditorsForColumns[column.RawName];
-                var editor = PowerTables.ComponentsContainer.resolveComponent(editorConf.PluginId);
-                editor.DataObject = this.DataObject;
-                editor.ModifiedDataObject = this._currentDataObjectModified;
-                editor.Column = column;
-                editor.CanComplete = canComplete;
-                editor.IsFormEdit = isForm;
-                editor.IsRowEdit = isRow;
-                editor.Row = this;
-                editor.RawConfig = { Configuration: editorConf, Order: 0, PluginId: editorConf.PluginId, Placement: '' };
-                editor.init(this.MasterTable);
-                return editor;
-            };
-            Editor.prototype.beginCellEdit = function (column, canComplete, isForm, isRow, rowIndex) {
-                if (!this.isEditable(column))
-                    return;
-                var editor = this.createEditor(column, canComplete, isForm, isRow);
-                this.ensureEditing(rowIndex);
-                this.Cells[column.RawName] = editor;
-                this._activeEditors.push(editor);
-                this.redrawEditingRow(false);
-                editor.IsInitialValueSetting = true;
-                editor.setValue(this._currentDataObjectModified[editor.Column.RawName]);
-                editor.IsInitialValueSetting = false;
-            };
-            //#endregion
-            //#region Event handlers
-            Editor.prototype.beginCellEditHandle = function (e) {
-                var col = this.MasterTable.InstanceManager.getUiColumns()[e.ColumnIndex];
-                this.beginCellEdit(col, true, false, false, e.DisplayingRowIndex);
-            };
-            Editor.prototype.beginRowEditHandle = function (e) {
-            };
-            Editor.prototype.beginFormEditHandle = function (e) {
-            };
-            Editor.prototype.commitRowEditHandle = function (e) {
-            };
-            Editor.prototype.commitFormEditHandle = function (e) {
-            };
-            Editor.prototype.rejectRowEditHandle = function (e) {
-            };
-            Editor.prototype.rejectFormEditHandle = function (e) {
-            };
-            return Editor;
-        })(Plugins.PluginBase);
-        Plugins.Editor = Editor;
-        PowerTables.ComponentsContainer.registerComponent('Editor', Editor);
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        var Editors;
-        (function (Editors) {
-            var CellEditorBase = (function (_super) {
-                __extends(CellEditorBase, _super);
-                function CellEditorBase() {
-                    _super.apply(this, arguments);
-                }
-                /**
-                 * Retrieves original value for this particular cell editor
-                 *
-                 * @returns {Any} Original, unchanged value
-                 */
-                CellEditorBase.prototype.getThisOriginalValue = function () {
-                    return this.DataObject[this.Column.RawName];
-                };
-                /**
-                 * Resets editor value to initial settings
-                 */
-                CellEditorBase.prototype.reset = function () {
-                    this.setValue(this.getThisOriginalValue());
-                };
-                /**
-                 * Returns entered editor value
-                 *
-                 * @returns {}
-                 */
-                CellEditorBase.prototype.getValue = function (errors) { throw new Error("Not implemented"); };
-                /**
-                 * Sets editor value from the outside
-                 */
-                CellEditorBase.prototype.setValue = function (value) { throw new Error("Not implemented"); };
-                /**
-                 * Template-bound event raising on changing this editor's value
-                 */
-                CellEditorBase.prototype.changedHandler = function (e) {
-                    if (this.IsInitialValueSetting)
-                        return;
-                    this.Row.notifyChanged(this);
-                };
-                /**
-                 * Event handler for commit (save edited, ok, submit etc) event raised from inside of CellEditor
-                 * Commit leads to validation. Cell editor should be notified
-                 */
-                CellEditorBase.prototype.commitHandler = function (e) {
-                    this.Row.commit(this);
-                };
-                /**
-                 * Event handler for reject (cancel editing) event raised from inside of CellEditor
-                 * Cell editor should be notified
-                 */
-                CellEditorBase.prototype.rejectHandler = function (e) {
-                    this.Row.reject(this);
-                };
-                /**
-                 * Called when cell editor has been drawn
-                 *
-                 * @param e HTML element where editor is rendered
-                 * @returns {}
-                 */
-                CellEditorBase.prototype.onAfterRender = function (e) { };
-                return CellEditorBase;
-            })(Plugins.PluginBase);
-            Editors.CellEditorBase = CellEditorBase;
-        })(Editors = Plugins.Editors || (Plugins.Editors = {}));
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        var Editors;
-        (function (Editors) {
-            var PlainTextEditor = (function (_super) {
-                __extends(PlainTextEditor, _super);
-                function PlainTextEditor() {
-                    _super.apply(this, arguments);
-                }
-                PlainTextEditor.prototype.getValue = function (errors) {
-                    if (this.Column.IsDateTime) {
-                        return this.MasterTable.Date.getDateFromDatePicker(this.Input);
-                    }
-                    else {
-                        return this._parseFunction(this.Input.value, this.Column, errors);
-                    }
-                };
-                PlainTextEditor.prototype.setValue = function (value) {
-                    if (this.Column.IsDateTime) {
-                        this.MasterTable.Date.putDateToDatePicker(this.Input, value);
-                    }
-                    else {
-                        this.Input.value = this._formatFunction(value, this.Column);
-                        this.Input.setSelectionRange(0, this.Input.value.length);
-                    }
-                };
-                PlainTextEditor.prototype.init = function (masterTable) {
-                    _super.prototype.init.call(this, masterTable);
-                    if (this.Configuration.ValidationRegex) {
-                        this.ValidationRegex = new RegExp(this.Configuration.ValidationRegex);
-                    }
-                    this._dotSeparators = new RegExp(this.Configuration.FloatDotReplaceSeparatorsRegex);
-                    this._removeSeparators = new RegExp(this.Configuration.FloatRemoveSeparatorsRegex);
-                    this._parseFunction = this.Configuration.ParseFunction || this.defaultParse;
-                    this._formatFunction = this.Configuration.FormatFunction || this.defaultFormat;
-                };
-                PlainTextEditor.prototype.defaultParse = function (value, column, errors) {
-                    if (this.ValidationRegex) {
-                        var mtch = this.ValidationRegex.test(value);
-                        if (!mtch) {
-                            errors.push(this.Configuration.RegexValidationErrorText);
-                            return null;
-                        }
-                        return value;
-                    }
-                    if (value == null || value == undefined || value.length === 0) {
-                        if (!column.Configuration.IsNullable) {
-                            errors.push("Value should be provided for " + column.Configuration.Title);
-                        }
-                        return null;
-                    }
-                    var i;
-                    if (column.IsInteger || column.IsEnum) {
-                        value = value.replace(this._removeSeparators, '');
-                        i = parseInt(value);
-                        if (isNaN(i)) {
-                            errors.push("Invalid number provided for " + column.Configuration.Title);
-                            return null;
-                        }
-                        return i;
-                    }
-                    if (column.IsFloat) {
-                        value = value.replace(this._removeSeparators, '');
-                        value = value.replace(this._dotSeparators, '.');
-                        i = parseFloat(value);
-                        if (isNaN(i)) {
-                            errors.push("Invalid number provided for " + column.Configuration.Title);
-                            return null;
-                        }
-                        return i;
-                    }
-                    if (column.IsBoolean) {
-                        var bs = value.toUpperCase().trim();
-                        if (bs === 'TRUE')
-                            return true;
-                        if (bs === 'FALSE')
-                            return false;
-                        errors.push("Invalid boolean value provided for " + column.Configuration.Title);
-                        return null;
-                    }
-                    return value;
-                };
-                PlainTextEditor.prototype.defaultFormat = function (value, column) {
-                    if (value == null || value == undefined)
-                        return '';
-                    return value.toString();
-                };
-                PlainTextEditor.prototype.changedHandler = function (e) {
-                    _super.prototype.changedHandler.call(this, e);
-                };
-                PlainTextEditor.prototype.renderContent = function (templatesProvider) {
-                    return templatesProvider.getCachedTemplate('plainTextEditor')(this);
-                };
-                return PlainTextEditor;
-            })(Editors.CellEditorBase);
-            Editors.PlainTextEditor = PlainTextEditor;
-            PowerTables.ComponentsContainer.registerComponent('PlainTextEditor', PlainTextEditor);
-        })(Editors = Plugins.Editors || (Plugins.Editors = {}));
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+    PowerTables.TrackHelper = TrackHelper;
 })(PowerTables || (PowerTables = {}));
 //# sourceMappingURL=powertables.js.map
