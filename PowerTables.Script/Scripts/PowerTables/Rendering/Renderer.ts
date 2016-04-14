@@ -16,7 +16,7 @@
             this.LayoutRenderer = new LayoutRenderer(this, this._stack, this._instances);
             this.ContentRenderer = new ContentRenderer(this, this._stack, this._instances);
             this.BackBinder = new BackBinder(this.HandlebarsInstance, instances, this._stack, dateService);
-            
+
             this.HandlebarsInstance.registerHelper('ifq', this.ifqHelper);
             this.HandlebarsInstance.registerHelper('ifloc', this.iflocHelper.bind(this));
             this.HandlebarsInstance.registerHelper('Content', this.contentHelper.bind(this));
@@ -65,6 +65,11 @@
          */
         public Modifier: DOMModifier;
 
+        /**
+         * API that is responsible for UI events delegation
+         */
+        public Delegator: EventsDelegatator;
+
         private _instances: InstanceManager;
         private _stack: RenderingStack;
         private _datepickerFunction: (e: HTMLElement) => void;
@@ -110,10 +115,13 @@
             if (!bodyMarker) throw new Error('{{Body}} placeholder is missing in table layout template');
             this.BodyElement = bodyMarker.parentElement;
             this.BodyElement.removeChild(bodyMarker);
-            this.BackBinder.backBind(this.RootElement);
+
             this.Locator = new DOMLocator(this.BodyElement, this.RootElement, this._rootId);
             this.Modifier = new DOMModifier(this._stack, this.Locator, this.BackBinder, this, this.LayoutRenderer, this._instances);
+            this.Delegator = new EventsDelegatator(this.Locator, this.BodyElement, this.RootElement,this._rootId);
+            this.BackBinder.Delegator = this.Delegator;
 
+            this.BackBinder.backBind(this.RootElement);
             this._events.AfterLayoutRendered.invoke(this, null);
         }
 

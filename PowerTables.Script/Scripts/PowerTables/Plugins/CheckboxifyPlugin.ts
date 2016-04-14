@@ -1,6 +1,7 @@
 ﻿module PowerTables.Plugins {
     import CheckboxifyClientConfig = Plugins.Checkboxify.ICheckboxifyClientConfig;
     import ColumnConfiguration = Configuration.Json.IColumnConfiguration;
+    import TemplateBoundEvent = PowerTables.Rendering.ITemplateBoundEvent;
 
     export class CheckboxifyPlugin extends PluginBase<CheckboxifyClientConfig> implements IQueryPartProvider {
         private _selectedItems: string[] = [];
@@ -121,7 +122,7 @@
         }
 
         private afterLayoutRender() {
-            this.MasterTable.Controller.subscribeCellEvent({
+            this.MasterTable.Renderer.Delegator.subscribeCellEvent({
                 EventId: 'click',
                 Selector: '[data-checkboxify]',
                 SubscriptionId: 'checkboxify',

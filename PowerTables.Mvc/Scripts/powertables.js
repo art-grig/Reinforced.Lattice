@@ -77,17 +77,7 @@ var PowerTables;
      */
     var Controller = (function () {
         function Controller(masterTable) {
-            this._domEvents = {};
-            this._cellDomSubscriptions = {};
-            this._rowDomSubscriptions = {};
             this._masterTable = masterTable;
-            this._attachFn = document['addEventListener'] || document['attachEvent'];
-            this._matches = (function (el) {
-                if (!el)
-                    return null;
-                var p = el.prototype;
-                return (p.matches || p.matchesSelector || p.webkitMatchesSelector || p.mozMatchesSelector || p.msMatchesSelector || p.oMatchesSelector);
-            }(Element));
             this._masterTable.Events.LoadingError.subscribe(this.onLoadingError.bind(this), 'controller');
         }
         Controller.prototype.onLoadingError = function (e) {
@@ -152,100 +142,7 @@ var PowerTables;
             this._masterTable.DataHolder.DisplayedData = [tableMessage];
             this.redrawVisibleData();
         };
-        /**
-         * Subscribe handler to any DOM event happening on particular table cell
-         *
-         * @param subscription Event subscription
-         */
-        Controller.prototype.subscribeCellEvent = function (subscription) {
-            if (!this._cellDomSubscriptions[subscription.EventId]) {
-                this._cellDomSubscriptions[subscription.EventId] = [];
-            }
-            this._cellDomSubscriptions[subscription.EventId].push(subscription);
-            this.ensureEventSubscription(subscription.EventId);
-        };
-        /**
-         * Subscribe handler to any DOM event happening on particular table row.
-         * Note that handler will fire even if particular table cell event happened
-         *
-         * @param subscription Event subscription
-         */
-        Controller.prototype.subscribeRowEvent = function (subscription) {
-            if (!this._rowDomSubscriptions[subscription.EventId]) {
-                this._rowDomSubscriptions[subscription.EventId] = [];
-            }
-            this._rowDomSubscriptions[subscription.EventId].push(subscription);
-            this.ensureEventSubscription(subscription.EventId);
-        };
         //#region event delegation hell
-        Controller.prototype.ensureEventSubscription = function (eventId) {
-            var fn = this.onTableEvent.bind(this);
-            this._attachFn.call(this._masterTable.Renderer.BodyElement, eventId, fn);
-            this._domEvents[eventId] = fn;
-        };
-        Controller.prototype.traverseSubscriptions = function (target, eventType, originalEvent) {
-            var t = target;
-            var forRow = this._rowDomSubscriptions[eventType];
-            var forCell = this._cellDomSubscriptions[eventType];
-            var result = [];
-            if (!forRow)
-                forRow = [];
-            if (!forCell)
-                forCell = [];
-            if (forRow.length === 0 && forCell.length === 0)
-                return result;
-            var pathToCell = [];
-            var pathToRow = [];
-            var cellLocation = null, rowIndex = null;
-            while (t !== this._masterTable.Renderer.BodyElement) {
-                if (this._masterTable.Renderer.Locator.isCell(t)) {
-                    cellLocation = PowerTables.TrackHelper.getCellLocation(t);
-                }
-                if (this._masterTable.Renderer.Locator.isRow(t)) {
-                    rowIndex = PowerTables.TrackHelper.getRowIndex(t);
-                }
-                if (cellLocation == null)
-                    pathToCell.push(t);
-                if (rowIndex == null)
-                    pathToRow.push(t);
-                t = t.parentElement;
-            }
-            if (cellLocation != null) {
-                var cellArgs = {
-                    Table: this._masterTable,
-                    OriginalEvent: originalEvent,
-                    DisplayingRowIndex: cellLocation.RowIndex,
-                    ColumnIndex: cellLocation.ColumnIndex
-                };
-                this.traverseAndFire(forCell, pathToCell, cellArgs);
-            }
-            if (rowIndex != null) {
-                var rowArgs = {
-                    Table: this._masterTable,
-                    OriginalEvent: originalEvent,
-                    DisplayingRowIndex: rowIndex
-                };
-                this.traverseAndFire(forRow, pathToRow, rowArgs);
-            }
-        };
-        Controller.prototype.traverseAndFire = function (subscriptions, path, args) {
-            for (var i = 0; i < subscriptions.length; i++) {
-                if (subscriptions[i].Selector) {
-                    for (var j = 0; j < path.length; j++) {
-                        if (this._matches.call(path[j], subscriptions[i].Selector)) {
-                            subscriptions[i].Handler(args);
-                            break;
-                        }
-                    }
-                }
-                else {
-                    subscriptions[i].Handler(args);
-                }
-            }
-        };
-        Controller.prototype.onTableEvent = function (e) {
-            this.traverseSubscriptions((e.target || e.srcElement), e.type, e);
-        };
         //#endregion
         /**
          * Inserts data entry to local storage
@@ -1005,6 +902,187 @@ var PowerTables;
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
+    var EventsDelegatator = (function () {
+        function EventsDelegatator(locator, bodyElement, layoutElement, rootId) {
+            this._outSubscriptions = {};
+            this._cellDomSubscriptions = {};
+            this._rowDomSubscriptions = {};
+            this._domEvents = {};
+            this._outEvents = {};
+            this._locator = locator;
+            this._bodyElement = bodyElement;
+            this._layoutElement = layoutElement;
+            this._rootId = rootId;
+            this._attachFn = document['addEventListener'] || document['attachEvent'];
+            this._matches = (function (el) {
+                if (!el)
+                    return null;
+                var p = el.prototype;
+                return (p.matches || p.matchesSelector || p.webkitMatchesSelector || p.mozMatchesSelector || p.msMatchesSelector || p.oMatchesSelector);
+            }(Element));
+        }
+        EventsDelegatator.prototype.ensureEventSubscription = function (eventId) {
+            var fn = this.onTableEvent.bind(this);
+            this._attachFn.call(this._bodyElement, eventId, fn);
+            this._domEvents[eventId] = fn;
+        };
+        EventsDelegatator.prototype.ensureOutSubscription = function (eventId) {
+            var fn = this.onOutTableEvent.bind(this);
+            this._attachFn.call(this._layoutElement, eventId, fn);
+            this._outEvents[eventId] = fn;
+        };
+        EventsDelegatator.prototype.traverseAndFire = function (subscriptions, path, args) {
+            for (var i = 0; i < subscriptions.length; i++) {
+                if (subscriptions[i].Selector) {
+                    for (var j = 0; j < path.length; j++) {
+                        if (this._matches.call(path[j], "#" + this._rootId + " " + subscriptions[i].Selector)) {
+                            subscriptions[i].Handler(args);
+                            break;
+                        }
+                    }
+                }
+                else {
+                    subscriptions[i].Handler(args);
+                }
+            }
+        };
+        EventsDelegatator.prototype.onTableEvent = function (e) {
+            var t = (e.target || e.srcElement), eventType = e.type;
+            var forRow = this._rowDomSubscriptions[eventType];
+            var forCell = this._cellDomSubscriptions[eventType];
+            if (!forRow)
+                forRow = [];
+            if (!forCell)
+                forCell = [];
+            if (forRow.length === 0 && forCell.length === 0)
+                return;
+            var pathToCell = [];
+            var pathToRow = [];
+            var cellLocation = null, rowIndex = null;
+            while (t !== this._bodyElement) {
+                if (this._locator.isCell(t))
+                    cellLocation = PowerTables.TrackHelper.getCellLocation(t);
+                if (this._locator.isRow(t))
+                    rowIndex = PowerTables.TrackHelper.getRowIndex(t);
+                if (cellLocation == null)
+                    pathToCell.push(t);
+                if (rowIndex == null)
+                    pathToRow.push(t);
+                t = t.parentElement;
+            }
+            if (cellLocation != null) {
+                var cellArgs = {
+                    OriginalEvent: e,
+                    DisplayingRowIndex: cellLocation.RowIndex,
+                    ColumnIndex: cellLocation.ColumnIndex
+                };
+                this.traverseAndFire(forCell, pathToCell, cellArgs);
+            }
+            if (rowIndex != null) {
+                var rowArgs = {
+                    OriginalEvent: e,
+                    DisplayingRowIndex: rowIndex
+                };
+                this.traverseAndFire(forRow, pathToRow, rowArgs);
+            }
+        };
+        /**
+         * Subscribe handler to any DOM event happening on particular table cell
+         *
+         * @param subscription Event subscription
+         */
+        EventsDelegatator.prototype.subscribeCellEvent = function (subscription) {
+            if (!this._cellDomSubscriptions[subscription.EventId]) {
+                this._cellDomSubscriptions[subscription.EventId] = [];
+            }
+            this._cellDomSubscriptions[subscription.EventId].push(subscription);
+            this.ensureEventSubscription(subscription.EventId);
+        };
+        /**
+         * Subscribe handler to any DOM event happening on particular table row.
+         * Note that handler will fire even if particular table cell event happened
+         *
+         * @param subscription Event subscription
+         */
+        EventsDelegatator.prototype.subscribeRowEvent = function (subscription) {
+            if (!this._rowDomSubscriptions[subscription.EventId]) {
+                this._rowDomSubscriptions[subscription.EventId] = [];
+            }
+            this._rowDomSubscriptions[subscription.EventId].push(subscription);
+            this.ensureEventSubscription(subscription.EventId);
+        };
+        EventsDelegatator.prototype.subscribeEvent = function (el, eventId, handler, receiver, eventArguments) {
+            this._attachFn.call(el, eventId, function (e) {
+                handler.apply(receiver, [
+                    {
+                        Element: el,
+                        EventObject: e,
+                        Receiver: receiver,
+                        EventArguments: eventArguments
+                    }
+                ]);
+            });
+        };
+        EventsDelegatator.prototype.onOutTableEvent = function (e) {
+            var subscriptions = this._outSubscriptions[e.type];
+            var target = (e.target || e.srcElement);
+            for (var i = 0; i < subscriptions.length; i++) {
+                var sub = subscriptions[i];
+                var ct = target;
+                var found = false;
+                while (ct !== this._layoutElement) {
+                    if (ct === sub.Element) {
+                        found = true;
+                        break;
+                    }
+                    ct = ct.parentElement;
+                }
+                if (!found) {
+                    sub.EventObject = e;
+                    sub.handler.apply(sub.Receiver, sub);
+                }
+            }
+        };
+        EventsDelegatator.prototype.subscribeOutOfElementEvent = function (el, eventId, handler, receiver, eventArguments) {
+            this.ensureOutSubscription(eventId);
+            if (!this._outSubscriptions.hasOwnProperty(eventId))
+                this._outSubscriptions[eventId] = [];
+            this._outSubscriptions[eventId].push({
+                Element: el,
+                EventArguments: eventArguments,
+                EventObject: null,
+                Receiver: receiver,
+                handler: handler
+            });
+        };
+        EventsDelegatator.prototype.unsubscribeOutEvents = function (e) {
+            this.unsubscripeParentOutEvents(e);
+            for (var os in this._outSubscriptions) {
+                if (this._outSubscriptions[os].length === 0) {
+                    this._layoutElement.removeEventListener(os, this._outEvents[os]);
+                }
+            }
+        };
+        EventsDelegatator.prototype.unsubscripeParentOutEvents = function (e) {
+            for (var os in this._outSubscriptions) {
+                var sub = this._outSubscriptions[os];
+                for (var i = 0; i < sub.length; i++) {
+                    if (sub[i].Element === e) {
+                        sub.splice(i, 1);
+                        break;
+                    }
+                }
+            }
+            for (var j = 0; j < e.childElementCount; j++) {
+                this.unsubscripeParentOutEvents(e.childNodes.item(j));
+            }
+        };
+        return EventsDelegatator;
+    })();
+    PowerTables.EventsDelegatator = EventsDelegatator;
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
     /**
      * This thing is used to manage instances of columns, plugins etc.
      * It consumes PT configuration as source and provides caller with
@@ -1592,7 +1670,7 @@ var PowerTables;
             };
             CheckboxifyPlugin.prototype.afterLayoutRender = function () {
                 var _this = this;
-                this.MasterTable.Controller.subscribeCellEvent({
+                this.MasterTable.Renderer.Delegator.subscribeCellEvent({
                     EventId: 'click',
                     Selector: '[data-checkboxify]',
                     SubscriptionId: 'checkboxify',
@@ -1674,6 +1752,8 @@ var PowerTables;
         var Editor = (function () {
             function Editor() {
             }
+            Editor.prototype.notifyChanged = function (editor) {
+            };
             return Editor;
         })();
         Plugins.Editor = Editor;
@@ -1690,6 +1770,20 @@ var PowerTables;
                 function CellEditorBase() {
                     _super.apply(this, arguments);
                 }
+                /**
+                 * Retrieves original value for this particular cell editor
+                 *
+                 * @returns {Any} Original, unchanged value
+                 */
+                CellEditorBase.prototype.getThisOriginalValue = function () {
+                    return this.OriginalDataObject[this.Column.RawName];
+                };
+                /**
+                 * Resets editor value to initial settings
+                 */
+                CellEditorBase.prototype.reset = function () {
+                    this.setValue(this.getThisOriginalValue());
+                };
                 /**
                  * Returns entered editor value
                  *
@@ -1708,9 +1802,21 @@ var PowerTables;
                  */
                 CellEditorBase.prototype.validate = function () { return []; };
                 /**
-                 * Called by Editor when editing finishes
+                 * Template-bound event raising on changing this editor's value
                  */
-                CellEditorBase.prototype.finishEditing = function () { };
+                CellEditorBase.prototype.changed = function (e) {
+                    this.Editor.notifyChanged(this);
+                };
+                /**
+                 * Event handler for commit (save edited, ok, submit etc) event raised from inside of CellEditor
+                 * Commit leads to validation. Cell editor should be notified
+                 */
+                CellEditorBase.prototype.commitHandler = function (e) { };
+                /**
+                 * Event handler for reject (cancel editing) event raised from inside of CellEditor
+                 * Cell editor should be notified
+                 */
+                CellEditorBase.prototype.rejectHandler = function (e) { };
                 return CellEditorBase;
             })(Plugins.PluginBase);
             Editors.CellEditorBase = CellEditorBase;
@@ -1929,13 +2035,13 @@ var PowerTables;
             };
             //#region Events handling
             HideoutPlugin.prototype.toggleColumn = function (e) {
-                e.Receiver.toggleColumnByName(e.EventArguments[0]);
+                this.toggleColumnByName(e.EventArguments[0]);
             };
             HideoutPlugin.prototype.showColumn = function (e) {
-                e.Receiver.showColumnByName(e.EventArguments[0]);
+                this.showColumnByName(e.EventArguments[0]);
             };
             HideoutPlugin.prototype.hideColumn = function (e) {
-                e.Receiver.hideColumnByName(e.EventArguments[0]);
+                this.hideColumnByName(e.EventArguments[0]);
             };
             //#endregion
             //#region Correct showing/hiding
@@ -3373,30 +3479,22 @@ var PowerTables;
                     }
                 });
                 // backbinding of events
-                this.traverseBackbind(parentElement, this._eventsQueue, 'data-be', function (subscription, domSource) {
+                this.traverseBackbind(parentElement, this._eventsQueue, 'data-be', function (subscription, element) {
                     for (var j = 0; j < subscription.Functions.length; j++) {
                         var bindFn = subscription.Functions[j];
                         var handler = null;
                         var target = _this._stealer || subscription.EventReceiver;
-                        if (target[bindFn] && (typeof target[bindFn] === 'function')) {
+                        if (target[bindFn] && (typeof target[bindFn] === 'function'))
                             handler = subscription.EventReceiver[bindFn];
-                        }
-                        else {
+                        else
                             handler = eval(bindFn);
-                        }
                         for (var k = 0; k < subscription.Events.length; k++) {
-                            (function (receiver, domSource, handler, eventId, eventArguments) {
-                                domSource.addEventListener(eventId, function (evt) {
-                                    handler.apply(receiver, [
-                                        {
-                                            Element: domSource,
-                                            EventObject: evt,
-                                            Receiver: receiver,
-                                            EventArguments: eventArguments
-                                        }
-                                    ]);
-                                });
-                            })(target, domSource, handler, subscription.Events[k], subscription.EventArguments);
+                            if (subscription.Events[k].substring(0, 4) === 'out-') {
+                                _this.Delegator.subscribeOutOfElementEvent(element, subscription.Events[k], handler, target, subscription.EventArguments);
+                            }
+                            else {
+                                _this.Delegator.subscribeEvent(element, subscription.Events[k], handler, target, subscription.EventArguments);
+                            }
                         }
                     }
                 });
@@ -4640,9 +4738,11 @@ var PowerTables;
                     throw new Error('{{Body}} placeholder is missing in table layout template');
                 this.BodyElement = bodyMarker.parentElement;
                 this.BodyElement.removeChild(bodyMarker);
-                this.BackBinder.backBind(this.RootElement);
                 this.Locator = new Rendering.DOMLocator(this.BodyElement, this.RootElement, this._rootId);
                 this.Modifier = new Rendering.DOMModifier(this._stack, this.Locator, this.BackBinder, this, this.LayoutRenderer, this._instances);
+                this.Delegator = new PowerTables.EventsDelegatator(this.Locator, this.BodyElement, this.RootElement, this._rootId);
+                this.BackBinder.Delegator = this.Delegator;
+                this.BackBinder.backBind(this.RootElement);
                 this._events.AfterLayoutRendered.invoke(this, null);
             };
             /**

@@ -8,12 +8,7 @@
 
         constructor(masterTable: IMasterTable) {
             this._masterTable = masterTable;
-            this._attachFn = document['addEventListener'] || document['attachEvent'];
-            this._matches = (function(el: any) {
-                if (!el) return null;
-                var p = el.prototype;
-                return (p.matches || p.matchesSelector || p.webkitMatchesSelector || p.mozMatchesSelector || p.msMatchesSelector || p.oMatchesSelector);
-            }(Element));
+            
             this._masterTable.Events.LoadingError.subscribe(this.onLoadingError.bind(this), 'controller');
         }
 
@@ -27,14 +22,7 @@
         }
 
         private _masterTable: IMasterTable;
-        private _rootSelector: string;
-        private _domEvents: { [key: string]: any } = {};
-
-        private _cellDomSubscriptions: { [key: string]: ISubscription[] } = {};
-        private _rowDomSubscriptions: { [key: string]: ISubscription[] } = {};
-        private _attachFn: (eventId: string, handler: (e: UIEvent) => any) => void;
-        private _matches: (e: HTMLElement) => boolean;
-
+        
         /**
          * Initializes full reloading cycle
          * @returns {} 
@@ -90,102 +78,9 @@
             this.redrawVisibleData();
         }
 
-        /**
-         * Subscribe handler to any DOM event happening on particular table cell
-         * 
-         * @param subscription Event subscription
-         */
-        public subscribeCellEvent(subscription: IUiSubscription<ICellEventArgs>): void {
-            if (!this._cellDomSubscriptions[subscription.EventId]) {
-                this._cellDomSubscriptions[subscription.EventId] = [];
-            }
-            this._cellDomSubscriptions[subscription.EventId].push(subscription);
-            this.ensureEventSubscription(subscription.EventId);
-        }
-
-        /**
-         * Subscribe handler to any DOM event happening on particular table row. 
-         * Note that handler will fire even if particular table cell event happened
-         * 
-         * @param subscription Event subscription
-         */
-        public subscribeRowEvent(subscription: IUiSubscription<IRowEventArgs>) {
-            if (!this._rowDomSubscriptions[subscription.EventId]) {
-                this._rowDomSubscriptions[subscription.EventId] = [];
-            }
-            this._rowDomSubscriptions[subscription.EventId].push(subscription);
-            this.ensureEventSubscription(subscription.EventId);
-        }
 
         //#region event delegation hell
-        private ensureEventSubscription(eventId: string) {
-            var fn = this.onTableEvent.bind(this);
-            this._attachFn.call(this._masterTable.Renderer.BodyElement, eventId, fn);
-            this._domEvents[eventId] = fn;
-        }
 
-        private traverseSubscriptions(target: HTMLElement, eventType: string, originalEvent: Event) {
-            var t: HTMLElement = target;
-            var forRow: ISubscription[] = this._rowDomSubscriptions[eventType];
-            var forCell: ISubscription[] = this._cellDomSubscriptions[eventType];
-            var result: ISubscription[] = [];
-            if (!forRow) forRow = [];
-            if (!forCell) forCell = [];
-            if (forRow.length === 0 && forCell.length === 0) return result;
-            var pathToCell: any[] = [];
-            var pathToRow: any[] = [];
-            var cellLocation: ICellLocation = null, rowIndex: number = null;
-
-            while (t !== this._masterTable.Renderer.BodyElement) {
-                if (this._masterTable.Renderer.Locator.isCell(t)) {
-                    cellLocation = TrackHelper.getCellLocation(t);
-                }
-                if (this._masterTable.Renderer.Locator.isRow(t)) {
-                    rowIndex = TrackHelper.getRowIndex(t);
-                }
-                if (cellLocation == null) pathToCell.push(t);
-                if (rowIndex == null) pathToRow.push(t);
-                t = t.parentElement;
-            }
-
-            if (cellLocation != null) {
-                var cellArgs: { Table: IMasterTable;OriginalEvent: Event;DisplayingRowIndex: any;ColumnIndex: any } = {
-                    Table: this._masterTable,
-                    OriginalEvent: originalEvent,
-                    DisplayingRowIndex: cellLocation.RowIndex,
-                    ColumnIndex: cellLocation.ColumnIndex
-                };
-                this.traverseAndFire(forCell, pathToCell, cellArgs);
-            }
-
-            if (rowIndex != null) {
-                var rowArgs: { Table: IMasterTable;OriginalEvent: Event;DisplayingRowIndex: any } = {
-                    Table: this._masterTable,
-                    OriginalEvent: originalEvent,
-                    DisplayingRowIndex: rowIndex
-                };
-                this.traverseAndFire(forRow, pathToRow, rowArgs);
-            }
-        }
-
-        private traverseAndFire(subscriptions: ISubscription[], path: any[], args: any) {
-            for (var i: number = 0; i < subscriptions.length; i++) {
-                if (subscriptions[i].Selector) {
-                    for (var j: number = 0; j < path.length; j++) {
-                        if (this._matches.call(path[j], subscriptions[i].Selector)) {
-                            subscriptions[i].Handler(args);
-                            break;
-                        }
-                    }
-                } else {
-                    subscriptions[i].Handler(args);
-                }
-            }
-        }
-
-        private onTableEvent(e: UIEvent) {
-            this.traverseSubscriptions(<HTMLElement>(e.target || e.srcElement), e.type, e);
-        }
 
 //#endregion
 
@@ -333,64 +228,6 @@
         }
 
 
-    }
-
-    export interface IRowEventArgs {
-        /**
-        * Master table reference
-        */
-        Table: IMasterTable;
-
-        /**
-         * Original event reference
-         */
-        OriginalEvent: Event;
-
-        /**
-         * Row index. 
-         * Data object can be restored using Table.DataHolder.localLookupDisplayedData(RowIndex)
-         */
-        DisplayingRowIndex: number;
-    }
-
-    /**
-     * Event arguments for particular cell event
-     */
-    export interface ICellEventArgs extends IRowEventArgs {
-        /**
-         * Column index related to particular cell. 
-         * Column object can be restored using Table.InstanceManager.getUiColumns()[ColumnIndex]
-         */
-        ColumnIndex: number;
-    }
-
-    export interface ISubscription {
-        /**
-         * Event Id
-         */
-        EventId: string;
-        /**
-         * Selector of element
-         */
-        Selector?: string;
-        /**
-         * Subscription ID (for easier unsubscribe)
-         */
-        SubscriptionId: string;
-
-        Handler: any;
-    }
-
-    /**
-     * Information about UI subscription
-     */
-    export interface IUiSubscription<TEventArgs> extends ISubscription {
-        /**
-         * Event handler 
-         * 
-         * @param e Event arguments 
-         */
-        Handler: (e: TEventArgs) => any;
     }
 
     /**

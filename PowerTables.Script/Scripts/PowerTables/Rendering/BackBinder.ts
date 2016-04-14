@@ -10,6 +10,8 @@
         private _cachedVisualStates: { [key: string]: IState[] } = {};
         private _hasVisualStates: boolean = false;
 
+        public Delegator: EventsDelegatator;
+
         constructor(hb: Handlebars.IHandlebars, instances: InstanceManager, stack: RenderingStack, dateService: DateService) {
             this._instances = instances;
             hb.registerHelper('BindEvent', this.bindEventHelper.bind(this));
@@ -74,39 +76,21 @@
             });
 
             // backbinding of events
-            this.traverseBackbind<IEventDescriptor>(parentElement, this._eventsQueue, 'data-be', (subscription, domSource) => {
+            this.traverseBackbind<IEventDescriptor>(parentElement, this._eventsQueue, 'data-be', (subscription, element) => {
                 for (var j: number = 0; j < subscription.Functions.length; j++) {
                     var bindFn: string = subscription.Functions[j];
                     var handler: void | Object = null;
                     var target = this._stealer || subscription.EventReceiver;
 
-                    if (target[bindFn] && (typeof target[bindFn] === 'function')) {
-                        handler = subscription.EventReceiver[bindFn];
-                    } else {
-                        handler = eval(bindFn);
-                    }
+                    if (target[bindFn] && (typeof target[bindFn] === 'function')) handler = subscription.EventReceiver[bindFn];
+                    else handler = eval(bindFn);
 
                     for (var k: number = 0; k < subscription.Events.length; k++) {
-                        (function (receiver: any,
-                            domSource: any,
-                            handler: any,
-                            eventId: any,
-                            eventArguments: any[]) {
-                            domSource.addEventListener(eventId, (evt: any) => {
-                                handler.apply(receiver, [
-                                    {
-                                        Element: domSource,
-                                        EventObject: evt,
-                                        Receiver: receiver,
-                                        EventArguments: eventArguments
-                                    }
-                                ]);
-                            });
-                        })(target,
-                            domSource,
-                            handler,
-                            subscription.Events[k],
-                            subscription.EventArguments);
+                        if (subscription.Events[k].substring(0, 4) === 'out-') {
+                            this.Delegator.subscribeOutOfElementEvent(element, subscription.Events[k], handler, target, subscription.EventArguments);
+                        } else {
+                            this.Delegator.subscribeEvent(element, subscription.Events[k], handler, target, subscription.EventArguments);
+                        }
                     }
 
                 }
