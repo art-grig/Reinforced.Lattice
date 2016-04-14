@@ -226,7 +226,7 @@
         /**
          * Reverence to master table
          */
-        MasterTable: any; //todo
+        MasterTable: IMasterTable;
 
         /**
          * Event arguments

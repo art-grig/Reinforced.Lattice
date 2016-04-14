@@ -23,9 +23,9 @@
             this._dateService = dateService;
         }
 
-        
 
-        public steal(stealer:any,parentElement:HTMLElement) {
+
+        public steal(stealer: any, parentElement: HTMLElement) {
             this._stealer = stealer;
             this.backBind(parentElement);
 
@@ -86,8 +86,8 @@
                     else handler = eval(bindFn);
 
                     for (var k: number = 0; k < subscription.Events.length; k++) {
-                        if (subscription.Events[k].substring(0, 4) === 'out-') {
-                            this.Delegator.subscribeOutOfElementEvent(element, subscription.Events[k], handler, target, subscription.EventArguments);
+                        if (subscription.Events[k].length > 4 && subscription.Events[k].substring(0, 4) === 'out-') {
+                            this.Delegator.subscribeOutOfElementEvent(element, subscription.Events[k].substring(4), handler, target, subscription.EventArguments);
                         } else {
                             this.Delegator.subscribeEvent(element, subscription.Events[k], handler, target, subscription.EventArguments);
                         }
@@ -97,7 +97,7 @@
             });
 
             if (this._hasVisualStates) {
-                var targetPendingNormal:any[] = [];
+                var targetPendingNormal: any[] = [];
                 for (var vsk in this._cachedVisualStates) {
                     if (this._cachedVisualStates.hasOwnProperty(vsk)) {
                         var state = this._cachedVisualStates[vsk];
@@ -108,11 +108,13 @@
                             element.removeAttribute(`data-state-${vsk}`);
 
                             var target = this._stealer || state[i].Receiver;
+                            if (targetPendingNormal.indexOf(target) < 0) {
+                                targetPendingNormal.push(target);
+                                target['VisualStates'] = {}
+                            }
                             if (!target['VisualStates']) target['VisualStates'] = {}
                             if (!target['VisualStates'].hasOwnProperty(vsk)) target['VisualStates'][vsk] = [];
                             target['VisualStates'][vsk].push(state[i]);
-                            if (targetPendingNormal.indexOf(target) < 0) targetPendingNormal.push(target);
-
                         }
                     }
                 }
@@ -128,11 +130,11 @@
 
         private resolveNormalStates(targets: any[]) {
             for (var i = 0; i < targets.length; i++) {
-                this.addNormalState(targets[i]['VisualStates'],targets[i]);
+                this.addNormalState(targets[i]['VisualStates'], targets[i]);
             }
         }
 
-        private addNormalState(states: { [key: string]: IState[] },target:any) {
+        private addNormalState(states: { [key: string]: IState[] }, target: any) {
             var normalState: IState[] = [];
             var trackedElements: HTMLElement[] = [];
             for (var sk in states) {
@@ -155,7 +157,7 @@
                                 newEntry.classes.push(newEntry.Element.classList.item(j));
                             }
                         }
-                        this.mixinToNormal(normalState[stateIdx],states[sk][i]); 
+                        this.mixinToNormal(normalState[stateIdx], states[sk][i]);
                     }
                 }
             }
@@ -225,8 +227,8 @@
             }
             return '';
         }
-        
-        private visualStateHelper(stateName: string,stateJson:string): string {
+
+        private visualStateHelper(stateName: string, stateJson: string): string {
             var state = <IState>JSON.parse(stateJson);
             state.Receiver = this._stack.Current.Object;
             if (!this._cachedVisualStates[stateName]) this._cachedVisualStates[stateName] = [];
@@ -273,7 +275,7 @@
 
     export interface IState {
         Element: HTMLElement,
-        Receiver:any;
+        Receiver: any;
         id: string;
         classes: string[],
         attrs: { [key: string]: string }

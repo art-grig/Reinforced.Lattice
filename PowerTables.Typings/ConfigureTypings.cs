@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Web.Mvc;
 using PowerTables.Configuration;
 using PowerTables.Configuration.Json;
+using PowerTables.Editors;
 using PowerTables.Filters;
 using PowerTables.Filters.Range;
 using PowerTables.Filters.Select;
@@ -111,6 +112,9 @@ namespace PowerTables.Typings
             builder.ExportAsInterface<TotalClientConfiguration>().WithPublicProperties()
                 .WithProperty(c => c.ColumnsValueFunctions, c => c.Type("{ [key:string] : (a:any)=>string }"))
                 .WithProperty(c => c.ColumnsCalculatorFunctions, c => c.Type("{ [key:string] : (data:IClientDataResults) => any }"));
+
+            builder.ExportAsInterface<CellEditorUiConfigBase>().WithPublicProperties();
+            builder.ExportAsInterface<EditorUiConfig>().WithPublicProperties();
 
 
 

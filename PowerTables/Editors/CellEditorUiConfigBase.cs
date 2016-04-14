@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace PowerTables.Editors
 {
-    public class CellEditorConfigurationBase
+    public class CellEditorUiConfigBase
     {
+        public string PluginId { get; set; }
     }
 }

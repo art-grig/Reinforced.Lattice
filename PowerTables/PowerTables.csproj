@@ -86,8 +86,8 @@
     <Compile Include="Defaults\DefaultCommandHandler.cs" />
     <Compile Include="Defaults\DefaultQueryHandler.cs" />
     <Compile Include="Defaults\DelegateCommandHandler.cs" />
-    <Compile Include="Editors\CellEditorConfigurationBase.cs" />
-    <Compile Include="Editors\EditorClientConfiguration.cs" />
+    <Compile Include="Editors\CellEditorUiConfigBase.cs" />
+    <Compile Include="Editors\EditorUiConfig.cs" />
     <Compile Include="Filters\ColumnFilterBase.cs" />
     <Compile Include="Filters\ColumnFilterExtensions.cs" />
     <Compile Include="Filters\CommonFiltersUiExtensions.cs" />

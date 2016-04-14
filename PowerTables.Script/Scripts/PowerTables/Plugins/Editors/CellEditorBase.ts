@@ -1,12 +1,27 @@
 ﻿module PowerTables.Plugins.Editors {
     import TemplateBoundEvent = PowerTables.Rendering.ITemplateBoundEvent;
 
-    export class CellEditorBase<T> extends PluginBase<T> implements ICellEditorBase {
+    export class CellEditorBase<T> extends PluginBase<T> implements ICellEditor, ICell {
         
+        /**
+         * True when field is single, false when multiple (e.g. row edit, form edit)
+         */
+        public CanComplete: boolean;
+
+        /**
+         * True when cell editor is part of row edit, otherwise false
+         */
+        public IsRowEdit: boolean;
+
+        /**
+         * True when cell editor is part of form edit, otherwise false
+         */
+        public IsFormEdit: boolean;
+
         /**
          * Original, locally displayed data object
          */
-        public OriginalDataObject: any;
+        public DataObject: any;
 
         /**
          * Retrieves original value for this particular cell editor
@@ -14,13 +29,13 @@
          * @returns {Any} Original, unchanged value
          */
         protected getThisOriginalValue(): any {
-            return this.OriginalDataObject[this.Column.RawName];
+            return this.DataObject[this.Column.RawName];
         }
 
         /**
          * Resets editor value to initial settings
          */
-        public reset():void {
+        public reset(): void {
             this.setValue(this.getThisOriginalValue());
         }
 
@@ -57,7 +72,7 @@
          * 
          * @returns {Array} Array of  
          */
-        public validate(): string[]{ return []; }
+        public validate(): string[] { return []; }
 
         /**
          * Template-bound event raising on changing this editor's value 
@@ -77,13 +92,24 @@
          * Cell editor should be notified
          */
         public rejectHandler(e: TemplateBoundEvent): void { }
+
+        /**
+         * Called when cell editor has been drawn
+         * 
+         * @param e HTML element where editor is rendered
+         * @returns {} 
+         */
+        public onAfterRender(e: HTMLElement): void { }
+
+        public Row: IRow;
+        public Data: any;
     }
 
-    export interface ICellEditorBase {
+    export interface ICellEditor extends IPlugin, ICell {
         /**
          * Original, locally displayed data object
          */
-        OriginalDataObject: any;
+        DataObject: any;
         /**
          * Template-bound event raising on changing this editor's value     
          */
@@ -122,5 +148,28 @@
          * Resets editor value to initial settings
          */
         reset(): void;
+
+        /**
+         * True when field is single, false when multiple (e.g. row edit, form edit)
+         */
+        CanComplete: boolean;
+
+        /**
+         * True when cell editor is part of row edit, otherwise false
+         */
+        IsRowEdit: boolean;
+
+        /**
+         * True when cell editor is part of form edit, otherwise false
+         */
+        IsFormEdit: boolean;
+
+         /**
+         * Called when cell editor has been drawn
+         * 
+         * @param e HTML element where editor is rendered
+         * @returns {} 
+         */
+         onAfterRender(e: HTMLElement): void;
     }
 } 

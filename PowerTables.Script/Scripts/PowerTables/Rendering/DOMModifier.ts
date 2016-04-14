@@ -1,14 +1,16 @@
 ﻿module PowerTables.Rendering {
     export class DOMModifier {
-        constructor(stack: RenderingStack, locator: DOMLocator, backBinder: BackBinder, templatesProvider: ITemplatesProvider, layoutRenderer: LayoutRenderer, instances: InstanceManager) {
+        constructor(stack: RenderingStack, locator: DOMLocator, backBinder: BackBinder, templatesProvider: ITemplatesProvider, layoutRenderer: LayoutRenderer, instances: InstanceManager,ed:EventsDelegatator) {
             this._stack = stack;
             this._locator = locator;
             this._backBinder = backBinder;
             this._templatesProvider = templatesProvider;
             this._layoutRenderer = layoutRenderer;
             this._instances = instances;
+            this._ed = ed;
         }
 
+        private _ed:EventsDelegatator;
         private _stack: RenderingStack;
         private _locator: DOMLocator;
         private _backBinder: BackBinder;
@@ -122,6 +124,7 @@
 
         private destroyElement(element: HTMLElement) {
             element.parentElement.removeChild(element);
+            this._ed.unsubscribeOutEvents(element);
         }
 
         private destroyElements(elements: NodeList) {
@@ -152,16 +155,13 @@
          * @param plugin Plugin to redraw
          * @returns {} 
          */
-        public redrawPlugin(plugin: IPlugin): void {
+        public redrawPlugin(plugin: IPlugin): HTMLElement {
             this._stack.clear();
             var oldPluginElement: HTMLElement = this._locator.getPluginElement(plugin);
-            var parent: HTMLElement = oldPluginElement.parentElement;
-            var parser: Rendering.Html2Dom.HtmlParser = new Rendering.Html2Dom.HtmlParser();
             var html: string = this._layoutRenderer.renderPlugin(plugin);
-            var newPluginElement: HTMLElement = parser.html2Dom(html);
-
-            parent.replaceChild(newPluginElement, oldPluginElement);
+            var newPluginElement = this.replaceElement(oldPluginElement, html);;
             this._backBinder.backBind(newPluginElement);
+            return newPluginElement;
         }
 
         /**
@@ -223,7 +223,7 @@
          * @param row 
          * @returns {} 
          */
-        public redrawRow(row: IRow): void {
+        public redrawRow(row: IRow): HTMLElement {
             this._stack.clear();
             this._stack.push(RenderingContextType.Row, row);
             var wrapper: (arg: any) => string = this._templatesProvider.getCachedTemplate('rowWrapper');
@@ -235,7 +235,9 @@
             }
             this._stack.popContext();
             var oldElement: HTMLElement = this._locator.getRowElement(row);
-            this.replaceElement(oldElement, html);
+            var newElem = this.replaceElement(oldElement, html);
+            this._backBinder.backBind(newElem);
+            return newElem;
         }
 
         public destroyRow(row: IRow): void {
@@ -260,7 +262,7 @@
          * @param row 
          * @returns {} 
          */
-        public appendRow(row: IRow, afterRowAtIndex: number): void {
+        public appendRow(row: IRow, afterRowAtIndex: number): HTMLElement {
             this._stack.clear();
             var wrapper: (arg: any) => string = this._templatesProvider.getCachedTemplate('rowWrapper');
             var html: string;
@@ -272,6 +274,8 @@
             var referenceNode: HTMLElement = this._locator.getRowElementByIndex(afterRowAtIndex);
             var newRowElement: HTMLElement = this.createElement(html);
             referenceNode.parentNode.insertBefore(newRowElement, referenceNode.nextSibling);
+            this._backBinder.backBind(newRowElement);
+            return newRowElement;
         }
 
         /**
@@ -298,7 +302,7 @@
         //#endregion
 
         //#region Cells
-        public redrawCell(cell: ICell): void {
+        public redrawCell(cell: ICell): HTMLElement {
             this._stack.clear();
             this._stack.push(RenderingContextType.Cell, cell);
             var wrapper: (arg: any) => string = this._templatesProvider.getCachedTemplate('cellWrapper');
@@ -310,7 +314,9 @@
             }
             this._stack.popContext();
             var oldElement: HTMLElement = this._locator.getCellElement(cell);
-            this.replaceElement(oldElement, html);
+            var newElem = this.replaceElement(oldElement, html);
+            this._backBinder.backBind(newElem);
+            return newElem;
         }
 
         public destroyCell(cell: ICell): void {
@@ -365,12 +371,13 @@
          * 
          * @param column Column which header is to be redrawn         
          */
-        public redrawHeader(column: IColumn): void {
+        public redrawHeader(column: IColumn): HTMLElement {
             this._stack.clear();
             var html: string = this._layoutRenderer.renderHeader(column);
             var oldHeaderElement: HTMLElement = this._locator.getHeaderElement(column.Header);
             var newElement: HTMLElement = this.replaceElement(oldHeaderElement, html);
             this._backBinder.backBind(newElement);
+            return newElement;
         }
 
         public destroyHeader(column: IColumn): void {
@@ -396,6 +403,7 @@
         private replaceElement(element: HTMLElement, html: string): HTMLElement {
             var node: HTMLElement = this.createElement(html);
             element.parentElement.replaceChild(node, element);
+            this._ed.unsubscribeOutEvents(element);
             return node;
         }
 

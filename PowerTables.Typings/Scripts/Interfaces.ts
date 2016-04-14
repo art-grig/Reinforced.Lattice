@@ -256,3 +256,16 @@ module PowerTables.Plugins.Total {
 		ColumnsCalculatorFunctions: { [key:string] : (data:IClientDataResults) => any };
 	}
 }
+module PowerTables.Editors {
+	export interface ICellEditorUiConfigBase
+	{
+		PluginId: string;
+	}
+	export interface IEditorUiConfig
+	{
+		BeginEditEventId: string;
+		CommitEventId: string;
+		RejectEventId: string;
+		EditorsForColumns: { [key:string]: PowerTables.Editors.ICellEditorUiConfigBase };
+	}
+}
