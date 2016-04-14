@@ -168,8 +168,10 @@
             var eo: { [key: string]: any } = {};
             if (eventId.substr(0, '|'.length) === '|') {
                 var evtSplit = eventId.split('|');
-                eo['__event'] = evtSplit[evtSplit.length];
-                for (var i = 0; i < evtSplit.length; i++) {
+                eo['__event'] = evtSplit[evtSplit.length - 1];
+                eo['__altern'] = {};
+                for (var i = 0; i < evtSplit.length-1; i++) {
+                    if (evtSplit[i].length===0) continue;
                     var eqidx = evtSplit[i].indexOf('=');
                     var key = evtSplit[i].substring(0, eqidx);
                     var right = evtSplit[i].substring(eqidx + 1);
@@ -186,7 +188,14 @@
                         default:
                             val = rightRaw;
                     }
-                    eo[key] = val;
+                    
+                    var keyalterns = key.split('+');
+                    if (keyalterns.length > 1) {
+                        eo[keyalterns[0]] = val;
+                        eo['__altern'][keyalterns[0]] = keyalterns.slice(1);
+                    } else {
+                        eo[key] = val;
+                    }
                 }
             }
             return eo;
@@ -195,7 +204,21 @@
         private filterEvent(e: Event, propsObject: { [key: string]: any }): boolean {
             if (propsObject['__no']) return true;
             for (var p in propsObject) {
-                if (e[p] !== propsObject[p]) return false;
+                if (p === '__event' || p ==='__altern') continue;
+                if (e[p] !== propsObject[p]) {
+                    if (propsObject["__altern"][p]) {
+                        var altern = false;
+                        for (var i = 0; i < propsObject["__altern"][p].length; i++) {
+                            if (e[propsObject["__altern"][p][i]] === propsObject[p]) {
+                                altern = true;
+                                break;
+                            }
+                        }
+                        return altern;
+                    } else {
+                        return false;
+                    }
+                }
             }
             return true;
         }

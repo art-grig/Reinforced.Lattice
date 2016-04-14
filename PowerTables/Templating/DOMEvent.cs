@@ -16,27 +16,27 @@ namespace PowerTables.Templating
             _sb = new StringBuilder();
         }
 
-        public DOMEvent Prop(string propName, bool value)
+        public DOMEvent Prop(bool value, params string[] propNameAlternates)
         {
-            _sb.AppendFormat("|{0}=b`{1}`", propName, value);
+            _sb.AppendFormat("|{0}=b`{1}`", string.Join("+", propNameAlternates), value);
             return this;
         }
 
-        public DOMEvent Prop(string propName, double value)
+        public DOMEvent Prop(double value, params string[] propNameAlternates)
         {
-            _sb.AppendFormat("|{0}=f`{1}`", propName, value.ToString("#####.#####"));
+            _sb.AppendFormat("|{0}=f`{1}`", string.Join("+", propNameAlternates), value.ToString("#####.#####"));
             return this;
         }
 
-        public DOMEvent Prop(string propName, string value)
+        public DOMEvent Prop(string value, params string[] propNameAlternates)
         {
-            _sb.AppendFormat("|{0}=s`{1}`", propName, value);
+            _sb.AppendFormat("|{0}=s`{1}`", string.Join("+", propNameAlternates), value);
             return this;
         }
 
-        public DOMEvent Prop(string propName, int value)
+        public DOMEvent Prop(int value, params string[] propNameAlternates)
         {
-            _sb.AppendFormat("|{0}=i`{1}`", propName, value);
+            _sb.AppendFormat("|{0}=i`{1}`", string.Join("+", propNameAlternates), value);
             return this;
         }
 
