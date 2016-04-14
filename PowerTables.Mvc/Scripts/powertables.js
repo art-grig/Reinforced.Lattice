@@ -12,6 +12,19 @@ var PowerTables;
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
+    var Editors;
+    (function (Editors) {
+        (function (EditorRefreshMode) {
+            EditorRefreshMode[EditorRefreshMode["RedrawCell"] = 0] = "RedrawCell";
+            EditorRefreshMode[EditorRefreshMode["RedrawRow"] = 1] = "RedrawRow";
+            EditorRefreshMode[EditorRefreshMode["RedrawAllVisible"] = 2] = "RedrawAllVisible";
+            EditorRefreshMode[EditorRefreshMode["ReloadFromServer"] = 3] = "ReloadFromServer";
+        })(Editors.EditorRefreshMode || (Editors.EditorRefreshMode = {}));
+        var EditorRefreshMode = Editors.EditorRefreshMode;
+    })(Editors = PowerTables.Editors || (PowerTables.Editors = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
     /**
      * Components container for registration/resolving plugins
      */
@@ -92,11 +105,11 @@ var PowerTables;
          * Initializes full reloading cycle
          * @returns {}
          */
-        Controller.prototype.reload = function () {
+        Controller.prototype.reload = function (forceServer) {
             var _this = this;
             this._masterTable.Loader.requestServer('query', function () {
                 _this.redrawVisibleData();
-            });
+            }, null, null, forceServer);
         };
         /**
          * Redraws row containing currently visible data object
@@ -113,7 +126,7 @@ var PowerTables;
                 idx = dispIndex.DisplayedIndex;
             }
             var row = this.produceRow(dataObject, idx);
-            this._masterTable.Renderer.Modifier.redrawRow(row);
+            return this._masterTable.Renderer.Modifier.redrawRow(row);
         };
         /**
          * Redraws locally visible data
@@ -1515,7 +1528,7 @@ var PowerTables;
          * @param errorCallback Will be called if error occures
          * @returns {}
          */
-        Loader.prototype.requestServer = function (command, callback, queryModifier, errorCallback) {
+        Loader.prototype.requestServer = function (command, callback, queryModifier, errorCallback, force) {
             var scope = PowerTables.QueryScope.Transboundary;
             if (command === 'query')
                 scope = PowerTables.QueryScope.Server;
@@ -1528,7 +1541,7 @@ var PowerTables;
                 queryModifier(clientQuery);
             }
             var queriesEqual = (command === 'query') && (JSON.stringify(serverQuery) === this._previousQueryString);
-            if (!queriesEqual) {
+            if (force || !queriesEqual) {
                 var data = {
                     Command: command,
                     Query: serverQuery
@@ -1749,11 +1762,19 @@ var PowerTables;
 (function (PowerTables) {
     var Plugins;
     (function (Plugins) {
+        var EditorRefreshMode = PowerTables.Editors.EditorRefreshMode;
         var Editor = (function (_super) {
             __extends(Editor, _super);
             function Editor() {
                 var _this = this;
                 _super.apply(this, arguments);
+                //#region IRow members
+                this.Cells = {};
+                this.IsSpecial = true;
+                //#endregion
+                this._activeEditors = [];
+                this._isEditing = false;
+                //#endregion
                 this.afterDrawn = function (e) {
                     _this.MasterTable.Renderer.Delegator.subscribeCellEvent({
                         EventId: _this.Configuration.BeginEditEventId,
@@ -1787,52 +1808,141 @@ var PowerTables;
                     });
                 };
             }
+            //#region Public interface
             Editor.prototype.notifyChanged = function (editor) {
+                this.retrieveEditorData(editor);
             };
-            Editor.prototype.completeEditing = function (editor) {
-                if (!this._canSoloComplete)
+            Editor.prototype.retrieveEditorData = function (editor, errors) {
+                var errorsArrayPresent = (!(!errors));
+                errors = errors || [];
+                this._currentDataObjectModified[editor.Column.RawName] = editor.getValue(errors);
+                if (errors.length > 0) {
+                    this.MasterTable.Renderer.Modifier.changeState('invalid', editor.VisualStates);
+                }
+                else {
+                    this.MasterTable.Renderer.Modifier.normalState(editor.VisualStates);
+                }
+                if (!errorsArrayPresent) {
+                    this._validationErrors = errors;
+                }
+            };
+            Editor.prototype.retrieveAllEditorsData = function () {
+                var errors = [];
+                for (var i = 0; i < this._activeEditors.length; i++) {
+                    this.retrieveEditorData(this._activeEditors[i], errors);
+                }
+                this._validationErrors = errors; //todo draw validation errors
+            };
+            Editor.prototype.commit = function (editor) {
+                var _this = this;
+                this.retrieveAllEditorsData();
+                if (this._validationErrors.length > 0) {
                     return;
+                }
+                this._isEditing = false;
+                for (var cd in this._currentDataObjectModified) {
+                    if (this._currentDataObjectModified.hasOwnProperty(cd)) {
+                        this.DataObject[cd] = this._currentDataObjectModified[cd];
+                    }
+                }
+                for (var i = 0; i < this._activeEditors.length; i++) {
+                    this.MasterTable.Renderer.Modifier.changeState('saving', this._activeEditors[i].VisualStates);
+                }
+                this.MasterTable.Loader.requestServer('Edit', function (response) {
+                    var serverObject = response;
+                    for (var cd in serverObject) {
+                        if (serverObject.hasOwnProperty(cd)) {
+                            _this.DataObject[cd] = serverObject[cd];
+                        }
+                    }
+                    for (var i = 0; i < _this._activeEditors.length; i++) {
+                        _this.MasterTable.Renderer.Modifier.normalState(_this._activeEditors[i].VisualStates);
+                    }
+                    switch (_this.Configuration.RefreshMode) {
+                        case EditorRefreshMode.RedrawCell:
+                        case EditorRefreshMode.RedrawRow:
+                        case EditorRefreshMode.RedrawAllVisible:
+                        case EditorRefreshMode.ReloadFromServer:
+                        default:
+                    }
+                }, function (q) {
+                    q.AdditionalData['Edit'] = JSON.stringify(_this.DataObject);
+                    return q;
+                });
             };
-            Editor.prototype.beginCellEditHandle = function (e) {
-                var col = this.MasterTable.InstanceManager.getUiColumns()[e.ColumnIndex];
-                this.beginCellEdit(col, true, false, false, this.MasterTable.DataHolder.localLookupDisplayedData(e.DisplayingRowIndex));
+            Editor.prototype.redrawEditingRow = function () {
+                if (!this._isEditing)
+                    return;
+                this.MasterTable.Renderer.Modifier.redrawRow(this);
+                this.retrieveAllEditorsData();
             };
-            Editor.prototype.beginCellEdit = function (column, canSolo, isForm, isRow, dataObject) {
-                this._canSoloComplete = canSolo;
+            Editor.prototype.reject = function (editor) {
+                this._isEditing = false;
+                this.MasterTable.Controller.redrawVisibleDataObject(this.DataObject, this.Index);
+            };
+            //#endregion
+            //#region Private members
+            Editor.prototype.ensureEditing = function (rowDisplayIndex) {
+                if (this._isEditing)
+                    return;
+                var lookup = this.MasterTable.DataHolder.localLookupDisplayedData(rowDisplayIndex);
+                this.DataObject = lookup.DataObject;
+                this._currentDataObjectModified = {};
+                for (var cd in this.DataObject) {
+                    if (this.DataObject.hasOwnProperty(cd)) {
+                        this._currentDataObjectModified[cd] = this.DataObject[cd];
+                    }
+                }
+                var row = this.MasterTable.Controller.produceRow(lookup.DataObject, lookup.DisplayedIndex);
+                this.Cells = row.Cells;
+                this._isEditing = true;
+            };
+            Editor.prototype.isEditable = function (column) {
+                return this.Configuration.EditorsForColumns.hasOwnProperty(column.RawName);
+            };
+            Editor.prototype.createEditor = function (column, canComplete, isForm, isRow) {
                 var editorConf = this.Configuration.EditorsForColumns[column.RawName];
-                if (!editorConf)
-                    return;
                 var editor = PowerTables.ComponentsContainer.resolveComponent(editorConf.PluginId);
-                editor.DataObject = dataObject.DataObject;
+                editor.DataObject = this.DataObject;
+                editor.ModifiedDataObject = this._currentDataObjectModified;
                 editor.Column = column;
-                editor.CanComplete = canSolo;
+                editor.CanComplete = canComplete;
                 editor.IsFormEdit = isForm;
                 editor.IsRowEdit = isRow;
-                editor.Editor = this;
+                editor.Row = this;
                 editor.RawConfig = { Configuration: editorConf, Order: 0, PluginId: editorConf.PluginId, Placement: '' };
                 editor.init(this.MasterTable);
-                editor.Row = { Index: dataObject.DisplayedIndex };
-                editor.Data = dataObject.DataObject[column.RawName];
-                var elem = this.MasterTable.Renderer.Modifier.redrawCell(editor);
-                editor.onAfterRender(elem);
+                return editor;
+            };
+            Editor.prototype.beginCellEdit = function (column, canComplete, isForm, isRow, rowIndex) {
+                if (!this.isEditable(column))
+                    return;
+                var editor = this.createEditor(column, canComplete, isForm, isRow);
+                this.ensureEditing(rowIndex);
+                this.redrawEditingRow();
+                editor.IsInitialValueSetting = true;
+                editor.setValue(this._currentDataObjectModified[editor.Column.RawName]);
+                editor.IsInitialValueSetting = false;
+                this._activeEditors.push(editor);
+                this.Cells[column.RawName] = editor;
+            };
+            //#endregion
+            //#region Event handlers
+            Editor.prototype.beginCellEditHandle = function (e) {
+                var col = this.MasterTable.InstanceManager.getUiColumns()[e.ColumnIndex];
+                this.beginCellEdit(col, true, false, false, e.DisplayingRowIndex);
             };
             Editor.prototype.beginRowEditHandle = function (e) {
-                this._canSoloComplete = false;
             };
             Editor.prototype.beginFormEditHandle = function (e) {
-                this._canSoloComplete = false;
             };
             Editor.prototype.commitRowEditHandle = function (e) {
-                this._canSoloComplete = false;
             };
             Editor.prototype.commitFormEditHandle = function (e) {
-                this._canSoloComplete = false;
             };
             Editor.prototype.rejectRowEditHandle = function (e) {
-                this._canSoloComplete = false;
             };
             Editor.prototype.rejectFormEditHandle = function (e) {
-                this._canSoloComplete = false;
             };
             return Editor;
         })(Plugins.PluginBase);
@@ -1869,34 +1979,33 @@ var PowerTables;
                  *
                  * @returns {}
                  */
-                CellEditorBase.prototype.getValue = function () { throw new Error("Not implemented"); };
+                CellEditorBase.prototype.getValue = function (errors) { throw new Error("Not implemented"); };
                 /**
                  * Sets editor value from the outside
                  */
                 CellEditorBase.prototype.setValue = function (value) { throw new Error("Not implemented"); };
                 /**
-                 * Validates entered value and returns set of error messages
-                 * or null if entered value is valid
-                 *
-                 * @returns {Array} Array of
-                 */
-                CellEditorBase.prototype.validate = function () { return []; };
-                /**
                  * Template-bound event raising on changing this editor's value
                  */
-                CellEditorBase.prototype.changed = function (e) {
-                    this.Editor.notifyChanged(this);
+                CellEditorBase.prototype.changedHandler = function (e) {
+                    if (this.IsInitialValueSetting)
+                        return;
+                    this.Row.notifyChanged(this);
                 };
                 /**
                  * Event handler for commit (save edited, ok, submit etc) event raised from inside of CellEditor
                  * Commit leads to validation. Cell editor should be notified
                  */
-                CellEditorBase.prototype.commitHandler = function (e) { };
+                CellEditorBase.prototype.commitHandler = function (e) {
+                    this.Row.commit(this);
+                };
                 /**
                  * Event handler for reject (cancel editing) event raised from inside of CellEditor
                  * Cell editor should be notified
                  */
-                CellEditorBase.prototype.rejectHandler = function (e) { };
+                CellEditorBase.prototype.rejectHandler = function (e) {
+                    this.Row.reject(this);
+                };
                 /**
                  * Called when cell editor has been drawn
                  *
@@ -1907,6 +2016,104 @@ var PowerTables;
                 return CellEditorBase;
             })(Plugins.PluginBase);
             Editors.CellEditorBase = CellEditorBase;
+        })(Editors = Plugins.Editors || (Plugins.Editors = {}));
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var Editors;
+        (function (Editors) {
+            var PlainTextEditor = (function (_super) {
+                __extends(PlainTextEditor, _super);
+                function PlainTextEditor() {
+                    _super.apply(this, arguments);
+                }
+                PlainTextEditor.prototype.getValue = function (errors) {
+                    if (this.Column.IsDateTime) {
+                        this.MasterTable.Date.getDateFromDatePicker(this.Input);
+                    }
+                    else {
+                        this._parseFunction(this.Input.nodeValue, this.Column, errors);
+                    }
+                };
+                PlainTextEditor.prototype.setValue = function (value) {
+                    if (this.Column.IsDateTime) {
+                        this.MasterTable.Date.putDateToDatePicker(this.Input, value);
+                    }
+                    else {
+                        this.Input.nodeValue = this._formatFunction(value, this.Column);
+                    }
+                };
+                PlainTextEditor.prototype.init = function (masterTable) {
+                    _super.prototype.init.call(this, masterTable);
+                    if (this.Configuration.ValidationRegex) {
+                        this.ValidationRegex = new RegExp(this.Configuration.ValidationRegex);
+                    }
+                    this._dotSeparators = new RegExp(this.Configuration.FloatDotReplaceSeparatorsRegex);
+                    this._removeSeparators = new RegExp(this.Configuration.FloatRemoveSeparatorsRegex);
+                    this._parseFunction = this.Configuration.ParseFunction || this.defaultParse;
+                    this._formatFunction = this.Configuration.FormatFunction || this.defaultFormat;
+                };
+                PlainTextEditor.prototype.defaultParse = function (value, column, errors) {
+                    if (this.ValidationRegex) {
+                        var mtch = this.ValidationRegex.test(value);
+                        if (!mtch) {
+                            errors.push(this.Configuration.RegexValidationErrorText);
+                            return null;
+                        }
+                        return value;
+                    }
+                    if (value == null || value == undefined || value.length === 0) {
+                        if (!column.Configuration.IsNullable) {
+                            errors.push("Value should be provided for " + column.Configuration.Title);
+                        }
+                        return null;
+                    }
+                    var i;
+                    if (column.IsInteger || column.IsEnum) {
+                        value = value.replace(this._removeSeparators, '');
+                        i = parseInt(value);
+                        if (isNaN(i)) {
+                            errors.push("Invalid number provided for " + column.Configuration.Title);
+                            return null;
+                        }
+                        return i;
+                    }
+                    if (column.IsFloat) {
+                        value = value.replace(this._removeSeparators, '');
+                        value = value.replace(this._dotSeparators, '.');
+                        i = parseFloat(value);
+                        if (isNaN(i)) {
+                            errors.push("Invalid number provided for " + column.Configuration.Title);
+                            return null;
+                        }
+                        return i;
+                    }
+                    if (column.IsBoolean) {
+                        var bs = value.toUpperCase().trim();
+                        if (bs === 'TRUE')
+                            return true;
+                        if (bs === 'FALSE')
+                            return false;
+                        errors.push("Invalid boolean value provided for " + column.Configuration.Title);
+                        return null;
+                    }
+                    return value;
+                };
+                PlainTextEditor.prototype.defaultFormat = function (value, column) {
+                    if (value == null || value == undefined)
+                        return '';
+                    return value.toString();
+                };
+                PlainTextEditor.prototype.changedHandler = function (e) {
+                    _super.prototype.changedHandler.call(this, e);
+                };
+                return PlainTextEditor;
+            })(Editors.CellEditorBase);
+            Editors.PlainTextEditor = PlainTextEditor;
+            PowerTables.ComponentsContainer.registerComponent('PlainTextEditor', PlainTextEditor);
         })(Editors = Plugins.Editors || (Plugins.Editors = {}));
     })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
 })(PowerTables || (PowerTables = {}));
@@ -3451,6 +3658,9 @@ var PowerTables;
         };
         PowerTable.prototype.initialize = function () {
             this._isReady = true;
+            if (!window['__latticeInstances'])
+                window['__latticeInstances'] = {};
+            window['__latticeInstances'][this._configuration.TableRootId] = this;
             this.Date = new PowerTables.DateService(this._configuration.DatepickerOptions);
             this.Events = new PowerTables.EventsManager(this);
             this.InstanceManager = new PowerTables.InstanceManager(this._configuration, this, this.Events);
@@ -4024,22 +4234,35 @@ var PowerTables;
                     var ns = desired[i];
                     for (var k = 0; k < ns.classes.length; k++) {
                         var cls = ns.classes[k].substring(1);
-                        if (ns.classes[k].charAt(0) === '+')
-                            ns.Element.classList.add(cls);
-                        else
-                            ns.Element.classList.remove(cls);
+                        if (ns.classes[k].charAt(0) === '+') {
+                            if (!ns.Element.classList.contains(cls)) {
+                                ns.Element.classList.add(cls);
+                            }
+                        }
+                        else {
+                            if (ns.Element.classList.contains(cls)) {
+                                ns.Element.classList.remove(cls);
+                            }
+                        }
                     }
                     for (var ak in ns.attrs) {
                         if (ns.attrs.hasOwnProperty(ak)) {
-                            if (ns.attrs[ak] == null)
-                                ns.Element.removeAttribute(ak);
-                            else
-                                ns.Element.setAttribute(ak, ns.attrs[ak]);
+                            if (ns.attrs[ak] == null) {
+                                if (ns.Element.hasAttribute(ak))
+                                    ns.Element.removeAttribute(ak);
+                            }
+                            else {
+                                if ((!ns.Element.hasAttribute(ak)) || (ns.Element.getAttribute(ak) !== ns.attrs[ak])) {
+                                    ns.Element.setAttribute(ak, ns.attrs[ak]);
+                                }
+                            }
                         }
                     }
                     for (var sk in ns.styles) {
                         if (ns.styles.hasOwnProperty(sk)) {
-                            ns.Element.style.setProperty(sk, ns.styles[sk]);
+                            if (ns.Element.style.getPropertyValue(sk) !== ns.styles[sk]) {
+                                ns.Element.style.setProperty(sk, ns.styles[sk]);
+                            }
                         }
                     }
                 }
@@ -4047,18 +4270,28 @@ var PowerTables;
             DOMModifier.prototype.applyNormal = function (normal) {
                 for (var i = 0; i < normal.length; i++) {
                     var ns = normal[i];
-                    ns.Element.setAttribute('class', ns.classes.join(' '));
+                    var classes = ns.classes.join(' ');
+                    if ((!ns.Element.hasAttribute('class') && classes.length > 0) || (ns.Element.getAttribute('class') !== classes)) {
+                        ns.Element.setAttribute('class', classes);
+                    }
                     for (var ak in ns.attrs) {
                         if (ns.attrs.hasOwnProperty(ak)) {
-                            if (ns.attrs[ak] == null)
-                                ns.Element.removeAttribute(ak);
-                            else
-                                ns.Element.setAttribute(ak, ns.attrs[ak]);
+                            if (ns.attrs[ak] == null) {
+                                if (ns.Element.hasAttribute(ak))
+                                    ns.Element.removeAttribute(ak);
+                            }
+                            else {
+                                if ((!ns.Element.hasAttribute(ak)) || (ns.Element.getAttribute(ak) !== ns.attrs[ak])) {
+                                    ns.Element.setAttribute(ak, ns.attrs[ak]);
+                                }
+                            }
                         }
                     }
                     for (var sk in ns.styles) {
                         if (ns.styles.hasOwnProperty(sk)) {
-                            ns.Element.style.setProperty(sk, ns.styles[sk]);
+                            if (ns.Element.style.getPropertyValue(sk) !== ns.styles[sk]) {
+                                ns.Element.style.setProperty(sk, ns.styles[sk]);
+                            }
                         }
                     }
                 }

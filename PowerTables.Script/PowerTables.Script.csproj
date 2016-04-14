@@ -44,6 +44,7 @@
     <TypeScriptCompile Include="Scripts\PowerTables\Loader.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Editor.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Editors\CellEditorBase.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Editors\PlainTextEditor.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\BackBinder.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\ContentRenderer.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\DOMModifier.ts" />

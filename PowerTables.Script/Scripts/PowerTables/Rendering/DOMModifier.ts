@@ -1,6 +1,6 @@
 ﻿module PowerTables.Rendering {
     export class DOMModifier {
-        constructor(stack: RenderingStack, locator: DOMLocator, backBinder: BackBinder, templatesProvider: ITemplatesProvider, layoutRenderer: LayoutRenderer, instances: InstanceManager,ed:EventsDelegatator) {
+        constructor(stack: RenderingStack, locator: DOMLocator, backBinder: BackBinder, templatesProvider: ITemplatesProvider, layoutRenderer: LayoutRenderer, instances: InstanceManager, ed: EventsDelegatator) {
             this._stack = stack;
             this._locator = locator;
             this._backBinder = backBinder;
@@ -10,7 +10,7 @@
             this._ed = ed;
         }
 
-        private _ed:EventsDelegatator;
+        private _ed: EventsDelegatator;
         private _stack: RenderingStack;
         private _locator: DOMLocator;
         private _backBinder: BackBinder;
@@ -24,7 +24,7 @@
          * @param state State id
          * @param states VisualStates collection
          */
-        public changeState(state: string, states: { [key: string]: IState[] }) : void {
+        public changeState(state: string, states: { [key: string]: IState[] }): void {
             this.applyNormal(states['_normal']);
             if (!states[state]) return;
             this.applyState(states[state]);
@@ -35,7 +35,7 @@
          * 
          * @param states VisualStates collection 
          */
-        public normalState(states: { [key: string]: IState[] }) :void {
+        public normalState(states: { [key: string]: IState[] }): void {
             this.applyNormal(states['_normal']);
         }
 
@@ -44,18 +44,32 @@
                 var ns: IState = desired[i];
                 for (var k = 0; k < ns.classes.length; k++) {
                     var cls = ns.classes[k].substring(1);
-                    if (ns.classes[k].charAt(0) === '+') ns.Element.classList.add(cls);
-                    else ns.Element.classList.remove(cls);
+                    if (ns.classes[k].charAt(0) === '+') {
+                        if (!ns.Element.classList.contains(cls)) {
+                            ns.Element.classList.add(cls);
+                        }
+                    } else {
+                        if (ns.Element.classList.contains(cls)) {
+                            ns.Element.classList.remove(cls);
+                        }
+                    }
                 }
                 for (var ak in ns.attrs) {
                     if (ns.attrs.hasOwnProperty(ak)) {
-                        if (ns.attrs[ak] == null) ns.Element.removeAttribute(ak);
-                        else ns.Element.setAttribute(ak, ns.attrs[ak]);
+                        if (ns.attrs[ak] == null) {
+                            if (ns.Element.hasAttribute(ak)) ns.Element.removeAttribute(ak);
+                        } else {
+                            if ((!ns.Element.hasAttribute(ak)) || (ns.Element.getAttribute(ak) !== ns.attrs[ak])) {
+                                ns.Element.setAttribute(ak, ns.attrs[ak]);
+                            }
+                        }
                     }
                 }
                 for (var sk in ns.styles) {
                     if (ns.styles.hasOwnProperty(sk)) {
-                        ns.Element.style.setProperty(sk, ns.styles[sk]);
+                        if (ns.Element.style.getPropertyValue(sk) !== ns.styles[sk]) {
+                            ns.Element.style.setProperty(sk, ns.styles[sk]);
+                        }
                     }
                 }
             }
@@ -64,16 +78,28 @@
         private applyNormal(normal: IState[]) {
             for (var i = 0; i < normal.length; i++) {
                 var ns = normal[i];
-                ns.Element.setAttribute('class', ns.classes.join(' '));
+
+                var classes = ns.classes.join(' ');
+                if ((!ns.Element.hasAttribute('class') && classes.length > 0) || (ns.Element.getAttribute('class') !== classes)) {
+                    ns.Element.setAttribute('class', classes);
+                }
+
                 for (var ak in ns.attrs) {
                     if (ns.attrs.hasOwnProperty(ak)) {
-                        if (ns.attrs[ak] == null) ns.Element.removeAttribute(ak);
-                        else ns.Element.setAttribute(ak, ns.attrs[ak]);
+                        if (ns.attrs[ak] == null) {
+                            if (ns.Element.hasAttribute(ak)) ns.Element.removeAttribute(ak);
+                        } else {
+                            if ((!ns.Element.hasAttribute(ak)) || (ns.Element.getAttribute(ak) !== ns.attrs[ak])) {
+                                ns.Element.setAttribute(ak, ns.attrs[ak]);
+                            }
+                        }
                     }
                 }
                 for (var sk in ns.styles) {
                     if (ns.styles.hasOwnProperty(sk)) {
-                        ns.Element.style.setProperty(sk, ns.styles[sk]);
+                        if (ns.Element.style.getPropertyValue(sk) !== ns.styles[sk]) {
+                            ns.Element.style.setProperty(sk, ns.styles[sk]);
+                        }
                     }
                 }
             }
@@ -334,7 +360,7 @@
             this.hideElement(e);
         }
 
-        public destroyCellsByColumn(column:IColumn) {
+        public destroyCellsByColumn(column: IColumn) {
             var e = this._locator.getColumnCellsElements(column);
             this.destroyElements(e);
         }
@@ -349,7 +375,7 @@
             this.showElements(e);
         }
 
-        public destroyColumnCellsElementsByColumnIndex(columnIndex:number) {
+        public destroyColumnCellsElementsByColumnIndex(columnIndex: number) {
             var e = this._locator.getColumnCellsElementsByColumnIndex(columnIndex);
             this.destroyElements(e);
         }

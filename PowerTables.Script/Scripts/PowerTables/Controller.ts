@@ -8,7 +8,7 @@
 
         constructor(masterTable: IMasterTable) {
             this._masterTable = masterTable;
-            
+
             this._masterTable.Events.LoadingError.subscribe(this.onLoadingError.bind(this), 'controller');
         }
 
@@ -27,10 +27,10 @@
          * Initializes full reloading cycle
          * @returns {} 
          */
-        public reload(): void {
+        public reload(forceServer?: boolean): void {
             this._masterTable.Loader.requestServer('query', () => {
                 this.redrawVisibleData();
-            });
+            }, null, null, forceServer);
         }
 
         /**
@@ -40,14 +40,14 @@
          * @param idx 
          * @returns {} 
          */
-        public redrawVisibleDataObject(dataObject: any, idx?: number) {
+        public redrawVisibleDataObject(dataObject: any, idx?: number): HTMLElement {
             if (!idx) {
                 var dispIndex: ILocalLookupResult = this._masterTable.DataHolder.localLookupDisplayedData(dataObject);
                 if (dispIndex == null) throw new Error('Cannot redraw object because it is not displaying currently');
                 idx = dispIndex.DisplayedIndex;
             }
             var row: IRow = this.produceRow(dataObject, idx);
-            this._masterTable.Renderer.Modifier.redrawRow(row);
+            return this._masterTable.Renderer.Modifier.redrawRow(row);
         }
 
         /**
@@ -82,7 +82,7 @@
         //#region event delegation hell
 
 
-//#endregion
+        //#endregion
 
         /**
          * Inserts data entry to local storage 

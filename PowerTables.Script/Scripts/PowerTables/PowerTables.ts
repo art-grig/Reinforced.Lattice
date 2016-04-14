@@ -44,6 +44,10 @@ module PowerTables {
 
         private initialize() {
             this._isReady = true;
+
+            if (!window['__latticeInstances']) window['__latticeInstances'] = {};
+            window['__latticeInstances'][this._configuration.TableRootId] = this;
+
             this.Date = new DateService(this._configuration.DatepickerOptions);
             this.Events = new EventsManager(this);
             this.InstanceManager = new InstanceManager(this._configuration, this, this.Events);

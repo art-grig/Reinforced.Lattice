@@ -1,7 +1,8 @@
 ﻿module PowerTables.Plugins.Editors {
     import TemplateBoundEvent = PowerTables.Rendering.ITemplateBoundEvent;
+    import State = PowerTables.Rendering.IState;
 
-    export class CellEditorBase<T> extends PluginBase<T> implements ICellEditor, ICell {
+    export class CellEditorBase<T> extends PluginBase<T> implements ICellEditor {
         
         /**
          * True when field is single, false when multiple (e.g. row edit, form edit)
@@ -22,6 +23,11 @@
          * Original, locally displayed data object
          */
         public DataObject: any;
+
+        /**
+         * Value for particular editor column
+         */
+        public Data: any;
 
         /**
          * Retrieves original value for this particular cell editor
@@ -47,7 +53,7 @@
         /**
          * Reference to parent editor
          */
-        public Editor: Editor;
+        public Row: Editor;
 
         /**
          * Corresponding column
@@ -55,11 +61,16 @@
         public Column: IColumn;
 
         /**
+         * Flag when initial value setting occures
+         */
+        public IsInitialValueSetting:boolean;
+
+        /**
          * Returns entered editor value
          * 
          * @returns {} 
          */
-        public getValue(): any { throw new Error("Not implemented"); }
+        public getValue(errors: string[]): any { throw new Error("Not implemented"); }
 
         /**
          * Sets editor value from the outside
@@ -67,31 +78,28 @@
         public setValue(value: any): void { throw new Error("Not implemented"); }
 
         /**
-         * Validates entered value and returns set of error messages
-         * or null if entered value is valid
-         * 
-         * @returns {Array} Array of  
-         */
-        public validate(): string[] { return []; }
-
-        /**
          * Template-bound event raising on changing this editor's value 
          */
-        public changed(e: TemplateBoundEvent): void {
-            this.Editor.notifyChanged(this);
+        public changedHandler(e: TemplateBoundEvent): void {
+            if (this.IsInitialValueSetting) return;
+            this.Row.notifyChanged(this);
         }
 
         /**
          * Event handler for commit (save edited, ok, submit etc) event raised from inside of CellEditor
          * Commit leads to validation. Cell editor should be notified
          */
-        public commitHandler(e: TemplateBoundEvent): void { }
+        public commitHandler(e: TemplateBoundEvent): void {
+            this.Row.commit(this);
+        }
 
         /**
          * Event handler for reject (cancel editing) event raised from inside of CellEditor
          * Cell editor should be notified
          */
-        public rejectHandler(e: TemplateBoundEvent): void { }
+        public rejectHandler(e: TemplateBoundEvent): void {
+            this.Row.reject(this);
+        }
 
         /**
          * Called when cell editor has been drawn
@@ -100,45 +108,38 @@
          * @returns {} 
          */
         public onAfterRender(e: HTMLElement): void { }
-
-        public Row: IRow;
-        public Data: any;
     }
 
     export interface ICellEditor extends IPlugin, ICell {
         /**
+         * Plugin's visual states collection. 
+         * Usually it is not used, but always it is better to have one 
+         */
+        VisualStates: { [key: string]: State[] };
+
+        /**
          * Original, locally displayed data object
          */
         DataObject: any;
-        /**
-         * Template-bound event raising on changing this editor's value     
-         */
-        changed(e: TemplateBoundEvent): void;
 
         /**
-         * Validates entered value and returns set of error messages
-         * or null if entered value is valid
-         * 
-         * @returns {Array} Array of  
+         * Data object that is modified within editing process
          */
-        validate(): string[];
-
+        ModifiedDataObject: any;
+        
         /**
          * Returns entered editor value
          * 
+         * @param errors Validation errors collection
          * @returns {} 
          */
-        getValue(): any;
+        getValue(errors: string[]): any;
 
         /**
          * Sets editor value from the outside
          */
         setValue(value: any): void;
-        /**
-         * Reference to parent editor
-         */
-        Editor: Editor;
-
+        
         /**
          * Corresponding column
          */
@@ -164,12 +165,17 @@
          */
         IsFormEdit: boolean;
 
-         /**
-         * Called when cell editor has been drawn
-         * 
-         * @param e HTML element where editor is rendered
-         * @returns {} 
+        /**
+         * Flag when initial value setting occures
          */
-         onAfterRender(e: HTMLElement): void;
+        IsInitialValueSetting: boolean;
+
+        /**
+        * Called when cell editor has been drawn
+        * 
+        * @param e HTML element where editor is rendered
+        * @returns {} 
+        */
+        onAfterRender(e: HTMLElement): void;
     }
 } 

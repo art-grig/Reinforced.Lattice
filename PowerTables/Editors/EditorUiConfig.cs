@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace PowerTables.Editors
 {
@@ -21,6 +17,19 @@ namespace PowerTables.Editors
             BeginEditEventId = "click";
             CommitEventId = "click";
             RejectEventId = "click";
+            RefreshMode = EditorRefreshMode.RedrawCell;
         }
+
+        public EditorRefreshMode RefreshMode { get; set; }
+
+        public bool IsServerPowered { get; set; }
+    }
+
+    public enum EditorRefreshMode
+    {
+        RedrawCell,
+        RedrawRow,
+        RedrawAllVisible,
+        ReloadFromServer
     }
 }

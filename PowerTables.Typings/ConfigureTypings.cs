@@ -8,6 +8,7 @@ using System.Web.Mvc;
 using PowerTables.Configuration;
 using PowerTables.Configuration.Json;
 using PowerTables.Editors;
+using PowerTables.Editors.PlainText;
 using PowerTables.Filters;
 using PowerTables.Filters.Range;
 using PowerTables.Filters.Select;
@@ -71,7 +72,7 @@ namespace PowerTables.Typings
                 ;
             builder.ExportAsInterface<SelectListItem>()
                 .WithPublicProperties()
-                .WithProperty(c => c.Group, c => c.Ignore()); 
+                .WithProperty(c => c.Group, c => c.Ignore());
 
 
             builder.ExportAsInterface<SelectFilterUiConfig>().WithPublicProperties().WithProperty(c => c.ClientFilteringFunction, c => c.Type("(object: any, selectedValues:string[], query: IQuery)=>boolean"));
@@ -100,7 +101,7 @@ namespace PowerTables.Typings
 
             builder.ExportAsInterface<ToolbarButtonsClientConfiguration>().WithPublicProperties();
             builder.ExportAsInterface<ToolbarButtonClientConfiguration>()
-                .WithProperties(BindingFlags.Public | BindingFlags.NonPublic| BindingFlags.Instance)
+                .WithProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                 .WithProperty(c => c.CommandCallbackFunction,
                     c => c.Type("(table:any /*PowerTables.PowerTable*/,response:IPowerTablesResponse)=>void"))
                 .WithProperty(c => c.ConfirmationFunction,
@@ -113,11 +114,16 @@ namespace PowerTables.Typings
                 .WithProperty(c => c.ColumnsValueFunctions, c => c.Type("{ [key:string] : (a:any)=>string }"))
                 .WithProperty(c => c.ColumnsCalculatorFunctions, c => c.Type("{ [key:string] : (data:IClientDataResults) => any }"));
 
-            builder.ExportAsInterface<CellEditorUiConfigBase>().WithPublicProperties();
+            builder.ExportAsInterface<CellEditorUiConfigBase>().WithPublicProperties().WithProperty(c => c.CustomValidationFunction, c => c.Type("(currentValue: any, originalDataObject: any, modifiedDataObject:any) => string[]"));
             builder.ExportAsInterface<EditorUiConfig>().WithPublicProperties();
+            builder.ExportAsInterface<PlainTextEditorUiConfig>()
+                .WithPublicProperties()
+                .WithProperty(c => c.FormatFunction, c => c.Type("(value:any,column:IColumn) => string"))
+                .WithProperty(c => c.ParseFunction, c => c.Type("(value:string,column:IColumn,errors:string[]) => any"))
+                ;
 
 
-
+            builder.ExportAsEnums(new[] { typeof(EditorRefreshMode) });
         }
 
     }

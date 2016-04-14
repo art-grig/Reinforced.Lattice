@@ -29,7 +29,7 @@
         /**
          * Reference to master table this plugin belongs to
          */
-        protected MasterTable: IMasterTable;
+        public MasterTable: IMasterTable;
 
         /**
          * Events subscription method. 

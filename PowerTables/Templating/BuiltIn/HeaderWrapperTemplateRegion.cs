@@ -55,6 +55,36 @@ namespace PowerTables.Templating.BuiltIn
         /// Column configuration
         /// </summary>
         ColumnConfiguration Configuration { get; }
+
+        /// <summary>
+        /// True when column holds DateTime values
+        /// </summary>
+        bool IsDateTime { get; }
+
+        /// <summary>
+        /// True when column holds Integer numbers
+        /// </summary>
+        bool IsInteger { get; }
+
+        /// <summary>
+        /// True when column holds floating point
+        /// </summary>
+        bool IsFloat { get; }
+
+        /// <summary>
+        /// True when column holds strings
+        /// </summary>
+        bool IsString { get; }
+
+        /// <summary>
+        /// True when column holds enum values
+        /// </summary>
+        bool IsEnum { get; }
+
+        /// <summary>
+        /// True when column holds boolean
+        /// </summary>
+        bool IsBoolean { get; }
     }
 
     public static class HeaderTemplatingExtensions

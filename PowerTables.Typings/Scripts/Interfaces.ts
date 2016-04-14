@@ -260,6 +260,7 @@ module PowerTables.Editors {
 	export interface ICellEditorUiConfigBase
 	{
 		PluginId: string;
+		CustomValidationFunction: (currentValue: any, originalDataObject: any, modifiedDataObject:any) => string[];
 	}
 	export interface IEditorUiConfig
 	{
@@ -267,5 +268,27 @@ module PowerTables.Editors {
 		CommitEventId: string;
 		RejectEventId: string;
 		EditorsForColumns: { [key:string]: PowerTables.Editors.ICellEditorUiConfigBase };
+		RefreshMode: PowerTables.Editors.EditorRefreshMode;
+		IsServerPowered: boolean;
+	}
+	export enum EditorRefreshMode { 
+		RedrawCell = 0, 
+		RedrawRow = 1, 
+		RedrawAllVisible = 2, 
+		ReloadFromServer = 3, 
+	}
+}
+module PowerTables.Editors.PlainText {
+	export interface IPlainTextEditorUiConfig extends PowerTables.Editors.ICellEditorUiConfigBase
+	{
+		PluginId: string;
+		ValidationRegex: string;
+		RegexValidationErrorText: string;
+		EnableBasicValidation: boolean;
+		BasicValidationErrorMessage: string;
+		FormatFunction: (value:any,column:IColumn) => string;
+		ParseFunction: (value:string,column:IColumn,errors:string[]) => any;
+		FloatRemoveSeparatorsRegex: string;
+		FloatDotReplaceSeparatorsRegex: string;
 	}
 }
