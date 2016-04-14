@@ -41,25 +41,30 @@
             return result;
         }
 
+        public renderCell(cell: ICell): string {
+            return this._columnsRenderFunctions[cell.Column.RawName](cell);
+        }
+
+
         public renderContent(columnName?: string) {
             var result: string = '';
             switch (this._stack.Current.Type) {
-            case RenderingContextType.Row:
-                var row: IRow = <IRow> this._stack.Current.Object;
-                var columns: IColumn[] = this._instances.getUiColumns();
-                var cellWrapper: (arg: any) => string = this._templatesProvider.getCachedTemplate('cellWrapper');
-                for (var i: number = 0; i < columns.length; i++) {
-                    var cell: ICell = row.Cells[columns[i].RawName];
-                    this._stack.push(RenderingContextType.Cell, cell, columns[i].RawName);
-                    if (cell.renderElement) result += cell.renderElement(this._templatesProvider);
-                    else result += cellWrapper(cell);
-                    this._stack.popContext();
-                }
-                break;
-            case RenderingContextType.Cell:
-                var tmpl: (x: ICell) => string = this._columnsRenderFunctions[(<ICell>this._stack.Current.Object).Column.RawName];
-                result += tmpl((<ICell>this._stack.Current.Object));
-                break;
+                case RenderingContextType.Row:
+                    var row: IRow = <IRow> this._stack.Current.Object;
+                    var columns: IColumn[] = this._instances.getUiColumns();
+                    var cellWrapper: (arg: any) => string = this._templatesProvider.getCachedTemplate('cellWrapper');
+                    for (var i: number = 0; i < columns.length; i++) {
+                        var cell: ICell = row.Cells[columns[i].RawName];
+                        this._stack.push(RenderingContextType.Cell, cell, columns[i].RawName);
+                        if (cell.renderElement) result += cell.renderElement(this._templatesProvider);
+                        else result += cellWrapper(cell);
+                        this._stack.popContext();
+                    }
+                    break;
+                case RenderingContextType.Cell:
+                    var tmpl: (x: ICell) => string = this._columnsRenderFunctions[(<ICell>this._stack.Current.Object).Column.RawName];
+                    result += tmpl((<ICell>this._stack.Current.Object));
+                    break;
             }
             return result;
         }

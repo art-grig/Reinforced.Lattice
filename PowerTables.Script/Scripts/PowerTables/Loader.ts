@@ -205,7 +205,7 @@
 
             if (queryModifier) {
                 queryModifier(serverQuery);
-                queryModifier(clientQuery);
+                if (command === 'query') queryModifier(clientQuery);
             }
             
             var queriesEqual: boolean = (command === 'query') && (JSON.stringify(serverQuery) === this._previousQueryString);

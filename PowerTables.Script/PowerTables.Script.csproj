@@ -50,7 +50,7 @@
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\LayoutRenderer.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\DOMLocator.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\Renderer.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Rendering\RenderingStack.ts" />    
+    <TypeScriptCompile Include="Scripts\PowerTables\Rendering\RenderingStack.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\PowerTables.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\PluginBase.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\FilterBase.ts" />
@@ -74,6 +74,8 @@
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Editor.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Editors\CellEditorBase.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Editors\PlainTextEditor.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Editors\SelectListEditor.ts" />
+    
   </ItemGroup>
   <ItemGroup />
   <PropertyGroup>

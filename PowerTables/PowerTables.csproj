@@ -94,6 +94,8 @@
     <Compile Include="Editors\PlainText\PlainTextEditorConfigurationExtensions.cs" />
     <Compile Include="Editors\PlainText\PlainTextEditorTemplateRegion.cs" />
     <Compile Include="Editors\PlainText\PlainTextEditorUiConfig.cs" />
+    <Compile Include="Editors\SelectList\SelectListEditorUiConfig.cs" />
+    <Compile Include="Editors\SelectList\SelectListTemplateRegion.cs" />
     <Compile Include="Filters\ColumnFilterBase.cs" />
     <Compile Include="Filters\ColumnFilterExtensions.cs" />
     <Compile Include="Filters\CommonFiltersUiExtensions.cs" />
@@ -220,7 +222,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Editors\Check\" />
-    <Folder Include="Editors\SelectList\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

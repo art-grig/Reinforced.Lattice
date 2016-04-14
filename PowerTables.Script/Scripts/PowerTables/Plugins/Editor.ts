@@ -12,6 +12,8 @@
         public Index: number;
         //#endregion
 
+        private _mode: Mode;
+
         private _activeEditors: CellEditorBase[] = [];
         private _currentDataObjectModified: any;
         private _isEditing: boolean = false;
@@ -22,36 +24,11 @@
             this.retrieveEditorData(editor);
         }
 
-        private retrieveEditorData(editor: CellEditorBase, errors?: string[]) {
-            var errorsArrayPresent = (!(!errors));
-            errors = errors || [];
-            this._currentDataObjectModified[editor.Column.RawName] = editor.getValue(errors);
-            if (errors.length > 0) {
-                this.MasterTable.Renderer.Modifier.changeState('invalid', editor.VisualStates);
-            } else {
-                this.MasterTable.Renderer.Modifier.normalState(editor.VisualStates);
-            }
-            if (!errorsArrayPresent) {
-                this._validationErrors = errors;
-            }
-        }
-
-        private retrieveAllEditorsData() {
-            var errors = [];
-            for (var i = 0; i < this._activeEditors.length; i++) {
-                this.retrieveEditorData(this._activeEditors[i],errors);
-            }
-            this._validationErrors = errors; //todo draw validation errors
-        }
-
-        public commit(editor: CellEditorBase) {
+        public commitAll() {
             this.retrieveAllEditorsData();
-            if (this._validationErrors.length > 0) {
-                return;
-            }
+            if (this._validationErrors.length > 0) return;
 
             this._isEditing = false;
-
             for (var cd in this._currentDataObjectModified) {
                 if (this._currentDataObjectModified.hasOwnProperty(cd)) {
                     this.DataObject[cd] = this._currentDataObjectModified[cd];
@@ -62,41 +39,75 @@
                 this.MasterTable.Renderer.Modifier.changeState('saving', this._activeEditors[i].VisualStates);
             }
 
-            if (!this.Configuration.IsServerPowered) {
-                this.MasterTable.Loader.requestServer('Edit', (response) => {
-                    var serverObject = response;
-                    for (var cd in serverObject) {
-                        if (serverObject.hasOwnProperty(cd)) {
-                            this.DataObject[cd] = serverObject[cd];
-                        }
-                    }
-                    for (var i = 0; i < this._activeEditors.length; i++) {
-                        this.MasterTable.Renderer.Modifier.normalState(this._activeEditors[i].VisualStates);
-                    }
-                    switch (this.Configuration.RefreshMode) {
-                    case EditorRefreshMode.RedrawCell:
-                    case EditorRefreshMode.RedrawRow:
-                    case EditorRefreshMode.RedrawAllVisible:
-                    case EditorRefreshMode.ReloadFromServer:
-
-                    default:
-                    }
-                }, (q) => {
-                    q.AdditionalData['Edit'] = JSON.stringify(this.DataObject);
-                    return q;
-                });
-            } else {
-                setTimeout(() => {
-                    for (var i = 0; i < this._activeEditors.length; i++) {
-                        this.MasterTable.Renderer.Modifier.normalState(this._activeEditors[i].VisualStates);
-                    }
-                    this.MasterTable.Controller.redrawVisibleData();
-                }, 1000);
-            }
-
+            this.sendDataObjectToServer(() => {
+                for (var i = 0; i < this._activeEditors.length; i++) {
+                    this.finishEditing(this._activeEditors[i], false);
+                }
+                this.redrawAccordingToSettings();
+            });
         }
 
-        public redrawEditingRow(collectData:boolean) {
+        private redrawAccordingToSettings(lastColumn?:IColumn) {
+            switch (this.Configuration.RefreshMode) {
+                case EditorRefreshMode.RedrawCell:
+                    // actually do nothing because cell was redrawn 
+                    // after commit
+                    break;
+                case EditorRefreshMode.RedrawRow:
+                case EditorRefreshMode.RedrawAllVisible:
+                case EditorRefreshMode.ReloadFromServer:
+
+                default:
+            }
+        }
+
+        private dispatchEditResponse(editResponse:any/*todo*/,then:()=>void) {
+            for (var cd in editResponse) {
+                if (editResponse.hasOwnProperty(cd)) {
+                    this.DataObject[cd] = editResponse[cd];
+                }
+            }
+            then();
+        }
+
+        private sendDataObjectToServer(then: () => void) {
+            //this.MasterTable.Loader.requestServer('Edit', (r)=>this.dispatchEditResponse(r,then), (q) => {
+            //        q.AdditionalData['Edit'] = JSON.stringify(this.DataObject);
+            //        return q;
+            //    });
+        }
+
+        public commit(editor: CellEditorBase) {
+            var msgs = [];
+            this.retrieveEditorData(editor, msgs);
+            if (msgs.length !== 0) return;
+
+            if (this._mode === Mode.Cell) {
+                this.DataObject[editor.Column.RawName] = this._currentDataObjectModified[editor.Column.RawName];
+                this.MasterTable.Renderer.Modifier.changeState('saving', editor.VisualStates);
+                this.sendDataObjectToServer(() => {
+                    this.finishEditing(editor, true);
+                    this.redrawAccordingToSettings(editor.Column);
+                });
+            } else {
+                var idx = this._activeEditors.indexOf(editor);
+                if (this._activeEditors.length < idx + 1) {
+                    idx = -1;
+                    for (var i = 0; i < this._activeEditors.length; i++) {
+                        if (!this._activeEditors[i].IsValid) {
+                            idx = i;
+                            break;
+                        }
+                    }
+                    if (idx !== -1) this._activeEditors[idx].focus();
+                    else {
+                        this.commitAll();
+                    }
+                }
+            }
+        }
+
+        public redrawEditingRow(collectData: boolean) {
             if (!this._isEditing) return;
             this.MasterTable.Renderer.Modifier.redrawRow(this);
             if (collectData) {
@@ -104,15 +115,66 @@
             }
         }
 
-        public reject() {
+        private cleanupAfterEdit() {
             this._isEditing = false;
+            this._currentDataObjectModified = null;
+            this._activeEditors = [];
+            this.Cells = {};
+        }
+
+        public rejectAll() {
+            this.cleanupAfterEdit();
             this.MasterTable.Controller.redrawVisibleDataObject(this.DataObject, this.Index);
+        }
+
+        private finishEditing(editor: CellEditorBase, redraw: boolean) {
+            this.MasterTable.Renderer.Modifier.normalState(editor.VisualStates);
+            this._activeEditors.splice(this._activeEditors.indexOf(editor), 1);
+            this.Cells[editor.Column.RawName] = this.MasterTable.Controller.produceCell(this.DataObject, editor.Column, this);
+            if (redraw) {
+                this.MasterTable.Renderer.Modifier.redrawCell(this.Cells[editor.Column.RawName]);
+            }
+            if (this._activeEditors.length === 0) this.cleanupAfterEdit();
+        }
+
+        public reject(editor: CellEditorBase) {
+            if (this._mode === Mode.Cell) {
+                this.finishEditing(editor, true);
+            }
+            else {
+                this._currentDataObjectModified[editor.Column.RawName] = this.DataObject[editor.Column.RawName];
+                this.setEditorValue(editor);
+                editor.getValue([]);
+            }
         }
         
         //#endregion
 
+        
         //#region Private members
+        private retrieveEditorData(editor: CellEditorBase, errors?: string[]) {
+            var errorsArrayPresent = (!(!errors));
+            errors = errors || [];
+            this._currentDataObjectModified[editor.Column.RawName] = editor.getValue(errors);
+            if (errors.length > 0) {
+                editor.IsValid = false;
+                this.MasterTable.Renderer.Modifier.changeState('invalid', editor.VisualStates);
+            } else {
+                editor.IsValid = true;
+                this.MasterTable.Renderer.Modifier.normalState(editor.VisualStates);
+            }
+            if (!errorsArrayPresent) {
+                this._validationErrors = errors;
+            }
+        }
 
+        private retrieveAllEditorsData() {
+            var errors = [];
+            for (var i = 0; i < this._activeEditors.length; i++) {
+                this.retrieveEditorData(this._activeEditors[i], errors);
+            }
+            this._validationErrors = errors; //todo draw validation errors
+        }
         private ensureEditing(rowDisplayIndex: number) {
             if (this._isEditing) return;
             var lookup = this.MasterTable.DataHolder.localLookupDisplayedData(rowDisplayIndex);
@@ -151,11 +213,15 @@
 
         private beginCellEdit(column: IColumn, canComplete: boolean, isForm: boolean, isRow: boolean, rowIndex: number) {
             if (!this.isEditable(column)) return;
-            var editor = this.createEditor(column, canComplete, isForm, isRow);
             this.ensureEditing(rowIndex);
+            var editor = this.createEditor(column, canComplete, isForm, isRow);
             this.Cells[column.RawName] = editor;
             this._activeEditors.push(editor);
-            this.redrawEditingRow(false);
+            this.MasterTable.Renderer.Modifier.redrawCell(editor);
+            this.setEditorValue(editor);
+        }
+
+        private setEditorValue(editor: CellEditorBase) {
             editor.IsInitialValueSetting = true;
             editor.setValue(this._currentDataObjectModified[editor.Column.RawName]);
             editor.IsInitialValueSetting = false;
@@ -163,8 +229,28 @@
         //#endregion
 
         //#region Event handlers
+
+        public onBeforeClientRowsRendering(e: ITableEventArgs<IRow[]>) {
+            if (!this._isEditing) return;
+            for (var i = 0; i < e.EventArgs.length; i++) {
+                if (e.EventArgs[i].DataObject === this.DataObject) {
+                    e.EventArgs[i] = this;
+                    this.Index = i;
+                }
+            }
+        }
+
+        public onAfterDataRendered(e: any) {
+            if (!this._isEditing) return;
+            for (var i = 0; i < this._activeEditors.length; i++) {
+                this.setEditorValue(this._activeEditors[i]);
+            }
+        }
+
         public beginCellEditHandle(e: ICellEventArgs) {
             if (this._isEditing) return;
+            this._mode = Mode.Cell;
+
             var col = this.MasterTable.InstanceManager.getUiColumns()[e.ColumnIndex];
             this.beginCellEdit(col, true, false, false, e.DisplayingRowIndex);
         }
@@ -193,10 +279,6 @@
 
         }
         //#endregion
-
-        //public renderContent(templatesProvider: ITemplatesProvider): string {
-        //    return templatesProvider.getCachedTemplate('rowWrapper')(this);
-        //}
 
         public afterDrawn: (e: ITableEventArgs<any>) => void = (e) => {
             this.MasterTable.Renderer.Delegator.subscribeCellEvent({
@@ -233,7 +315,18 @@
                 Selector: '[data-editform]',
                 SubscriptionId: 'editor'
             });
+
+            this.MasterTable.Events.BeforeClientRowsRendering.subscribe(this.onBeforeClientRowsRendering.bind(this), 'editor');
+            this.MasterTable.Events.AfterDataRendered.subscribe(this.onAfterDataRendered.bind(this), 'editor');
         }
+
+
     }
-    ComponentsContainer.registerComponent('Editor',Editor);
+
+    enum Mode {
+        Cell,
+        Row,
+        Form
+    }
+    ComponentsContainer.registerComponent('Editor', Editor);
 } 

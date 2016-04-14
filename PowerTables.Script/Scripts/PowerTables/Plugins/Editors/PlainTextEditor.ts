@@ -23,9 +23,9 @@
                 this.MasterTable.Date.putDateToDatePicker(this.Input, value);
             } else {
                 this.Input.value = this._formatFunction(value, this.Column);
-                this.Input.setSelectionRange(0, this.Input.value.length);
             }
         }
+
 
         public init(masterTable: IMasterTable): void {
             super.init(masterTable);
@@ -94,9 +94,6 @@
                 errors.push(`Invalid boolean value provided for ${column.Configuration.Title}`);
                 return null;
             }
-
-
-
             return value;
         }
 
@@ -111,6 +108,11 @@
 
         public renderContent(templatesProvider: ITemplatesProvider): string {
             return templatesProvider.getCachedTemplate('plainTextEditor')(this);
+        }
+
+        public focus(): void {
+            this.Input.focus();
+            this.Input.setSelectionRange(0, this.Input.value.length);
         }
     }
 

@@ -136,6 +136,7 @@
             this.clearBody();
             var html: string = this.ContentRenderer.renderBody(rows);
             this.BodyElement.innerHTML = html;
+            this.BackBinder.backBind(this.BodyElement);
             this._events.AfterDataRendered.invoke(this, null);
         }
 

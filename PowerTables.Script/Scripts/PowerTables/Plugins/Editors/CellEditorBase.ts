@@ -5,6 +5,11 @@
     export class CellEditorBase<T> extends PluginBase<T> implements ICellEditor {
         
         /**
+         * Is current editor valid (flag set by master editor)
+         */
+        public IsValid:boolean;
+
+        /**
          * True when field is single, false when multiple (e.g. row edit, form edit)
          */
         public CanComplete: boolean;
@@ -98,7 +103,7 @@
          * Cell editor should be notified
          */
         public rejectHandler(e: TemplateBoundEvent): void {
-            this.Row.reject();
+            this.Row.reject(this);
         }
 
         /**
@@ -108,6 +113,17 @@
          * @returns {} 
          */
         public onAfterRender(e: HTMLElement): void { }
+
+        /**
+         * Needed by editor in some cases
+         * 
+         * @returns {} 
+         */
+        public focus(): void{ }
+
+        public OriginalContent(): string {
+            return this.MasterTable.Renderer.ContentRenderer.renderCell(this);
+        }
     }
 
     export interface ICellEditor extends IPlugin, ICell {
@@ -177,5 +193,17 @@
         * @returns {} 
         */
         onAfterRender(e: HTMLElement): void;
+
+        /**
+         * Is current editor valid (flag set by master editor)
+         */
+        IsValid: boolean;
+
+        /**
+         * Needed by editor in some cases
+         * 
+         * @returns {} 
+         */
+        focus(): void;
     }
 } 

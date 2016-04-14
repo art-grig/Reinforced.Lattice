@@ -278,6 +278,14 @@ module PowerTables.Editors {
 		ReloadFromServer = 3, 
 	}
 }
+module PowerTables.Editors.SelectList {
+	export interface ISelectListEditorUiConfig extends PowerTables.Editors.ICellEditorUiConfigBase
+	{
+		PluginId: string;
+		SelectListItems: System.Web.Mvc.ISelectListItem[];
+		AllowEmptyString: boolean;
+	}
+}
 module PowerTables.Editors.PlainText {
 	export interface IPlainTextEditorUiConfig extends PowerTables.Editors.ICellEditorUiConfigBase
 	{

@@ -29,6 +29,8 @@ namespace PowerTables.Editors
         bool IsFormEdit { get; }
 
         bool CanComplete { get; }
+
+        object OriginalContent { get; }
     }
 
     public static class CellEditorTemplateRegionBaseExtensions
@@ -66,6 +68,11 @@ namespace PowerTables.Editors
         public static MvcHtmlString BindReject<T>(this CellEditorTemplateRegionBase<T> t, string eventId) where T : ICellEditorViewModel
         {
             return t.BindEvent("rejectHandler", eventId);
+        }
+
+        public static MvcHtmlString OriginalContent<T>(this CellEditorTemplateRegionBase<T> t) where T : ICellEditorViewModel
+        {
+            return MvcHtmlString.Create("{{{OriginalContent}}}");
         }
     }
 }

@@ -434,23 +434,42 @@
 
 
 @using (var t = Plugin.Editor_PlainText())
-{
-    <div @t.BindReject("out-click")>
-        <div class="input-group" @t.WhenInvalid(c => c.AddClass("has-error")) style="max-width: 200px;" @t.WhenSaving(c => c.Hide())>
-            <input @t.ThisIsInput() @t.BindChanged("keyup") @t.BindCommit(DOMEvent.Filter("keyup").Prop(13, "keyCode","which")) type="text" @t.WhenInvalid(c => c.Color("red")) class="form-control input-sm" aria-label="..." style="height: 28px; margin-top: -10px;margin-bottom:-10px" />
-            <div class="input-group-btn">
-                <button style="margin: -4px 0px; padding: 4px 10px;" type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-right">
-                    <li @t.WhenInvalid(c => c.Disabled().AddClass("disabled"))><a style="cursor: pointer;" @t.BindCommit("click")><span class="glyphicon glyphicon-floppy-disk"></span> Save</a></li>
-                    <li role="separator" class="divider"></li>
-                    <li><a style="cursor: pointer;"><span class="glyphicon glyphicon-remove"></span> Cancel</a></li>
-                </ul>
+    {
+        <div style="position: relative">
+            <div class="cellfadeout">
+                @t.OriginalContent()
+            </div>
+            <div class="popover fade top in" role="tooltip" style="top: -88px; left: -50px; display: block; position: absolute;">
+                <div class="arrow" style="top: 100%;"></div>
+                <h3 class="popover-title">@t.Value(c => c.Column.Configuration.Title)
+                    <button type="button" class="close" @t.BindReject("click")><span aria-hidden="true">×</span></button>
+                </h3>
+                <div class="popover-content">
+                    <input @t.WhenSaving(c => c.Hide()) @t.ThisIsInput() @t.BindChanged("keyup") @t.BindCommit(DOMEvent.Filter("keyup").Prop(13, "keyCode", "which")) type="text" @t.WhenInvalid(c => c.Color("red")) class="form-control input-md" style="min-width: 200px;" aria-label="..."/>
+                    <span class="text-center" style="display: none;min-width: 200px;" @t.WhenSaving(c => c.Show())>
+                        <span class="badge"><span class="glyphicon glyphicon-refresh loader"></span> Saving...</span>
+                    </span>
+                </div>
             </div>
         </div>
-        <span class="text-center" style="display: none" @t.WhenSaving(c => c.Show())>
-            <span class="badge"><span class="glyphicon glyphicon-refresh"></span> Saving...</span>
-        </span>
+    }
+
+@*@using (var t = Plugin.Editor_PlainText())
+{
+    <div class="input-group" @t.WhenInvalid(c => c.AddClass("has-error")) style="max-width: 200px;" @t.WhenSaving(c => c.Hide())>
+        <input @t.ThisIsInput() @t.BindChanged("keyup") @t.BindCommit(DOMEvent.Filter("keyup").Prop(13, "keyCode", "which")) type="text" @t.WhenInvalid(c => c.Color("red")) class="form-control input-sm" aria-label="..." style="height: 28px; margin-top: -10px;margin-bottom:-10px" />
+        <div class="input-group-btn">
+            <button style="margin: -4px 0px; padding: 4px 10px;" type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-right">
+                <li @t.WhenInvalid(c => c.Disabled().AddClass("disabled"))><a style="cursor: pointer;" @t.BindCommit("click")><span class="glyphicon glyphicon-floppy-disk"></span> Save</a></li>
+                <li role="separator" class="divider"></li>
+                <li><a style="cursor: pointer;" @t.BindReject("click")><span class="glyphicon glyphicon-remove"></span> Cancel</a></li>
+            </ul>
+        </div>
     </div>
-}
+    <span class="text-center" style="display: none" @t.WhenSaving(c => c.Show())>
+        <span class="badge"><span class="glyphicon glyphicon-refresh"></span> Saving...</span>
+    </span>
+}*@

@@ -173,6 +173,26 @@
         }
 
         /**
+         * Converts data object,row and column to cell
+         * 
+         * @param dataObject Data object
+         * @param idx Object's displaying index
+         * @param column Column that this cell belongs to
+         * @param row Row that this cell belongs to
+         * @returns {ICell} Cell representing data
+         */
+        public produceCell(dataObject: any, column: IColumn, row:IRow) : ICell {
+            return {
+                Column: column,
+                Data: dataObject[column.RawName],
+                DataObject: dataObject,
+                Row: row,
+                renderContent: null,
+                renderElement: null
+            };
+        }
+
+        /**
          * Converts data object to display row
          * 
          * @param dataObject Data object
@@ -198,14 +218,7 @@
 
             for (var j: number = 0; j < columns.length; j++) {
                 var col: IColumn = columns[j];
-                var cell: ICell = {
-                    Column: col,
-                    Data: dataObject[col.RawName],
-                    DataObject: dataObject,
-                    Row: rw,
-                    renderContent: null,
-                    renderElement: null
-                };
+                var cell = this.produceCell(dataObject, col, rw);
                 cells[col.RawName] = cell;
             }
             rw.Cells = cells;

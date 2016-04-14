@@ -9,6 +9,7 @@ using PowerTables.Configuration;
 using PowerTables.Configuration.Json;
 using PowerTables.Editors;
 using PowerTables.Editors.PlainText;
+using PowerTables.Editors.SelectList;
 using PowerTables.Filters;
 using PowerTables.Filters.Range;
 using PowerTables.Filters.Select;
@@ -116,6 +117,7 @@ namespace PowerTables.Typings
 
             builder.ExportAsInterface<CellEditorUiConfigBase>().WithPublicProperties().WithProperty(c => c.CustomValidationFunction, c => c.Type("(currentValue: any, originalDataObject: any, modifiedDataObject:any) => string[]"));
             builder.ExportAsInterface<EditorUiConfig>().WithPublicProperties();
+            builder.ExportAsInterface<SelectListEditorUiConfig>().WithPublicProperties();
             builder.ExportAsInterface<PlainTextEditorUiConfig>()
                 .WithPublicProperties()
                 .WithProperty(c => c.FormatFunction, c => c.Type("(value:any,column:IColumn) => string"))
