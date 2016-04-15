@@ -45,7 +45,7 @@ namespace PowerTables.Mvc.Models.Tutorial
 
             conf.Column(c => c.TypeOfToy)
                 .FormatEnumWithDisplayAttribute((tpl, v) => tpl.Content(v.Text).EditPencil())
-                .EditSelectList(c=>c.Items(EnumHelper.GetSelectList(typeof(ToyType))))
+                .EditSelectList(c => c.Items(EnumHelper.GetSelectList(typeof(ToyType))).WithEmptyElement("---Select---", false))
                 ;
             return conf;
         }

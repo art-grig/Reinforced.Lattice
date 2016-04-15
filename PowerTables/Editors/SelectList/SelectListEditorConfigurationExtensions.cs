@@ -40,6 +40,7 @@ namespace PowerTables.Editors.SelectList
             this EditorConfigurationWrapper<SelectListEditorUiConfig> t, string elementText = "Empty",bool allowEmpty = true)
         {
             t.EditorConfig.AllowEmptyString = allowEmpty;
+            t.EditorConfig.AddEmptyElement = true;
             t.EditorConfig.EmptyElementText = elementText;
             return t;
         }

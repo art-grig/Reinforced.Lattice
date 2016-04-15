@@ -55,6 +55,15 @@
         public init(masterTable: IMasterTable): void {
             super.init(masterTable);
             this.Items = this.Configuration.SelectListItems;
+            if (this.Configuration.AddEmptyElement) {
+                var empty = <SelectListItem>{
+                    Text: this.Configuration.EmptyElementText,
+                    Value: '',
+                    Disabled: false,
+                    Selected: false
+                };
+                this.Items = [empty].concat(this.Items);
+            }
         }
 
         public renderContent(templatesProvider: ITemplatesProvider): string {
@@ -78,6 +87,10 @@
             }
             this.VisualStates.mixinState('selected');
             
+        }
+
+        public focus(): void {
+            this.List.focus();
         }
     }
 

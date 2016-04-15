@@ -33,14 +33,19 @@
         }
 
 
-        private traverseBackbind<T>(parentElement: HTMLElement, backbindCollection: T[], attribute: string, fn: (backbind: T, element: HTMLElement) => void) {
-            var elements: NodeList = parentElement.querySelectorAll(`[${attribute}]`);
+        private traverseBackbind<T>(elements:NodeList, parentElement: HTMLElement, backbindCollection: T[], attribute: string, fn: (backbind: T, element: HTMLElement) => void) {
             for (var i: number = 0; i < elements.length; i++) {
                 var element: HTMLElement = <HTMLElement>elements.item(i);
-                var idx: number = parseInt(element.getAttribute(attribute));
-                var backbindDescription: T = backbindCollection[idx];
-                fn.call(this, backbindDescription, element);
-                element.removeAttribute(attribute);
+                var attr = null;
+                for (var j = 0; j < element.attributes.length; j++) {
+                    if (element.attributes.item(j).name.substring(0, attribute.length) === attribute) {
+                        attr = element.attributes.item(j);
+                        var idx: number = parseInt(attr.value);
+                        var backbindDescription: T = backbindCollection[idx];
+                        fn.call(this, backbindDescription, element);
+                        element.removeAttribute(attr.name);
+                    }
+                }
             }
             if (parentElement.hasAttribute(attribute)) {
                 var meIdx: number = parseInt(parentElement.getAttribute(attribute));
@@ -57,12 +62,15 @@
          */
         public backBind(parentElement: HTMLElement): void {
 
+            var elements: NodeList = parentElement.querySelectorAll(`[data-dp]`);
             // back binding of datepickers
-            this.traverseBackbind<IDatepickerDescriptor>(parentElement, this._datepickersQueue, 'data-dp', (b, e) => {
+            this.traverseBackbind<IDatepickerDescriptor>(elements,parentElement, this._datepickersQueue, 'data-dp', (b, e) => {
                 this._dateService.createDatePicker(e);
             });
+
+            elements = parentElement.querySelectorAll(`[data-mrk]`);
             // back binding of componens needed HTML elements
-            this.traverseBackbind<IMarkDescriptor>(parentElement, this._markQueue, 'data-mrk', (b, e) => {
+            this.traverseBackbind<IMarkDescriptor>(elements,parentElement, this._markQueue, 'data-mrk', (b, e) => {
                 var target = this._stealer || b.ElementReceiver;
                 if (Object.prototype.toString.call(b.ElementReceiver[b.FieldName]) === '[object Array]') {
                     target[b.FieldName].push(e);
@@ -75,8 +83,9 @@
                 }
             });
 
+            elements = parentElement.querySelectorAll(`[data-evb]`);
             // backbinding of events
-            this.traverseBackbind<IEventDescriptor>(parentElement, this._eventsQueue, 'data-be', (subscription, element) => {
+            this.traverseBackbind<IEventDescriptor>(elements,parentElement, this._eventsQueue, 'data-be', (subscription, element) => {
                 for (var j: number = 0; j < subscription.Functions.length; j++) {
                     var bindFn: string = subscription.Functions[j];
                     var handler: void | Object = null;
@@ -204,7 +213,7 @@
             };
             var index: number = this._eventsQueue.length;
             this._eventsQueue.push(ed);
-            return `data-be="${index}"`;
+            return `data-be-${index}="${index}" data-evb="true"`;
         }
 
         private markHelper(fieldName: any, key: any): string {

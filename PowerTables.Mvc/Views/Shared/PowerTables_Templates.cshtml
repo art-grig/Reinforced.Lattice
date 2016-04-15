@@ -482,17 +482,18 @@
 @using (var t = Plugin.Editor_SelectList())
 {
     <div @t.BindReject("out-click")>
-        <select @t.WhenSaving(c => c.Hide()) class="form-control input-sm" @t.ThisIsList() @t.BindChanged("change") style="height: 26px; margin-top: -2px; margin-bottom: -10px">
+        <select @t.WhenSaving(c => c.Hide()) @t.WhenInvalid(c => c.Style("background-color", "#FFF7F7")) class="form-control input-sm" @t.ThisIsList() @t.BindChanged("change") @t.BindCommit("change") style="height: 26px; margin-top: -2px; margin-bottom: -10px">
             @using (var itm = t.Each(c => c.Items))
             {
                 <option value="@itm.Value(c => c.Value)">@itm.Value(c => c.Text)</option>
             }
         </select>
-        <br/>
-        <span @t.WhenSelected(c => c.Content(v => v.SelectedItem.Text).State.Show()) class="text-center"></span>
-        
         <span class="text-center" style="display: none" @t.WhenSaving(c => c.Show())>
             <span class="badge"><span class="glyphicon glyphicon-refresh"></span> Saving...</span>
         </span>
+        <br/>
+        <span @t.WhenSelected(c => c.Content(v => v.SelectedItem.Text).State.Show()) class="text-center"></span>
+        
+       
     </div>
 }

@@ -1845,14 +1845,19 @@ var PowerTables;
                 this.backBind(parentElement);
                 this._stealer = null;
             };
-            BackBinder.prototype.traverseBackbind = function (parentElement, backbindCollection, attribute, fn) {
-                var elements = parentElement.querySelectorAll("[" + attribute + "]");
+            BackBinder.prototype.traverseBackbind = function (elements, parentElement, backbindCollection, attribute, fn) {
                 for (var i = 0; i < elements.length; i++) {
                     var element = elements.item(i);
-                    var idx = parseInt(element.getAttribute(attribute));
-                    var backbindDescription = backbindCollection[idx];
-                    fn.call(this, backbindDescription, element);
-                    element.removeAttribute(attribute);
+                    var attr = null;
+                    for (var j = 0; j < element.attributes.length; j++) {
+                        if (element.attributes.item(j).name.substring(0, attribute.length) === attribute) {
+                            attr = element.attributes.item(j);
+                            var idx = parseInt(attr.value);
+                            var backbindDescription = backbindCollection[idx];
+                            fn.call(this, backbindDescription, element);
+                            element.removeAttribute(attr.name);
+                        }
+                    }
                 }
                 if (parentElement.hasAttribute(attribute)) {
                     var meIdx = parseInt(parentElement.getAttribute(attribute));
@@ -1868,12 +1873,14 @@ var PowerTables;
              */
             BackBinder.prototype.backBind = function (parentElement) {
                 var _this = this;
+                var elements = parentElement.querySelectorAll("[data-dp]");
                 // back binding of datepickers
-                this.traverseBackbind(parentElement, this._datepickersQueue, 'data-dp', function (b, e) {
+                this.traverseBackbind(elements, parentElement, this._datepickersQueue, 'data-dp', function (b, e) {
                     _this._dateService.createDatePicker(e);
                 });
+                elements = parentElement.querySelectorAll("[data-mrk]");
                 // back binding of componens needed HTML elements
-                this.traverseBackbind(parentElement, this._markQueue, 'data-mrk', function (b, e) {
+                this.traverseBackbind(elements, parentElement, this._markQueue, 'data-mrk', function (b, e) {
                     var target = _this._stealer || b.ElementReceiver;
                     if (Object.prototype.toString.call(b.ElementReceiver[b.FieldName]) === '[object Array]') {
                         target[b.FieldName].push(e);
@@ -1887,8 +1894,9 @@ var PowerTables;
                         target[b.FieldName] = e;
                     }
                 });
+                elements = parentElement.querySelectorAll("[data-evb]");
                 // backbinding of events
-                this.traverseBackbind(parentElement, this._eventsQueue, 'data-be', function (subscription, element) {
+                this.traverseBackbind(elements, parentElement, this._eventsQueue, 'data-be', function (subscription, element) {
                     for (var j = 0; j < subscription.Functions.length; j++) {
                         var bindFn = subscription.Functions[j];
                         var handler = null;
@@ -2011,7 +2019,7 @@ var PowerTables;
                 };
                 var index = this._eventsQueue.length;
                 this._eventsQueue.push(ed);
-                return "data-be=\"" + index + "\"";
+                return "data-be-" + index + "=\"" + index + "\" data-evb=\"true\"";
             };
             BackBinder.prototype.markHelper = function (fieldName, key) {
                 var index = this._markQueue.length;
@@ -5710,6 +5718,15 @@ var PowerTables;
                 SelectListEditor.prototype.init = function (masterTable) {
                     _super.prototype.init.call(this, masterTable);
                     this.Items = this.Configuration.SelectListItems;
+                    if (this.Configuration.AddEmptyElement) {
+                        var empty = {
+                            Text: this.Configuration.EmptyElementText,
+                            Value: '',
+                            Disabled: false,
+                            Selected: false
+                        };
+                        this.Items = [empty].concat(this.Items);
+                    }
                 };
                 SelectListEditor.prototype.renderContent = function (templatesProvider) {
                     return templatesProvider.getCachedTemplate('selectListEditor')(this);
@@ -5729,6 +5746,9 @@ var PowerTables;
                         }
                     }
                     this.VisualStates.mixinState('selected');
+                };
+                SelectListEditor.prototype.focus = function () {
+                    this.List.focus();
                 };
                 return SelectListEditor;
             })(Editors.CellEditorBase);
