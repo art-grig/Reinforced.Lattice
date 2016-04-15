@@ -107,14 +107,14 @@
                             state[i].Element = element;
                             element.removeAttribute(`data-state-${vsk}`);
 
-                            var target = this._stealer || state[i].Receiver;
+                            var target = <{VisualStates:VisualState}>this._stealer || state[i].Receiver;
                             if (targetPendingNormal.indexOf(target) < 0) {
                                 targetPendingNormal.push(target);
-                                target['VisualStates'] = {}
+                                target.VisualStates = new VisualState();
                             }
-                            if (!target['VisualStates']) target['VisualStates'] = {}
-                            if (!target['VisualStates'].hasOwnProperty(vsk)) target['VisualStates'][vsk] = [];
-                            target['VisualStates'][vsk].push(state[i]);
+                            if (!target.VisualStates) target.VisualStates = new VisualState();
+                            if (!target.VisualStates.States.hasOwnProperty(vsk)) target.VisualStates.States[vsk] = [];
+                            target.VisualStates.States[vsk].push(state[i]);
                         }
                     }
                 }
@@ -128,9 +128,9 @@
             this._datepickersQueue = [];
         }
 
-        private resolveNormalStates(targets: any[]) {
+        private resolveNormalStates(targets: {VisualStates: VisualState }[]) {
             for (var i = 0; i < targets.length; i++) {
-                this.addNormalState(targets[i]['VisualStates'], targets[i]);
+                this.addNormalState(targets[i].VisualStates.States, targets[i]);
             }
         }
 
@@ -150,7 +150,8 @@
                                 classes: [],
                                 styles: {},
                                 id: 'normal',
-                                Receiver: target
+                                Receiver: target,
+                                content: states[sk][i].Element.innerHTML
                             };
                             normalState.push(newEntry);
                             for (var j = 0; j < newEntry.Element.classList.length; j++) {
@@ -277,9 +278,10 @@
         Element: HTMLElement,
         Receiver: any;
         id: string;
-        classes: string[],
-        attrs: { [key: string]: string }
-        styles: { [key: string]: string }
+        classes: string[];
+        attrs: { [key: string]: string };
+        styles: { [key: string]: string };
+        content: string;
     }
 
     /**

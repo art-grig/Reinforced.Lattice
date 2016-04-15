@@ -19,6 +19,15 @@ namespace PowerTables.Editors.SelectList
     public interface ISelectListEditorViewModel: ICellEditorViewModel
     {
         IHbArray<SelectListItem> Items { get; }
+
+        string SelectedText { get; set; }
+
+        string SelectedValue { get; set; }
+    }
+
+    public interface ISelectedStateViewModel
+    {
+        SelectListItem SelectedItem { get; }
     }
 
     public static class SelectListEditorTemplateExtensions
@@ -31,6 +40,14 @@ namespace PowerTables.Editors.SelectList
         public static MvcHtmlString ThisIsList(this SelectListTemplateRegion t)
         {
             return t.Mark("List");
+        }
+
+        public static MvcHtmlString WhenSelected(this SelectListTemplateRegion t,Action<SpecialVisualStateDescription<ISelectedStateViewModel>> action)
+        {
+            var state = new VisualState();
+            var special = state.Special<ISelectedStateViewModel>();
+            action(special);
+            return t.State("selected", state);
         }
     }
 }

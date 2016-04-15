@@ -284,6 +284,8 @@ module PowerTables.Editors.SelectList {
 		PluginId: string;
 		SelectListItems: System.Web.Mvc.ISelectListItem[];
 		AllowEmptyString: boolean;
+		EmptyElementText: string;
+		AddEmptyElement: boolean;
 	}
 }
 module PowerTables.Editors.PlainText {
@@ -291,7 +293,6 @@ module PowerTables.Editors.PlainText {
 	{
 		PluginId: string;
 		ValidationRegex: string;
-		RegexValidationErrorText: string;
 		EnableBasicValidation: boolean;
 		FormatFunction: (value:any,column:IColumn) => string;
 		ParseFunction: (value:string,column:IColumn,errors:string[]) => any;

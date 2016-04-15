@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using PowerTables.Templating.Handlebars;
 
 namespace PowerTables.Templating
 {
@@ -18,11 +20,24 @@ namespace PowerTables.Templating
         [JsonProperty("styles")]
         public Dictionary<string, string> Styles { get; private set; }
 
+        [JsonProperty("content")]
+        public string Content { get; set; }
+
         public VisualStateDescription()
         {
             Classes = new List<string>();
             Attrs = new Dictionary<string, string>();
             Styles = new Dictionary<string, string>();
+        }
+    }
+
+    public class SpecialVisualStateDescription<T>
+    {
+        public VisualState State { get; private set; }
+
+        public SpecialVisualStateDescription(VisualState state)
+        {
+            State = state;
         }
     }
 
@@ -97,6 +112,29 @@ namespace PowerTables.Templating
         {
             state.Style("color", color);
             return state;
+        }
+
+        public static VisualState Content(this VisualState state, string contentPropertyOrFunction)
+        {
+            state.Description.Content = contentPropertyOrFunction;
+            return state;
+        }
+
+        public static SpecialVisualStateDescription<T> Special<T>(this VisualState state, IModelProvider<T> forTemplate)
+        {
+            return new SpecialVisualStateDescription<T>(state);
+        }
+
+        public static SpecialVisualStateDescription<TViewModel> Special<TViewModel>(this VisualState state)
+        {
+            return new SpecialVisualStateDescription<TViewModel>(state);
+        }
+
+        public static SpecialVisualStateDescription<T> Content<T, TData>(this SpecialVisualStateDescription<T> t,
+            Expression<Func<T, TData>> property)
+        {
+            t.State.Content(HbExtensions.TraversePropertyLambda(property));
+            return t;
         }
     }
 }

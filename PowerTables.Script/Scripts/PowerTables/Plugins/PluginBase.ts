@@ -19,7 +19,7 @@
          * Plugin's visual states collection. 
          * Usually it is not used, but always it is better to have one 
          */
-        public VisualStates: { [key: string]: State[] };
+        public VisualStates: PowerTables.Rendering.VisualState;
 
         /**
          * Plugin configuration object

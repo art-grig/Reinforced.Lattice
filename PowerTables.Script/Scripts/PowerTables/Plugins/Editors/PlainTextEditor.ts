@@ -44,7 +44,7 @@
             if (this.ValidationRegex) {
                 var mtch = this.ValidationRegex.test(value);
                 if (!mtch) {
-                    errors.push(this.Configuration.RegexValidationErrorText);
+                    errors.push(`Validation failed for ${column.Configuration.Title}`);
                     return null;
                 }
                 return value;

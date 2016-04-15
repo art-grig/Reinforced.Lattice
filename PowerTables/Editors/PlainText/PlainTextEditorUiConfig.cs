@@ -17,8 +17,6 @@ namespace PowerTables.Editors.PlainText
 
         public string ValidationRegex { get; set; }
 
-        public string RegexValidationErrorText { get; set; }
-
         public bool EnableBasicValidation { get; set; }
 
         public JRaw FormatFunction { get; set; }
@@ -39,4 +37,5 @@ namespace PowerTables.Editors.PlainText
             EnableBasicValidation = true;
         }
     }
+    
 }

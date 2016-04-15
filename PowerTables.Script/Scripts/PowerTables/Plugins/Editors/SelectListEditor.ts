@@ -1,40 +1,83 @@
 ﻿module PowerTables.Plugins.Editors {
     import SelectListEditorUiConfig = PowerTables.Editors.SelectList.ISelectListEditorUiConfig;
     import SelectListItem = System.Web.Mvc.ISelectListItem;
+    import StateChangedEvent = PowerTables.Rendering.IStateChangedEvent;
 
     export class SelectListEditor extends CellEditorBase<SelectListEditorUiConfig> {
-        Select: HTMLSelectElement;
+        List: HTMLSelectElement;
         Items: SelectListItem[];
-
+        SelectedItem: SelectListItem;
+        
         public getValue(errors: string[]): any {
-            var item = <string>this.Select.options.item(this.Select.selectedIndex).value.toString();
+            var selectedOption = this.List.options.item(this.List.selectedIndex);
+            var item = <string>selectedOption.value.toString();
+            var value = null;
             if (item.length === 0) {
-                if (this.Column.IsString && this.Configuration.AllowEmptyString) return item;
-                if (this.Column.Configuration.IsNullable) return null;
-                errors.push(`Value must be provided for ${this.Column.Configuration.Title}`);
-                return null;
+                if (this.Column.IsString && this.Configuration.AllowEmptyString) value = item;
+                if (this.Column.Configuration.IsNullable) value = null;
+                else {
+                    errors.push(`Value must be provided for ${this.Column.Configuration.Title}`);
+                }
+            } else {
+
+                if (this.Column.IsEnum || this.Column.IsInteger) value = parseInt(item);
+                else if (this.Column.IsFloat) value = parseFloat(item);
+                else if (this.Column.IsBoolean) value = item.toUpperCase() === 'TRUE';
+                else if (this.Column.IsDateTime) value = this.MasterTable.Date.parse(item);
+                else errors.push(`Unknown value for ${this.Column.Configuration.Title}`);
             }
             
-            if (this.Column.IsEnum || this.Column.IsInteger) return parseInt(item);
-            if (this.Column.IsFloat) return parseFloat(item);
-            if (this.Column.IsBoolean) return item.toUpperCase() === 'TRUE';
-            if (this.Column.IsDateTime) return this.MasterTable.Date.parse(item);
-            errors.push(`Unknown value for ${this.Column.Configuration.Title}`);
-            return null;
+            return value;
         }
 
         public setValue(value: any): void {
             var strvalue = this.Column.IsDateTime ? this.MasterTable.Date.serialize(value) : value.toString();
-            for (var i = 0; i < this.Select.options.length; i++) {
-                if (this.Select.options.item(i).value === strvalue) {
-                    this.Select.options.item(i).selected = true;
+            for (var i = 0; i < this.List.options.length; i++) {
+                if (this.List.options.item(i).value === strvalue) {
+                    this.List.options.item(i).selected = true;
                 }
+            }
+            for (var i = 0; i < this.Items.length; i++) {
+                if (this.Items[i].Value == strvalue) {
+                    this.SelectedItem = this.Items[i];
+                    break;
+                }
+            }
+            this.VisualStates.mixinState('selected');
+        }
+
+        public onStateChange(e: StateChangedEvent) {
+            if (e.State !== 'selected' && e.State !== 'saving') {
+                this.VisualStates.mixinState('selected');
             }
         }
 
         public init(masterTable: IMasterTable): void {
             super.init(masterTable);
             this.Items = this.Configuration.SelectListItems;
+        }
+
+        public renderContent(templatesProvider: ITemplatesProvider): string {
+            return templatesProvider.getCachedTemplate('selectListEditor')(this);
+        }
+
+        public onAfterRender(e: HTMLElement): void {
+            if (this.VisualStates) {
+                this.VisualStates.subscribeStateChange(this.onStateChange.bind(this));
+            }
+        }
+
+        public changedHandler(e: PowerTables.Rendering.ITemplateBoundEvent): void {
+            super.changedHandler(e);
+            var item = this.List.options.item(this.List.selectedIndex).value;
+            for (var i = 0; i < this.Items.length; i++) {
+                if (this.Items[i].Value == item) {
+                    this.SelectedItem = this.Items[i];
+                    break;
+                }
+            }
+            this.VisualStates.mixinState('selected');
+            
         }
     }
 

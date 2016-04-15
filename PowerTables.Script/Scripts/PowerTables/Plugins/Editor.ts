@@ -36,7 +36,7 @@
             }
 
             for (var i = 0; i < this._activeEditors.length; i++) {
-                this.MasterTable.Renderer.Modifier.changeState('saving', this._activeEditors[i].VisualStates);
+                this._activeEditors[i].VisualStates.changeState('saving');
             }
 
             this.sendDataObjectToServer(() => {
@@ -84,7 +84,7 @@
 
             if (this._mode === Mode.Cell) {
                 this.DataObject[editor.Column.RawName] = this._currentDataObjectModified[editor.Column.RawName];
-                this.MasterTable.Renderer.Modifier.changeState('saving', editor.VisualStates);
+                editor.VisualStates.changeState('saving');
                 this.sendDataObjectToServer(() => {
                     this.finishEditing(editor, true);
                     this.redrawAccordingToSettings(editor.Column);
@@ -115,6 +115,12 @@
             }
         }
 
+        public redrawMe(editor:CellEditorBase) {
+            this.MasterTable.Renderer.Modifier.redrawCell(editor);
+            this.setEditorValue(editor);
+            this.retrieveEditorData(editor,[]);
+        }
+
         private cleanupAfterEdit() {
             this._isEditing = false;
             this._currentDataObjectModified = null;
@@ -128,7 +134,7 @@
         }
 
         private finishEditing(editor: CellEditorBase, redraw: boolean) {
-            this.MasterTable.Renderer.Modifier.normalState(editor.VisualStates);
+            editor.VisualStates.normalState();
             this._activeEditors.splice(this._activeEditors.indexOf(editor), 1);
             this.Cells[editor.Column.RawName] = this.MasterTable.Controller.produceCell(this.DataObject, editor.Column, this);
             if (redraw) {
@@ -158,10 +164,10 @@
             this._currentDataObjectModified[editor.Column.RawName] = editor.getValue(errors);
             if (errors.length > 0) {
                 editor.IsValid = false;
-                this.MasterTable.Renderer.Modifier.changeState('invalid', editor.VisualStates);
+                editor.VisualStates.changeState('invalid');
             } else {
                 editor.IsValid = true;
-                this.MasterTable.Renderer.Modifier.normalState(editor.VisualStates);
+                editor.VisualStates.normalState();
             }
             if (!errorsArrayPresent) {
                 this._validationErrors = errors;
@@ -217,8 +223,10 @@
             var editor = this.createEditor(column, canComplete, isForm, isRow);
             this.Cells[column.RawName] = editor;
             this._activeEditors.push(editor);
-            this.MasterTable.Renderer.Modifier.redrawCell(editor);
+            var e = this.MasterTable.Renderer.Modifier.redrawCell(editor);
+            editor.onAfterRender(e);
             this.setEditorValue(editor);
+            editor.focus();
         }
 
         private setEditorValue(editor: CellEditorBase) {
@@ -243,6 +251,7 @@
         public onAfterDataRendered(e: any) {
             if (!this._isEditing) return;
             for (var i = 0; i < this._activeEditors.length; i++) {
+                this._activeEditors[i].onAfterRender(null);
                 this.setEditorValue(this._activeEditors[i]);
             }
         }

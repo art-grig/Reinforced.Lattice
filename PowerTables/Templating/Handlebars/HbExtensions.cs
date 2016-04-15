@@ -13,7 +13,7 @@ namespace PowerTables.Templating.Handlebars
     /// </summary>
     public static class HbExtensions
     {
-        private static string TraversePropertyLambda(LambdaExpression lambda, string existing)
+        public static string TraversePropertyLambda(LambdaExpression lambda, string existing = null)
         {
             Stack<string> properties = new Stack<string>();
             MemberExpression current = lambda.Body as MemberExpression;

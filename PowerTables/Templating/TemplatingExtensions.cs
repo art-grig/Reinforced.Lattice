@@ -90,6 +90,13 @@ namespace PowerTables.Templating
 
         }
 
+        public static MvcHtmlString State(this IProvidesVisualState state, string stateName, VisualState visualState)
+        {
+            var json = JsonConvert.SerializeObject(visualState.Description, Formatting.None);
+            return MvcHtmlString.Create(string.Format("{{{{{{VState \"{0}\" '{1}' }}}}}}", stateName, json));
+
+        }
+
     }
 
 

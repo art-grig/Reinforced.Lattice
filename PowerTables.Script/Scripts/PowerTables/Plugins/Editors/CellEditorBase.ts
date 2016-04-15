@@ -131,7 +131,7 @@
          * Plugin's visual states collection. 
          * Usually it is not used, but always it is better to have one 
          */
-        VisualStates: { [key: string]: State[] };
+        VisualStates: PowerTables.Rendering.VisualState;
 
         /**
          * Original, locally displayed data object

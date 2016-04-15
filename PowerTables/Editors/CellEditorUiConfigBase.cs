@@ -16,4 +16,20 @@ namespace PowerTables.Editors
         /// </summary>
         public JRaw CustomValidationFunction { get; set; }
     }
+
+    public class EditorConfigurationWrapper<T>
+        where T:CellEditorUiConfigBase,new()
+    {
+        internal T EditorConfig { get; private set; }
+
+        public EditorConfigurationWrapper(T editorConfig)
+        {
+            EditorConfig = editorConfig;
+        }
+
+        public EditorConfigurationWrapper()
+        {
+            EditorConfig = new T();
+        } 
+    }
 }

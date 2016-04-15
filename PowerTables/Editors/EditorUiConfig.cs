@@ -25,6 +25,26 @@ namespace PowerTables.Editors
         public bool IsServerPowered { get; set; }
     }
 
+    public static class EditorUiConfigExtensions
+    {
+        public static T GetOrReplaceEditorConfig<T>(this EditorUiConfig t, string columnName)
+            where T : CellEditorUiConfigBase,new()
+        {
+            if (t.EditorsForColumns.ContainsKey(columnName))
+            {
+                var conf = t.EditorsForColumns[columnName];
+                if (typeof (T) == conf.GetType())
+                {
+                    return (T) conf;
+                }
+            }
+
+            var newConf = new T();
+            t.EditorsForColumns[columnName] = newConf;
+            return newConf;
+        }
+    }
+
     public enum EditorRefreshMode
     {
         RedrawCell,

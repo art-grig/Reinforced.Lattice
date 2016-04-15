@@ -1920,13 +1920,13 @@ var PowerTables;
                                 var target = this._stealer || state[i].Receiver;
                                 if (targetPendingNormal.indexOf(target) < 0) {
                                     targetPendingNormal.push(target);
-                                    target['VisualStates'] = {};
+                                    target.VisualStates = new Rendering.VisualState();
                                 }
-                                if (!target['VisualStates'])
-                                    target['VisualStates'] = {};
-                                if (!target['VisualStates'].hasOwnProperty(vsk))
-                                    target['VisualStates'][vsk] = [];
-                                target['VisualStates'][vsk].push(state[i]);
+                                if (!target.VisualStates)
+                                    target.VisualStates = new Rendering.VisualState();
+                                if (!target.VisualStates.States.hasOwnProperty(vsk))
+                                    target.VisualStates.States[vsk] = [];
+                                target.VisualStates.States[vsk].push(state[i]);
                             }
                         }
                     }
@@ -1940,7 +1940,7 @@ var PowerTables;
             };
             BackBinder.prototype.resolveNormalStates = function (targets) {
                 for (var i = 0; i < targets.length; i++) {
-                    this.addNormalState(targets[i]['VisualStates'], targets[i]);
+                    this.addNormalState(targets[i].VisualStates.States, targets[i]);
                 }
             };
             BackBinder.prototype.addNormalState = function (states, target) {
@@ -1959,7 +1959,8 @@ var PowerTables;
                                     classes: [],
                                     styles: {},
                                     id: 'normal',
-                                    Receiver: target
+                                    Receiver: target,
+                                    content: states[sk][i].Element.innerHTML
                                 };
                                 normalState.push(newEntry);
                                 for (var j = 0; j < newEntry.Element.classList.length; j++) {
@@ -2165,93 +2166,6 @@ var PowerTables;
                 this._instances = instances;
                 this._ed = ed;
             }
-            /**
-             * Applies settings for specified state
-             *
-             * @param state State id
-             * @param states VisualStates collection
-             */
-            DOMModifier.prototype.changeState = function (state, states) {
-                this.applyNormal(states['_normal']);
-                if (!states[state])
-                    return;
-                this.applyState(states[state]);
-            };
-            /**
-             * Reverts elements back to normal state
-             *
-             * @param states VisualStates collection
-             */
-            DOMModifier.prototype.normalState = function (states) {
-                this.applyNormal(states['_normal']);
-            };
-            DOMModifier.prototype.applyState = function (desired) {
-                for (var i = 0; i < desired.length; i++) {
-                    var ns = desired[i];
-                    for (var k = 0; k < ns.classes.length; k++) {
-                        var cls = ns.classes[k].substring(1);
-                        if (ns.classes[k].charAt(0) === '+') {
-                            if (!ns.Element.classList.contains(cls)) {
-                                ns.Element.classList.add(cls);
-                            }
-                        }
-                        else {
-                            if (ns.Element.classList.contains(cls)) {
-                                ns.Element.classList.remove(cls);
-                            }
-                        }
-                    }
-                    for (var ak in ns.attrs) {
-                        if (ns.attrs.hasOwnProperty(ak)) {
-                            if (ns.attrs[ak] == null) {
-                                if (ns.Element.hasAttribute(ak))
-                                    ns.Element.removeAttribute(ak);
-                            }
-                            else {
-                                if ((!ns.Element.hasAttribute(ak)) || (ns.Element.getAttribute(ak) !== ns.attrs[ak])) {
-                                    ns.Element.setAttribute(ak, ns.attrs[ak]);
-                                }
-                            }
-                        }
-                    }
-                    for (var sk in ns.styles) {
-                        if (ns.styles.hasOwnProperty(sk)) {
-                            if (ns.Element.style.getPropertyValue(sk) !== ns.styles[sk]) {
-                                ns.Element.style.setProperty(sk, ns.styles[sk]);
-                            }
-                        }
-                    }
-                }
-            };
-            DOMModifier.prototype.applyNormal = function (normal) {
-                for (var i = 0; i < normal.length; i++) {
-                    var ns = normal[i];
-                    var classes = ns.classes.join(' ');
-                    if ((!ns.Element.hasAttribute('class') && classes.length > 0) || (ns.Element.getAttribute('class') !== classes)) {
-                        ns.Element.setAttribute('class', classes);
-                    }
-                    for (var ak in ns.attrs) {
-                        if (ns.attrs.hasOwnProperty(ak)) {
-                            if (ns.attrs[ak] == null) {
-                                if (ns.Element.hasAttribute(ak))
-                                    ns.Element.removeAttribute(ak);
-                            }
-                            else {
-                                if ((!ns.Element.hasAttribute(ak)) || (ns.Element.getAttribute(ak) !== ns.attrs[ak])) {
-                                    ns.Element.setAttribute(ak, ns.attrs[ak]);
-                                }
-                            }
-                        }
-                    }
-                    for (var sk in ns.styles) {
-                        if (ns.styles.hasOwnProperty(sk)) {
-                            if (ns.Element.style.getPropertyValue(sk) !== ns.styles[sk]) {
-                                ns.Element.style.setProperty(sk, ns.styles[sk]);
-                            }
-                        }
-                    }
-                }
-            };
             //#region Show/hide infrastructure
             DOMModifier.prototype.getRealDisplay = function (elem) {
                 if (elem.currentStyle)
@@ -3267,6 +3181,191 @@ var PowerTables;
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
+    var Rendering;
+    (function (Rendering) {
+        /**
+         * Component for managing components visual states
+         */
+        var VisualState = (function () {
+            function VisualState() {
+                this.States = {};
+                this._subscribers = [];
+                this._stopEvents = false;
+            }
+            /**
+             * Subscribes specified function to state change events
+             *
+             * @param fn Function that will be called when state changes
+             */
+            VisualState.prototype.subscribeStateChange = function (fn) {
+                this._subscribers.push(fn);
+            };
+            VisualState.prototype.fireHandlers = function (e) {
+                if (this._stopEvents)
+                    return;
+                for (var i = 0; i < this._subscribers.length; i++) {
+                    this._subscribers[i](e);
+                }
+            };
+            /**
+             * Applies settings for specified state
+             *
+             * @param state State id
+             * @param states VisualStates collection
+             */
+            VisualState.prototype.changeState = function (state) {
+                this.setNormal();
+                if (!this.States[state])
+                    return;
+                this.applyState(this.States[state]);
+                this.fireHandlers({ State: state, CurrentState: this.Current, StateWasMixedIn: false });
+            };
+            /**
+             * Mixins settings for specified state
+             *
+             * @param state State id
+             * @param states VisualStates collection
+             */
+            VisualState.prototype.mixinState = function (state) {
+                if (!this.States[state])
+                    return;
+                this.Current += '+' + state;
+                this.applyState(this.States[state]);
+                this.fireHandlers({ State: state, CurrentState: this.Current, StateWasMixedIn: true });
+            };
+            /**
+             * Unmixins state of current state
+             *
+             * @param state State to unmixin
+             * @returns {}
+             */
+            VisualState.prototype.unmixinState = function (state) {
+                if (!this.States[state])
+                    return;
+                var statesHistory = this.Current.split('+');
+                this._stopEvents = true;
+                this.normalState();
+                for (var i = 0; i < statesHistory.length; i++) {
+                    if (statesHistory[i] !== null && statesHistory[i].length > 0 && statesHistory[i] !== state) {
+                        this.mixinState(statesHistory[i]);
+                    }
+                }
+                this._stopEvents = false;
+            };
+            /**
+             * Reverts elements back to normal state
+             *
+             * @param states VisualStates collection
+             */
+            VisualState.prototype.normalState = function () {
+                this.setNormal();
+            };
+            VisualState.prototype.applyState = function (desired) {
+                for (var i = 0; i < desired.length; i++) {
+                    var ns = desired[i];
+                    for (var k = 0; k < ns.classes.length; k++) {
+                        var cls = ns.classes[k].substring(1);
+                        if (ns.classes[k].charAt(0) === '+') {
+                            if (!ns.Element.classList.contains(cls)) {
+                                ns.Element.classList.add(cls);
+                            }
+                        }
+                        else {
+                            if (ns.Element.classList.contains(cls)) {
+                                ns.Element.classList.remove(cls);
+                            }
+                        }
+                    }
+                    for (var ak in ns.attrs) {
+                        if (ns.attrs.hasOwnProperty(ak)) {
+                            if (ns.attrs[ak] == null) {
+                                if (ns.Element.hasAttribute(ak))
+                                    ns.Element.removeAttribute(ak);
+                            }
+                            else {
+                                if ((!ns.Element.hasAttribute(ak)) || (ns.Element.getAttribute(ak) !== ns.attrs[ak])) {
+                                    ns.Element.setAttribute(ak, ns.attrs[ak]);
+                                }
+                            }
+                        }
+                    }
+                    for (var sk in ns.styles) {
+                        if (ns.styles.hasOwnProperty(sk)) {
+                            if (ns.Element.style.getPropertyValue(sk) !== ns.styles[sk]) {
+                                ns.Element.style.setProperty(sk, ns.styles[sk]);
+                            }
+                        }
+                    }
+                    if (ns.content) {
+                        var html = this.getContent(ns.Receiver, ns.content);
+                        if (html.length > 0) {
+                            ns.Element.innerHTML = html;
+                        }
+                        else {
+                            ns.Element.innerHTML = html;
+                        }
+                    }
+                }
+            };
+            VisualState.prototype.getContent = function (receiver, contentLocation) {
+                var path = contentLocation.split('.');
+                var co = receiver;
+                for (var i = 0; i < path.length; i++) {
+                    co = co[path[i]];
+                }
+                if (co == undefined) {
+                    throw new Error("Visual state owner does not contain property or function " + contentLocation);
+                }
+                var html = '';
+                if (typeof co === 'function') {
+                    html = co.call(receiver);
+                }
+                else {
+                    html = co;
+                }
+                return html;
+            };
+            VisualState.prototype.setNormal = function () {
+                this.Current = 'normal';
+                this.fireHandlers({ State: 'normal', CurrentState: this.Current, StateWasMixedIn: false });
+                var normal = this.States['_normal'];
+                for (var i = 0; i < normal.length; i++) {
+                    var ns = normal[i];
+                    var classes = ns.classes.join(' ');
+                    if ((!ns.Element.hasAttribute('class') && classes.length > 0) || (ns.Element.getAttribute('class') !== classes)) {
+                        ns.Element.setAttribute('class', classes);
+                    }
+                    if (ns.Element.innerHTML !== ns.content)
+                        ns.Element.innerHTML = ns.content;
+                    for (var ak in ns.attrs) {
+                        if (ns.attrs.hasOwnProperty(ak)) {
+                            if (ns.attrs[ak] == null) {
+                                if (ns.Element.hasAttribute(ak))
+                                    ns.Element.removeAttribute(ak);
+                            }
+                            else {
+                                if ((!ns.Element.hasAttribute(ak)) || (ns.Element.getAttribute(ak) !== ns.attrs[ak])) {
+                                    ns.Element.setAttribute(ak, ns.attrs[ak]);
+                                }
+                            }
+                        }
+                    }
+                    for (var sk in ns.styles) {
+                        if (ns.styles.hasOwnProperty(sk)) {
+                            if (ns.Element.style.getPropertyValue(sk) !== ns.styles[sk]) {
+                                ns.Element.style.setProperty(sk, ns.styles[sk]);
+                            }
+                        }
+                    }
+                }
+            };
+            return VisualState;
+        })();
+        Rendering.VisualState = VisualState;
+    })(Rendering = PowerTables.Rendering || (PowerTables.Rendering = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
     var PowerTable = (function () {
         function PowerTable(configuration) {
             this._configuration = configuration;
@@ -3846,10 +3945,10 @@ var PowerTables;
                 var i = parseInt(v);
                 var valid = !isNaN(i) && (i > 0) && (i <= this._totalPages);
                 if (valid) {
-                    this.MasterTable.Renderer.Modifier.normalState(this.VisualStates);
+                    this.VisualStates.normalState();
                 }
                 else {
-                    this.MasterTable.Renderer.Modifier.changeState("invalid", this.VisualStates);
+                    this.VisualStates.changeState('invalid');
                 }
             };
             PagingPlugin.prototype.modifyQuery = function (query, scope) {
@@ -5125,7 +5224,7 @@ var PowerTables;
                     }
                 }
                 for (var i = 0; i < this._activeEditors.length; i++) {
-                    this.MasterTable.Renderer.Modifier.changeState('saving', this._activeEditors[i].VisualStates);
+                    this._activeEditors[i].VisualStates.changeState('saving');
                 }
                 this.sendDataObjectToServer(function () {
                     for (var i = 0; i < _this._activeEditors.length; i++) {
@@ -5168,7 +5267,7 @@ var PowerTables;
                     return;
                 if (this._mode === Mode.Cell) {
                     this.DataObject[editor.Column.RawName] = this._currentDataObjectModified[editor.Column.RawName];
-                    this.MasterTable.Renderer.Modifier.changeState('saving', editor.VisualStates);
+                    editor.VisualStates.changeState('saving');
                     this.sendDataObjectToServer(function () {
                         _this.finishEditing(editor, true);
                         _this.redrawAccordingToSettings(editor.Column);
@@ -5200,6 +5299,11 @@ var PowerTables;
                     this.retrieveAllEditorsData();
                 }
             };
+            Editor.prototype.redrawMe = function (editor) {
+                this.MasterTable.Renderer.Modifier.redrawCell(editor);
+                this.setEditorValue(editor);
+                this.retrieveEditorData(editor, []);
+            };
             Editor.prototype.cleanupAfterEdit = function () {
                 this._isEditing = false;
                 this._currentDataObjectModified = null;
@@ -5211,7 +5315,7 @@ var PowerTables;
                 this.MasterTable.Controller.redrawVisibleDataObject(this.DataObject, this.Index);
             };
             Editor.prototype.finishEditing = function (editor, redraw) {
-                this.MasterTable.Renderer.Modifier.normalState(editor.VisualStates);
+                editor.VisualStates.normalState();
                 this._activeEditors.splice(this._activeEditors.indexOf(editor), 1);
                 this.Cells[editor.Column.RawName] = this.MasterTable.Controller.produceCell(this.DataObject, editor.Column, this);
                 if (redraw) {
@@ -5238,11 +5342,11 @@ var PowerTables;
                 this._currentDataObjectModified[editor.Column.RawName] = editor.getValue(errors);
                 if (errors.length > 0) {
                     editor.IsValid = false;
-                    this.MasterTable.Renderer.Modifier.changeState('invalid', editor.VisualStates);
+                    editor.VisualStates.changeState('invalid');
                 }
                 else {
                     editor.IsValid = true;
-                    this.MasterTable.Renderer.Modifier.normalState(editor.VisualStates);
+                    editor.VisualStates.normalState();
                 }
                 if (!errorsArrayPresent) {
                     this._validationErrors = errors;
@@ -5295,8 +5399,10 @@ var PowerTables;
                 var editor = this.createEditor(column, canComplete, isForm, isRow);
                 this.Cells[column.RawName] = editor;
                 this._activeEditors.push(editor);
-                this.MasterTable.Renderer.Modifier.redrawCell(editor);
+                var e = this.MasterTable.Renderer.Modifier.redrawCell(editor);
+                editor.onAfterRender(e);
                 this.setEditorValue(editor);
+                editor.focus();
             };
             Editor.prototype.setEditorValue = function (editor) {
                 editor.IsInitialValueSetting = true;
@@ -5319,6 +5425,7 @@ var PowerTables;
                 if (!this._isEditing)
                     return;
                 for (var i = 0; i < this._activeEditors.length; i++) {
+                    this._activeEditors[i].onAfterRender(null);
                     this.setEditorValue(this._activeEditors[i]);
                 }
             };
@@ -5473,7 +5580,7 @@ var PowerTables;
                     if (this.ValidationRegex) {
                         var mtch = this.ValidationRegex.test(value);
                         if (!mtch) {
-                            errors.push(this.Configuration.RegexValidationErrorText);
+                            errors.push("Validation failed for " + column.Configuration.Title);
                             return null;
                         }
                         return value;
@@ -5554,37 +5661,74 @@ var PowerTables;
                     _super.apply(this, arguments);
                 }
                 SelectListEditor.prototype.getValue = function (errors) {
-                    var item = this.Select.options.item(this.Select.selectedIndex).value.toString();
+                    var selectedOption = this.List.options.item(this.List.selectedIndex);
+                    var item = selectedOption.value.toString();
+                    var value = null;
                     if (item.length === 0) {
                         if (this.Column.IsString && this.Configuration.AllowEmptyString)
-                            return item;
+                            value = item;
                         if (this.Column.Configuration.IsNullable)
-                            return null;
-                        errors.push("Value must be provided for " + this.Column.Configuration.Title);
-                        return null;
+                            value = null;
+                        else {
+                            errors.push("Value must be provided for " + this.Column.Configuration.Title);
+                        }
                     }
-                    if (this.Column.IsEnum || this.Column.IsInteger)
-                        return parseInt(item);
-                    if (this.Column.IsFloat)
-                        return parseFloat(item);
-                    if (this.Column.IsBoolean)
-                        return item.toUpperCase() === 'TRUE';
-                    if (this.Column.IsDateTime)
-                        return this.MasterTable.Date.parse(item);
-                    errors.push("Unknown value for " + this.Column.Configuration.Title);
-                    return null;
+                    else {
+                        if (this.Column.IsEnum || this.Column.IsInteger)
+                            value = parseInt(item);
+                        else if (this.Column.IsFloat)
+                            value = parseFloat(item);
+                        else if (this.Column.IsBoolean)
+                            value = item.toUpperCase() === 'TRUE';
+                        else if (this.Column.IsDateTime)
+                            value = this.MasterTable.Date.parse(item);
+                        else
+                            errors.push("Unknown value for " + this.Column.Configuration.Title);
+                    }
+                    return value;
                 };
                 SelectListEditor.prototype.setValue = function (value) {
                     var strvalue = this.Column.IsDateTime ? this.MasterTable.Date.serialize(value) : value.toString();
-                    for (var i = 0; i < this.Select.options.length; i++) {
-                        if (this.Select.options.item(i).value === strvalue) {
-                            this.Select.options.item(i).selected = true;
+                    for (var i = 0; i < this.List.options.length; i++) {
+                        if (this.List.options.item(i).value === strvalue) {
+                            this.List.options.item(i).selected = true;
                         }
+                    }
+                    for (var i = 0; i < this.Items.length; i++) {
+                        if (this.Items[i].Value == strvalue) {
+                            this.SelectedItem = this.Items[i];
+                            break;
+                        }
+                    }
+                    this.VisualStates.mixinState('selected');
+                };
+                SelectListEditor.prototype.onStateChange = function (e) {
+                    if (e.State !== 'selected' && e.State !== 'saving') {
+                        this.VisualStates.mixinState('selected');
                     }
                 };
                 SelectListEditor.prototype.init = function (masterTable) {
                     _super.prototype.init.call(this, masterTable);
                     this.Items = this.Configuration.SelectListItems;
+                };
+                SelectListEditor.prototype.renderContent = function (templatesProvider) {
+                    return templatesProvider.getCachedTemplate('selectListEditor')(this);
+                };
+                SelectListEditor.prototype.onAfterRender = function (e) {
+                    if (this.VisualStates) {
+                        this.VisualStates.subscribeStateChange(this.onStateChange.bind(this));
+                    }
+                };
+                SelectListEditor.prototype.changedHandler = function (e) {
+                    _super.prototype.changedHandler.call(this, e);
+                    var item = this.List.options.item(this.List.selectedIndex).value;
+                    for (var i = 0; i < this.Items.length; i++) {
+                        if (this.Items[i].Value == item) {
+                            this.SelectedItem = this.Items[i];
+                            break;
+                        }
+                    }
+                    this.VisualStates.mixinState('selected');
                 };
                 return SelectListEditor;
             })(Editors.CellEditorBase);

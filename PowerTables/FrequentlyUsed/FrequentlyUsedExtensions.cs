@@ -52,6 +52,46 @@ namespace PowerTables.FrequentlyUsed
         }
 
         /// <summary>
+        /// Shortcut for creating JS function that formats enum-typed column values to specified text specified using enum's fields [Display] attribute.
+        /// This method uses MVC GetSelectList function to retrieve enum values.
+        /// </summary>
+        /// <param name="column">Colum to apply formatting</param>
+        /// <param name="content">Content for particular select list item</param>
+        /// <returns>Fluent</returns>
+        public static ColumnUsage<TSourceData, TTableData, TTableColumn> FormatEnumWithDisplayAttribute
+            <TSourceData, TTableData, TTableColumn>(
+            this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
+            Action<Template,SelectListItem> content
+            ) where TTableData : new()
+        {
+            var enumType = typeof(TTableColumn);
+            if (typeof(Nullable<>).IsAssignableFrom(enumType))
+            {
+                enumType = enumType.GetGenericArguments()[0];
+            }
+            if (!typeof(Enum).IsAssignableFrom(enumType))
+            {
+                throw new Exception(
+                    String.Format("This method is only applicable for enum columns. {0} column of table {1} is not of enum type",
+                    column.ColumnProperty.Name,
+                    typeof(TTableData).FullName
+                    ));
+            }
+            var items = EnumHelper.GetSelectList(enumType);
+
+            column.Template(a => a.EmptyIfNotPresent(column.ColumnConfiguration.RawColumnName)
+                .Switch("{" + column.ColumnConfiguration.RawColumnName + "}",
+                    swtch =>
+                        swtch
+                        .Cases(items, c => c.Value, content)
+                        .DefaultEmpty()
+                        )
+
+                );
+            return column;
+        }
+
+        /// <summary>
         /// Shortcut for creating JS function that formats boolean column values to specified text
         /// </summary>
         /// <typeparam name="TSourceData"></typeparam>

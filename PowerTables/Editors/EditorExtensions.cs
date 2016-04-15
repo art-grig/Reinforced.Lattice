@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PowerTables.FrequentlyUsed;
 
 namespace PowerTables.Editors
 {
@@ -28,6 +29,31 @@ namespace PowerTables.Editors
         {
             conf.Config.RefreshMode = mode;
             return conf;
+        }
+
+        public static Template CellEditTrigger(this Template t)
+        {
+            return t.Data("editcell", "true");
+        }
+
+        public static Template RowEditTrigger(this Template t)
+        {
+            return t.Data("editrow", "true");
+        }
+
+        public static Template RowCommitTrigger(this Template t)
+        {
+            return t.Data("editrow", "true");
+        }
+
+        public static Template RowRejectTrigger(this Template t)
+        {
+            return t.Data("editrow", "true");
+        }
+
+        public static Template FormEditTrigger(this Template t)
+        {
+            return t.Data("editform", "true");
         }
     }
 }

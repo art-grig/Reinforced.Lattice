@@ -152,9 +152,9 @@
             var i: number = parseInt(v);
             var valid: boolean = !isNaN(i) && (i > 0) && (i <= this._totalPages);
             if (valid) {
-                this.MasterTable.Renderer.Modifier.normalState(this.VisualStates);
+                this.VisualStates.normalState();
             } else {
-                this.MasterTable.Renderer.Modifier.changeState("invalid", this.VisualStates);
+                this.VisualStates.changeState('invalid');
             }
         }
 

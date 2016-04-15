@@ -14,9 +14,13 @@ namespace PowerTables.Editors.SelectList
             get { return "SelectListEditor"; }
         }
 
-        public List<SelectListItem> SelectListItems { get; private set; }
+        public List<SelectListItem> SelectListItems { get; set; }
 
         public bool AllowEmptyString { get; set; }
+
+        public string EmptyElementText { get; set; }
+
+        public bool AddEmptyElement { get; set; }
 
         public SelectListEditorUiConfig()
         {
