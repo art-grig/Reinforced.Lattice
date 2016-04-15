@@ -7,7 +7,7 @@ namespace PowerTables.Plugins.Ordering
     /// Client per-column configuration for ordering. 
     /// See <see cref="OrderingExtensions"/>
     /// </summary>
-    public class OrderingConfiguration
+    public class OrderingConfiguration : IProvidesTemplate
     {
         /// <summary>
         /// Default orderings for columns. Key - column RawName, Value - ordering direction
@@ -24,5 +24,7 @@ namespace PowerTables.Plugins.Ordering
             DefaultOrderingsForColumns = new Dictionary<string, PowerTables.Ordering>();
             ClientSortableColumns = new Dictionary<string, JRaw>();
         }
+
+        public string DefaultTemplateId { get { return "ordering"; } }
     }
 }

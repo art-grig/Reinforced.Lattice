@@ -80,9 +80,7 @@
     <Compile Include="Configuration\IColumnConfigurator.cs" />
     <Compile Include="Configuration\IColumnTargetProperty.cs" />
     <Compile Include="Configuration\IConfigurator.cs" />
-    <Compile Include="Configuration\IPluginConfiguration.cs" />
     <Compile Include="Configuration\Json\JsonConfigurationExtensions.cs" />
-    <Compile Include="Configuration\PluginConfigurationWrapper.cs" />
     <Compile Include="Defaults\DefaultCommandHandler.cs" />
     <Compile Include="Defaults\DefaultQueryHandler.cs" />
     <Compile Include="Defaults\DelegateCommandHandler.cs" />
@@ -137,6 +135,7 @@
     <Compile Include="Plugins\Checkboxify\CheckboxifyCommandHandler.cs" />
     <Compile Include="Plugins\Checkboxify\CheckboxifyTemplateRegion.cs" />
     <Compile Include="Plugins\ColumnListBuilder.cs" />
+    <Compile Include="Plugins\ColumnPluginConfigurationWrapper.cs" />
     <Compile Include="Plugins\Formwatch\FormWatchBuilder.cs" />
     <Compile Include="Plugins\Formwatch\FormwatchClientConfiguration.cs" />
     <Compile Include="Plugins\Formwatch\FormWatchExtensions.cs" />
@@ -146,9 +145,12 @@
     <Compile Include="Plugins\Hideout\HideoutPluginConfiguration.cs" />
     <Compile Include="Plugins\Hideout\HideoutExtensions.cs" />
     <Compile Include="Plugins\Hideout\HideoutTemplateRegion.cs" />
+    <Compile Include="Plugins\IProvidesColumnName.cs" />
+    <Compile Include="Plugins\IProvidesTemplate.cs" />
     <Compile Include="Plugins\Limit\LimitPluginExtensions.cs" />
     <Compile Include="Plugins\Limit\LimitPluginTemplateRegion.cs" />
     <Compile Include="Plugins\Loading\LoadingPluginTemplateRegion.cs" />
+    <Compile Include="Plugins\Loading\LoadingUiConfig.cs" />
     <Compile Include="Plugins\Ordering\OrderingConfiguration.cs" />
     <Compile Include="Plugins\Ordering\OrderingExtensions.cs" />
     <Compile Include="Plugins\Ordering\OrderingPluginTemplateRegion.cs" />
@@ -156,6 +158,8 @@
     <Compile Include="Plugins\Paging\PagingClientConfiguration.cs" />
     <Compile Include="Plugins\Paging\PagingExtensions.cs" />
     <Compile Include="Plugins\Paging\PagingTemplateRegion.cs" />
+    <Compile Include="Plugins\PluginConfigurationCommonExtensions.cs" />
+    <Compile Include="Plugins\PluginConfigurationWrapper.cs" />
     <Compile Include="Plugins\ResponseInfo\ActionBasedResponseModifier.cs" />
     <Compile Include="Plugins\Checkboxify\CheckboxifyClientConfig.cs" />
     <Compile Include="Plugins\ResponseInfo\ResponseInfoClientConfiguration.cs" />

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace PowerTables.Plugins.Toolbar
 {
-    public class ToolbarButtonsClientConfiguration
+    public class ToolbarButtonsClientConfiguration : IProvidesTemplate
     {
         public List<ToolbarButtonClientConfiguration> Buttons { get; set; }
 
@@ -16,5 +16,6 @@ namespace PowerTables.Plugins.Toolbar
             Buttons = new List<ToolbarButtonClientConfiguration>();
         }
 
+        public string DefaultTemplateId { get { return "toolbar"; } }
     }
 }

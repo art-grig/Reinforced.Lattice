@@ -8,6 +8,7 @@ using System.Web.Mvc;
 using PowerTables.Configuration;
 using PowerTables.Configuration.Json;
 using PowerTables.Filters.Value;
+using PowerTables.Plugins;
 
 namespace PowerTables.Filters.Select
 {
@@ -25,7 +26,7 @@ namespace PowerTables.Filters.Select
         public static ValueColumnFilter<TSourceData, TSourceColumn> FilterSelect<TSourceData, TTableData, TTableColumn, TSourceColumn>(
             this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
             Expression<Func<TSourceData, TSourceColumn>> sourceColumn,
-            Action<IPluginConfiguration<SelectFilterUiConfig>> ui = null) where TTableData : new()
+            Action<ColumnPluginConfigurationWrapper<SelectFilterUiConfig,TTableColumn>> ui = null) where TTableData : new()
         {
 
             var filter = column.FilterValueNoUi(sourceColumn);
@@ -43,7 +44,7 @@ namespace PowerTables.Filters.Select
         public static ValueColumnFilter<TSourceData, TTableColumn> FilterSelectBy<TSourceData, TTableData, TTableColumn>(
             this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
             Func<IQueryable<TSourceData>, TTableColumn, IQueryable<TSourceData>> filterDelegate,
-            Action<IPluginConfiguration<SelectFilterUiConfig>> ui = null) where TTableData : new()
+            Action<ColumnPluginConfigurationWrapper<SelectFilterUiConfig,TTableColumn>> ui = null) where TTableData : new()
         {
 
             var filter = column.FilterValueNoUiBy(filterDelegate);
@@ -57,14 +58,10 @@ namespace PowerTables.Filters.Select
         /// <param name="column">Column</param>
         /// <param name="ui">UI builder</param>
         public static void FilterSelectUi<TSourceData, TTableData, TTableColumn>(this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
-           Action<IPluginConfiguration<SelectFilterUiConfig>> ui = null) where TTableData : new()
+           Action<ColumnPluginConfigurationWrapper<SelectFilterUiConfig,TTableColumn>> ui = null) where TTableData : new()
         {
 
-            column.UpdateFilterConfig<SelectFilterUiConfig>(PluginId, cc =>
-            {
-                cc.Configuration.ColumnName = column.ColumnProperty.Name;
-                if (ui != null) ui(cc);    
-            });
+            column.UpdateFilterConfig(PluginId, ui);
         }
 
     }

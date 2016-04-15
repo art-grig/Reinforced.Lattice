@@ -4,17 +4,18 @@
      * Enity responsible for displaying table
      */
     export class Renderer implements ITemplatesProvider {
-        constructor(rootId: string, prefix: string, instances: InstanceManager, events: EventsManager, dateService: DateService) {
+        constructor(rootId: string, prefix: string, instances: InstanceManager, events: EventsManager, dateService: DateService, coreTemplates: ICoreTemplateIds) {
             this._instances = instances;
             this._stack = new RenderingStack();
             this.RootElement = document.getElementById(rootId);
             this._rootId = rootId;
             this._events = events;
+            this._templateIds = coreTemplates;
 
             this.HandlebarsInstance = Handlebars.create();
 
-            this.LayoutRenderer = new LayoutRenderer(this, this._stack, this._instances);
-            this.ContentRenderer = new ContentRenderer(this, this._stack, this._instances);
+            this.LayoutRenderer = new LayoutRenderer(this, this._stack, this._instances, coreTemplates);
+            this.ContentRenderer = new ContentRenderer(this, this._stack, this._instances, coreTemplates);
             this.BackBinder = new BackBinder(this.HandlebarsInstance, instances, this._stack, dateService);
 
             this.HandlebarsInstance.registerHelper('ifq', this.ifqHelper);
@@ -76,7 +77,8 @@
         private _templatesCache: { [key: string]: HandlebarsTemplateDelegate } = {};
         private _rootId: string;
         private _events: EventsManager;
-
+        private _templateIds: ICoreTemplateIds;
+        
         //#region Templates caching
         private cacheTemplates(templatesPrefix: string): void {
             var selector: string = `script[type="text/x-handlebars-template"][id^="${templatesPrefix}-"]`;
@@ -108,7 +110,7 @@
         public layout(): void {
             this._events.BeforeLayoutRendered.invoke(this, null);
 
-            var rendered: string = this.getCachedTemplate('layout')(null);
+            var rendered: string = this.getCachedTemplate(this._templateIds.Layout)(null);
             this.RootElement.innerHTML = rendered;
 
             var bodyMarker: Element = this.RootElement.querySelector('[data-track="tableBodyHere"]');
@@ -119,8 +121,8 @@
             this.Locator = new DOMLocator(this.BodyElement, this.RootElement, this._rootId);
             this.Delegator = new EventsDelegator(this.Locator, this.BodyElement, this.RootElement, this._rootId);
             this.BackBinder.Delegator = this.Delegator;
-            this.Modifier = new DOMModifier(this._stack, this.Locator, this.BackBinder, this, this.LayoutRenderer, this._instances,this.Delegator);
-            
+            this.Modifier = new DOMModifier(this._stack, this.Locator, this.BackBinder, this, this.LayoutRenderer, this._instances, this.Delegator);
+
 
             this.BackBinder.backBind(this.RootElement);
             this._events.AfterLayoutRendered.invoke(this, null);

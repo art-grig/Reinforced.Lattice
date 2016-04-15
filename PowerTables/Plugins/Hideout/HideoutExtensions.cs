@@ -57,7 +57,7 @@ namespace PowerTables.Plugins.Hideout
             <TSourceData, TTableData>(
             this Configurator<TSourceData, TTableData> conf,
             Action<ColumnListBuilder<TSourceData, TTableData>> columns,
-            Action<IPluginConfiguration<HideoutPluginConfiguration>> ui = null,
+            Action<PluginConfigurationWrapper<HideoutPluginConfiguration>> ui = null,
             string where = null
             ) where TTableData : new()
         {

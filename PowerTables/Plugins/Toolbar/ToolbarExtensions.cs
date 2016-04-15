@@ -16,14 +16,16 @@ namespace PowerTables.Plugins.Toolbar
         /// <param name="conf">Table configurator</param>
         /// <param name="where">Toolbar position</param>
         /// <param name="toolbar">Toolbar confguration action</param>
+        /// <param name="templateId">Overrides standard toolbar template ID</param>
         /// <returns>Fluent</returns>
-        public static T Toolbar<T>(this T conf, string where, Action<ToolbarBuilder> toolbar) where T : IConfigurator
+        public static T Toolbar<T>(this T conf, string where, Action<ToolbarBuilder> toolbar, string templateId = "toolbar") where T : IConfigurator
         {
             conf.TableConfiguration.UpdatePluginConfig<ToolbarButtonsClientConfiguration>(PluginId, c =>
             {
                 ToolbarBuilder tb = new ToolbarBuilder(c.Configuration.Buttons);
                 toolbar(tb);
                 tb.AssignIds();
+                c.TemplateId(templateId);
             }, where);
             return conf;
         }

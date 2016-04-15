@@ -12,12 +12,13 @@ namespace PowerTables.Templating.BuiltIn
         : ModeledTemplateRegion<IColumnHeader>,
         IProvidesTracking, IProvidesContent, IProvidesColumnContent
     {
-        public HeaderWrapperTemplateRegion(string prefix, TextWriter writer)
-            : base(prefix, "headerWrapper", writer)
-        {
-        }
+        
 
         public bool IsTrackSet { get; set; }
+
+        public HeaderWrapperTemplateRegion(string prefix, string id, TextWriter writer) : base(prefix, id, writer)
+        {
+        }
     }
 
     /// <summary>
@@ -89,9 +90,9 @@ namespace PowerTables.Templating.BuiltIn
 
     public static class HeaderTemplatingExtensions
     {
-        public static HeaderWrapperTemplateRegion HeaderWrapper(this TemplatesPageBase t)
+        public static HeaderWrapperTemplateRegion HeaderWrapper(this TemplatesPageBase t, string templateId = "headerWrapper")
         {
-            return new HeaderWrapperTemplateRegion(t.Model.Prefix, t.Output);
+            return new HeaderWrapperTemplateRegion(t.Model.Prefix,templateId, t.Output);
         }
     }
 }

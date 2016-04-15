@@ -1,4 +1,5 @@
 ﻿using PowerTables.Configuration;
+using PowerTables.Plugins;
 using PowerTables.Plugins.Limit;
 using PowerTables.Plugins.Paging;
 
@@ -10,7 +11,7 @@ namespace PowerTables.Mvc.Models.Tutorial
         {
             conf.OrderingAndLoadingInidicator();
             conf.LoadImmediately(false);
-            conf.Limit(ui => ui.PlaceAt("lt").Configuration
+            conf.Limit(ui => ui.PlaceAt("lt")
                 .Values(new[]
             {
                 "Everything",           // any text will be interpreted as "all records"
@@ -22,7 +23,6 @@ namespace PowerTables.Mvc.Models.Tutorial
             conf.Paging(
                 ui =>
                     ui.PlaceAt("rb")
-                    .Configuration
                     .PagingWithArrows()); // lets pick simple arrows left/right paging
             return conf;
         }

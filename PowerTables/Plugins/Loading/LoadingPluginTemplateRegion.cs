@@ -11,10 +11,7 @@ namespace PowerTables.Plugins.Loading
 {
     public class LoadingPluginTemplateRegion : PluginTemplateRegion
     {
-        public LoadingPluginTemplateRegion(IViewPlugins page)
-            : base(page, "loading")
-        {
-        }
+        
 
         /// <summary>
         /// Inidicates element that will be hidden when no loading and 
@@ -25,6 +22,10 @@ namespace PowerTables.Plugins.Loading
         {
             return this.Mark("BlinkElement");
         }
+
+        public LoadingPluginTemplateRegion(IViewPlugins page, string id) : base(page, id)
+        {
+        }
     }
 
     public static class LoadingPluginTemplateExtensions
@@ -34,9 +35,9 @@ namespace PowerTables.Plugins.Loading
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
-        public static LoadingPluginTemplateRegion Loading(this IViewPlugins t)
+        public static LoadingPluginTemplateRegion Loading(this IViewPlugins t, string templateId = "loading")
         {
-            return new LoadingPluginTemplateRegion(t);
+            return new LoadingPluginTemplateRegion(t, "loading");
         }
     }
 }

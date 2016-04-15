@@ -53,24 +53,21 @@ namespace PowerTables.Plugins.Checkboxify
         /// <typeparam name="TTableColumn"></typeparam>
         /// <param name="conf">Table configuration</param>
         /// <param name="column">Column that will be used as ID provider for select checkbox</param>
-        /// <param name="selectAllBehavior">Specifies select all checkbox behavior</param>
-        /// <param name="resetOnLoad">Reset selection on table reload or not</param>
+        /// <param name="selectAllBehavior">Behavior for "Select All" button</param>
+        /// <param name="ui">UI configuration</param>
         /// <returns></returns>
         public static Configurator<TSourceData, TTableData> Checkboxify<TSourceData, TTableData, TTableColumn>(
             this Configurator<TSourceData, TTableData> conf,
             Expression<Func<TTableData, TTableColumn>> column,
             SelectAllBehavior selectAllBehavior = SelectAllBehavior.OnlyIfAllDataVisible,
-            bool resetOnLoad = false,bool resetOnClientLoad = false
-
+            Action<PluginConfigurationWrapper<CheckboxifyClientConfig>> ui = null
             ) where TTableData : new()
         {
             var targetProp = LambdaHelpers.ParsePropertyLambda(column);
             var colName = targetProp.Name;
             CheckboxifyClientConfig ccc = new CheckboxifyClientConfig
             {
-                SelectionColumnName = colName,
-                ResetOnReload = resetOnLoad,
-                ResetOnClientReload = resetOnClientLoad
+                SelectionColumnName = colName
             };
             switch (selectAllBehavior)
             {
@@ -109,7 +106,43 @@ namespace PowerTables.Plugins.Checkboxify
                     break;
             }
             conf.TableConfiguration.ReplacePluginConfig(PluginId, ccc);
+            conf.TableConfiguration.UpdatePluginConfig(PluginId, ui);
             return conf;
+        }
+
+        /// <summary>
+        /// Specifies templates for checkboxify
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="selectAllTemplateId">Template for Select All button</param>
+        /// <param name="rowTemplateId">Template for selected row</param>
+        /// <param name="cellTemplateId">Template for cell containing checkboxify checkbox</param>
+        /// <returns></returns>
+        public static PluginConfigurationWrapper<CheckboxifyClientConfig> Templates(
+            this PluginConfigurationWrapper<CheckboxifyClientConfig> c, 
+            string selectAllTemplateId = "checkboxifySelectAll",
+            string rowTemplateId = "checkboxifyRow",
+            string cellTemplateId = "checkboxifyCell")
+        {
+            c.Configuration.SelectAllTemplateId = selectAllTemplateId;
+            c.Configuration.RowTemplateId = rowTemplateId;
+            c.Configuration.CellTemplateId = cellTemplateId;
+            return c;
+        }
+
+        /// <summary>
+        /// Regulates selection reseting behavior
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="resetOnClientLoad">Reset selection on client-side reload of visible data</param>
+        /// <param name="resetOnLoad">Reset selection after loading actual data on server</param>
+        /// <returns></returns>
+        public static PluginConfigurationWrapper<CheckboxifyClientConfig> ResetBehavior(
+            this PluginConfigurationWrapper<CheckboxifyClientConfig> c, bool resetOnLoad = false, bool resetOnClientLoad = false)
+        {
+            c.Configuration.ResetOnReload = resetOnLoad;
+            c.Configuration.ResetOnClientReload = resetOnClientLoad;
+            return c;
         }
     }
 

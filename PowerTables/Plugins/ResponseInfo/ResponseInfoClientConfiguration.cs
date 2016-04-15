@@ -6,13 +6,8 @@ using PowerTables.FrequentlyUsed;
 
 namespace PowerTables.Plugins.ResponseInfo
 {
-    public class ResponseInfoClientConfiguration
+    public class ResponseInfoClientConfiguration : IProvidesTemplate
     {
-        /// <summary>
-        /// Use handlebars syntax with IResponse as context
-        /// </summary>
-        public string TemplateText { get; set; }
-
         /// <summary>
         /// Client function for evaluating template information
         /// </summary>
@@ -27,7 +22,8 @@ namespace PowerTables.Plugins.ResponseInfo
         /// Used to point that response info resulting object has been changed
         /// </summary>
         public bool ResponseObjectOverriden { get; internal set; }
-        
+
+        public string DefaultTemplateId { get; private set; }
     }
 
     public static class ResponseInfoClientConfigurationExtensions
@@ -60,7 +56,6 @@ namespace PowerTables.Plugins.ResponseInfo
             CellTemplateBuilder teb = new CellTemplateBuilder();
             templateBuilder(teb);
             c.ClientTemplateFunction = new JRaw(teb.Build());
-            c.TemplateText = null;
             return c;
         }
 

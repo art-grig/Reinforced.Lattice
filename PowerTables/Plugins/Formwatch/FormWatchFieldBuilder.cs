@@ -93,7 +93,7 @@ namespace PowerTables.Plugins.Formwatch
         /// <returns>Fluent</returns>
         public FormWatchFieldBuilder<TData> Constant(TData constant)
         {
-            _fieldData.ConstantValue = _configurator.ToFilterDefaultString(constant);
+            _fieldData.ConstantValue = ValueConverter.ToFilterDefaultString(constant);
             return this;
         }
 

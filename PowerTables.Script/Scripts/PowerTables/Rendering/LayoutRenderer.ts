@@ -13,12 +13,14 @@ module PowerTables.Rendering {
         private _templatesProvider: ITemplatesProvider;
         private _hb: Handlebars.IHandlebars;
         private _stack: RenderingStack;
-
-        constructor(templates: ITemplatesProvider, stack: RenderingStack, instances: InstanceManager) {
+        private _templateIds:ICoreTemplateIds;
+        
+        constructor(templates: ITemplatesProvider, stack: RenderingStack, instances: InstanceManager,coreTemplates:ICoreTemplateIds) {
             this._hb = templates.HandlebarsInstance;
             this._templatesProvider = templates;
             this._stack = stack;
             this._instances = instances;
+            this._templateIds = coreTemplates;
 
             this._hb.registerHelper('Body', this.bodyHelper);
             this._hb.registerHelper('Plugin', this.pluginHelper.bind(this));
@@ -64,7 +66,7 @@ module PowerTables.Rendering {
             if (plugin.renderElement) return plugin.renderElement(this._templatesProvider);
             if (!plugin.renderContent) return '';
             this._stack.push(RenderingContextType.Plugin, plugin);
-            var result: string = this._templatesProvider.getCachedTemplate('pluginWrapper')(plugin);
+            var result: string = this._templatesProvider.getCachedTemplate(this._templateIds.PluginWrapper)(plugin);
             this._stack.popContext();
             return result;
         }
@@ -87,7 +89,7 @@ module PowerTables.Rendering {
             var result: string;
 
             if (column.Header.renderElement) result = column.Header.renderElement(this._templatesProvider);
-            else result = this._templatesProvider.getCachedTemplate('headerWrapper')(column.Header);
+            else result = this._templatesProvider.getCachedTemplate(this._templateIds.HeaderWrapper)(column.Header);
 
             this._stack.popContext();
             return result;

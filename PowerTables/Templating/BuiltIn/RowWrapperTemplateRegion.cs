@@ -8,12 +8,12 @@ namespace PowerTables.Templating.BuiltIn
         IProvidesContent,
         IProvidesColumnContent
     {
-        public RowWrapperTemplateRegion(string prefix, TextWriter writer)
-            : base(prefix, "rowWrapper", writer)
+        
+        public bool IsTrackSet { get; set; }
+
+        public RowWrapperTemplateRegion(string prefix, string id, TextWriter writer) : base(prefix, id, writer)
         {
         }
-
-        public bool IsTrackSet { get; set; }
     }
 
     /// <summary>
@@ -40,14 +40,14 @@ namespace PowerTables.Templating.BuiltIn
 
     public static class RowWrapperExtensions
     {
-        public static RowWrapperTemplateRegion<dynamic> RowWrapper(this TemplatesPageBase tp)
+        public static RowWrapperTemplateRegion<dynamic> RowWrapper(this TemplatesPageBase tp, string templateId = "rowWrapper")
         {
-            return new RowWrapperTemplateRegion<dynamic>(tp.Model.Prefix, tp.Output);
+            return new RowWrapperTemplateRegion<dynamic>(tp.Model.Prefix,templateId, tp.Output);
         }
 
-        public static RowWrapperTemplateRegion<TRow> RowWrapper<TRow>(this TemplatesPageBase tp)
+        public static RowWrapperTemplateRegion<TRow> RowWrapper<TRow>(this TemplatesPageBase tp, string templateId = "rowWrapper")
         {
-            return new RowWrapperTemplateRegion<TRow>(tp.Model.Prefix, tp.Output);
+            return new RowWrapperTemplateRegion<TRow>(tp.Model.Prefix,templateId, tp.Output);
         }
     }
 }

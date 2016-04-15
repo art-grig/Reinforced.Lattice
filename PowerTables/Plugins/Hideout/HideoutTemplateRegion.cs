@@ -11,50 +11,98 @@ namespace PowerTables.Plugins.Hideout
 {
     public class HideoutTemplateRegion : PluginTemplateRegion,
         IModelProvider<IHideoutViewModel>
-
     {
-        public HideoutTemplateRegion(IViewPlugins page)
-            : base(page, "hideout")
+        public string ExistingModel { get; private set; }
+
+        public HideoutTemplateRegion(IViewPlugins page, string id)
+            : base(page, id)
         {
         }
-
-        public string ExistingModel { get; private set; }
     }
 
+    /// <summary>
+    /// ViewModel for Hideout menu
+    /// </summary>
     public interface IHideoutViewModel
     {
+        /// <summary>
+        /// Configuration
+        /// </summary>
         HideoutPluginConfiguration Configuration { get; }
+
+        /// <summary>
+        /// Set of Hideout column states
+        /// </summary>
         IHbArray<IHideoutColumnState> ColumnStates { get; }
 
     }
 
+    /// <summary>
+    /// ViewModel for Hideout column state
+    /// </summary>
     public interface IHideoutColumnState
     {
+        /// <summary>
+        /// Is column currently visible
+        /// </summary>
         bool Visible { get; }
+        
+        /// <summary>
+        /// Raw column name
+        /// </summary>
         string RawName { get; }
+
+        /// <summary>
+        /// Column title
+        /// </summary>
         string Name { get; }
+
+        /// <summary>
+        /// Is column not drawn (not hidden)
+        /// </summary>
         bool DoesNotExists { get; }
     }
 
     public static class HideoutTemplateExtensions
     {
-        public static HideoutTemplateRegion HideoutMenu(this IViewPlugins t)
+        public static HideoutTemplateRegion HideoutMenu(this IViewPlugins t, string templateId = "hideout")
         {
-            return new HideoutTemplateRegion(t);
+            return new HideoutTemplateRegion(t, templateId);
         }
 
-        public static MvcHtmlString BindHide<T>(this T t,string eventId)
+        /// <summary>
+        /// Specified event on mentioned HTML element will hide corresponding column
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="t"></param>
+        /// <param name="eventId">DOM event id</param>
+        /// <returns></returns>
+        public static MvcHtmlString BindHide<T>(this T t, string eventId)
             where T : IModelProvider<IHideoutColumnState>, IProvidesEventsBinding
         {
             return t.BindEvent("hideColumn", eventId, t.CleanValue(c => c.RawName));
         }
 
+        /// <summary>
+        /// Specified event on mentioned HTML element will show corresponding column
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="t"></param>
+        /// <param name="eventId">DOM event id</param>
+        /// <returns></returns>
         public static MvcHtmlString BindShow<T>(this T t, string eventId)
             where T : IModelProvider<IHideoutColumnState>, IProvidesEventsBinding
         {
             return t.BindEvent("showColumn", eventId, t.CleanValue(c => c.RawName));
         }
 
+        /// <summary>
+        /// Specified event on mentioned HTML element will toggle visibility of corresponding column
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="t"></param>
+        /// <param name="eventId">DOM event id</param>
+        /// <returns></returns>
         public static MvcHtmlString BindToggle<T>(this T t, string eventId)
             where T : IModelProvider<IHideoutColumnState>, IProvidesEventsBinding
         {

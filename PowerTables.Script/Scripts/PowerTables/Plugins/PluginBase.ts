@@ -12,7 +12,14 @@
             this.registerAdditionalHelpers(masterTable.Renderer.HandlebarsInstance);
         }
 
+        /**
+         * Raw plugin configuration
+         */
         public RawConfig: Configuration.Json.IPluginConfiguration;
+
+        /**
+         * Plugin location ID
+         */
         public PluginLocation: string;
 
         /**
@@ -52,8 +59,25 @@
          */
         protected registerAdditionalHelpers(hb: Handlebars.IHandlebars): void { }
 
+        /**
+         * Function that is called after plugin is drawn
+         * 
+         * @param e Event arguments         
+         */
         protected afterDrawn: (e: ITableEventArgs<any>) => void = null;
 
+        /**
+         * Plugin order among particular placement
+         */
         public Order: number;
+
+        /**
+         * Default render function using TemplateId from plugin configuration
+         * @param e Templates provider
+         * @returns content string
+         */
+        public defaultRender(e: ITemplatesProvider): string {
+            return e.getCachedTemplate(this.RawConfig.TemplateId)(this);
+        }
     }
 }

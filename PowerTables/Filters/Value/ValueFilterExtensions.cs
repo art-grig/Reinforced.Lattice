@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using PowerTables.Configuration;
 using PowerTables.Configuration.Json;
 using PowerTables.Filters.Select;
+using PowerTables.Plugins;
 
 namespace PowerTables.Filters.Value
 {
@@ -30,11 +31,11 @@ namespace PowerTables.Filters.Value
         public static ValueColumnFilter<TSourceData, TSourceColumn> FilterValue<TSourceData, TTableData, TTableColumn, TSourceColumn>(
             this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
             Expression<Func<TSourceData, TSourceColumn>> sourceColumn,
-            Action<IPluginConfiguration<ValueFilterUiConfig>> ui = null
+            Action<ColumnPluginConfigurationWrapper<ValueFilterUiConfig, TTableColumn>> ui = null
             ) where TTableData : new()
         {
             var filter = FilterValueNoUi(column, sourceColumn);
-            FilterValueUi(column,ui);
+            FilterValueUi(column, ui);
             return filter;
         }
 
@@ -51,7 +52,7 @@ namespace PowerTables.Filters.Value
         public static ValueColumnFilter<TSourceData, TTableColumn> FilterValueBy<TSourceData, TTableData, TTableColumn>(
             this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
             Func<IQueryable<TSourceData>, TTableColumn, IQueryable<TSourceData>> filterDelegate,
-            Action<IPluginConfiguration<ValueFilterUiConfig>> ui = null
+            Action<ColumnPluginConfigurationWrapper<ValueFilterUiConfig, TTableColumn>> ui = null
             ) where TTableData : new()
         {
             var filter = FilterValueNoUiBy(column, filterDelegate);
@@ -107,15 +108,47 @@ namespace PowerTables.Filters.Value
         /// <returns></returns>
         public static void FilterValueUi<TSourceData, TTableData, TTableColumn>(
             this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
-            Action<IPluginConfiguration<ValueFilterUiConfig>> ui = null
+            Action<ColumnPluginConfigurationWrapper<ValueFilterUiConfig, TTableColumn>> ui = null
             ) where TTableData : new()
         {
-            column.UpdateFilterConfig < ValueFilterUiConfig>(PluginId, c =>
-            {
-                c.Configuration.ColumnName = column.ColumnProperty.Name;
-                if (ui != null) ui(c);    
-            });
+            column.UpdateFilterConfig(PluginId, ui);
         }
-        
+
+        /// <summary>
+        /// Specifies default value for filter. 
+        /// </summary>
+        /// <param name="config">Configuration</param>
+        /// <param name="value">Filter default value</param>
+        /// <returns>Fluent</returns>
+        public static ColumnPluginConfigurationWrapper<ValueFilterUiConfig, TColumn> Default<TColumn>(this ColumnPluginConfigurationWrapper<ValueFilterUiConfig, TColumn> config, TColumn value = null) where TColumn : class
+        {
+            config.Configuration.DefaultValue = ValueConverter.ToFilterDefaultString(value);
+            return config;
+        }
+
+        /// <summary>
+        /// Specifies default value for filter. 
+        /// </summary>
+        /// <param name="config">Configuration</param>
+        /// <param name="value">Filter default value</param>
+        /// <returns>Fluent</returns>
+        public static ColumnPluginConfigurationWrapper<ValueFilterUiConfig, TColumn?> Default<TColumn>(this ColumnPluginConfigurationWrapper<ValueFilterUiConfig, TColumn?> config, TColumn? value = null) where TColumn : struct
+        {
+            config.Configuration.DefaultValue = ValueConverter.ToFilterDefaultString(value);
+            return config;
+        }
+
+        /// <summary>
+        /// Specifies default value for filter. 
+        /// </summary>
+        /// <param name="config">Configuration</param>
+        /// <param name="value">Filter default value</param>
+        /// <returns>Fluent</returns>
+        public static ColumnPluginConfigurationWrapper<ValueFilterUiConfig, TColumn> Default<TColumn>(this ColumnPluginConfigurationWrapper<ValueFilterUiConfig, TColumn> config, TColumn? value = null) where TColumn : struct
+        {
+            config.Configuration.DefaultValue = ValueConverter.ToFilterDefaultString(value);
+            return config;
+        }
+
     }
 }

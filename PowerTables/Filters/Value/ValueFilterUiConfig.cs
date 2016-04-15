@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using PowerTables.Plugins;
 
 
 namespace PowerTables.Filters.Value
@@ -11,7 +12,7 @@ namespace PowerTables.Filters.Value
     /// <summary>
     /// UI configuration for value filter
     /// </summary>
-    public class ValueFilterUiConfig : IHideableFilter
+    public class ValueFilterUiConfig : IHideableFilter, IProvidesColumnName, IProvidesTemplate, IClientFiltering, IInputDelay
     {
         /// <summary>
         /// Placeholder text
@@ -57,26 +58,7 @@ namespace PowerTables.Filters.Value
         {
             InputDelay = 500;
         }
-    }
 
-    public static class ValueFilterUiExtensions
-    {
-        /// <summary>
-        /// Enables client filtering and specifies custom client filtering function. 
-        /// 
-        /// Function type: (datarow:any, filterValue:string, query:IQuery) => boolean
-        /// dataRow: JSON-ed TTableObject
-        /// filterValue: value entered to filter
-        /// query: IQuery object
-        /// Returns: true for satisfying objects, false otherwise
-        /// </summary>
-        public static ValueFilterUiConfig ClientFiltering(this ValueFilterUiConfig c, string function = null)
-        {
-            c.ClientFiltering = true;
-            c.ClientFilteringFunction = new JRaw(string.IsNullOrEmpty(function) ? "null" : function);
-            return c;
-        }
-
-        
+        public string DefaultTemplateId { get { return "valueFilter"; } }
     }
 }

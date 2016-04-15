@@ -25,7 +25,7 @@ namespace PowerTables.Plugins.Limit
         /// <param name="ui">Limit filter UI configuration</param>
         /// <param name="where">Plugin placement - to distinguish which instance to update. Can be omitted if you have single plugin instance per table.</param>
         /// <returns></returns>
-        public static T Limit<T>(this T configurator, Action<IPluginConfiguration<LimitClientConfiguration>> ui, string where = null)
+        public static T Limit<T>(this T configurator, Action<PluginConfigurationWrapper<LimitClientConfiguration>> ui, string where = null)
             where T : IConfigurator
         {
             configurator.TableConfiguration.UpdatePluginConfig(PluginId, ui, where);
@@ -39,16 +39,16 @@ namespace PowerTables.Plugins.Limit
         /// <param name="values">Limiting values</param>
         /// <param name="defaultValue">Default value. Should be among supplied values. Can be omitted (first value will be taken)</param>
         /// <returns></returns>
-        public static LimitClientConfiguration Values(this LimitClientConfiguration conf, string[] values, string defaultValue = null)
+        public static PluginConfigurationWrapper<LimitClientConfiguration> Values(this PluginConfigurationWrapper<LimitClientConfiguration> conf, string[] values, string defaultValue = null)
         {
-            conf.LimitLabels.Clear();
-            conf.LimitValues.Clear();
+            conf.Configuration.LimitLabels.Clear();
+            conf.Configuration.LimitValues.Clear();
 
             foreach (var value in values)
             {
                 int v = 0;
                 int.TryParse(value, out v);
-                conf.AddValue(value, v);
+                conf.Configuration.AddValue(value, v);
             }
             if (defaultValue == null)
             {
@@ -59,7 +59,7 @@ namespace PowerTables.Plugins.Limit
             
             if (defaultValue.Trim() == "-")
                 throw new Exception("Limit menu default selected value should not be a separator");
-            conf.DefaultValue = defaultValue;
+            conf.Configuration.DefaultValue = defaultValue;
             return conf;
         }
 
@@ -69,9 +69,34 @@ namespace PowerTables.Plugins.Limit
         /// <param name="c"></param>
         /// <param name="enable">When true, client limiting will be enabled. Disabled when false</param>
         /// <returns></returns>
-        public static LimitClientConfiguration EnableClientLimiting(this LimitClientConfiguration c, bool enable = true)
+        public static PluginConfigurationWrapper<LimitClientConfiguration> EnableClientLimiting(this PluginConfigurationWrapper<LimitClientConfiguration> c, bool enable = true)
         {
-            c.EnableClientLimiting = enable;
+            c.Configuration.EnableClientLimiting = enable;
+            return c;
+        }
+
+        /// <summary>
+        /// Enables or disables client limiting
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="dont">Disables reloadint page on changing limit settings</param>
+        /// <returns></returns>
+        public static PluginConfigurationWrapper<LimitClientConfiguration> DontReloadOnChange(this PluginConfigurationWrapper<LimitClientConfiguration> c, bool dont = false)
+        {
+            c.Configuration.ReloadTableOnLimitChange = !dont;
+            return c;
+        }
+
+        /// <summary>
+        /// Adds limit value
+        /// </summary>
+        /// <param name="limitLabel">Label</param>
+        /// <param name="limitValue">Value</param>
+        /// <returns></returns>
+        public static PluginConfigurationWrapper<LimitClientConfiguration> AddValue(this PluginConfigurationWrapper<LimitClientConfiguration> c, string limitLabel, int limitValue)
+        {
+            c.Configuration.LimitLabels.Add(limitLabel);
+            c.Configuration.LimitValues.Add(limitValue);
             return c;
         }
         

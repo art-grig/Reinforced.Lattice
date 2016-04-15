@@ -5,8 +5,8 @@ namespace PowerTables.Templating.BuiltIn
 {
     public class LayoutTemplateRegion : TemplateRegion, IProvidesEventsBinding
     {
-        public LayoutTemplateRegion(string prefix, TextWriter writer)
-            : base(prefix, "layout", writer)
+        public LayoutTemplateRegion(string prefix, string templateId, TextWriter writer)
+            : base(prefix, templateId, writer)
         {
         }
     }
@@ -17,9 +17,9 @@ namespace PowerTables.Templating.BuiltIn
         /// Declares template region for table layout
         /// </summary>
         /// <returns>Template region</returns>
-        public static LayoutTemplateRegion Layout(this TemplatesPageBase t)
+        public static LayoutTemplateRegion Layout(this TemplatesPageBase t, string templateId = "layout")
         {
-            return new LayoutTemplateRegion(t.Model.Prefix, t.Output);
+            return new LayoutTemplateRegion(t.Model.Prefix,templateId, t.Output);
         }
 
         /// <summary>

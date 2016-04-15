@@ -20,7 +20,7 @@ namespace PowerTables.Plugins.Paging
         /// <returns></returns>
         public static Configurator<TSourceData, TTableData> Paging<TSourceData, TTableData>(
             this Configurator<TSourceData, TTableData> conf,
-            Action<IPluginConfiguration<PagingClientConfiguration>> ui,
+            Action<PluginConfigurationWrapper<PagingClientConfiguration>> ui,
             string where = null
             ) where TTableData : new()
         {
@@ -36,12 +36,12 @@ namespace PowerTables.Plugins.Paging
         /// </summary>
         /// <param name="conf">Table configurator</param>
         /// <returns></returns>
-        public static PagingClientConfiguration PagingWithArrows(
-            this PagingClientConfiguration conf
+        public static PluginConfigurationWrapper<PagingClientConfiguration> PagingWithArrows(
+            this PluginConfigurationWrapper<PagingClientConfiguration> conf
             )
         {
 
-            conf.ArrowsMode = true;
+            conf.Configuration.ArrowsMode = true;
             return conf;
         }
 
@@ -56,16 +56,16 @@ namespace PowerTables.Plugins.Paging
         /// <param name="hidePages">Minimum number of pages to hide behind periods</param>
         /// <param name="useFirstLasPage">Display buttons for quick navigation to first and last page</param>
         /// <returns></returns>
-        public static PagingClientConfiguration PagingWithPeriods(
-            this PagingClientConfiguration conf,
+        public static PluginConfigurationWrapper<PagingClientConfiguration> PagingWithPeriods(
+            this PluginConfigurationWrapper<PagingClientConfiguration> conf,
             int hidePages = 3,
             bool useFirstLasPage = false
             )
         {
-            conf.ArrowsMode = false;
-            conf.UsePeriods = true;
-            conf.PagesToHideUnderPeriod = hidePages;
-            conf.UseFirstLastPage = useFirstLasPage;
+            conf.Configuration.ArrowsMode = false;
+            conf.Configuration.UsePeriods = true;
+            conf.Configuration.PagesToHideUnderPeriod = hidePages;
+            conf.Configuration.UseFirstLastPage = useFirstLasPage;
             return conf;
         }
 
@@ -77,15 +77,15 @@ namespace PowerTables.Plugins.Paging
         /// <param name="conf">Table configurator</param>
         /// <param name="useFirstLasPage">Display buttons for quick navigation to first and last page</param>
         /// <returns></returns>
-        public static PagingClientConfiguration PagingSimple(
-            this PagingClientConfiguration conf,
+        public static PluginConfigurationWrapper<PagingClientConfiguration> PagingSimple(
+            this PluginConfigurationWrapper<PagingClientConfiguration> conf,
             bool useFirstLasPage = false
             )
         {
 
-            conf.ArrowsMode = false;
-            conf.UsePeriods = false;
-            conf.UseFirstLastPage = useFirstLasPage;
+            conf.Configuration.ArrowsMode = false;
+            conf.Configuration.UsePeriods = false;
+            conf.Configuration.UseFirstLastPage = useFirstLasPage;
             return conf;
         }
         
@@ -95,9 +95,9 @@ namespace PowerTables.Plugins.Paging
         /// <param name="c"></param>
         /// <param name="enable">Enable or disable client paging</param>
         /// <returns></returns>
-        public static PagingClientConfiguration EnableClientPaging(this PagingClientConfiguration c, bool enable = true)
+        public static PluginConfigurationWrapper<PagingClientConfiguration> EnableClientPaging(this PluginConfigurationWrapper<PagingClientConfiguration> c, bool enable = true)
         {
-            c.EnableClientPaging = enable;
+            c.Configuration.EnableClientPaging = enable;
             return c;
         }
 
@@ -108,9 +108,9 @@ namespace PowerTables.Plugins.Paging
         /// <param name="c"></param>
         /// <param name="use">Use goto page</param>
         /// <returns></returns>
-        public static PagingClientConfiguration UseGotoPage(this PagingClientConfiguration c, bool use = true)
+        public static PluginConfigurationWrapper<PagingClientConfiguration> UseGotoPage(this PluginConfigurationWrapper<PagingClientConfiguration> c, bool use = true)
         {
-            c.UseGotoPage = use;
+            c.Configuration.UseGotoPage = use;
             return c;
         }
     }

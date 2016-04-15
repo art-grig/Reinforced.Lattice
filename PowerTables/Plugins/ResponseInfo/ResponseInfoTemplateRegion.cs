@@ -9,11 +9,13 @@ namespace PowerTables.Plugins.ResponseInfo
 {
     public class ResponseInfoTemplateRegion<T> : PluginTemplateRegion, IModelProvider<T>
     {
-        public ResponseInfoTemplateRegion(IViewPlugins page) : base(page, "responseInfo")
-        {
-        }
+        
 
         public string ExistingModel { get; private set; }
+
+        public ResponseInfoTemplateRegion(IViewPlugins page, string id) : base(page, id)
+        {
+        }
     }
 
     public interface IResponseInfoDefaultData
@@ -33,14 +35,14 @@ namespace PowerTables.Plugins.ResponseInfo
 
     public static class ResponseInfoTemplateExtensions
     {
-        public static ResponseInfoTemplateRegion<T> ResponseInfo<T>(this IViewPlugins t)
+        public static ResponseInfoTemplateRegion<T> ResponseInfo<T>(this IViewPlugins t, string templateId = "responseInfo")
         {
-            return new ResponseInfoTemplateRegion<T>(t);
+            return new ResponseInfoTemplateRegion<T>(t,templateId);
         }
 
-        public static ResponseInfoTemplateRegion<IResponseInfoDefaultData> ResponseInfo(this IViewPlugins t)
+        public static ResponseInfoTemplateRegion<IResponseInfoDefaultData> ResponseInfo(this IViewPlugins t, string templateId = "responseInfo")
         {
-            return new ResponseInfoTemplateRegion<IResponseInfoDefaultData>(t);
+            return new ResponseInfoTemplateRegion<IResponseInfoDefaultData>(t, templateId);
         }
     }
 }

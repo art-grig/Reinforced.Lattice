@@ -12,12 +12,14 @@ namespace PowerTables.Plugins.Limit
     public class LimitPluginTemplateRegion : PluginTemplateRegion
         , IModelProvider<ILimitPluginViewModel>
     {
-        public LimitPluginTemplateRegion(IViewPlugins page)
-            : base(page, "limit")
-        {
-        }
+
 
         public string ExistingModel { get; private set; }
+
+        public LimitPluginTemplateRegion(IViewPlugins page, string id)
+            : base(page, id)
+        {
+        }
     }
 
     /// <summary>
@@ -64,9 +66,9 @@ namespace PowerTables.Plugins.Limit
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
-        public static LimitPluginTemplateRegion Limit(this IViewPlugins t)
+        public static LimitPluginTemplateRegion Limit(this IViewPlugins t, string templateId = "limit")
         {
-            return new LimitPluginTemplateRegion(t);
+            return new LimitPluginTemplateRegion(t, templateId);
         }
 
 
@@ -88,7 +90,7 @@ namespace PowerTables.Plugins.Limit
         /// <param name="eventId">DOM event id</param>
         /// <param name="value">Limit value</param>
         /// <returns></returns>
-        public static MvcHtmlString BindLimitChangeEvent(this LimitPluginTemplateRegion tpl, string eventId,string value)
+        public static MvcHtmlString BindLimitChangeEvent(this LimitPluginTemplateRegion tpl, string eventId, string value)
         {
             return tpl.BindEvent("changeLimitHandler", eventId, "Value");
         }

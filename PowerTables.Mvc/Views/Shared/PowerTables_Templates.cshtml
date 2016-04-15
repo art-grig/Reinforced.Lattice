@@ -324,7 +324,7 @@
     </div>
 }
 
-@using (var t = this.Plugin.ResponseInfo())
+@using (var t = Plugin.ResponseInfo())
 {
     <p>
         @using (t.If(c => c.IsLocalRequest))

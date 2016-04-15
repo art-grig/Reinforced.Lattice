@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.Mvc;
-using Newtonsoft.Json.Linq;
-using PowerTables.Filters.Select;
+﻿using Newtonsoft.Json.Linq;
+using PowerTables.Plugins;
 
 namespace PowerTables.Filters.Range
 {
     /// <summary>
     /// UI configuration for range filterr
     /// </summary>
-    public class RangeFilterUiConfig : IHideableFilter
+    public class RangeFilterUiConfig : IHideableFilter, IProvidesTemplate, IProvidesColumnName, IClientFiltering, IInputDelay
     {
         /// <summary>
         /// Column name this filter associated with
@@ -69,23 +63,6 @@ namespace PowerTables.Filters.Range
         }
 
         public bool Hidden { get; set; }
-    }
-    public static class ValueFilterUiExtensions
-    {
-        /// <summary>
-        /// Enables client filtering and specifies custom client filtering function. 
-        /// 
-        /// Function type: (datarow:any, filterValue:string, query:IQuery) => boolean
-        /// dataRow: JSON-ed TTableObject
-        /// filterValue: value entered to filter
-        /// query: IQuery object
-        /// Returns: true for satisfying objects, false otherwise
-        /// </summary>
-        public static RangeFilterUiConfig ClientFiltering(this RangeFilterUiConfig c, string function = null)
-        {
-            c.ClientFiltering = true;
-            c.ClientFilteringFunction = new JRaw(string.IsNullOrEmpty(function) ? "null" : function);
-            return c;
-        }
+        public string DefaultTemplateId { get { return "rangeFilter"; } }
     }
 }

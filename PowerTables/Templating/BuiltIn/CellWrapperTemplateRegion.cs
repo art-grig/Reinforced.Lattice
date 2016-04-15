@@ -12,12 +12,13 @@ namespace PowerTables.Templating.BuiltIn
         IProvidesTracking
 
     {
-        public CellWrapperTemplateRegion(string prefix,TextWriter writer)
-            : base(prefix, "cellWrapper", writer)
-        {
-        }
+        
 
         public bool IsTrackSet { get; set; }
+
+        public CellWrapperTemplateRegion(string prefix, string id, TextWriter writer) : base(prefix, id, writer)
+        {
+        }
     }
 
     public interface ICellModel
@@ -54,14 +55,14 @@ namespace PowerTables.Templating.BuiltIn
 
     public static class CellWrapperExtensions
     {
-        public static CellWrapperTemplateRegion<T> CellWrapper<T>(this TemplatesPageBase t)
+        public static CellWrapperTemplateRegion<T> CellWrapper<T>(this TemplatesPageBase t, string templateId = "cellWrapper")
         {
-            return new CellWrapperTemplateRegion<T>(t.Model.Prefix,t.Output);
+            return new CellWrapperTemplateRegion<T>(t.Model.Prefix,templateId,t.Output);
         }
 
-        public static CellWrapperTemplateRegion<dynamic> CellWrapper(this TemplatesPageBase t)
+        public static CellWrapperTemplateRegion<dynamic> CellWrapper(this TemplatesPageBase t, string templateId = "cellWrapper")
         {
-            return new CellWrapperTemplateRegion<dynamic>(t.Model.Prefix, t.Output);
+            return new CellWrapperTemplateRegion<dynamic>(t.Model.Prefix,templateId, t.Output);
         }
     }
 }

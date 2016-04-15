@@ -14,6 +14,19 @@ namespace PowerTables.Plugins.Ordering
         public const string PluginId = "Ordering";
 
         /// <summary>
+        /// Override ordering template
+        /// </summary>
+        /// <param name="templateId">Ordering template ID</param>
+        public static Configurator<TSourceData, TTableData> OrderingTemplateId<TSourceData, TTableData>(this Configurator<TSourceData, TTableData> conf, string templateId = "ordering") where TTableData : new()
+        {
+            conf.TableConfiguration.UpdatePluginConfig<OrderingConfiguration>(PluginId, c =>
+            {
+                c.TemplateId = templateId;
+            });
+            return conf;
+        }
+
+        /// <summary>
         /// Makes specified column orderable and adds corresponding UI extension
         /// </summary>
         /// <param name="column">Column</param>

@@ -15,12 +15,14 @@ namespace PowerTables.Plugins.Paging
         PluginTemplateRegion
         , IModelProvider<IPagingViewModel>
     {
-        public PagingTemplateRegion(IViewPlugins page)
-            : base(page, "paging")
-        {
-        }
+
 
         public string ExistingModel { get; private set; }
+
+        public PagingTemplateRegion(IViewPlugins page, string id)
+            : base(page, id)
+        {
+        }
     }
 
     public class PagingArrowsModeTemplate : HbTagRegion, IProvidesEventsBinding, IModelProvider<IArrowModeViewModel>
@@ -99,9 +101,9 @@ namespace PowerTables.Plugins.Paging
 
     public static class PagingTeplatesExtensions
     {
-        public static PagingTemplateRegion Paging(this IViewPlugins t)
+        public static PagingTemplateRegion Paging(this IViewPlugins t, string templateId = "paging")
         {
-            return new PagingTemplateRegion(t);
+            return new PagingTemplateRegion(t, templateId);
         }
 
 
@@ -141,13 +143,13 @@ namespace PowerTables.Plugins.Paging
             return t.BindEvent<T, IPageViewModel, int>("navigateToPage", eventId, c => c.Page);
         }
 
-        
-        public static MvcHtmlString BindGotoPage(this PagingGotoPageTemplate t,string eventId)
+
+        public static MvcHtmlString BindGotoPage(this PagingGotoPageTemplate t, string eventId)
         {
             return t.BindEvent("gotoPageClick", eventId);
         }
 
-        public static MvcHtmlString BindValidateGotoPage(this PagingGotoPageTemplate t,string eventId)
+        public static MvcHtmlString BindValidateGotoPage(this PagingGotoPageTemplate t, string eventId)
         {
             return t.BindEvent("validateGotopage", eventId);
         }

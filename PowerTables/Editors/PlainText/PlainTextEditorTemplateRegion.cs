@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.Mvc;
+﻿using System.Web.Mvc;
 using PowerTables.Templating;
 
 namespace PowerTables.Editors.PlainText
 {
     public class PlainTextEditorTemplateRegion : CellEditorTemplateRegionBase<IPlainTextEditorViewModel>
     {
-        public PlainTextEditorTemplateRegion(IViewPlugins page) : base(page, "plainTextEditor")
+        public PlainTextEditorTemplateRegion(IViewPlugins page, string id) : base(page, id)
         {
         }
     }
@@ -27,9 +22,9 @@ namespace PowerTables.Editors.PlainText
             return t.Mark("Input");
         }
 
-        public static PlainTextEditorTemplateRegion Editor_PlainText(this IViewPlugins t)
+        public static PlainTextEditorTemplateRegion Editor_PlainText(this IViewPlugins t, string templateId = "plainTextEditor")
         {
-            return new PlainTextEditorTemplateRegion(t);
+            return new PlainTextEditorTemplateRegion(t,templateId);
         }
     }
 }

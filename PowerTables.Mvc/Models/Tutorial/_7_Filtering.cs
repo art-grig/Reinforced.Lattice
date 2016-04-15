@@ -26,27 +26,12 @@ namespace PowerTables.Mvc.Models.Tutorial
                                                    // it is needed when using table-look-like templating
                     ;
 
-            conf.Column(c => c.Price).FilterRange(c => c.Price, ui =>
-            {
-                ui.Configuration.FromPlaceholder = "> price";
-                ui.Configuration.ToPlaceholder = "< price";
-            });
+            conf.Column(c => c.Price).FilterRange(c => c.Price, ui => ui.Placeholders("< price", "> price"));
 
-            conf.Column(c => c.Preorders).Title("Preorders (pure client)").FilterRangeUi(ui =>
-            {
-                ui.Configuration.FromPlaceholder = "Min. Id";
-                ui.Configuration.ToPlaceholder = "Max. Id";
-                ui.Configuration.InputDelay = 50;
-                ui.Configuration.ClientFiltering();
-            });
+            conf.Column(c => c.Preorders).Title("Preorders (pure client)").FilterRangeUi(ui => ui.Placeholders("Min. Id","Max. Id").Inputdelay(50).ClientFiltering() );
 
             conf.Column(c => c.TypeOfToy).Title("Type (client, multiple)")
-                .FilterMultiSelect(c => c.GroupType,
-                    ui =>
-                    {
-                        ui.Configuration.SelectItems(EnumHelper.GetSelectList(typeof(ToyType)));
-                        ui.Configuration.ClientFiltering();
-                    });
+                .FilterMultiSelect(c => c.GroupType,ui => ui.SelectItems(EnumHelper.GetSelectList(typeof(ToyType))).ClientFiltering());
 
             conf.Column(c => c.IsPaid).Title("Paid (server filter)").FilterBoolean(c => c.Paid, "Paid", "Unpaid", "Any");
 
@@ -63,10 +48,7 @@ namespace PowerTables.Mvc.Models.Tutorial
              * query providers, so if you dont like this behavior use .By call and handle null values by yourself
              */
             conf.Column(c => c.LastSoldDate).FilterRange(c => c.LastSoldDate.GetValueOrDefault(),
-                ui => ui.Configuration.RawDefault(
-                    conf.ToFilterDefaultString(DateTime.Now.AddDays(-50)),
-                    conf.ToFilterDefaultString(DateTime.Now))
-                    );                                                      // filter by range of dates with default values
+                ui => ui.Default(DateTime.Now.AddDays(-50),DateTime.Now));  // filter by range of dates with default values
 
 
             /*

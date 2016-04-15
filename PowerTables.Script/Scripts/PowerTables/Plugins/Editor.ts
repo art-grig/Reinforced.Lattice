@@ -47,7 +47,7 @@
             });
         }
 
-        private redrawAccordingToSettings(lastColumn?:IColumn) {
+        private redrawAccordingToSettings(lastColumn?: IColumn) {
             switch (this.Configuration.RefreshMode) {
                 case EditorRefreshMode.RedrawCell:
                     // actually do nothing because cell was redrawn 
@@ -61,7 +61,7 @@
             }
         }
 
-        private dispatchEditResponse(editResponse:any/*todo*/,then:()=>void) {
+        private dispatchEditResponse(editResponse: any/*todo*/, then: () => void) {
             for (var cd in editResponse) {
                 if (editResponse.hasOwnProperty(cd)) {
                     this.DataObject[cd] = editResponse[cd];
@@ -115,10 +115,10 @@
             }
         }
 
-        public redrawMe(editor:CellEditorBase) {
+        public redrawMe(editor: CellEditorBase) {
             this.MasterTable.Renderer.Modifier.redrawCell(editor);
             this.setEditorValue(editor);
-            this.retrieveEditorData(editor,[]);
+            this.retrieveEditorData(editor, []);
         }
 
         private cleanupAfterEdit() {
@@ -212,7 +212,7 @@
             editor.IsFormEdit = isForm;
             editor.IsRowEdit = isRow;
             editor.Row = this;
-            editor.RawConfig = { Configuration: editorConf, Order: 0, PluginId: editorConf.PluginId, Placement: '' }
+            editor.RawConfig = { Configuration: editorConf, Order: 0, PluginId: editorConf.PluginId, Placement: '', TemplateId: null }
             editor.init(this.MasterTable);
             return editor;
         }

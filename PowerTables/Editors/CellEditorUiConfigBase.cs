@@ -15,6 +15,8 @@ namespace PowerTables.Editors
         /// Provides custom validation function for this particular row
         /// </summary>
         public JRaw CustomValidationFunction { get; set; }
+
+        public string TemplateId { get; set; }
     }
 
     public class EditorConfigurationWrapper<T>

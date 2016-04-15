@@ -12,11 +12,11 @@ namespace PowerTables.Plugins.Toolbar
 {
     public class ToolbarTemplateRegion : PluginTemplateRegion, IModelProvider<IToolbarViewModel>
     {
-        public ToolbarTemplateRegion(IViewPlugins page) : base(page, "toolbar")
+        public string ExistingModel { get; private set; }
+
+        public ToolbarTemplateRegion(IViewPlugins page, string id) : base(page, id)
         {
         }
-
-        public string ExistingModel { get; private set; }
     }
 
     public class ButtonsSetTemplateRegion : HbTagRegion
@@ -38,9 +38,9 @@ namespace PowerTables.Plugins.Toolbar
 
     public static class ToolbarTemplatingExtensions
     {
-        public static ToolbarTemplateRegion Toolbar(this IViewPlugins t)
+        public static ToolbarTemplateRegion Toolbar(this IViewPlugins t, string templateId = "toolbar")
         {
-            return new ToolbarTemplateRegion(t);
+            return new ToolbarTemplateRegion(t, "toolbar");
         }
 
         public static ButtonsSetTemplateRegion Buttons(this ToolbarTemplateRegion t)

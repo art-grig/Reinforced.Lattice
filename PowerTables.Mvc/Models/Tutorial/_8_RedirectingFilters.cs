@@ -47,7 +47,7 @@ namespace PowerTables.Mvc.Models.Tutorial
                 new SelectListItem(){Text = "Thailand",Value = "4"},
             };
             conf.Column(c => c.Price).OrderableUi(ui => ui.DefaultOrdering(Ordering.Neutral));
-            conf.Column(c => c.SupplierAddress).FilterSelectUi(ui => ui.Configuration.SelectItems(countries));
+            conf.Column(c => c.SupplierAddress).FilterSelectUi(ui => ui.SelectItems(countries));
             conf.Column(c => c.SupplierAddress).FilterValueNoUiBy((query, country) =>
             {
                 var q = query.AsEnumerable().OrderByDescending(v => v.SupplierAddress.Split(',')

@@ -85,7 +85,7 @@
 
         public renderContent(templatesProvider: ITemplatesProvider): string {
             if (this.Configuration.Hidden) return '';
-            return templatesProvider.getCachedTemplate('rangeFilter')(this);
+            return this.defaultRender(templatesProvider);
         }
 
         public filterPredicate(rowObject: any, query: IQuery): boolean {

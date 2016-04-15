@@ -43,7 +43,7 @@
 
         public renderContent(templatesProvider: ITemplatesProvider): string {
             if (this.Configuration.Hidden) return '';
-            return templatesProvider.getCachedTemplate('valueFilter')(this);
+            return this.defaultRender(templatesProvider);
         }
 
         public init(masterTable: IMasterTable): void {

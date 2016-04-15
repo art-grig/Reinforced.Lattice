@@ -25,6 +25,7 @@ namespace PowerTables.Editors.SelectList
         public SelectListEditorUiConfig()
         {
             SelectListItems = new List<SelectListItem>();
+            TemplateId = "selectListEditor";
         }
     }
 }

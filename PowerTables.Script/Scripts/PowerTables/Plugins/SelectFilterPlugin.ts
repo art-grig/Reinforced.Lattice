@@ -44,7 +44,7 @@
 
         public renderContent(templatesProvider: ITemplatesProvider): string {
             if (this.Configuration.Hidden) return '';
-            return templatesProvider.getCachedTemplate('selectFilter')(this);
+            return this.defaultRender(templatesProvider);
         }
 
         public handleValueChanged() {

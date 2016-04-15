@@ -10,6 +10,7 @@ using PowerTables.Configuration.Json;
 using PowerTables.Filters.Range;
 using PowerTables.Filters.Select;
 using PowerTables.Filters.Value;
+using PowerTables.Plugins;
 
 namespace PowerTables.Filters.Multi
 {
@@ -25,7 +26,7 @@ namespace PowerTables.Filters.Multi
         public static MultiColumnFilter<TSourceData, TTableColumn> FilterMultiSelectBy<TSourceData, TTableData, TTableColumn>(
             this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
             Func<IQueryable<TSourceData>, IEnumerable<TTableColumn>, IQueryable<TSourceData>> filterDelegate,
-            Action<IPluginConfiguration<SelectFilterUiConfig>> ui = null
+            Action<ColumnPluginConfigurationWrapper<SelectFilterUiConfig,TTableColumn>> ui = null
             )
             where TTableData : new()
         {
@@ -44,7 +45,7 @@ namespace PowerTables.Filters.Multi
         public static MultiColumnFilter<TSourceData, TSourceColumn> FilterMultiSelect<TSourceData, TTableData, TTableColumn, TSourceColumn>(
             this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
             Expression<Func<TSourceData, TSourceColumn>> sourceColumn,
-            Action<IPluginConfiguration<SelectFilterUiConfig>> ui = null
+            Action<ColumnPluginConfigurationWrapper<SelectFilterUiConfig,TTableColumn>> ui = null
             )
             where TTableData : new()
         {
@@ -95,13 +96,12 @@ namespace PowerTables.Filters.Multi
         /// <returns></returns>
         public static void FilterMultiSelectUi<TSourceData, TTableData, TTableColumn>(
             this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
-            Action<IPluginConfiguration<SelectFilterUiConfig>> ui = null
+            Action<ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TTableColumn>> ui = null
             ) where TTableData : new()
         {
-            column.UpdateFilterConfig<SelectFilterUiConfig>(SelectFilterExtensions.PluginId, c =>
+            column.UpdateFilterConfig<SelectFilterUiConfig, TTableColumn>(SelectFilterExtensions.PluginId, c =>
             {
                 if (ui != null) ui(c);
-                c.Configuration.ColumnName = column.ColumnProperty.Name; 
                 c.Configuration.AllowSelectNothing = false;
                 c.Configuration.IsMultiple = true;
             });

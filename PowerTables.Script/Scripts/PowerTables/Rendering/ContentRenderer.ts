@@ -4,12 +4,13 @@
      * Part of renderer that is responsible for rendering of dynamically loaded content
      */
     export class ContentRenderer {
-        constructor(templatesProvider: ITemplatesProvider, stack: Rendering.RenderingStack, instances: InstanceManager) {
+        constructor(templatesProvider: ITemplatesProvider, stack: Rendering.RenderingStack, instances: InstanceManager, coreTemplates: ICoreTemplateIds) {
             this._hb = templatesProvider.HandlebarsInstance;
             this._templatesProvider = templatesProvider;
             this._stack = stack;
             this._instances = instances;
             this.cacheColumnRenderers(this._instances.Columns);
+            this._templateIds = coreTemplates;
         }
 
         private _hb: Handlebars.IHandlebars;
@@ -17,6 +18,7 @@
         private _columnsRenderFunctions: { [key: string]: (x: ICell) => string } = {};
         private _stack: RenderingStack;
         private _instances: InstanceManager;
+        private _templateIds: ICoreTemplateIds;
 
         /**
          * Renders supplied table rows to string
@@ -26,7 +28,7 @@
          */
         public renderBody(rows: IRow[]): string {
             var result: string = '';
-            var wrapper: (arg: any) => string = this._templatesProvider.getCachedTemplate('rowWrapper');
+            var wrapper: (arg: any) => string = this._templatesProvider.getCachedTemplate(this._templateIds.RowWrapper);
             for (var i: number = 0; i < rows.length; i++) {
                 var rw: IRow = rows[i];
                 this._stack.push(RenderingContextType.Row, rw);
@@ -52,7 +54,7 @@
                 case RenderingContextType.Row:
                     var row: IRow = <IRow> this._stack.Current.Object;
                     var columns: IColumn[] = this._instances.getUiColumns();
-                    var cellWrapper: (arg: any) => string = this._templatesProvider.getCachedTemplate('cellWrapper');
+                    var cellWrapper: (arg: any) => string = this._templatesProvider.getCachedTemplate(this._templateIds.CellWrapper);
                     for (var i: number = 0; i < columns.length; i++) {
                         var cell: ICell = row.Cells[columns[i].RawName];
                         this._stack.push(RenderingContextType.Cell, cell, columns[i].RawName);

@@ -8,7 +8,7 @@ module PowerTables {
             this._configuration = configuration;
             this.bindReady();
         }
-        private _isReady:boolean;
+        private _isReady: boolean;
         private bindReady() {
             var _self = this;
             if (document.addEventListener) {
@@ -53,9 +53,9 @@ module PowerTables {
             this.InstanceManager = new InstanceManager(this._configuration, this, this.Events);
             this.DataHolder = new DataHolder(this);
             this.Loader = new Loader(this._configuration.StaticData, this._configuration.OperationalAjaxUrl, this.Events, this.DataHolder);
-            this.Renderer = new Rendering.Renderer(this._configuration.TableRootId, this._configuration.Prefix, this.InstanceManager, this.Events,this.Date);
+            this.Renderer = new Rendering.Renderer(this._configuration.TableRootId, this._configuration.Prefix, this.InstanceManager, this.Events, this.Date, this._configuration.CoreTemplates);
             this.Controller = new Controller(this);
-            
+
             this.InstanceManager.initPlugins();
             this.Renderer.layout();
             if (this._configuration.LoadImmediately) {

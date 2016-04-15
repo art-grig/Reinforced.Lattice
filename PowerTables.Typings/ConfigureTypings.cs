@@ -49,6 +49,7 @@ namespace PowerTables.Typings
                 .WithProperty(c => c.GetFromDatePicker, c => c.Type("(element:HTMLElement) => Date"))
                 .OverrideNamespace("PowerTables")
                 ;
+            builder.ExportAsInterface<CoreTemplateIds>().WithPublicProperties().OverrideNamespace("PowerTables");
             builder.ExportAsInterface<ColumnConfiguration>()
                 .WithPublicProperties()
                 .WithProperty(c => c.CellRenderingValueFunction, c => c.Type("(a:any) => string"))

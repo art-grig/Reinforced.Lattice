@@ -56,14 +56,45 @@ namespace PowerTables.Configuration.Json
         /// </summary>
         public string StaticData { get; set; }
 
+        /// <summary>
+        /// Core template IDs
+        /// </summary>
+        public CoreTemplateIds CoreTemplates { get; private set; }
+
         public TableConfiguration()
         {
             Columns = new List<ColumnConfiguration>();
             PluginsConfiguration = new List<PluginConfiguration>();
             LoadImmediately = true;
             Prefix = "lt";
+            CoreTemplates = new CoreTemplateIds();
         }
         
+    }
+
+    public class CoreTemplateIds
+    {
+        public string Layout { get; set; }
+
+        public string PluginWrapper { get; set; }
+
+        public string RowWrapper { get; set; }
+
+        public string CellWrapper { get; set; }
+
+        public string HeaderWrapper { get; set; }
+
+        public string Messages { get; set; }
+
+        public CoreTemplateIds()
+        {
+            Layout = "layout";
+            PluginWrapper = "pluginWrapper";
+            RowWrapper = "rowWrapper";
+            HeaderWrapper = "headerWrapper";
+            CellWrapper = "cellWrapper";
+            Messages = "messages";
+        }
     }
 
     /// <summary>
@@ -143,6 +174,11 @@ namespace PowerTables.Configuration.Json
         /// Plugin order among particular placement
         /// </summary>
         public int Order { get; set; }
+
+        /// <summary>
+        /// Overridable plugin template Id
+        /// </summary>
+        public string TemplateId { get; set; }
         
     }
 }

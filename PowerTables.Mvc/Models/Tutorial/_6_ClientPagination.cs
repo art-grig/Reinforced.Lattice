@@ -1,4 +1,5 @@
 ﻿using PowerTables.Configuration;
+using PowerTables.Plugins;
 using PowerTables.Plugins.Limit;
 using PowerTables.Plugins.Paging;
 
@@ -10,7 +11,7 @@ namespace PowerTables.Mvc.Models.Tutorial
         {
             conf.OrderingAndLoadingInidicator();
             conf.LoadImmediately(false);
-            conf.Limit(ui => ui.PlaceAt("lt").Configuration
+            conf.Limit(ui => ui.PlaceAt("lt")
                 .EnableClientLimiting() // lets enable client limiting
                 .Values(new[]
             {
@@ -23,7 +24,6 @@ namespace PowerTables.Mvc.Models.Tutorial
             conf.Paging(
                 ui =>
                     ui.PlaceAt("rb")
-                    .Configuration
                     .EnableClientPaging()                       // Client limiting cannot work without client paging
                     .PagingWithPeriods(useFirstLasPage: true)   // lets pick most complex paging
                     .UseGotoPage()                              // and also enable "Go to page" functionality

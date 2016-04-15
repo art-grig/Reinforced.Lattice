@@ -42,7 +42,7 @@ namespace PowerTables.Plugins.Ordering
             return this;
         }
 
-        internal OrderingUiConfigurationBuilder(IPluginConfiguration<OrderingConfiguration> configuration, string columnName)
+        internal OrderingUiConfigurationBuilder(PluginConfigurationWrapper<OrderingConfiguration> configuration, string columnName)
         {
             _configuration = configuration.Configuration;
             _columnName = columnName;

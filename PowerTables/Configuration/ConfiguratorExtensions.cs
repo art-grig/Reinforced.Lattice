@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Newtonsoft.Json.Linq;
+using PowerTables.Plugins;
 
 namespace PowerTables.Configuration
 {
@@ -225,28 +226,34 @@ namespace PowerTables.Configuration
             conf.ColumnConfiguration.IsDataOnly = isDataOnly;
         }
 
+       
         /// <summary>
-        /// Places plugin's UI at specified template region
+        /// Overrides core table template IDs
         /// </summary>
-        /// <param name="ui">Plugin configuration</param>
-        /// <param name="placement">Plugin placement</param>
+        /// <param name="t">Configurator</param>
+        /// <param name="layout">TemplateID for table layout</param>
+        /// <param name="pluginWrapper">TemplateID for plugin wrapper</param>
+        /// <param name="rowWrapper">TemplateID for row wrapper</param>
+        /// <param name="headerWrapper">TemplateID for header wrapper</param>
+        /// <param name="cellWrapper">TemplateID for cell wrapper</param>
+        /// <param name="messages">Template ID for messages wrappers</param>
         /// <returns></returns>
-        public static IPluginConfiguration<T> PlaceAt<T>(this IPluginConfiguration<T> ui, string placement)
+        public static Configurator<TSourceData, TTableData> CoreTemplates<TSourceData, TTableData>(this Configurator<TSourceData, TTableData> t,
+            string layout = "layout",
+            string pluginWrapper = "pluginWrapper",
+            string rowWrapper = "rowWrapper",
+            string headerWrapper = "headerWrapper",
+            string cellWrapper = "cellWrapper",
+            string messages = "messages"
+            ) where TTableData : new()
         {
-            ui.Placement = placement;
-            return ui;
-        }
-
-        /// <summary>
-        /// Sets plugin's UI order among specified location
-        /// </summary>
-        /// <param name="ui">Plugin configuration</param>
-        /// <param name="order">Plugin placement</param>
-        /// <returns></returns>
-        public static IPluginConfiguration<T> Order<T>(this IPluginConfiguration<T> ui, int order)
-        {
-            ui.Order = order;
-            return ui;
+            t.TableConfiguration.CoreTemplates.Layout = layout;
+            t.TableConfiguration.CoreTemplates.PluginWrapper = pluginWrapper;
+            t.TableConfiguration.CoreTemplates.RowWrapper = rowWrapper;
+            t.TableConfiguration.CoreTemplates.HeaderWrapper = headerWrapper;
+            t.TableConfiguration.CoreTemplates.CellWrapper = cellWrapper;
+            t.TableConfiguration.CoreTemplates.Messages = messages;
+            return t;
         }
     }
 }

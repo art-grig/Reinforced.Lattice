@@ -21,7 +21,7 @@
         public static Id = 'Loading';
 
         public renderContent(templatesProvider: ITemplatesProvider): string {
-            return templatesProvider.getCachedTemplate('loading')(null);
+            return this.defaultRender(templatesProvider);
         }
     }
     ComponentsContainer.registerComponent('Loading', LoadingPlugin);

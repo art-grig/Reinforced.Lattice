@@ -10,7 +10,7 @@ namespace PowerTables.Plugins.Hideout
     /// <summary>
     /// Client hideout plugin configuration
     /// </summary>
-    public class HideoutPluginConfiguration
+    public class HideoutPluginConfiguration : IProvidesTemplate
     {
         /// <summary>
         /// Show hideout menu or not
@@ -41,5 +41,7 @@ namespace PowerTables.Plugins.Hideout
 
             ColumnInitiatingReload = new List<string>();
         }
+
+        public string DefaultTemplateId { get { return "hideout"; } }
     }
 }

@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Newtonsoft.Json.Linq;
+using PowerTables.Plugins;
 
 namespace PowerTables.Filters
 {
@@ -28,5 +25,58 @@ namespace PowerTables.Filters
             c.Hidden = hide;
             return c;
         }
+
+        /// <summary>
+        /// Enables client filtering and specifies custom client filtering function. 
+        /// 
+        /// Function type: (datarow:any, filterSelection:string[], query:IQuery) => boolean
+        /// dataRow: JSON-ed TTableObject
+        /// filterSelection: selected values
+        /// query: IQuery object
+        /// Returns: true for satisfying objects, false otherwise
+        /// </summary>
+        public static PluginConfigurationWrapper<T> ClientFiltering<T>(this PluginConfigurationWrapper<T> c, string function = null)
+            where T : IClientFiltering, new()
+        {
+            c.Configuration.ClientFiltering = true;
+            c.Configuration.ClientFilteringFunction = new JRaw(string.IsNullOrEmpty(function) ? "null" : function);
+            return c;
+        }
+
+        /// <summary>
+        /// Configures delay between field change and request processing begins (in milliseconds)
+        /// </summary>
+        public static PluginConfigurationWrapper<T> Inputdelay<T>(this PluginConfigurationWrapper<T> c, int delay = 500)
+            where T : IInputDelay, new()
+        {
+            c.Configuration.InputDelay = delay;
+            return c;
+        }
+    }
+
+    public interface IClientFiltering
+    {
+        /// <summary>
+        /// Turn this filter to be working on client-side
+        /// </summary>
+        bool ClientFiltering { get; set; }
+
+        /// <summary>
+        /// Specifies custom client filtering function. 
+        /// Function type: (datarow:any, filterSelection:string[], query:IQuery) => boolean
+        /// dataRow: JSON-ed TTableObject
+        /// filterSelection: selected values
+        /// query: IQuery object
+        /// Returns: true for satisfying objects, false otherwise
+        /// </summary>
+        JRaw ClientFilteringFunction { get; set; }
+    }
+
+    public interface IInputDelay
+    {
+        /// <summary>
+        /// Delay between field change and request processing begins
+        /// </summary>
+        int InputDelay { get; set; }
     }
 }

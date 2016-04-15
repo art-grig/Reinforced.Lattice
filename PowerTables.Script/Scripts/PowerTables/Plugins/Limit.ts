@@ -8,7 +8,7 @@
         public Sizes: ILimitSize[] = [];
 
         public renderContent(templatesProvider: ITemplatesProvider): string {
-            return templatesProvider.getCachedTemplate('limit')(this);
+            return this.defaultRender(templatesProvider);
         }
 
         public changeLimitHandler(e: TemplateBoundEvent) {

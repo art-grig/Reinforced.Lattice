@@ -55,5 +55,13 @@ namespace PowerTables.Editors
         {
             return t.Data("editform", "true");
         }
+
+        public static EditorConfigurationWrapper<T> TemplateId<T>(this EditorConfigurationWrapper<T> conf,
+            string templateId)
+            where T : CellEditorUiConfigBase, new()
+        {
+            conf.EditorConfig.TemplateId = templateId;
+            return conf;
+        }
     }
 }

@@ -2065,13 +2065,14 @@ var PowerTables;
          * Part of renderer that is responsible for rendering of dynamically loaded content
          */
         var ContentRenderer = (function () {
-            function ContentRenderer(templatesProvider, stack, instances) {
+            function ContentRenderer(templatesProvider, stack, instances, coreTemplates) {
                 this._columnsRenderFunctions = {};
                 this._hb = templatesProvider.HandlebarsInstance;
                 this._templatesProvider = templatesProvider;
                 this._stack = stack;
                 this._instances = instances;
                 this.cacheColumnRenderers(this._instances.Columns);
+                this._templateIds = coreTemplates;
             }
             /**
              * Renders supplied table rows to string
@@ -2081,7 +2082,7 @@ var PowerTables;
              */
             ContentRenderer.prototype.renderBody = function (rows) {
                 var result = '';
-                var wrapper = this._templatesProvider.getCachedTemplate('rowWrapper');
+                var wrapper = this._templatesProvider.getCachedTemplate(this._templateIds.RowWrapper);
                 for (var i = 0; i < rows.length; i++) {
                     var rw = rows[i];
                     this._stack.push(Rendering.RenderingContextType.Row, rw);
@@ -2104,7 +2105,7 @@ var PowerTables;
                     case Rendering.RenderingContextType.Row:
                         var row = this._stack.Current.Object;
                         var columns = this._instances.getUiColumns();
-                        var cellWrapper = this._templatesProvider.getCachedTemplate('cellWrapper');
+                        var cellWrapper = this._templatesProvider.getCachedTemplate(this._templateIds.CellWrapper);
                         for (var i = 0; i < columns.length; i++) {
                             var cell = row.Cells[columns[i].RawName];
                             this._stack.push(Rendering.RenderingContextType.Cell, cell, columns[i].RawName);
@@ -2788,11 +2789,12 @@ var PowerTables;
          * Is responsive for common layout rendering (with plugins, columns, etc)
          */
         var LayoutRenderer = (function () {
-            function LayoutRenderer(templates, stack, instances) {
+            function LayoutRenderer(templates, stack, instances, coreTemplates) {
                 this._hb = templates.HandlebarsInstance;
                 this._templatesProvider = templates;
                 this._stack = stack;
                 this._instances = instances;
+                this._templateIds = coreTemplates;
                 this._hb.registerHelper('Body', this.bodyHelper);
                 this._hb.registerHelper('Plugin', this.pluginHelper.bind(this));
                 this._hb.registerHelper('Plugins', this.pluginsHelper.bind(this));
@@ -2833,7 +2835,7 @@ var PowerTables;
                 if (!plugin.renderContent)
                     return '';
                 this._stack.push(Rendering.RenderingContextType.Plugin, plugin);
-                var result = this._templatesProvider.getCachedTemplate('pluginWrapper')(plugin);
+                var result = this._templatesProvider.getCachedTemplate(this._templateIds.PluginWrapper)(plugin);
                 this._stack.popContext();
                 return result;
             };
@@ -2854,7 +2856,7 @@ var PowerTables;
                 if (column.Header.renderElement)
                     result = column.Header.renderElement(this._templatesProvider);
                 else
-                    result = this._templatesProvider.getCachedTemplate('headerWrapper')(column.Header);
+                    result = this._templatesProvider.getCachedTemplate(this._templateIds.HeaderWrapper)(column.Header);
                 this._stack.popContext();
                 return result;
             };
@@ -3055,16 +3057,17 @@ var PowerTables;
          * Enity responsible for displaying table
          */
         var Renderer = (function () {
-            function Renderer(rootId, prefix, instances, events, dateService) {
+            function Renderer(rootId, prefix, instances, events, dateService, coreTemplates) {
                 this._templatesCache = {};
                 this._instances = instances;
                 this._stack = new Rendering.RenderingStack();
                 this.RootElement = document.getElementById(rootId);
                 this._rootId = rootId;
                 this._events = events;
+                this._templateIds = coreTemplates;
                 this.HandlebarsInstance = Handlebars.create();
-                this.LayoutRenderer = new Rendering.LayoutRenderer(this, this._stack, this._instances);
-                this.ContentRenderer = new Rendering.ContentRenderer(this, this._stack, this._instances);
+                this.LayoutRenderer = new Rendering.LayoutRenderer(this, this._stack, this._instances, coreTemplates);
+                this.ContentRenderer = new Rendering.ContentRenderer(this, this._stack, this._instances, coreTemplates);
                 this.BackBinder = new Rendering.BackBinder(this.HandlebarsInstance, instances, this._stack, dateService);
                 this.HandlebarsInstance.registerHelper('ifq', this.ifqHelper);
                 this.HandlebarsInstance.registerHelper('ifloc', this.iflocHelper.bind(this));
@@ -3099,7 +3102,7 @@ var PowerTables;
              */
             Renderer.prototype.layout = function () {
                 this._events.BeforeLayoutRendered.invoke(this, null);
-                var rendered = this.getCachedTemplate('layout')(null);
+                var rendered = this.getCachedTemplate(this._templateIds.Layout)(null);
                 this.RootElement.innerHTML = rendered;
                 var bodyMarker = this.RootElement.querySelector('[data-track="tableBodyHere"]');
                 if (!bodyMarker)
@@ -3424,7 +3427,7 @@ var PowerTables;
             this.InstanceManager = new PowerTables.InstanceManager(this._configuration, this, this.Events);
             this.DataHolder = new PowerTables.DataHolder(this);
             this.Loader = new PowerTables.Loader(this._configuration.StaticData, this._configuration.OperationalAjaxUrl, this.Events, this.DataHolder);
-            this.Renderer = new PowerTables.Rendering.Renderer(this._configuration.TableRootId, this._configuration.Prefix, this.InstanceManager, this.Events, this.Date);
+            this.Renderer = new PowerTables.Rendering.Renderer(this._configuration.TableRootId, this._configuration.Prefix, this.InstanceManager, this.Events, this.Date, this._configuration.CoreTemplates);
             this.Controller = new PowerTables.Controller(this);
             this.InstanceManager.initPlugins();
             this.Renderer.layout();
@@ -3473,6 +3476,11 @@ var PowerTables;
     (function (Plugins) {
         var PluginBase = (function () {
             function PluginBase() {
+                /**
+                 * Function that is called after plugin is drawn
+                 *
+                 * @param e Event arguments
+                 */
                 this.afterDrawn = null;
             }
             PluginBase.prototype.init = function (masterTable) {
@@ -3500,6 +3508,14 @@ var PowerTables;
              * @returns {}
              */
             PluginBase.prototype.registerAdditionalHelpers = function (hb) { };
+            /**
+             * Default render function using TemplateId from plugin configuration
+             * @param e Templates provider
+             * @returns content string
+             */
+            PluginBase.prototype.defaultRender = function (e) {
+                return e.getCachedTemplate(this.RawConfig.TemplateId)(this);
+            };
             return PluginBase;
         })();
         Plugins.PluginBase = PluginBase;
@@ -3565,7 +3581,7 @@ var PowerTables;
                 this.BlinkElement.style.visibility = 'collapse';
             };
             LoadingPlugin.prototype.renderContent = function (templatesProvider) {
-                return templatesProvider.getCachedTemplate('loading')(null);
+                return this.defaultRender(templatesProvider);
             };
             LoadingPlugin.Id = 'Loading';
             return LoadingPlugin;
@@ -3595,6 +3611,7 @@ var PowerTables;
                 };
                 OrderingPlugin.prototype.overrideHeadersTemplates = function (columns) {
                     var _this = this;
+                    var templId = this.RawConfig.TemplateId;
                     for (var ck in columns) {
                         if (columns.hasOwnProperty(ck)) {
                             var ordering = this.Configuration.DefaultOrderingsForColumns[ck];
@@ -3605,7 +3622,7 @@ var PowerTables;
                                 switchOrdering: function (e) {
                                     _this.switchOrderingForColumn(e.Receiver.Column.RawName);
                                 },
-                                renderElement: function (tpl) { return tpl.getCachedTemplate('ordering')(this); },
+                                renderElement: function (tpl) { return tpl.getCachedTemplate(templId)(this); },
                                 IsClientOrdering: this.isClient(ck)
                             };
                             this.updateOrdering(ck, ordering);
@@ -3735,7 +3752,7 @@ var PowerTables;
                 this.Sizes = [];
             }
             LimitPlugin.prototype.renderContent = function (templatesProvider) {
-                return templatesProvider.getCachedTemplate('limit')(this);
+                return this.defaultRender(templatesProvider);
             };
             LimitPlugin.prototype.changeLimitHandler = function (e) {
                 var limit = parseInt(e.EventArguments[0]);
@@ -4048,7 +4065,7 @@ var PowerTables;
             ValueFilterPlugin.prototype.renderContent = function (templatesProvider) {
                 if (this.Configuration.Hidden)
                     return '';
-                return templatesProvider.getCachedTemplate('valueFilter')(this);
+                return this.defaultRender(templatesProvider);
             };
             ValueFilterPlugin.prototype.init = function (masterTable) {
                 _super.prototype.init.call(this, masterTable);
@@ -4218,7 +4235,7 @@ var PowerTables;
             RangeFilterPlugin.prototype.renderContent = function (templatesProvider) {
                 if (this.Configuration.Hidden)
                     return '';
-                return templatesProvider.getCachedTemplate('rangeFilter')(this);
+                return this.defaultRender(templatesProvider);
             };
             RangeFilterPlugin.prototype.filterPredicate = function (rowObject, query) {
                 var fval = query.Filterings[this._associatedColumn.RawName];
@@ -4306,7 +4323,7 @@ var PowerTables;
             SelectFilterPlugin.prototype.renderContent = function (templatesProvider) {
                 if (this.Configuration.Hidden)
                     return '';
-                return templatesProvider.getCachedTemplate('selectFilter')(this);
+                return this.defaultRender(templatesProvider);
             };
             SelectFilterPlugin.prototype.handleValueChanged = function () {
                 this.MasterTable.Controller.reload();
@@ -4537,7 +4554,7 @@ var PowerTables;
                 }
             };
             HideoutPlugin.prototype.renderContent = function (templatesProvider) {
-                return templatesProvider.getCachedTemplate('hideout')(this);
+                return this.defaultRender(templatesProvider);
             };
             HideoutPlugin.prototype.subscribe = function (e) {
                 e.AfterDataRendered.subscribe(this.onDataRendered.bind(this), 'hideout');
@@ -4608,12 +4625,7 @@ var PowerTables;
             };
             ResponseInfoPlugin.prototype.init = function (masterTable) {
                 _super.prototype.init.call(this, masterTable);
-                if (this.Configuration.TemplateText && this.Configuration.TemplateText.length > 0) {
-                    this._recentTemplate = this.MasterTable.Renderer.HandlebarsInstance.compile(this.Configuration.TemplateText);
-                }
-                else {
-                    this._recentTemplate = this.MasterTable.Renderer.getCachedTemplate('responseInfo');
-                }
+                this._recentTemplate = this.MasterTable.Renderer.getCachedTemplate(this.RawConfig.TemplateId);
                 this.MasterTable.Events.AfterClientDataProcessing.subscribe(this.onClientDataProcessed.bind(this), 'responseInfo');
                 this.MasterTable.Events.DataReceived.subscribe(this.onResponse.bind(this), 'responseInfo');
                 try {
@@ -4788,7 +4800,7 @@ var PowerTables;
                 var header = {
                     Column: col,
                     renderContent: null,
-                    renderElement: function (tp) { return tp.getCachedTemplate('checkboxifySelectAll')({ IsAllSelected: _this._allSelected, CanSelectAll: _this._canSelectAll }); },
+                    renderElement: function (tp) { return tp.getCachedTemplate(_this.Configuration.SelectAllTemplateId)({ IsAllSelected: _this._allSelected, CanSelectAll: _this._canSelectAll }); },
                     selectAllEvent: function (e) { return _this.selectAll(); }
                 };
                 col.Header = header;
@@ -4796,7 +4808,7 @@ var PowerTables;
                     var value = x.DataObject[_this._valueColumnName].toString();
                     var selected = _this._selectedItems.indexOf(value) > -1;
                     var canCheck = _this.canCheck(x.DataObject, x.Row);
-                    return _this.MasterTable.Renderer.getCachedTemplate('checkboxifyCell')({ Value: value, IsChecked: selected, CanCheck: canCheck });
+                    return _this.MasterTable.Renderer.getCachedTemplate(_this.Configuration.CellTemplateId)({ Value: value, IsChecked: selected, CanCheck: canCheck });
                 });
                 return col;
             };
@@ -4807,6 +4819,7 @@ var PowerTables;
                 return this._selectedItems;
             };
             CheckboxifyPlugin.prototype.selectByRowIndex = function (rowIndex) {
+                var _this = this;
                 var displayedLookup = this.MasterTable.DataHolder.localLookupDisplayedData(rowIndex);
                 var v = displayedLookup.DataObject[this._valueColumnName].toString();
                 var idx = this._selectedItems.indexOf(v);
@@ -4823,7 +4836,7 @@ var PowerTables;
                 this.redrawHeader();
                 var row = this.MasterTable.Controller.produceRow(displayedLookup.DataObject, displayedLookup.DisplayedIndex);
                 if (overrideRow) {
-                    row.renderElement = function (e) { return e.getCachedTemplate('checkboxifyRow')(row); };
+                    row.renderElement = function (e) { return e.getCachedTemplate(_this.Configuration.RowTemplateId)(row); };
                 }
                 this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
                 this.MasterTable.Renderer.Modifier.redrawRow(row);
@@ -4963,7 +4976,7 @@ var PowerTables;
                 }
             };
             ToolbarPlugin.prototype.renderContent = function (templatesProvider) {
-                return templatesProvider.getCachedTemplate('toolbar')(this);
+                return this.defaultRender(templatesProvider);
             };
             ToolbarPlugin.prototype.traverseButtons = function (arr) {
                 for (var i = 0; i < arr.length; i++) {
@@ -5396,7 +5409,7 @@ var PowerTables;
                 editor.IsFormEdit = isForm;
                 editor.IsRowEdit = isRow;
                 editor.Row = this;
-                editor.RawConfig = { Configuration: editorConf, Order: 0, PluginId: editorConf.PluginId, Placement: '' };
+                editor.RawConfig = { Configuration: editorConf, Order: 0, PluginId: editorConf.PluginId, Placement: '', TemplateId: null };
                 editor.init(this.MasterTable);
                 return editor;
             };

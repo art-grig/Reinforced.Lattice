@@ -9,7 +9,7 @@ namespace PowerTables.Plugins.Limit
     /// Client configuration for Limit plugin. 
     /// See <see cref="LimitPluginExtensions"/>
     /// </summary>
-    public class LimitClientConfiguration 
+    public class LimitClientConfiguration : IProvidesTemplate
     {
         /// <summary>
         /// Value selected by default
@@ -44,11 +44,25 @@ namespace PowerTables.Plugins.Limit
             ReloadTableOnLimitChange = true;
         }
 
+        /// <summary>
+        /// Adds limit value
+        /// </summary>
+        /// <param name="limitLabel">Label</param>
+        /// <param name="limitValue">Value</param>
+        /// <returns></returns>
         public LimitClientConfiguration AddValue(string limitLabel, int limitValue)
         {
             LimitLabels.Add(limitLabel);
             LimitValues.Add(limitValue);
             return this;
+        }
+
+        public string DefaultTemplateId
+        {
+            get
+            {
+                return "limit";
+            }
         }
     }
 }

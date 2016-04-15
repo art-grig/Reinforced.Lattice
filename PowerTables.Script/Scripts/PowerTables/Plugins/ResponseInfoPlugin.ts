@@ -43,7 +43,7 @@
                     e.EventArgs,
                     (!this._pagingPlugin) ? 0 : (this._pagingPlugin.getCurrentPage()),
                     (!this._pagingPlugin) ? 0 : (this._pagingPlugin.getTotalPages())
-                );
+                    );
             }
             this._isServerRequest = false;
             this._isReadyForRendering = true;
@@ -61,11 +61,9 @@
 
         public init(masterTable: IMasterTable): void {
             super.init(masterTable);
-            if (this.Configuration.TemplateText && this.Configuration.TemplateText.length > 0) {
-                this._recentTemplate = this.MasterTable.Renderer.HandlebarsInstance.compile(this.Configuration.TemplateText);
-            } else {
-                this._recentTemplate = this.MasterTable.Renderer.getCachedTemplate('responseInfo');
-            }
+
+            this._recentTemplate = this.MasterTable.Renderer.getCachedTemplate(this.RawConfig.TemplateId);
+
             this.MasterTable.Events.AfterClientDataProcessing.subscribe(this.onClientDataProcessed.bind(this), 'responseInfo');
             this.MasterTable.Events.DataReceived.subscribe(this.onResponse.bind(this), 'responseInfo');
             try {

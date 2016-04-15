@@ -169,7 +169,7 @@ included into hideable columns list.
 
 
         renderContent(templatesProvider: ITemplatesProvider): string {
-            return templatesProvider.getCachedTemplate('hideout')(this);
+            return this.defaultRender(templatesProvider);
         }
 
         subscribe(e: EventsManager): void {

@@ -11,17 +11,18 @@ namespace PowerTables.Plugins.Ordering
 {
     public class OrderingPluginTemplateRegion : PluginTemplateRegion,
         IModelProvider<IOrderingPluginModel>,
-        IProvidesEventsBinding,
         IProvidesContent,
         IProvidesTracking
     {
-        public OrderingPluginTemplateRegion(IViewPlugins page)
-            : base(page, "ordering")
-        {
-        }
+
 
         public bool IsTrackSet { get; set; }
         public string ExistingModel { get; private set; }
+
+        public OrderingPluginTemplateRegion(IViewPlugins page, string id)
+            : base(page, id)
+        {
+        }
     }
 
     /// <summary>
@@ -59,9 +60,9 @@ namespace PowerTables.Plugins.Ordering
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
-        public static OrderingPluginTemplateRegion Ordering(this IViewPlugins t)
+        public static OrderingPluginTemplateRegion Ordering(this IViewPlugins t, string templateId = "ordering")
         {
-            return new OrderingPluginTemplateRegion(t);
+            return new OrderingPluginTemplateRegion(t, templateId);
         }
 
         /// <summary>

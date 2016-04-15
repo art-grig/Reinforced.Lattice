@@ -19,7 +19,7 @@ namespace PowerTables.Plugins.ResponseInfo
         public static Configurator<TSourceData, TTableData> 
             ResponseInfo<TSourceData, TTableData>
             (this Configurator<TSourceData, TTableData> c, 
-            Action<IPluginConfiguration<ResponseInfoClientConfiguration>> ui, string where = null) 
+            Action<PluginConfigurationWrapper<ResponseInfoClientConfiguration>> ui, string where = null) 
             where TTableData : new()
         {
             c.TableConfiguration.UpdatePluginConfig(PluginId, ui, where);
@@ -37,7 +37,7 @@ namespace PowerTables.Plugins.ResponseInfo
         /// <returns></returns>
         public static Configurator<TSourceData, TTableData> ResponseInfo<TSourceData, TTableData, TResponseData>
             (this Configurator<TSourceData, TTableData> conf,
-            Action<IPluginConfiguration<ResponseInfoClientConfiguration>> ui,
+            Action<PluginConfigurationWrapper<ResponseInfoClientConfiguration>> ui,
             Func<PowerTablesData<TSourceData, TTableData>, TResponseData> responseDataEvaluator,
              string where = null)
             where TTableData : new()

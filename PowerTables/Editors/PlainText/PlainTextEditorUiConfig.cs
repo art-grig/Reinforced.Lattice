@@ -35,6 +35,7 @@ namespace PowerTables.Editors.PlainText
             FloatRemoveSeparatorsRegex = "[\\s]";
 
             EnableBasicValidation = true;
+            TemplateId = "plainTextEditor";
         }
     }
     

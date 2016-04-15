@@ -12,11 +12,12 @@ namespace PowerTables.Filters.Value
 {
     public class ValueFilterTemplateRegion : PluginTemplateRegion, IModelProvider<IValueFilterModel>, IProvidesDatepicker
     {
-        public ValueFilterTemplateRegion(IViewPlugins page) : base(page, "valueFilter")
+        public string ExistingModel { get; private set; }
+
+        public ValueFilterTemplateRegion(IViewPlugins page, string id)
+            : base(page, id)
         {
         }
-
-        public string ExistingModel { get; private set; }
     }
 
     public interface IValueFilterModel
@@ -26,9 +27,9 @@ namespace PowerTables.Filters.Value
 
     public static class ValueFilterTemplateExtensions
     {
-        public static ValueFilterTemplateRegion ValueFilter(this IViewPlugins t)
+        public static ValueFilterTemplateRegion ValueFilter(this IViewPlugins t, string templateId = "valueFilter")
         {
-            return new ValueFilterTemplateRegion(t);
+            return new ValueFilterTemplateRegion(t, templateId);
         }
 
         public static MvcHtmlString BindValueChanged(this ValueFilterTemplateRegion t, string eventId)
@@ -43,7 +44,7 @@ namespace PowerTables.Filters.Value
 
         public static MvcHtmlString DatepickerCanBeHere(this ValueFilterTemplateRegion t)
         {
-            return t.Datepicker(t.CleanValue(c=>c.Configuration.ColumnName));
+            return t.Datepicker(t.CleanValue(c => c.Configuration.ColumnName));
         }
     }
 }

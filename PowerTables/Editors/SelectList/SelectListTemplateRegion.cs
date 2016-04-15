@@ -11,12 +11,13 @@ namespace PowerTables.Editors.SelectList
 {
     public class SelectListTemplateRegion : CellEditorTemplateRegionBase<ISelectListEditorViewModel>
     {
-        public SelectListTemplateRegion(IViewPlugins page) : base(page, "selectListEditor")
+        public SelectListTemplateRegion(IViewPlugins page, string id)
+            : base(page, id)
         {
         }
     }
 
-    public interface ISelectListEditorViewModel: ICellEditorViewModel
+    public interface ISelectListEditorViewModel : ICellEditorViewModel
     {
         IHbArray<SelectListItem> Items { get; }
 
@@ -32,9 +33,9 @@ namespace PowerTables.Editors.SelectList
 
     public static class SelectListEditorTemplateExtensions
     {
-        public static SelectListTemplateRegion Editor_SelectList(this IViewPlugins t)
+        public static SelectListTemplateRegion Editor_SelectList(this IViewPlugins t, string templateId = "selectListEditor")
         {
-            return new SelectListTemplateRegion(t);
+            return new SelectListTemplateRegion(t, templateId);
         }
 
         public static MvcHtmlString ThisIsList(this SelectListTemplateRegion t)
@@ -42,7 +43,7 @@ namespace PowerTables.Editors.SelectList
             return t.Mark("List");
         }
 
-        public static MvcHtmlString WhenSelected(this SelectListTemplateRegion t,Action<SpecialVisualStateDescription<ISelectedStateViewModel>> action)
+        public static MvcHtmlString WhenSelected(this SelectListTemplateRegion t, Action<SpecialVisualStateDescription<ISelectedStateViewModel>> action)
         {
             var state = new VisualState();
             var special = state.Special<ISelectedStateViewModel>();

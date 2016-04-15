@@ -40,28 +40,7 @@ namespace PowerTables.Filters
             return columnFilter;
         }
 
-        /// <summary>
-        /// Converts any instance to string friendly for filter defaul value
-        /// </summary>
-        /// <param name="configurator">Table configuration</param>
-        /// <param name="value">Filter value</param>
-        /// <returns>Filter-friendly string represending default value</returns>
-        public static string ToFilterDefaultString(this IConfigurator configurator, object value)
-        {
-            if (value == null) return null;
-            var s = value.ToString();
-            var type = value.GetType();
-            if (type == typeof(DateTime))
-            {
-                s = ((DateTime)(object)value).ToString("o");
-            }
-            if (type == typeof(DateTime?))
-            {
-                var t = value as DateTime?;
-                if (t != null) s = t.Value.ToString("o");
-            }
-            return s;
-        }
+        
 
         
     }

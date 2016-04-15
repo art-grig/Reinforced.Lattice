@@ -11,8 +11,8 @@ namespace PowerTables.Templating.BuiltIn
         IProvidesContent,
         IProvidesTracking
     {
-        public PluignWrapperTemplateRegion(string prefix, TextWriter writer)
-            : base(prefix, "pluginWrapper", writer)
+        public PluignWrapperTemplateRegion(string prefix,string templateId, TextWriter writer)
+            : base(prefix, templateId, writer)
         {
         }
 
@@ -38,14 +38,14 @@ namespace PowerTables.Templating.BuiltIn
 
     public static class PluginWrapperExtensions
     {
-        public static PluignWrapperTemplateRegion<dynamic> PluginWrapper(this TemplatesPageBase t)
+        public static PluignWrapperTemplateRegion<dynamic> PluginWrapper(this TemplatesPageBase t, string templateId = "pluginWrapper")
         {
-            return new PluignWrapperTemplateRegion<dynamic>(t.Model.Prefix, t.Output);
+            return new PluignWrapperTemplateRegion<dynamic>(t.Model.Prefix, templateId, t.Output);
         }
 
-        public static PluignWrapperTemplateRegion<T> PluginWrapper<T>(this TemplatesPageBase t)
+        public static PluignWrapperTemplateRegion<T> PluginWrapper<T>(this TemplatesPageBase t, string templateId = "pluginWrapper")
         {
-            return new PluignWrapperTemplateRegion<T>(t.Model.Prefix, t.Output);
+            return new PluignWrapperTemplateRegion<T>(t.Model.Prefix,templateId, t.Output);
         }
 
         /// <summary>

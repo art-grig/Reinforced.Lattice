@@ -11,7 +11,7 @@ namespace PowerTables.Plugins.Paging
     /// Client configuration for Paging plugin. 
     /// See <see cref="PagingExtensions"/>
     /// </summary>
-    public class PagingClientConfiguration
+    public class PagingClientConfiguration : IProvidesTemplate
     {
         public bool ArrowsMode { get; set; }
 
@@ -24,5 +24,7 @@ namespace PowerTables.Plugins.Paging
         public bool UseGotoPage { get; set; }
 
         public bool EnableClientPaging { get; set; }
+
+        public string DefaultTemplateId { get { return "paging"; } }
     }
 }

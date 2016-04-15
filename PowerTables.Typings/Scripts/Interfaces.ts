@@ -17,6 +17,15 @@ module PowerTables {
 		PutToDatePicker: (element:HTMLElement, date?:Date) => void;
 		GetFromDatePicker: (element:HTMLElement) => Date;
 	}
+	export interface ICoreTemplateIds
+	{
+		Layout: string;
+		PluginWrapper: string;
+		RowWrapper: string;
+		CellWrapper: string;
+		HeaderWrapper: string;
+		Messages: string;
+	}
 	export interface IPowerTablesResponse
 	{
 		IsLatticeResponse: boolean;
@@ -64,6 +73,7 @@ module PowerTables.Configuration.Json {
 		Columns: PowerTables.Configuration.Json.IColumnConfiguration[];
 		PluginsConfiguration: PowerTables.Configuration.Json.IPluginConfiguration[];
 		StaticData: string;
+		CoreTemplates: PowerTables.ICoreTemplateIds;
 	}
 	export interface IColumnConfiguration
 	{
@@ -82,6 +92,7 @@ module PowerTables.Configuration.Json {
 		Placement: string;
 		Configuration: any;
 		Order: number;
+		TemplateId: string;
 	}
 }
 module PowerTables.Plugins.Checkboxify {
@@ -94,6 +105,9 @@ module PowerTables.Plugins.Checkboxify {
 		SelectAllSelectsClientUndisplayedData: boolean;
 		SelectAllOnlyIfAllData: boolean;
 		ResetOnClientReload: boolean;
+		SelectAllTemplateId: string;
+		RowTemplateId: string;
+		CellTemplateId: string;
 	}
 }
 module PowerTables.Plugins.Formwatch {
@@ -130,6 +144,7 @@ module PowerTables.Plugins.Hideout {
 		HideableColumnsNames: string[];
 		ColumnInitiatingReload: string[];
 		HiddenColumns: { [key:string]: boolean };
+		DefaultTemplateId: string;
 	}
 }
 module PowerTables.Filters.Range {
@@ -144,6 +159,7 @@ module PowerTables.Filters.Range {
 		ClientFiltering: boolean;
 		ClientFilteringFunction: (object: any, fromValue:string, toValue:string, query: IQuery)=>boolean;
 		Hidden: boolean;
+		DefaultTemplateId: string;
 	}
 }
 module PowerTables.Filters.Value {
@@ -156,15 +172,16 @@ module PowerTables.Filters.Value {
 		ClientFiltering: boolean;
 		ClientFilteringFunction: (object: any, filterValue:string, query: IQuery)=>boolean;
 		Hidden: boolean;
+		DefaultTemplateId: string;
 	}
 }
 module PowerTables.Plugins.ResponseInfo {
 	export interface IResponseInfoClientConfiguration
 	{
-		TemplateText: string;
 		ClientEvaluationFunction: (data:IClientDataResults, currentPage:number, totalPages:number) => any;
 		ClientTemplateFunction: (data:any) => string;
 		ResponseObjectOverriden: boolean;
+		DefaultTemplateId: string;
 	}
 }
 module System.Web.Mvc {
@@ -188,6 +205,7 @@ module PowerTables.Filters.Select {
 		Hidden: boolean;
 		ClientFiltering: boolean;
 		ClientFilteringFunction: (object: any, selectedValues:string[], query: IQuery)=>boolean;
+		DefaultTemplateId: string;
 	}
 }
 module PowerTables.Plugins.Limit {
@@ -198,6 +216,7 @@ module PowerTables.Plugins.Limit {
 		LimitLabels: string[];
 		ReloadTableOnLimitChange: boolean;
 		EnableClientLimiting: boolean;
+		DefaultTemplateId: string;
 	}
 }
 module PowerTables.Plugins.Ordering {
@@ -216,6 +235,7 @@ module PowerTables.Plugins.Paging {
 		UseFirstLastPage: boolean;
 		UseGotoPage: boolean;
 		EnableClientPaging: boolean;
+		DefaultTemplateId: string;
 	}
 }
 module PowerTables.Plugins.Toolbar {

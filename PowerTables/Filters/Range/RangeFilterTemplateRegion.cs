@@ -11,11 +11,12 @@ namespace PowerTables.Filters.Range
 {
     public class RangeFilterTemplateRegion : PluginTemplateRegion, IModelProvider<IRangeFilterModel>, IProvidesDatepicker
     {
-        public RangeFilterTemplateRegion(IViewPlugins page) : base(page, "rangeFilter")
+        
+        public string ExistingModel { get; private set; }
+
+        public RangeFilterTemplateRegion(IViewPlugins page, string id) : base(page, id)
         {
         }
-
-        public string ExistingModel { get; private set; }
     }
     public interface IRangeFilterModel
     {
@@ -24,9 +25,9 @@ namespace PowerTables.Filters.Range
 
     public static class RangeFilterTemplateExtensions
     {
-        public static RangeFilterTemplateRegion RangeFilter(this IViewPlugins t)
+        public static RangeFilterTemplateRegion RangeFilter(this IViewPlugins t, string templateId = "rangeFilter")
         {
-            return new RangeFilterTemplateRegion(t);
+            return new RangeFilterTemplateRegion(t,templateId);
         }
 
         public static MvcHtmlString BindValueChanged(this RangeFilterTemplateRegion t, string eventId)

@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Web.Mvc;
 using Newtonsoft.Json.Linq;
+using PowerTables.Plugins;
 
 
 namespace PowerTables.Filters.Select
@@ -12,7 +9,7 @@ namespace PowerTables.Filters.Select
     /// <summary>
     /// UI configuration for select filter 
     /// </summary>
-    public class SelectFilterUiConfig : IHideableFilter
+    public class SelectFilterUiConfig : IHideableFilter, IProvidesTemplate, IProvidesColumnName, IClientFiltering
     {
         /// <summary>
         /// Preselected filter value
@@ -43,7 +40,6 @@ namespace PowerTables.Filters.Select
         /// Select filter value list
         /// </summary>
         public List<SelectListItem> Items { get; set; }
-
         
         public bool Hidden { get; set; }
 
@@ -61,27 +57,10 @@ namespace PowerTables.Filters.Select
         /// Returns: true for satisfying objects, false otherwise
         /// </summary>
         public JRaw ClientFilteringFunction { get; set; }
-        
+
+        public string DefaultTemplateId { get { return "selectFilter"; } }
     }
 
-    public static class ValueFilterUiExtensions
-    {
-        /// <summary>
-        /// Enables client filtering and specifies custom client filtering function. 
-        /// 
-        /// Function type: (datarow:any, filterSelection:string[], query:IQuery) => boolean
-        /// dataRow: JSON-ed TTableObject
-        /// filterSelection: selected values
-        /// query: IQuery object
-        /// Returns: true for satisfying objects, false otherwise
-        /// </summary>
-        public static SelectFilterUiConfig ClientFiltering(this SelectFilterUiConfig c, string function = null)
-        {
-            c.ClientFiltering = true;
-            c.ClientFilteringFunction = new JRaw(string.IsNullOrEmpty(function) ? "null" : function);
-            return c;
-        }
-    }
-
+    
     
 }

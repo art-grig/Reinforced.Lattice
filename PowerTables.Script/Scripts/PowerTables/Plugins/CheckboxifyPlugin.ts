@@ -76,7 +76,7 @@
             var header: ISpecialHeader = {
                 Column: col,
                 renderContent: null,
-                renderElement: (tp) => tp.getCachedTemplate('checkboxifySelectAll')({ IsAllSelected: this._allSelected, CanSelectAll: this._canSelectAll }),
+                renderElement: (tp) => tp.getCachedTemplate(this.Configuration.SelectAllTemplateId)({ IsAllSelected: this._allSelected, CanSelectAll: this._canSelectAll }),
                 selectAllEvent: (e) => this.selectAll()
             }
 
@@ -86,7 +86,7 @@
                 var value = x.DataObject[this._valueColumnName].toString();
                 var selected: boolean = this._selectedItems.indexOf(value) > -1;
                 var canCheck: boolean = this.canCheck(x.DataObject, x.Row);
-                return this.MasterTable.Renderer.getCachedTemplate('checkboxifyCell')({ Value: value, IsChecked: selected, CanCheck: canCheck });
+                return this.MasterTable.Renderer.getCachedTemplate(this.Configuration.CellTemplateId)({ Value: value, IsChecked: selected, CanCheck: canCheck });
             });
             return col;
         }
@@ -115,7 +115,7 @@
             this.redrawHeader();
             var row: IRow = this.MasterTable.Controller.produceRow(displayedLookup.DataObject, displayedLookup.DisplayedIndex);
             if (overrideRow) {
-                row.renderElement = (e) => e.getCachedTemplate('checkboxifyRow')(row);
+                row.renderElement = (e) => e.getCachedTemplate(this.Configuration.RowTemplateId)(row);
             }
             this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
             this.MasterTable.Renderer.Modifier.redrawRow(row);

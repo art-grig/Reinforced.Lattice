@@ -41,12 +41,12 @@ namespace PowerTables.FrequentlyUsed
 
             column.Template(a => a.EmptyIfNotPresent(column.ColumnConfiguration.RawColumnName)
                 .Switch("{" + column.ColumnConfiguration.RawColumnName + "}",
-                    swtch => 
+                    swtch =>
                         swtch
                         .Cases(items, c => c.Value, (tpl, v) => tpl.Content(v.Text))
                         .DefaultEmpty()
                         )
-                        
+
                 );
             return column;
         }
@@ -61,7 +61,7 @@ namespace PowerTables.FrequentlyUsed
         public static ColumnUsage<TSourceData, TTableData, TTableColumn> FormatEnumWithDisplayAttribute
             <TSourceData, TTableData, TTableColumn>(
             this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
-            Action<Template,SelectListItem> content
+            Action<Template, SelectListItem> content
             ) where TTableData : new()
         {
             var enumType = typeof(TTableColumn);
@@ -113,18 +113,18 @@ namespace PowerTables.FrequentlyUsed
         }
 
 
-       /// <summary>
-       /// Shortcut for creating multi-select filter for boolean value
-       /// </summary>
-       /// <typeparam name="TSourceData"></typeparam>
-       /// <typeparam name="TTableData"></typeparam>
-       /// <param name="column">Column configuration</param>
-       /// <param name="sourceColumn">Source column</param>
-       /// <param name="trueText">Text for true</param>
-       /// <param name="falseText">Text for false</param>
-       /// <param name="bothText">Text for both value (a.k.a. "not matter")</param>
-       /// <param name="allowBoth">Allow "not matter" case or not</param>
-       /// <returns>Value filter</returns>
+        /// <summary>
+        /// Shortcut for creating multi-select filter for boolean value
+        /// </summary>
+        /// <typeparam name="TSourceData"></typeparam>
+        /// <typeparam name="TTableData"></typeparam>
+        /// <param name="column">Column configuration</param>
+        /// <param name="sourceColumn">Source column</param>
+        /// <param name="trueText">Text for true</param>
+        /// <param name="falseText">Text for false</param>
+        /// <param name="bothText">Text for both value (a.k.a. "not matter")</param>
+        /// <param name="allowBoth">Allow "not matter" case or not</param>
+        /// <returns>Value filter</returns>
         public static ValueColumnFilter<TSourceData, bool>
             FilterBoolean
             <TSourceData, TTableData>(
@@ -139,12 +139,7 @@ namespace PowerTables.FrequentlyUsed
                 new SelectListItem {Text = falseText,Value = "False"} 
             };
 
-           return column.FilterSelect(sourceColumn, v =>
-           {
-               v.Configuration.AllowSelectNothing = allowBoth;
-               v.Configuration.NothingText = bothText;
-               v.Configuration.SelectItems(items);
-           });
+            return column.FilterSelect(sourceColumn, v => v.SelectAny(allowBoth, bothText).SelectItems(items));
         }
 
         private static void DoDateFormatColumnUsage<TSourceData, TTableData, TTableColumn>(ColumnUsage<TSourceData, TTableData, TTableColumn> col, string format = null, bool utc = false) where TTableData : new()
@@ -164,7 +159,7 @@ namespace PowerTables.FrequentlyUsed
         public static ColumnUsage<TSourceData, TTableData, DateTime> FormatDateWithDateformatJs<TSourceData, TTableData>(
             this ColumnUsage<TSourceData, TTableData, DateTime> col, string format = null, bool utc = false) where TTableData : new()
         {
-            DoDateFormatColumnUsage(col,format,utc);
+            DoDateFormatColumnUsage(col, format, utc);
             return col;
         }
 
@@ -188,17 +183,17 @@ namespace PowerTables.FrequentlyUsed
         /// <param name="glyphiconName">Bootstrap blyphicon class</param>
         /// <param name="flt">Conditional float value</param>
         /// <returns>HTML, span-wrapped string for desired glyphicon</returns>
-        public static string GlyphIcon(this string glyphiconName,string flt = null)
+        public static string GlyphIcon(this string glyphiconName, string flt = null)
         {
             if (string.IsNullOrEmpty(flt))
             {
                 return String.Format("<span class=\"glyphicon glyphicon-{0}\"></span>   ", glyphiconName);
             }
-            return String.Format("<span class=\"glyphicon glyphicon-{0}\" style=\"float:{1}\"></span>   ", glyphiconName,flt);
+            return String.Format("<span class=\"glyphicon glyphicon-{0}\" style=\"float:{1}\"></span>   ", glyphiconName, flt);
         }
 
-       
 
-        
+
+
     }
 }

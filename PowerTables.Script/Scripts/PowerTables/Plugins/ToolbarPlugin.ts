@@ -57,7 +57,7 @@
         }
 
         public renderContent(templatesProvider: ITemplatesProvider): string {
-            return templatesProvider.getCachedTemplate('toolbar')(this);
+            return this.defaultRender(templatesProvider);
         }
 
         private traverseButtons(arr: ToolbarButtonClientConfiguration[]) {

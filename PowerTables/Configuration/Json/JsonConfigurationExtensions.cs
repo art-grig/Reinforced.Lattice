@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using PowerTables.Plugins;
 
 namespace PowerTables.Configuration.Json
 {
@@ -38,12 +39,24 @@ namespace PowerTables.Configuration.Json
         /// <param name="column">Column usage</param>
         /// <param name="pluginId">Filter plugin ID</param>
         /// <param name="configuration">Filter configuration delegate</param>
-        public static void UpdateFilterConfig<T>(this IColumnConfigurator column, string pluginId, Action<IPluginConfiguration<T>> configuration) where T : new()
+        public static void UpdateFilterConfig<T, TTableColumn>(this IColumnTargetProperty<TTableColumn> column, string pluginId, Action<ColumnPluginConfigurationWrapper<T, TTableColumn>> configuration) where T : IProvidesColumnName, new()
         {
-            UpdatePluginConfig(column.TableConfigurator.TableConfiguration, 
-                pluginId, 
-                configuration,
-                string.Concat("filter-", column.ColumnConfiguration.RawColumnName));
+            var where = string.Concat("filter-", column.ColumnConfiguration.RawColumnName);
+
+            PluginConfiguration config = column.TableConfigurator.TableConfiguration.GetPluginConfiguration(pluginId, where); ;
+            if (config == null)
+            {
+                config = new PluginConfiguration(pluginId)
+                {
+                    Configuration = new T() { ColumnName = column.ColumnConfiguration.RawColumnName },
+                    Placement = where,
+                };
+
+                column.TableConfigurator.TableConfiguration.PluginsConfiguration.Add(config);
+            }
+
+            var wpapper = new ColumnPluginConfigurationWrapper<T, TTableColumn>(config, column.ColumnConfiguration.RawColumnName);
+            if (configuration != null) configuration(wpapper);
         }
 
         /// <summary>
@@ -89,7 +102,7 @@ namespace PowerTables.Configuration.Json
         /// <param name="pluginId">Plugin ID</param>
         /// <param name="pluginConfiguration">Configuration function</param>
         /// <param name="where">Specifies which plugin is mentioned</param>
-        public static void UpdatePluginConfig<TConfig>(this TableConfiguration conf, string pluginId, Action<IPluginConfiguration<TConfig>> pluginConfiguration, string where = null)
+        public static void UpdatePluginConfig<TConfig>(this TableConfiguration conf, string pluginId, Action<PluginConfigurationWrapper<TConfig>> pluginConfiguration, string where = null)
             where TConfig : new()
         {
             PluginConfiguration config = conf.GetPluginConfiguration(pluginId, where); ;
