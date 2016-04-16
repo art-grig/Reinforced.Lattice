@@ -105,6 +105,12 @@
             return newPluginElement;
         }
 
+        public renderPlugin(plugin: IPlugin): HTMLElement {
+            this._stack.clear();
+            var html: string = this._layoutRenderer.renderPlugin(plugin);
+            return this.createElement(html);
+        }
+
         /**
          * Redraws specified plugins refreshing all them graphical state (by position)
          * 
@@ -336,7 +342,7 @@
             this.hideElement(e);
         }
 
-        private createElement(html: string): HTMLElement {
+        public createElement(html: string): HTMLElement {
             var parser: Rendering.Html2Dom.HtmlParser = new Rendering.Html2Dom.HtmlParser();
             return parser.html2Dom(html);
         }

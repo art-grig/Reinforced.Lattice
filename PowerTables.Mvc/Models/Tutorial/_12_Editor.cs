@@ -11,6 +11,7 @@ using PowerTables.Filters.Range;
 using PowerTables.Filters.Value;
 using PowerTables.FrequentlyUsed;
 using PowerTables.Plugins.Formwatch;
+using PowerTables.Plugins.LoadingOverlap;
 
 namespace PowerTables.Mvc.Models.Tutorial
 {
@@ -24,6 +25,9 @@ namespace PowerTables.Mvc.Models.Tutorial
                     "createDatePicker",
                     "putDateToDatepicker",
                     "getDateFromDatepicker"));
+
+            conf.LoadingOverlap(ui => ui.Overlap());
+            
             conf.Column(c => c.Name)
                 .Template(t => t.Returns(v => v.Tag("span")
                     .Attr("style", "background-color:aliceblue")

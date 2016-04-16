@@ -3,14 +3,41 @@
 //     the code is regenerated.
 
 
-module PowerTables {
-	export interface ICheckboxifyPlugin
+module PowerTables.Configuration.Json {
+	export interface ITableConfiguration
 	{
-		getSelection() : string[];
-		selectAll(select: boolean) : void;
-		resetSelection() : void;
-		selectItem(itemId: string, selected: boolean) : void;
+		EmptyFiltersPlaceholder: string;
+		Prefix: string;
+		TableRootId: string;
+		OperationalAjaxUrl: string;
+		LoadImmediately: boolean;
+		DatepickerOptions: PowerTables.IDatepickerOptions;
+		Columns: PowerTables.Configuration.Json.IColumnConfiguration[];
+		PluginsConfiguration: PowerTables.Configuration.Json.IPluginConfiguration[];
+		StaticData: string;
+		CoreTemplates: PowerTables.ICoreTemplateIds;
 	}
+	export interface IColumnConfiguration
+	{
+		Title: string;
+		RawColumnName: string;
+		CellRenderingTemplateId: string;
+		CellRenderingValueFunction: (a:any) => string;
+		ColumnType: string;
+		IsDataOnly: boolean;
+		IsEnum: boolean;
+		IsNullable: boolean;
+	}
+	export interface IPluginConfiguration
+	{
+		PluginId: string;
+		Placement: string;
+		Configuration: any;
+		Order: number;
+		TemplateId: string;
+	}
+}
+module PowerTables {
 	export interface IDatepickerOptions
 	{
 		CreateDatePicker: (element:HTMLElement, isNullableDate: boolean) => void;
@@ -59,40 +86,6 @@ module PowerTables {
 		Ascending = 0, 
 		Descending = 1, 
 		Neutral = 2, 
-	}
-}
-module PowerTables.Configuration.Json {
-	export interface ITableConfiguration
-	{
-		EmptyFiltersPlaceholder: string;
-		Prefix: string;
-		TableRootId: string;
-		OperationalAjaxUrl: string;
-		LoadImmediately: boolean;
-		DatepickerOptions: PowerTables.IDatepickerOptions;
-		Columns: PowerTables.Configuration.Json.IColumnConfiguration[];
-		PluginsConfiguration: PowerTables.Configuration.Json.IPluginConfiguration[];
-		StaticData: string;
-		CoreTemplates: PowerTables.ICoreTemplateIds;
-	}
-	export interface IColumnConfiguration
-	{
-		Title: string;
-		RawColumnName: string;
-		CellRenderingTemplateId: string;
-		CellRenderingValueFunction: (a:any) => string;
-		ColumnType: string;
-		IsDataOnly: boolean;
-		IsEnum: boolean;
-		IsNullable: boolean;
-	}
-	export interface IPluginConfiguration
-	{
-		PluginId: string;
-		Placement: string;
-		Configuration: any;
-		Order: number;
-		TemplateId: string;
 	}
 }
 module PowerTables.Plugins.Checkboxify {
@@ -224,6 +217,7 @@ module PowerTables.Plugins.Ordering {
 	{
 		DefaultOrderingsForColumns: { [key:string]: PowerTables.Ordering };
 		ClientSortableColumns: {[key:string]:(a:any,b:any) => number};
+		DefaultTemplateId: string;
 	}
 }
 module PowerTables.Plugins.Paging {
@@ -242,6 +236,7 @@ module PowerTables.Plugins.Toolbar {
 	export interface IToolbarButtonsClientConfiguration
 	{
 		Buttons: PowerTables.Plugins.Toolbar.IToolbarButtonClientConfiguration[];
+		DefaultTemplateId: string;
 	}
 	export interface IToolbarButtonClientConfiguration
 	{
@@ -281,6 +276,7 @@ module PowerTables.Editors {
 	{
 		PluginId: string;
 		CustomValidationFunction: (currentValue: any, originalDataObject: any, modifiedDataObject:any) => string[];
+		TemplateId: string;
 	}
 	export interface IEditorUiConfig
 	{
@@ -319,5 +315,16 @@ module PowerTables.Editors.PlainText {
 		FloatRemoveSeparatorsRegex: string;
 		FloatDotReplaceSeparatorsRegex: string;
 		AllowEmptyString: boolean;
+	}
+}
+module PowerTables.Plugins.LoadingOverlap {
+	export interface ILoadingOverlapUiConfig
+	{
+		OverlapMode: PowerTables.Plugins.LoadingOverlap.OverlapMode;
+		DefaultTemplateId: string;
+	}
+	export enum OverlapMode { 
+		All = 0, 
+		BodyOnly = 1, 
 	}
 }

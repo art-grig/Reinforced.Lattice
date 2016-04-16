@@ -3,6 +3,8 @@
         private _eventsQueue: IEventDescriptor[] = [];
         private _markQueue: IMarkDescriptor[] = [];
         private _datepickersQueue: IDatepickerDescriptor[] = [];
+        private _callbacksQueue: ICallbackDescriptor[] = [];
+
         private _instances: InstanceManager;
         private _stack: RenderingStack;
         private _dateService: DateService;
@@ -18,24 +20,15 @@
             hb.registerHelper('Mark', this.markHelper.bind(this));
             hb.registerHelper('Datepicker', this.datepickerHelper.bind(this));
             hb.registerHelper('VState', this.visualStateHelper.bind(this));
+            hb.registerHelper('RenderCallback', this.renderCallbackHelper.bind(this));
 
             this._stack = stack;
             this._dateService = dateService;
         }
 
-
-
-        public steal(stealer: any, parentElement: HTMLElement) {
-            this._stealer = stealer;
-            this.backBind(parentElement);
-
-            this._stealer = null;
-        }
-
-
-        private traverseBackbind<T>(elements:NodeList, parentElement: HTMLElement, backbindCollection: T[], attribute: string, fn: (backbind: T, element: HTMLElement) => void) {
+        private traverseBackbind<T>(elements:HTMLElement[], parentElement: HTMLElement, backbindCollection: T[], attribute: string, fn: (backbind: T, element: HTMLElement) => void) {
             for (var i: number = 0; i < elements.length; i++) {
-                var element: HTMLElement = <HTMLElement>elements.item(i);
+                var element: HTMLElement = elements[i];
                 var attr = null;
                 for (var j = 0; j < element.attributes.length; j++) {
                     if (element.attributes.item(j).name.substring(0, attribute.length) === attribute) {
@@ -47,13 +40,17 @@
                     }
                 }
             }
-            if (parentElement.hasAttribute(attribute)) {
-                var meIdx: number = parseInt(parentElement.getAttribute(attribute));
-                var descr: T = backbindCollection[meIdx];
-                fn.call(this, descr, parentElement);
-            }
         }
 
+        private getMatchingElements(parent: HTMLElement, attr: string): any {
+            var list = parent.querySelectorAll(`[${attr}]`);
+            var result = [];
+            for (var i: number = 0; i < list.length; i++) {
+                result.push(list.item(i));
+            }
+            if (parent.hasAttribute(attr)) result.push(parent);
+            return result;
+        }
         /**
          * Applies binding of events left in events queue
          * 
@@ -62,13 +59,13 @@
          */
         public backBind(parentElement: HTMLElement): void {
 
-            var elements: NodeList = parentElement.querySelectorAll(`[data-dp]`);
+            var elements = this.getMatchingElements(parentElement,'data-dp');
             // back binding of datepickers
             this.traverseBackbind<IDatepickerDescriptor>(elements,parentElement, this._datepickersQueue, 'data-dp', (b, e) => {
                 this._dateService.createDatePicker(e);
             });
 
-            elements = parentElement.querySelectorAll(`[data-mrk]`);
+            elements = this.getMatchingElements(parentElement,'data-mrk');
             // back binding of componens needed HTML elements
             this.traverseBackbind<IMarkDescriptor>(elements,parentElement, this._markQueue, 'data-mrk', (b, e) => {
                 var target = this._stealer || b.ElementReceiver;
@@ -83,7 +80,7 @@
                 }
             });
 
-            elements = parentElement.querySelectorAll(`[data-evb]`);
+            elements = this.getMatchingElements(parentElement,`data-evb`);
             // backbinding of events
             this.traverseBackbind<IEventDescriptor>(elements,parentElement, this._eventsQueue, 'data-be', (subscription, element) => {
                 for (var j: number = 0; j < subscription.Functions.length; j++) {
@@ -110,9 +107,9 @@
                 for (var vsk in this._cachedVisualStates) {
                     if (this._cachedVisualStates.hasOwnProperty(vsk)) {
                         var state = this._cachedVisualStates[vsk];
-                        var elements = parentElement.querySelectorAll(`[data-state-${vsk}]`);
+                        elements = this.getMatchingElements(parentElement,`data-state-${vsk}`);
                         for (var i = 0; i < elements.length; i++) {
-                            var element = <HTMLElement>elements.item(i);
+                            var element = elements[i];
                             state[i].Element = element;
                             element.removeAttribute(`data-state-${vsk}`);
 
@@ -131,6 +128,11 @@
                 this.resolveNormalStates(targetPendingNormal);
                 this._cachedVisualStates = {};
             }
+
+            elements = this.getMatchingElements(parentElement, `data-cb`);
+            this.traverseBackbind<ICallbackDescriptor>(elements, parentElement, this._callbacksQueue, 'data-cb', (b, e) => {
+                window[b.CallbackName].apply(window, [e].concat(b.CallbackArguments));
+            });
 
             this._markQueue = [];
             this._eventsQueue = [];
@@ -216,6 +218,20 @@
             return `data-be-${index}="${index}" data-evb="true"`;
         }
 
+        private renderCallbackHelper(): string {
+            var fn = arguments[0];
+            var args = [];
+            for (var i = 1; i < arguments.length; i++) {
+                args.push(arguments[i]);
+            }
+            var index: number = this._callbacksQueue.length;
+            this._callbacksQueue.push({
+                CallbackName: fn,
+                CallbackArguments: args
+            });
+            return `data-cb="${index}"`;
+        }
+
         private markHelper(fieldName: any, key: any): string {
             var index: number = this._markQueue.length;
             var md: IMarkDescriptor = <IMarkDescriptor>{
@@ -257,6 +273,11 @@
 
     interface IDatepickerDescriptor {
         ElementReceiver: any;
+    }
+
+    interface ICallbackDescriptor {
+        CallbackName: string;
+        CallbackArguments:any[];
     }
 
     /**

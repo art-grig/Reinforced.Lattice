@@ -25,6 +25,20 @@ var PowerTables;
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var LoadingOverlap;
+        (function (LoadingOverlap) {
+            (function (OverlapMode) {
+                OverlapMode[OverlapMode["All"] = 0] = "All";
+                OverlapMode[OverlapMode["BodyOnly"] = 1] = "BodyOnly";
+            })(LoadingOverlap.OverlapMode || (LoadingOverlap.OverlapMode = {}));
+            var OverlapMode = LoadingOverlap.OverlapMode;
+        })(LoadingOverlap = Plugins.LoadingOverlap || (Plugins.LoadingOverlap = {}));
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
     /**
     * Helper class for producing track ids
     */
@@ -1830,6 +1844,7 @@ var PowerTables;
                 this._eventsQueue = [];
                 this._markQueue = [];
                 this._datepickersQueue = [];
+                this._callbacksQueue = [];
                 this._cachedVisualStates = {};
                 this._hasVisualStates = false;
                 this._instances = instances;
@@ -1837,17 +1852,13 @@ var PowerTables;
                 hb.registerHelper('Mark', this.markHelper.bind(this));
                 hb.registerHelper('Datepicker', this.datepickerHelper.bind(this));
                 hb.registerHelper('VState', this.visualStateHelper.bind(this));
+                hb.registerHelper('RenderCallback', this.renderCallbackHelper.bind(this));
                 this._stack = stack;
                 this._dateService = dateService;
             }
-            BackBinder.prototype.steal = function (stealer, parentElement) {
-                this._stealer = stealer;
-                this.backBind(parentElement);
-                this._stealer = null;
-            };
             BackBinder.prototype.traverseBackbind = function (elements, parentElement, backbindCollection, attribute, fn) {
                 for (var i = 0; i < elements.length; i++) {
-                    var element = elements.item(i);
+                    var element = elements[i];
                     var attr = null;
                     for (var j = 0; j < element.attributes.length; j++) {
                         if (element.attributes.item(j).name.substring(0, attribute.length) === attribute) {
@@ -1859,11 +1870,16 @@ var PowerTables;
                         }
                     }
                 }
-                if (parentElement.hasAttribute(attribute)) {
-                    var meIdx = parseInt(parentElement.getAttribute(attribute));
-                    var descr = backbindCollection[meIdx];
-                    fn.call(this, descr, parentElement);
+            };
+            BackBinder.prototype.getMatchingElements = function (parent, attr) {
+                var list = parent.querySelectorAll("[" + attr + "]");
+                var result = [];
+                for (var i = 0; i < list.length; i++) {
+                    result.push(list.item(i));
                 }
+                if (parent.hasAttribute(attr))
+                    result.push(parent);
+                return result;
             };
             /**
              * Applies binding of events left in events queue
@@ -1873,12 +1889,12 @@ var PowerTables;
              */
             BackBinder.prototype.backBind = function (parentElement) {
                 var _this = this;
-                var elements = parentElement.querySelectorAll("[data-dp]");
+                var elements = this.getMatchingElements(parentElement, 'data-dp');
                 // back binding of datepickers
                 this.traverseBackbind(elements, parentElement, this._datepickersQueue, 'data-dp', function (b, e) {
                     _this._dateService.createDatePicker(e);
                 });
-                elements = parentElement.querySelectorAll("[data-mrk]");
+                elements = this.getMatchingElements(parentElement, 'data-mrk');
                 // back binding of componens needed HTML elements
                 this.traverseBackbind(elements, parentElement, this._markQueue, 'data-mrk', function (b, e) {
                     var target = _this._stealer || b.ElementReceiver;
@@ -1894,7 +1910,7 @@ var PowerTables;
                         target[b.FieldName] = e;
                     }
                 });
-                elements = parentElement.querySelectorAll("[data-evb]");
+                elements = this.getMatchingElements(parentElement, "data-evb");
                 // backbinding of events
                 this.traverseBackbind(elements, parentElement, this._eventsQueue, 'data-be', function (subscription, element) {
                     for (var j = 0; j < subscription.Functions.length; j++) {
@@ -1920,9 +1936,9 @@ var PowerTables;
                     for (var vsk in this._cachedVisualStates) {
                         if (this._cachedVisualStates.hasOwnProperty(vsk)) {
                             var state = this._cachedVisualStates[vsk];
-                            var elements = parentElement.querySelectorAll("[data-state-" + vsk + "]");
+                            elements = this.getMatchingElements(parentElement, "data-state-" + vsk);
                             for (var i = 0; i < elements.length; i++) {
-                                var element = elements.item(i);
+                                var element = elements[i];
                                 state[i].Element = element;
                                 element.removeAttribute("data-state-" + vsk);
                                 var target = this._stealer || state[i].Receiver;
@@ -1942,6 +1958,10 @@ var PowerTables;
                     this.resolveNormalStates(targetPendingNormal);
                     this._cachedVisualStates = {};
                 }
+                elements = this.getMatchingElements(parentElement, "data-cb");
+                this.traverseBackbind(elements, parentElement, this._callbacksQueue, 'data-cb', function (b, e) {
+                    window[b.CallbackName].apply(window, [e].concat(b.CallbackArguments));
+                });
                 this._markQueue = [];
                 this._eventsQueue = [];
                 this._datepickersQueue = [];
@@ -2020,6 +2040,19 @@ var PowerTables;
                 var index = this._eventsQueue.length;
                 this._eventsQueue.push(ed);
                 return "data-be-" + index + "=\"" + index + "\" data-evb=\"true\"";
+            };
+            BackBinder.prototype.renderCallbackHelper = function () {
+                var fn = arguments[0];
+                var args = [];
+                for (var i = 1; i < arguments.length; i++) {
+                    args.push(arguments[i]);
+                }
+                var index = this._callbacksQueue.length;
+                this._callbacksQueue.push({
+                    CallbackName: fn,
+                    CallbackArguments: args
+                });
+                return "data-cb=\"" + index + "\"";
             };
             BackBinder.prototype.markHelper = function (fieldName, key) {
                 var index = this._markQueue.length;
@@ -2255,6 +2288,11 @@ var PowerTables;
                 ;
                 this._backBinder.backBind(newPluginElement);
                 return newPluginElement;
+            };
+            DOMModifier.prototype.renderPlugin = function (plugin) {
+                this._stack.clear();
+                var html = this._layoutRenderer.renderPlugin(plugin);
+                return this.createElement(html);
             };
             /**
              * Redraws specified plugins refreshing all them graphical state (by position)
@@ -3622,7 +3660,9 @@ var PowerTables;
                                 switchOrdering: function (e) {
                                     _this.switchOrderingForColumn(e.Receiver.Column.RawName);
                                 },
-                                renderElement: function (tpl) { return tpl.getCachedTemplate(templId)(this); },
+                                renderElement: function (tpl) {
+                                    return tpl.getCachedTemplate(templId)(this);
+                                },
                                 IsClientOrdering: this.isClient(ck)
                             };
                             this.updateOrdering(ck, ordering);
@@ -5768,6 +5808,63 @@ var PowerTables;
             Editors.SelectListEditor = SelectListEditor;
             PowerTables.ComponentsContainer.registerComponent('SelectListEditor', SelectListEditor);
         })(Editors = Plugins.Editors || (Plugins.Editors = {}));
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var LoadingOverlapPlugin = (function (_super) {
+            __extends(LoadingOverlapPlugin, _super);
+            function LoadingOverlapPlugin() {
+                var _this = this;
+                _super.apply(this, arguments);
+                this.afterDrawn = function (e) {
+                    if (_this.Configuration.OverlapMode === Plugins.LoadingOverlap.OverlapMode.All) {
+                        _this._overlappingElement = _this.MasterTable.Renderer.RootElement;
+                    }
+                    else {
+                        _this._overlappingElement = _this.MasterTable.Renderer.BodyElement;
+                    }
+                    _this.MasterTable.Events.BeforeLoading.subscribe(function () { return _this.overlap(); }, 'overlapLoading');
+                    _this.MasterTable.Events.AfterDataRendered.subscribe(function () { return _this.deoverlap(); }, 'overlapLoading');
+                    window.addEventListener('resize', _this.updateCoords.bind(_this));
+                };
+            }
+            LoadingOverlapPlugin.prototype.overlap = function () {
+                if (this._overlapLayer)
+                    return;
+                this._overlapLayer = this.MasterTable.Renderer.Modifier.createElement(this.defaultRender(this.MasterTable.Renderer));
+                var mezx = null;
+                if (this._overlappingElement.currentStyle)
+                    mezx = this._overlappingElement.currentStyle.zIndex;
+                else if (window.getComputedStyle) {
+                    mezx = window.getComputedStyle(this._overlappingElement, null).zIndex;
+                }
+                this._overlapLayer.style.position = "absolute";
+                this._overlapLayer.style.zIndex = (parseInt(mezx) + 1).toString();
+                document.body.appendChild(this._overlapLayer);
+                this.updateCoords();
+            };
+            LoadingOverlapPlugin.prototype.updateCoords = function () {
+                if (!this._overlapLayer)
+                    return;
+                var eo = this._overlappingElement.getBoundingClientRect();
+                this._overlapLayer.style.left = eo.left + 'px';
+                this._overlapLayer.style.top = eo.top + 'px';
+                this._overlapLayer.style.width = eo.width + 'px';
+                this._overlapLayer.style.height = eo.height + 'px';
+            };
+            LoadingOverlapPlugin.prototype.deoverlap = function () {
+                if (!this._overlapLayer)
+                    return;
+                document.body.removeChild(this._overlapLayer);
+                delete this._overlapLayer;
+            };
+            return LoadingOverlapPlugin;
+        })(Plugins.PluginBase);
+        Plugins.LoadingOverlapPlugin = LoadingOverlapPlugin;
+        PowerTables.ComponentsContainer.registerComponent('LoadingOverlap', LoadingOverlapPlugin);
     })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
 })(PowerTables || (PowerTables = {}));
 //# sourceMappingURL=powertables.js.map

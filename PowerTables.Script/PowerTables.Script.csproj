@@ -32,7 +32,6 @@
     <TypeScriptCompile Include="..\PowerTables.Typings\Scripts\Interfaces.ts">
       <Link>Scripts\Interfaces.ts</Link>
     </TypeScriptCompile>
-    
     <TypeScriptCompile Include="Scripts\PowerTables\TrackHelper.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\ComponentsContainer.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\CoreInterfaces.ts" />
@@ -77,6 +76,7 @@
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Editors\CellEditorBase.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Editors\PlainTextEditor.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Editors\SelectListEditor.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\LoadingOverlap.ts" />
   </ItemGroup>
   <ItemGroup />
   <PropertyGroup>

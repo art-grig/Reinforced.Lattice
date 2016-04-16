@@ -18,6 +18,7 @@ using PowerTables.Plugins.Checkboxify;
 using PowerTables.Plugins.Formwatch;
 using PowerTables.Plugins.Hideout;
 using PowerTables.Plugins.Limit;
+using PowerTables.Plugins.LoadingOverlap;
 using PowerTables.Plugins.Ordering;
 using PowerTables.Plugins.Paging;
 using PowerTables.Plugins.ResponseInfo;
@@ -124,6 +125,9 @@ namespace PowerTables.Typings
                 .WithProperty(c => c.FormatFunction, c => c.Type("(value:any,column:IColumn) => string"))
                 .WithProperty(c => c.ParseFunction, c => c.Type("(value:string,column:IColumn,errors:string[]) => any"))
                 ;
+
+            builder.ExportAsInterface<LoadingOverlapUiConfig>().WithPublicProperties();
+            builder.ExportAsEnums(new[] { typeof(OverlapMode)});
 
 
             builder.ExportAsEnums(new[] { typeof(EditorRefreshMode) });

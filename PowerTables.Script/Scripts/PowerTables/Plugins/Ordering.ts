@@ -24,7 +24,9 @@
                         switchOrdering: (e) => {
                             this.switchOrderingForColumn(e.Receiver.Column.RawName);
                         },
-                        renderElement: function (tpl) { return tpl.getCachedTemplate(templId)(this); },
+                        renderElement: function(tpl) {
+                            return tpl.getCachedTemplate(templId)(this);
+                        },
                         IsClientOrdering: this.isClient(ck)
                     };
                     this.updateOrdering(ck, ordering);

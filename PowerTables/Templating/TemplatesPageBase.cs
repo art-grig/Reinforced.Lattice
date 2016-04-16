@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using System.Web.Mvc;
 using System.Web.WebPages;
 using PowerTables.Templating.BuiltIn;
@@ -46,6 +47,12 @@ namespace PowerTables.Templating
             public TextWriter Writer { get { return Page.GetOutputWriter(); } }
             public LatticeTemplatesViewModel Model { get { return Page.Model; } }
             public TemplatesPageBase Page { get; private set; }
+        }
+
+        public MvcHtmlString Callback(string functionName, params string[] rawArgs)
+        {
+            var args = string.Join(" ", rawArgs);
+            return MvcHtmlString.Create(string.Format("{{{{{{RenderCallback \"{0}\" {1} }}}}}}", functionName, args));
         }
 
     }

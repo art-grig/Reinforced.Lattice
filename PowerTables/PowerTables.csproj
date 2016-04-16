@@ -149,6 +149,9 @@
     <Compile Include="Plugins\IProvidesTemplate.cs" />
     <Compile Include="Plugins\Limit\LimitPluginExtensions.cs" />
     <Compile Include="Plugins\Limit\LimitPluginTemplateRegion.cs" />
+    <Compile Include="Plugins\LoadingOverlap\LoadingOverlapExtensions.cs" />
+    <Compile Include="Plugins\LoadingOverlap\LoadingOverlapTemplatesRegion.cs" />
+    <Compile Include="Plugins\LoadingOverlap\LoadingOverlapUiConfig.cs" />
     <Compile Include="Plugins\Loading\LoadingPluginTemplateRegion.cs" />
     <Compile Include="Plugins\Loading\LoadingUiConfig.cs" />
     <Compile Include="Plugins\Ordering\OrderingConfiguration.cs" />
