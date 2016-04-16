@@ -8,7 +8,7 @@
         Items: SelectListItem[];
         SelectedItem: SelectListItem;
         
-        public getValue(errors: string[]): any {
+        public getValue(errors: IValidationMessage[]): any {
             var selectedOption = this.List.options.item(this.List.selectedIndex);
             var item = <string>selectedOption.value.toString();
             var value = null;
@@ -16,7 +16,7 @@
                 if (this.Column.IsString && this.Configuration.AllowEmptyString) value = item;
                 if (this.Column.Configuration.IsNullable) value = null;
                 else {
-                    errors.push(`Value must be provided for ${this.Column.Configuration.Title}`);
+                    errors.push({ Code: 'NULLVALUE', Message: `Value must be provided for ${this.Column.Configuration.Title}` });
                 }
             } else {
 
@@ -24,7 +24,7 @@
                 else if (this.Column.IsFloat) value = parseFloat(item);
                 else if (this.Column.IsBoolean) value = item.toUpperCase() === 'TRUE';
                 else if (this.Column.IsDateTime) value = this.MasterTable.Date.parse(item);
-                else errors.push(`Unknown value for ${this.Column.Configuration.Title}`);
+                else errors.push({ Code: 'UNKNOWN', Message: `Unknown value for ${this.Column.Configuration.Title}` });
             }
             
             return value;
@@ -67,7 +67,7 @@
         }
 
         public renderContent(templatesProvider: ITemplatesProvider): string {
-            return templatesProvider.getCachedTemplate('selectListEditor')(this);
+            return this.defaultRender(templatesProvider);
         }
 
         public onAfterRender(e: HTMLElement): void {

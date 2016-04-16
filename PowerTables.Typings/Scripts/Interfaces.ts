@@ -275,8 +275,8 @@ module PowerTables.Editors {
 	export interface ICellEditorUiConfigBase
 	{
 		PluginId: string;
-		CustomValidationFunction: (currentValue: any, originalDataObject: any, modifiedDataObject:any) => string[];
 		TemplateId: string;
+		ValidationMessagesTemplateId: string;
 	}
 	export interface IEditorUiConfig
 	{
@@ -284,6 +284,7 @@ module PowerTables.Editors {
 		CommitEventId: string;
 		RejectEventId: string;
 		EditorsForColumns: { [key:string]: PowerTables.Editors.ICellEditorUiConfigBase };
+		IntegrityCheckFunction: (dataObject:any)=>boolean;
 		RefreshMode: PowerTables.Editors.EditorRefreshMode;
 		IsServerPowered: boolean;
 	}
@@ -304,6 +305,24 @@ module PowerTables.Editors.SelectList {
 		AddEmptyElement: boolean;
 	}
 }
+module PowerTables.Editors.Memo {
+	export interface IMemoEditorUiConfig extends PowerTables.Editors.ICellEditorUiConfigBase
+	{
+		PluginId: string;
+		WarningChars: number;
+		MaxChars: number;
+		Rows: number;
+		Columns: number;
+		AllowEmptyString: boolean;
+	}
+}
+module PowerTables.Editors.Check {
+	export interface ICheckEditorUiConfig extends PowerTables.Editors.ICellEditorUiConfigBase
+	{
+		PluginId: string;
+		IsMandatory: boolean;
+	}
+}
 module PowerTables.Editors.PlainText {
 	export interface IPlainTextEditorUiConfig extends PowerTables.Editors.ICellEditorUiConfigBase
 	{
@@ -311,10 +330,11 @@ module PowerTables.Editors.PlainText {
 		ValidationRegex: string;
 		EnableBasicValidation: boolean;
 		FormatFunction: (value:any,column:IColumn) => string;
-		ParseFunction: (value:string,column:IColumn,errors:string[]) => any;
+		ParseFunction: (value:string,column:IColumn,errors:PowerTables.Plugins.IValidationMessage[]) => any;
 		FloatRemoveSeparatorsRegex: string;
 		FloatDotReplaceSeparatorsRegex: string;
 		AllowEmptyString: boolean;
+		MaxAllowedLength: number;
 	}
 }
 module PowerTables.Plugins.LoadingOverlap {

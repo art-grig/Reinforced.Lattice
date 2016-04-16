@@ -29,6 +29,8 @@ namespace PowerTables.Editors.PlainText
 
         public bool AllowEmptyString { get; set; }
 
+        public int MaxAllowedLength { get; set; }
+
         public PlainTextEditorUiConfig()
         {
             FloatDotReplaceSeparatorsRegex = "[,]";

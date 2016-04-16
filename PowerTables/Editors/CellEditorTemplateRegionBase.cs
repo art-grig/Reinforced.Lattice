@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Mvc;
 using PowerTables.Templating;
 using PowerTables.Templating.BuiltIn;
@@ -33,12 +29,10 @@ namespace PowerTables.Editors
         object OriginalContent { get; }
     }
 
+    
     public static class CellEditorTemplateRegionBaseExtensions
     {
-        public static MvcHtmlString WhenInvalid<T>(this CellEditorTemplateRegionBase<T> t, Action<VisualState> state) where T : ICellEditorViewModel
-        {
-            return t.State("invalid", state);
-        }
+       
 
         public static MvcHtmlString WhenSaving<T>(this CellEditorTemplateRegionBase<T> t, Action<VisualState> state) where T : ICellEditorViewModel
         {

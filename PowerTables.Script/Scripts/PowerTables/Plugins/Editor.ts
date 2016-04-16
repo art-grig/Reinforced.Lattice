@@ -2,7 +2,7 @@
     import CellEditorBase = PowerTables.Plugins.Editors.ICellEditor;
     import EditorUiConfig = PowerTables.Editors.IEditorUiConfig;
     import EditorRefreshMode = PowerTables.Editors.EditorRefreshMode;
-
+   
     export class Editor extends PluginBase<EditorUiConfig> implements IRow {
 
         //#region IRow members
@@ -17,7 +17,7 @@
         private _activeEditors: CellEditorBase[] = [];
         private _currentDataObjectModified: any;
         private _isEditing: boolean = false;
-        private _validationErrors: string[];
+        private _validationMessages: IValidationMessage[];
 
         //#region Public interface
         public notifyChanged(editor: CellEditorBase) {
@@ -26,7 +26,7 @@
 
         public commitAll() {
             this.retrieveAllEditorsData();
-            if (this._validationErrors.length > 0) return;
+            if (this._validationMessages.length > 0) return;
 
             this._isEditing = false;
             for (var cd in this._currentDataObjectModified) {
@@ -158,10 +158,11 @@
 
         
         //#region Private members
-        private retrieveEditorData(editor: CellEditorBase, errors?: string[]) {
+        private retrieveEditorData(editor: CellEditorBase, errors?: IValidationMessage[]) {
             var errorsArrayPresent = (!(!errors));
             errors = errors || [];
             this._currentDataObjectModified[editor.Column.RawName] = editor.getValue(errors);
+            editor.ValidationMessages = errors;
             if (errors.length > 0) {
                 editor.IsValid = false;
                 editor.VisualStates.changeState('invalid');
@@ -170,7 +171,7 @@
                 editor.VisualStates.normalState();
             }
             if (!errorsArrayPresent) {
-                this._validationErrors = errors;
+                this._validationMessages.concat(errors);
             }
         }
 
@@ -179,7 +180,7 @@
             for (var i = 0; i < this._activeEditors.length; i++) {
                 this.retrieveEditorData(this._activeEditors[i], errors);
             }
-            this._validationErrors = errors; //todo draw validation errors
+            this._validationMessages = errors; //todo draw validation errors
         }
         private ensureEditing(rowDisplayIndex: number) {
             if (this._isEditing) return;
@@ -212,7 +213,7 @@
             editor.IsFormEdit = isForm;
             editor.IsRowEdit = isRow;
             editor.Row = this;
-            editor.RawConfig = { Configuration: editorConf, Order: 0, PluginId: editorConf.PluginId, Placement: '', TemplateId: null }
+            editor.RawConfig = { Configuration: editorConf, Order: 0, PluginId: editorConf.PluginId, Placement: '', TemplateId: editorConf.TemplateId }
             editor.init(this.MasterTable);
             return editor;
         }
@@ -336,6 +337,11 @@
         Cell,
         Row,
         Form
+    }
+
+    export interface IValidationMessage {
+        Message: string;
+        Code: string;
     }
     ComponentsContainer.registerComponent('Editor', Editor);
 } 

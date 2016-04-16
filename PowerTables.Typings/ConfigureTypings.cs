@@ -8,6 +8,8 @@ using System.Web.Mvc;
 using PowerTables.Configuration;
 using PowerTables.Configuration.Json;
 using PowerTables.Editors;
+using PowerTables.Editors.Check;
+using PowerTables.Editors.Memo;
 using PowerTables.Editors.PlainText;
 using PowerTables.Editors.SelectList;
 using PowerTables.Filters;
@@ -117,17 +119,19 @@ namespace PowerTables.Typings
                 .WithProperty(c => c.ColumnsValueFunctions, c => c.Type("{ [key:string] : (a:any)=>string }"))
                 .WithProperty(c => c.ColumnsCalculatorFunctions, c => c.Type("{ [key:string] : (data:IClientDataResults) => any }"));
 
-            builder.ExportAsInterface<CellEditorUiConfigBase>().WithPublicProperties().WithProperty(c => c.CustomValidationFunction, c => c.Type("(currentValue: any, originalDataObject: any, modifiedDataObject:any) => string[]"));
-            builder.ExportAsInterface<EditorUiConfig>().WithPublicProperties();
+            builder.ExportAsInterface<CellEditorUiConfigBase>().WithPublicProperties();
+            builder.ExportAsInterface<EditorUiConfig>().WithPublicProperties().WithProperty(c => c.IntegrityCheckFunction, c => c.Type("(dataObject:any)=>boolean"));
             builder.ExportAsInterface<SelectListEditorUiConfig>().WithPublicProperties();
+            builder.ExportAsInterface<MemoEditorUiConfig>().WithPublicProperties();
+            builder.ExportAsInterface<CheckEditorUiConfig>().WithPublicProperties();
             builder.ExportAsInterface<PlainTextEditorUiConfig>()
                 .WithPublicProperties()
                 .WithProperty(c => c.FormatFunction, c => c.Type("(value:any,column:IColumn) => string"))
-                .WithProperty(c => c.ParseFunction, c => c.Type("(value:string,column:IColumn,errors:string[]) => any"))
+                .WithProperty(c => c.ParseFunction, c => c.Type("(value:string,column:IColumn,errors:PowerTables.Plugins.IValidationMessage[]) => any"))
                 ;
 
             builder.ExportAsInterface<LoadingOverlapUiConfig>().WithPublicProperties();
-            builder.ExportAsEnums(new[] { typeof(OverlapMode)});
+            builder.ExportAsEnums(new[] { typeof(OverlapMode) });
 
 
             builder.ExportAsEnums(new[] { typeof(EditorRefreshMode) });

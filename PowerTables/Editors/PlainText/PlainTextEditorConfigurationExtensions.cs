@@ -62,5 +62,12 @@ namespace PowerTables.Editors.PlainText
             if (!string.IsNullOrEmpty(parseFunction)) t.EditorConfig.ParseFunction = new JRaw(parseFunction);
             return t;
         }
+
+        public static EditorConfigurationWrapper<PlainTextEditorUiConfig> MaxLength(
+            this EditorConfigurationWrapper<PlainTextEditorUiConfig> t, int maxLength)
+        {
+            t.EditorConfig.MaxAllowedLength = maxLength;
+            return t;
+        }
     }
 }

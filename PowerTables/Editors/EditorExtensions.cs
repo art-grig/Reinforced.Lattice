@@ -63,5 +63,13 @@ namespace PowerTables.Editors
             conf.EditorConfig.TemplateId = templateId;
             return conf;
         }
+
+        public static EditorConfigurationWrapper<T> ValidationMessagesTemplateId<T>(this EditorConfigurationWrapper<T> conf,
+            string templateId)
+            where T : CellEditorUiConfigBase, new()
+        {
+            conf.EditorConfig.ValidationMessagesTemplateId = templateId;
+            return conf;
+        }
     }
 }

@@ -7,7 +7,7 @@
         /**
          * Is current editor valid (flag set by master editor)
          */
-        public IsValid:boolean;
+        public IsValid: boolean;
 
         /**
          * True when field is single, false when multiple (e.g. row edit, form edit)
@@ -33,6 +33,19 @@
          * Value for particular editor column
          */
         public Data: any;
+
+        /**
+         * Collection with editor's recent validation messages
+         */
+        public ValidationMessages: IValidationMessage[];
+
+        public renderedValidationMessages(): string {
+            return this.MasterTable.Renderer.getCachedTemplate((<any>this.Configuration).ValidationMessagesTemplateId)({
+                Messages: this.ValidationMessages,
+                IsRowEdit: this.IsRowEdit,
+                IsFormEdit: this.IsFormEdit
+            });
+        }
 
         /**
          * Retrieves original value for this particular cell editor
@@ -68,14 +81,14 @@
         /**
          * Flag when initial value setting occures
          */
-        public IsInitialValueSetting:boolean;
+        public IsInitialValueSetting: boolean;
 
         /**
          * Returns entered editor value
          * 
          * @returns {} 
          */
-        public getValue(errors: string[]): any { throw new Error("Not implemented"); }
+        public getValue(errors: IValidationMessage[]): any { throw new Error("Not implemented"); }
 
         /**
          * Sets editor value from the outside
@@ -119,7 +132,7 @@
          * 
          * @returns {} 
          */
-        public focus(): void{ }
+        public focus(): void { }
 
         public OriginalContent(): string {
             return this.MasterTable.Renderer.ContentRenderer.renderCell(this);
@@ -149,7 +162,7 @@
          * @param errors Validation errors collection
          * @returns {} 
          */
-        getValue(errors: string[]): any;
+        getValue(errors: IValidationMessage[]): any;
 
         /**
          * Sets editor value from the outside
@@ -205,5 +218,12 @@
          * @returns {} 
          */
         focus(): void;
+
+        /**
+         * Collection with editor's recent validation messages
+         */
+        ValidationMessages: IValidationMessage[];
     }
+
+
 } 

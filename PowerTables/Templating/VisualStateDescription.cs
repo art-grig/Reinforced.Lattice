@@ -49,6 +49,14 @@ namespace PowerTables.Templating
         {
             Description = new VisualStateDescription();
         }
+
+        public static VisualState FromSpecialDelegate<T>(Action<SpecialVisualStateDescription<T>> state)
+        {
+            var vs = new VisualState();
+            var vss = vs.Special<T>();
+            state(vss);
+            return vs;
+        }
     }
 
 

@@ -11,12 +11,9 @@ namespace PowerTables.Editors
     {
         public abstract string PluginId { get; }
 
-        /// <summary>
-        /// Provides custom validation function for this particular row
-        /// </summary>
-        public JRaw CustomValidationFunction { get; set; }
-
         public string TemplateId { get; set; }
+
+        public string ValidationMessagesTemplateId { get; set; }
     }
 
     public class EditorConfigurationWrapper<T>
@@ -31,7 +28,7 @@ namespace PowerTables.Editors
 
         public EditorConfigurationWrapper()
         {
-            EditorConfig = new T();
+            EditorConfig = new T(){ValidationMessagesTemplateId = "cellValidationMessages"};
         } 
     }
 }

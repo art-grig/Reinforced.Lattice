@@ -86,9 +86,15 @@
     <Compile Include="Defaults\DelegateCommandHandler.cs" />
     <Compile Include="Editors\CellEditorTemplateRegionBase.cs" />
     <Compile Include="Editors\CellEditorUiConfigBase.cs" />
+    <Compile Include="Editors\CellValidationMessagesTemplateRegion.cs" />
+    <Compile Include="Editors\Check\CheckEditorTemplateRegion.cs" />
+    <Compile Include="Editors\Check\CheckEditorUiConfig.cs" />
     <Compile Include="Editors\EditorExtensions.cs" />
     <Compile Include="Editors\EditorUiConfig.cs" />
     <Compile Include="Editors\EditorConfig.cs" />
+    <Compile Include="Editors\Memo\MemoEditorConfigurationExtensions.cs" />
+    <Compile Include="Editors\Memo\MemoEditorTemplateRegion.cs" />
+    <Compile Include="Editors\Memo\MemoEditorUiConfig.cs" />
     <Compile Include="Editors\PlainText\PlainTextEditorConfigurationExtensions.cs" />
     <Compile Include="Editors\PlainText\PlainTextEditorTemplateRegion.cs" />
     <Compile Include="Editors\PlainText\PlainTextEditorUiConfig.cs" />
@@ -228,10 +234,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Editors\Check\" />
-    <Folder Include="Editors\Memo\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

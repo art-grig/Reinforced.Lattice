@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 
 namespace PowerTables.Editors
 {
@@ -9,6 +10,8 @@ namespace PowerTables.Editors
         public string RejectEventId { get; set; }
 
         public Dictionary<string, CellEditorUiConfigBase> EditorsForColumns { get; private set; }
+
+        public JRaw IntegrityCheckFunction { get; set; }
 
         public EditorUiConfig()
         {
