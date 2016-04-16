@@ -4,6 +4,8 @@ using System.Web.Mvc;
 using System.Web.Mvc.Html;
 using PowerTables.Configuration;
 using PowerTables.Editors;
+using PowerTables.Editors.Check;
+using PowerTables.Editors.Memo;
 using PowerTables.Editors.PlainText;
 using PowerTables.Editors.SelectList;
 using PowerTables.Filters;
@@ -27,7 +29,15 @@ namespace PowerTables.Mvc.Models.Tutorial
                     "getDateFromDatepicker"));
 
             conf.LoadingOverlap(ui => ui.Overlap());
-            
+            conf.LoadImmediately(true);
+            conf.Column(c=>c.SupplierAddress).DataOnly(false);
+            conf.Column(c=>c.ItemsSold).DataOnly();
+            conf.Column(c=>c.DeliveryDelay).DataOnly();
+            conf.Column(c=>c.ItemsWasInitially).DataOnly();
+            conf.Column(c=>c.Preorders).DataOnly();
+            conf.Column(c=>c.LastSoldDate).DataOnly();
+            conf.Column(c=>c.ResponsibleUserName).DataOnly();
+
             conf.Column(c => c.Name)
                 .Template(t => t.Returns(v => v.Tag("span")
                     .Attr("style", "background-color:aliceblue")
@@ -45,6 +55,18 @@ namespace PowerTables.Mvc.Models.Tutorial
                     v => v.Tag("div").Content(
                         c => c.Tag("span").Content("{Price}").EditPencil())))
                             .EditPlainText()
+                            ;
+            conf.Column(c => c.IsPaid)
+                .Template(t => t.Returns(
+                    v => v.Tag("div").Content(
+                        c => c.Tag("span").Content("{IsPaid}").EditPencil())))
+                            .EditCheck()
+                            ;
+            conf.Column(c => c.SupplierAddress)
+                .Template(t => t.Returns(
+                    v => v.Tag("div").Content(
+                        c => c.Tag("span").Content("{SupplierAddress}").EditPencil())))
+                            .EditMemo(c => c.Size(3, 10))
                             ;
 
             conf.Column(c => c.TypeOfToy)

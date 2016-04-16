@@ -18,8 +18,6 @@ namespace PowerTables.Editors.Memo
 
     public interface IMemoEditorViewModel : ICellEditorViewModel
     {
-        int CurrentChars { get; set; }
-
         int MaxChars { get; set; }
 
         int WarningChars { get; set; }

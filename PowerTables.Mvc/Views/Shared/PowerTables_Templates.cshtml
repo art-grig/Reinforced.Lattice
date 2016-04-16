@@ -1,6 +1,8 @@
 ﻿@using System.IdentityModel.Tokens
 @using PowerTables
 @using PowerTables.Editors
+@using PowerTables.Editors.Check
+@using PowerTables.Editors.Memo
 @using PowerTables.Editors.PlainText
 @using PowerTables.Editors.SelectList
 @using PowerTables.Filters.Range
@@ -445,24 +447,31 @@
 
 @using (var t = Plugin.Editor_PlainText())
 {
-    <div style="position: relative">
-        <div class="cellfadeout">
+    <div style="position: relative" @t.BindReject("out-click")>
+        <div>
             @t.OriginalContent()
         </div>
         <div class="popover fade top in" role="tooltip" style="top: -88px; left: -50px; display: block; position: absolute;">
             <div class="arrow" style="top: 100%;"></div>
             <h3 class="popover-title">
                 @t.Value(c => c.Column.Configuration.Title)
-            <button type="button" class="close" @t.BindReject("click")><span aria-hidden="true">×</span></button>
-        </h3>
-        <div class="popover-content">
-            <input @t.WhenSaving(c => c.Hide()) @t.ThisIsInput() @t.BindChanged("keyup") @t.BindCommit(DOMEvent.Filter("keyup").Prop(13, "keyCode", "which")) type="text" @t.WhenInvalid(c => c.Color("red")) class="form-control input-md" style="min-width: 200px;" aria-label="..." />
-            <span class="text-center" style="display: none;min-width: 200px;" @t.WhenSaving(c => c.Show())>
-                <span class="badge"><span class="glyphicon glyphicon-refresh loader"></span> Saving...</span>
-            </span>
+                <button type="button" class="close" @t.BindReject("click")><span aria-hidden="true">×</span></button>
+            </h3>
+            <div class="popover-content">
+                <input type="text"
+                       class="form-control input-md"
+                       style="min-width: 200px;" aria-label="..."
+                       @t.WhenSaving(c => c.Hide())
+                       @t.ThisIsInput()
+                       @t.BindChanged("keyup")
+                       @t.BindCommit(DOMEvent.Filter("keyup").Prop(13, "keyCode", "which"))
+                       @t.WhenInvalid(c => c.State.Color("red")) />
+                <span class="text-center" style="display: none;min-width: 200px; min-height: 28px;margin-top: 5px;" @t.WhenSaving(c => c.Show())>
+                    <span class="badge"><span class="glyphicon glyphicon-refresh loader"></span> Saving...</span>
+                </span>
+            </div>
         </div>
     </div>
-</div>
 }
 
 @*@using (var t = Plugin.Editor_PlainText())
@@ -490,19 +499,86 @@
 
 @using (var t = Plugin.Editor_SelectList())
 {
+    <div style="position: relative" @t.BindReject("out-click")>
+        <div>
+            @t.OriginalContent()
+        </div>
+        <div class="popover fade top in" role="tooltip" style="top: -88px; left: -50px; display: block; position: absolute;">
+            <div class="arrow" style="top: 100%;"></div>
+            <h3 class="popover-title">
+                @t.Value(c => c.Column.Configuration.Title)
+                <button type="button" class="close" @t.BindReject("click")><span aria-hidden="true">×</span></button>
+            </h3>
+            <div class="popover-content">
+                <select @t.WhenSaving(c => c.Hide())
+                        @t.WhenInvalid(c => c.State.Style("background-color", "#FFF7F7"))
+                        class="form-control input-md"
+                        style="min-width: 150px;"
+                        @t.ThisIsList()
+                        @t.BindChanged("change")
+                        @t.BindCommit("change")>
+                    @using (var itm = t.Each(c => c.Items))
+                    {
+                        <option value="@itm.Value(c => c.Value)">@itm.Value(c => c.Text)</option>
+                    }
+                </select>
+                <span class="text-center" style="display: none;min-width: 150px; min-height: 28px;margin-top: 5px;" @t.WhenSaving(c => c.Show())>
+                    <span class="badge"><span class="glyphicon glyphicon-refresh loader"></span> Saving...</span>
+                </span>
+            </div>
+        </div>
+    </div>
+}
+
+@using (var t = Plugin.Editor_Memo())
+{
+    <div style="position: relative" @t.BindReject("out-click")>
+        <div>
+            @t.OriginalContent()
+        </div>
+        <div class="popover fade top in" role="tooltip"
+             style="top: -160px; left: -50px; display: block; position: absolute; width: 300px;"
+             @t.WhenSaving(c => c.Style("top","-86px"))>
+            <div class="arrow" style="top: 100%;"></div>
+            <h3 class="popover-title">
+                @t.Value(c => c.Column.Configuration.Title)
+                <button type="button" class="close" @t.BindReject("click")><span aria-hidden="true">×</span></button>
+            </h3>
+            <div class="popover-content">
+                <div class="col-md-12" @t.WhenSaving(c => c.Hide())>
+                    <textarea class="form-control"
+                              style="width: 100%;height:70px"
+                              @t.ThisIsInput()
+                              @t.BindChanged("change")
+                              @t.WhenInvalid(c => c.State.Style("background-color", "#FFF7F7"))
+                              rows="@t.Value(c => c.Rows)"
+                              cols="@t.Value(c => c.Columns)"></textarea>
+                </div>
+                <br />
+                <div class="col-md-12" @t.WhenSaving(c => c.Hide())>
+                    <button class="btn btn-default btn-xs btn-block" @t.BindCommit("click") @t.WhenInvalid(c => c.State.Disabled())>Save</button>
+                </div>
+                <span class="text-center" style="display: none;min-width: 150px; min-height: 28px;margin-top: -15px;" @t.WhenSaving(c => c.Show())>
+                    <span class="badge"><span class="glyphicon glyphicon-refresh loader"></span> Saving...</span>
+                </span>
+            </div>
+        </div>
+    </div>
+}
+
+@using (var t = Plugin.Editor_Check())
+{
     <div @t.BindReject("out-click")>
-        <select @t.WhenSaving(c => c.Hide()) @t.WhenInvalid(c => c.Style("background-color", "#FFF7F7")) class="form-control input-sm" @t.ThisIsList() @t.BindChanged("change") @t.BindCommit("change") style="height: 26px; margin-top: -2px; margin-bottom: -10px">
-            @using (var itm = t.Each(c => c.Items))
-            {
-                <option value="@itm.Value(c => c.Value)">@itm.Value(c => c.Text)</option>
-            }
-        </select>
+        <div class="row" @t.WhenSaving(c => c.Hide())>
+            <div class="col-md-12">
+                <input type="checkbox" style="width: 20px; height: 20px; cursor: pointer" 
+                       @t.BindChanged("change")
+                       @t.WhenChecked(c=>c.Attr("checked","checked"))
+                        />
+            </div>
+        </div>
         <span class="text-center" style="display: none" @t.WhenSaving(c => c.Show())>
             <span class="badge"><span class="glyphicon glyphicon-refresh"></span> Saving...</span>
         </span>
-        <br/>
-        <span @t.WhenSelected(c => c.Content(v => v.SelectedItem.Text).State.Show()) class="text-center"></span>
-        
-       
     </div>
 }

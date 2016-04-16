@@ -45,10 +45,7 @@ namespace PowerTables.Editors.SelectList
 
         public static MvcHtmlString WhenSelected(this SelectListTemplateRegion t, Action<SpecialVisualStateDescription<ISelectedStateViewModel>> action)
         {
-            var state = new VisualState();
-            var special = state.Special<ISelectedStateViewModel>();
-            action(special);
-            return t.State("selected", state);
+            return t.State("selected", VisualState.FromSpecialDelegate(action));
         }
     }
 }

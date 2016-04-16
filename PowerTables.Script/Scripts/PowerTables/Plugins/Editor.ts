@@ -17,7 +17,7 @@
         private _activeEditors: CellEditorBase[] = [];
         private _currentDataObjectModified: any;
         private _isEditing: boolean = false;
-        private _validationMessages: IValidationMessage[];
+        private _validationMessages: IValidationMessage[] = [];
 
         //#region Public interface
         public notifyChanged(editor: CellEditorBase) {

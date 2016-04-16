@@ -233,7 +233,7 @@ namespace PowerTables.Mvc.Controllers
             var t = Table();
             config(t);
             var handler = new PowerTablesHandler<Toy, Row>(t);
-            Thread.Sleep(1500); // simulate working
+            //Thread.Sleep(1500); // simulate working
             return handler.Handle(Data.SourceData.AsQueryable(), ControllerContext);
         }
         #endregion

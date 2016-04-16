@@ -87,6 +87,7 @@
     <Compile Include="Editors\CellEditorTemplateRegionBase.cs" />
     <Compile Include="Editors\CellEditorUiConfigBase.cs" />
     <Compile Include="Editors\CellValidationMessagesTemplateRegion.cs" />
+    <Compile Include="Editors\Check\CheckEditorConfigurationExtensions.cs" />
     <Compile Include="Editors\Check\CheckEditorTemplateRegion.cs" />
     <Compile Include="Editors\Check\CheckEditorUiConfig.cs" />
     <Compile Include="Editors\EditorExtensions.cs" />
