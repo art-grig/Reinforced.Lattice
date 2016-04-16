@@ -31,5 +31,10 @@ namespace PowerTables.Editors.Check
         {
             return t.State("checked", state);
         }
+
+        public static MvcHtmlString FocusElement(this CheckEditorTemplateRegion t)
+        {
+            return t.Mark("FocusElement");
+        }
     }
 }

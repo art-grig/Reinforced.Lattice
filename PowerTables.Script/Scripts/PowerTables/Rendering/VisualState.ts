@@ -66,7 +66,7 @@
             this._stopEvents = true;
             this.normalState();
             for (var i = 0; i < statesHistory.length; i++) {
-                if (statesHistory[i] !== null && statesHistory[i].length > 0 && statesHistory[i]!==state) {
+                if (statesHistory[i] !== null && statesHistory[i].length > 0 && statesHistory[i] !== state) {
                     this.mixinState(statesHistory[i]);
                 }
             }
@@ -156,7 +156,7 @@
                     ns.Element.setAttribute('class', classes);
                 }
 
-                if (ns.Element.innerHTML!==ns.content) ns.Element.innerHTML = ns.content;
+                if (ns.Element.innerHTML !== ns.content && ns.content != null) ns.Element.innerHTML = ns.content;
 
                 for (var ak in ns.attrs) {
                     if (ns.attrs.hasOwnProperty(ak)) {

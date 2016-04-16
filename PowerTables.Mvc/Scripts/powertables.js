@@ -1988,7 +1988,7 @@ var PowerTables;
                                     styles: {},
                                     id: 'normal',
                                     Receiver: target,
-                                    content: states[sk][i].Element.innerHTML
+                                    content: (states[sk][i].content != null && states[sk][i].content.length > 0) ? states[sk][i].Element.innerHTML : null
                                 };
                                 normalState.push(newEntry);
                                 for (var j = 0; j < newEntry.Element.classList.length; j++) {
@@ -3384,7 +3384,7 @@ var PowerTables;
                     if ((!ns.Element.hasAttribute('class') && classes.length > 0) || (ns.Element.getAttribute('class') !== classes)) {
                         ns.Element.setAttribute('class', classes);
                     }
-                    if (ns.Element.innerHTML !== ns.content)
+                    if (ns.Element.innerHTML !== ns.content && ns.content != null)
                         ns.Element.innerHTML = ns.content;
                     for (var ak in ns.attrs) {
                         if (ns.attrs.hasOwnProperty(ak)) {
@@ -5619,6 +5619,7 @@ var PowerTables;
                 __extends(PlainTextEditor, _super);
                 function PlainTextEditor() {
                     _super.apply(this, arguments);
+                    this._floatRegex = new RegExp("^[0-9]+(\.[0-9]+)?$");
                 }
                 PlainTextEditor.prototype.getValue = function (errors) {
                     if (this.Column.IsDateTime) {
@@ -5657,7 +5658,7 @@ var PowerTables;
                     }
                     if (value == null || value == undefined || value.length === 0) {
                         if (!column.Configuration.IsNullable && (!column.IsString)) {
-                            errors.push({ Code: 'NULL', Message: "Value should be provided for " + column.Configuration.Title });
+                            errors.push({ Code: 'NULL', Message: column.Configuration.Title + " value is mandatory" });
                             return null;
                         }
                         if (column.IsString && !this.Configuration.AllowEmptyString) {
@@ -5686,7 +5687,7 @@ var PowerTables;
                         value = value.replace(this._removeSeparators, '');
                         value = value.replace(this._dotSeparators, '.');
                         i = parseFloat(value);
-                        if (isNaN(i)) {
+                        if (isNaN(i) || (!this._floatRegex.test(value))) {
                             errors.push({ Code: 'NONFLOAT', Message: "Invalid number provided for " + column.Configuration.Title });
                             return null;
                         }
@@ -5919,6 +5920,10 @@ var PowerTables;
                 CheckEditor.prototype.setValue = function (value) {
                     this._value = (!(!value));
                     this.updateState();
+                };
+                CheckEditor.prototype.focus = function () {
+                    if (this.FocusElement)
+                        this.FocusElement.focus();
                 };
                 return CheckEditor;
             })(Editors.CellEditorBase);

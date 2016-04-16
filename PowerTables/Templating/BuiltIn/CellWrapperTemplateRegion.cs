@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PowerTables.Templating.Handlebars;
 
 namespace PowerTables.Templating.BuiltIn
 {
@@ -32,6 +33,8 @@ namespace PowerTables.Templating.BuiltIn
         /// Data for this particular cell
         /// </summary>
         object Data { get; }
+
+        IHbDictionary<string,string> DataObject { get; }
     }
 
     /// <summary>

@@ -6,6 +6,7 @@
         ValidationRegex: RegExp;
         private _removeSeparators: RegExp;
         private _dotSeparators: RegExp;
+        private _floatRegex: RegExp = new RegExp("^[0-9]+(\.[0-9]+)?$");
 
         private _formatFunction: (value: any, column: IColumn) => string;
         private _parseFunction: (value: string, column: IColumn, errors: IValidationMessage[]) => any;
@@ -16,7 +17,7 @@
             } else {
                 return this._parseFunction(this.Input.value, this.Column, errors);
             }
-            
+
         }
 
         public setValue(value: any): void {
@@ -45,7 +46,7 @@
             if (this.ValidationRegex) {
                 var mtch = this.ValidationRegex.test(value);
                 if (!mtch) {
-                    errors.push({ Code:'REGEX', Message: `Validation failed for ${column.Configuration.Title}` });
+                    errors.push({ Code: 'REGEX', Message: `Validation failed for ${column.Configuration.Title}` });
                     return null;
                 }
                 return value;
@@ -53,12 +54,12 @@
 
             if (value == null || value == undefined || value.length === 0) {
                 if (!column.Configuration.IsNullable && (!column.IsString)) {
-                    errors.push({Code:'NULL', Message: `Value should be provided for ${column.Configuration.Title}` });
+                    errors.push({ Code: 'NULL', Message: `${column.Configuration.Title} value is mandatory` });
                     return null;
                 }
-                
+
                 if (column.IsString && !this.Configuration.AllowEmptyString) {
-                    errors.push({Code:'EMPTYSTRING', Message: `${column.Configuration.Title} must not be an empty string` });
+                    errors.push({ Code: 'EMPTYSTRING', Message: `${column.Configuration.Title} must not be an empty string` });
                     return null;
                 }
                 return '';
@@ -86,8 +87,8 @@
                 value = value.replace(this._dotSeparators, '.');
 
                 i = parseFloat(value);
-                if (isNaN(i)) {
-                    errors.push({ Code: 'NONFLOAT', Message:`Invalid number provided for ${column.Configuration.Title}` });
+                if (isNaN(i) || (!this._floatRegex.test(value))) {
+                    errors.push({ Code: 'NONFLOAT', Message: `Invalid number provided for ${column.Configuration.Title}` });
                     return null;
                 }
                 return i;
@@ -100,7 +101,7 @@
                 errors.push({ Code: 'NONBOOL', Message: `Invalid boolean value provided for ${column.Configuration.Title}` });
                 return null;
             }
-            
+
             return value;
         }
 

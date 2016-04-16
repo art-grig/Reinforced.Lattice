@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Web.Mvc;
+using PowerTables.Templating.Handlebars.Expressions;
 
 namespace PowerTables.Templating.Handlebars
 {
@@ -15,30 +16,11 @@ namespace PowerTables.Templating.Handlebars
     {
         public static string TraversePropertyLambda(LambdaExpression lambda, string existing = null)
         {
-            Stack<string> properties = new Stack<string>();
-            MemberExpression current = lambda.Body as MemberExpression;
-
-            do
-            {
-                if (current == null) throw new Exception("Here should be property");
-                var pi = current.Member as PropertyInfo;
-                if (pi == null) throw new Exception("Here should be property");
-                var propName = pi.Name;
-                var attr = pi.GetCustomAttribute<OverrideHbFieldNameAttribute>();
-                if (attr != null) propName = attr.Name;
-                properties.Push(propName);
-                if (current.Expression.NodeType == ExpressionType.Parameter) break;
-                current = current.Expression as MemberExpression;
-            } while (true);
-
-            StringBuilder sb = new StringBuilder();
-            while (properties.Count > 0)
-            {
-                sb.Append(properties.Pop());
-                if (properties.Count > 0) sb.Append(".");
-            }
-            if (string.IsNullOrEmpty(existing)) return sb.ToString();
-            return existing + "." + sb.ToString();
+            var visitor = new HbExpressionVisitor();
+            visitor.Visit(lambda.Body);
+            var ex = visitor.Retrieve();
+            var expr = ex.Build();
+            return string.IsNullOrEmpty(existing) ? expr : existing + "." + ex.Build();
         }
 
         /// <summary>

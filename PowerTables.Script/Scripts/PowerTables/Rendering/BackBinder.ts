@@ -162,7 +162,7 @@
                                 styles: {},
                                 id: 'normal',
                                 Receiver: target,
-                                content: states[sk][i].Element.innerHTML
+                                content: (states[sk][i].content != null && states[sk][i].content.length > 0) ? states[sk][i].Element.innerHTML:null
                             };
                             normalState.push(newEntry);
                             for (var j = 0; j < newEntry.Element.classList.length; j++) {

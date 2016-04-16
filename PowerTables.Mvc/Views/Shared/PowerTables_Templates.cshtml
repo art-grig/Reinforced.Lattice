@@ -367,9 +367,9 @@
     {
         using (t.If(c => c.IsChecked))
         {
-            <div @t.ThisWillTriggerSelection()><input style="width: 20px;height: 20px" type="checkbox" checked="checked" /></div>
+            <div @t.ThisWillTriggerSelection()>О бля!</div>
             @t.Else()
-            <div @t.ThisWillTriggerSelection()><input style="width: 20px;height: 20px" type="checkbox" /></div>
+            <div @t.ThisWillTriggerSelection()>Нихуя</div>
         }
     }
 }
@@ -465,7 +465,7 @@
                        @t.ThisIsInput()
                        @t.BindChanged("keyup")
                        @t.BindCommit(DOMEvent.Filter("keyup").Prop(13, "keyCode", "which"))
-                       @t.WhenInvalid(c => c.State.Color("red")) />
+                       @t.WhenInvalid(c => c.State.Color("red").Style("border-color", "red")) />
                 <span class="text-center" style="display: none;min-width: 200px; min-height: 28px;margin-top: 5px;" @t.WhenSaving(c => c.Show())>
                     <span class="badge"><span class="glyphicon glyphicon-refresh loader"></span> Saving...</span>
                 </span>
@@ -474,28 +474,42 @@
     </div>
 }
 
-@*@using (var t = Plugin.Editor_PlainText())
-    {
-        <div class="input-group" @t.WhenInvalid(c => c.AddClass("has-error")) style="max-width: 200px;" @t.WhenSaving(c => c.Hide())>
-            <input @t.ThisIsInput() @t.BindChanged("keyup") @t.BindCommit(DOMEvent.Filter("keyup").Prop(13, "keyCode", "which")) type="text" @t.WhenInvalid(c => c.Color("red")) class="form-control input-sm" aria-label="..." style="height: 28px; margin-top: -10px; margin-bottom: -10px" />
-            <div class="tooltip right" role="tooltip" style="display: none" @t.WhenInvalid(c=>c.Show())>
-                <div class="tooltip-arrow"></div> <div class="tooltip-inner"> Entered value is invalid </div>
-            </div>
-            <div class="input-group-btn">
-                <button style="margin: -4px 0px; padding: 4px 10px;" type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-right">
-                    <li @t.WhenInvalid(c => c.Disabled().AddClass("disabled"))><a style="cursor: pointer;" @t.BindCommit("click")><span class="glyphicon glyphicon-floppy-disk"></span> Save</a></li>
-                    <li role="separator" class="divider"></li>
-                    <li><a style="cursor: pointer;" @t.BindReject("click")><span class="glyphicon glyphicon-remove"></span> Cancel</a></li>
-                </ul>
-            </div>
+@using (var t = Plugin.Editor_ValidationMessages())
+{
+    <p style="margin-bottom: 0">
+        @using (var m = t.Each(c => c.Messages))
+        {
+            <span>@m.Value(c => c.Message)</span>
+        }
+    </p>
+}
+
+@using (var t = Plugin.Editor_PlainText("plainTextEditorAlternate"))
+{
+    <div class="input-group" @t.WhenInvalid(c => c.State.AddClass("has-error")) style="max-width: 200px;" @t.WhenSaving(c => c.Hide())>
+        <input @t.ThisIsInput() @t.BindChanged("keyup") @t.BindCommit(DOMEvent.Filter("keyup").Prop(13, "keyCode", "which")) type="text" @t.WhenInvalid(c => c.State.Color("red")) class="form-control input-sm" aria-label="..." style="height: 28px; margin-top: -10px; margin-bottom: -10px" />
+        <div class="tooltip bottom" role="tooltip" style="opacity: 1; top: 21px;display: none;"
+             @t.WhenInvalid(c => c.State.Show())>
+            <div class="tooltip-arrow" style="border-bottom-color: #E15C5C;left:15%"></div>
+
+            <div class="tooltip-inner" style="max-width: 400px; background-color: #E15C5C;" @t.WhenInvalid(c => c.Content(v => v.ValidationMessages))></div>
         </div>
-        <span class="text-center" style="display: none" @t.WhenSaving(c => c.Show())>
-            <span class="badge"><span class="glyphicon glyphicon-refresh"></span> Saving...</span>
-        </span>
-    }*@
+        <div class="input-group-btn">
+            <button style="margin: -4px 0px; padding: 4px 10px;" type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-right">
+                <li @t.WhenInvalid(c => c.State.Disabled().AddClass("disabled"))><a style="cursor: pointer;" @t.BindCommit("click")><span class="glyphicon glyphicon-floppy-disk"></span> Save</a></li>
+                <li role="separator" class="divider"></li>
+                <li><a style="cursor: pointer;" @t.BindReject("click")><span class="glyphicon glyphicon-remove"></span> Cancel</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <span class="text-center" style="display: none" @t.WhenSaving(c => c.Show())>
+        <span class="badge"><span class="glyphicon glyphicon-refresh"></span> Saving...</span>
+    </span>
+}
 
 @using (var t = Plugin.Editor_SelectList())
 {
@@ -538,7 +552,7 @@
         </div>
         <div class="popover fade top in" role="tooltip"
              style="top: -160px; left: -50px; display: block; position: absolute; width: 300px;"
-             @t.WhenSaving(c => c.Style("top","-86px"))>
+             @t.WhenSaving(c => c.Style("top", "-86px"))>
             <div class="arrow" style="top: 100%;"></div>
             <h3 class="popover-title">
                 @t.Value(c => c.Column.Configuration.Title)
@@ -568,17 +582,34 @@
 
 @using (var t = Plugin.Editor_Check())
 {
-    <div @t.BindReject("out-click")>
-        <div class="row" @t.WhenSaving(c => c.Hide())>
-            <div class="col-md-12">
-                <input type="checkbox" style="width: 20px; height: 20px; cursor: pointer" 
-                       @t.BindChanged("change")
-                       @t.WhenChecked(c=>c.Attr("checked","checked"))
-                        />
+    <div style="position: relative" @t.BindReject("out-click")>
+        <div>
+            @t.OriginalContent()
+        </div>
+        <div class="popover fade top in" role="tooltip"
+             style="top: -101px; left: -74px; display: block; position: absolute; width: 300px;"
+             @t.WhenSaving(c => c.Style("top", "-86px"))>
+            <div class="arrow" style="top: 100%;"></div>
+            <h3 class="popover-title">
+                @t.Value(c => c.Column.Configuration.Title)
+                <button type="button" class="close" @t.BindReject("click")><span aria-hidden="true">×</span></button>
+            </h3>
+            <div class="popover-content">
+                <div class="col-md-12" @t.WhenSaving(c => c.Hide())>
+                    <div class="checkbox">
+                        <label style="padding-left: 10px; line-height: 2; font-size: 16px;">
+                            <input type="checkbox" @t.BindChanged("change") @t.BindCommit("change") style="width: 20px; height: 20px; cursor: pointer"
+                                   @t.WhenChecked(c => c.Attr("checked", "checked")) />
+                            @t.Value(c => c.Column.Configuration.Title) -
+                            @t.Value(c => c.DataObject["Name"])
+                        </label>
+                    </div>
+
+                </div>
+                <span class="text-center" style="display: none;min-width: 150px; min-height: 48px;margin-top: -15px;" @t.WhenSaving(c => c.Show())>
+                    <span class="badge" style="margin-top: 20px"><span class="glyphicon glyphicon-refresh loader"></span> Saving...</span>
+                </span>
             </div>
         </div>
-        <span class="text-center" style="display: none" @t.WhenSaving(c => c.Show())>
-            <span class="badge"><span class="glyphicon glyphicon-refresh"></span> Saving...</span>
-        </span>
     </div>
 }

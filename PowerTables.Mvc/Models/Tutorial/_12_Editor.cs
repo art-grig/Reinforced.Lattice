@@ -54,7 +54,7 @@ namespace PowerTables.Mvc.Models.Tutorial
                 .Template(t => t.Returns(
                     v => v.Tag("div").Content(
                         c => c.Tag("span").Content("{Price}").EditPencil())))
-                            .EditPlainText()
+                            .EditPlainText(t => t.TemplateId("plainTextEditorAlternate"))
                             ;
             conf.Column(c => c.IsPaid)
                 .Template(t => t.Returns(

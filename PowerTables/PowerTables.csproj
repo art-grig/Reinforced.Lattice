@@ -210,6 +210,12 @@
     <Compile Include="Templating\BuiltIn\MessageWrapperTemplateRegion.cs" />
     <Compile Include="Templating\BuiltIn\HeaderWrapperTemplateRegion.cs" />
     <Compile Include="Templating\DOMEvent.cs" />
+    <Compile Include="Templating\Handlebars\Expressions\HbExpression.cs" />
+    <Compile Include="Templating\Handlebars\Expressions\HbExpressionVisitor.cs" />
+    <Compile Include="Templating\Handlebars\Expressions\HbIndexExpression.cs" />
+    <Compile Include="Templating\Handlebars\Expressions\HbLiteralExpression.cs" />
+    <Compile Include="Templating\Handlebars\Expressions\HbMemberExpression.cs" />
+    <Compile Include="Templating\Handlebars\Expressions\HbParameterExpression.cs" />
     <Compile Include="Templating\Handlebars\IHbArray.cs" />
     <Compile Include="Templating\Handlebars\IHbDictionary.cs" />
     <Compile Include="Templating\BuiltIn\RowWrapperTemplateRegion.cs" />

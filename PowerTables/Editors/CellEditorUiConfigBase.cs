@@ -14,6 +14,11 @@ namespace PowerTables.Editors
         public string TemplateId { get; set; }
 
         public string ValidationMessagesTemplateId { get; set; }
+
+        protected CellEditorUiConfigBase()
+        {
+            ValidationMessagesTemplateId = "cellValidationMessages";
+        }
     }
 
     public class EditorConfigurationWrapper<T>

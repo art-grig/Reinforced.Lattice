@@ -2,6 +2,7 @@
     import CheckEditorUiConfig = PowerTables.Editors.Check.ICheckEditorUiConfig;
 
     export class CheckEditor extends CellEditorBase<CheckEditorUiConfig> {
+        FocusElement:HTMLElement;
         private _value: boolean;
 
         public renderContent(templatesProvider: ITemplatesProvider): string {
@@ -33,6 +34,10 @@
         public setValue(value: any): void {
             this._value = (!(!value));
             this.updateState();
+        }
+
+        public focus(): void {
+            if (this.FocusElement) this.FocusElement.focus();
         }
     }
 
