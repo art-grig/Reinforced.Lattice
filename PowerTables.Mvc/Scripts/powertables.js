@@ -2105,7 +2105,6 @@ var PowerTables;
 (function (PowerTables) {
     var Plugins;
     (function (Plugins) {
-        var EditorRefreshMode = PowerTables.Editors.EditorRefreshMode;
         var Editor = (function (_super) {
             __extends(Editor, _super);
             function Editor() {
@@ -2175,25 +2174,17 @@ var PowerTables;
                     for (var i = 0; i < _this._activeEditors.length; i++) {
                         _this.finishEditing(_this._activeEditors[i], false);
                     }
-                    _this.redrawAccordingToSettings();
                 });
             };
-            Editor.prototype.redrawAccordingToSettings = function (lastColumn) {
-                switch (this.Configuration.RefreshMode) {
-                    case EditorRefreshMode.RedrawCell:
-                        // actually do nothing because cell was redrawn 
-                        // after commit
-                        break;
-                    case EditorRefreshMode.RedrawRow:
-                    case EditorRefreshMode.RedrawAllVisible:
-                    case EditorRefreshMode.ReloadFromServer:
-                    default:
-                }
-            };
             Editor.prototype.dispatchEditResponse = function (editResponse, then) {
-                for (var cd in editResponse.ConfirmedObject) {
-                    if (editResponse.hasOwnProperty(cd)) {
-                        this.DataObject[cd] = editResponse[cd];
+                var currentTableAdjustments = editResponse.TableAdjustments;
+                currentTableAdjustments.Updates.push(editResponse.ConfirmedObject);
+                this.MasterTable.proceedAdjustments(currentTableAdjustments);
+                for (var otherAdj in editResponse.OtherTablesAdjustments) {
+                    if (editResponse.OtherTablesAdjustments.hasOwnProperty(otherAdj)) {
+                        if (window['__latticeInstances'][otherAdj]) {
+                            window['__latticeInstances'][otherAdj].proceedAdjustments(editResponse.OtherTablesAdjustments[otherAdj]);
+                        }
                     }
                 }
                 then();
@@ -2216,7 +2207,6 @@ var PowerTables;
                     editor.VisualStates.changeState('saving');
                     this.sendDataObjectToServer(function () {
                         _this.finishEditing(editor, true);
-                        _this.redrawAccordingToSettings(editor.Column);
                     });
                 }
                 else {
@@ -4468,6 +4458,8 @@ var PowerTables;
                 element['fireEvent'](eventName);
         };
         PowerTable.prototype.proceedAdjustments = function (adjustments) {
+            var result = this.DataHolder.proceedAdjustments(adjustments);
+            this.Controller.drawAdjustmentResult(result);
         };
         return PowerTable;
     })();

@@ -94,10 +94,9 @@ namespace PowerTables
             catch (InvalidOperationException ex)
             {
                 throw new Exception(
-                    String.Format(@"Hm. InvalidOperationException. 
-Some comment to help you determine problem.
+                    String.Format(@"InvalidOperationException thrown.
 We recommend to re-check filters configuration against filtering/mapping on nullable columns. 
-As far as we know, PowerTables dones not throw InvalidOperationException itself, but we not always handle filtering of nullable columns 
+Lattice does not throw InvalidOperationException itself, but we not always handle filtering of nullable columns 
 because it is highly dependent on query provider.
 Consider usage of null-coalescing operator (??) within your nullables.
 Btw, original message was: {0}", ex.Message),

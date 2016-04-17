@@ -289,8 +289,7 @@ module PowerTables.Editors {
 		RejectEventId: string;
 		EditorsForColumns: { [key:string]: PowerTables.Editors.ICellEditorUiConfigBase };
 		IntegrityCheckFunction: (dataObject:any)=>boolean;
-		RefreshMode: PowerTables.Editors.EditorRefreshMode;
-		IsServerPowered: boolean;
+		DeferChanges: boolean;
 		EditorType: PowerTables.Editors.EditorType;
 	}
 	export interface IEditionResult
@@ -308,12 +307,6 @@ module PowerTables.Editors {
 		Cell = 0, 
 		Row = 1, 
 		Form = 2, 
-	}
-	export enum EditorRefreshMode { 
-		RedrawCell = 0, 
-		RedrawRow = 1, 
-		RedrawAllVisible = 2, 
-		ReloadFromServer = 3, 
 	}
 }
 module PowerTables.Editors.SelectList {

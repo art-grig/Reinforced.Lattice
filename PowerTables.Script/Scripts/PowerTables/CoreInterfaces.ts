@@ -1,8 +1,7 @@
 ﻿module PowerTables {
 
     import PluginConfiguration = Configuration.Json.IPluginConfiguration;
-
-    /**
+    import AdjustmentData = PowerTables.Editors.IAdjustmentData; /**
      * Client filter interface. 
      * This interface is registerable in the DataHolder as 
      * one of the part of filtering pipeline
@@ -91,6 +90,13 @@
          * API for working with dates
          */
         Date: DateService;
+
+        /**
+         * Absorb and draw table adjustments
+         * 
+         * @param adjustments Table adjustmetns object         
+         */
+        proceedAdjustments(adjustments: AdjustmentData) : void;
     }
 
     /**

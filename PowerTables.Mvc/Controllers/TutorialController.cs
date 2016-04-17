@@ -207,17 +207,6 @@ namespace PowerTables.Mvc.Controllers
             return Handle(c => c.HideoutAndResponseInfo());
         }
 
-        [Tutorial("Editing data", 12)]
-        public ActionResult Editor()
-        {
-            return TutPage(c => c.Editor());
-        }
-
-        public ActionResult EditorHandle()
-        {
-            return Handle(c => c.Editor());
-        }
-
         
 
         #region Utility

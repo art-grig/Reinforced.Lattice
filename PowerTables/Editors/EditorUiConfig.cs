@@ -19,13 +19,10 @@ namespace PowerTables.Editors
             BeginEditEventId = "click";
             CommitEventId = "click";
             RejectEventId = "click";
-            RefreshMode = EditorRefreshMode.RedrawCell;
-            IsServerPowered = true;
+            DeferChanges = true;
         }
 
-        public EditorRefreshMode RefreshMode { get; set; }
-
-        public bool IsServerPowered { get; set; }
+        public bool DeferChanges { get; set; }
 
         public EditorType EditorType { get; set; }
 
@@ -49,14 +46,6 @@ namespace PowerTables.Editors
             t.EditorsForColumns[columnName] = newConf;
             return newConf;
         }
-    }
-
-    public enum EditorRefreshMode
-    {
-        RedrawCell,
-        RedrawRow,
-        RedrawAllVisible,
-        ReloadFromServer
     }
 
     public enum EditorType

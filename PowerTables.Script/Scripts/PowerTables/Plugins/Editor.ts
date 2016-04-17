@@ -1,7 +1,6 @@
 ﻿module PowerTables.Plugins {
     import CellEditorBase = PowerTables.Plugins.Editors.ICellEditor;
     import EditorUiConfig = PowerTables.Editors.IEditorUiConfig;
-    import EditorRefreshMode = PowerTables.Editors.EditorRefreshMode;
     import EditionResult = PowerTables.Editors.IEditionResult;
 
     export class Editor extends PluginBase<EditorUiConfig> implements IRow {
@@ -44,38 +43,28 @@
                 for (var i = 0; i < this._activeEditors.length; i++) {
                     this.finishEditing(this._activeEditors[i], false);
                 }
-                this.redrawAccordingToSettings();
             });
         }
 
-        private redrawAccordingToSettings(lastColumn?: IColumn) {
-            switch (this.Configuration.RefreshMode) {
-                case EditorRefreshMode.RedrawCell:
-                    // actually do nothing because cell was redrawn 
-                    // after commit
-                    break;
-                case EditorRefreshMode.RedrawRow:
-                case EditorRefreshMode.RedrawAllVisible:
-                case EditorRefreshMode.ReloadFromServer:
-
-                default:
-            }
-        }
-
         private dispatchEditResponse(editResponse: EditionResult, then: () => void) {
-            for (var cd in editResponse.ConfirmedObject) {
-                if (editResponse.hasOwnProperty(cd)) {
-                    this.DataObject[cd] = editResponse[cd];
+            var currentTableAdjustments = editResponse.TableAdjustments;
+            currentTableAdjustments.Updates.push(editResponse.ConfirmedObject);
+            this.MasterTable.proceedAdjustments(currentTableAdjustments);
+            for (var otherAdj in editResponse.OtherTablesAdjustments) {
+                if (editResponse.OtherTablesAdjustments.hasOwnProperty(otherAdj)) {
+                    if (window['__latticeInstances'][otherAdj]) {
+                        window['__latticeInstances'][otherAdj].proceedAdjustments(editResponse.OtherTablesAdjustments[otherAdj]);
+                    }
                 }
             }
             then();
         }
 
         private sendDataObjectToServer(then: () => void) {
-            this.MasterTable.Loader.requestServer('Edit', (r)=>this.dispatchEditResponse(r,then), (q) => {
-                    q.AdditionalData['Edit'] = JSON.stringify(this.DataObject);
-                    return q;
-                });
+            this.MasterTable.Loader.requestServer('Edit', (r) => this.dispatchEditResponse(r, then), (q) => {
+                q.AdditionalData['Edit'] = JSON.stringify(this.DataObject);
+                return q;
+            });
         }
 
         public commit(editor: CellEditorBase) {
@@ -88,7 +77,6 @@
                 editor.VisualStates.changeState('saving');
                 this.sendDataObjectToServer(() => {
                     this.finishEditing(editor, true);
-                    this.redrawAccordingToSettings(editor.Column);
                 });
             } else {
                 var idx = this._activeEditors.indexOf(editor);

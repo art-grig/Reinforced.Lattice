@@ -73,6 +73,8 @@ namespace PowerTables.Editors
             _result.ConfirmedObject = obj;
         }
 
+        public T ConfirmedObject { get { return (T) _result.ConfirmedObject; } }
+
         public AdjustmentDataWrapper<T> Adjustments { get; private set; }
 
         public void AdjustAnotherTable<T2>(string tableId, Action<AdjustmentDataWrapper<T2>> otherTableAdjustments)

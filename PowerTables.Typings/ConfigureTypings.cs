@@ -138,7 +138,7 @@ namespace PowerTables.Typings
             builder.ExportAsEnums(new[] { typeof(OverlapMode) });
 
 
-            builder.ExportAsEnums(new[] { typeof(EditorRefreshMode) });
+            builder.ExportAsEnums(new[] { typeof(EditorType) });
         }
 
     }
