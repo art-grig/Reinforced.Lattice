@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PowerTables.Configuration;
 using PowerTables.FrequentlyUsed;
+using PowerTables.Plugins;
 
 namespace PowerTables.Editors
 {
@@ -70,6 +72,11 @@ namespace PowerTables.Editors
         {
             conf.EditorConfig.ValidationMessagesTemplateId = templateId;
             return conf;
+        }
+
+        public static Configurator<TSource, TTarget> Edit<TSource, TTarget>(this Configurator<TSource, TTarget> conf, Action<PluginConfigurationWrapper<EditorConfig>> ui) where TTarget : new()
+        {
+            return null;
         }
     }
 }

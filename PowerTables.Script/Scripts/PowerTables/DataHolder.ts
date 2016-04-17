@@ -1,10 +1,9 @@
 ﻿module PowerTables {
-
-    /**
+    import AdjustmentData = PowerTables.Editors.IAdjustmentData; /**
      * Class that is responsible for holding and managing data loaded from server
      */
     export class DataHolder {
-        constructor(masterTable:IMasterTable) {
+        constructor(masterTable: IMasterTable) {
             this._rawColumnNames = masterTable.InstanceManager.getColumnNames();
             this._events = masterTable.Events;
             this._instances = masterTable.InstanceManager;
@@ -17,7 +16,7 @@
         private _anyClientFiltration: boolean = false;
         private _events: EventsManager;
         private _instances: InstanceManager;
-        private _masterTable :IMasterTable;
+        private _masterTable: IMasterTable;
         
         /**
          * Data that actually is currently displayed in table
@@ -340,6 +339,118 @@
 
             return result;
         }
+
+
+        /**
+         * Finds data object among recently loaded by primary key and returns ILocalLookupResult 
+         * containing also Loaded-set index of this data object
+         * 
+         * @param dataObject Object to match
+         * @returns ILocalLookupResult
+         */
+        public localLookupPrimaryKey(dataObject: any): ILocalLookupResult {
+            var found = null;
+            var foundIdx = 0;
+            for (var i = 0; i < this.StoredData.length; i++) {
+                if (this._masterTable.InstanceManager.DataObjectComparisonFunction(dataObject, this.StoredData[i])) {
+                    found = this.StoredData[i];
+                    foundIdx = i;
+                    break;
+                }
+            }
+            var result: ILocalLookupResult;
+            if (found == null) {
+                result = {
+                    DataObject: null,
+                    IsCurrentlyDisplaying: false,
+                    DisplayedIndex: -1,
+                    LoadedIndex: -1
+                };
+            } else {
+                var cdisp = this.DisplayedData.indexOf(found);
+                result = {
+                    DataObject: found,
+                    IsCurrentlyDisplaying: cdisp > -1,
+                    DisplayedIndex: cdisp,
+                    LoadedIndex: foundIdx
+                };
+            }
+            return result;
+        }
+
+        public copyData(source: any, target: any): string[] {
+            var modColumns = [];
+            for (var cd in source) {
+                if (source.hasOwnProperty(cd)) {
+                    if (target[cd] !== source[cd]) {
+                        modColumns.push(cd);
+                        target[cd] = source[cd];
+                    }
+                }
+            }
+            return modColumns;
+        }
+
+        public proceedAdjustments(adjustments: AdjustmentData): IAdjustmentResult {
+            var needRefilter = false;
+            var redrawVisibles = [];
+            var touchedData = [];
+            var touchedColumns = [];
+            var added = [];
+
+            for (var i = 0; i < adjustments.Updates.length; i++) {
+                var update = this.localLookupPrimaryKey(adjustments.Updates[i]);
+                if (update.LoadedIndex < 0) {
+                    if (this.StoredData.length > 0) {
+                        this.StoredData.push(adjustments.Updates[i]);
+                        added.push(adjustments.Updates[i]);
+                        needRefilter = true;
+                    }
+                } else {
+                    touchedColumns.push(this.copyData(adjustments.Updates[i], update.DataObject));
+                    touchedData.push(update.DataObject);
+                    if (update.DisplayedIndex > 0) {
+                        redrawVisibles.push(update.DataObject);
+                    } else {
+                        needRefilter = true;
+                    }
+                }
+            }
+
+            for (var j = 0; j < adjustments.Removals.length; j++) {
+                var lookup = this.localLookupPrimaryKey(adjustments.Removals[j]);
+                if (lookup.LoadedIndex > -1) {
+                    this.StoredData.splice(lookup.LoadedIndex, 1);
+                    needRefilter = true;
+                }
+            }
+            if (needRefilter) {
+                this.filterStoredDataWithPreviousQuery();
+                redrawVisibles = [];
+                for (var k = 0; k < added.length; k++) {
+                    if (this.DisplayedData.indexOf(added[k]) > -1) redrawVisibles.push(added[k]);
+                }
+
+                for (var l = 0; l < touchedData.length; l++) {
+                    if (this.DisplayedData.indexOf(touchedData[l]) > -1) redrawVisibles.push(touchedData[l]);
+                }
+            }
+            return {
+                NeedRedrawAllVisible: needRefilter,
+                VisiblesToRedraw: redrawVisibles,
+                AddedData: added,
+                TouchedData: touchedData,
+                TouchedColumns: touchedColumns
+            }
+        }
+    }
+
+    export interface IAdjustmentResult {
+        NeedRedrawAllVisible:boolean;
+        VisiblesToRedraw: any[];
+        AddedData:any[];
+        TouchedData: any[];
+        TouchedColumns:string[][];
     }
 
     /**

@@ -14,5 +14,10 @@ namespace PowerTables.Editors
         {
             Config = config;
         }
+
+        public EditorConfig()
+        {
+            Config = new EditorUiConfig();
+        }
     }
 }

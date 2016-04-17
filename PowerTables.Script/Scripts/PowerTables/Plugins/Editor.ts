@@ -2,7 +2,8 @@
     import CellEditorBase = PowerTables.Plugins.Editors.ICellEditor;
     import EditorUiConfig = PowerTables.Editors.IEditorUiConfig;
     import EditorRefreshMode = PowerTables.Editors.EditorRefreshMode;
-   
+    import EditionResult = PowerTables.Editors.IEditionResult;
+
     export class Editor extends PluginBase<EditorUiConfig> implements IRow {
 
         //#region IRow members
@@ -61,8 +62,8 @@
             }
         }
 
-        private dispatchEditResponse(editResponse: any/*todo*/, then: () => void) {
-            for (var cd in editResponse) {
+        private dispatchEditResponse(editResponse: EditionResult, then: () => void) {
+            for (var cd in editResponse.ConfirmedObject) {
                 if (editResponse.hasOwnProperty(cd)) {
                     this.DataObject[cd] = editResponse[cd];
                 }
@@ -71,10 +72,10 @@
         }
 
         private sendDataObjectToServer(then: () => void) {
-            //this.MasterTable.Loader.requestServer('Edit', (r)=>this.dispatchEditResponse(r,then), (q) => {
-            //        q.AdditionalData['Edit'] = JSON.stringify(this.DataObject);
-            //        return q;
-            //    });
+            this.MasterTable.Loader.requestServer('Edit', (r)=>this.dispatchEditResponse(r,then), (q) => {
+                    q.AdditionalData['Edit'] = JSON.stringify(this.DataObject);
+                    return q;
+                });
         }
 
         public commit(editor: CellEditorBase) {

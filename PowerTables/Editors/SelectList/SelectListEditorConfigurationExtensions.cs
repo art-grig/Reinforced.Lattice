@@ -21,7 +21,7 @@ namespace PowerTables.Editors.SelectList
                 var conf =
                     c.Configuration.GetOrReplaceEditorConfig<SelectListEditorUiConfig>(
                         t.ColumnConfiguration.RawColumnName);
-
+                
                 var wrapper = new EditorConfigurationWrapper<SelectListEditorUiConfig>(conf);
                 if (config != null) config(wrapper);
             });

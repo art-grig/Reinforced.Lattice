@@ -26,11 +26,14 @@ namespace PowerTables.Editors
         public EditorRefreshMode RefreshMode { get; set; }
 
         public bool IsServerPowered { get; set; }
+
+        public EditorType EditorType { get; set; }
+
     }
 
     public static class EditorUiConfigExtensions
     {
-        public static T GetOrReplaceEditorConfig<T>(this EditorUiConfig t, string columnName)
+        internal static T GetOrReplaceEditorConfig<T>(this EditorUiConfig t, string columnName)
             where T : CellEditorUiConfigBase,new()
         {
             if (t.EditorsForColumns.ContainsKey(columnName))
@@ -54,5 +57,12 @@ namespace PowerTables.Editors
         RedrawRow,
         RedrawAllVisible,
         ReloadFromServer
+    }
+
+    public enum EditorType
+    {
+        Cell,
+        Row,
+        Form
     }
 }

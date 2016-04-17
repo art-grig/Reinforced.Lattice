@@ -90,6 +90,8 @@
     <Compile Include="Editors\Check\CheckEditorConfigurationExtensions.cs" />
     <Compile Include="Editors\Check\CheckEditorTemplateRegion.cs" />
     <Compile Include="Editors\Check\CheckEditorUiConfig.cs" />
+    <Compile Include="Editors\EditionResult.cs" />
+    <Compile Include="Editors\EditorCommandHandler.cs" />
     <Compile Include="Editors\EditorExtensions.cs" />
     <Compile Include="Editors\EditorUiConfig.cs" />
     <Compile Include="Editors\EditorConfig.cs" />

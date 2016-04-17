@@ -66,6 +66,51 @@
             }
         }
 
+        public drawAdjustmentResult(adjustmentResult: IAdjustmentResult) {
+            var adjRowTemplate = this._masterTable.InstanceManager.Configuration.TouchedRowTemplateId;
+            var adjCellTemplate = this._masterTable.InstanceManager.Configuration.TouchedCellTemplateId;
+            var addedTemplate = this._masterTable.InstanceManager.Configuration.AddedRowTemplateId;
+
+            var rows: IRow[] = this.produceRows();
+
+            for (var i = 0; i < rows.length; i++) {
+                if (addedTemplate) {
+                    if (adjustmentResult.AddedData.indexOf(rows[i]) > -1) {
+                        rows[i].TemplateIdOverride = addedTemplate;
+                        if (!adjustmentResult.NeedRedrawAllVisible) {
+                            this._masterTable.Renderer.Modifier.redrawRow(rows[i]);
+                        }
+                        continue;
+                    }
+                }
+                var adjIdx = adjustmentResult.TouchedData.indexOf(rows[i]);
+                var needRedrawRow = false;
+
+                if (adjRowTemplate) {
+                    if (adjIdx > -1) {
+                        rows[i].TemplateIdOverride = adjRowTemplate;
+                        needRedrawRow = true;
+                    }
+                }
+                if (adjCellTemplate) {
+                    if (adjIdx > -1) {
+                        var cols = adjustmentResult.TouchedColumns[adjIdx];
+                        for (var j = 0; j < cols.length; j++) {
+                            var cell = rows[i].Cells[cols[j]];
+                            cell.TemplateIdOverride = adjCellTemplate;
+                            needRedrawRow = true;
+                        }
+                    }
+                }
+                if (needRedrawRow && !adjustmentResult.NeedRedrawAllVisible) {
+                    this._masterTable.Renderer.Modifier.redrawRow(rows[i]);
+                }
+            }
+            if (adjustmentResult.NeedRedrawAllVisible) {
+                this._masterTable.Renderer.body(rows);
+            }
+        }
+
         /**
          * Shows full-width table message
          * @param tableMessage Message of type ITableMessage
@@ -181,7 +226,7 @@
          * @param row Row that this cell belongs to
          * @returns {ICell} Cell representing data
          */
-        public produceCell(dataObject: any, column: IColumn, row:IRow) : ICell {
+        public produceCell(dataObject: any, column: IColumn, row: IRow): ICell {
             return {
                 Column: column,
                 Data: dataObject[column.RawName],

@@ -255,5 +255,37 @@ namespace PowerTables.Configuration
             t.TableConfiguration.CoreTemplates.Messages = messages;
             return t;
         }
+
+
+        /// <summary>
+        /// Points object's key fields. This information is used to assemble 
+        /// local key comparison function and compare local objects in runtime. 
+        /// It is used to proform update of local objects set
+        /// </summary>
+        /// <param name="conf">Column configuration</param>
+        /// <param name="columns"></param>
+        public static void PrimaryKey<TSourceData, TTableData>
+            (this Configurator<TSourceData, TTableData> conf, Action<ColumnListBuilder<TSourceData, TTableData>> columns) where TTableData : new()
+        {
+            ColumnListBuilder<TSourceData,TTableData> clb = new ColumnListBuilder<TSourceData, TTableData>(conf);
+            columns(clb);
+            conf.TableConfiguration.KeyFields = clb.Names.ToArray();
+        }
+
+        /// <summary>
+        /// Sets template IDs for touched data. 
+        /// Touched data is being added to table after various edits
+        /// </summary>
+        /// <param name="conf"></param>
+        /// <param name="touchedRowTemplateId">Template ID for touched row</param>
+        /// <param name="touchedCellTemplateId">Template ID for touched columns</param>
+        /// <param name="addedRowTemplateId">Template ID for added row</param>
+        public static void AdjustmentTemplates<TSourceData, TTableData>
+            (this Configurator<TSourceData, TTableData> conf, string touchedRowTemplateId, string touchedCellTemplateId, string addedRowTemplateId) where TTableData : new()
+        {
+            conf.TableConfiguration.TouchedCellTemplateId = touchedCellTemplateId;
+            conf.TableConfiguration.TouchedRowTemplateId = touchedRowTemplateId;
+            conf.TableConfiguration.AddedRowTemplateId = addedRowTemplateId;
+        }
     }
 }

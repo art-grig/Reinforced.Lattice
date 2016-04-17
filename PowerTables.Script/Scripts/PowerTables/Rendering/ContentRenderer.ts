@@ -35,8 +35,11 @@
                 if (rw.renderElement) {
                     result += rw.renderElement(this._templatesProvider);
                 } else {
-
-                    result += wrapper(rw);
+                    if (rw.TemplateIdOverride) {
+                        result += this._templatesProvider.getCachedTemplate(rw.TemplateIdOverride)(rw);
+                    } else {
+                        result += wrapper(rw);
+                    }
                 }
                 this._stack.popContext();
             }
@@ -59,7 +62,13 @@
                         var cell: ICell = row.Cells[columns[i].RawName];
                         this._stack.push(RenderingContextType.Cell, cell, columns[i].RawName);
                         if (cell.renderElement) result += cell.renderElement(this._templatesProvider);
-                        else result += cellWrapper(cell);
+                        else {
+                            if (cell.TemplateIdOverride) {
+                                result += this._templatesProvider.getCachedTemplate(cell.TemplateIdOverride)(cell);
+                            } else {
+                                result += cellWrapper(cell);
+                            }
+                        }
                         this._stack.popContext();
                     }
                     break;

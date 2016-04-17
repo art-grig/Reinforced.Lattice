@@ -121,8 +121,12 @@ namespace PowerTables.Typings
 
             builder.ExportAsInterface<CellEditorUiConfigBase>().WithPublicProperties();
             builder.ExportAsInterface<EditorUiConfig>().WithPublicProperties().WithProperty(c => c.IntegrityCheckFunction, c => c.Type("(dataObject:any)=>boolean"));
+            builder.ExportAsEnum<EditorType>();
+
             builder.ExportAsInterface<SelectListEditorUiConfig>().WithPublicProperties();
             builder.ExportAsInterface<MemoEditorUiConfig>().WithPublicProperties();
+            builder.ExportAsInterface<EditionResult>().WithPublicProperties();
+            builder.ExportAsInterface<AdjustmentData>().WithPublicProperties();
             builder.ExportAsInterface<CheckEditorUiConfig>().WithPublicProperties();
             builder.ExportAsInterface<PlainTextEditorUiConfig>()
                 .WithPublicProperties()

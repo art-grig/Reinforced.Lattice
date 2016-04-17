@@ -23,7 +23,7 @@ namespace PowerTables.Plugins.ResponseInfo
         /// </summary>
         public bool ResponseObjectOverriden { get; internal set; }
 
-        public string DefaultTemplateId { get; private set; }
+        public string DefaultTemplateId { get { return "responseInfo"; } }
     }
 
     public static class ResponseInfoClientConfigurationExtensions

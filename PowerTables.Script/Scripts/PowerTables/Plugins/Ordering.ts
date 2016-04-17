@@ -24,14 +24,10 @@
                         switchOrdering: (e) => {
                             this.switchOrderingForColumn(e.Receiver.Column.RawName);
                         },
-                        renderElement: function(tpl) {
-                            return tpl.getCachedTemplate(templId)(this);
-                        },
+                        TemplateIdOverride:templId,
                         IsClientOrdering: this.isClient(ck)
                     };
                     this.updateOrdering(ck, ordering);
-                    
-                    
                     this.specifyOrdering(newHeader, ordering);
                     columns[ck].Header = newHeader;
 

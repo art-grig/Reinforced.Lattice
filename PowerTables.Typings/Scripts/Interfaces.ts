@@ -16,6 +16,10 @@ module PowerTables.Configuration.Json {
 		PluginsConfiguration: PowerTables.Configuration.Json.IPluginConfiguration[];
 		StaticData: string;
 		CoreTemplates: PowerTables.ICoreTemplateIds;
+		KeyFields: string[];
+		TouchedCellTemplateId: string;
+		TouchedRowTemplateId: string;
+		AddedRowTemplateId: string;
 	}
 	export interface IColumnConfiguration
 	{
@@ -287,6 +291,23 @@ module PowerTables.Editors {
 		IntegrityCheckFunction: (dataObject:any)=>boolean;
 		RefreshMode: PowerTables.Editors.EditorRefreshMode;
 		IsServerPowered: boolean;
+		EditorType: PowerTables.Editors.EditorType;
+	}
+	export interface IEditionResult
+	{
+		ConfirmedObject: any;
+		TableAdjustments: PowerTables.Editors.IAdjustmentData;
+		OtherTablesAdjustments: { [key:string]: PowerTables.Editors.IAdjustmentData };
+	}
+	export interface IAdjustmentData
+	{
+		Removals: any[];
+		Updates: any[];
+	}
+	export enum EditorType { 
+		Cell = 0, 
+		Row = 1, 
+		Form = 2, 
 	}
 	export enum EditorRefreshMode { 
 		RedrawCell = 0, 

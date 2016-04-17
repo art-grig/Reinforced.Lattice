@@ -16,6 +16,8 @@ namespace PowerTables.Mvc.Models.Tutorial
             conf.Column(c => c.Id).DataOnly();
             conf.Column(c => c.ResponsibleUserName).DataOnly(false);
             conf.Column(c => c.ItemsWasInitially).DataOnly();
+            conf.Column(c => c.CreatedDate).DataOnly(false);
+            conf.Column(c => c.LastSoldDate).DataOnly(false);
 
             conf.HideoutMenu(c => c.IncludeAll()
                 .Except(a => a.Id)

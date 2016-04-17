@@ -1,6 +1,7 @@
 ﻿
 module PowerTables {
-    import TableConfiguration = Configuration.Json.ITableConfiguration; /**
+    import TableConfiguration = Configuration.Json.ITableConfiguration;
+    import AdjustmentData = PowerTables.Editors.IAdjustmentData; /**
      * Main entry point for all tables functionality
      */
     export class PowerTable implements IMasterTable {
@@ -129,6 +130,11 @@ module PowerTables {
             else
                 element['fireEvent'](eventName);
         }
+
+        public proceedAdjustments(adjustments: AdjustmentData) {
+            
+        }
+
 
     }
 } 

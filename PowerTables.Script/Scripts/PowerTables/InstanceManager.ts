@@ -17,6 +17,28 @@
             this.initColumns();
         }
 
+        private compileComparisonFunction() {
+            if (!this.Configuration.KeyFields) return;
+            var conditions = [];
+            for (var i = 0; i < this.Configuration.KeyFields.length; i++) {
+                conditions.push(`(x.${this.Configuration.KeyFields[i]}===y.${this.Configuration.KeyFields[i]})`);
+            }
+            var conditionsStr = conditions.join('&&');
+            var fnText = `(function(x,y) { return (${conditionsStr}); })`;
+            this.DataObjectComparisonFunction = eval(fnText);
+
+        }
+
+        /**
+         * Local objects comparison function based on key fields
+         * 
+         * @param x Local data object 1
+         * @param y Local data object 2
+         * @returns {Boolean} True if objects are equal with primary key
+         */
+        public DataObjectComparisonFunction:(x:any,y:any)=>boolean;
+
+
         /**
          * Dictionary containing current table columns configurations.
          * Key - raw column name. Value - IColumn instance

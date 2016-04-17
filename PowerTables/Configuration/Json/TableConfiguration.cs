@@ -61,6 +61,26 @@ namespace PowerTables.Configuration.Json
         /// </summary>
         public CoreTemplateIds CoreTemplates { get; private set; }
 
+        /// <summary>
+        /// Object's key fields. Necessary for some operations
+        /// </summary>
+        public string[] KeyFields { get; set; }
+
+        /// <summary>
+        /// Template ID for adjusted cells
+        /// </summary>
+        public string TouchedCellTemplateId { get; set; }
+
+        /// <summary>
+        /// Template ID for adjusted rows
+        /// </summary>
+        public string TouchedRowTemplateId { get; set; }
+
+        /// <summary>
+        /// Template ID for adjusted rows
+        /// </summary>
+        public string AddedRowTemplateId { get; set; }
+
         public TableConfiguration()
         {
             Columns = new List<ColumnConfiguration>();

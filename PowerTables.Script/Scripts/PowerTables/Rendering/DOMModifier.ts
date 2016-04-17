@@ -339,7 +339,7 @@
 
         public showHeader(column: IColumn): void {
             var e = this._locator.getHeaderElement(column.Header);
-            this.hideElement(e);
+            this.showElement(e);
         }
 
         public createElement(html: string): HTMLElement {

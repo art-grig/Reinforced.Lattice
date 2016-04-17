@@ -367,9 +367,9 @@
     {
         using (t.If(c => c.IsChecked))
         {
-            <div @t.ThisWillTriggerSelection()>О бля!</div>
+            <div ><input @t.ThisWillTriggerSelection() type="checkbox" checked="checked" /></div>
             @t.Else()
-            <div @t.ThisWillTriggerSelection()>Нихуя</div>
+            <div ><input type="checkbox" @t.ThisWillTriggerSelection() checked="checked" /></div>
         }
     }
 }
@@ -486,29 +486,31 @@
 
 @using (var t = Plugin.Editor_PlainText("plainTextEditorAlternate"))
 {
-    <div class="input-group" @t.WhenInvalid(c => c.State.AddClass("has-error")) style="max-width: 200px;" @t.WhenSaving(c => c.Hide())>
-        <input @t.ThisIsInput() @t.BindChanged("keyup") @t.BindCommit(DOMEvent.Filter("keyup").Prop(13, "keyCode", "which")) type="text" @t.WhenInvalid(c => c.State.Color("red")) class="form-control input-sm" aria-label="..." style="height: 28px; margin-top: -10px; margin-bottom: -10px" />
-        <div class="tooltip bottom" role="tooltip" style="opacity: 1; top: 21px;display: none;"
-             @t.WhenInvalid(c => c.State.Show())>
-            <div class="tooltip-arrow" style="border-bottom-color: #E15C5C;left:15%"></div>
+    <div @t.BindReject(DOMEvent.Filter("click").Out().Prop(true,"ctrlKey"))>
+        <div class="input-group" @t.WhenInvalid(c => c.State.AddClass("has-error")) style="max-width: 200px;" @t.WhenSaving(c => c.Hide())>
+            <input @t.ThisIsInput() @t.BindChanged("keyup") @t.BindCommit(DOMEvent.Filter("keyup").Prop(13, "keyCode", "which")) type="text" @t.WhenInvalid(c => c.State.Color("red")) class="form-control input-sm" aria-label="..." style="height: 28px; margin-top: -10px; margin-bottom: -10px" />
+            <div class="tooltip bottom" role="tooltip" style="opacity: 1; top: 21px;display: none;"
+                 @t.WhenInvalid(c => c.State.Show())>
+                <div class="tooltip-arrow" style="border-bottom-color: #E15C5C;left:15%"></div>
 
-            <div class="tooltip-inner" style="max-width: 400px; background-color: #E15C5C;" @t.WhenInvalid(c => c.Content(v => v.ValidationMessages))></div>
+                <div class="tooltip-inner" style="max-width: 400px; background-color: #E15C5C;" @t.WhenInvalid(c => c.Content(v => v.ValidationMessages))></div>
+            </div>
+            <div class="input-group-btn">
+                <button style="margin: -4px 0px; padding: 4px 10px;" type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right">
+                    <li @t.WhenInvalid(c => c.State.Disabled().AddClass("disabled"))><a style="cursor: pointer;" @t.BindCommit("click")><span class="glyphicon glyphicon-floppy-disk"></span> Save</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a style="cursor: pointer;" @t.BindReject("click")><span class="glyphicon glyphicon-remove"></span> Cancel</a></li>
+                </ul>
+            </div>
         </div>
-        <div class="input-group-btn">
-            <button style="margin: -4px 0px; padding: 4px 10px;" type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-right">
-                <li @t.WhenInvalid(c => c.State.Disabled().AddClass("disabled"))><a style="cursor: pointer;" @t.BindCommit("click")><span class="glyphicon glyphicon-floppy-disk"></span> Save</a></li>
-                <li role="separator" class="divider"></li>
-                <li><a style="cursor: pointer;" @t.BindReject("click")><span class="glyphicon glyphicon-remove"></span> Cancel</a></li>
-            </ul>
-        </div>
+
+        <span class="text-center" style="display: none" @t.WhenSaving(c => c.Show())>
+            <span class="badge"><span class="glyphicon glyphicon-refresh"></span> Saving...</span>
+        </span>
     </div>
-
-    <span class="text-center" style="display: none" @t.WhenSaving(c => c.Show())>
-        <span class="badge"><span class="glyphicon glyphicon-refresh"></span> Saving...</span>
-    </span>
 }
 
 @using (var t = Plugin.Editor_SelectList())

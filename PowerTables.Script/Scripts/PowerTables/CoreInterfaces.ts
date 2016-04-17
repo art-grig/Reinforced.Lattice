@@ -160,14 +160,26 @@
 
     /** Cell object */
     export interface ICell extends IRenderable {
-        /** Associated row */
+        /** 
+         * Associated row
+         */
         Row: IRow;
-        /** Associated column */
+        /** 
+         * Associated column
+         */
         Column: IColumn;
-        /** Data for this specific cell */
+        /** 
+         * Data for this specific cell
+         */
         Data: any;
-        /** Whole data object associated with this specific cell */
+        /** 
+         * Whole data object associated with this specific cell 
+         */
         DataObject: any;
+        /**
+         * Overriden Template ID for cell
+         */
+        TemplateIdOverride?: string;
     }
 
     /**
@@ -178,6 +190,10 @@
          * Reference to containing column
          */
         Column: IColumn;
+        /**
+         * Overriden Template ID for header
+         */
+        TemplateIdOverride?: string;
     }
 
     /** 
@@ -209,6 +225,11 @@
          * This mark denotes them to avoid confusion
          */
         IsSpecial?: boolean;
+
+        /**
+         * Overriden Template ID for row
+         */
+        TemplateIdOverride?:string;
     }
 
     export interface ITemplatesProvider {
