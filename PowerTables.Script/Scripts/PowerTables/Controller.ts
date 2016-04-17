@@ -98,7 +98,10 @@
                             if (adjCellTemplate) {
                                 cell.TemplateIdOverride = adjCellTemplate;
                             }
-                            if (!needRedrawRow) cellsToRedraw.push(cell);
+                            cell.IsUpdated = true;
+                            if (!needRedrawRow) {
+                                cellsToRedraw.push(cell);
+                            }
                         }
                     }
                 }

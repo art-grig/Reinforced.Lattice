@@ -29,20 +29,13 @@
             if (this._validationMessages.length > 0) return;
 
             this._isEditing = false;
-            for (var cd in this._currentDataObjectModified) {
-                if (this._currentDataObjectModified.hasOwnProperty(cd)) {
-                    this.DataObject[cd] = this._currentDataObjectModified[cd];
-                }
-            }
 
             for (var i = 0; i < this._activeEditors.length; i++) {
                 this._activeEditors[i].VisualStates.changeState('saving');
+                this.finishEditing(this._activeEditors[i], false);
             }
-
             this.sendDataObjectToServer(() => {
-                for (var i = 0; i < this._activeEditors.length; i++) {
-                    this.finishEditing(this._activeEditors[i], false);
-                }
+                if (!this._isEditing) this._currentDataObjectModified = null;
             });
         }
 
@@ -57,12 +50,12 @@
                     }
                 }
             }
-            then();
+            if (then) then();
         }
 
         private sendDataObjectToServer(then: () => void) {
             this.MasterTable.Loader.requestServer('Edit', (r) => this.dispatchEditResponse(r, then), (q) => {
-                q.AdditionalData['Edit'] = JSON.stringify(this.DataObject);
+                q.AdditionalData['Edit'] = JSON.stringify(this._currentDataObjectModified);
                 return q;
             });
         }
@@ -73,10 +66,10 @@
             if (msgs.length !== 0) return;
 
             if (this._mode === Mode.Cell) {
-                this.DataObject[editor.Column.RawName] = this._currentDataObjectModified[editor.Column.RawName];
                 editor.VisualStates.changeState('saving');
+                this.finishEditing(editor, false);
                 this.sendDataObjectToServer(() => {
-                    this.finishEditing(editor, true);
+                    if (!this._isEditing) this._currentDataObjectModified = null;
                 });
             } else {
                 var idx = this._activeEditors.indexOf(editor);
@@ -112,7 +105,6 @@
 
         private cleanupAfterEdit() {
             this._isEditing = false;
-            this._currentDataObjectModified = null;
             this._activeEditors = [];
             this.Cells = {};
         }
@@ -123,7 +115,7 @@
         }
 
         private finishEditing(editor: CellEditorBase, redraw: boolean) {
-            editor.VisualStates.normalState();
+            if (redraw) editor.VisualStates.normalState();
             this._activeEditors.splice(this._activeEditors.indexOf(editor), 1);
             this.Cells[editor.Column.RawName] = this.MasterTable.Controller.produceCell(this.DataObject, editor.Column, this);
             if (redraw) {

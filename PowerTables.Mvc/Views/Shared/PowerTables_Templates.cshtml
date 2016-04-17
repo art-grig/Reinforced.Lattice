@@ -111,12 +111,21 @@
 @using (var t = this.RowWrapper())
 { <tr @t.Track()>@t.Content()</tr> }
 
+@using (var t = this.RowWrapper("updatedRow"))
+{ <tr class="success" @t.Track()>@t.Content()</tr> }
+
+@using (var t = this.RowWrapper("addedRow"))
+{ <tr style="background-color: #96f2e1" @t.Track()>@t.Content()</tr> }
+
 @*
     Cell wrapper template.
     Following HTML is being wrapped around each data cell
 *@
 @using (var t = this.CellWrapper())
 { <td @t.Track()>@t.Content()</td> }
+
+@using (var t = this.CellWrapper("updatedCell"))
+{ <td style="background-color: greenyellow;border:1px solid black" @t.Track()>@t.Content()</td> }
 
 @using (var t = this.MessagesWrapper())
 {

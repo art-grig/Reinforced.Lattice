@@ -85,10 +85,7 @@
                 if (columns.hasOwnProperty(key)) {
                     var columnConfig: Configuration.Json.IColumnConfiguration = columns[key].Configuration;
                     if (columnConfig.CellRenderingValueFunction) {
-                        this._columnsRenderFunctions[columnConfig.RawColumnName] =
-                        (x: ICell) => {
-                            return x.Column.Configuration.CellRenderingValueFunction(x.DataObject);
-                        };
+                        this._columnsRenderFunctions[columnConfig.RawColumnName] = columnConfig.CellRenderingValueFunction;
                         continue;
                     }
                     if (columnConfig.CellRenderingTemplateId) {

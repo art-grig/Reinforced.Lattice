@@ -390,13 +390,14 @@
             return result;
         }
 
+        
         public copyData(source: any, target: any): string[] {
             var modColumns = [];
             for (var cd in source) {
                 if (source.hasOwnProperty(cd)) {
                     var src = source[cd];
                     var trg = target[cd];
-                    if (((trg != null) && (typeof trg.getTime === 'function')) || ((src != null) && (typeof src.getTime === 'function'))) {
+                    if (this._instances.Columns[cd].IsDateTime) {
                         src = (src == null) ? null : src.getTime();
                         trg = (trg == null) ? null : trg.getTime();
                     }

@@ -89,7 +89,9 @@ module PowerTables.Rendering {
             var result: string;
 
             if (column.Header.renderElement) result = column.Header.renderElement(this._templatesProvider);
-            else result = this._templatesProvider.getCachedTemplate(this._templateIds.HeaderWrapper)(column.Header);
+            else {
+                result = this._templatesProvider.getCachedTemplate(column.Header.TemplateIdOverride||this._templateIds.HeaderWrapper)(column.Header);
+            }
 
             this._stack.popContext();
             return result;

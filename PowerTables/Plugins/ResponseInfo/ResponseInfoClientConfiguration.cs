@@ -2,6 +2,7 @@
 
 using System;
 using Newtonsoft.Json.Linq;
+using PowerTables.CellTemplating;
 using PowerTables.FrequentlyUsed;
 
 namespace PowerTables.Plugins.ResponseInfo

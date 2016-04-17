@@ -356,6 +356,10 @@ namespace PowerTables.Configuration
         /// <returns>Table row data entry</returns>
         public TTableData Map(TSourceData src)
         {
+            if (Projection != null)
+            {
+                return Projection(new[] {src}.AsQueryable()).Single();
+            }
             var tableData = new TTableData();
             foreach (var tableDataProperty in _tableColumns)
             {
@@ -385,6 +389,7 @@ namespace PowerTables.Configuration
         /// <returns>Table row data entry</returns>
         public TTableData[] MapRange(IQueryable<TSourceData> src)
         {
+            if (Projection != null) return Projection(src).ToArray();
             return src.ToArray().Select(Map).ToArray();
         }
 
@@ -395,6 +400,7 @@ namespace PowerTables.Configuration
         /// <returns>Table row data entry</returns>
         public TTableData[] MapRange(IEnumerable<TSourceData> src)
         {
+            if (Projection != null) return Projection(src.ToArray().AsQueryable()).ToArray();
             return src.ToArray().Select(Map).ToArray();
         }
 

@@ -874,8 +874,10 @@ var PowerTables;
                             if (adjCellTemplate) {
                                 cell.TemplateIdOverride = adjCellTemplate;
                             }
-                            if (!needRedrawRow)
+                            cell.IsUpdated = true;
+                            if (!needRedrawRow) {
                                 cellsToRedraw.push(cell);
+                            }
                         }
                     }
                 }
@@ -1464,7 +1466,7 @@ var PowerTables;
                 if (source.hasOwnProperty(cd)) {
                     var src = source[cd];
                     var trg = target[cd];
-                    if (((trg != null) && (typeof trg.getTime === 'function')) || ((src != null) && (typeof src.getTime === 'function'))) {
+                    if (this._instances.Columns[cd].IsDateTime) {
                         src = (src == null) ? null : src.getTime();
                         trg = (trg == null) ? null : trg.getTime();
                     }
@@ -2372,10 +2374,7 @@ var PowerTables;
                     if (columns.hasOwnProperty(key)) {
                         var columnConfig = columns[key].Configuration;
                         if (columnConfig.CellRenderingValueFunction) {
-                            this._columnsRenderFunctions[columnConfig.RawColumnName] =
-                                function (x) {
-                                    return x.Column.Configuration.CellRenderingValueFunction(x.DataObject);
-                                };
+                            this._columnsRenderFunctions[columnConfig.RawColumnName] = columnConfig.CellRenderingValueFunction;
                             continue;
                         }
                         if (columnConfig.CellRenderingTemplateId) {
@@ -3104,8 +3103,9 @@ var PowerTables;
                 var result;
                 if (column.Header.renderElement)
                     result = column.Header.renderElement(this._templatesProvider);
-                else
-                    result = this._templatesProvider.getCachedTemplate(this._templateIds.HeaderWrapper)(column.Header);
+                else {
+                    result = this._templatesProvider.getCachedTemplate(column.Header.TemplateIdOverride || this._templateIds.HeaderWrapper)(column.Header);
+                }
                 this._stack.popContext();
                 return result;
             };
@@ -5886,9 +5886,11 @@ var PowerTables;
                         return i;
                     }
                     if (column.IsFloat) {
+                        var negative = (value.length > 0 && value.charAt(0) === '-');
+                        value = negative ? value.substring(1) : value;
                         value = value.replace(this._removeSeparators, '');
                         value = value.replace(this._dotSeparators, '.');
-                        i = parseFloat(value);
+                        i = parseFloat(negative ? ('-' + value) : value);
                         if (isNaN(i) || (!this._floatRegex.test(value))) {
                             errors.push({ Code: 'NONFLOAT', Message: "Invalid number provided for " + column.Configuration.Title });
                             return null;

@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace PowerTables.FrequentlyUsed
+namespace PowerTables.CellTemplating
 {
     /// <summary>
     /// Builder for single button to be placed inside cell
@@ -17,6 +15,7 @@ namespace PowerTables.FrequentlyUsed
         private readonly List<string> _attributeValues = new List<string>();
         private string _content;
         private readonly List<string> _ahead = new List<string>();
+        public const string DefaultObjectProperty = "DataObject";
 
         /// <summary>
         /// Specifies button tag
@@ -138,19 +137,19 @@ namespace PowerTables.FrequentlyUsed
             return sb.ToString();
         }
 
-        public string Compile(string modelName)
+        public string Compile(string modelName,string objectProperty)
         {
-            return Compile(Build(), modelName);
+            return Compile(Build(), modelName,objectProperty);
         }
 
-        public static string CompileExpression(string expression, string modelName)
+        public static string CompileExpression(string expression, string modelName, string objectProperty)
         {
             StringBuilder sb = new StringBuilder();
-            CrunchExpression(expression, modelName, sb, 0);
+            CrunchExpression(expression, modelName, objectProperty, sb, 0);
             return sb.ToString();
         }
 
-        private static int CrunchExpression(string tpl, string modelName, StringBuilder sb,
+        private static int CrunchExpression(string tpl, string modelName, string objectProperty, StringBuilder sb,
             int beginIndex)
         {
             for (int i = beginIndex; i < tpl.Length; i++)
@@ -159,7 +158,7 @@ namespace PowerTables.FrequentlyUsed
 
                 if (tpl[i] == '{' && (i < tpl.Length - 2 && IsValidToken(tpl[i + 1])))
                 {
-                    i = CrunchFieldReference(tpl, modelName, sb, i + 1);
+                    i = CrunchFieldReference(tpl, modelName, objectProperty, sb, i + 1);
                     continue;
                 }
                 sb.Append(tpl[i]);
@@ -167,25 +166,31 @@ namespace PowerTables.FrequentlyUsed
             return tpl.Length;
         }
 
-        private static int CrunchFieldReference(string tpl, string modelName, StringBuilder sb, int i)
+        private static int CrunchFieldReference(string tpl, string modelName, string objectProperty, StringBuilder sb, int i)
         {
             sb.Append(modelName);
             if (tpl[i] == '@' && tpl[i + 1] == '}') return i + 1;
-            sb.Append('.');
+            if (tpl[i] == '^')
+            {
+                sb.Append('.');
+                i++;
+            }
+            else sb.AppendFormat(".{0}.", objectProperty);
 
             for (; i < tpl.Length; i++)
             {
-                if (tpl[i] == '}') return i;
+                if (tpl[i] == '}') 
+                    return i;
                 sb.Append(tpl[i]);
             }
             return i;
         }
         private static bool IsValidToken(char token)
         {
-            return char.IsLetter(token) || token == '@';
+            return char.IsLetter(token) || token == '@' || token == '^';
         }
 
-        public static string Compile(string tpl, string modelName)
+        public static string Compile(string tpl, string modelName, string objectProperty)
         {
             StringBuilder sb = new StringBuilder();
 
@@ -198,7 +203,7 @@ namespace PowerTables.FrequentlyUsed
                 if (tpl[i] == '`')
                 {
                     if (i > 0) sb.Append("' +");
-                    i = CrunchExpression(tpl, modelName, sb, i + 1);
+                    i = CrunchExpression(tpl, modelName,objectProperty, sb, i + 1);
                     if (i < tpl.Length - 1) sb.Append("+ '");
                     continue;
                 }
@@ -206,7 +211,7 @@ namespace PowerTables.FrequentlyUsed
                 if (tpl[i] == '{' && IsValidToken(tpl[i + 1]))
                 {
                     if (i > 0) sb.Append("' +");
-                    i = CrunchFieldReference(tpl, modelName, sb, i + 1);
+                    i = CrunchFieldReference(tpl, modelName, objectProperty, sb, i + 1);
                     if (i < tpl.Length - 1) sb.Append("+ '");
                     continue;
                 }
@@ -219,11 +224,11 @@ namespace PowerTables.FrequentlyUsed
             return sb.ToString();
         }
 
-        public static string CompileDelegate(Action<Template> templateDelegate, string modelName)
+        public static string CompileDelegate(Action<Template> templateDelegate, string modelName, string objectProperty)
         {
             Template t = new Template();
             templateDelegate(t);
-            return t.Compile(modelName);
+            return t.Compile(modelName, objectProperty);
         }
 
         public static string BuildDelegate(Action<Template> templateDelegate)

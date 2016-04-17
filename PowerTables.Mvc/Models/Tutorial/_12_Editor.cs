@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
 using System.Web.Mvc.Html;
+using PowerTables.CellTemplating;
 using PowerTables.Configuration;
 using PowerTables.Editors;
 using PowerTables.Editors.Check;
@@ -14,6 +15,7 @@ using PowerTables.Filters.Value;
 using PowerTables.FrequentlyUsed;
 using PowerTables.Plugins.Formwatch;
 using PowerTables.Plugins.LoadingOverlap;
+using PowerTables.Plugins.Ordering;
 
 namespace PowerTables.Mvc.Models.Tutorial
 {
@@ -37,7 +39,11 @@ namespace PowerTables.Mvc.Models.Tutorial
             conf.Column(c => c.Preorders).DataOnly();
             conf.Column(c => c.LastSoldDate).DataOnly();
             conf.Column(c => c.ResponsibleUserName).DataOnly();
+            conf.Column(c => c.Price).OrderableUi(ui => ui.DefaultOrdering(Ordering.Neutral));
+            conf.Column(c => c.Id).Orderable(c=>c.Id,ui=>ui.DefaultOrdering(Ordering.Descending));
+
             conf.PrimaryKey(c => c.Include(v => v.Id));
+            conf.AdjustmentTemplates("updatedRow", "updatedCell", "addedRow");
 
             conf.Column(c => c.Name)
                 .Template(t => t.Returns(v => v.Tag("span")
@@ -58,9 +64,10 @@ namespace PowerTables.Mvc.Models.Tutorial
                             .EditPlainText(t => t.TemplateId("plainTextEditorAlternate"))
                             ;
             conf.Column(c => c.IsPaid)
-                .Template(t => t.Returns(
-                    v => v.Tag("div").Content(
-                        c => c.Tag("span").Content("{IsPaid}").EditPencil())))
+                .Template(t =>
+                {
+                    t.Returns(v => v.Tag("div").Content(c => c.Tag("span").Content("`{IsPaid}.toString() + ({^IsUpdated}?'edited':'')`").EditPencil()));
+                })
                             .EditCheck()
                             ;
             conf.Column(c => c.SupplierAddress)

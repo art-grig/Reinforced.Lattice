@@ -75,6 +75,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CellTemplating\CellTemplateBuilder.cs" />
+    <Compile Include="CellTemplating\SwitchBuilder.cs" />
+    <Compile Include="CellTemplating\Template.cs" />
+    <Compile Include="CellTemplating\TemplatesExtensions.cs" />
     <Compile Include="Configuration\ConfiguratorExtensions.cs" />
     <Compile Include="Configuration\DatepickerOptions.cs" />
     <Compile Include="Configuration\IColumnConfigurator.cs" />
@@ -134,10 +138,6 @@
     <Compile Include="Filters\Value\ValueFilterExtensions.cs" />
     <Compile Include="FilterTuple.cs" />
     <Compile Include="FrequentlyUsed\FrequentlyUsedExtensions.cs" />
-    <Compile Include="FrequentlyUsed\SwitchBuilder.cs" />
-    <Compile Include="FrequentlyUsed\Template.cs" />
-    <Compile Include="FrequentlyUsed\CellTemplateBuilder.cs" />
-    <Compile Include="FrequentlyUsed\TemplatesExtensions.cs" />
     <Compile Include="InitializationExtensions.cs" />
     <Compile Include="IQueryHandler.cs" />
     <Compile Include="Plugins\Checkboxify\CheckboxifyExtensions.cs" />

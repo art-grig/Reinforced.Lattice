@@ -186,6 +186,11 @@
          * Overriden Template ID for cell
          */
         TemplateIdOverride?: string;
+
+        /**
+         * Is cell updated or not
+         */
+        IsUpdated?:boolean;
     }
 
     /**

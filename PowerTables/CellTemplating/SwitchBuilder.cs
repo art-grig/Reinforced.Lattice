@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace PowerTables.FrequentlyUsed
+namespace PowerTables.CellTemplating
 {
     /// <summary>
     /// Builds switch for template
@@ -24,7 +22,7 @@ namespace PowerTables.FrequentlyUsed
         {
             Template tpl = new Template();
             template(tpl);
-            _lines.Add(string.Format(" case {0}: return {1}; ", Template.CompileExpression(caseExpression, "v"), tpl.Compile("v")));
+            _lines.Add(string.Format(" case {0}: return {1}; ", Template.CompileExpression(caseExpression, "v", Template.DefaultObjectProperty), tpl.Compile("v", Template.DefaultObjectProperty)));
             return this;
         }
 
@@ -32,7 +30,7 @@ namespace PowerTables.FrequentlyUsed
         {
             Template tpl = new Template();
             template(tpl);
-            _default = string.Format(" default: return {0}; ", tpl.Compile("v"));
+            _default = string.Format(" default: return {0}; ", tpl.Compile("v", Template.DefaultObjectProperty));
             return this;
         }
 
@@ -49,7 +47,7 @@ namespace PowerTables.FrequentlyUsed
             {
                 Template tpl = new Template();
                 template(tpl, option);
-                _lines.Add(string.Format(" case {0}: return {1}; ", Template.CompileExpression(expression(option), "v"), tpl.Compile("v")));
+                _lines.Add(string.Format(" case {0}: return {1}; ", Template.CompileExpression(expression(option), "v", Template.DefaultObjectProperty), tpl.Compile("v", Template.DefaultObjectProperty)));
             }
             return this;
         }
@@ -57,7 +55,7 @@ namespace PowerTables.FrequentlyUsed
         public string Build()
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendFormat("switch ({0}) {{", Template.CompileExpression(_expression, "v"));
+            sb.AppendFormat("switch ({0}) {{", Template.CompileExpression(_expression, "v", Template.DefaultObjectProperty));
             foreach (var line in _lines)
             {
                 sb.Append(line);

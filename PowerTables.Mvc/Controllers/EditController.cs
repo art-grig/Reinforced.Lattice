@@ -30,6 +30,16 @@ namespace PowerTables.Mvc.Controllers
         {
             edit.ConfirmedObject.Name = edit.ConfirmedObject.Name + " - Edited";
             edit.ConfirmedObject.TypeOfToy = ToyType.Dolls;
+
+            var idsToUpdate = new[] { 2750, 2747, 2744 };
+            var src = Data.SourceData.Where(c => idsToUpdate.Contains(c.Id)).ToArray();
+            var mapped = powerTablesData.Configuration.MapRange(src);
+            foreach (var row in mapped)
+            {
+                row.Name = "UFO edited this label";
+                row.IsPaid = true;
+            }
+            edit.Adjustments.AddOrUpdate(mapped);
         }
     }
 }

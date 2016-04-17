@@ -83,10 +83,13 @@
             }
 
             if (column.IsFloat) {
+                var negative = (value.length > 0 && value.charAt(0) === '-');
+                value = negative ? value.substring(1) : value;
+
                 value = value.replace(this._removeSeparators, '');
                 value = value.replace(this._dotSeparators, '.');
 
-                i = parseFloat(value);
+                i = parseFloat(negative ? ('-' + value) : value);
                 if (isNaN(i) || (!this._floatRegex.test(value))) {
                     errors.push({ Code: 'NONFLOAT', Message: `Invalid number provided for ${column.Configuration.Title}` });
                     return null;
