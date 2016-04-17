@@ -26,8 +26,8 @@ namespace PowerTables.Mvc.Models.Tutorial
                 .Except(a => a.DeliveryDelay)
                 .Except(a => a.ItemsWasInitially)
 
-                , ui => ui.PlaceAt("lt"));
-
+                , ui => ui.PlaceAt("lt").TemplateId("abcd"));
+            
             conf.Column(c => c.TypeOfToy).Hide(false, true);
             conf.Column(c => c.Preorders).Hide();
 

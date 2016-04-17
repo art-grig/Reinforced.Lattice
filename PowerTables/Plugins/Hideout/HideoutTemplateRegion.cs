@@ -108,5 +108,58 @@ namespace PowerTables.Plugins.Hideout
         {
             return t.BindEvent("toggleColumn", eventId, t.CleanValue(c => c.RawName));
         }
+
+        /// <summary>
+        /// Specified event on mentioned HTML element will hide corresponding column
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="t"></param>
+        /// <param name="eventId">DOM event id</param>
+        /// <param name="columnName">Column name to hide</param>
+        /// <returns></returns>
+        public static MvcHtmlString BindHide<T>(this T t, string eventId,string columnName)
+            where T : IModelProvider<IHideoutViewModel>, IProvidesEventsBinding
+        {
+            return t.BindEvent("hideColumn", eventId, string.Format("\"{0}\"", columnName));
+        }
+
+        /// <summary>
+        /// Specified event on mentioned HTML element will show corresponding column
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="t"></param>
+        /// <param name="eventId">DOM event id</param>
+        /// <param name="columnName">Column name to show</param>
+        /// <returns></returns>
+        public static MvcHtmlString BindShow<T>(this T t, string eventId, string columnName)
+            where T : IModelProvider<IHideoutViewModel>, IProvidesEventsBinding
+        {
+            return t.BindEvent("showColumn", eventId, string.Format("\"{0}\"", columnName));
+        }
+
+        /// <summary>
+        /// Specified event on mentioned HTML element will toggle visibility of corresponding column
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="t"></param>
+        /// <param name="eventId">DOM event id</param>
+        /// <param name="columnName">Column name to toggle</param>
+        /// <returns></returns>
+        public static MvcHtmlString BindToggle<T>(this T t, string eventId, string columnName)
+            where T : IModelProvider<IHideoutViewModel>, IProvidesEventsBinding
+        {
+            return t.BindEvent("toggleColumn", eventId, string.Format("\"{0}\"", columnName));
+        }
+
+        /// <summary>
+        /// Specifies template in case if specified hideout column is visible
+        /// </summary>
+        /// <param name="t"></param>
+        /// <param name="columnName">Column name</param>
+        /// <returns></returns>
+        public static HbTagRegion IfColumnVisible(this IModelProvider<IHideoutViewModel> t, string columnName)
+        {
+            return new HbTagRegion("ifColVisible",string.Format("\"{0}\"",columnName),t.Writer);
+        }
     }
 }

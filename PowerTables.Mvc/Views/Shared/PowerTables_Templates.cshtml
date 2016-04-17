@@ -271,7 +271,7 @@
             @using (var m = t.GotoPage())
             {
                 <div class="input-group" @m.WhenEnteredPageInvalid(c => c.AddClass("has-error"))>
-                    <input type="text" @m.WhenEnteredPageInvalid(c => c.Color("red")) class="form-control" @m.BindValidateGotoPage("keyup") style="width: 60px;" placeholder="Page">
+                    <input @m.ThisIsGotopageInput() type="text" @m.WhenEnteredPageInvalid(c => c.Color("red")) class="form-control" @m.BindValidateGotoPage("keyup") style="width: 60px;" placeholder="Page">
                     <span class="input-group-btn">
                         <button class="btn btn-default" @m.WhenEnteredPageInvalid(c => c.Disabled()) type="button" @m.BindGotoPage("click")><span class="glyphicon glyphicon-circle-arrow-right"></span></button>
                     </span>

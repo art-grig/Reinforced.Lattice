@@ -159,5 +159,10 @@ namespace PowerTables.Plugins.Paging
             return t.State("invalid", state);
         }
 
+        public static MvcHtmlString ThisIsGotopageInput (this PagingGotoPageTemplate t)
+        {
+            return t.Mark("GotoInput");
+        }
+
     }
 }

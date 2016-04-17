@@ -114,6 +114,10 @@ namespace PowerTables.Configuration.Json
                     Placement = where
                 };
                 conf.PluginsConfiguration.Add(config);
+                if (config.Configuration is IProvidesTemplate)
+                {
+                    config.TemplateId = ((IProvidesTemplate) config.Configuration).DefaultTemplateId;
+                }
             }
 
             var wpapper = new PluginConfigurationWrapper<TConfig>(config);

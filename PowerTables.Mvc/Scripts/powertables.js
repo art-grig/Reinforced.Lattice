@@ -4822,6 +4822,22 @@ var PowerTables;
                 e.BeforeDataRendered.subscribe(this.onBeforeDataRendered.bind(this), 'hideout');
                 e.AfterLayoutRendered.subscribe(this.onLayourRendered.bind(this), 'hideout');
             };
+            HideoutPlugin.prototype.ifColVisibleHelper = function (columnName, opts) {
+                var visible = false;
+                for (var i = 0; i < this.ColumnStates.length; i++) {
+                    if (this.ColumnStates[i].RawName === columnName) {
+                        visible = this.ColumnStates[i].Visible;
+                        break;
+                    }
+                }
+                if (visible)
+                    opts.fn(this);
+                else
+                    opts.inverse(this);
+            };
+            HideoutPlugin.prototype.registerAdditionalHelpers = function (hb) {
+                hb.registerHelper('ifColVisible', this.ifColVisibleHelper.bind(this));
+            };
             return HideoutPlugin;
         })(Plugins.PluginBase);
         Plugins.HideoutPlugin = HideoutPlugin;

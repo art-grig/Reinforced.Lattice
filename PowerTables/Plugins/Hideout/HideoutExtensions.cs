@@ -37,7 +37,7 @@ namespace PowerTables.Plugins.Hideout
             {
                 if (hide) c.Configuration.HiddenColumns[column.ColumnProperty.Name] = true;
                 if (initiatesReload) c.Configuration.ColumnInitiatingReload.Add(column.ColumnProperty.Name);
-            });
+            },where);
             return column;
         }
 

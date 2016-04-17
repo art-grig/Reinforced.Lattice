@@ -11,7 +11,7 @@ namespace PowerTables.Plugins
         {
             _config = config;
             _genericConfig = (T)config.Configuration;
-            if (_genericConfig is IProvidesTemplate)
+            if (_genericConfig is IProvidesTemplate && string.IsNullOrEmpty(_config.TemplateId))
             {
                 _config.TemplateId = ((IProvidesTemplate)_genericConfig).DefaultTemplateId;
             }

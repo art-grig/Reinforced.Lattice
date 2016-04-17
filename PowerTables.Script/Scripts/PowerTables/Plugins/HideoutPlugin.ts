@@ -167,8 +167,6 @@ included into hideable columns list.
 
         }
 
-
-
         renderContent(templatesProvider: ITemplatesProvider): string {
             return this.defaultRender(templatesProvider);
         }
@@ -177,6 +175,23 @@ included into hideable columns list.
             e.AfterDataRendered.subscribe(this.onDataRendered.bind(this), 'hideout');
             e.BeforeDataRendered.subscribe(this.onBeforeDataRendered.bind(this), 'hideout');
             e.AfterLayoutRendered.subscribe(this.onLayourRendered.bind(this), 'hideout');
+        }
+
+        private ifColVisibleHelper(columnName: string,opts:any) {
+            var visible = false;
+            for (var i = 0; i < this.ColumnStates.length; i++) {
+                if (this.ColumnStates[i].RawName === columnName) {
+                    visible = this.ColumnStates[i].Visible;
+                    break;
+                }
+            }
+
+            if (visible) opts.fn(this);
+            else opts.inverse(this);
+        }
+
+        public registerAdditionalHelpers(hb: Handlebars.IHandlebars): void {
+            hb.registerHelper('ifColVisible',this.ifColVisibleHelper.bind(this));
         }
     }
 

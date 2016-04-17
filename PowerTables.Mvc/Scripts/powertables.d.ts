@@ -2471,6 +2471,8 @@ declare module PowerTables.Plugins {
         init(masterTable: IMasterTable): void;
         renderContent(templatesProvider: ITemplatesProvider): string;
         subscribe(e: EventsManager): void;
+        private ifColVisibleHelper(columnName, opts);
+        registerAdditionalHelpers(hb: Handlebars.IHandlebars): void;
     }
 }
 declare module PowerTables.Plugins {
