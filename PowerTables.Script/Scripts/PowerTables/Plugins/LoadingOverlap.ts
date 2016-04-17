@@ -34,13 +34,18 @@
             delete this._overlapLayer;
         }
 
+        private onBeforeLoading(e: ITableEventArgs<ILoadingEventArgs>) {
+            if (e.EventArgs.Request.Command !== 'query') return;
+            this.overlap();
+        }
+
         public afterDrawn: (e: ITableEventArgs<any>) => void = e=> {
             if (this.Configuration.OverlapMode === LoadingOverlap.OverlapMode.All) {
                 this._overlappingElement = this.MasterTable.Renderer.RootElement;
             } else {
                 this._overlappingElement = this.MasterTable.Renderer.BodyElement;
             }
-            this.MasterTable.Events.BeforeLoading.subscribe(() => this.overlap(), 'overlapLoading');
+            this.MasterTable.Events.BeforeLoading.subscribe((e) => this.onBeforeLoading(e), 'overlapLoading');
             
             this.MasterTable.Events.AfterDataRendered.subscribe(() => this.deoverlap(), 'overlapLoading');
             

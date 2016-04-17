@@ -13,15 +13,22 @@
             this._events = events;
             this._isHandlingSpecialPlacementCase = !(!this.Configuration.EmptyFiltersPlaceholder);
             this._specialCasePlaceholder = this.Configuration.EmptyFiltersPlaceholder;
-            
+
             this.initColumns();
+            this.compileComparisonFunction();
         }
 
         private compileComparisonFunction() {
             if (!this.Configuration.KeyFields) return;
+            if (this.Configuration.KeyFields.length === 0) return;
             var conditions = [];
             for (var i = 0; i < this.Configuration.KeyFields.length; i++) {
-                conditions.push(`(x.${this.Configuration.KeyFields[i]}===y.${this.Configuration.KeyFields[i]})`);
+                var field = this.Configuration.KeyFields[i];
+                if (this.Columns[this.Configuration.KeyFields[i]].IsDateTime) {
+                    conditions.push(`((x.${field}==null?0:x.${field}.gettime())===(y.${field}==null?0:y.${field}.gettime()))`);
+                } else {
+                    conditions.push(`(x.${field}===y.${field})`);
+                }
             }
             var conditionsStr = conditions.join('&&');
             var fnText = `(function(x,y) { return (${conditionsStr}); })`;
@@ -36,7 +43,7 @@
          * @param y Local data object 2
          * @returns {Boolean} True if objects are equal with primary key
          */
-        public DataObjectComparisonFunction:(x:any,y:any)=>boolean;
+        public DataObjectComparisonFunction: (x: any, y: any) => boolean;
 
 
         /**
@@ -156,7 +163,7 @@
                                 Order: 0,
                                 RawConfig: null,
                                 renderElement: null,
-                                init:null
+                                init: null
                             };
                         }
                         specialPlugin.Order = i;
@@ -185,12 +192,12 @@
             return part === postfix;
         }
 
-/**
-         * Reteives plugin at specified placement
-         * @param pluginId Plugin ID 
-         * @param placement Pluign placement
-         * @returns {} 
-         */
+        /**
+                 * Reteives plugin at specified placement
+                 * @param pluginId Plugin ID 
+                 * @param placement Pluign placement
+                 * @returns {} 
+                 */
         public getPlugin<TPlugin>(pluginId: string, placement?: string): TPlugin {
             if (!placement) placement = '';
             var key: string = placement.length === 0 ? pluginId : `${placement}-${pluginId}`;

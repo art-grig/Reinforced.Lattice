@@ -30,13 +30,14 @@ namespace PowerTables.Mvc.Models.Tutorial
 
             conf.LoadingOverlap(ui => ui.Overlap());
             conf.LoadImmediately(true);
-            conf.Column(c=>c.SupplierAddress).DataOnly(false);
-            conf.Column(c=>c.ItemsSold).DataOnly();
-            conf.Column(c=>c.DeliveryDelay).DataOnly();
-            conf.Column(c=>c.ItemsWasInitially).DataOnly();
-            conf.Column(c=>c.Preorders).DataOnly();
-            conf.Column(c=>c.LastSoldDate).DataOnly();
-            conf.Column(c=>c.ResponsibleUserName).DataOnly();
+            conf.Column(c => c.SupplierAddress).DataOnly(false);
+            conf.Column(c => c.ItemsSold).DataOnly();
+            conf.Column(c => c.DeliveryDelay).DataOnly();
+            conf.Column(c => c.ItemsWasInitially).DataOnly();
+            conf.Column(c => c.Preorders).DataOnly();
+            conf.Column(c => c.LastSoldDate).DataOnly();
+            conf.Column(c => c.ResponsibleUserName).DataOnly();
+            conf.PrimaryKey(c => c.Include(v => v.Id));
 
             conf.Column(c => c.Name)
                 .Template(t => t.Returns(v => v.Tag("span")

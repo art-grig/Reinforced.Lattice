@@ -118,6 +118,7 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\EditController.cs" />
     <Compile Include="Controllers\FormWatchController.cs" />
     <Compile Include="Controllers\HandleTutorial.cs" />
     <Compile Include="Controllers\HomeController.cs" />

@@ -74,37 +74,44 @@
             var rows: IRow[] = this.produceRows();
 
             for (var i = 0; i < rows.length; i++) {
-                if (addedTemplate) {
-                    if (adjustmentResult.AddedData.indexOf(rows[i]) > -1) {
-                        rows[i].TemplateIdOverride = addedTemplate;
-                        if (!adjustmentResult.NeedRedrawAllVisible) {
-                            this._masterTable.Renderer.Modifier.redrawRow(rows[i]);
-                        }
-                        continue;
-                    }
-                }
-                var adjIdx = adjustmentResult.TouchedData.indexOf(rows[i]);
                 var needRedrawRow = false;
+                var cellsToRedraw = [];
 
-                if (adjRowTemplate) {
-                    if (adjIdx > -1) {
-                        rows[i].TemplateIdOverride = adjRowTemplate;
-                        needRedrawRow = true;
+                if (adjustmentResult.AddedData.indexOf(rows[i]) > -1) {
+                    if (addedTemplate) {
+                        rows[i].TemplateIdOverride = addedTemplate;
                     }
-                }
-                if (adjCellTemplate) {
+                    needRedrawRow = true;
+                } else {
+                    var adjIdx = adjustmentResult.TouchedData.indexOf(rows[i].DataObject);
                     if (adjIdx > -1) {
+                        if (adjRowTemplate) {
+                            rows[i].TemplateIdOverride = adjRowTemplate;
+                            needRedrawRow = true;
+                        }
+
                         var cols = adjustmentResult.TouchedColumns[adjIdx];
                         for (var j = 0; j < cols.length; j++) {
+                            if (!rows[i].Cells.hasOwnProperty(cols[j])) continue;
                             var cell = rows[i].Cells[cols[j]];
-                            cell.TemplateIdOverride = adjCellTemplate;
-                            needRedrawRow = true;
+                            
+                            if (adjCellTemplate) {
+                                cell.TemplateIdOverride = adjCellTemplate;
+                            }
+                            if (!needRedrawRow) cellsToRedraw.push(cell);
                         }
                     }
                 }
                 if (needRedrawRow && !adjustmentResult.NeedRedrawAllVisible) {
                     this._masterTable.Renderer.Modifier.redrawRow(rows[i]);
+                } else {
+                    if (cellsToRedraw.length > 0) {
+                        for (var k = 0; k < cellsToRedraw.length; k++) {
+                            this._masterTable.Renderer.Modifier.redrawCell(cellsToRedraw[k]);
+                        }
+                    }
                 }
+
             }
             if (adjustmentResult.NeedRedrawAllVisible) {
                 this._masterTable.Renderer.body(rows);

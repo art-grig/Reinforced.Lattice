@@ -13,7 +13,7 @@ namespace PowerTables.Editors
 
         public AdjustmentData TableAdjustments { get; set; }
 
-        public Dictionary<string,AdjustmentData> OtherTablesAdjustments { get; set; }
+        public Dictionary<string, AdjustmentData> OtherTablesAdjustments { get; set; }
 
         public EditionResult()
         {
@@ -39,7 +39,7 @@ namespace PowerTables.Editors
     {
 
         private readonly AdjustmentData _data;
-        
+
         public AdjustmentDataWrapper(AdjustmentData data)
         {
             _data = data;
@@ -48,6 +48,16 @@ namespace PowerTables.Editors
         public AdjustmentDataWrapper<T> AddOrUpdate(T obj)
         {
             _data.Updates.Add(obj);
+            return this;
+        }
+
+        public AdjustmentDataWrapper<T> AddOrUpdate(IEnumerable<T> obj)
+        {
+            foreach (var v in obj)
+            {
+                _data.Updates.Add(v);
+            }
+
             return this;
         }
 
@@ -61,7 +71,7 @@ namespace PowerTables.Editors
     public class EditionResultWrapper<T>
     {
         private readonly EditionResult _result;
-        
+
         public EditionResultWrapper(EditionResult result)
         {
             _result = result;
@@ -73,7 +83,7 @@ namespace PowerTables.Editors
             _result.ConfirmedObject = obj;
         }
 
-        public T ConfirmedObject { get { return (T) _result.ConfirmedObject; } }
+        public T ConfirmedObject { get { return (T)_result.ConfirmedObject; } }
 
         public AdjustmentDataWrapper<T> Adjustments { get; private set; }
 

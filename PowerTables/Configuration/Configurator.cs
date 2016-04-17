@@ -378,6 +378,26 @@ namespace PowerTables.Configuration
             return tableData;
         }
 
+        /// <summary>
+        /// Converts source data entries range to table rows range according to mapping functions and property names
+        /// </summary>
+        /// <param name="src">Source data entries range</param>
+        /// <returns>Table row data entry</returns>
+        public TTableData[] MapRange(IQueryable<TSourceData> src)
+        {
+            return src.ToArray().Select(Map).ToArray();
+        }
+
+        /// <summary>
+        /// Converts source data entries range to table rows range according to mapping functions and property names
+        /// </summary>
+        /// <param name="src">Source data entries range</param>
+        /// <returns>Table row data entry</returns>
+        public TTableData[] MapRange(IEnumerable<TSourceData> src)
+        {
+            return src.ToArray().Select(Map).ToArray();
+        }
+
         internal Func<int> CustomTotalCountFunction { get; set; }
     }
 }

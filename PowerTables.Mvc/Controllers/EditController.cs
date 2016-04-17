@@ -28,7 +28,8 @@ namespace PowerTables.Mvc.Controllers
 
         private void EditData(PowerTablesData<Toy, Row> powerTablesData, EditionResultWrapper<Row> edit)
         {
-            
+            edit.ConfirmedObject.Name = edit.ConfirmedObject.Name + " - Edited";
+            edit.ConfirmedObject.TypeOfToy = ToyType.Dolls;
         }
     }
 }

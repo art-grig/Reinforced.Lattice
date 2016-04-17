@@ -131,9 +131,9 @@ module PowerTables {
                 element['fireEvent'](eventName);
         }
 
-        public proceedAdjustments(adjustments: AdjustmentData):void {
+        public proceedAdjustments(adjustments: AdjustmentData): void {
             var result = this.DataHolder.proceedAdjustments(adjustments);
-            this.Controller.drawAdjustmentResult(result);
+            if (result != null) this.Controller.drawAdjustmentResult(result);
         }
 
 

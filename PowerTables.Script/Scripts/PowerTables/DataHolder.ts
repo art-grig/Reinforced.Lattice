@@ -8,6 +8,12 @@
             this._events = masterTable.Events;
             this._instances = masterTable.InstanceManager;
             this._masterTable = masterTable;
+            for (var c in this._instances.Columns) {
+                if (this._instances.Columns[c].IsDateTime) {
+                    this._needNormalizeDatesForAdjustment = true;
+                    break;
+                }
+            }
         }
 
         private _rawColumnNames: string[];
@@ -17,7 +23,8 @@
         private _events: EventsManager;
         private _instances: InstanceManager;
         private _masterTable: IMasterTable;
-        
+        private _needNormalizeDatesForAdjustment: boolean;
+
         /**
          * Data that actually is currently displayed in table
          */
@@ -98,6 +105,8 @@
             this.StoredData = data;
             this.filterStoredData(clientQuery);
         }
+
+        
 
         /**
          * Client query that was used to obtain recent local data set
@@ -351,6 +360,9 @@
         public localLookupPrimaryKey(dataObject: any): ILocalLookupResult {
             var found = null;
             var foundIdx = 0;
+            if (!this._masterTable.InstanceManager.DataObjectComparisonFunction) {
+                throw Error('You must specify key fields for table row to use current setup. Please call .PrimaryKey on configuration object and specify set of columns exposing primary key.');
+            }
             for (var i = 0; i < this.StoredData.length; i++) {
                 if (this._masterTable.InstanceManager.DataObjectComparisonFunction(dataObject, this.StoredData[i])) {
                     found = this.StoredData[i];
@@ -382,7 +394,13 @@
             var modColumns = [];
             for (var cd in source) {
                 if (source.hasOwnProperty(cd)) {
-                    if (target[cd] !== source[cd]) {
+                    var src = source[cd];
+                    var trg = target[cd];
+                    if (((trg != null) && (typeof trg.getTime === 'function')) || ((src != null) && (typeof src.getTime === 'function'))) {
+                        src = (src == null) ? null : src.getTime();
+                        trg = (trg == null) ? null : trg.getTime();
+                    }
+                    if (src !== trg) {
                         modColumns.push(cd);
                         target[cd] = source[cd];
                     }
@@ -391,14 +409,29 @@
             return modColumns;
         }
 
+        private normalizeDates(dataObject: any) {
+            for (var k in dataObject) {
+                if (this._masterTable.InstanceManager.Columns.hasOwnProperty(k)
+                    && this._masterTable.InstanceManager.Columns[k].IsDateTime) {
+                    if (dataObject[k] != null && (typeof dataObject[k] === "string")) {
+                        dataObject[k] = this._masterTable.Date.parse(dataObject[k]);
+                    }
+                }
+            }
+        }
+
         public proceedAdjustments(adjustments: AdjustmentData): IAdjustmentResult {
+            if (!this.RecentClientQuery) return null;
             var needRefilter = false;
             var redrawVisibles = [];
             var touchedData = [];
             var touchedColumns = [];
             var added = [];
-
+            
             for (var i = 0; i < adjustments.Updates.length; i++) {
+                if (this._needNormalizeDatesForAdjustment) {
+                    this.normalizeDates(adjustments.Updates[i]);
+                }
                 var update = this.localLookupPrimaryKey(adjustments.Updates[i]);
                 if (update.LoadedIndex < 0) {
                     if (this.StoredData.length > 0) {
@@ -418,6 +451,9 @@
             }
 
             for (var j = 0; j < adjustments.Removals.length; j++) {
+                if (this._needNormalizeDatesForAdjustment) {
+                    this.normalizeDates(adjustments.Removals[j]);
+                }
                 var lookup = this.localLookupPrimaryKey(adjustments.Removals[j]);
                 if (lookup.LoadedIndex > -1) {
                     this.StoredData.splice(lookup.LoadedIndex, 1);
