@@ -13,7 +13,12 @@
 
         public getValue(errors: IValidationMessage[]): any {
             if (this.Column.IsDateTime) {
-                return this.MasterTable.Date.getDateFromDatePicker(this.Input);
+                var d = this.MasterTable.Date.getDateFromDatePicker(this.Input);
+                if ((d == null) && !this.Column.Configuration.IsNullable) {
+                    errors.push({ Code: 'NULL', Message: `${this.Column.Configuration.Title} value is mandatory` });
+                    return null;
+                }
+                return d;
             } else {
                 return this._parseFunction(this.Input.value, this.Column, errors);
             }

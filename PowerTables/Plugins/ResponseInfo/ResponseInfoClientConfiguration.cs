@@ -54,7 +54,7 @@ namespace PowerTables.Plugins.ResponseInfo
         /// <returns></returns>
         public static ResponseInfoClientConfiguration ClientTemplate(this ResponseInfoClientConfiguration c, Action<CellTemplateBuilder> templateBuilder)
         {
-            CellTemplateBuilder teb = new CellTemplateBuilder();
+            CellTemplateBuilder teb = new CellTemplateBuilder(null);
             templateBuilder(teb);
             c.ClientTemplateFunction = new JRaw(teb.Build());
             return c;

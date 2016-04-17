@@ -11,11 +11,12 @@ namespace PowerTables.CellTemplating
     {
         private readonly List<string> _lines = new List<string>();
         private string _result;
-        
+        private string _objectProperty;
 
-        public CellTemplateBuilder()
+        public CellTemplateBuilder(string objectProperty = "DataObject")
         {
             _result = "return '';";
+            _objectProperty = objectProperty;
         }
 
         /// <summary>
@@ -25,7 +26,7 @@ namespace PowerTables.CellTemplating
         /// <returns></returns>
         public CellTemplateBuilder EmptyIfNotPresent(string columnName)
         {
-            _lines.Add(string.Format("if ((v.DataObject.{0}==null)||(v.DataObject.{0}==undefined)) return ''; ", columnName));
+            _lines.Add(string.Format("if ((v{1}.{0}==null)||(v{1}.{0}==undefined)) return ''; ", columnName, string.IsNullOrEmpty(_objectProperty) ? string.Empty : ".DataObject"));
             return this;
         }
         /// <summary>
@@ -35,7 +36,7 @@ namespace PowerTables.CellTemplating
         /// <returns></returns>
         public CellTemplateBuilder EmptyIfNotPresentSelf()
         {
-            _lines.Add("if ((v.DataObject==null)||(v.DataObject==undefined)) return \'\'; ");
+            _lines.Add(String.Format("if ((v{0}==null)||(v{0}==undefined)) return \'\'; ", string.IsNullOrEmpty(_objectProperty) ? string.Empty : ".DataObject"));
             return this;
         }
 
@@ -48,7 +49,7 @@ namespace PowerTables.CellTemplating
         /// <returns></returns>
         public CellTemplateBuilder EmptyIf(string expression)
         {
-            _lines.Add(string.Format("if ({0}) return ''; ", Template.CompileExpression(expression, "v", Template.DefaultObjectProperty)));
+            _lines.Add(string.Format("if ({0}) return ''; ", Template.CompileExpression(expression, "v", _objectProperty)));
             return this;
         }
 
@@ -60,7 +61,7 @@ namespace PowerTables.CellTemplating
         /// <returns></returns>
         public CellTemplateBuilder Switch(string expression, Action<SwitchBuilder> swtch)
         {
-            SwitchBuilder swb = new SwitchBuilder(expression);
+            SwitchBuilder swb = new SwitchBuilder(expression,_objectProperty);
             swtch(swb);
             _lines.Add(swb.Build());
             return this;
@@ -85,7 +86,7 @@ namespace PowerTables.CellTemplating
         /// <returns></returns>
         public CellTemplateBuilder ReturnsIf(string expression, string text)
         {
-            _lines.Add(string.Format("if ({0}) return {1}; ", Template.CompileExpression(expression, "v", Template.DefaultObjectProperty), Template.Compile(text, "v", Template.DefaultObjectProperty)));
+            _lines.Add(string.Format("if ({0}) return {1}; ", Template.CompileExpression(expression, "v", _objectProperty), Template.Compile(text, "v", _objectProperty)));
             return this;
         }
 
@@ -112,9 +113,9 @@ namespace PowerTables.CellTemplating
         public CellTemplateBuilder ReturnsIf(string expression, string positiveContent, string negativeContent)
         {
             _lines.Add(string.Format("if ({0}) {{ return {1}; }} else {{ return {2};}} ",
-                Template.CompileExpression(expression, "v", Template.DefaultObjectProperty),
-                Template.Compile(positiveContent, "v", Template.DefaultObjectProperty),
-                Template.Compile(negativeContent, "v", Template.DefaultObjectProperty)));
+                Template.CompileExpression(expression, "v", _objectProperty),
+                Template.Compile(positiveContent, "v", _objectProperty),
+                Template.Compile(negativeContent, "v", _objectProperty)));
             return this;
         }
 
@@ -135,7 +136,7 @@ namespace PowerTables.CellTemplating
         /// <returns></returns>
         public CellTemplateBuilder Returns(string content)
         {
-            var text = Template.Compile(content, "v", Template.DefaultObjectProperty);
+            var text = Template.Compile(content, "v", _objectProperty);
             _result = string.Format("return {0}; ", text);
             return this;
         }

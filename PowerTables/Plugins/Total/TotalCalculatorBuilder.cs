@@ -72,7 +72,7 @@ namespace PowerTables.Plugins.Total
         {
             var name = LambdaHelpers.ParsePropertyLambda(column).Name;
             _calculators.Add(name, calculator);
-            CellTemplateBuilder ctb = new CellTemplateBuilder();
+            CellTemplateBuilder ctb = new CellTemplateBuilder(null);
             templateBuilder(ctb);
             _valueFunctions.Add(name, ctb.Build());
             return this;
@@ -90,7 +90,7 @@ namespace PowerTables.Plugins.Total
             )
         {
             var name = LambdaHelpers.ParsePropertyLambda(column).Name;
-            CellTemplateBuilder ctb = new CellTemplateBuilder();
+            CellTemplateBuilder ctb = new CellTemplateBuilder(null);
             templateBuilder(ctb);
             _valueFunctions.Add(name, ctb.Build());
             return this;

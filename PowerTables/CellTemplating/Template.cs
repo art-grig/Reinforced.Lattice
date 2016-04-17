@@ -15,8 +15,7 @@ namespace PowerTables.CellTemplating
         private readonly List<string> _attributeValues = new List<string>();
         private string _content;
         private readonly List<string> _ahead = new List<string>();
-        public const string DefaultObjectProperty = "DataObject";
-
+        
         /// <summary>
         /// Specifies button tag
         /// </summary>
@@ -175,7 +174,11 @@ namespace PowerTables.CellTemplating
                 sb.Append('.');
                 i++;
             }
-            else sb.AppendFormat(".{0}.", objectProperty);
+            else
+            {
+                if (!string.IsNullOrEmpty(objectProperty)) sb.AppendFormat(".{0}.", objectProperty);
+                else sb.Append('.');
+            }
 
             for (; i < tpl.Length; i++)
             {

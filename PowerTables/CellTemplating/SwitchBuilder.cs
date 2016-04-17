@@ -9,9 +9,11 @@ namespace PowerTables.CellTemplating
     /// </summary>
     public class SwitchBuilder
     {
-        internal SwitchBuilder(string expression)
+        private string _objectProperty;
+        internal SwitchBuilder(string expression,string objectProperty)
         {
             _expression = expression;
+            _objectProperty = objectProperty;
         }
 
         private readonly string _expression;
@@ -22,7 +24,7 @@ namespace PowerTables.CellTemplating
         {
             Template tpl = new Template();
             template(tpl);
-            _lines.Add(string.Format(" case {0}: return {1}; ", Template.CompileExpression(caseExpression, "v", Template.DefaultObjectProperty), tpl.Compile("v", Template.DefaultObjectProperty)));
+            _lines.Add(string.Format(" case {0}: return {1}; ", Template.CompileExpression(caseExpression, "v", _objectProperty), tpl.Compile("v", _objectProperty)));
             return this;
         }
 
@@ -30,7 +32,7 @@ namespace PowerTables.CellTemplating
         {
             Template tpl = new Template();
             template(tpl);
-            _default = string.Format(" default: return {0}; ", tpl.Compile("v", Template.DefaultObjectProperty));
+            _default = string.Format(" default: return {0}; ", tpl.Compile("v", _objectProperty));
             return this;
         }
 
@@ -47,7 +49,7 @@ namespace PowerTables.CellTemplating
             {
                 Template tpl = new Template();
                 template(tpl, option);
-                _lines.Add(string.Format(" case {0}: return {1}; ", Template.CompileExpression(expression(option), "v", Template.DefaultObjectProperty), tpl.Compile("v", Template.DefaultObjectProperty)));
+                _lines.Add(string.Format(" case {0}: return {1}; ", Template.CompileExpression(expression(option), "v", _objectProperty), tpl.Compile("v", _objectProperty)));
             }
             return this;
         }
@@ -55,7 +57,7 @@ namespace PowerTables.CellTemplating
         public string Build()
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendFormat("switch ({0}) {{", Template.CompileExpression(_expression, "v", Template.DefaultObjectProperty));
+            sb.AppendFormat("switch ({0}) {{", Template.CompileExpression(_expression, "v", _objectProperty));
             foreach (var line in _lines)
             {
                 sb.Append(line);
