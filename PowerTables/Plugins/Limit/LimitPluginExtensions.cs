@@ -48,6 +48,7 @@ namespace PowerTables.Plugins.Limit
             {
                 int v = 0;
                 int.TryParse(value, out v);
+                if (value == "-") v = -1;
                 conf.Configuration.AddValue(value, v);
             }
             if (defaultValue == null)

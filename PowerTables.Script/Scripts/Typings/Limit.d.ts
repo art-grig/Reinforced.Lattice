@@ -6,7 +6,7 @@
         /**
          * Changeable. Will refresh after plugin redraw
          */
-        SelectedValue: string;
+        SelectedValue: ILimitSize;
 
         /**
          * Changeable. Will refresh after plugin redraw

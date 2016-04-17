@@ -12,19 +12,19 @@
             }, 'ordering');
         }
 
-        
+
         private overrideHeadersTemplates(columns: { [key: string]: IColumn }) {
             var templId = this.RawConfig.TemplateId;
             for (var ck in columns) {
                 if (columns.hasOwnProperty(ck)) {
                     var ordering = this.Configuration.DefaultOrderingsForColumns[ck];
-                    if (!ordering) continue;
+                    if (ordering == null || ordering == undefined) continue;
                     var newHeader: ICustomHeader = {
                         Column: columns[ck],
                         switchOrdering: (e) => {
                             this.switchOrderingForColumn(e.Receiver.Column.RawName);
                         },
-                        TemplateIdOverride:templId,
+                        TemplateIdOverride: templId,
                         IsClientOrdering: this.isClient(ck)
                     };
                     this.updateOrdering(ck, ordering);
@@ -53,11 +53,10 @@
             return this.Configuration.ClientSortableColumns.hasOwnProperty(columnName);
         }
         public switchOrderingForColumn(columnName: string) {
-            if (!this.Configuration.DefaultOrderingsForColumns[columnName])
-                throw new Error(`Ordering is not configured for column ${columnName}`);
+            if (this.Configuration.DefaultOrderingsForColumns[columnName] == null || this.Configuration.DefaultOrderingsForColumns[columnName] == undefined)throw new Error(`Ordering is not configured for column ${columnName}`);
             var orderingsCollection = this.isClient(columnName) ? this._clientOrderings : this._serverOrderings;
             var next = this.nextOrdering(orderingsCollection[columnName]);
-            this.setOrderingForColumn(columnName,next);
+            this.setOrderingForColumn(columnName, next);
         }
 
         public setOrderingForColumn(columnName: string, ordering: PowerTables.Ordering) {
@@ -77,10 +76,10 @@
             }
         }
 
-        private makeDefaultOrderingFunction(fieldName:string) {
+        private makeDefaultOrderingFunction(fieldName: string) {
             var self = this;
             return (function (field) {
-                return function(a, b) {
+                return function (a, b) {
                     var x = a[field], y = b[field];
                     if (x === y) return 0;
                     if (x == null || x == undefined) return -1;
@@ -121,7 +120,7 @@
                 }
             }
         }
-        
+
         private mixinOrderings(orderingsCollection: { [key: string]: PowerTables.Ordering }, query: IQuery) {
             for (var clo in orderingsCollection) {
                 if (orderingsCollection.hasOwnProperty(clo)) {
@@ -133,7 +132,7 @@
         public modifyQuery(query: IQuery, scope: QueryScope): void {
             this.mixinOrderings(this._serverOrderings, query);
             if (scope === QueryScope.Client || scope === QueryScope.Transboundary) {
-               this.mixinOrderings(this._clientOrderings,query);
+                this.mixinOrderings(this._clientOrderings, query);
             }
         }
     }

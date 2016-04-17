@@ -33,7 +33,7 @@ namespace PowerTables.Mvc.Models.Tutorial
 
             conf.ResponseInfo(ui => ui.PlaceAt("lb"), "lb");
             conf.ResponseInfo(
-                ui => ui.PlaceAt("rb").Configuration
+                ui => ui.PlaceAt("rb")
                 .ClientTemplate(tpl =>
                     tpl.Returns(v => v.Tag("span")
                         .Content("Filtered out:")

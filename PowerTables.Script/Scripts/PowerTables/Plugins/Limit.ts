@@ -3,7 +3,7 @@
     import TemplateBoundEvent = Rendering.ITemplateBoundEvent;
 
     export class LimitPlugin extends FilterBase<LimitClientConfiguration> implements ILimitPlugin {
-        public SelectedValue: string;
+        public SelectedValue: ILimitSize;
         private _limitSize = 0;
         public Sizes: ILimitSize[] = [];
 
@@ -28,7 +28,7 @@
                     break;
                 }
             }
-            if (labelPair != null) this.SelectedValue = labelPair.Label;
+            if (labelPair != null) this.SelectedValue = labelPair;
             this.MasterTable.Renderer.Modifier.redrawPlugin(this);
             if (this.Configuration.ReloadTableOnLimitChange) this.MasterTable.Controller.reload();
         }
@@ -61,7 +61,7 @@
             }
 
             if (def) {
-                this.SelectedValue = def.Label;
+                this.SelectedValue = def;
                 this._limitSize = def.Value;
             } else {
                 this._limitSize = 0;

@@ -22,7 +22,7 @@
          * @returns {} 
          */
         public static resolveComponent<T>(key: string, args?: any[]): T {
-            if (!this._components[key])
+            if (this._components[key] == null || this._components[key]==undefined)
                 throw new Error(`Component ${key} is not registered. Please ensure that you have connected all the additional scripts`);
 
             if (!args) return new this._components[key];
@@ -46,12 +46,21 @@
          * @returns {} 
          */
         public static registerComponentEvents(key: string, eventsManager: EventsManager, masterTable: IMasterTable) {
-            if (!this._components[key])
+            if (this._components[key] == null || this._components[key] == undefined)
                 throw new Error(`Component ${key} is not registered. Please ensure that you have connected all the additional scripts`);
-            if (this._components[key].registerEvents && {}.toString.call(this._components[key].registerEvents) === '[object Function]') {
+            if (this._components[key].registerEvents && typeof this._components[key].registerEvents === 'function') {
                 this._components[key].registerEvents.call(eventsManager, eventsManager, masterTable);
             }
         }
 
+        public static registerAllEvents(eventsManager: EventsManager, masterTable: IMasterTable) {
+            for (var key in this._components) {
+                if (this._components[key].registerEvents && typeof this._components[key].registerEvents === 'function') {
+                    this._components[key].registerEvents.call(eventsManager, eventsManager, masterTable);
+                }
+            }
+        }
+
+        
     }
 }

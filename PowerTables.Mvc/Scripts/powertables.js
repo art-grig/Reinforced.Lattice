@@ -153,7 +153,7 @@ var PowerTables;
          * @returns {}
          */
         ComponentsContainer.resolveComponent = function (key, args) {
-            if (!this._components[key])
+            if (this._components[key] == null || this._components[key] == undefined)
                 throw new Error("Component " + key + " is not registered. Please ensure that you have connected all the additional scripts");
             if (!args)
                 return new this._components[key];
@@ -176,10 +176,17 @@ var PowerTables;
          * @returns {}
          */
         ComponentsContainer.registerComponentEvents = function (key, eventsManager, masterTable) {
-            if (!this._components[key])
+            if (this._components[key] == null || this._components[key] == undefined)
                 throw new Error("Component " + key + " is not registered. Please ensure that you have connected all the additional scripts");
-            if (this._components[key].registerEvents && {}.toString.call(this._components[key].registerEvents) === '[object Function]') {
+            if (this._components[key].registerEvents && typeof this._components[key].registerEvents === 'function') {
                 this._components[key].registerEvents.call(eventsManager, eventsManager, masterTable);
+            }
+        };
+        ComponentsContainer.registerAllEvents = function (eventsManager, masterTable) {
+            for (var key in this._components) {
+                if (this._components[key].registerEvents && typeof this._components[key].registerEvents === 'function') {
+                    this._components[key].registerEvents.call(eventsManager, eventsManager, masterTable);
+                }
             }
         };
         ComponentsContainer._components = {};
@@ -291,7 +298,7 @@ var PowerTables;
          */
         DateService.prototype.getDateFromDatePicker = function (element) {
             this.ensureDpo();
-            if (!element)
+            if (element == null || element == undefined)
                 return null;
             var date = this._datepickerOptions.GetFromDatePicker(element);
             if (date == null)
@@ -311,7 +318,7 @@ var PowerTables;
          */
         DateService.prototype.createDatePicker = function (element, isNullableDate) {
             this.ensureDpo();
-            if (!element)
+            if (element == null || element == undefined)
                 return;
             this._datepickerOptions.CreateDatePicker(element, isNullableDate);
         };
@@ -323,7 +330,7 @@ var PowerTables;
          */
         DateService.prototype.putDateToDatePicker = function (element, date) {
             this.ensureDpo();
-            if (!element)
+            if (element == null || element == undefined)
                 return;
             this._datepickerOptions.PutToDatePicker(element, date);
         };
@@ -764,6 +771,7 @@ var PowerTables;
             this.BeforeDataRendered = new TableEvent(masterTable);
             this.AfterDataRendered = new TableEvent(masterTable);
             this.BeforeClientRowsRendering = new TableEvent(masterTable);
+            this.DeferredDataReceived = new TableEvent(masterTable);
         }
         /**
          * Registers new event for events manager.
@@ -1430,7 +1438,7 @@ var PowerTables;
         DataHolder.prototype.localLookupPrimaryKey = function (dataObject) {
             var found = null;
             var foundIdx = 0;
-            if (!this._masterTable.InstanceManager.DataObjectComparisonFunction) {
+            if (this._masterTable.InstanceManager.DataObjectComparisonFunction == null || this._masterTable.InstanceManager.DataObjectComparisonFunction == undefined) {
                 throw Error('You must specify key fields for table row to use current setup. Please call .PrimaryKey on configuration object and specify set of columns exposing primary key.');
             }
             for (var i = 0; i < this.StoredData.length; i++) {
@@ -1489,7 +1497,7 @@ var PowerTables;
             }
         };
         DataHolder.prototype.proceedAdjustments = function (adjustments) {
-            if (!this.RecentClientQuery)
+            if (this.RecentClientQuery == null || this.RecentClientQuery == undefined)
                 return null;
             var needRefilter = false;
             var redrawVisibles = [];
@@ -1635,10 +1643,7 @@ var PowerTables;
             var specialCases = {};
             var anySpecialCases = false;
             // registering additional events
-            for (var j = 0; j < pluginsConfiguration.length; j++) {
-                var epConf = pluginsConfiguration[j];
-                PowerTables.ComponentsContainer.registerComponentEvents(epConf.PluginId, this._events, this._masterTable);
-            }
+            PowerTables.ComponentsContainer.registerAllEvents(this._events, this._masterTable);
             // instantiating and initializing plugins
             for (var l = 0; l < pluginsConfiguration.length; l++) {
                 var conf = pluginsConfiguration[l];
@@ -3869,7 +3874,7 @@ var PowerTables;
                     for (var ck in columns) {
                         if (columns.hasOwnProperty(ck)) {
                             var ordering = this.Configuration.DefaultOrderingsForColumns[ck];
-                            if (!ordering)
+                            if (ordering == null || ordering == undefined)
                                 continue;
                             var newHeader = {
                                 Column: columns[ck],
@@ -3909,7 +3914,7 @@ var PowerTables;
                     return this.Configuration.ClientSortableColumns.hasOwnProperty(columnName);
                 };
                 OrderingPlugin.prototype.switchOrderingForColumn = function (columnName) {
-                    if (!this.Configuration.DefaultOrderingsForColumns[columnName])
+                    if (this.Configuration.DefaultOrderingsForColumns[columnName] == null || this.Configuration.DefaultOrderingsForColumns[columnName] == undefined)
                         throw new Error("Ordering is not configured for column " + columnName);
                     var orderingsCollection = this.isClient(columnName) ? this._clientOrderings : this._serverOrderings;
                     var next = this.nextOrdering(orderingsCollection[columnName]);
@@ -4027,7 +4032,7 @@ var PowerTables;
                     }
                 }
                 if (labelPair != null)
-                    this.SelectedValue = labelPair.Label;
+                    this.SelectedValue = labelPair;
                 this.MasterTable.Renderer.Modifier.redrawPlugin(this);
                 if (this.Configuration.ReloadTableOnLimitChange)
                     this.MasterTable.Controller.reload();
@@ -4056,7 +4061,7 @@ var PowerTables;
                     }
                 }
                 if (def) {
-                    this.SelectedValue = def.Label;
+                    this.SelectedValue = def;
                     this._limitSize = def.Value;
                 }
                 else {
@@ -4330,7 +4335,7 @@ var PowerTables;
             };
             ValueFilterPlugin.prototype.filterPredicate = function (rowObject, query) {
                 var fval = query.Filterings[this._associatedColumn.RawName];
-                if (!fval)
+                if (fval == null || fval == undefined)
                     return true;
                 if (this.Configuration.ClientFilteringFunction) {
                     return this.Configuration.ClientFilteringFunction(rowObject, fval, query);
@@ -4341,14 +4346,16 @@ var PowerTables;
                 if (objVal == null)
                     return false;
                 if (this._associatedColumn.IsString) {
+                    objVal = objVal.toString();
                     var entries = fval.split(/\s/);
                     for (var i = 0; i < entries.length; i++) {
                         var e = entries[i].trim();
                         if (e.length > 0) {
-                            if (objVal.indexOf(e) > -1)
-                                return true;
+                            if (objVal.toLocaleLowerCase().indexOf(e.toLocaleLowerCase()) < 0)
+                                return false;
                         }
                     }
+                    return true;
                 }
                 if (this._associatedColumn.IsFloat) {
                     var f = parseFloat(fval);
@@ -4708,18 +4715,18 @@ var PowerTables;
                 }
             };
             HideoutPlugin.prototype.modifyQuery = function (query, scope) {
-                var hidden = '';
-                var shown = '';
+                var hidden = [];
+                var shown = [];
                 for (var i = 0; i < this.ColumnStates.length; i++) {
                     if (!this.ColumnStates[i].Visible) {
-                        hidden = hidden + ',' + this.ColumnStates[i].RawName;
+                        hidden.push(this.ColumnStates[i].RawName);
                     }
                     else {
-                        shown = shown + ',' + this.ColumnStates[i].RawName;
+                        shown.push(this.ColumnStates[i].RawName);
                     }
                 }
-                query.AdditionalData['HideoutHidden'] = hidden;
-                query.AdditionalData['HideoutShown'] = shown;
+                query.AdditionalData['HideoutHidden'] = hidden.join(',');
+                query.AdditionalData['HideoutShown'] = shown.join(',');
             };
             HideoutPlugin.prototype.hideColumnInstance = function (c) {
                 if (!c)
@@ -4747,11 +4754,11 @@ var PowerTables;
                     return;
                 if (wasNotExist) {
                     if (this.Configuration.ColumnInitiatingReload.indexOf(c.RawName) > -1) {
+                        this.MasterTable.Controller.redrawVisibleData();
                         this.MasterTable.Controller.reload();
                     }
                     else {
                         this.MasterTable.Controller.redrawVisibleData();
-                        ;
                     }
                 }
                 else {
@@ -4795,7 +4802,7 @@ var PowerTables;
                     var hideable = this.Configuration.HideableColumnsNames[i];
                     var col = this.MasterTable.InstanceManager.Columns[hideable];
                     var instanceInfo = {
-                        DoesNotExists: false,
+                        DoesNotExists: this.Configuration.HiddenColumns.hasOwnProperty(hideable),
                         Visible: true,
                         RawName: hideable,
                         Name: col.Configuration.Title

@@ -360,7 +360,7 @@
         public localLookupPrimaryKey(dataObject: any): ILocalLookupResult {
             var found = null;
             var foundIdx = 0;
-            if (!this._masterTable.InstanceManager.DataObjectComparisonFunction) {
+            if (this._masterTable.InstanceManager.DataObjectComparisonFunction == null || this._masterTable.InstanceManager.DataObjectComparisonFunction == undefined) {
                 throw Error('You must specify key fields for table row to use current setup. Please call .PrimaryKey on configuration object and specify set of columns exposing primary key.');
             }
             for (var i = 0; i < this.StoredData.length; i++) {
@@ -422,7 +422,7 @@
         }
 
         public proceedAdjustments(adjustments: AdjustmentData): IAdjustmentResult {
-            if (!this.RecentClientQuery) return null;
+            if (this.RecentClientQuery == null || this.RecentClientQuery == undefined)return null;
             var needRefilter = false;
             var redrawVisibles = [];
             var touchedData = [];

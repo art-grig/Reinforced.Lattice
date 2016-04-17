@@ -30,7 +30,7 @@ namespace PowerTables.Plugins.Limit
         /// <summary>
         /// Currently selected value
         /// </summary>
-        string SelectedValue { get; }
+        ILimitSize SelectedValue { get; }
 
         /// <summary>
         /// All available sizes

@@ -57,7 +57,7 @@
 
         public filterPredicate(rowObject: any, query: IQuery): boolean {
             var fval: string = query.Filterings[this._associatedColumn.RawName];
-            if (!fval) return true;
+            if (fval == null || fval == undefined) return true;
 
             if (this.Configuration.ClientFilteringFunction) {
                 return this.Configuration.ClientFilteringFunction(rowObject, fval, query);
@@ -67,13 +67,15 @@
             var objVal = rowObject[this._associatedColumn.RawName];
             if (objVal == null) return false;
             if (this._associatedColumn.IsString) {
+                objVal = objVal.toString();
                 var entries: string[] = fval.split(/\s/);
                 for (var i: number = 0; i < entries.length; i++) {
                     var e: string = entries[i].trim();
                     if (e.length > 0) {
-                        if (objVal.indexOf(e) > -1) return true;
+                        if (objVal.toLocaleLowerCase().indexOf(e.toLocaleLowerCase()) < 0) return false;
                     }
                 }
+                return true;
             }
 
             if (this._associatedColumn.IsFloat) {

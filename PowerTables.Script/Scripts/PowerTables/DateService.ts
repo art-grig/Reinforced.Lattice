@@ -67,7 +67,7 @@
          */
         public getDateFromDatePicker(element: HTMLElement): Date {
             this.ensureDpo();
-            if (!element) return null;
+            if (element == null || element == undefined)return null;
             var date = this._datepickerOptions.GetFromDatePicker(element);
             if (date == null) return null;
             if (Object.prototype.toString.call(date) === "[object Date]") {
@@ -84,7 +84,7 @@
          */
         public createDatePicker(element: HTMLElement, isNullableDate?: boolean): void {
             this.ensureDpo();
-            if (!element) return;
+            if (element == null || element == undefined)return;
             this._datepickerOptions.CreateDatePicker(element, isNullableDate);
         }
 
@@ -96,7 +96,7 @@
          */
         public putDateToDatePicker(element: HTMLElement, date: Date): void {
             this.ensureDpo();
-            if (!element) return;
+            if (element == null || element == undefined)return;
             this._datepickerOptions.PutToDatePicker(element, date);
         }
     }

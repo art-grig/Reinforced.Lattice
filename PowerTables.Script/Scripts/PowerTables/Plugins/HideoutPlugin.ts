@@ -61,18 +61,18 @@
         }
 
         modifyQuery(query: IQuery, scope: QueryScope): void {
-            var hidden = '';
-            var shown = '';
-            for (var i = 0; i < this.ColumnStates.length; i++) {
+            var hidden = [];
+            var shown = [];
 
+            for (var i = 0; i < this.ColumnStates.length; i++) {
                 if (!this.ColumnStates[i].Visible) {
-                    hidden = hidden + ',' + this.ColumnStates[i].RawName;
+                    hidden.push(this.ColumnStates[i].RawName);
                 } else {
-                    shown = shown + ',' + this.ColumnStates[i].RawName;
+                    shown.push(this.ColumnStates[i].RawName);
                 }
             }
-            query.AdditionalData['HideoutHidden'] = hidden;
-            query.AdditionalData['HideoutShown'] = shown;
+            query.AdditionalData['HideoutHidden'] = hidden.join(',');
+            query.AdditionalData['HideoutShown'] = shown.join(',');
         }
 
         public hideColumnInstance(c: IColumn) {
@@ -103,9 +103,10 @@
 
             if (wasNotExist) {
                 if (this.Configuration.ColumnInitiatingReload.indexOf(c.RawName) > -1) {
+                    this.MasterTable.Controller.redrawVisibleData();
                     this.MasterTable.Controller.reload();
                 } else {
-                    this.MasterTable.Controller.redrawVisibleData();;
+                    this.MasterTable.Controller.redrawVisibleData();
                 }
             } else {
                 this.MasterTable.Renderer.Modifier.showCellsByColumn(c);
@@ -150,7 +151,7 @@
                 var hideable = this.Configuration.HideableColumnsNames[i];
                 var col = this.MasterTable.InstanceManager.Columns[hideable];
                 var instanceInfo = <IColumnState>{
-                    DoesNotExists: false,
+                    DoesNotExists: this.Configuration.HiddenColumns.hasOwnProperty(hideable),
                     Visible: true,
                     RawName: hideable,
                     Name: col.Configuration.Title

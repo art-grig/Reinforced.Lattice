@@ -40,9 +40,9 @@ namespace PowerTables.Plugins.ResponseInfo
         /// totalPages: all locally available pages 
         /// </summary>
         /// <returns></returns>
-        public static ResponseInfoClientConfiguration ClientEvaluationFunction(this ResponseInfoClientConfiguration c, string function)
+        public static PluginConfigurationWrapper<ResponseInfoClientConfiguration> ClientEvaluationFunction(this PluginConfigurationWrapper<ResponseInfoClientConfiguration> c, string function)
         {
-            c.ClientEvaluationFunction = new JRaw(string.IsNullOrEmpty(function)?"null":function);
+            c.Configuration.ClientEvaluationFunction = new JRaw(string.IsNullOrEmpty(function)?"null":function);
             return c;
         }
 
@@ -52,11 +52,11 @@ namespace PowerTables.Plugins.ResponseInfo
         /// <param name="c"></param>
         /// <param name="templateBuilder">Template builder</param>
         /// <returns></returns>
-        public static ResponseInfoClientConfiguration ClientTemplate(this ResponseInfoClientConfiguration c, Action<CellTemplateBuilder> templateBuilder)
+        public static PluginConfigurationWrapper<ResponseInfoClientConfiguration> ClientTemplate(this PluginConfigurationWrapper<ResponseInfoClientConfiguration> c, Action<CellTemplateBuilder> templateBuilder)
         {
             CellTemplateBuilder teb = new CellTemplateBuilder(null);
             templateBuilder(teb);
-            c.ClientTemplateFunction = new JRaw(teb.Build());
+            c.Configuration.ClientTemplateFunction = new JRaw(teb.Build());
             return c;
         }
 

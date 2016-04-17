@@ -150,5 +150,17 @@ namespace PowerTables.Filters.Value
             return config;
         }
 
+        /// <summary>
+        /// Configures filter's placeholder label
+        /// </summary>
+        /// <param name="config">Configuration</param>
+        /// <param name="placeholder">Placeholder label</param>
+        /// <returns>Fluent</returns>
+        public static PluginConfigurationWrapper<ValueFilterUiConfig> Placeholder(this PluginConfigurationWrapper<ValueFilterUiConfig> config, string placeholder = null)
+        {
+            config.Configuration.Placeholder = placeholder;
+            return config;
+        }
+
     }
 }

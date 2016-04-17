@@ -116,10 +116,7 @@
             var anySpecialCases: boolean = false;
 
             // registering additional events
-            for (var j: number = 0; j < pluginsConfiguration.length; j++) {
-                var epConf: Configuration.Json.IPluginConfiguration = pluginsConfiguration[j];
-                ComponentsContainer.registerComponentEvents(epConf.PluginId, this._events, this._masterTable);
-            }
+            ComponentsContainer.registerAllEvents(this._events, this._masterTable);
 
             // instantiating and initializing plugins
             for (var l: number = 0; l < pluginsConfiguration.length; l++) {

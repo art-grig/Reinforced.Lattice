@@ -85,6 +85,7 @@
             this.BeforeDataRendered = new TableEvent(masterTable);
             this.AfterDataRendered = new TableEvent(masterTable);
             this.BeforeClientRowsRendering = new TableEvent(masterTable);
+            this.DeferredDataReceived = new TableEvent(masterTable);
 
         }
 

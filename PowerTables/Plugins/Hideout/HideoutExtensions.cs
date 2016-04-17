@@ -172,5 +172,12 @@ namespace PowerTables.Plugins.Hideout
             var cols = request.AdditionalData[key];
             return cols.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
         }
+
+        public static PluginConfigurationWrapper<HideoutPluginConfiguration> ShowMenu(
+            this PluginConfigurationWrapper<HideoutPluginConfiguration> t, bool show = true)
+        {
+            t.Configuration.ShowMenu = show;
+            return t;
+        }
     }
 }
