@@ -1,5 +1,6 @@
 ﻿module PowerTables {
     import DOMLocator = PowerTables.Rendering.DOMLocator;
+    import CallbackDescriptor = PowerTables.Rendering.ICallbackDescriptor;
 
     export class EventsDelegator {
         constructor(locator: DOMLocator, bodyElement: HTMLElement, layoutElement: HTMLElement, rootId: string) {
@@ -46,6 +47,7 @@
         private _matches: (e: HTMLElement) => boolean;
         private _domEvents: { [key: string]: any } = {};
         private _outEvents: { [key: string]: any } = {};
+        private _destroyCallbacks: CallbackDescriptor[] = [];
 
         private ensureEventSubscription(eventId: string) {
             if (this._domEvents.hasOwnProperty(eventId)) return;
@@ -298,7 +300,13 @@
             el.setAttribute('data-outsub', 'true');
         }
 
-        public unsubscribeRedundantEvents(e: HTMLElement) {
+        public subscribeDestroy(e: HTMLElement, callback:CallbackDescriptor) {
+            callback.Element = e;
+            e.setAttribute("data-dstrycb", "true");
+            this._destroyCallbacks.push(callback);
+        }
+
+        public handleElementDestroy(e: HTMLElement) {
             var arr: HTMLElement[] = this.collectElementsHavingAttribute(e, 'data-outsub');
             if (arr.length !== 0) {
                 for (var os in this._outSubscriptions) {
@@ -323,6 +331,13 @@
                             this._directSubscriptions[i].EventId,
                             this._directSubscriptions[i].Handler);
                     }
+                }
+            }
+            arr = this.collectElementsHavingAttribute(e, 'data-dstrycb');
+            for (var k = 0; k < this._destroyCallbacks.length; k++) {
+                if (arr.indexOf(this._destroyCallbacks[k].Element) > -1) {
+                    var cb = this._destroyCallbacks[k];
+                    //if (cb.)
                 }
             }
         }

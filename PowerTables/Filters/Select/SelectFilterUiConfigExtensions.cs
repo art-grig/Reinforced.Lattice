@@ -66,5 +66,41 @@ namespace PowerTables.Filters.Select
             }
             return config;
         }
+
+        /// <summary>
+        /// Specifies default value for filter. 
+        /// </summary>
+        /// <param name="config">Configuration</param>
+        /// <param name="selectValue">Filter default value</param>
+        /// <returns>Fluent</returns>
+        public static ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn> SelectDefault<TColumn>(this ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn> config, TColumn selectValue) where TColumn : class
+        {
+            config.Configuration.SelectedValue = ValueConverter.ToFilterDefaultString(selectValue);
+            return config;
+        }
+
+        /// <summary>
+        /// Specifies default value for filter. 
+        /// </summary>
+        /// <param name="config">Configuration</param>
+        /// <param name="selectValue">Filter default value</param>
+        /// <returns>Fluent</returns>
+        public static ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn?> SelectDefault<TColumn>(this ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn?> config, TColumn? selectValue) where TColumn : struct
+        {
+            config.Configuration.SelectedValue = ValueConverter.ToFilterDefaultString(selectValue);
+            return config;
+        }
+
+        /// <summary>
+        /// Specifies default value for filter. 
+        /// </summary>
+        /// <param name="config">Configuration</param>
+        /// <param name="selectNullValue">Filter default value</param>
+        /// <returns>Fluent</returns>
+        public static ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn> SelectDefault<TColumn>(this ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn> config, TColumn? selectNullValue) where TColumn : struct
+        {
+            config.Configuration.SelectedValue = ValueConverter.ToFilterDefaultString(selectNullValue);
+            return config;
+        }
     }
 }

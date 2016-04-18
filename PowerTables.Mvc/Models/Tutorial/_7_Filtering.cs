@@ -48,7 +48,7 @@ namespace PowerTables.Mvc.Models.Tutorial
              * query providers, so if you dont like this behavior use .By call and handle null values by yourself
              */
             conf.Column(c => c.LastSoldDate).FilterRange(c => c.LastSoldDate.GetValueOrDefault(),
-                ui => ui.Default(DateTime.Now.AddDays(-50),DateTime.Now));  // filter by range of dates with default values
+                ui => ui.RangeDefault(DateTime.Now.AddDays(-50),DateTime.Now));  // filter by range of dates with default values
 
 
             /*

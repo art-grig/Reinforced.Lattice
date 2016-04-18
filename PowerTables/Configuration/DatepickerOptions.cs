@@ -36,12 +36,18 @@ namespace PowerTables.Configuration
         /// </summary>
         public JRaw GetFromDatePicker { get; private set; }
 
-        public DatepickerOptions(string createDatepicker, string putToDatepicker, string getFromDatePicker)
+        /// <summary>
+        /// JS function used to retrieve selected date from datepicker
+        /// Signature: (element:HTMLElement) => Date
+        /// </summary>
+        public JRaw DestroyDatepicker { get; private set; }
+
+        public DatepickerOptions(string createDatepicker, string putToDatepicker, string getFromDatePicker,string destroyDatepicker)
         {
             if (string.IsNullOrEmpty(createDatepicker) || string.IsNullOrEmpty(putToDatepicker) ||
-                string.IsNullOrEmpty(getFromDatePicker))
+                string.IsNullOrEmpty(getFromDatePicker) || string.IsNullOrEmpty(destroyDatepicker))
             {
-                throw new Exception("All 3 datepicker-related function should be sprcified");
+                throw new Exception("All 4 datepicker-related function should be sprcified");
             }
 
             CreateDatePicker = new JRaw(createDatepicker);
@@ -49,6 +55,8 @@ namespace PowerTables.Configuration
             PutToDatePicker = new JRaw(putToDatepicker);
 
             GetFromDatePicker = new JRaw(getFromDatePicker);
+
+            DestroyDatepicker = new JRaw(destroyDatepicker);
         }
     }
 }

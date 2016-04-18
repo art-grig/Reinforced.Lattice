@@ -124,7 +124,7 @@
                 var plugin: IPlugin = ComponentsContainer.resolveComponent<IPlugin>(conf.PluginId);
                 plugin.PluginLocation = (!conf.Placement) ? conf.PluginId : `${conf.Placement}-${conf.PluginId}`;
                 plugin.RawConfig = conf;
-                plugin.Order = conf.Order;
+                plugin.Order = conf.Order||0;
 
                 plugin.init(this._masterTable);
                 if (this._isHandlingSpecialPlacementCase && this.startsWith(conf.Placement, this._specialCasePlaceholder)) {
@@ -134,12 +134,7 @@
                     this.Plugins[plugin.PluginLocation] = plugin;
                 }
             }
-            for (var pluginId in pluginsConfiguration) {
-                if (pluginsConfiguration.hasOwnProperty(pluginId)) {
-
-                }
-            }
-
+            
             // handling special filters case
             if (this._isHandlingSpecialPlacementCase) {
                 if (anySpecialCases) {

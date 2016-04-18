@@ -65,7 +65,7 @@
 
         private destroyElement(element: HTMLElement) {
             element.parentElement.removeChild(element);
-            this._ed.unsubscribeRedundantEvents(element);
+            this._ed.handleElementDestroy(element);
         }
 
         private destroyElements(elements: NodeList) {
@@ -350,7 +350,7 @@
         private replaceElement(element: HTMLElement, html: string): HTMLElement {
             var node: HTMLElement = this.createElement(html);
             element.parentElement.replaceChild(node, element);
-            this._ed.unsubscribeRedundantEvents(element);
+            this._ed.handleElementDestroy(element);
             return node;
         }
 

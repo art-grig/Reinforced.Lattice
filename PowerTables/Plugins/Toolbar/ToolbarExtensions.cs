@@ -17,8 +17,9 @@ namespace PowerTables.Plugins.Toolbar
         /// <param name="where">Toolbar position</param>
         /// <param name="toolbar">Toolbar confguration action</param>
         /// <param name="templateId">Overrides standard toolbar template ID</param>
+        /// <param name="order">Plugin order among specified placement</param>
         /// <returns>Fluent</returns>
-        public static T Toolbar<T>(this T conf, string where, Action<ToolbarBuilder> toolbar, string templateId = "toolbar") where T : IConfigurator
+        public static T Toolbar<T>(this T conf, string where, Action<ToolbarBuilder> toolbar, string templateId = "toolbar",int order = 0) where T : IConfigurator
         {
             conf.TableConfiguration.UpdatePluginConfig<ToolbarButtonsClientConfiguration>(PluginId, c =>
             {
@@ -26,6 +27,7 @@ namespace PowerTables.Plugins.Toolbar
                 toolbar(tb);
                 tb.AssignIds();
                 c.TemplateId(templateId);
+                c.Order = order;
             }, where);
             return conf;
         }

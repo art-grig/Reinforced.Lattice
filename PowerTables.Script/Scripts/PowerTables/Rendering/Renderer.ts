@@ -149,7 +149,7 @@
          */
         public clearBody(): void {
             if (this.Delegator) {
-                this.Delegator.unsubscribeRedundantEvents(this.BodyElement);
+                this.Delegator.handleElementDestroy(this.BodyElement);
             }
             while (this.BodyElement.firstChild) {
                 this.BodyElement.removeChild(this.BodyElement.firstChild);
