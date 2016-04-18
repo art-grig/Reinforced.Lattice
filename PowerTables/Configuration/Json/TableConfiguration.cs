@@ -81,6 +81,11 @@ namespace PowerTables.Configuration.Json
         /// </summary>
         public string AddedRowTemplateId { get; set; }
 
+        /// <summary>
+        /// Function that will be called after tables initialization
+        /// </summary>
+        public JRaw CallbackFunction { get; set; }
+
         public TableConfiguration()
         {
             Columns = new List<ColumnConfiguration>();

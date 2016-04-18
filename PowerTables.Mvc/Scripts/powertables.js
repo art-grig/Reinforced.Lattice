@@ -3,9 +3,13 @@
 //     the code is regenerated.
 var PowerTables;
 (function (PowerTables) {
+    /** Ordering */
     (function (Ordering) {
+        /** Ascending */
         Ordering[Ordering["Ascending"] = 0] = "Ascending";
+        /** Descending */
         Ordering[Ordering["Descending"] = 1] = "Descending";
+        /** Ordering is not applied */
         Ordering[Ordering["Neutral"] = 2] = "Neutral";
     })(PowerTables.Ordering || (PowerTables.Ordering = {}));
     var Ordering = PowerTables.Ordering;
@@ -766,7 +770,6 @@ var PowerTables;
             this.BeforeLayoutRendered = new TableEvent(masterTable);
             this.BeforeClientDataProcessing = new TableEvent(masterTable);
             this.AfterClientDataProcessing = new TableEvent(masterTable);
-            this.BeforeLayoutRendered = new TableEvent(masterTable);
             this.AfterLayoutRendered = new TableEvent(masterTable);
             this.BeforeDataRendered = new TableEvent(masterTable);
             this.AfterDataRendered = new TableEvent(masterTable);
@@ -1139,12 +1142,6 @@ var PowerTables;
             this._events = masterTable.Events;
             this._instances = masterTable.InstanceManager;
             this._masterTable = masterTable;
-            for (var c in this._instances.Columns) {
-                if (this._instances.Columns[c].IsDateTime) {
-                    this._needNormalizeDatesForAdjustment = true;
-                    break;
-                }
-            }
         }
         /**
          * Registers client filter
@@ -1486,14 +1483,15 @@ var PowerTables;
             }
             return modColumns;
         };
-        DataHolder.prototype.normalizeDates = function (dataObject) {
-            for (var k in dataObject) {
-                if (this._masterTable.InstanceManager.Columns.hasOwnProperty(k)
-                    && this._masterTable.InstanceManager.Columns[k].IsDateTime) {
+        DataHolder.prototype.normalizeObject = function (dataObject) {
+            for (var k in this._masterTable.InstanceManager.Columns) {
+                if (this._masterTable.InstanceManager.Columns[k].IsDateTime) {
                     if (dataObject[k] != null && (typeof dataObject[k] === "string")) {
                         dataObject[k] = this._masterTable.Date.parse(dataObject[k]);
                     }
                 }
+                if (dataObject[k] == undefined)
+                    dataObject[k] = null;
             }
         };
         DataHolder.prototype.proceedAdjustments = function (adjustments) {
@@ -1505,9 +1503,7 @@ var PowerTables;
             var touchedColumns = [];
             var added = [];
             for (var i = 0; i < adjustments.Updates.length; i++) {
-                if (this._needNormalizeDatesForAdjustment) {
-                    this.normalizeDates(adjustments.Updates[i]);
-                }
+                this.normalizeObject(adjustments.Updates[i]);
                 var update = this.localLookupPrimaryKey(adjustments.Updates[i]);
                 if (update.LoadedIndex < 0) {
                     if (this.StoredData.length > 0) {
@@ -1528,9 +1524,7 @@ var PowerTables;
                 }
             }
             for (var j = 0; j < adjustments.Removals.length; j++) {
-                if (this._needNormalizeDatesForAdjustment) {
-                    this.normalizeDates(adjustments.Removals[j]);
-                }
+                this.normalizeObject(adjustments.Removals[j]);
                 var lookup = this.localLookupPrimaryKey(adjustments.Removals[j]);
                 if (lookup.LoadedIndex > -1) {
                     this.StoredData.splice(lookup.LoadedIndex, 1);
@@ -3695,6 +3689,9 @@ var PowerTables;
                     AdditionalData: 'To retrieve query results please specify several filters'
                 });
             }
+            if (this._configuration.CallbackFunction) {
+                this._configuration.CallbackFunction(this);
+            }
         };
         /**
          * Reloads table content.
@@ -4824,16 +4821,21 @@ var PowerTables;
             };
             HideoutPlugin.prototype.ifColVisibleHelper = function (columnName, opts) {
                 var visible = false;
-                for (var i = 0; i < this.ColumnStates.length; i++) {
-                    if (this.ColumnStates[i].RawName === columnName) {
-                        visible = this.ColumnStates[i].Visible;
-                        break;
+                if (this._isInitializing) {
+                    visible = !this.Configuration.HiddenColumns.hasOwnProperty(columnName);
+                }
+                else {
+                    for (var i = 0; i < this.ColumnStates.length; i++) {
+                        if (this.ColumnStates[i].RawName === columnName) {
+                            visible = this.ColumnStates[i].Visible;
+                            break;
+                        }
                     }
                 }
                 if (visible)
-                    opts.fn(this);
+                    return opts.fn(this);
                 else
-                    opts.inverse(this);
+                    return opts.inverse(this);
             };
             HideoutPlugin.prototype.registerAdditionalHelpers = function (hb) {
                 hb.registerHelper('ifColVisible', this.ifColVisibleHelper.bind(this));
@@ -4857,6 +4859,10 @@ var PowerTables;
             ResponseInfoPlugin.prototype.onResponse = function (e) {
                 this._isServerRequest = true;
                 if (this.Configuration.ResponseObjectOverriden) {
+                    if (!e.EventArgs.Data.AdditionalData)
+                        return;
+                    if (!e.EventArgs.Data.AdditionalData['ResponseInfo'])
+                        return;
                     this._recentData = e.EventArgs.Data.AdditionalData['ResponseInfo'];
                     this._isReadyForRendering = true;
                     this.MasterTable.Renderer.Modifier.redrawPlugin(this);

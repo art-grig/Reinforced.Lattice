@@ -80,7 +80,6 @@
 
             this.BeforeClientDataProcessing = new TableEvent(masterTable);
             this.AfterClientDataProcessing = new TableEvent(masterTable);
-            this.BeforeLayoutRendered = new TableEvent(masterTable);
             this.AfterLayoutRendered = new TableEvent(masterTable);
             this.BeforeDataRendered = new TableEvent(masterTable);
             this.AfterDataRendered = new TableEvent(masterTable);

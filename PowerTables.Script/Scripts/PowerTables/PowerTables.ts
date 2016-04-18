@@ -68,6 +68,9 @@ module PowerTables {
                     AdditionalData: 'To retrieve query results please specify several filters'
                 });
             }
+            if (this._configuration.CallbackFunction) {
+                this._configuration.CallbackFunction(this);
+            }
         }
 
         /**

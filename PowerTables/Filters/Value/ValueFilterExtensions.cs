@@ -111,7 +111,11 @@ namespace PowerTables.Filters.Value
             Action<ColumnPluginConfigurationWrapper<ValueFilterUiConfig, TTableColumn>> ui = null
             ) where TTableData : new()
         {
-            column.UpdateFilterConfig(PluginId, ui);
+            column.UpdateFilterConfig<ValueFilterUiConfig, TTableColumn>(PluginId, a =>
+            {
+                a.Placeholder(column.ColumnConfiguration.Title);
+                if (ui != null) ui(a);
+            });
         }
 
         /// <summary>

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Web.Mvc.Html;
 using JetBrains.Annotations;
+using Newtonsoft.Json.Linq;
 using PowerTables.Configuration;
 using PowerTables.Templating;
 
@@ -72,10 +73,14 @@ namespace PowerTables
         /// <param name="variableName">Expression that new PowerTables javascript object will be assigned to</param>
         /// <param name="staticData">Static data instance</param>
         /// <param name="prefix">Templates prefix. It is used to distinguish several templates sets on single page from each other</param>
+        /// <param name="callbackFunction">Function that will be called after tables startup</param>
         /// <returns>MvcHtmlString containing javascript initialization code</returns>
-        public static MvcHtmlString InitializationCode<TStaticData>(this IConfigurator conf, string rootId, string variableName, TStaticData staticData = null, string prefix = "lt") where TStaticData : class
+        public static MvcHtmlString InitializationCode<TStaticData>(this IConfigurator conf, string rootId, string variableName, TStaticData staticData = null, string prefix = "lt",string callbackFunction = null) where TStaticData : class
         {
             var jsonConfig = conf.JsonConfig(rootId, staticData, prefix);
+            conf.TableConfiguration.CallbackFunction = string.IsNullOrEmpty(callbackFunction)
+                ? null
+                : new JRaw(callbackFunction);
             const string codeTemplate = "{0} = new PowerTables.PowerTable({1});";
             return MvcHtmlString.Create(String.Format(codeTemplate, variableName, jsonConfig));
         }
@@ -91,9 +96,13 @@ namespace PowerTables
         /// <param name="rootId">Id of an HTML element that will contain table</param>
         /// <param name="variableName">Expression that new PowerTables javascript object will be assigned to</param>
         /// <param name="prefix">Templates prefix. It is used to distinguish several templates sets on single page from each other</param>
+        /// <param name="callbackFunction">Function that will be called after tables startup</param>
         /// <returns>MvcHtmlString containing javascript initialization code</returns>
-        public static MvcHtmlString InitializationCode(this IConfigurator conf, string rootId, string variableName, string prefix = "lt")
+        public static MvcHtmlString InitializationCode(this IConfigurator conf, string rootId, string variableName, string prefix = "lt", string callbackFunction = null)
         {
+            conf.TableConfiguration.CallbackFunction = string.IsNullOrEmpty(callbackFunction)
+                ? null
+                : new JRaw(callbackFunction);
             return conf.InitializationCode<object>(rootId, variableName, null, prefix);
         }
 
@@ -114,9 +123,13 @@ namespace PowerTables
         /// <param name="variableName">Expression that new PowerTables javascript object will be assigned to</param>
         /// <param name="staticData">Static data instance</param>
         /// <param name="prefix">Templates prefix. It is used to distinguish several templates sets on single page from each other</param>
+        /// <param name="callbackFunction">Function that will be called after tables startup</param>
         /// <returns>MvcHtmlString containing javascript initialization code</returns>
-        public static MvcHtmlString InitializationScript<TStaticData>(this IConfigurator conf, string rootId, string variableName, TStaticData staticData, string prefix = "lt") where TStaticData : class
+        public static MvcHtmlString InitializationScript<TStaticData>(this IConfigurator conf, string rootId, string variableName, TStaticData staticData, string prefix = "lt", string callbackFunction = null) where TStaticData : class
         {
+            conf.TableConfiguration.CallbackFunction = string.IsNullOrEmpty(callbackFunction)
+                ? null
+                : new JRaw(callbackFunction);
             var jsonConfig = conf.JsonConfig(rootId, staticData, prefix);
             const string codeTemplate = @" 
 <script type=""text/javascript"" >
@@ -137,15 +150,17 @@ namespace PowerTables
         /// You are not able to change it during request handling but can use it to store any payload 
         /// that is known before table construction.
         /// </summary>
-        /// <typeparam name="TStaticData">Static data type</typeparam>
         /// <param name="conf">Configurator</param>
         /// <param name="rootId">Id of an HTML element that will contain table</param>
         /// <param name="variableName">Expression that new PowerTables javascript object will be assigned to</param>
-        /// <param name="staticData">Static data instance</param>
         /// <param name="prefix">Templates prefix. It is used to distinguish several templates sets on single page from each other</param>
+        /// <param name="callbackFunction">Function that will be called after tables startup</param>
         /// <returns>MvcHtmlString containing javascript initialization code</returns>
-        public static MvcHtmlString InitializationScript(this IConfigurator conf, string rootId, string variableName, string prefix = "lt")
+        public static MvcHtmlString InitializationScript(this IConfigurator conf, string rootId, string variableName, string prefix = "lt", string callbackFunction = null)
         {
+            conf.TableConfiguration.CallbackFunction = string.IsNullOrEmpty(callbackFunction)
+                ? null
+                : new JRaw(callbackFunction);
             var jsonConfig = conf.JsonConfig<object>(rootId, null, prefix);
             const string codeTemplate = @" 
 <script type=""text/javascript"" >

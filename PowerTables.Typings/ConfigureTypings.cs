@@ -45,7 +45,9 @@ namespace PowerTables.Typings
 
 
             builder.ExportAsInterface<TableConfiguration>()
-                .WithPublicProperties();
+                .WithPublicProperties()
+                .WithProperty(c => c.CallbackFunction, c => c.Type("(table:IMasterTable) => void"))
+                ;
             builder.ExportAsInterface<DatepickerOptions>()
                 .WithProperty(c => c.CreateDatePicker, c => c.Type("(element:HTMLElement, isNullableDate: boolean) => void"))
                 .WithProperty(c => c.PutToDatePicker, c => c.Type("(element:HTMLElement, date?:Date) => void"))
