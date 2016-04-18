@@ -90,8 +90,7 @@
                     }
                     if (columnConfig.CellRenderingTemplateId) {
                         var compiled: HandlebarsTemplateDelegate = this._hb.compile(document.getElementById(columnConfig.CellRenderingTemplateId).innerHTML);
-                        this._columnsRenderFunctions[columnConfig.RawColumnName] =
-                        (compl => (x: ICell) => compl(x.DataObject))(compiled);
+                        this._columnsRenderFunctions[columnConfig.RawColumnName] = compiled;
                         continue;
                     }
                     this._columnsRenderFunctions[columnConfig.RawColumnName] =

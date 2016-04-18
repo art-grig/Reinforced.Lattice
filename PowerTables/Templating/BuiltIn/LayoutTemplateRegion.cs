@@ -17,9 +17,9 @@ namespace PowerTables.Templating.BuiltIn
         /// Declares template region for table layout
         /// </summary>
         /// <returns>Template region</returns>
-        public static LayoutTemplateRegion Layout(this TemplatesPageBase t, string templateId = "layout")
+        public static LayoutTemplateRegion Layout(this ITemplatesScope t, string templateId = "layout")
         {
-            return new LayoutTemplateRegion(t.Model.Prefix,templateId, t.Output);
+            return new LayoutTemplateRegion(t.TemplatesPrefix,templateId, t.Output);
         }
 
         /// <summary>

@@ -48,9 +48,9 @@ namespace PowerTables.Templating.BuiltIn
 
     public static class MessagesTemplatesExtensions
     {
-        public static MessageWrapperTemplateRegion MessagesWrapper(this TemplatesPageBase t, string templateId = "messages")
+        public static MessageWrapperTemplateRegion MessagesWrapper(this ITemplatesScope t, string templateId = "messages")
         {
-            return new MessageWrapperTemplateRegion(t.Model.Prefix, templateId, t.Output);
+            return new MessageWrapperTemplateRegion(t.TemplatesPrefix, templateId, t.Output);
         }
     }
 }

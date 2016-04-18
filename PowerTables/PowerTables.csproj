@@ -208,6 +208,7 @@
     <Compile Include="ResponseProcessing\IResponseModifiersApplier.cs" />
     <Compile Include="ResponseProcessing\JsonNetResult.cs" />
     <Compile Include="SerializationSettings.cs" />
+    <Compile Include="Templating\AdditionalTemplatesScope.cs" />
     <Compile Include="Templating\BuiltIn\CellWrapperTemplateRegion.cs" />
     <Compile Include="Templating\BuiltIn\MessageWrapperTemplateRegion.cs" />
     <Compile Include="Templating\BuiltIn\HeaderWrapperTemplateRegion.cs" />
@@ -224,12 +225,14 @@
     <Compile Include="Templating\Handlebars\HbExtensions.cs" />
     <Compile Include="Templating\Handlebars\HbTagRegion.cs" />
     <Compile Include="Templating\Interfaces.cs" />
+    <Compile Include="Templating\ITemplatesScope.cs" />
     <Compile Include="Templating\IViewPlugins.cs" />
     <Compile Include="Templating\LatticeTemplatesViewModel.cs" />
     <Compile Include="Templating\BuiltIn\LayoutTemplateRegion.cs" />
     <Compile Include="Templating\ModeledTemplateRegion.cs" />
     <Compile Include="Templating\OverrideHbFieldNameAttribute.cs" />
     <Compile Include="Templating\ParametrizedHbTagRegion.cs" />
+    <Compile Include="Templating\PluginsClassifier.cs" />
     <Compile Include="Templating\PluginTemplateRegion.cs" />
     <Compile Include="Templating\BuiltIn\PluignWrapperTemplateRegion.cs" />
     <Compile Include="Templating\ResharperAnnotations.cs" />

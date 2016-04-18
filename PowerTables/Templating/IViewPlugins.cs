@@ -21,10 +21,5 @@ namespace PowerTables.Templating
         /// Templates page model
         /// </summary>
         LatticeTemplatesViewModel Model { get; }
-
-        /// <summary>
-        /// Templates page itself
-        /// </summary>
-        TemplatesPageBase Page { get; }
     }
 }

@@ -90,9 +90,9 @@ namespace PowerTables.Templating.BuiltIn
 
     public static class HeaderTemplatingExtensions
     {
-        public static HeaderWrapperTemplateRegion HeaderWrapper(this TemplatesPageBase t, string templateId = "headerWrapper")
+        public static HeaderWrapperTemplateRegion HeaderWrapper(this ITemplatesScope t, string templateId = "headerWrapper")
         {
-            return new HeaderWrapperTemplateRegion(t.Model.Prefix,templateId, t.Output);
+            return new HeaderWrapperTemplateRegion(t.TemplatesPrefix,templateId, t.Output);
         }
     }
 }

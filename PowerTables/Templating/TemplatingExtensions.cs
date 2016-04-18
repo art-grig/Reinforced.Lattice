@@ -14,6 +14,17 @@ namespace PowerTables.Templating
     public static class TemplatingExtensions
     {
         /// <summary>
+        /// Begins region containing additional Lattice templates
+        /// </summary>
+        /// <param name="page">Web page where you want to begin additional templates region</param>
+        /// <param name="templatesPrefix">Templates prefix for </param>
+        /// <returns></returns>
+        public static AdditionalTemplatesScope LatticeAdditionalTemplates(this WebViewPage page, string templatesPrefix = "lt")
+        {
+            return new AdditionalTemplatesScope(page,templatesPrefix);
+        }
+
+        /// <summary>
         /// Binds event at specified element
         /// </summary>
         /// <param name="t">Template region</param>

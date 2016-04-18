@@ -137,6 +137,7 @@
             this._events.BeforeClientRowsRendering.invoke(this, rows);
             this.clearBody();
             var html: string = this.ContentRenderer.renderBody(rows);
+            this.Delegator.handleElementDestroy(this.BodyElement);
             this.BodyElement.innerHTML = html;
             this.BackBinder.backBind(this.BodyElement);
             this._events.AfterDataRendered.invoke(this, null);

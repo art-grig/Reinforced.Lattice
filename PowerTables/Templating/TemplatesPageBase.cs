@@ -1,12 +1,11 @@
-﻿using System.IO;
-using System.Linq;
+﻿using System.Linq;
 using System.Web.Mvc;
 using System.Web.WebPages;
 using PowerTables.Templating.BuiltIn;
 
 namespace PowerTables.Templating
 {
-    public abstract class TemplatesPageBase : WebViewPage<LatticeTemplatesViewModel>
+    public abstract class TemplatesPageBase : WebViewPage<LatticeTemplatesViewModel>, ITemplatesScope
     {
         /// <summary>
         /// Default templates view. Used for shortening .RenderTemplates calls
@@ -32,22 +31,12 @@ namespace PowerTables.Templating
         {
             get
             {
-                if (_plugins == null) _plugins = new PluginsClassifier(this);
+                if (_plugins == null) _plugins = new PluginsClassifier(this, this.Model);
                 return _plugins;
             }
         }
 
-        private class PluginsClassifier : IViewPlugins
-        {
-            public PluginsClassifier(TemplatesPageBase page)
-            {
-                Page = page;
-            }
 
-            public TextWriter Writer { get { return Page.GetOutputWriter(); } }
-            public LatticeTemplatesViewModel Model { get { return Page.Model; } }
-            public TemplatesPageBase Page { get; private set; }
-        }
 
         public MvcHtmlString Callback(string functionName, params string[] rawArgs)
         {
@@ -55,7 +44,9 @@ namespace PowerTables.Templating
             return MvcHtmlString.Create(string.Format("{{{{{{RenderCallback \"{0}\" {1} }}}}}}", functionName, args));
         }
 
+        /// <summary>
+        /// Templates prefix
+        /// </summary>
+        public string TemplatesPrefix { get { return Model.Prefix; } }
     }
-
-
 }

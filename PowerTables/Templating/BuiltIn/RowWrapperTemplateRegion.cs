@@ -35,19 +35,19 @@ namespace PowerTables.Templating.BuiltIn
         /// <summary>
         /// Row cells
         /// </summary>
-        IHbArray<dynamic> Cells { get; }
+        IHbArray<ICellModel<TRow>> Cells { get; }
     }
 
     public static class RowWrapperExtensions
     {
-        public static RowWrapperTemplateRegion<dynamic> RowWrapper(this TemplatesPageBase tp, string templateId = "rowWrapper")
+        public static RowWrapperTemplateRegion<dynamic> RowWrapper(this ITemplatesScope tp, string templateId = "rowWrapper")
         {
-            return new RowWrapperTemplateRegion<dynamic>(tp.Model.Prefix,templateId, tp.Output);
+            return new RowWrapperTemplateRegion<dynamic>(tp.TemplatesPrefix,templateId, tp.Output);
         }
 
-        public static RowWrapperTemplateRegion<TRow> RowWrapper<TRow>(this TemplatesPageBase tp, string templateId = "rowWrapper")
+        public static RowWrapperTemplateRegion<TRow> RowWrapper<TRow>(this ITemplatesScope tp, string templateId = "rowWrapper")
         {
-            return new RowWrapperTemplateRegion<TRow>(tp.Model.Prefix,templateId, tp.Output);
+            return new RowWrapperTemplateRegion<TRow>(tp.TemplatesPrefix,templateId, tp.Output);
         }
     }
 }
