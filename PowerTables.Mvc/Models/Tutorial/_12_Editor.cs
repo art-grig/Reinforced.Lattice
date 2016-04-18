@@ -28,7 +28,9 @@ namespace PowerTables.Mvc.Models.Tutorial
                 .DatePicker(new DatepickerOptions( // set up functions for 3rd party datepickers
                     "createDatePicker",
                     "putDateToDatepicker",
-                    "getDateFromDatepicker"));
+                    "getDateFromDatepicker",
+                    "destroyDatepicker"
+            ));
 
             conf.LoadingOverlap(ui => ui.Overlap());
             conf.LoadImmediately(true);

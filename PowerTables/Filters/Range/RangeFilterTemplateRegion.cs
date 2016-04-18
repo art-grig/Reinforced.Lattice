@@ -47,7 +47,7 @@ namespace PowerTables.Filters.Range
 
         public static MvcHtmlString DatepickerCanBeHere(this RangeFilterTemplateRegion t)
         {
-            return t.Datepicker(t.CleanValue(c => c.Configuration.ColumnName));
+            return t.Datepicker(t.CleanValue(c => c.Configuration.ColumnName),true);
         }
     }
 }

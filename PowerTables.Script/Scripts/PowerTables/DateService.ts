@@ -84,8 +84,20 @@
          */
         public createDatePicker(element: HTMLElement, isNullableDate?: boolean): void {
             this.ensureDpo();
-            if (element == null || element == undefined)return;
+            if (element == null || element == undefined) return;
+            if (!isNullableDate) isNullableDate = false;
             this._datepickerOptions.CreateDatePicker(element, isNullableDate);
+        }
+
+        /**
+         * Creates datepicker object of HTML element using configured function
+         * 
+         * @param element HTML element that should be converted to datepicker
+         */
+        public destroyDatePicker(element: HTMLElement): void {
+            this.ensureDpo();
+            if (element == null || element == undefined) return;
+            this._datepickerOptions.DestroyDatepicker(element);
         }
 
         /**

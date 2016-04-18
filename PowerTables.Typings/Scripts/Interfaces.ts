@@ -104,6 +104,11 @@ module PowerTables {
 		*             Signature: (element:HTMLElement) =&gt; Date
 		*/
 		GetFromDatePicker: (element:HTMLElement) => Date;
+		/**
+		* JS function used to retrieve selected date from datepicker
+		*             Signature: (element:HTMLElement) =&gt; Date
+		*/
+		DestroyDatepicker: (element:HTMLElement) => void;
 	}
 	export interface ICoreTemplateIds
 	{

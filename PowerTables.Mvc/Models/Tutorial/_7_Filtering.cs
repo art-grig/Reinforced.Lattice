@@ -21,7 +21,9 @@ namespace PowerTables.Mvc.Models.Tutorial
                 .DatePicker(new DatepickerOptions( // set up functions for 3rd party datepickers
                     "createDatePicker",
                     "putDateToDatepicker",
-                    "getDateFromDatepicker"))
+                    "getDateFromDatepicker",
+                    "destroyDatepicker"
+            ))
                 .AppendEmptyFilters()              // tell table to draw empty filters for columns without filters
                                                    // it is needed when using table-look-like templating
                     ;

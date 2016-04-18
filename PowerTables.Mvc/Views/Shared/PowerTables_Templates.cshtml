@@ -125,7 +125,7 @@
 { <td @t.Track()>@t.Content()</td> }
 
 @using (var t = this.CellWrapper("updatedCell"))
-{ <td style="background-color: greenyellow;border:1px solid black" @t.Track()>@t.Content()</td> }
+{ <td class="touched" @t.Track()>@t.Content()</td> }
 
 @using (var t = this.MessagesWrapper())
 {

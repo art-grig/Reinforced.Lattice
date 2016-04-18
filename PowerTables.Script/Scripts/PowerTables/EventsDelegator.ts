@@ -334,10 +334,21 @@
                 }
             }
             arr = this.collectElementsHavingAttribute(e, 'data-dstrycb');
-            for (var k = 0; k < this._destroyCallbacks.length; k++) {
-                if (arr.indexOf(this._destroyCallbacks[k].Element) > -1) {
-                    var cb = this._destroyCallbacks[k];
-                    //if (cb.)
+            if (arr.length) {
+                var indexesToSplice = [];
+                for (var k = 0; k < this._destroyCallbacks.length; k++) {
+                    if (arr.indexOf(this._destroyCallbacks[k].Element) > -1) {
+                        var cb = this._destroyCallbacks[k];
+                        if (typeof cb.Callback === 'function') {
+                            cb.Callback.apply(cb.Target, [this._destroyCallbacks[k].Element].concat(cb.CallbackArguments));
+                        } else {
+                            (<any>window[cb.Callback]).apply(cb.Target, [this._destroyCallbacks[k].Element].concat(cb.CallbackArguments));
+                        }
+                    }
+                    indexesToSplice.push(k);
+                }
+                for (var l = 0; l < indexesToSplice.length; l++) {
+                    this._destroyCallbacks.splice(l, 1);
                 }
             }
         }

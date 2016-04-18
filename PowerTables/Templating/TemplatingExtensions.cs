@@ -35,11 +35,12 @@ namespace PowerTables.Templating
         /// </summary>
         /// <param name="t"></param>
         /// <param name="columnExpression">Column name to determine is datepicker needed or not</param>
+        /// <param name="forceNullable">Force datepicker to produce nullable date</param>
         /// <returns></returns>
-        public static MvcHtmlString Datepicker(this IProvidesDatepicker t, string columnExpression)
+        public static MvcHtmlString Datepicker(this IProvidesDatepicker t, string columnExpression,bool forceNullable = false)
         {
             return
-                MvcHtmlString.Create(string.Format("{{{{{{Datepicker {0}}}}}}}", columnExpression));
+                MvcHtmlString.Create(string.Format("{{{{{{Datepicker {0} {1} }}}}}}", columnExpression,forceNullable.ToString().ToLower()));
         }
 
         /// <summary>

@@ -52,6 +52,7 @@ namespace PowerTables.Typings
                 .WithProperty(c => c.CreateDatePicker, c => c.Type("(element:HTMLElement, isNullableDate: boolean) => void"))
                 .WithProperty(c => c.PutToDatePicker, c => c.Type("(element:HTMLElement, date?:Date) => void"))
                 .WithProperty(c => c.GetFromDatePicker, c => c.Type("(element:HTMLElement) => Date"))
+                .WithProperty(c => c.DestroyDatepicker, c => c.Type("(element:HTMLElement) => void"))
                 .OverrideNamespace("PowerTables")
                 ;
             builder.ExportAsInterface<CoreTemplateIds>().WithPublicProperties().OverrideNamespace("PowerTables");
