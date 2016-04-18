@@ -25,7 +25,7 @@ namespace PowerTables.FrequentlyUsed
             ) where TTableData : new()
         {
             var enumType = typeof(TTableColumn);
-            if (typeof(Nullable<>).IsAssignableFrom(enumType))
+            if (enumType.IsNullable())
             {
                 enumType = enumType.GetGenericArguments()[0];
             }
