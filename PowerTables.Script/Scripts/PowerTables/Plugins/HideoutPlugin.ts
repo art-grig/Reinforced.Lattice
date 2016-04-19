@@ -65,6 +65,8 @@
             var shown = [];
 
             for (var i = 0; i < this.ColumnStates.length; i++) {
+                if (!this.Configuration.ColumnInitiatingReload.hasOwnProperty(this.ColumnStates[i].RawName))
+                    continue;
                 if (!this.ColumnStates[i].Visible) {
                     hidden.push(this.ColumnStates[i].RawName);
                 } else {

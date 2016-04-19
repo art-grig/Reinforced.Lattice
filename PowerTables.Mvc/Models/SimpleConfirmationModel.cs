@@ -10,6 +10,6 @@ namespace PowerTables.Mvc.Models
     {
         public string ToyName { get; set; }
 
-        public ToyType ToyType { get; set; }
+        public ToyType? ToyType { get; set; }
     }
 }

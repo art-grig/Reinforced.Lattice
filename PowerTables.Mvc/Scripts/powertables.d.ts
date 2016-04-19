@@ -2553,6 +2553,7 @@ declare module PowerTables.Plugins {
         private _ourColumn;
         ValueColumnName: string;
         private _canSelectAll;
+        private _pagingPlugin;
         selectAll(selected?: boolean): void;
         private redrawHeader();
         private createColumn();

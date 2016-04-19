@@ -53,7 +53,7 @@ namespace PowerTables.Mvc.Controllers
             {
                 var data = Data.SourceData.Single(c => c.Id == i);
                 data.ToyName = form.ToyName;
-                data.GroupType = form.ToyType;
+                data.GroupType = form.ToyType.Value;
 
                 editResultWrapper.Adjustments.AddOrUpdate(arg.Configuration.Map(data));
             }

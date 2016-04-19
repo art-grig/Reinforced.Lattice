@@ -20,6 +20,25 @@ namespace PowerTables.Editors
         {
             Data = result.EditionResult;
         }
+
+        public static TableUpdateResult FromRange<T>(IEnumerable<T> updated, IEnumerable<T> removed = null)
+        {
+            EditionResult result = new EditionResult();
+            EditionResultWrapper<T> wrapper = new EditionResultWrapper<T>(result);
+            foreach (var up in updated)
+            {
+                wrapper.Adjustments.AddOrUpdate(up);
+            }
+
+            if (removed != null)
+            {
+                foreach (var rem in removed)
+                {
+                    wrapper.Adjustments.Remove(rem);
+                }
+            }
+            return new TableUpdateResult(result);
+        }
     }
 
     public class EditionResult

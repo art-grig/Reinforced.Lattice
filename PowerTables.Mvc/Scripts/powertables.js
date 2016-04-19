@@ -4851,6 +4851,8 @@ var PowerTables;
                 var hidden = [];
                 var shown = [];
                 for (var i = 0; i < this.ColumnStates.length; i++) {
+                    if (!this.Configuration.ColumnInitiatingReload.hasOwnProperty(this.ColumnStates[i].RawName))
+                        continue;
                     if (!this.ColumnStates[i].Visible) {
                         hidden.push(this.ColumnStates[i].RawName);
                     }
@@ -5152,6 +5154,7 @@ var PowerTables;
                 this._selectedItems = [];
                 this._visibleAll = false;
                 this._allSelected = false;
+                this._pagingPlugin = null;
             }
             CheckboxifyPlugin.prototype.selectAll = function (selected) {
                 var _this = this;
@@ -5278,7 +5281,7 @@ var PowerTables;
                     if (row.IsSpecial)
                         continue;
                     if (this._selectedItems.indexOf(row.DataObject[this.ValueColumnName].toString()) > -1) {
-                        row.renderElement = function (e) { return e.getCachedTemplate('checkboxifyRow')(row); };
+                        row.renderElement = function (a) { return a.getCachedTemplate('checkboxifyRow')(row); };
                         selectedRows++;
                     }
                 }
@@ -5302,7 +5305,9 @@ var PowerTables;
                     this.selectAll(false);
                 }
                 if (this.Configuration.SelectAllOnlyIfAllData) {
-                    if (e.EventArgs.Displaying.length === e.EventArgs.Source.length)
+                    if (this._pagingPlugin !== null && this._pagingPlugin.getTotalPages() === 1)
+                        this.enableSelectAll(true);
+                    else if (e.EventArgs.Displaying.length === e.EventArgs.Source.length)
                         this.enableSelectAll(true);
                     else
                         this.enableSelectAll(false);
@@ -5324,6 +5329,10 @@ var PowerTables;
                 this.ValueColumnName = this.Configuration.SelectionColumnName;
                 this._canSelectAll = this.Configuration.EnableSelectAll;
                 this.MasterTable.Loader.registerQueryPartProvider(this);
+                try {
+                    this._pagingPlugin = this.MasterTable.InstanceManager.getPlugin('Paging');
+                }
+                catch (e) { }
             };
             CheckboxifyPlugin.prototype.modifyQuery = function (query, scope) {
                 if (scope === PowerTables.QueryScope.Transboundary) {

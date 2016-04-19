@@ -10,6 +10,8 @@
         private _ourColumn: IColumn;
         public ValueColumnName: string;
         private _canSelectAll: boolean;
+        private _pagingPlugin: PagingPlugin = null;
+
 
         public selectAll(selected?: boolean): void {
             if (!this._canSelectAll) return;
@@ -138,7 +140,7 @@
                 var row: IRow = e.EventArgs[i];
                 if (row.IsSpecial) continue;
                 if (this._selectedItems.indexOf(row.DataObject[this.ValueColumnName].toString()) > -1) {
-                    row.renderElement = (e) => e.getCachedTemplate('checkboxifyRow')(row);
+                    row.renderElement = (a) => a.getCachedTemplate('checkboxifyRow')(row);
                     selectedRows++;
                 }
             }
@@ -162,7 +164,8 @@
                 this.selectAll(false);
             }
             if (this.Configuration.SelectAllOnlyIfAllData) {
-                if (e.EventArgs.Displaying.length === e.EventArgs.Source.length) this.enableSelectAll(true);
+                if (this._pagingPlugin !== null && this._pagingPlugin.getTotalPages() === 1) this.enableSelectAll(true);
+                else if (e.EventArgs.Displaying.length === e.EventArgs.Source.length) this.enableSelectAll(true);
                 else this.enableSelectAll(false);
             } else {
                 this.enableSelectAll(true);
@@ -183,6 +186,9 @@
             this.ValueColumnName = this.Configuration.SelectionColumnName;
             this._canSelectAll = this.Configuration.EnableSelectAll;
             this.MasterTable.Loader.registerQueryPartProvider(this);
+            try {
+                this._pagingPlugin = this.MasterTable.InstanceManager.getPlugin<PagingPlugin>('Paging');
+            }catch (e){}
         }
 
 

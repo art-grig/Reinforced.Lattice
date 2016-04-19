@@ -190,6 +190,7 @@
                                         @{
                                             var items = EnumHelper.GetSelectList(typeof (ToyType));
                                         }
+                                            <option value="">Leave as is</option>
                                         @foreach (var v in items)
                                         {
                                             <option value="@v.Value" >@v.Text</option>
