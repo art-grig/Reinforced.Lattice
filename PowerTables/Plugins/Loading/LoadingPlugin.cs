@@ -23,11 +23,12 @@ namespace PowerTables.Plugins.Loading
         /// <param name="templateId">Overides Loading default template ID</param>
         /// <param name="where">Specifies Limit plugin placement - where it will be drawn</param>
         /// <returns></returns>
-        public static Configurator<TSourceData, TTableData> LoadingIndicator<TSourceData, TTableData>(this Configurator<TSourceData, TTableData> conf, string templateId = "loading", string where = null) where TTableData : new()
+        public static Configurator<TSourceData, TTableData> LoadingIndicator<TSourceData, TTableData>(this Configurator<TSourceData, TTableData> conf, string templateId = "loading", string where = null, int order = 0) where TTableData : new()
         {
             conf.TableConfiguration.UpdatePluginConfig<LoadingUiConfig>(PluginId, cc =>
             {
                 cc.TemplateId(templateId);
+                cc.Order = order;
             }, where);
             return conf;
         }

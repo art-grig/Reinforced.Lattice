@@ -32,13 +32,13 @@
 
         private displayCache = {}
 
-        private hideElement(el: HTMLElement) {
+        public hideElement(el: HTMLElement) {
             if (!el) return;
             if (!el.getAttribute('displayOld')) el.setAttribute("displayOld", el.style.display);
             el.style.display = "none";
         }
 
-        private showElement(el: HTMLElement) {
+        public showElement(el: HTMLElement) {
             if (!el) return;
             if (this.getRealDisplay(el) !== 'none') return;
 
@@ -74,14 +74,14 @@
             }
         }
 
-        private hideElements(element: NodeList) {
+        public hideElements(element: NodeList) {
             if (!element) return;
             for (var i = 0; i < element.length; i++) {
                 this.hideElement(<HTMLElement>element.item(i));
             }
         }
 
-        private showElements(element: NodeList) {
+        public showElements(element: NodeList) {
             if (!element) return;
             for (var i = 0; i < element.length; i++) {
                 this.showElement(<HTMLElement>element.item(i));

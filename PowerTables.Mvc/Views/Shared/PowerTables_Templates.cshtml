@@ -168,8 +168,8 @@
 
 @using (var t = Plugin.Loading())
 {
-    <div style="display:block;height:10px;margin:10px;margin-top:5px;">
-        <div class="badge" @t.ThisElementWillBlink()>
+    <div style="display:block;height:10px;margin:10px;margin-top:5px;" @t.ThisElementWillBlink()>
+        <div class="badge">
             <span class="glyphicon glyphicon-refresh"></span> Loading
         </div>
     </div>
@@ -376,9 +376,9 @@
     {
         using (t.If(c => c.IsChecked))
         {
-            <div ><input @t.ThisWillTriggerSelection() type="checkbox" checked="checked" /></div>
+            <div><input @t.ThisWillTriggerSelection() type="checkbox" checked="checked" /></div>
             @t.Else()
-            <div ><input type="checkbox" @t.ThisWillTriggerSelection() /></div>
+            <div><input type="checkbox" @t.ThisWillTriggerSelection() /></div>
         }
     }
 }
@@ -391,58 +391,60 @@
 
 @using (var t = Plugin.Toolbar())
 {
-    using (var btn = t.Buttons())
-    {
-        using (btn.Unless(c => c.HasSubmenu))
+    <div class="btn-group">
+        @using (var btn = t.Buttons())
         {
-            using (btn.If(c => c.IsDisabled))
+            using (btn.Unless(c => c.HasSubmenu))
             {
-                <button disabled="disabled" type="button" data-role="toolbar-btn" class="btn btn-default @btn.Value(c => c.Css) disabled" title="@btn.Value(c => c.Title)" id="@btn.Value(c => c.Id)">@btn.HtmlValue(c => c.HtmlContent)</button>
-                @btn.Else()
-                <button @btn.BindButton("click") type="button" data-role="toolbar-btn" class="btn btn-default @btn.Value(c => c.Css)" title="@btn.Value(c => c.Title)" id="@btn.Value(c => c.Id)">@btn.HtmlValue(c => c.HtmlContent)</button>
-            }
-
-            @btn.Else()
-            <div class="btn-group">
-                @btn.If(c => c.IsMenu, "<div class=\"btn-group\" role=\"group\">")
-                @using (btn.If(c => c.IsMenu))
+                using (btn.If(c => c.IsDisabled))
                 {
-                    <button type="button" id="@btn.Value(c => c.Id)" class="btn @btn.Value(c => c.Css) dropdown-toggle" title="@btn.Value(c => c.Title)" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        @btn.HtmlValue(c => c.HtmlContent)
-                        <span class="caret"></span>
-                    </button>
+                    <button disabled="disabled" type="button" data-role="toolbar-btn" class="btn btn-default @btn.Value(c => c.Css) disabled" title="@btn.Value(c => c.Title)" id="@btn.Value(c => c.Id)">@btn.HtmlValue(c => c.HtmlContent)</button>
                     @btn.Else()
-                    using (btn.If(c => c.IsDisabled))
-                    {
-                        <button disabled="disabled" type="button" id="@btn.Value(c => c.Id)" class="btn @btn.Value(c => c.Css) disabled" title="@btn.Value(c => c.Title)">@btn.HtmlValue(c => c.HtmlContent)</button>
-                        @btn.Else()
-                        <button @btn.BindButton("click") type="button" id="@btn.Value(c => c.Id)" class="btn @btn.Value(c => c.Css)" title="@btn.Value(c => c.Title)">@btn.HtmlValue(c => c.HtmlContent)</button>
-                    }
-                    <button type="button" class="btn @btn.Value(c=>c.Css) dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <span class="caret"></span>
-                        <span class="sr-only">Toggle Dropdown</span>
-                    </button>
+                    <button @btn.BindButton("click") type="button" data-role="toolbar-btn" class="btn btn-default @btn.Value(c => c.Css)" title="@btn.Value(c => c.Title)" id="@btn.Value(c => c.Id)">@btn.HtmlValue(c => c.HtmlContent)</button>
                 }
-                <ul class="dropdown-menu">
-                    @using (var sm = btn.Each(c => c.Submenu))
+
+                @btn.Else()
+                <div class="btn-group">
+                    @btn.If(c => c.IsMenu, "<div class=\"btn-group\" role=\"group\">")
+                    @using (btn.If(c => c.IsMenu))
                     {
-                        using (sm.If(c => c.Separator))
+                        <button type="button" id="@btn.Value(c => c.Id)" class="btn @btn.Value(c => c.Css) dropdown-toggle" title="@btn.Value(c => c.Title)" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            @btn.HtmlValue(c => c.HtmlContent)
+                            <span class="caret"></span>
+                        </button>
+                        @btn.Else()
+                        using (btn.If(c => c.IsDisabled))
                         {
-                            <li role="separator" class="divider"></li>
-                            @sm.Else()
-                            using (btn.If(c => c.IsDisabled))
+                            <button disabled="disabled" type="button" id="@btn.Value(c => c.Id)" class="btn @btn.Value(c => c.Css) disabled" title="@btn.Value(c => c.Title)">@btn.HtmlValue(c => c.HtmlContent)</button>
+                            @btn.Else()
+                            <button @btn.BindButton("click") type="button" id="@btn.Value(c => c.Id)" class="btn @btn.Value(c => c.Css)" title="@btn.Value(c => c.Title)">@btn.HtmlValue(c => c.HtmlContent)</button>
+                        }
+                        <button type="button" class="btn @btn.Value(c=>c.Css) dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="caret"></span>
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                    }
+                    <ul class="dropdown-menu">
+                        @using (var sm = btn.Each(c => c.Submenu))
+                        {
+                            using (sm.If(c => c.Separator))
                             {
-                                <li aria-disabled="true" style="cursor: pointer" class="@sm.Value(c => c.Css) disabled" id="@sm.Value(c => c.Id)"><a title="@sm.Value(c => c.Title)">@sm.HtmlValue(c => c.HtmlContent)</a></li>
-                                @btn.Else()
-                                <li @btn.BindButton("click") style="cursor: pointer" class="@sm.Value(c => c.Css)" id="@sm.Value(c => c.Id)"><a title="@sm.Value(c => c.Title)">@sm.HtmlValue(c => c.HtmlContent)</a></li>
+                                <li role="separator" class="divider"></li>
+                                @sm.Else()
+                                using (btn.If(c => c.IsDisabled))
+                                {
+                                    <li aria-disabled="true" style="cursor: pointer" class="@sm.Value(c => c.Css) disabled" id="@sm.Value(c => c.Id)"><a title="@sm.Value(c => c.Title)">@sm.HtmlValue(c => c.HtmlContent)</a></li>
+                                    @btn.Else()
+                                    <li @btn.BindButton("click") style="cursor: pointer" class="@sm.Value(c => c.Css)" id="@sm.Value(c => c.Id)"><a title="@sm.Value(c => c.Title)">@sm.HtmlValue(c => c.HtmlContent)</a></li>
+                                }
                             }
                         }
-                    }
-                </ul>
-                @btn.If(c => c.IsMenu, "</div>")
-            </div>
+                    </ul>
+                    @btn.If(c => c.IsMenu, "</div>")
+                </div>
+            }
         }
-    }
+    </div>
 }
 
 @using (var t = Plugin.LoadingOverlap())
@@ -495,7 +497,7 @@
 
 @using (var t = Plugin.Editor_PlainText("plainTextEditorAlternate"))
 {
-    <div @t.BindReject(DOMEvent.Filter("click").Out().Prop(true,"ctrlKey"))>
+    <div @t.BindReject(DOMEvent.Filter("click").Out().Prop(true, "ctrlKey"))>
         <div class="input-group" @t.WhenInvalid(c => c.State.AddClass("has-error")) style="max-width: 200px;" @t.WhenSaving(c => c.Hide())>
             <input @t.ThisIsInput() @t.BindChanged("keyup") @t.BindCommit(DOMEvent.Filter("keyup").Prop(13, "keyCode", "which")) type="text" @t.WhenInvalid(c => c.State.Color("red")) class="form-control input-sm" aria-label="..." style="height: 28px; margin-top: -10px; margin-bottom: -10px" />
             <div class="tooltip bottom" role="tooltip" style="opacity: 1; top: 21px;display: none;"

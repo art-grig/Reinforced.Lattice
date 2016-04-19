@@ -233,7 +233,7 @@
                     }
                 }
             }
-            result.sort((a: IPlugin, b: IPlugin) => {
+            result = result.sort((a: IPlugin, b: IPlugin) => {
                 return a.Order - b.Order;
             });
             return result;

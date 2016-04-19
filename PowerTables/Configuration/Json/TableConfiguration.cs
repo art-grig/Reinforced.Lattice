@@ -86,6 +86,12 @@ namespace PowerTables.Configuration.Json
         /// </summary>
         public JRaw CallbackFunction { get; set; }
 
+        /// <summary>
+        /// Function that should consume IRow instance and return template name for this particular row.
+        /// Return null/empty/undefined will let system to choose default template
+        /// </summary>
+        public JRaw TemplateSelector { get; set; }
+
         public TableConfiguration()
         {
             Columns = new List<ColumnConfiguration>();

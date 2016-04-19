@@ -35,6 +35,9 @@
                 if (rw.renderElement) {
                     result += rw.renderElement(this._templatesProvider);
                 } else {
+                    if (this._instances.Configuration.TemplateSelector) {
+                        rw.TemplateIdOverride = this._instances.Configuration.TemplateSelector(rw);
+                    }
                     if (rw.TemplateIdOverride) {
                         result += this._templatesProvider.getCachedTemplate(rw.TemplateIdOverride)(rw);
                     } else {

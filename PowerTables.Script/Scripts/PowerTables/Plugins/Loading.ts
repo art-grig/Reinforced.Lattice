@@ -11,11 +11,11 @@
         }
         
         public showLoadingIndicator() {
-            this.BlinkElement.style.visibility = 'visible';
+            this.MasterTable.Renderer.Modifier.showElement(this.BlinkElement);
         }
 
         public hideLoadingIndicator() {
-            this.BlinkElement.style.visibility = 'collapse';
+            this.MasterTable.Renderer.Modifier.hideElement(this.BlinkElement);
         }
 
         public static Id = 'Loading';

@@ -49,9 +49,9 @@ namespace PowerTables.Plugins.Toolbar
             return new ConfirmationTemplateRegion<TRow, TForm>(p, templateId);
         }
 
-        public static MvcHtmlString BindReject<TRow, TForm>(this  ConfirmationTemplateRegion<TRow, TForm> p, string eventId)
+        public static MvcHtmlString BindDismiss<TRow, TForm>(this  ConfirmationTemplateRegion<TRow, TForm> p, string eventId)
         {
-            return p.BindEvent("rejectHandle", eventId);
+            return p.BindEvent("dismissHandle", eventId);
         }
 
         public static MvcHtmlString BindConfirm<TRow, TForm>(this  ConfirmationTemplateRegion<TRow, TForm> p, string eventId)

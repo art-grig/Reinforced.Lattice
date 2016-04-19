@@ -264,12 +264,13 @@ namespace PowerTables.Configuration
         /// </summary>
         /// <param name="conf">Column configuration</param>
         /// <param name="columns"></param>
-        public static void PrimaryKey<TSourceData, TTableData>
+        public static Configurator<TSourceData, TTableData> PrimaryKey<TSourceData, TTableData>
             (this Configurator<TSourceData, TTableData> conf, Action<ColumnListBuilder<TSourceData, TTableData>> columns) where TTableData : new()
         {
             ColumnListBuilder<TSourceData,TTableData> clb = new ColumnListBuilder<TSourceData, TTableData>(conf);
             columns(clb);
             conf.TableConfiguration.KeyFields = clb.Names.ToArray();
+            return conf;
         }
 
         /// <summary>
@@ -280,12 +281,27 @@ namespace PowerTables.Configuration
         /// <param name="touchedRowTemplateId">Template ID for touched row</param>
         /// <param name="touchedCellTemplateId">Template ID for touched columns</param>
         /// <param name="addedRowTemplateId">Template ID for added row</param>
-        public static void AdjustmentTemplates<TSourceData, TTableData>
+        public static Configurator<TSourceData, TTableData> AdjustmentTemplates<TSourceData, TTableData>
             (this Configurator<TSourceData, TTableData> conf, string touchedRowTemplateId, string touchedCellTemplateId, string addedRowTemplateId) where TTableData : new()
         {
             conf.TableConfiguration.TouchedCellTemplateId = touchedCellTemplateId;
             conf.TableConfiguration.TouchedRowTemplateId = touchedRowTemplateId;
             conf.TableConfiguration.AddedRowTemplateId = addedRowTemplateId;
+            return conf;
         }
+
+
+        /// <summary>
+        /// Function that should consume IRow instance and return template name for this particular row.
+        /// Return null/empty/undefined will let system to choose default template. 
+        /// You can access row data via .DataObject property
+        /// </summary>
+        public static Configurator<TSourceData, TTableData> RowTemplateSelector<TSourceData, TTableData>
+            (this Configurator<TSourceData, TTableData> conf, string selectorFunction) where TTableData : new()
+        {
+            conf.TableConfiguration.TemplateSelector = string.IsNullOrEmpty(selectorFunction)?null:new JRaw(selectorFunction);
+            return conf;
+        }
+
     }
 }

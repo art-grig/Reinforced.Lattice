@@ -3,13 +3,9 @@
 //     the code is regenerated.
 var PowerTables;
 (function (PowerTables) {
-    /** Ordering */
     (function (Ordering) {
-        /** Ascending */
         Ordering[Ordering["Ascending"] = 0] = "Ascending";
-        /** Descending */
         Ordering[Ordering["Descending"] = 1] = "Descending";
-        /** Ordering is not applied */
         Ordering[Ordering["Neutral"] = 2] = "Neutral";
     })(PowerTables.Ordering || (PowerTables.Ordering = {}));
     var Ordering = PowerTables.Ordering;
@@ -1791,7 +1787,7 @@ var PowerTables;
                     }
                 }
             }
-            result.sort(function (a, b) {
+            result = result.sort(function (a, b) {
                 return a.Order - b.Order;
             });
             return result;
@@ -2425,6 +2421,9 @@ var PowerTables;
                         result += rw.renderElement(this._templatesProvider);
                     }
                     else {
+                        if (this._instances.Configuration.TemplateSelector) {
+                            rw.TemplateIdOverride = this._instances.Configuration.TemplateSelector(rw);
+                        }
                         if (rw.TemplateIdOverride) {
                             result += this._templatesProvider.getCachedTemplate(rw.TemplateIdOverride)(rw);
                         }
@@ -3968,10 +3967,10 @@ var PowerTables;
                 }, 'loading');
             };
             LoadingPlugin.prototype.showLoadingIndicator = function () {
-                this.BlinkElement.style.visibility = 'visible';
+                this.MasterTable.Renderer.Modifier.showElement(this.BlinkElement);
             };
             LoadingPlugin.prototype.hideLoadingIndicator = function () {
-                this.BlinkElement.style.visibility = 'collapse';
+                this.MasterTable.Renderer.Modifier.hideElement(this.BlinkElement);
             };
             LoadingPlugin.prototype.renderContent = function (templatesProvider) {
                 return this.defaultRender(templatesProvider);
@@ -6440,7 +6439,7 @@ var PowerTables;
                 }
                 this._confirm(form);
             };
-            ToolbarConfirmation.prototype.rejectHandle = function () {
+            ToolbarConfirmation.prototype.dismissHandle = function () {
                 this._reject();
             };
             return ToolbarConfirmation;

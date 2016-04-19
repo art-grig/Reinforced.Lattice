@@ -51,7 +51,7 @@
             this._confirm(form);
         }
 
-        public rejectHandle() {
+        public dismissHandle() {
             this._reject();
         }
 
