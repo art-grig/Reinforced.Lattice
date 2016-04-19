@@ -15,7 +15,7 @@ namespace PowerTables.Mvc.Models.Tutorial
     {
         public static Configurator<Toy, Row> Filtering(this Configurator<Toy, Row> conf)
         {
-            conf.Pagination();
+            conf.ClientPagination();
             conf.LoadImmediately(true);
             conf
                 .DatePicker(new DatepickerOptions( // set up functions for 3rd party datepickers

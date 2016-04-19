@@ -44,7 +44,7 @@ namespace PowerTables.Mvc.Models.Tutorial
             conf.Column(c => c.Price).OrderableUi(ui => ui.DefaultOrdering(Ordering.Neutral));
             conf.Column(c => c.Id).Orderable(c=>c.Id,ui=>ui.DefaultOrdering(Ordering.Descending));
 
-            conf.PrimaryKey(c => c.Include(v => v.Id));
+            
             conf.AdjustmentTemplates("updatedRow", "updatedCell", "addedRow");
 
             conf.Column(c => c.Name)

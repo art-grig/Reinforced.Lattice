@@ -4,11 +4,29 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using PowerTables.ResponseProcessing;
 
 namespace PowerTables.Editors
 {
+    public class TableUpdateResult : JsonNetResult
+    {
+        public TableUpdateResult(EditionResult result)
+        {
+            Data = result;
+        }
+
+        public TableUpdateResult(IEditionResultContainer result)
+        {
+            Data = result.EditionResult;
+        }
+    }
+
     public class EditionResult
     {
+        [JsonProperty("__XqTFFhTxSu")]
+        public bool IsUpdateResult { get { return true; } }
+
         public object ConfirmedObject { get; set; }
 
         public AdjustmentData TableAdjustments { get; set; }
@@ -68,7 +86,7 @@ namespace PowerTables.Editors
         }
     }
 
-    public class EditionResultWrapper<T>
+    public class EditionResultWrapper<T> : IEditionResultContainer
     {
         private readonly EditionResult _result;
 
@@ -96,5 +114,12 @@ namespace PowerTables.Editors
             AdjustmentDataWrapper<T2> adj = new AdjustmentDataWrapper<T2>(_result.OtherTablesAdjustments[tableId]);
             otherTableAdjustments(adj);
         }
+
+        public EditionResult EditionResult { get { return _result; } }
+    }
+
+    public interface IEditionResultContainer
+    {
+        EditionResult EditionResult { get; }
     }
 }

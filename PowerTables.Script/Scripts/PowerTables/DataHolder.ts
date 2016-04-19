@@ -442,7 +442,7 @@
                     }
                 }
             }
-
+            
             for (var j = 0; j < adjustments.Removals.length; j++) {
                 this.normalizeObject(adjustments.Removals[j]);
                 var lookup = this.localLookupPrimaryKey(adjustments.Removals[j]);

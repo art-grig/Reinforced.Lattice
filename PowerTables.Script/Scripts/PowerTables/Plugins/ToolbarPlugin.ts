@@ -55,7 +55,7 @@
                 else if (btn.ConfirmationTemplateId) {
                     var tc = new ToolbarConfirmation((data) => {
                         f((q) => {
-                            q.AdditionalData['Confirmation'] = data;
+                            q.AdditionalData['Confirmation'] = JSON.stringify(data);
                             return q;
                         });
                         this.MasterTable.Renderer.destroyObject(btn.ConfirmationTargetSelector);

@@ -133,12 +133,18 @@
         }
 
         private beforeRowsRendering(e: ITableEventArgs<IRow[]>) {
+            var selectedRows = 0;
             for (var i: number = 0; i < e.EventArgs.length; i++) {
                 var row: IRow = e.EventArgs[i];
                 if (row.IsSpecial) continue;
                 if (this._selectedItems.indexOf(row.DataObject[this.ValueColumnName].toString()) > -1) {
                     row.renderElement = (e) => e.getCachedTemplate('checkboxifyRow')(row);
+                    selectedRows++;
                 }
+            }
+            if (selectedRows < this._selectedItems.length) {
+                this._allSelected = false;
+                this.redrawHeader();
             }
         }
 
@@ -176,12 +182,15 @@
             this._ourColumn = col;
             this.ValueColumnName = this.Configuration.SelectionColumnName;
             this._canSelectAll = this.Configuration.EnableSelectAll;
+            this.MasterTable.Loader.registerQueryPartProvider(this);
         }
 
 
         public modifyQuery(query: IQuery, scope: QueryScope): void {
-            query.AdditionalData['Selection'] = this._selectedItems.join('|');
-            query.AdditionalData['SelectionColumn'] = this.ValueColumnName;
+            if (scope === QueryScope.Transboundary) {
+                query.AdditionalData['Selection'] = this._selectedItems.join('|');
+                query.AdditionalData['SelectionColumn'] = this.ValueColumnName;
+            }
         }
 
         public static registerEvents(e: EventsManager, masterTable: IMasterTable): void {

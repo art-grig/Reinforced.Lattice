@@ -1876,13 +1876,14 @@ var PowerTables;
      * Component that is responsible for querying server
      */
     var Loader = (function () {
-        function Loader(staticData, operationalAjaxUrl, events, dataHolder) {
+        function Loader(staticData, operationalAjaxUrl, masterTable) {
             this._queryPartProviders = [];
             this._isFirstTimeLoading = false;
             this._staticData = staticData;
             this._operationalAjaxUrl = operationalAjaxUrl;
-            this._events = events;
-            this._dataHolder = dataHolder;
+            this._masterTable = masterTable;
+            this._events = this._masterTable.Events;
+            this._dataHolder = this._masterTable.DataHolder;
         }
         /**
          * Registers new query part provider to be used while collecting
@@ -1957,9 +1958,31 @@ var PowerTables;
             }
             return false;
         };
+        Loader.prototype.checkEditResult = function (json, data, req) {
+            if (json['__XqTFFhTxSu']) {
+                var currentTableAdjustments = json.TableAdjustments;
+                if (json.ConfirmedObject !== null && json.ConfirmedObject != undefined)
+                    currentTableAdjustments.Updates.push(json.ConfirmedObject);
+                this._masterTable.proceedAdjustments(currentTableAdjustments);
+                for (var otherAdj in json.OtherTablesAdjustments) {
+                    if (json.OtherTablesAdjustments.hasOwnProperty(otherAdj)) {
+                        if (window['__latticeInstances'][otherAdj]) {
+                            window['__latticeInstances'][otherAdj].proceedAdjustments(json.OtherTablesAdjustments[otherAdj]);
+                        }
+                    }
+                }
+                return true;
+            }
+            return false;
+        };
         Loader.prototype.handleRegularJsonResponse = function (req, data, clientQuery, callback, errorCallback) {
             var json = JSON.parse(req.responseText);
             var error = this.checkError(json, data, req);
+            var edit = this.checkEditResult(json, data, req);
+            if (edit) {
+                callback(json);
+                return;
+            }
             if (!error) {
                 this._events.DataReceived.invoke(this, {
                     Request: data,
@@ -3783,7 +3806,7 @@ var PowerTables;
             this.Events = new PowerTables.EventsManager(this);
             this.InstanceManager = new PowerTables.InstanceManager(this._configuration, this, this.Events);
             this.DataHolder = new PowerTables.DataHolder(this);
-            this.Loader = new PowerTables.Loader(this._configuration.StaticData, this._configuration.OperationalAjaxUrl, this.Events, this.DataHolder);
+            this.Loader = new PowerTables.Loader(this._configuration.StaticData, this._configuration.OperationalAjaxUrl, this);
             this.Renderer = new PowerTables.Rendering.Renderer(this._configuration.TableRootId, this._configuration.Prefix, this.InstanceManager, this.Events, this.Date, this._configuration.CoreTemplates);
             this.Controller = new PowerTables.Controller(this);
             this.InstanceManager.initPlugins();
@@ -5245,13 +5268,19 @@ var PowerTables;
                 });
             };
             CheckboxifyPlugin.prototype.beforeRowsRendering = function (e) {
+                var selectedRows = 0;
                 for (var i = 0; i < e.EventArgs.length; i++) {
                     var row = e.EventArgs[i];
                     if (row.IsSpecial)
                         continue;
                     if (this._selectedItems.indexOf(row.DataObject[this.ValueColumnName].toString()) > -1) {
                         row.renderElement = function (e) { return e.getCachedTemplate('checkboxifyRow')(row); };
+                        selectedRows++;
                     }
+                }
+                if (selectedRows < this._selectedItems.length) {
+                    this._allSelected = false;
+                    this.redrawHeader();
                 }
             };
             CheckboxifyPlugin.prototype.enableSelectAll = function (enabled) {
@@ -5290,10 +5319,13 @@ var PowerTables;
                 this._ourColumn = col;
                 this.ValueColumnName = this.Configuration.SelectionColumnName;
                 this._canSelectAll = this.Configuration.EnableSelectAll;
+                this.MasterTable.Loader.registerQueryPartProvider(this);
             };
             CheckboxifyPlugin.prototype.modifyQuery = function (query, scope) {
-                query.AdditionalData['Selection'] = this._selectedItems.join('|');
-                query.AdditionalData['SelectionColumn'] = this.ValueColumnName;
+                if (scope === PowerTables.QueryScope.Transboundary) {
+                    query.AdditionalData['Selection'] = this._selectedItems.join('|');
+                    query.AdditionalData['SelectionColumn'] = this.ValueColumnName;
+                }
             };
             CheckboxifyPlugin.registerEvents = function (e, masterTable) {
                 e['SelectionChanged'] = new PowerTables.TableEvent(masterTable);
@@ -5367,7 +5399,7 @@ var PowerTables;
                     else if (btn.ConfirmationTemplateId) {
                         var tc = new Plugins.ToolbarConfirmation(function (data) {
                             f(function (q) {
-                                q.AdditionalData['Confirmation'] = data;
+                                q.AdditionalData['Confirmation'] = JSON.stringify(data);
                                 return q;
                             });
                             _this.MasterTable.Renderer.destroyObject(btn.ConfirmationTargetSelector);
@@ -5672,16 +5704,6 @@ var PowerTables;
                 });
             };
             Editor.prototype.dispatchEditResponse = function (editResponse, then) {
-                var currentTableAdjustments = editResponse.TableAdjustments;
-                currentTableAdjustments.Updates.push(editResponse.ConfirmedObject);
-                this.MasterTable.proceedAdjustments(currentTableAdjustments);
-                for (var otherAdj in editResponse.OtherTablesAdjustments) {
-                    if (editResponse.OtherTablesAdjustments.hasOwnProperty(otherAdj)) {
-                        if (window['__latticeInstances'][otherAdj]) {
-                            window['__latticeInstances'][otherAdj].proceedAdjustments(editResponse.OtherTablesAdjustments[otherAdj]);
-                        }
-                    }
-                }
                 if (then)
                     then();
             };

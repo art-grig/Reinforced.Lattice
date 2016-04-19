@@ -1745,7 +1745,7 @@ declare module PowerTables {
      * Component that is responsible for querying server
      */
     class Loader {
-        constructor(staticData: any, operationalAjaxUrl: string, events: EventsManager, dataHolder: DataHolder);
+        constructor(staticData: any, operationalAjaxUrl: string, masterTable: IMasterTable);
         private _queryPartProviders;
         private _previousRequest;
         private _staticData;
@@ -1753,6 +1753,7 @@ declare module PowerTables {
         private _events;
         private _dataHolder;
         private _isFirstTimeLoading;
+        private _masterTable;
         /**
          * Registers new query part provider to be used while collecting
          * query data before sending it to server.
@@ -1765,6 +1766,7 @@ declare module PowerTables {
         private getXmlHttp();
         private _previousQueryString;
         private checkError(json, data, req);
+        private checkEditResult(json, data, req);
         private handleRegularJsonResponse(req, data, clientQuery, callback, errorCallback);
         private handleDeferredResponse(req, data, callback);
         private doServerQuery(data, clientQuery, callback, errorCallback?);

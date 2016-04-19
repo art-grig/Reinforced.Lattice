@@ -174,17 +174,7 @@ namespace PowerTables.Mvc.Controllers
             return Handle(c => c.RedirectingFilters());
         }
         
-        [Tutorial("Checkboxify and simple buttons", 9)]
-        public ActionResult ButtonsAndCheckboxify()
-        {
-            return TutPage(c => c.ButtonsAndCheckboxify());
-        }
-
-        public ActionResult ButtonsAndCheckboxifyHandle()
-        {
-            return Handle(c => c.ButtonsAndCheckboxify());
-        }
-
+       
         [Tutorial("Buttons for server commands", 10)]
         public ActionResult ButtonsForCommands()
         {

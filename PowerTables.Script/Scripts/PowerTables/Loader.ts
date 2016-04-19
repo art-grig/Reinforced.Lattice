@@ -4,11 +4,12 @@
      * Component that is responsible for querying server
      */
     export class Loader {
-        constructor(staticData: any, operationalAjaxUrl: string, events: EventsManager, dataHolder: DataHolder) {
+        constructor(staticData: any, operationalAjaxUrl: string, masterTable: IMasterTable) {
             this._staticData = staticData;
             this._operationalAjaxUrl = operationalAjaxUrl;
-            this._events = events;
-            this._dataHolder = dataHolder;
+            this._masterTable = masterTable;
+            this._events = this._masterTable.Events;
+            this._dataHolder = this._masterTable.DataHolder;
         }
 
         private _queryPartProviders: IQueryPartProvider[] = [];
@@ -18,6 +19,7 @@
         private _events: EventsManager; // from ctor
         private _dataHolder: DataHolder; // from ctor
         private _isFirstTimeLoading: boolean = false;
+        private _masterTable: IMasterTable;
 
         /**
          * Registers new query part provider to be used while collecting 
@@ -96,9 +98,31 @@
             return false;
         }
 
+        private checkEditResult(json: any, data: any, req: any): boolean {
+            if (json['__XqTFFhTxSu']) {
+                var currentTableAdjustments = json.TableAdjustments;
+                if (json.ConfirmedObject !== null && json.ConfirmedObject != undefined) currentTableAdjustments.Updates.push(json.ConfirmedObject);
+                this._masterTable.proceedAdjustments(currentTableAdjustments);
+                for (var otherAdj in json.OtherTablesAdjustments) {
+                    if (json.OtherTablesAdjustments.hasOwnProperty(otherAdj)) {
+                        if (window['__latticeInstances'][otherAdj]) {
+                            window['__latticeInstances'][otherAdj].proceedAdjustments(json.OtherTablesAdjustments[otherAdj]);
+                        }
+                    }
+                }
+                return true;
+            }
+            return false;
+        }
+
         private handleRegularJsonResponse(req: any, data: any, clientQuery: any, callback: any, errorCallback: any) {
             var json = JSON.parse(req.responseText);
             var error: boolean = this.checkError(json, data, req);
+            var edit: boolean = this.checkEditResult(json, data, req);
+            if (edit) {
+                callback(json);
+                return;
+            }
             if (!error) {
                 this._events.DataReceived.invoke(this, {
                     Request: data,
@@ -193,7 +217,7 @@
          * @param errorCallback Will be called if error occures
          * @returns {} 
          */
-        public requestServer(command: string, callback: (data: any) => void, queryModifier?: (a: IQuery) => IQuery, errorCallback?: (data: any) => void, force?:boolean): void {
+        public requestServer(command: string, callback: (data: any) => void, queryModifier?: (a: IQuery) => IQuery, errorCallback?: (data: any) => void, force?: boolean): void {
 
             var scope: QueryScope = QueryScope.Transboundary;
             if (command === 'query') scope = QueryScope.Server;
@@ -207,10 +231,10 @@
                 queryModifier(serverQuery);
                 if (command === 'query') queryModifier(clientQuery);
             }
-            
+
             var queriesEqual: boolean = (command === 'query') && (JSON.stringify(serverQuery) === this._previousQueryString);
 
-            if (force||!queriesEqual) {
+            if (force || !queriesEqual) {
                 var data: IPowerTableRequest = {
                     Command: command,
                     Query: serverQuery
