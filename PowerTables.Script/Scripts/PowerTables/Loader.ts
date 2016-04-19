@@ -100,6 +100,11 @@
 
         private checkEditResult(json: any, data: any, req: any): boolean {
             if (json['__XqTFFhTxSu']) {
+                this._events.DataReceived.invoke(this, {
+                    Request: data,
+                    XMLHttp: req,
+                    Data: json
+                });
                 var currentTableAdjustments = json.TableAdjustments;
                 if (json.ConfirmedObject !== null && json.ConfirmedObject != undefined) currentTableAdjustments.Updates.push(json.ConfirmedObject);
                 this._masterTable.proceedAdjustments(currentTableAdjustments);
@@ -120,6 +125,7 @@
             var error: boolean = this.checkError(json, data, req);
             var edit: boolean = this.checkEditResult(json, data, req);
             if (edit) {
+                
                 callback(json);
                 return;
             }

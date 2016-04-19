@@ -135,6 +135,7 @@
     <Compile Include="Models\AboutViewModel.cs" />
     <Compile Include="Models\AdditionalSearchData.cs" />
     <Compile Include="Models\Data\Data.cs" />
+    <Compile Include="Models\SimpleConfirmationModel.cs" />
     <Compile Include="Models\TargetData.cs" />
     <Compile Include="Models\TestTable.cs" />
     <Compile Include="Models\Tutorial\FormWatchTutorialModel.cs" />

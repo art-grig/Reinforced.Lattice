@@ -1960,6 +1960,11 @@ var PowerTables;
         };
         Loader.prototype.checkEditResult = function (json, data, req) {
             if (json['__XqTFFhTxSu']) {
+                this._events.DataReceived.invoke(this, {
+                    Request: data,
+                    XMLHttp: req,
+                    Data: json
+                });
                 var currentTableAdjustments = json.TableAdjustments;
                 if (json.ConfirmedObject !== null && json.ConfirmedObject != undefined)
                     currentTableAdjustments.Updates.push(json.ConfirmedObject);

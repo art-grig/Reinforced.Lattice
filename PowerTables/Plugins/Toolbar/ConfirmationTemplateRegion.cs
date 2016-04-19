@@ -65,7 +65,7 @@ namespace PowerTables.Plugins.Toolbar
             string type = field.PropertyType.Name.Replace("System.",string.Empty);
             if (field.PropertyType.IsEnum) type = "Int32";
             if (field.PropertyType.IsNullable()) type += "?";
-            var fieldId = string.Format("{0}-{1}", field.Name, type);
+            var fieldId = string.Format("\"{0}-{1}\"", field.Name, type);
 
             return p.Mark("FormElements", fieldId);
         }

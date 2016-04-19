@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Newtonsoft.Json;
 using PowerTables.Configuration;
 using PowerTables.Configuration.Json;
 
@@ -8,6 +9,7 @@ namespace PowerTables.Plugins.Toolbar
     public static class ToolbarExtensions
     {
         public const string PluginId = "Toolbar";
+        private const string ConfirmationFormKey = "Confirmation";
 
         /// <summary>
         /// Adds toolbar to table
@@ -30,6 +32,76 @@ namespace PowerTables.Plugins.Toolbar
                 c.Order = order;
             }, where);
             return conf;
+        }
+
+        /// <summary>
+        /// Retrieves values of ConfirmationForm
+        /// </summary>
+        /// <typeparam name="T">ConfirmationForm ViewModel type</typeparam>
+        /// <param name="clientQuery">Query</param>
+        /// <returns>ConfirmationForm ViewModel</returns>
+        public static T ConfirmationForm<T>(this Query clientQuery)
+        {
+            return clientQuery.RetrieveAdditionalObject<T>(ConfirmationFormKey);
+        }
+
+        /// <summary>
+        /// Retrieves values of ConfirmationForm
+        /// </summary>
+        /// <typeparam name="T">ConfirmationForm ViewModel type</typeparam>
+        /// <param name="clientQuery">Query</param>
+        /// <param name="converters">Converters to be supplied to Json.Net</param>
+        /// <returns>ConfirmationForm ViewModel</returns>
+        public static T ConfirmationForm<T>(this Query clientQuery, params JsonConverter[] converters)
+        {
+            return clientQuery.RetrieveAdditionalObject<T>(ConfirmationFormKey, converters);
+        }
+
+        /// <summary>
+        /// Retrieves values of ConfirmationForm
+        /// </summary>
+        /// <typeparam name="T">ConfirmationForm ViewModel type</typeparam>
+        /// <param name="clientQuery">Query</param>
+        /// <param name="serializerSettings">Serializer settings to be supplied to Json.Net</param>
+        /// <returns>ConfirmationForm ViewModel</returns>
+        public static T ConfirmationForm<T>(this Query clientQuery, JsonSerializerSettings serializerSettings)
+        {
+            return clientQuery.RetrieveAdditionalObject<T>(ConfirmationFormKey, serializerSettings);
+        }
+
+        /// <summary>
+        /// Retrieves values of ConfirmationForm
+        /// </summary>
+        /// <typeparam name="T">ConfirmationForm ViewModel type</typeparam>
+        /// <param name="request">PowerTables request</param>
+        /// <returns>ConfirmationForm ViewModel</returns>
+        public static T ConfirmationForm<T>(this PowerTableRequest request)
+        {
+            return ConfirmationForm<T>(request.Query);
+        }
+
+        /// <summary>
+        /// Retrieves values of ConfirmationForm
+        /// </summary>
+        /// <typeparam name="T">ConfirmationForm ViewModel type</typeparam>
+        /// <param name="request">PowerTables request</param>
+        /// <param name="converters">Converters to be supplied to Json.Net</param>
+        /// <returns>ConfirmationForm ViewModel</returns>
+        public static T ConfirmationForm<T>(this PowerTableRequest request, params JsonConverter[] converters)
+        {
+            return ConfirmationForm<T>(request.Query, converters);
+        }
+
+        /// <summary>
+        /// Retrieves values of ConfirmationForm
+        /// </summary>
+        /// <typeparam name="T">ConfirmationForm ViewModel type</typeparam>
+        /// <param name="request">PowerTables request</param>
+        /// <param name="serializerSettings">Serializer settings to be supplied to Json.Net</param>
+        /// <returns>ConfirmationForm ViewModel</returns>
+        public static T ConfirmationForm<T>(this PowerTableRequest request, JsonSerializerSettings serializerSettings)
+        {
+            return ConfirmationForm<T>(request.Query, serializerSettings);
         }
     }
 }
