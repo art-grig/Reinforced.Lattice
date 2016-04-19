@@ -78,6 +78,17 @@
         private static _integerTypes: string[] = ['Int32', 'Int64', 'Int16', 'SByte', 'Byte', 'UInt32', 'UInt64', 'UInt16', 'Int32?', 'Int64?', 'Int16?', 'SByte?', 'Byte?', 'UInt32?', 'UInt64?', 'UInt16?'];
         private static _booleanTypes: string[] = ['Boolean', 'Boolean?'];
 
+        public static classifyType(fieldType: string): IClassifiedType {
+            return {
+                IsDateTime: InstanceManager._datetimeTypes.indexOf(fieldType) > -1,
+                IsString: InstanceManager._stringTypes.indexOf(fieldType) > -1,
+                IsFloat: InstanceManager._floatTypes.indexOf(fieldType) > -1,
+                IsInteger: InstanceManager._integerTypes.indexOf(fieldType) > -1,
+                IsBoolean: InstanceManager._booleanTypes.indexOf(fieldType) > -1,
+                IsNullable: InstanceManager.endsWith(fieldType, '?')
+        };
+        }
+
         private initColumns(): void {
             var columns: IColumn[] = [];
             for (var i: number = 0; i < this.Configuration.Columns.length; i++) {
@@ -127,7 +138,7 @@
                 plugin.Order = conf.Order||0;
 
                 plugin.init(this._masterTable);
-                if (this._isHandlingSpecialPlacementCase && this.startsWith(conf.Placement, this._specialCasePlaceholder)) {
+                if (this._isHandlingSpecialPlacementCase && InstanceManager.startsWith(conf.Placement, this._specialCasePlaceholder)) {
                     specialCases[conf.Placement] = plugin;
                     anySpecialCases = true;
                 } else {
@@ -144,7 +155,7 @@
                         var id: string = `${this._specialCasePlaceholder}-${c}`;
                         var specialPlugin: IPlugin = null;
                         for (var k in specialCases) {
-                            if (this.startsWith(k, id)) {
+                            if (InstanceManager.startsWith(k, id)) {
                                 specialPlugin = specialCases[k];
                             }
                         }
@@ -166,7 +177,7 @@
             this._events.ColumnsCreation.invoke(this, this.Columns);
         }
 
-        private startsWith(s1: string, prefix: string): boolean {
+        private static startsWith(s1: string, prefix: string): boolean {
             if (s1 == undefined || s1 === null) return false;
             if (prefix.length > s1.length) return false;
             if (s1 === prefix) return true;
@@ -175,7 +186,7 @@
             return part === prefix;
         }
 
-        private endsWith(s1: string, postfix: string): boolean {
+        private  static endsWith(s1: string, postfix: string): boolean {
             if (s1 == undefined || s1 === null) return false;
             if (postfix.length > s1.length) return false;
             if (s1 === postfix) return true;
@@ -198,7 +209,7 @@
                 for (var k in this.Plugins) {
                     if (this.Plugins.hasOwnProperty(k)) {
                         var plg: IPlugin = this.Plugins[k];
-                        if (this.startsWith(plg.RawConfig.PluginId, pluginId)) return <any>plg;
+                        if (InstanceManager.startsWith(plg.RawConfig.PluginId, pluginId)) return <any>plg;
                     }
                 }
             }
@@ -295,5 +306,13 @@
                 throw new Error(`Column ${columnName} not found for rendering`);
             return this.Columns[columnName];
         }
+    }
+    export interface IClassifiedType {
+        IsDateTime: boolean;
+        IsString: boolean;
+        IsFloat: boolean;
+        IsInteger: boolean;
+        IsBoolean: boolean;
+        IsNullable: boolean;
     }
 }

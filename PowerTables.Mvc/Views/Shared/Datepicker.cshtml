@@ -26,8 +26,12 @@
         $(e).datepicker('remove');
     }
 
-    var alertElem = function(element) {
-        alert(element);
+    var showModal = function(element) {
+        $('#confirmationModal').modal('show');
+    }
+
+    var hideModal = function (element) {
+        $('#confirmationModal').modal('hide');
     }
 </script>
 

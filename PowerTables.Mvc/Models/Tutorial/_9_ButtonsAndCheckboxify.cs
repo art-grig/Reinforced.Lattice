@@ -21,11 +21,16 @@ namespace PowerTables.Mvc.Models.Tutorial
 
                 a.AddCommandButton("download".GlyphIcon() + "Download", Download);
 
-                a.AddMenu("th".GlyphIcon() + "Excel export", b =>
+                a.AddMenu("th".GlyphIcon() + "Confirmations", b =>
                 {
-                    b.AddCommandItem("star".GlyphIcon("left") + "Export all", ExportAll);
-                    b.AddCommandItem("save".GlyphIcon("left") + "Export selected", ExportSelected)
+                    b.AddCommandItem("star".GlyphIcon("left") + "Simple confirmation", ExportAll)
+                        .Confirmation("confirmation1", "#confirmationContent")
+                        ;
+                    b.AddCommandItem("save".GlyphIcon("left") + "Confirm selection", ExportSelected)
                         .DisableIfNothingChecked();
+                    b.AddCommandItem("save".GlyphIcon("left") + "Confirm with small form", ExportSelected)
+                        .DisableIfNothingChecked();
+
                 }).Css("btn-primary");
 
                 a.AddMenuButton("record".GlyphIcon() + "And this is button menu", "something", b =>

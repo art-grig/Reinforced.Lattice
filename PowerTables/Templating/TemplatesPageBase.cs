@@ -36,14 +36,6 @@ namespace PowerTables.Templating
             }
         }
 
-
-
-        public MvcHtmlString Callback(string functionName, params string[] rawArgs)
-        {
-            var args = string.Join(" ", rawArgs);
-            return MvcHtmlString.Create(string.Format("{{{{{{RenderCallback \"{0}\" {1} }}}}}}", functionName, args));
-        }
-
         /// <summary>
         /// Templates prefix
         /// </summary>

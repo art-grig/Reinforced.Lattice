@@ -8,7 +8,7 @@
         private _visibleAll: boolean = false;
         private _allSelected: boolean = false;
         private _ourColumn: IColumn;
-        private _valueColumnName: string;
+        public ValueColumnName: string;
         private _canSelectAll: boolean;
 
         public selectAll(selected?: boolean): void {
@@ -19,7 +19,7 @@
             if (this._allSelected) {
                 if (this.Configuration.SelectAllSelectsClientUndisplayedData) {
                     for (var i: number = 0; i < this.MasterTable.DataHolder.StoredData.length; i++) {
-                        this._selectedItems.push(this.MasterTable.DataHolder.StoredData[i][this._valueColumnName].toString());
+                        this._selectedItems.push(this.MasterTable.DataHolder.StoredData[i][this.ValueColumnName].toString());
                     }
                     this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
                     this.MasterTable.Controller.redrawVisibleData();
@@ -31,7 +31,7 @@
                     });
                 } else {
                     for (var j: number = 0; j < this.MasterTable.DataHolder.DisplayedData.length; j++) {
-                        this._selectedItems.push(this.MasterTable.DataHolder.DisplayedData[j][this._valueColumnName].toString());
+                        this._selectedItems.push(this.MasterTable.DataHolder.DisplayedData[j][this.ValueColumnName].toString());
                     }
                     this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
                     this.MasterTable.Controller.redrawVisibleData();
@@ -83,7 +83,7 @@
             col.Header = header;
 
             this.MasterTable.Renderer.ContentRenderer.cacheColumnRenderingFunction(col, x => {
-                var value = x.DataObject[this._valueColumnName].toString();
+                var value = x.DataObject[this.ValueColumnName].toString();
                 var selected: boolean = this._selectedItems.indexOf(value) > -1;
                 var canCheck: boolean = this.canCheck(x.DataObject, x.Row);
                 return this.MasterTable.Renderer.getCachedTemplate(this.Configuration.CellTemplateId)({ Value: value, IsChecked: selected, CanCheck: canCheck });
@@ -101,7 +101,7 @@
 
         public selectByRowIndex(rowIndex: number): void {
             var displayedLookup: ILocalLookupResult = this.MasterTable.DataHolder.localLookupDisplayedData(rowIndex);
-            var v = displayedLookup.DataObject[this._valueColumnName].toString();
+            var v = displayedLookup.DataObject[this.ValueColumnName].toString();
             var idx: number = this._selectedItems.indexOf(v);
             var overrideRow: boolean = false;
             if (idx > -1) {
@@ -136,7 +136,7 @@
             for (var i: number = 0; i < e.EventArgs.length; i++) {
                 var row: IRow = e.EventArgs[i];
                 if (row.IsSpecial) continue;
-                if (this._selectedItems.indexOf(row.DataObject[this._valueColumnName].toString()) > -1) {
+                if (this._selectedItems.indexOf(row.DataObject[this.ValueColumnName].toString()) > -1) {
                     row.renderElement = (e) => e.getCachedTemplate('checkboxifyRow')(row);
                 }
             }
@@ -174,14 +174,14 @@
             var col: IColumn = this.createColumn();
             this.MasterTable.InstanceManager.Columns['_checkboxify'] = col;
             this._ourColumn = col;
-            this._valueColumnName = this.Configuration.SelectionColumnName;
+            this.ValueColumnName = this.Configuration.SelectionColumnName;
             this._canSelectAll = this.Configuration.EnableSelectAll;
         }
 
 
         public modifyQuery(query: IQuery, scope: QueryScope): void {
             query.AdditionalData['Selection'] = this._selectedItems.join('|');
-            query.AdditionalData['SelectionColumn'] = this._valueColumnName;
+            query.AdditionalData['SelectionColumn'] = this.ValueColumnName;
         }
 
         public static registerEvents(e: EventsManager, masterTable: IMasterTable): void {

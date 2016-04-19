@@ -176,6 +176,7 @@
     <Compile Include="Plugins\Checkboxify\CheckboxifyClientConfig.cs" />
     <Compile Include="Plugins\ResponseInfo\ResponseInfoClientConfiguration.cs" />
     <Compile Include="Plugins\ResponseInfo\ResponseInfoTemplateRegion.cs" />
+    <Compile Include="Plugins\Toolbar\ConfirmationTemplateRegion.cs" />
     <Compile Include="Plugins\Toolbar\ToolbarBuilder.cs" />
     <Compile Include="Plugins\Toolbar\ToolbarButtonClientConfiguration.cs" />
     <Compile Include="Plugins\Toolbar\ToolbarButtonsClientConfiguration.cs" />
@@ -209,6 +210,7 @@
     <Compile Include="ResponseProcessing\JsonNetResult.cs" />
     <Compile Include="SerializationSettings.cs" />
     <Compile Include="Templating\AdditionalTemplatesScope.cs" />
+    <Compile Include="Templating\BuiltIn\CellTemplateRegion.cs" />
     <Compile Include="Templating\BuiltIn\CellWrapperTemplateRegion.cs" />
     <Compile Include="Templating\BuiltIn\MessageWrapperTemplateRegion.cs" />
     <Compile Include="Templating\BuiltIn\HeaderWrapperTemplateRegion.cs" />

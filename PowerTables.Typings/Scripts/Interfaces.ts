@@ -450,6 +450,8 @@ module PowerTables.Plugins.Toolbar {
 		Separator: boolean;
 		InternalId: number;
 		IsDisabled: boolean;
+		ConfirmationTemplateId: string;
+		ConfirmationTargetSelector: string;
 	}
 }
 module PowerTables.Plugins.Total {

@@ -23,14 +23,14 @@
             if (btn.Command) {
                 var _self: ToolbarPlugin = this;
 
-// ReSharper disable Lambda
-                var f: (queryModifier?: (a: IQuery) => IQuery) => void = function(queryModifier?: (a: IQuery) => IQuery) {
+                // ReSharper disable Lambda
+                var f: (queryModifier?: (a: IQuery) => IQuery) => void = function (queryModifier?: (a: IQuery) => IQuery) {
                     if (btn.BlackoutWhileCommand) {
                         btn.IsDisabled = true;
                         _self.redrawMe();
                     }
 
-                    _self.MasterTable.Loader.requestServer(btn.Command, function(response) {
+                    _self.MasterTable.Loader.requestServer(btn.Command, function (response) {
                         if (btn.CommandCallbackFunction) {
                             btn.CommandCallbackFunction.apply(_self.MasterTable, [_self.MasterTable, response]);
                         } else {
@@ -43,15 +43,44 @@
                             _self.redrawMe();
                         }
 
-                    }, queryModifier, function() {
-                        if (btn.BlackoutWhileCommand) {
-                            btn.IsDisabled = false;
-                            _self.redrawMe();
-                        }
-                    });
+                    }, queryModifier, function () {
+                            if (btn.BlackoutWhileCommand) {
+                                btn.IsDisabled = false;
+                                _self.redrawMe();
+                            }
+                        });
                 }
-// ReSharper restore Lambda
+                // ReSharper restore Lambda
                 if (btn.ConfirmationFunction) btn.ConfirmationFunction.apply(this.MasterTable, [f]);
+                else if (btn.ConfirmationTemplateId) {
+                    var tc = new ToolbarConfirmation((data) => {
+                        f((q) => {
+                            q.AdditionalData['Confirmation'] = data;
+                            return q;
+                        });
+                        this.MasterTable.Renderer.destroyObject(btn.ConfirmationTargetSelector);
+                    }, () => { this.MasterTable.Renderer.destroyObject(btn.ConfirmationTargetSelector); }, this.MasterTable.Date);
+
+                    try {
+                        var chb = this.MasterTable.InstanceManager.getPlugin<CheckboxifyPlugin>('Checkboxify');
+                        var selection = chb.getSelection();
+                        tc.SelectedItems = selection;
+                        var objects = [];
+                        if (selection.length > 0) {
+                            var foundCount = 0;
+                            for (var i = 0; i < this.MasterTable.DataHolder.StoredData.length; i++) {
+                                var obj = this.MasterTable.DataHolder.StoredData[i];
+                                if (selection.indexOf(obj[chb.ValueColumnName].toString()) > -1) {
+                                    objects.push(obj);
+                                    foundCount++;
+                                    if (foundCount === selection.length) break;
+                                }
+                            }
+                        }
+                        tc.SelectedObjects = objects;
+                    } catch (e) { }
+                    this.MasterTable.Renderer.renderObject(btn.ConfirmationTemplateId, tc, btn.ConfirmationTargetSelector);
+                }
                 else f();
             }
         }

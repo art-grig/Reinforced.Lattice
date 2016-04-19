@@ -195,10 +195,16 @@
             this._curParentNode = this._elems[this._elems.length - 1];
         }
 
-        private chars(text: any) {
+        private chars(text: string) {
             if (text.length === 0) return;
             if (!this._curParentNode) {
                 throw new Error('Html2Dom error');
+            }
+            if (text.indexOf('&') > -1) {
+                var node = document.createElement('div');
+                node.innerHTML = text;
+                text = node.textContent;
+                node.textContent = '';
             }
             this._curParentNode.appendChild(document.createTextNode(text));
         }
@@ -212,6 +218,11 @@
                 throw new Error('Wrapper must have root element. Templates with multiple root elements are not supported yet');
             }
             return this._topNodes.length ? this._topNodes[0] : null;
+        }
+
+        public html2DomElements(html: string): HTMLElement[] {
+            this.parse(html.trim());
+            return this._topNodes;
         }
     }
 

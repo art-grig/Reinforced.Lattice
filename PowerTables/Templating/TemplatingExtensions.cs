@@ -109,6 +109,18 @@ namespace PowerTables.Templating
 
         }
 
+
+        public static MvcHtmlString Callback(this ITemplatesScope ts, string functionName, params string[] rawArgs)
+        {
+            var args = string.Join(" ", rawArgs);
+            return MvcHtmlString.Create(string.Format("{{{{{{RenderCallback \"{0}\" {1} }}}}}}", functionName, args));
+        }
+
+        public static MvcHtmlString DestroyCallback(this ITemplatesScope ts, string functionName, params string[] rawArgs)
+        {
+            var args = string.Join(" ", rawArgs);
+            return MvcHtmlString.Create(string.Format("{{{{{{DestroyCallback \"{0}\" {1} }}}}}}", functionName, args));
+        }
         
 
     }

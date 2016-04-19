@@ -251,8 +251,8 @@
             for (var i = 1; i < arguments.length; i++) {
                 args.push(arguments[i]);
             }
-            var index: number = this._callbacksQueue.length;
-            this._callbacksQueue.push({
+            var index: number = this._destroyCallbacksQueue.length;
+            this._destroyCallbacksQueue.push({
                 Callback: fn,
                 CallbackArguments: args,
                 Target: window
