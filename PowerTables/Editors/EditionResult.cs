@@ -21,13 +21,17 @@ namespace PowerTables.Editors
             Data = result.EditionResult;
         }
 
-        public static TableUpdateResult FromRange<T>(IEnumerable<T> updated, IEnumerable<T> removed = null)
+        public static TableUpdateResult FromRange<T>(IEnumerable<T> updated = null, IEnumerable<T> removed = null,TableMessage message = null)
         {
             EditionResult result = new EditionResult();
             EditionResultWrapper<T> wrapper = new EditionResultWrapper<T>(result);
-            foreach (var up in updated)
+            result.Message = message;
+            if (updated != null)
             {
-                wrapper.Adjustments.AddOrUpdate(up);
+                foreach (var up in updated)
+                {
+                    wrapper.Adjustments.AddOrUpdate(up);
+                }
             }
 
             if (removed != null)
@@ -37,6 +41,13 @@ namespace PowerTables.Editors
                     wrapper.Adjustments.Remove(rem);
                 }
             }
+            return new TableUpdateResult(result);
+        }
+
+        public static TableUpdateResult FromMessage(TableMessage message)
+        {
+            EditionResult result = new EditionResult();
+            result.Message = message;
             return new TableUpdateResult(result);
         }
     }
