@@ -85,7 +85,8 @@
             this.AfterDataRendered = new TableEvent(masterTable);
             this.BeforeClientRowsRendering = new TableEvent(masterTable);
             this.DeferredDataReceived = new TableEvent(masterTable);
-
+            this.BeforeAdjustment = new TableEvent(masterTable);
+            this.AfterAdjustment = new TableEvent(masterTable);
         }
 
         /**
@@ -194,6 +195,9 @@
         }
 
         public SelectionChanged: TableEvent<string[]>; //registered by Checkboxify
+
+        public BeforeAdjustment: TableEvent<PowerTables.Editors.IAdjustmentData>;
+        public AfterAdjustment: TableEvent<PowerTables.Editors.IAdjustmentData>;
 
     }
 

@@ -1234,6 +1234,8 @@ declare module PowerTables {
          */
         registerEvent<TEventArgs>(eventName: string): void;
         SelectionChanged: TableEvent<string[]>;
+        BeforeAdjustment: TableEvent<PowerTables.Editors.IAdjustmentData>;
+        AfterAdjustment: TableEvent<PowerTables.Editors.IAdjustmentData>;
     }
     /**
      * Interface for client data results event args
@@ -2724,6 +2726,7 @@ declare module PowerTables.Plugins {
         private enableSelectAll(enabled);
         private onClientReload(e);
         private onServerReload(e);
+        private onAdjustments(e);
         init(masterTable: IMasterTable): void;
         modifyQuery(query: IQuery, scope: QueryScope): void;
         static registerEvents(e: EventsManager, masterTable: IMasterTable): void;

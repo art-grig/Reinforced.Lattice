@@ -824,6 +824,8 @@ var PowerTables;
             this.AfterDataRendered = new TableEvent(masterTable);
             this.BeforeClientRowsRendering = new TableEvent(masterTable);
             this.DeferredDataReceived = new TableEvent(masterTable);
+            this.BeforeAdjustment = new TableEvent(masterTable);
+            this.AfterAdjustment = new TableEvent(masterTable);
         }
         /**
          * Registers new event for events manager.
@@ -3781,9 +3783,11 @@ var PowerTables;
                 element['fireEvent'](eventName);
         };
         PowerTable.prototype.proceedAdjustments = function (adjustments) {
+            this.Events.BeforeAdjustment.invoke(this, adjustments);
             var result = this.DataHolder.proceedAdjustments(adjustments);
             if (result != null)
                 this.Controller.drawAdjustmentResult(result);
+            this.Events.AfterAdjustment.invoke(this, adjustments);
         };
         return PowerTable;
     })();
@@ -5248,6 +5252,17 @@ var PowerTables;
                     this.selectAll(false);
                 }
             };
+            CheckboxifyPlugin.prototype.onAdjustments = function (e) {
+                if (e.EventArgs.Removals.length > 0) {
+                    for (var i = 0; i < e.EventArgs.Removals.length; i++) {
+                        var removal = e.EventArgs.Removals[i];
+                        var removalSelected = removal[this.ValueColumnName].toString();
+                        var idx = this._selectedItems.indexOf(removalSelected);
+                        if (idx > -1)
+                            this._selectedItems.splice(idx, 1);
+                    }
+                }
+            };
             CheckboxifyPlugin.prototype.init = function (masterTable) {
                 _super.prototype.init.call(this, masterTable);
                 var col = this.createColumn();
@@ -5275,6 +5290,7 @@ var PowerTables;
                 e.BeforeClientRowsRendering.subscribe(this.beforeRowsRendering.bind(this), 'checkboxify');
                 e.AfterClientDataProcessing.subscribe(this.onClientReload.bind(this), 'checkboxify');
                 e.DataReceived.subscribe(this.onServerReload.bind(this), 'checkboxify');
+                e.AfterAdjustment.subscribe(this.onAdjustments.bind(this), 'checkboxify');
             };
             return CheckboxifyPlugin;
         })(Plugins.PluginBase);

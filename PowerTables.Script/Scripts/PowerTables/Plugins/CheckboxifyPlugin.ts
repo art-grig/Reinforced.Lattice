@@ -158,6 +158,7 @@
                 this.redrawHeader();
             }
         }
+        
 
         private onClientReload(e: ITableEventArgs<IClientDataResults>) {
             if (this.Configuration.ResetOnClientReload) {
@@ -175,6 +176,17 @@
         private onServerReload(e: ITableEventArgs<IDataEventArgs>) {
             if (this.Configuration.ResetOnReload) {
                 this.selectAll(false);
+            }
+        }
+
+        private onAdjustments(e: ITableEventArgs<PowerTables.Editors.IAdjustmentData>) {
+            if (e.EventArgs.Removals.length > 0) {
+                for (var i = 0; i < e.EventArgs.Removals.length; i++) {
+                    var removal = e.EventArgs.Removals[i];
+                    var removalSelected = removal[this.ValueColumnName].toString();
+                    var idx = this._selectedItems.indexOf(removalSelected);
+                    if (idx > -1) this._selectedItems.splice(idx, 1);
+                }
             }
         }
 
@@ -208,6 +220,8 @@
             e.BeforeClientRowsRendering.subscribe(this.beforeRowsRendering.bind(this), 'checkboxify');
             e.AfterClientDataProcessing.subscribe(this.onClientReload.bind(this), 'checkboxify');
             e.DataReceived.subscribe(this.onServerReload.bind(this), 'checkboxify');
+            e.AfterAdjustment.subscribe(this.onAdjustments.bind(this), 'checkboxify');
+
         }
     }
 
