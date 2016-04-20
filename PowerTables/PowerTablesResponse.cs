@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using Newtonsoft.Json;
 using PowerTables.ResponseProcessing;
 
@@ -11,12 +12,19 @@ namespace PowerTables
     /// </summary>
     public class PowerTablesResponse
     {
+        public static bool EnableStackTraces = true;
+
         /// <summary>
         /// This property is unique identifier of Lattice response. 
         /// Just leave it in place and do not touch
         /// </summary>
         [JsonProperty(PropertyName = "__ZBnpwvibZm")]
         public bool IsLatticeResponse { get { return true; } }
+
+        /// <summary>
+        /// Table message associated with this response
+        /// </summary>
+        public TableMessage Message { get; set; }
 
         /// <summary>
         /// Total results count
@@ -39,33 +47,33 @@ namespace PowerTables
         /// This field could contain anything that will be parsed on client side and corresponding actions will be performed. 
         /// See <see cref="IResponseModifier"/> 
         /// </summary>
-        public Dictionary<string,object> AdditionalData { get; set; }
+        public Dictionary<string, object> AdditionalData { get; set; }
 
         /// <summary>
         /// Query succeeded: true/false
         /// </summary>
         public bool Success { get; set; }
 
-        /// <summary>
-        /// Error message if not sucess
-        /// </summary>
-        public string Message { get; set; }
-
-        /// <summary>
-        /// Exception stack trace (if exists)
-        /// </summary>
-        public string ExceptionStackTrace { get; set; }
-
         public void FormatException(Exception ex)
         {
             Success = false;
-            var st = ex.StackTrace;
-            if (string.IsNullOrEmpty(st) && ex.InnerException != null)
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine(ex.StackTrace);
+            string msg = ex.Message;
+            if (EnableStackTraces)
             {
-                st = ex.InnerException.StackTrace;
+                ex = ex.InnerException;
+                while (ex != null)
+                {
+                    sb.AppendLine("___");
+                    sb.AppendLine(ex.Message);
+                    sb.AppendLine(ex.StackTrace);
+                    ex = ex.InnerException;
+                }
             }
-            ExceptionStackTrace = st;
-            Message = ex.Message;
+
+            Message = TableMessage.Banner("error", msg, sb.ToString().Replace("\n", "<br/>"));
+
         }
     }
 }

@@ -28,17 +28,17 @@ namespace PowerTables.Templating.BuiltIn
         /// <summary>
         /// Message primary text
         /// </summary>
-        string Message { get; }
+        string Title { get; }
 
         /// <summary>
         /// Additional data text
         /// </summary>
-        string AdditionalData { get; }
+        string Details { get; }
 
         /// <summary>
         /// Message type string
         /// </summary>
-        string MessageType { get; }
+        string Class { get; }
 
         /// <summary>
         /// Columns count

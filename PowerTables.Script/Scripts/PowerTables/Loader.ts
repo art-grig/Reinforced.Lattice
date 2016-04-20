@@ -90,10 +90,19 @@
                 this._events.LoadingError.invoke(this, {
                     Request: data,
                     XMLHttp: req,
-                    Reason: json.Message,
-                    StackTrace: json['ExceptionStackTrace']
+                    Reason: json.Message
                 });
                 return true;
+            }
+            return false;
+        }
+
+        private checkMessage(json: any): boolean {
+            if (json.Message && json.Message['__Go7XIV13OA']) {
+                var msg = <ITableMessage>json.Message;
+                this._masterTable.MessageService.showMessage(msg);
+                if (msg.Type === MessageType.Banner) return true;
+                return false;
             }
             return false;
         }
@@ -123,9 +132,15 @@
         private handleRegularJsonResponse(req: any, data: any, clientQuery: any, callback: any, errorCallback: any) {
             var json = JSON.parse(req.responseText);
             var error: boolean = this.checkError(json, data, req);
+            var message: boolean = this.checkMessage(json);
+            if (message) {
+                callback(json);
+                return;
+            }
             var edit: boolean = this.checkEditResult(json, data, req);
-            if (edit) {
-                
+            
+
+            if (edit||message) {
                 callback(json);
                 return;
             }

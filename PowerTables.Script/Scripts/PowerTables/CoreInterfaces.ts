@@ -96,7 +96,12 @@
          * 
          * @param adjustments Table adjustmetns object         
          */
-        proceedAdjustments(adjustments: AdjustmentData) : void;
+        proceedAdjustments(adjustments: AdjustmentData): void;
+
+         /**
+         * API for table messages
+         */
+        MessageService: MessagesService;
     }
 
     /**
@@ -296,5 +301,10 @@
          * True when column holds boolean
          */
         IsBoolean: boolean;
+    }
+
+    export interface IUiMessage extends ITableMessage {
+        UiColumnsCount:number;
+        IsMessageObject?: boolean;
     }
 }

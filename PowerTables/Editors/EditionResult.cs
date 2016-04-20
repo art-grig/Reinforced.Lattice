@@ -43,6 +43,11 @@ namespace PowerTables.Editors
 
     public class EditionResult
     {
+        /// <summary>
+        /// Table message associated with this response
+        /// </summary>
+        public TableMessage Message { get; set; }
+
         [JsonProperty("__XqTFFhTxSu")]
         public bool IsUpdateResult { get { return true; } }
 
@@ -115,15 +120,34 @@ namespace PowerTables.Editors
             Adjustments = new AdjustmentDataWrapper<T>(_result.TableAdjustments);
         }
 
+        /// <summary>
+        /// Changes confirmed object to another. 
+        /// confirmed object's fields will be updated on client-side
+        /// </summary>
+        /// <param name="obj"></param>
         public void Confirm(T obj)
         {
             _result.ConfirmedObject = obj;
         }
 
+        /// <summary>
+        /// Object that has been just edited on client side
+        /// </summary>
         public T ConfirmedObject { get { return (T)_result.ConfirmedObject; } }
 
+        /// <summary>
+        /// Retrieves table's adjustments collections. 
+        /// Adjustments colelction hold objects that will be updated in table on client-side.
+        /// It is mandatory to have fully defined <typeparamref name="T"/> here
+        /// </summary>
         public AdjustmentDataWrapper<T> Adjustments { get; private set; }
 
+        /// <summary>
+        /// Adds instructions to adjust another table on client-side
+        /// </summary>
+        /// <typeparam name="T2"></typeparam>
+        /// <param name="tableId">Another table Id. It equals to desired table's root element id without leading hash</param>
+        /// <param name="otherTableAdjustments">Operations on other table's adjustments list</param>
         public void AdjustAnotherTable<T2>(string tableId, Action<AdjustmentDataWrapper<T2>> otherTableAdjustments)
         {
             if (!_result.OtherTablesAdjustments.ContainsKey(tableId))
@@ -135,6 +159,11 @@ namespace PowerTables.Editors
         }
 
         public EditionResult EditionResult { get { return _result; } }
+
+        public void Message(TableMessage msg)
+        {
+            EditionResult.Message = msg;
+        }
     }
 
     public interface IEditionResultContainer

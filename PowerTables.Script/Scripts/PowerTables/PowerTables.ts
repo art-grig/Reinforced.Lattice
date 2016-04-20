@@ -56,16 +56,18 @@ module PowerTables {
             this.Loader = new Loader(this._configuration.StaticData, this._configuration.OperationalAjaxUrl, this);
             this.Renderer = new Rendering.Renderer(this._configuration.TableRootId, this._configuration.Prefix, this.InstanceManager, this.Events, this.Date, this._configuration.CoreTemplates);
             this.Controller = new Controller(this);
+            this.MessageService = new MessagesService(this._configuration.MessageFunction, this.InstanceManager, this.DataHolder, this.Controller);
 
             this.InstanceManager.initPlugins();
             this.Renderer.layout();
             if (this._configuration.LoadImmediately) {
                 this.Controller.reload();
             } else {
-                this.Controller.showTableMessage({
-                    MessageType: 'initial',
-                    Message: 'No filtering specified',
-                    AdditionalData: 'To retrieve query results please specify several filters'
+                this.MessageService.showMessage({
+                    Class: 'initial',
+                    Title: 'No filtering specified',
+                    Details: 'To retrieve query results please specify several filters',
+                    Type: MessageType.Banner
                 });
             }
             if (this._configuration.CallbackFunction) {
@@ -117,6 +119,11 @@ module PowerTables {
          * API for overall workflow controlling
          */
         public Controller: Controller;
+
+        /**
+         * API for table messages
+         */
+        public MessageService:MessagesService;
 
         /**
          * Fires specified DOM event on specified element

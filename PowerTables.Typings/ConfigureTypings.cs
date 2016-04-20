@@ -48,6 +48,7 @@ namespace PowerTables.Typings
                 .WithPublicProperties()
                 .WithProperty(c => c.CallbackFunction, c => c.Type("(table:IMasterTable) => void"))
                 .WithProperty(c => c.TemplateSelector, c => c.Type("(row:IRow)=>string"))
+                .WithProperty(c => c.MessageFunction, c => c.Type("(msg: ITableMessage) => void"))
                 ;
             builder.ExportAsInterface<DatepickerOptions>()
                 .WithProperty(c => c.CreateDatePicker, c => c.Type("(element:HTMLElement, isNullableDate: boolean) => void"))
@@ -57,6 +58,9 @@ namespace PowerTables.Typings
                 .OverrideNamespace("PowerTables")
                 ;
             builder.ExportAsInterface<CoreTemplateIds>().WithPublicProperties().OverrideNamespace("PowerTables");
+            builder.ExportAsInterface<TableMessage>().WithPublicProperties().OverrideNamespace("PowerTables").WithProperty(c=>c.IsMessage,c=>c.Ignore());
+            builder.ExportAsEnum<MessageType>().OverrideNamespace("PowerTables");
+
             builder.ExportAsInterface<ColumnConfiguration>()
                 .WithPublicProperties()
                 .WithProperty(c => c.CellRenderingValueFunction, c => c.Type("(a:any) => string"))

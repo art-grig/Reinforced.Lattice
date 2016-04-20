@@ -264,11 +264,6 @@
          * Error text
          */
         Reason: string;
-
-        /**
-         * Stack trace (if any)
-         */
-        StackTrace: string;
     }
 
     /**

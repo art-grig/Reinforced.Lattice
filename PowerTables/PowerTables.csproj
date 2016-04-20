@@ -209,6 +209,7 @@
     <Compile Include="ResponseProcessing\IResponseModifiersApplier.cs" />
     <Compile Include="ResponseProcessing\JsonNetResult.cs" />
     <Compile Include="SerializationSettings.cs" />
+    <Compile Include="TableMessage.cs" />
     <Compile Include="Templating\AdditionalTemplatesScope.cs" />
     <Compile Include="Templating\BuiltIn\CellTemplateRegion.cs" />
     <Compile Include="Templating\BuiltIn\CellWrapperTemplateRegion.cs" />

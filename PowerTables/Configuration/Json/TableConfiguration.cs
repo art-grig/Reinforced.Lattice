@@ -92,6 +92,12 @@ namespace PowerTables.Configuration.Json
         /// </summary>
         public JRaw TemplateSelector { get; set; }
 
+        /// <summary>
+        /// Function that shows user messages.
+        /// Function type is (msg: ITableMessage) => void
+        /// </summary>
+        public JRaw MessageFunction { get; set; }
+
         public TableConfiguration()
         {
             Columns = new List<ColumnConfiguration>();

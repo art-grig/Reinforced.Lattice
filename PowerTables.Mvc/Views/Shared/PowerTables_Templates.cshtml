@@ -129,21 +129,21 @@
 
 @using (var t = this.MessagesWrapper())
 {
-    using (t.IfStrEquals(c => c.MessageType, "error"))
+    using (t.IfStrEquals(c => c.Class, "error"))
     {
         <tr class="danger" @t.Track() style="padding: 30px">
             <td colspan="@t.Value(c => c.UiColumnsCount)">
                 <h4 class="text-center"><span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>  Error occured</h4>
                 <p style="margin-left:25px;margin-right:25px">
-                    @t.Value(c => c.Message)
+                    @t.Value(c => c.Title)
                     <hr />
-                    @t.Value(c => c.AdditionalData)
+                    @t.Value(c => c.Details)
                 </p>
             </td>
         </tr>
     }
 
-    using (t.IfStrEquals(c => c.MessageType, "noresults"))
+    using (t.IfStrEquals(c => c.Class, "noresults"))
     {
         <tr class="info" @t.Track()>
             <td colspan="@t.Value(c => c.UiColumnsCount)">
@@ -154,7 +154,7 @@
         </tr>
     }
 
-    using (t.IfStrEquals(c => c.MessageType, "initial"))
+    using (t.IfStrEquals(c => c.Class, "initial"))
     {
         <tr class="warning" @t.Track()>
             <td colspan="@t.Value(c => c.UiColumnsCount)">

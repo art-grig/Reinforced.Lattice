@@ -3,9 +3,24 @@
 //     the code is regenerated.
 var PowerTables;
 (function (PowerTables) {
+    /** Message type enum */
+    (function (MessageType) {
+        /**
+        * UserMessage is shown using specified custom functions for
+        *             messages showing
+        */
+        MessageType[MessageType["UserMessage"] = 0] = "UserMessage";
+        /** Banner message is displayed among whole table instead of data */
+        MessageType[MessageType["Banner"] = 1] = "Banner";
+    })(PowerTables.MessageType || (PowerTables.MessageType = {}));
+    var MessageType = PowerTables.MessageType;
+    /** Ordering */
     (function (Ordering) {
+        /** Ascending */
         Ordering[Ordering["Ascending"] = 0] = "Ascending";
+        /** Descending */
         Ordering[Ordering["Descending"] = 1] = "Descending";
+        /** Ordering is not applied */
         Ordering[Ordering["Neutral"] = 2] = "Neutral";
     })(PowerTables.Ordering || (PowerTables.Ordering = {}));
     var Ordering = PowerTables.Ordering;
@@ -837,16 +852,7 @@ var PowerTables;
     var Controller = (function () {
         function Controller(masterTable) {
             this._masterTable = masterTable;
-            this._masterTable.Events.LoadingError.subscribe(this.onLoadingError.bind(this), 'controller');
         }
-        Controller.prototype.onLoadingError = function (e) {
-            this.showTableMessage({
-                Message: e.EventArgs.Reason,
-                MessageType: 'error',
-                AdditionalData: e.EventArgs.StackTrace,
-                IsMessage: true
-            });
-        };
         /**
          * Initializes full reloading cycle
          * @returns {}
@@ -880,10 +886,11 @@ var PowerTables;
         Controller.prototype.redrawVisibleData = function () {
             var rows = this.produceRows();
             if (rows.length === 0) {
-                this.showTableMessage({
-                    MessageType: 'noresults',
-                    Message: 'No data found',
-                    AdditionalData: 'Try specifying different filter settings'
+                this._masterTable.MessageService.showMessage({
+                    Class: 'noresults',
+                    Title: 'No data found',
+                    Details: 'Try specifying different filter settings',
+                    Type: PowerTables.MessageType.Banner
                 });
             }
             else {
@@ -941,105 +948,8 @@ var PowerTables;
                 this._masterTable.Renderer.body(rows);
             }
         };
-        /**
-         * Shows full-width table message
-         * @param tableMessage Message of type ITableMessage
-         * @returns {}
-         */
-        Controller.prototype.showTableMessage = function (tableMessage) {
-            tableMessage.UiColumnsCount = this._masterTable.InstanceManager.getUiColumns().length;
-            tableMessage.IsMessage = true;
-            this._masterTable.DataHolder.DisplayedData = [tableMessage];
-            this.redrawVisibleData();
-        };
         //#region event delegation hell
         //#endregion
-        /**
-         * Inserts data entry to local storage
-         *
-         * @param insertion Insertion command
-         */
-        Controller.prototype.insertLocalRow = function (insertion) {
-            if (insertion.RedrawBehavior === RedrawBehavior.ReloadFromServer) {
-                this.reload();
-            }
-            else {
-                this._masterTable.DataHolder.StoredData.splice(insertion.StorageRowIndex, 0, insertion.DataObject);
-                if (insertion.RedrawBehavior === RedrawBehavior.LocalFullRefresh)
-                    this.localFullRefresh();
-                else {
-                    this._masterTable.DataHolder.DisplayedData.splice(insertion.DisplayRowIndex, 0, insertion.DataObject);
-                    if (insertion.RedrawBehavior === RedrawBehavior.RedrawVisible)
-                        this.redrawVisibleData();
-                    else if (insertion.RedrawBehavior === RedrawBehavior.LocalVisibleReorder)
-                        this.localVisibleReorder();
-                    else if (insertion.RedrawBehavior === RedrawBehavior.ParticularRowUpdate) {
-                        var row = this.produceRow(insertion.DataObject, insertion.DisplayRowIndex);
-                        this._masterTable.Renderer.Modifier.appendRow(row, insertion.DisplayRowIndex);
-                    }
-                }
-            }
-        };
-        /**
-         * Removes data entry from local storage
-         *
-         * @param insertion Insertion command
-         */
-        Controller.prototype.deleteLocalRow = function (deletion) {
-            if (deletion.RedrawBehavior === RedrawBehavior.ReloadFromServer) {
-                this.reload();
-            }
-            else {
-                this._masterTable.DataHolder.StoredData.splice(deletion.StorageRowIndex, 1);
-                if (deletion.RedrawBehavior === RedrawBehavior.LocalFullRefresh)
-                    this.localFullRefresh();
-                else {
-                    this._masterTable.DataHolder.DisplayedData.splice(deletion.DisplayRowIndex, 1);
-                    if (deletion.RedrawBehavior === RedrawBehavior.RedrawVisible)
-                        this.redrawVisibleData();
-                    else if (deletion.RedrawBehavior === RedrawBehavior.LocalVisibleReorder)
-                        this.localVisibleReorder();
-                    else if (deletion.RedrawBehavior === RedrawBehavior.ParticularRowUpdate) {
-                        this._masterTable.Renderer.Modifier.destroyRowByIndex(deletion.DisplayRowIndex);
-                    }
-                }
-            }
-        };
-        /**
-         * Updates data entry in local storage
-         *
-         * @param insertion Insertion command
-         */
-        Controller.prototype.updateLocalRow = function (update) {
-            if (update.RedrawBehavior === RedrawBehavior.ReloadFromServer) {
-                this.reload();
-            }
-            else {
-                var object = this._masterTable.DataHolder.localLookupStoredData(update.StorageRowIndex);
-                update.UpdateFn(object);
-                if (update.RedrawBehavior === RedrawBehavior.LocalFullRefresh)
-                    this.localFullRefresh();
-                else {
-                    // not required to update displayed object because we are updating reference
-                    if (update.RedrawBehavior === RedrawBehavior.RedrawVisible)
-                        this.redrawVisibleData();
-                    else if (update.RedrawBehavior === RedrawBehavior.LocalVisibleReorder)
-                        this.localVisibleReorder();
-                    else if (update.RedrawBehavior === RedrawBehavior.ParticularRowUpdate) {
-                        var row = this.produceRow(object, update.DisplayRowIndex);
-                        this._masterTable.Renderer.Modifier.redrawRow(row);
-                    }
-                }
-            }
-        };
-        Controller.prototype.localFullRefresh = function () {
-            this._masterTable.DataHolder.filterStoredDataWithPreviousQuery();
-            this.redrawVisibleData();
-        };
-        Controller.prototype.localVisibleReorder = function () {
-            this._masterTable.DataHolder.DisplayedData = this._masterTable.DataHolder.orderSet(this._masterTable.DataHolder.DisplayedData, this._masterTable.DataHolder.RecentClientQuery);
-            this.redrawVisibleData();
-        };
         /**
          * Converts data object,row and column to cell
          *
@@ -1077,7 +987,8 @@ var PowerTables;
                 Index: idx,
                 MasterTable: this._masterTable
             };
-            if (dataObject.IsMessage) {
+            if (dataObject.IsMessageObject) {
+                dataObject.UiColumnsCount = columns.length;
                 rw.renderElement = function (hb) { return hb.getCachedTemplate('messages')(dataObject); };
                 rw.IsSpecial = true;
                 return rw;
@@ -1947,10 +1858,19 @@ var PowerTables;
                 this._events.LoadingError.invoke(this, {
                     Request: data,
                     XMLHttp: req,
-                    Reason: json.Message,
-                    StackTrace: json['ExceptionStackTrace']
+                    Reason: json.Message
                 });
                 return true;
+            }
+            return false;
+        };
+        Loader.prototype.checkMessage = function (json) {
+            if (json.Message && json.Message['__Go7XIV13OA']) {
+                var msg = json.Message;
+                this._masterTable.MessageService.showMessage(msg);
+                if (msg.Type === PowerTables.MessageType.Banner)
+                    return true;
+                return false;
             }
             return false;
         };
@@ -1979,8 +1899,13 @@ var PowerTables;
         Loader.prototype.handleRegularJsonResponse = function (req, data, clientQuery, callback, errorCallback) {
             var json = JSON.parse(req.responseText);
             var error = this.checkError(json, data, req);
+            var message = this.checkMessage(json);
+            if (message) {
+                callback(json);
+                return;
+            }
             var edit = this.checkEditResult(json, data, req);
-            if (edit) {
+            if (edit || message) {
                 callback(json);
                 return;
             }
@@ -3813,16 +3738,18 @@ var PowerTables;
             this.Loader = new PowerTables.Loader(this._configuration.StaticData, this._configuration.OperationalAjaxUrl, this);
             this.Renderer = new PowerTables.Rendering.Renderer(this._configuration.TableRootId, this._configuration.Prefix, this.InstanceManager, this.Events, this.Date, this._configuration.CoreTemplates);
             this.Controller = new PowerTables.Controller(this);
+            this.MessageService = new PowerTables.MessagesService(this._configuration.MessageFunction, this.InstanceManager, this.DataHolder, this.Controller);
             this.InstanceManager.initPlugins();
             this.Renderer.layout();
             if (this._configuration.LoadImmediately) {
                 this.Controller.reload();
             }
             else {
-                this.Controller.showTableMessage({
-                    MessageType: 'initial',
-                    Message: 'No filtering specified',
-                    AdditionalData: 'To retrieve query results please specify several filters'
+                this.MessageService.showMessage({
+                    Class: 'initial',
+                    Title: 'No filtering specified',
+                    Details: 'To retrieve query results please specify several filters',
+                    Type: PowerTables.MessageType.Banner
                 });
             }
             if (this._configuration.CallbackFunction) {
@@ -6455,5 +6382,40 @@ var PowerTables;
         })();
         Plugins.ToolbarConfirmation = ToolbarConfirmation;
     })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var MessagesService = (function () {
+        function MessagesService(usersMessageFn, instances, dataHolder, controller) {
+            this._usersMessageFn = usersMessageFn;
+            this._instances = instances;
+            this._dataHolder = dataHolder;
+            this._controller = controller;
+            if (!usersMessageFn) {
+                this._usersMessageFn = function (m) { alert(m.Title + '\r\n' + m.Details); };
+            }
+        }
+        /**
+         * Shows table message according to its settings
+         * @param message Message of type ITableMessage
+         * @returns {}
+         */
+        MessagesService.prototype.showMessage = function (message) {
+            if (message.Type === PowerTables.MessageType.UserMessage) {
+                this._usersMessageFn(message);
+            }
+            else {
+                this.showTableMessage(message);
+            }
+        };
+        MessagesService.prototype.showTableMessage = function (tableMessage) {
+            tableMessage.UiColumnsCount = this._instances.getUiColumns().length;
+            tableMessage.IsMessageObject = true;
+            this._dataHolder.DisplayedData = [tableMessage];
+            this._controller.redrawVisibleData();
+        };
+        return MessagesService;
+    })();
+    PowerTables.MessagesService = MessagesService;
 })(PowerTables || (PowerTables = {}));
 //# sourceMappingURL=powertables.js.map

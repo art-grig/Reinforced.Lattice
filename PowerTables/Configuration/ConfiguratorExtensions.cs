@@ -303,5 +303,15 @@ namespace PowerTables.Configuration
             return conf;
         }
 
+        /// <summary>
+        /// Function that should consume ITableMessage instance (similar to server's one) and show table message
+        /// </summary>
+        public static Configurator<TSourceData, TTableData> ShowMessagesWith<TSourceData, TTableData>
+            (this Configurator<TSourceData, TTableData> conf, string messageFunction) where TTableData : new()
+        {
+            conf.TableConfiguration.MessageFunction = string.IsNullOrEmpty(messageFunction) ? null : new JRaw(messageFunction);
+            return conf;
+        }
+
     }
 }
