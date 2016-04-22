@@ -50,6 +50,10 @@ namespace PowerTables.Filters.Select
         /// <returns>UI builder</returns>
         public static PluginConfigurationWrapper<SelectFilterUiConfig> RawDefault(this PluginConfigurationWrapper<SelectFilterUiConfig> config, string value)
         {
+            if (config.Configuration.Items == null)
+            {
+                throw new Exception("Please specify default value for range filter AFTER setting its items. We cannot select default value from empty possible values list.");
+            }
             config.Configuration.Items.ForEach(c => c.Selected = false);
             if (value != null)
             {

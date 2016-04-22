@@ -2369,7 +2369,7 @@ declare module PowerTables {
          *
          * @returns {}
          */
-        reload(): void;
+        reload(force: boolean): void;
         /**
          * API for raising and handling various table events
          */
@@ -2720,6 +2720,7 @@ declare module PowerTables.Plugins {
         private createColumn();
         private canCheck(dataObject, row);
         getSelection(): string[];
+        resetSelection(): void;
         selectByRowIndex(rowIndex: number): void;
         private afterLayoutRender();
         private beforeRowsRendering(e);

@@ -85,6 +85,7 @@
             col.Header = header;
 
             this.MasterTable.Renderer.ContentRenderer.cacheColumnRenderingFunction(col, x => {
+                if (x.Row.IsSpecial) return '';
                 var value = x.DataObject[this.ValueColumnName].toString();
                 var selected: boolean = this._selectedItems.indexOf(value) > -1;
                 var canCheck: boolean = this.canCheck(x.DataObject, x.Row);
@@ -99,6 +100,9 @@
 
         public getSelection(): string[] {
             return this._selectedItems;
+        }
+        public resetSelection() {
+            this.selectAll(false);
         }
 
         public selectByRowIndex(rowIndex: number): void {

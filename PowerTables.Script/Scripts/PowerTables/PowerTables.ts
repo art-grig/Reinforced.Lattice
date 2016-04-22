@@ -86,8 +86,8 @@ module PowerTables {
          * 
          * @returns {} 
          */
-        public reload(): void {
-            this.Controller.reload();
+        public reload(force:boolean): void {
+            this.Controller.reload(force);
         }
 
         /**

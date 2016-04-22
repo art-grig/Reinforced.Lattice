@@ -36,6 +36,7 @@
                 var cell: ICell = {
                     DataObject: dataObject,
                     renderElement: null,
+                    renderContent: function(v) { return this.Data; },
                     Column: cols[i],
                     Row: result,
                     Data: dataObject[col.RawName]
@@ -47,6 +48,9 @@
         }
 
         public onResponse(e: ITableEventArgs<IDataEventArgs>) {
+            if (!e.EventArgs.Data.AdditionalData) return;
+            if (!e.EventArgs.Data.AdditionalData.hasOwnProperty('Total')) return;
+
             var response: IPowerTablesResponse = e.EventArgs.Data;
             var total: TotalResponse = response.AdditionalData['Total'];
             this._totalsForColumns = total.TotalsForColumns;

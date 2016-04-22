@@ -3764,8 +3764,8 @@ var PowerTables;
          *
          * @returns {}
          */
-        PowerTable.prototype.reload = function () {
-            this.Controller.reload();
+        PowerTable.prototype.reload = function (force) {
+            this.Controller.reload(force);
         };
         /**
          * Fires specified DOM event on specified element
@@ -5031,6 +5031,7 @@ var PowerTables;
                     var cell = {
                         DataObject: dataObject,
                         renderElement: null,
+                        renderContent: function (v) { return this.Data; },
                         Column: cols[i],
                         Row: result,
                         Data: dataObject[col.RawName]
@@ -5040,6 +5041,10 @@ var PowerTables;
                 return result;
             };
             TotalsPlugin.prototype.onResponse = function (e) {
+                if (!e.EventArgs.Data.AdditionalData)
+                    return;
+                if (!e.EventArgs.Data.AdditionalData.hasOwnProperty('Total'))
+                    return;
                 var response = e.EventArgs.Data;
                 var total = response.AdditionalData['Total'];
                 this._totalsForColumns = total.TotalsForColumns;
@@ -5158,6 +5163,8 @@ var PowerTables;
                 };
                 col.Header = header;
                 this.MasterTable.Renderer.ContentRenderer.cacheColumnRenderingFunction(col, function (x) {
+                    if (x.Row.IsSpecial)
+                        return '';
                     var value = x.DataObject[_this.ValueColumnName].toString();
                     var selected = _this._selectedItems.indexOf(value) > -1;
                     var canCheck = _this.canCheck(x.DataObject, x.Row);
@@ -5170,6 +5177,9 @@ var PowerTables;
             };
             CheckboxifyPlugin.prototype.getSelection = function () {
                 return this._selectedItems;
+            };
+            CheckboxifyPlugin.prototype.resetSelection = function () {
+                this.selectAll(false);
             };
             CheckboxifyPlugin.prototype.selectByRowIndex = function (rowIndex) {
                 var _this = this;
