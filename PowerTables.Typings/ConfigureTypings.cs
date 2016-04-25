@@ -58,7 +58,7 @@ namespace PowerTables.Typings
                 .OverrideNamespace("PowerTables")
                 ;
             builder.ExportAsInterface<CoreTemplateIds>().WithPublicProperties().OverrideNamespace("PowerTables");
-            builder.ExportAsInterface<TableMessage>().WithPublicProperties().OverrideNamespace("PowerTables").WithProperty(c=>c.IsMessage,c=>c.Ignore());
+            builder.ExportAsInterface<TableMessage>().WithPublicProperties().OverrideNamespace("PowerTables").WithProperty(c => c.IsMessage, c => c.Ignore());
             builder.ExportAsEnum<MessageType>().OverrideNamespace("PowerTables");
 
             builder.ExportAsInterface<ColumnConfiguration>()
@@ -67,7 +67,8 @@ namespace PowerTables.Typings
                 ;
 
             builder.ExportAsInterface<PluginConfiguration>().WithPublicProperties();
-            builder.ExportAsInterface<CheckboxifyClientConfig>().WithPublicProperties();
+            builder.ExportAsInterface<CheckboxifyClientConfig>().WithPublicProperties()
+                .WithProperty(c => c.CanSelectFunction, c => c.Type("(v:any)=>boolean"));
             builder.ExportAsInterface<FormwatchClientConfiguration>().WithPublicProperties();
             builder.ExportAsInterface<FormwatchFieldData>().WithPublicProperties()
                 .WithProperty(c => c.FieldValueFunction, a => a.Type<Func<object>>())

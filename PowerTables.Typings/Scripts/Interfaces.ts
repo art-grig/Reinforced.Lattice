@@ -243,6 +243,7 @@ module PowerTables.Plugins.Checkboxify {
 		SelectAllTemplateId: string;
 		RowTemplateId: string;
 		CellTemplateId: string;
+		CanSelectFunction: (v:any)=>boolean;
 	}
 }
 module PowerTables.Plugins.Formwatch {
@@ -493,7 +494,7 @@ module PowerTables.Plugins.Total {
 	export interface ITotalResponse
 	{
 		/** Totals for particular columns */
-		TotalsForColumns: { [key:string]: string };
+		TotalsForColumns: { [key:string]: any };
 	}
 	/** Client configuration for totals */
 	export interface ITotalClientConfiguration

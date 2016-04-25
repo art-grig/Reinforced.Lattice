@@ -148,6 +148,13 @@ module PowerTables {
             this.Events.AfterAdjustment.invoke(this, adjustments);
         }
 
+        public getStaticData() : any {
+            if (!this._configuration.StaticData) return null;
+            return JSON.parse(this._configuration.StaticData);
+        }
 
+        public setStaticData(obj:any) :void {
+            this._configuration.StaticData = JSON.stringify(obj);
+        }
     }
 } 

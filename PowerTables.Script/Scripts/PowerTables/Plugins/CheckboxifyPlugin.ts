@@ -11,7 +11,7 @@
         public ValueColumnName: string;
         private _canSelectAll: boolean;
         private _pagingPlugin: PagingPlugin = null;
-
+        private _selectables:any[] = [];
 
         public selectAll(selected?: boolean): void {
             if (!this._canSelectAll) return;
@@ -21,7 +21,9 @@
             if (this._allSelected) {
                 if (this.Configuration.SelectAllSelectsClientUndisplayedData) {
                     for (var i: number = 0; i < this.MasterTable.DataHolder.StoredData.length; i++) {
-                        this._selectedItems.push(this.MasterTable.DataHolder.StoredData[i][this.ValueColumnName].toString());
+                        if (this._selectables.indexOf(this.MasterTable.DataHolder.StoredData[i]) > -1) {
+                            this._selectedItems.push(this.MasterTable.DataHolder.StoredData[i][this.ValueColumnName].toString());
+                        }
                     }
                     this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
                     this.MasterTable.Controller.redrawVisibleData();
@@ -33,7 +35,9 @@
                     });
                 } else {
                     for (var j: number = 0; j < this.MasterTable.DataHolder.DisplayedData.length; j++) {
-                        this._selectedItems.push(this.MasterTable.DataHolder.DisplayedData[j][this.ValueColumnName].toString());
+                        if (this._selectables.indexOf(this.MasterTable.DataHolder.DisplayedData[j]) > -1) {
+                            this._selectedItems.push(this.MasterTable.DataHolder.DisplayedData[j][this.ValueColumnName].toString());
+                        }
                     }
                     this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
                     this.MasterTable.Controller.redrawVisibleData();
@@ -86,7 +90,9 @@
 
             this.MasterTable.Renderer.ContentRenderer.cacheColumnRenderingFunction(col, x => {
                 if (x.Row.IsSpecial) return '';
+                if (this.Configuration.CanSelectFunction && !this.Configuration.CanSelectFunction(x.Row)) return '';
                 var value = x.DataObject[this.ValueColumnName].toString();
+                this._selectables.push(x.DataObject);
                 var selected: boolean = this._selectedItems.indexOf(value) > -1;
                 var canCheck: boolean = this.canCheck(x.DataObject, x.Row);
                 return this.MasterTable.Renderer.getCachedTemplate(this.Configuration.CellTemplateId)({ Value: value, IsChecked: selected, CanCheck: canCheck });
@@ -136,9 +142,11 @@
                     this.selectByRowIndex(e.DisplayingRowIndex);
                 }
             });
+            this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
         }
 
         private beforeRowsRendering(e: ITableEventArgs<IRow[]>) {
+            this._selectables = [];
             var selectedRows = 0;
             for (var i: number = 0; i < e.EventArgs.length; i++) {
                 var row: IRow = e.EventArgs[i];

@@ -236,6 +236,7 @@ declare module PowerTables.Plugins.Checkboxify {
         SelectAllTemplateId: string;
         RowTemplateId: string;
         CellTemplateId: string;
+        CanSelectFunction: (v: any) => boolean;
     }
 }
 declare module PowerTables.Plugins.Formwatch {
@@ -480,7 +481,7 @@ declare module PowerTables.Plugins.Total {
     interface ITotalResponse {
         /** Totals for particular columns */
         TotalsForColumns: {
-            [key: string]: string;
+            [key: string]: any;
         };
     }
     /** Client configuration for totals */
@@ -766,6 +767,8 @@ declare module PowerTables {
         * API for table messages
         */
         MessageService: MessagesService;
+        getStaticData(): any;
+        setStaticData(obj: any): void;
     }
     /**
      * This enumeration distinguishes which way
@@ -2406,6 +2409,8 @@ declare module PowerTables {
          */
         static fireDomEvent(eventName: string, element: HTMLElement): void;
         proceedAdjustments(adjustments: AdjustmentData): void;
+        getStaticData(): any;
+        setStaticData(obj: any): void;
     }
 }
 declare module PowerTables.Plugins {
@@ -2715,6 +2720,7 @@ declare module PowerTables.Plugins {
         ValueColumnName: string;
         private _canSelectAll;
         private _pagingPlugin;
+        private _selectables;
         selectAll(selected?: boolean): void;
         private redrawHeader();
         private createColumn();

@@ -3789,6 +3789,14 @@ var PowerTables;
                 this.Controller.drawAdjustmentResult(result);
             this.Events.AfterAdjustment.invoke(this, adjustments);
         };
+        PowerTable.prototype.getStaticData = function () {
+            if (!this._configuration.StaticData)
+                return null;
+            return JSON.parse(this._configuration.StaticData);
+        };
+        PowerTable.prototype.setStaticData = function (obj) {
+            this._configuration.StaticData = JSON.stringify(obj);
+        };
         return PowerTable;
     })();
     PowerTables.PowerTable = PowerTable;
@@ -5091,6 +5099,7 @@ var PowerTables;
                 this._visibleAll = false;
                 this._allSelected = false;
                 this._pagingPlugin = null;
+                this._selectables = [];
             }
             CheckboxifyPlugin.prototype.selectAll = function (selected) {
                 var _this = this;
@@ -5102,7 +5111,9 @@ var PowerTables;
                 if (this._allSelected) {
                     if (this.Configuration.SelectAllSelectsClientUndisplayedData) {
                         for (var i = 0; i < this.MasterTable.DataHolder.StoredData.length; i++) {
-                            this._selectedItems.push(this.MasterTable.DataHolder.StoredData[i][this.ValueColumnName].toString());
+                            if (this._selectables.indexOf(this.MasterTable.DataHolder.StoredData[i]) > -1) {
+                                this._selectedItems.push(this.MasterTable.DataHolder.StoredData[i][this.ValueColumnName].toString());
+                            }
                         }
                         this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
                         this.MasterTable.Controller.redrawVisibleData();
@@ -5116,7 +5127,9 @@ var PowerTables;
                     }
                     else {
                         for (var j = 0; j < this.MasterTable.DataHolder.DisplayedData.length; j++) {
-                            this._selectedItems.push(this.MasterTable.DataHolder.DisplayedData[j][this.ValueColumnName].toString());
+                            if (this._selectables.indexOf(this.MasterTable.DataHolder.DisplayedData[j]) > -1) {
+                                this._selectedItems.push(this.MasterTable.DataHolder.DisplayedData[j][this.ValueColumnName].toString());
+                            }
                         }
                         this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
                         this.MasterTable.Controller.redrawVisibleData();
@@ -5165,7 +5178,10 @@ var PowerTables;
                 this.MasterTable.Renderer.ContentRenderer.cacheColumnRenderingFunction(col, function (x) {
                     if (x.Row.IsSpecial)
                         return '';
+                    if (_this.Configuration.CanSelectFunction && !_this.Configuration.CanSelectFunction(x.Row))
+                        return '';
                     var value = x.DataObject[_this.ValueColumnName].toString();
+                    _this._selectables.push(x.DataObject);
                     var selected = _this._selectedItems.indexOf(value) > -1;
                     var canCheck = _this.canCheck(x.DataObject, x.Row);
                     return _this.MasterTable.Renderer.getCachedTemplate(_this.Configuration.CellTemplateId)({ Value: value, IsChecked: selected, CanCheck: canCheck });
@@ -5214,8 +5230,10 @@ var PowerTables;
                         _this.selectByRowIndex(e.DisplayingRowIndex);
                     }
                 });
+                this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
             };
             CheckboxifyPlugin.prototype.beforeRowsRendering = function (e) {
+                this._selectables = [];
                 var selectedRows = 0;
                 for (var i = 0; i < e.EventArgs.length; i++) {
                     var row = e.EventArgs[i];

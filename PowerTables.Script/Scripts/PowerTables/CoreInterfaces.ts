@@ -102,6 +102,10 @@
          * API for table messages
          */
         MessageService: MessagesService;
+
+         getStaticData(): any;
+
+         setStaticData(obj:any) :void;
     }
 
     /**
