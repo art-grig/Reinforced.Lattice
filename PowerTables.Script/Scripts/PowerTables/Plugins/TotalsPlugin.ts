@@ -71,7 +71,7 @@
 
             for (var k in this.Configuration.ColumnsCalculatorFunctions) {
                 if (this.Configuration.ColumnsCalculatorFunctions.hasOwnProperty(k)) {
-                    this._totalsForColumns[k] = this.Configuration.ColumnsCalculatorFunctions[k](e.EventArgs).toString();
+                    this._totalsForColumns[k] = this.Configuration.ColumnsCalculatorFunctions[k](e.EventArgs);
                 }
             }
         }

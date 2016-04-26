@@ -197,6 +197,17 @@ namespace PowerTables.Mvc.Controllers
             return Handle(c => c.HideoutAndResponseInfo());
         }
 
+        [Tutorial("Client totals", 13)]
+        public ActionResult ClientTotals()
+        {
+            return TutPage(c => c.ClientTotals());
+        }
+
+        public ActionResult ClientTotalsHandle()
+        {
+            return Handle(c => c.ClientTotals());
+        }
+
         
 
         #region Utility

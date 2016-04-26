@@ -186,6 +186,7 @@
     <Compile Include="Plugins\Toolbar\ToolbarTemplateRegion.cs" />
     <Compile Include="Plugins\Total\TotalCalculatorBuilder.cs" />
     <Compile Include="Plugins\Total\TotalClientConfiguration.cs" />
+    <Compile Include="Plugins\Total\TotalClientFunctionsExtensions.cs" />
     <Compile Include="Plugins\Total\TotalExtensions.cs" />
     <Compile Include="Plugins\Total\TotalResponse.cs" />
     <Compile Include="Plugins\Total\TotalResponseModifier.cs" />
