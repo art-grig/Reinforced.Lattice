@@ -388,6 +388,7 @@
             var modColumns = [];
             for (var cd in source) {
                 if (source.hasOwnProperty(cd)) {
+                    if (this._instances.Columns[cd].IsSpecial) continue;
                     var src = source[cd];
                     var trg = target[cd];
                     if (this._instances.Columns[cd].IsDateTime) {
@@ -437,9 +438,8 @@
                     touchedData.push(update.DataObject);
                     if (update.DisplayedIndex > 0) {
                         redrawVisibles.push(update.DataObject);
-                    } else {
-                        needRefilter = true;
                     }
+                    needRefilter = true;
                 }
             }
             

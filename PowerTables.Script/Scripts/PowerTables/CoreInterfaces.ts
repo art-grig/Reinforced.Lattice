@@ -305,6 +305,11 @@
          * True when column holds boolean
          */
         IsBoolean: boolean;
+
+        /**
+         * Flag for special column that has plugin purpose and does not holds data
+         */
+        IsSpecial?:boolean;
     }
 
     export interface IUiMessage extends ITableMessage {

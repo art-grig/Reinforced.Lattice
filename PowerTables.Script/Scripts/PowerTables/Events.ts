@@ -87,6 +87,7 @@
             this.DeferredDataReceived = new TableEvent(masterTable);
             this.BeforeAdjustment = new TableEvent(masterTable);
             this.AfterAdjustment = new TableEvent(masterTable);
+            this.AdjustmentResult = new TableEvent(masterTable);
         }
 
         /**
@@ -198,6 +199,7 @@
 
         public BeforeAdjustment: TableEvent<PowerTables.Editors.IAdjustmentData>;
         public AfterAdjustment: TableEvent<PowerTables.Editors.IAdjustmentData>;
+        public AdjustmentResult: TableEvent<IAdjustmentResult>;
 
     }
 

@@ -65,7 +65,7 @@
             var shown = [];
 
             for (var i = 0; i < this.ColumnStates.length; i++) {
-                if (!this.Configuration.ColumnInitiatingReload.hasOwnProperty(this.ColumnStates[i].RawName))
+                if (this.Configuration.ColumnInitiatingReload.indexOf(this.ColumnStates[i].RawName) < 0)
                     continue;
                 if (!this.ColumnStates[i].Visible) {
                     hidden.push(this.ColumnStates[i].RawName);
@@ -100,7 +100,7 @@
 
             this.MasterTable.Renderer.Modifier.showHeader(c);
             this.MasterTable.Renderer.Modifier.showPluginsByPosition(`filter-${c.RawName}`);
-            
+
             if (this._isInitializing) return;
 
             if (wasNotExist) {
@@ -179,7 +179,7 @@ included into hideable columns list.
             e.AfterLayoutRendered.subscribe(this.onLayourRendered.bind(this), 'hideout');
         }
 
-        private ifColVisibleHelper(columnName: string,opts:any) {
+        private ifColVisibleHelper(columnName: string, opts: any) {
             var visible = false;
             if (this._isInitializing) {
                 visible = !this.Configuration.HiddenColumns.hasOwnProperty(columnName);
@@ -196,7 +196,7 @@ included into hideable columns list.
         }
 
         public registerAdditionalHelpers(hb: Handlebars.IHandlebars): void {
-            hb.registerHelper('ifColVisible',this.ifColVisibleHelper.bind(this));
+            hb.registerHelper('ifColVisible', this.ifColVisibleHelper.bind(this));
         }
     }
 

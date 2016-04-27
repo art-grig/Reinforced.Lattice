@@ -76,7 +76,8 @@
                 IsString: false,
                 MasterTable: this.MasterTable,
                 Order: -1,
-                RawName: '_checkboxify'
+                RawName: '_checkboxify',
+                IsSpecial:true
             }
 
             var header: ISpecialHeader = {

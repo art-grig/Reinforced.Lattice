@@ -60,6 +60,7 @@
             var adjRowTemplate = this._masterTable.InstanceManager.Configuration.TouchedRowTemplateId;
             var adjCellTemplate = this._masterTable.InstanceManager.Configuration.TouchedCellTemplateId;
             var addedTemplate = this._masterTable.InstanceManager.Configuration.AddedRowTemplateId;
+            this._masterTable.Events.AdjustmentResult.invoke(this, adjustmentResult);
 
             var rows: IRow[] = this.produceRows();
 
@@ -110,11 +111,6 @@
                 this._masterTable.Renderer.body(rows);
             }
         }
-        
-        //#region event delegation hell
-
-
-        //#endregion
        
         /**
          * Converts data object,row and column to cell

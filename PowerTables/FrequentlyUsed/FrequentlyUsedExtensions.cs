@@ -84,7 +84,7 @@ namespace PowerTables.FrequentlyUsed
                 .Switch("{" + column.ColumnConfiguration.RawColumnName + "}",
                     swtch =>
                         swtch
-                        .Cases(items, c => c.Value, content)
+                        .Cases(items, c => c.Value, (tpl, v) => content(tpl.Content(v.Text), v))
                         .DefaultEmpty()
                         )
 
