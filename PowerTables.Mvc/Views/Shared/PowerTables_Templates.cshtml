@@ -78,7 +78,7 @@
 {
     <text>
         @using (t.IfPlacement("lt"))
-        { <span @t.Track()> @t.Content() </span> }
+        { <span @t.Track() style="border: 1px solid red;"> @t.Content() </span> }
         @using (t.IfPlacement("toolbar-lt"))
         { <span @t.Track()> @t.Content() </span> }
         @using (t.IfPlacement("lb"))
@@ -496,8 +496,8 @@
 @using (var t = Plugin.Editor_PlainText("plainTextEditorAlternate"))
 {
     <div @t.BindReject(DOMEvent.Filter("click").Out().Prop(true,"ctrlKey"))>
-        <div class="input-group" @t.WhenInvalid(c => c.State.AddClass("has-error")) style="max-width: 200px;" @t.WhenSaving(c => c.Hide())>
-            <input @t.ThisIsInput() @t.BindChanged("keyup") @t.BindCommit(DOMEvent.Filter("keyup").Prop(13, "keyCode", "which")) type="text" @t.WhenInvalid(c => c.State.Color("red")) class="form-control input-sm" aria-label="..." style="height: 28px; margin-top: -10px; margin-bottom: -10px" />
+        <div class="input-group latt-input-group" @t.WhenInvalid(c => c.State.AddClass("has-error"))  @t.WhenSaving(c => c.Hide())>
+            <input @t.ThisIsInput() @t.BindChanged("keyup") @t.BindCommit(DOMEvent.Filter("keyup").Prop(13, "keyCode", "which")) type="text" @t.WhenInvalid(c => c.State.Color("red")) class="form-control input-sm latt-form-control" aria-label="..." style="height: 28px; margin-top: -10px; margin-bottom: -10px" />
             <div class="tooltip bottom" role="tooltip" style="opacity: 1; top: 21px;display: none;"
                  @t.WhenInvalid(c => c.State.Show())>
                 <div class="tooltip-arrow" style="border-bottom-color: #E15C5C;left:15%"></div>

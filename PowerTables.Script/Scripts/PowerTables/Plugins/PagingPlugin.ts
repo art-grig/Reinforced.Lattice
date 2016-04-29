@@ -124,7 +124,7 @@
                             }
                         }
                     }
-                    if (cur < total - 1) a.push({ Page: 0, Next: true });
+                    if (cur < total - 1) a.push(<any>{ Page: 0, Next: true });
 
                     if (this.Configuration.UseFirstLastPage) a.push({ Page: total - 1, Last: true });
 

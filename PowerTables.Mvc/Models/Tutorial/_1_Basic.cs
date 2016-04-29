@@ -15,7 +15,7 @@ namespace PowerTables.Mvc.Models.Tutorial
          * For sure you can use Configurator<Toy,Toy> but in practice 
          * displayed data differs from source data in 80% of cases
          */
-        public static Configurator<Toy, Row> Basic(this Configurator<Toy, Row> conf)
+        public static Configurator<Toy, Row>Basic(this Configurator<Toy, Row> conf)
         {
             /*
              * Use .MappedFrom to map data from columns in source data type

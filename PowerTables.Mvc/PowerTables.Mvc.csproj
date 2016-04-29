@@ -170,6 +170,12 @@
     <Content Include="Content\bootstrap-datepicker3.standalone.min.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\foundation-flex.css" />
+    <Content Include="Content\foundation-flex.min.css" />
+    <Content Include="Content\foundation-rtl.css" />
+    <Content Include="Content\foundation-rtl.min.css" />
+    <Content Include="Content\foundation.css" />
+    <Content Include="Content\foundation.min.css" />
     <Content Include="Content\prism.css" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
@@ -186,6 +192,8 @@
     <Content Include="App_Readme\Handlebarsjs_LICENSE" />
     <Content Include="Scripts\dateformat.js" />
     <Content Include="Scripts\dateformat.min.js" />
+    <Content Include="Scripts\foundation.js" />
+    <Content Include="Scripts\foundation.min.js" />
     <Content Include="Scripts\handlebars.amd.js" />
     <Content Include="Scripts\handlebars.amd.min.js" />
     <Content Include="Scripts\handlebars.js" />
@@ -197,10 +205,10 @@
     <Content Include="Content\users.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <None Include="Scripts\jquery-2.1.4.intellisense.js" />
-    <Content Include="Scripts\jquery-2.1.4.js" />
-    <Content Include="Scripts\jquery-2.1.4.min.js" />
-    <Content Include="Scripts\jquery-2.1.4.min.map" />
+    <None Include="Scripts\jquery-2.2.0.intellisense.js" />
+    <Content Include="Scripts\jquery-2.2.0.js" />
+    <Content Include="Scripts\jquery-2.2.0.min.js" />
+    <Content Include="Scripts\jquery-2.2.0.min.map" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
     <Content Include="Scripts\jquery.validate.js" />
     <Content Include="Scripts\jquery.validate.min.js" />
@@ -268,10 +276,39 @@
     <Content Include="Scripts\locales\bootstrap-datepicker.vi.min.js" />
     <Content Include="Scripts\locales\bootstrap-datepicker.zh-TW.min.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
+    <Content Include="Scripts\plugins\foundation.abide.js" />
+    <Content Include="Scripts\plugins\foundation.accordion.js" />
+    <Content Include="Scripts\plugins\foundation.accordionMenu.js" />
+    <Content Include="Scripts\plugins\foundation.core.js" />
+    <Content Include="Scripts\plugins\foundation.drilldown.js" />
+    <Content Include="Scripts\plugins\foundation.dropdown.js" />
+    <Content Include="Scripts\plugins\foundation.dropdownMenu.js" />
+    <Content Include="Scripts\plugins\foundation.equalizer.js" />
+    <Content Include="Scripts\plugins\foundation.interchange.js" />
+    <Content Include="Scripts\plugins\foundation.magellan.js" />
+    <Content Include="Scripts\plugins\foundation.offcanvas.js" />
+    <Content Include="Scripts\plugins\foundation.orbit.js" />
+    <Content Include="Scripts\plugins\foundation.responsiveMenu.js" />
+    <Content Include="Scripts\plugins\foundation.responsiveToggle.js" />
+    <Content Include="Scripts\plugins\foundation.reveal.js" />
+    <Content Include="Scripts\plugins\foundation.slider.js" />
+    <Content Include="Scripts\plugins\foundation.sticky.js" />
+    <Content Include="Scripts\plugins\foundation.tabs.js" />
+    <Content Include="Scripts\plugins\foundation.toggler.js" />
+    <Content Include="Scripts\plugins\foundation.tooltip.js" />
+    <Content Include="Scripts\plugins\foundation.util.box.js" />
+    <Content Include="Scripts\plugins\foundation.util.keyboard.js" />
+    <Content Include="Scripts\plugins\foundation.util.mediaQuery.js" />
+    <Content Include="Scripts\plugins\foundation.util.motion.js" />
+    <Content Include="Scripts\plugins\foundation.util.nest.js" />
+    <Content Include="Scripts\plugins\foundation.util.timerAndImageLoader.js" />
+    <Content Include="Scripts\plugins\foundation.util.touch.js" />
+    <Content Include="Scripts\plugins\foundation.util.triggers.js" />
     <Content Include="Scripts\powertables.js" />
     <Content Include="Scripts\prism.js" />
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
+    <Content Include="Scripts\tabs.min.js" />
     <Content Include="Scripts\_references.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
@@ -346,7 +383,7 @@
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
         <WebProjectProperties>
-          <UseIIS>True</UseIIS>
+          <UseIIS>False</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>15691</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>

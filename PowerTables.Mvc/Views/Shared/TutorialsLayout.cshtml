@@ -4,7 +4,7 @@
     TutorialAttribute cTut = ViewBag.CurrentTutorial;
     if (cTut == null)
     {
-        cTut = new TutorialAttribute("Welcome",0);
+        cTut = new TutorialAttribute("Welcome", 0);
     }
     Dictionary<Code, string> additionaCode = ViewBag.AdditionalCode;
     if (additionaCode == null)
@@ -17,63 +17,61 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reinforced.Lattice | @cTut.TutorialTitle</title>
-    @Styles.Render("~/Content/css")
-    @Scripts.Render("~/bundles/modernizr")
-    @Scripts.Render("~/bundles/jquery")
-    <link rel="stylesheet" href="~/Content/prism.css" />
-    <script type="text/javascript" src="~/Scripts/prism.js"></script>
+    @{ Html.RenderPartial("Datepicker"); }
     <script type="text/javascript" src="~/Scripts/handlebars.min.js"></script>
     <script type="text/javascript" src="~/Scripts/powertables.js"></script>
-    @{ Html.RenderPartial("Datepicker"); }
+
+
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/jquery")
+
+    @Styles.Render("~/Content/css")
+    @RenderSection("Scripts", required: false)
+    <link rel="stylesheet" href="~/Content/prism.css" />
+    <script type="text/javascript" src="~/Scripts/tabs.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/prism.js"></script>
+
 </head>
 <body>
-    <div class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                @Html.ActionLink("Reinforced.Lattice Tutorial", "Index", "Tutorial", new { area = "" }, new { @class = "navbar-brand" })
-            </div>
-            <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    
-                </ul>
-            </div>
-        </div>
+    <div class="pt-navbar body-content">
+       
+            @Html.ActionLink("Reinforced.Lattice Tutorial", "Index", "Tutorial", new { area = "" }, new { @class = "pt-navbar-brand" })
+        
     </div>
-    <div class="container-fluid body-content">
+    <div class="pt-container-fluid body-content">
         <br />
-        <div class="row">
-            <div class="col-md-2">
-                <ul class="list-group">
+        <div class="pt-row">
+            <div class="pt-right-tabs">
+                <ul class="pt-list-group">
                     @foreach (var t in tutorials)
                     {
-                        <a href="@Url.Action(t.TutorialId,"Tutorial")" class="list-group-item @(cTut.TutorialId==t.TutorialId?"active":string.Empty)">@(t.TutorialNumber). @t.TutorialTitle</a>
+                        <li>
+                            <a href="@Url.Action(t.TutorialId, "Tutorial")" class="list-group-item @(cTut.TutorialId == t.TutorialId ? "active" : string.Empty)">@(t.TutorialNumber). @t.TutorialTitle</a>
+                        </li>
                     }
                 </ul>
             </div>
-            <div class="col-md-10">
+            <div class="pt-main-section">
 
-                <div class="container-fluid">
-                    <h2>@cTut.TutorialTitle</h2>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <ul class="nav nav-tabs" role="tablist">
+                <div class="pt-container-fluid">
+                    <h2 class="pt-main-sect-h2">@cTut.TutorialTitle</h2>
+                    <div class="">
+                        <div class="pt-tab-container">
+                            <ul class="pt-tab-tut-lay" role="tablist">
                                 <li role="presentation" class="active"><a href="#_result" aria-controls="_result" role="tab" data-toggle="tab">Sample</a></li>
                                 <li role="presentation"><a href="#_code" aria-controls="_code" role="tab" data-toggle="tab">Table configuration</a></li>
                                 @foreach (var c in additionaCode)
                                 {
-                                    <li role="presentation"><a href="#_@(c.Key.Id)" aria-controls="_@(c.Key.Id)" role="tab" data-toggle="tab">@c.Key.File</a></li>
+                                <li role="presentation"><a href="#_@(c.Key.Id)" aria-controls="_@(c.Key.Id)" role="tab" data-toggle="tab">@c.Key.File</a></li>
                                 }
                             </ul>
                             <div class="tab-content">
                                 <div role="tabpanel" class="tab-pane active" id="_result">
+
                                     @RenderSection("Result")
                                 </div>
                                 <div role="tabpanel" class="tab-pane" id="_code">
+
                                     <pre>
                                     <code class="language-csharp">
 @ViewBag.Code
@@ -98,14 +96,14 @@
             </div>
         </div>
         <hr />
+    </div>
         <footer>
             <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
         </footer>
-    </div>
+    
 
 
-    @Scripts.Render("~/bundles/bootstrap")
-    @RenderSection("Scripts", required: false)
+
 
 </body>
 </html>
