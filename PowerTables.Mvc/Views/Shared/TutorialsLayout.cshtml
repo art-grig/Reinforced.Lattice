@@ -11,6 +11,12 @@
     {
         additionaCode = new Dictionary<Code, string>();
     }
+
+    var tplCookie = Request.QueryString["tpl"];
+    if (string.IsNullOrEmpty(tplCookie))
+    {
+        tplCookie = "Bootstrap";
+    }
 }
 <html>
 <head>
@@ -40,8 +46,8 @@
             @Html.ActionLink("Reinforced.Lattice Tutorial", "Index", "Tutorial", new { area = "" }, new { @class = "pt-navbar-brand" })
 
         <select id="tplSwitch">
-            <option value="Bootstrap">Bootstrap</option>
-            <option value="Foundation">Foundation</option>
+            <option value="Bootstrap" @(tplCookie == "Bootstrap" ? "selected" : string.Empty)>Bootstrap</option>
+            <option value="Foundation" @(tplCookie == "Foundation" ? "selected" : string.Empty)>Foundation</option>
         </select>
 
     </div>

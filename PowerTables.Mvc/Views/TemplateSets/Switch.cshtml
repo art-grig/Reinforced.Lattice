@@ -17,5 +17,12 @@
     </text>
 }
 
+@if (tplCookie == "Foundation")
+{
+    <text>
+        @{ Html.RenderPartial("Datepicker"); }
+    </text>
+}
+
 
 @{ Html.RenderTemplates("lt", tplFile); }

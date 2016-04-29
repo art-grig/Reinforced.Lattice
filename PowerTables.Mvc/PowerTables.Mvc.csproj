@@ -335,6 +335,7 @@
     <Content Include="Views\Shared\Datepicker.cshtml" />
     <Content Include="Views\TemplateSets\Switch.cshtml" />
     <Content Include="Views\TemplateSets\Lattice_Bootstrap.cshtml" />
+    <Content Include="Views\TemplateSets\Lattice_Foundation.cshtml" />
     <None Include="Views\Tutorial\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
