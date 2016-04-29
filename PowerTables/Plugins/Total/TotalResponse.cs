@@ -15,6 +15,6 @@ namespace PowerTables.Plugins.Total
         /// <summary>
         /// Totals for particular columns
         /// </summary>
-        public Dictionary<string, string> TotalsForColumns { get; set; }
+        public Dictionary<string, object> TotalsForColumns { get; set; }
     }
 }

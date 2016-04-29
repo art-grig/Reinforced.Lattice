@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using PowerTables.CellTemplating;
 using PowerTables.Plugins;
 
 namespace PowerTables.Filters
@@ -40,6 +41,24 @@ namespace PowerTables.Filters
         {
             c.Configuration.ClientFiltering = true;
             c.Configuration.ClientFilteringFunction = new JRaw(string.IsNullOrEmpty(function) ? "null" : function);
+            return c;
+        }
+
+        /// <summary>
+        /// Shortcut for specifying client filtering functions. Supports `{}`-style expressions
+        /// 
+        /// Function type: (datarow:any, filterSelection:string[], query:IQuery) => boolean
+        /// dataRow: JSON-ed TTableObject
+        /// filterSelection: selected values
+        /// query: IQuery object
+        /// Returns: true for satisfying objects, false otherwise
+        /// </summary>
+        public static PluginConfigurationWrapper<T> ClientFilteringExpression<T>(this PluginConfigurationWrapper<T> c, string expression = null)
+            where T : IClientFiltering, new()
+        {
+            var expr = Template.CompileExpression(expression, "v", null);
+            c.Configuration.ClientFiltering = true;
+            c.Configuration.ClientFilteringFunction = new JRaw(string.Format("function(v) {{ return ({0}); }}",expr));
             return c;
         }
 

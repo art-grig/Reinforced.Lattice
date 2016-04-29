@@ -1,4 +1,5 @@
 ﻿using System;
+using Newtonsoft.Json.Linq;
 
 
 namespace PowerTables.Plugins.Checkboxify
@@ -28,6 +29,8 @@ namespace PowerTables.Plugins.Checkboxify
         public string RowTemplateId { get; set; }
 
         public string CellTemplateId { get; set; }
+
+        public JRaw CanSelectFunction { get; set; }
 
         public CheckboxifyClientConfig()
         {

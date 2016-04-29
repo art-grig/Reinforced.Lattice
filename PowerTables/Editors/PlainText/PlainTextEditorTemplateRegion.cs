@@ -1,5 +1,6 @@
 ﻿using System.Web.Mvc;
 using PowerTables.Templating;
+using PowerTables.Templating.Handlebars;
 
 namespace PowerTables.Editors.PlainText
 {
@@ -19,7 +20,7 @@ namespace PowerTables.Editors.PlainText
     {
         public static MvcHtmlString ThisIsInput(this PlainTextEditorTemplateRegion t)
         {
-            return t.Mark("Input");
+            return MvcHtmlString.Create(t.Mark("Input") + " " + t.Datepicker(t.CleanValue(c=>c.Column.RawName)));
         }
 
         public static PlainTextEditorTemplateRegion Editor_PlainText(this IViewPlugins t, string templateId = "plainTextEditor")

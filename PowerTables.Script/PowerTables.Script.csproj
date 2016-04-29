@@ -79,6 +79,8 @@
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\LoadingOverlap.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Editors\CheckEditor.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Editors\MemoEditor.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\ToolbarConfirmation.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\MessagesService.ts" />
   </ItemGroup>
   <ItemGroup />
   <PropertyGroup>

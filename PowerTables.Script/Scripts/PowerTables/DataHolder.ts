@@ -8,12 +8,6 @@
             this._events = masterTable.Events;
             this._instances = masterTable.InstanceManager;
             this._masterTable = masterTable;
-            for (var c in this._instances.Columns) {
-                if (this._instances.Columns[c].IsDateTime) {
-                    this._needNormalizeDatesForAdjustment = true;
-                    break;
-                }
-            }
         }
 
         private _rawColumnNames: string[];
@@ -23,7 +17,6 @@
         private _events: EventsManager;
         private _instances: InstanceManager;
         private _masterTable: IMasterTable;
-        private _needNormalizeDatesForAdjustment: boolean;
 
         /**
          * Data that actually is currently displayed in table
@@ -395,6 +388,7 @@
             var modColumns = [];
             for (var cd in source) {
                 if (source.hasOwnProperty(cd)) {
+                    if (this._instances.Columns[cd].IsSpecial) continue;
                     var src = source[cd];
                     var trg = target[cd];
                     if (this._instances.Columns[cd].IsDateTime) {
@@ -410,14 +404,14 @@
             return modColumns;
         }
 
-        private normalizeDates(dataObject: any) {
-            for (var k in dataObject) {
-                if (this._masterTable.InstanceManager.Columns.hasOwnProperty(k)
-                    && this._masterTable.InstanceManager.Columns[k].IsDateTime) {
+        private normalizeObject(dataObject: any) {
+            for (var k in this._masterTable.InstanceManager.Columns) {
+                if (this._masterTable.InstanceManager.Columns[k].IsDateTime) {
                     if (dataObject[k] != null && (typeof dataObject[k] === "string")) {
                         dataObject[k] = this._masterTable.Date.parse(dataObject[k]);
                     }
                 }
+                if (dataObject[k] == undefined) dataObject[k] = null;
             }
         }
 
@@ -430,9 +424,8 @@
             var added = [];
             
             for (var i = 0; i < adjustments.Updates.length; i++) {
-                if (this._needNormalizeDatesForAdjustment) {
-                    this.normalizeDates(adjustments.Updates[i]);
-                }
+                this.normalizeObject(adjustments.Updates[i]);
+                
                 var update = this.localLookupPrimaryKey(adjustments.Updates[i]);
                 if (update.LoadedIndex < 0) {
                     if (this.StoredData.length > 0) {
@@ -445,16 +438,13 @@
                     touchedData.push(update.DataObject);
                     if (update.DisplayedIndex > 0) {
                         redrawVisibles.push(update.DataObject);
-                    } else {
-                        needRefilter = true;
                     }
+                    needRefilter = true;
                 }
             }
-
+            
             for (var j = 0; j < adjustments.Removals.length; j++) {
-                if (this._needNormalizeDatesForAdjustment) {
-                    this.normalizeDates(adjustments.Removals[j]);
-                }
+                this.normalizeObject(adjustments.Removals[j]);
                 var lookup = this.localLookupPrimaryKey(adjustments.Removals[j]);
                 if (lookup.LoadedIndex > -1) {
                     this.StoredData.splice(lookup.LoadedIndex, 1);

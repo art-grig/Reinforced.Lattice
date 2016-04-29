@@ -4,6 +4,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
+using PowerTables.CellTemplating;
 using PowerTables.Configuration;
 using PowerTables.Configuration.Json;
 
@@ -37,7 +39,7 @@ namespace PowerTables.Plugins.Checkboxify
         /// <param name="req">Request</param>
         /// <param name="configurator">Table configurator</param>
         /// <returns>Set of selection</returns>
-        public static T[] GetSelectionIds<T>(this Query req,IConfigurator configurator)
+        public static T[] GetSelectionIds<T>(this Query req, IConfigurator configurator)
         {
             if (!req.AdditionalData.ContainsKey("Selection")) return new T[0];
             var s = req.AdditionalData["Selection"];
@@ -119,7 +121,7 @@ namespace PowerTables.Plugins.Checkboxify
         /// <param name="cellTemplateId">Template for cell containing checkboxify checkbox</param>
         /// <returns></returns>
         public static PluginConfigurationWrapper<CheckboxifyClientConfig> Templates(
-            this PluginConfigurationWrapper<CheckboxifyClientConfig> c, 
+            this PluginConfigurationWrapper<CheckboxifyClientConfig> c,
             string selectAllTemplateId = "checkboxifySelectAll",
             string rowTemplateId = "checkboxifyRow",
             string cellTemplateId = "checkboxifyCell")
@@ -142,6 +144,33 @@ namespace PowerTables.Plugins.Checkboxify
         {
             c.Configuration.ResetOnReload = resetOnLoad;
             c.Configuration.ResetOnClientReload = resetOnClientLoad;
+            return c;
+        }
+
+        /// <summary>
+        /// Specifies predicate function for selectable row. 
+        /// function type: (v:any)=>boolean
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="function">Function that consumes IRow object and should return true for selectable row and false for unselectable</param>
+        /// <returns></returns>
+        public static PluginConfigurationWrapper<CheckboxifyClientConfig> CanSelectFunction(this PluginConfigurationWrapper<CheckboxifyClientConfig> c, string function)
+        {
+            c.Configuration.CanSelectFunction = string.IsNullOrEmpty(function) ? null : new JRaw(function);
+            return c;
+        }
+
+        /// <summary>
+        /// Specifies predicate function for selectable row. 
+        /// function type: (v:any)=>boolean
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="function">Function that consumes IRow object and should return true for selectable row and false for unselectable</param>
+        /// <returns></returns>
+        public static PluginConfigurationWrapper<CheckboxifyClientConfig> CanSelectExpression(this PluginConfigurationWrapper<CheckboxifyClientConfig> c, string expression)
+        {
+            var function = string.Format("function(v) {{ return ({0});}}", Template.CompileExpression(expression, "v", "DataObject"));
+            c.Configuration.CanSelectFunction = new JRaw(function);
             return c;
         }
     }

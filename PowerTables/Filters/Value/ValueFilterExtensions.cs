@@ -111,7 +111,11 @@ namespace PowerTables.Filters.Value
             Action<ColumnPluginConfigurationWrapper<ValueFilterUiConfig, TTableColumn>> ui = null
             ) where TTableData : new()
         {
-            column.UpdateFilterConfig(PluginId, ui);
+            column.UpdateFilterConfig<ValueFilterUiConfig, TTableColumn>(PluginId, a =>
+            {
+                a.Placeholder(column.ColumnConfiguration.Title);
+                if (ui != null) ui(a);
+            });
         }
 
         /// <summary>
@@ -120,7 +124,7 @@ namespace PowerTables.Filters.Value
         /// <param name="config">Configuration</param>
         /// <param name="value">Filter default value</param>
         /// <returns>Fluent</returns>
-        public static ColumnPluginConfigurationWrapper<ValueFilterUiConfig, TColumn> Default<TColumn>(this ColumnPluginConfigurationWrapper<ValueFilterUiConfig, TColumn> config, TColumn value = null) where TColumn : class
+        public static ColumnPluginConfigurationWrapper<ValueFilterUiConfig, TColumn> Default<TColumn>(this ColumnPluginConfigurationWrapper<ValueFilterUiConfig, TColumn> config, TColumn value) where TColumn : class
         {
             config.Configuration.DefaultValue = ValueConverter.ToFilterDefaultString(value);
             return config;
@@ -130,11 +134,11 @@ namespace PowerTables.Filters.Value
         /// Specifies default value for filter. 
         /// </summary>
         /// <param name="config">Configuration</param>
-        /// <param name="value">Filter default value</param>
+        /// <param name="nullValue">Filter default value</param>
         /// <returns>Fluent</returns>
-        public static ColumnPluginConfigurationWrapper<ValueFilterUiConfig, TColumn?> Default<TColumn>(this ColumnPluginConfigurationWrapper<ValueFilterUiConfig, TColumn?> config, TColumn? value = null) where TColumn : struct
+        public static ColumnPluginConfigurationWrapper<ValueFilterUiConfig, TColumn?> Default<TColumn>(this ColumnPluginConfigurationWrapper<ValueFilterUiConfig, TColumn?> config, TColumn? nullValue) where TColumn : struct
         {
-            config.Configuration.DefaultValue = ValueConverter.ToFilterDefaultString(value);
+            config.Configuration.DefaultValue = ValueConverter.ToFilterDefaultString(nullValue);
             return config;
         }
 
@@ -144,7 +148,7 @@ namespace PowerTables.Filters.Value
         /// <param name="config">Configuration</param>
         /// <param name="value">Filter default value</param>
         /// <returns>Fluent</returns>
-        public static ColumnPluginConfigurationWrapper<ValueFilterUiConfig, TColumn> Default<TColumn>(this ColumnPluginConfigurationWrapper<ValueFilterUiConfig, TColumn> config, TColumn? value = null) where TColumn : struct
+        public static ColumnPluginConfigurationWrapper<ValueFilterUiConfig, TColumn> Default<TColumn>(this ColumnPluginConfigurationWrapper<ValueFilterUiConfig, TColumn> config, TColumn? value) where TColumn : struct
         {
             config.Configuration.DefaultValue = ValueConverter.ToFilterDefaultString(value);
             return config;
@@ -156,7 +160,7 @@ namespace PowerTables.Filters.Value
         /// <param name="config">Configuration</param>
         /// <param name="placeholder">Placeholder label</param>
         /// <returns>Fluent</returns>
-        public static PluginConfigurationWrapper<ValueFilterUiConfig> Placeholder(this PluginConfigurationWrapper<ValueFilterUiConfig> config, string placeholder = null)
+        public static PluginConfigurationWrapper<ValueFilterUiConfig> Placeholder(this PluginConfigurationWrapper<ValueFilterUiConfig> config, string placeholder)
         {
             config.Configuration.Placeholder = placeholder;
             return config;

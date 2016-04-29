@@ -20,11 +20,11 @@
    
     <script type="text/javascript" src="~/Scripts/handlebars.min.js"></script>
     <script type="text/javascript" src="~/Scripts/powertables.js"></script>
-
-    @{ Html.RenderPartial("~/Views/TemplateSets/Switch.cshtml"); }
-
     @Scripts.Render("~/bundles/modernizr")
     @Scripts.Render("~/bundles/jquery")
+    @{ Html.RenderPartial("~/Views/TemplateSets/Switch.cshtml"); }
+
+  
 
     @Styles.Render("~/Content/css")
     @RenderSection("Scripts", required: false)
@@ -53,7 +53,7 @@
                     @foreach (var t in tutorials)
                     {
                         <li>
-                            <a href="@Url.Action(t.TutorialId, "Tutorial")" class="list-group-item @(cTut.TutorialId == t.TutorialId ? "active" : string.Empty)">@(t.TutorialNumber). @t.TutorialTitle</a>
+                            <a href="@Url.Action(t.TutorialId, "Tutorial")" class="pt-list-group-item @(cTut.TutorialId == t.TutorialId ? "pt-active" : string.Empty)">@(t.TutorialNumber). @t.TutorialTitle</a>
                         </li>
                     }
                 </ul>
@@ -65,7 +65,7 @@
                     <div class="">
                         <div class="pt-tab-container">
                             <ul class="pt-tab-tut-lay" role="tablist">
-                                <li role="presentation" class="active"><a href="#_result" aria-controls="_result" role="tab" data-toggle="tab">Sample</a></li>
+                                <li role="presentation" class="pt-active"><a href="#_result" aria-controls="_result" role="tab" data-toggle="tab">Sample</a></li>
                                 <li role="presentation"><a href="#_code" aria-controls="_code" role="tab" data-toggle="tab">Table configuration</a></li>
                                 @foreach (var c in additionaCode)
                                 {
@@ -73,7 +73,7 @@
                                 }
                             </ul>
                             <div class="tab-content">
-                                <div role="tabpanel" class="tab-pane active" id="_result">
+                                <div role="tabpanel" class="tab-pane pt-active" id="_result">
 
                                     @RenderSection("Result")
                                 </div>

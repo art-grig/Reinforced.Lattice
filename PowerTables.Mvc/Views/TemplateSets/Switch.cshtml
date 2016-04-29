@@ -11,12 +11,11 @@
 @if (tplCookie == "Bootstrap")
 {
     <text>
-        <link rel="stylesheet" href="~/Content/bootstrap.css"/>
+        <link rel="stylesheet" href="~/Content/bootstrap.css" />
         <script type="text/javascript" src="~/Scripts/bootstrap.min.js"></script>
         @{ Html.RenderPartial("Datepicker"); }
     </text>
 }
 
-<script>
-    @{ Html.RenderTemplates("lt",tplFile); }
-</script>
+
+@{ Html.RenderTemplates("lt", tplFile); }

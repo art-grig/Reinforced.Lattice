@@ -15,13 +15,15 @@ namespace PowerTables.Mvc.Models.Tutorial
     {
         public static Configurator<Toy, Row> Filtering(this Configurator<Toy, Row> conf)
         {
-            conf.Pagination();
+            conf.ClientPagination();
             conf.LoadImmediately(true);
             conf
                 .DatePicker(new DatepickerOptions( // set up functions for 3rd party datepickers
                     "createDatePicker",
                     "putDateToDatepicker",
-                    "getDateFromDatepicker"))
+                    "getDateFromDatepicker",
+                    "destroyDatepicker"
+            ))
                 .AppendEmptyFilters()              // tell table to draw empty filters for columns without filters
                                                    // it is needed when using table-look-like templating
                     ;
@@ -48,7 +50,7 @@ namespace PowerTables.Mvc.Models.Tutorial
              * query providers, so if you dont like this behavior use .By call and handle null values by yourself
              */
             conf.Column(c => c.LastSoldDate).FilterRange(c => c.LastSoldDate.GetValueOrDefault(),
-                ui => ui.Default(DateTime.Now.AddDays(-50),DateTime.Now));  // filter by range of dates with default values
+                ui => ui.RangeDefault(DateTime.Now.AddDays(-50),DateTime.Now));  // filter by range of dates with default values
 
 
             /*

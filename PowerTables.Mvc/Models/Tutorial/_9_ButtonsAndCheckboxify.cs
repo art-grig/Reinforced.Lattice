@@ -7,28 +7,43 @@ namespace PowerTables.Mvc.Models.Tutorial
 {
     public static partial class Tutorial
     {
+        public const string Remove = "remove";
+        public const string Update = "update";
+        public const string Download = "download";
+        public const string ExportSelected = "export-selected";
+        public const string ExportAll = "export-selected";
+
         public static Configurator<Toy, Row> ButtonsAndCheckboxify(this Configurator<Toy, Row> conf)
         {
-            conf.RedirectingFilters();
+            conf.Filtering();
 
             conf.Checkboxify(c => c.Id, SelectAllBehavior.CurrentPage, ui => ui.ResetBehavior(resetOnLoad: true));
+            conf.AdjustmentTemplates("updatedRow", "updatedCell", "addedRow");
+
+
             conf.Toolbar("toolbar-rt", a =>
             {
 
-                a.AddCommandButton("remove".GlyphIcon() + "Remove selected", Remove)
-                    .DisableIfNothingChecked()
-                    .ShowMessageResponseCallback();
+                a.AddCommandButton(Remove.GlyphIcon() + " Remove selected", Remove)
+                    .DisableIfNothingChecked();
 
-                a.AddCommandButton("download".GlyphIcon() + "Download", Download);
+                a.AddCommandButton(Download.GlyphIcon() + " Download", Download);
 
-                a.AddMenu("th".GlyphIcon() + "Excel export", b =>
+                a.AddMenu("th".GlyphIcon() + "Confirmations", b =>
                 {
-                    b.AddCommandItem("star".GlyphIcon("left") + "Export all", ExportAll);
-                    b.AddCommandItem("save".GlyphIcon("left") + "Export selected", ExportSelected)
+                    b.AddCommandItem("star".GlyphIcon("left") + " Simple confirmation", Remove)
+                        .Confirmation("simpleConfirmation", "#confirmationContent")
+                        ;
+                    b.AddCommandItem("save".GlyphIcon("left") + " Confirm selection", Remove)
+                        .Confirmation("confirmationSelection", "#confirmationContent")
                         .DisableIfNothingChecked();
+                    b.AddCommandItem("save".GlyphIcon("left") + " Confirm with small form", Update)
+                        .Confirmation("confirmationSelectionForm", "#confirmationContent")
+                        .DisableIfNothingChecked();
+
                 }).Css("btn-primary");
 
-                a.AddMenuButton("record".GlyphIcon() + "And this is button menu", "something", b =>
+                a.AddMenuButton("record".GlyphIcon() + " And this is button menu", "something", b =>
                 {
                     b.AddSimpleItem("Simple active item").Css("active");
                     b.Separator();

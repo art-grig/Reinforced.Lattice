@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using PowerTables.CellTemplating;
 using PowerTables.Configuration;
 
 namespace PowerTables.Plugins.Ordering
@@ -39,6 +40,21 @@ namespace PowerTables.Plugins.Ordering
         {
             JRaw fn = new JRaw(string.IsNullOrEmpty(orderingFunction) ? "null" : orderingFunction);
             _configuration.ClientSortableColumns[_columnName] = fn;
+            return this;
+        }
+
+        /// <summary>
+        /// Instructs plugin to use client ordering for this column consuming filtering expression. 
+        /// Use it as LINQ ordering expression. `{}`-syntax supported. Be careful of nulls
+        /// </summary>
+        /// <param name="expression">Ordering expression</param>
+        /// <returns></returns>
+        public OrderingUiConfigurationBuilder UseClientOrderingNumericExpression(string expression)
+        {
+            var exprLeft = Template.CompileExpression(expression, "x", null);
+            var exprRight = Template.CompileExpression(expression, "y", null);
+            var fn = string.Format("function(x,y){{ return (({0}) - ({1})); }}", exprLeft, exprRight);
+            _configuration.ClientSortableColumns[_columnName] = new JRaw(fn);
             return this;
         }
 

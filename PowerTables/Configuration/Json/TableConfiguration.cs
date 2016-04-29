@@ -81,6 +81,23 @@ namespace PowerTables.Configuration.Json
         /// </summary>
         public string AddedRowTemplateId { get; set; }
 
+        /// <summary>
+        /// Function that will be called after tables initialization
+        /// </summary>
+        public JRaw CallbackFunction { get; set; }
+
+        /// <summary>
+        /// Function that should consume IRow instance and return template name for this particular row.
+        /// Return null/empty/undefined will let system to choose default template
+        /// </summary>
+        public JRaw TemplateSelector { get; set; }
+
+        /// <summary>
+        /// Function that shows user messages.
+        /// Function type is (msg: ITableMessage) => void
+        /// </summary>
+        public JRaw MessageFunction { get; set; }
+
         public TableConfiguration()
         {
             Columns = new List<ColumnConfiguration>();

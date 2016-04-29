@@ -80,13 +80,14 @@
 
             this.BeforeClientDataProcessing = new TableEvent(masterTable);
             this.AfterClientDataProcessing = new TableEvent(masterTable);
-            this.BeforeLayoutRendered = new TableEvent(masterTable);
             this.AfterLayoutRendered = new TableEvent(masterTable);
             this.BeforeDataRendered = new TableEvent(masterTable);
             this.AfterDataRendered = new TableEvent(masterTable);
             this.BeforeClientRowsRendering = new TableEvent(masterTable);
             this.DeferredDataReceived = new TableEvent(masterTable);
-
+            this.BeforeAdjustment = new TableEvent(masterTable);
+            this.AfterAdjustment = new TableEvent(masterTable);
+            this.AdjustmentResult = new TableEvent(masterTable);
         }
 
         /**
@@ -196,6 +197,10 @@
 
         public SelectionChanged: TableEvent<string[]>; //registered by Checkboxify
 
+        public BeforeAdjustment: TableEvent<PowerTables.Editors.IAdjustmentData>;
+        public AfterAdjustment: TableEvent<PowerTables.Editors.IAdjustmentData>;
+        public AdjustmentResult: TableEvent<IAdjustmentResult>;
+
     }
 
     /**
@@ -265,11 +270,6 @@
          * Error text
          */
         Reason: string;
-
-        /**
-         * Stack trace (if any)
-         */
-        StackTrace: string;
     }
 
     /**

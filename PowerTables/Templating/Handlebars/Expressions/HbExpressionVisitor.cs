@@ -35,21 +35,26 @@ namespace PowerTables.Templating.Handlebars.Expressions
 
         protected override Expression VisitMember(MemberExpression node)
         {
+            HbExpression accessedExpression = null;
+
+
+            Visit(node.Expression);
+
+            accessedExpression = Retrieve();
+            var memberName = node.Member.Name;
             var attr = node.Member.GetCustomAttribute<OverrideHbFieldNameAttribute>();
             if (attr != null)
             {
-                Return(new HbLiteralExpression() { Literal = attr.Name });
-                return node;
+                memberName = attr.Name;
             }
-
-            Visit(node.Expression);
-            var accessedExpression = Retrieve();
-            var memberName = node.Member.Name;
-            if (node.Member.Name == "Length")
+            else
             {
-                if (node.Expression.Type.IsArray)
+                if (node.Member.Name == "Length")
                 {
-                    memberName = "length";
+                    if (node.Expression.Type.IsArray)
+                    {
+                        memberName = "length";
+                    }
                 }
             }
             Return(new HbMemberExpression { Accessed = accessedExpression, MemberName = memberName });

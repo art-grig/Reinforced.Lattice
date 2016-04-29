@@ -35,6 +35,9 @@
                 if (rw.renderElement) {
                     result += rw.renderElement(this._templatesProvider);
                 } else {
+                    if (this._instances.Configuration.TemplateSelector) {
+                        rw.TemplateIdOverride = this._instances.Configuration.TemplateSelector(rw);
+                    }
                     if (rw.TemplateIdOverride) {
                         result += this._templatesProvider.getCachedTemplate(rw.TemplateIdOverride)(rw);
                     } else {
@@ -89,9 +92,8 @@
                         continue;
                     }
                     if (columnConfig.CellRenderingTemplateId) {
-                        var compiled: HandlebarsTemplateDelegate = this._hb.compile(document.getElementById(columnConfig.CellRenderingTemplateId).innerHTML);
-                        this._columnsRenderFunctions[columnConfig.RawColumnName] =
-                        (compl => (x: ICell) => compl(x.DataObject))(compiled);
+                        var compiled: HandlebarsTemplateDelegate = this._hb.compile(document.getElementById(columnConfig.CellRenderingTemplateId).innerHTML, { noEscape: true });
+                        this._columnsRenderFunctions[columnConfig.RawColumnName] = compiled;
                         continue;
                     }
                     this._columnsRenderFunctions[columnConfig.RawColumnName] =

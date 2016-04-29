@@ -74,5 +74,12 @@ namespace PowerTables.Plugins.Toolbar
             _configuration.IsDisabled = disabled;
             return this;
         }
+
+        public ToolbarItemBuilder Confirmation(string confirmationTemplateId,string targetElementSelector)
+        {
+            _configuration.ConfirmationTemplateId = confirmationTemplateId;
+            _configuration.ConfirmationTargetSelector = targetElementSelector;
+            return this;
+        }
     }
 }

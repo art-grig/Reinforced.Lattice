@@ -21,12 +21,12 @@ namespace PowerTables.Plugins.Total
 
         public void ModifyResponse(PowerTablesData data, PowerTablesResponse response)
         {
-            TotalResponse tr = new TotalResponse() { TotalsForColumns = new Dictionary<string, string>() };
+            TotalResponse tr = new TotalResponse() { TotalsForColumns = new Dictionary<string, object>() };
             var gData = new PowerTablesData<TSourceData, TTableData>(data);
             foreach (var keyValuePair in _calculator.Calculators)
             {
                 var result = keyValuePair.Value.DynamicInvoke(gData);
-                tr.TotalsForColumns[keyValuePair.Key] = result.ToString();
+                tr.TotalsForColumns[keyValuePair.Key] = result;
             }
             response.AdditionalData[TotalExtensions.PluginId] = tr;
         }

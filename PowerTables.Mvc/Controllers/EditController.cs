@@ -40,6 +40,7 @@ namespace PowerTables.Mvc.Controllers
                 row.IsPaid = true;
             }
             edit.Adjustments.AddOrUpdate(mapped);
+            edit.Message(TableMessage.User("info", "Objects were updated", "Successful"));
         }
     }
 }

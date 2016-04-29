@@ -36,6 +36,7 @@
                 var cell: ICell = {
                     DataObject: dataObject,
                     renderElement: null,
+                    renderContent: function (v) { return this.Data; },
                     Column: cols[i],
                     Row: result,
                     Data: dataObject[col.RawName]
@@ -47,6 +48,9 @@
         }
 
         public onResponse(e: ITableEventArgs<IDataEventArgs>) {
+            if (!e.EventArgs.Data.AdditionalData) return;
+            if (!e.EventArgs.Data.AdditionalData.hasOwnProperty('Total')) return;
+
             var response: IPowerTablesResponse = e.EventArgs.Data;
             var total: TotalResponse = response.AdditionalData['Total'];
             this._totalsForColumns = total.TotalsForColumns;
@@ -62,12 +66,19 @@
             }
         }
 
+        private onAdjustments(e: ITableEventArgs<IAdjustmentResult>) {
+            var adjustments = e.EventArgs;
+            if (adjustments.NeedRedrawAllVisible) return;
+            var row = this.makeTotalsRow(); //todo recalculate totals in more intelligent way
+            this.MasterTable.Renderer.Modifier.redrawRow(row);
+        }
+
         public onClientDataProcessed(e: ITableEventArgs<IClientDataResults>) {
             if (!this._totalsForColumns) this._totalsForColumns = {};
 
             for (var k in this.Configuration.ColumnsCalculatorFunctions) {
                 if (this.Configuration.ColumnsCalculatorFunctions.hasOwnProperty(k)) {
-                    this._totalsForColumns[k] = this.Configuration.ColumnsCalculatorFunctions[k](e.EventArgs).toString();
+                    this._totalsForColumns[k] = this.Configuration.ColumnsCalculatorFunctions[k](e.EventArgs);
                 }
             }
         }
@@ -76,6 +87,7 @@
             e.DataReceived.subscribe(this.onResponse.bind(this), 'totals');
             e.BeforeClientRowsRendering.subscribe(this.onClientRowsRendering.bind(this), 'totals');
             e.AfterClientDataProcessing.subscribe(this.onClientDataProcessed.bind(this), 'totals');
+            e.AdjustmentResult.subscribe(this.onAdjustments.bind(this),'totals');
         }
     }
 

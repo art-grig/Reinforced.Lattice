@@ -8,17 +8,6 @@
 
         constructor(masterTable: IMasterTable) {
             this._masterTable = masterTable;
-
-            this._masterTable.Events.LoadingError.subscribe(this.onLoadingError.bind(this), 'controller');
-        }
-
-        private onLoadingError(e: ITableEventArgs<ILoadingErrorEventArgs>) {
-            this.showTableMessage({
-                Message: e.EventArgs.Reason,
-                MessageType: 'error',
-                AdditionalData: e.EventArgs.StackTrace,
-                IsMessage: true
-            });
         }
 
         private _masterTable: IMasterTable;
@@ -56,10 +45,11 @@
         public redrawVisibleData(): void {
             var rows: IRow[] = this.produceRows();
             if (rows.length === 0) {
-                this.showTableMessage({
-                    MessageType: 'noresults',
-                    Message: 'No data found',
-                    AdditionalData: 'Try specifying different filter settings'
+                this._masterTable.MessageService.showMessage({
+                    Class: 'noresults',
+                    Title: 'No data found',
+                    Details: 'Try specifying different filter settings',
+                    Type: MessageType.Banner
                 });
             } else {
                 this._masterTable.Renderer.body(rows);
@@ -70,6 +60,7 @@
             var adjRowTemplate = this._masterTable.InstanceManager.Configuration.TouchedRowTemplateId;
             var adjCellTemplate = this._masterTable.InstanceManager.Configuration.TouchedCellTemplateId;
             var addedTemplate = this._masterTable.InstanceManager.Configuration.AddedRowTemplateId;
+            this._masterTable.Events.AdjustmentResult.invoke(this, adjustmentResult);
 
             var rows: IRow[] = this.produceRows();
 
@@ -120,113 +111,7 @@
                 this._masterTable.Renderer.body(rows);
             }
         }
-
-        /**
-         * Shows full-width table message
-         * @param tableMessage Message of type ITableMessage
-         * @returns {} 
-         */
-        public showTableMessage(tableMessage: ITableMessage) {
-            tableMessage.UiColumnsCount = this._masterTable.InstanceManager.getUiColumns().length;
-            tableMessage.IsMessage = true;
-            this._masterTable.DataHolder.DisplayedData = [tableMessage];
-            this.redrawVisibleData();
-        }
-
-
-        //#region event delegation hell
-
-
-        //#endregion
-
-        /**
-         * Inserts data entry to local storage 
-         * 
-         * @param insertion Insertion command         
-         */
-        public insertLocalRow(insertion: IInsertRequest): void {
-            if (insertion.RedrawBehavior === RedrawBehavior.ReloadFromServer) {
-                this.reload();
-            } else {
-                this._masterTable.DataHolder.StoredData.splice(insertion.StorageRowIndex, 0, insertion.DataObject);
-
-                if (insertion.RedrawBehavior === RedrawBehavior.LocalFullRefresh) this.localFullRefresh();
-                else {
-                    this._masterTable.DataHolder.DisplayedData.splice(insertion.DisplayRowIndex, 0, insertion.DataObject);
-
-                    if (insertion.RedrawBehavior === RedrawBehavior.RedrawVisible) this.redrawVisibleData();
-                    else if (insertion.RedrawBehavior === RedrawBehavior.LocalVisibleReorder) this.localVisibleReorder();
-                    else if (insertion.RedrawBehavior === RedrawBehavior.ParticularRowUpdate) {
-                        var row: IRow = this.produceRow(insertion.DataObject, insertion.DisplayRowIndex);
-                        this._masterTable.Renderer.Modifier.appendRow(row, insertion.DisplayRowIndex);
-                    }
-                }
-            }
-        }
-
-        /**
-         * Removes data entry from local storage 
-         * 
-         * @param insertion Insertion command         
-         */
-        public deleteLocalRow(deletion: IDeleteRequest) {
-            if (deletion.RedrawBehavior === RedrawBehavior.ReloadFromServer) {
-                this.reload();
-            } else {
-                this._masterTable.DataHolder.StoredData.splice(deletion.StorageRowIndex, 1);
-
-                if (deletion.RedrawBehavior === RedrawBehavior.LocalFullRefresh) this.localFullRefresh();
-                else {
-                    this._masterTable.DataHolder.DisplayedData.splice(deletion.DisplayRowIndex, 1);
-
-                    if (deletion.RedrawBehavior === RedrawBehavior.RedrawVisible) this.redrawVisibleData();
-                    else if (deletion.RedrawBehavior === RedrawBehavior.LocalVisibleReorder) this.localVisibleReorder();
-                    else if (deletion.RedrawBehavior === RedrawBehavior.ParticularRowUpdate) {
-                        this._masterTable.Renderer.Modifier.destroyRowByIndex(deletion.DisplayRowIndex);
-                    }
-                }
-            }
-        }
-
-        /**
-         * Updates data entry in local storage
-         * 
-         * @param insertion Insertion command         
-         */
-        public updateLocalRow(update: IUpdateRequest) {
-            if (update.RedrawBehavior === RedrawBehavior.ReloadFromServer) {
-                this.reload();
-            } else {
-
-                var object: ILocalLookupResult = this._masterTable.DataHolder.localLookupStoredData(update.StorageRowIndex);
-                update.UpdateFn(object);
-
-                if (update.RedrawBehavior === RedrawBehavior.LocalFullRefresh) this.localFullRefresh();
-                else {
-
-                    // not required to update displayed object because we are updating reference
-
-                    if (update.RedrawBehavior === RedrawBehavior.RedrawVisible) this.redrawVisibleData();
-                    else if (update.RedrawBehavior === RedrawBehavior.LocalVisibleReorder) this.localVisibleReorder();
-                    else if (update.RedrawBehavior === RedrawBehavior.ParticularRowUpdate) {
-                        var row: IRow = this.produceRow(object, update.DisplayRowIndex);
-                        this._masterTable.Renderer.Modifier.redrawRow(row);
-                    }
-                }
-            }
-        }
-
-        private localFullRefresh() {
-            this._masterTable.DataHolder.filterStoredDataWithPreviousQuery();
-            this.redrawVisibleData();
-        }
-
-        private localVisibleReorder() {
-            this._masterTable.DataHolder.DisplayedData = this._masterTable.DataHolder.orderSet(
-                this._masterTable.DataHolder.DisplayedData, this._masterTable.DataHolder.RecentClientQuery);
-            this.redrawVisibleData();
-        }
-
+       
         /**
          * Converts data object,row and column to cell
          * 
@@ -264,7 +149,8 @@
                 Index: idx,
                 MasterTable: this._masterTable
             }
-            if (dataObject.IsMessage) {
+            if (dataObject.IsMessageObject) {
+                dataObject.UiColumnsCount = columns.length;
                 rw.renderElement = hb => hb.getCachedTemplate('messages')(dataObject);
                 rw.IsSpecial = true;
                 return rw;
@@ -352,63 +238,5 @@
          * Modification request will not affect UI anyhow until next filtering. Confusing.
          */
         DoNothing
-    }
-
-    /**
-     * Base interface for modification commands
-     */
-    export interface IModificationRequest {
-        /**
-         * Behavior of refreshing UI after data modification. 
-         * See help for RedrawBehavior for details
-         */
-        RedrawBehavior: RedrawBehavior;
-
-        /**
-         * Index of row among stored data
-         */
-        StorageRowIndex: number;
-
-        /**
-         * Index of row among displaying data
-         */
-        DisplayRowIndex: number;
-    }
-
-    /**
-     * Data insertion request
-     */
-    export interface IInsertRequest extends IModificationRequest {
-        /**
-         * Object to insert
-         */
-        DataObject: any;
-    }
-
-    /**
-     * Data removal request
-     */
-    export interface IDeleteRequest extends IModificationRequest {
-
-    }
-
-    /**
-     * Data update request
-     */
-    export interface IUpdateRequest extends IModificationRequest {
-        /**
-         * Function that will be called on object being updated
-         * 
-         * @param object Data object          
-         */
-        UpdateFn: (object: any) => void
-    }
-
-    export interface ITableMessage {
-        Message: string;
-        AdditionalData: string;
-        MessageType: string;
-        UiColumnsCount?: number;
-        IsMessage?: boolean;
     }
 }

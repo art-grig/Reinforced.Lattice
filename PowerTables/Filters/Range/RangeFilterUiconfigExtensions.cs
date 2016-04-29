@@ -16,8 +16,7 @@ namespace PowerTables.Filters.Range
         /// <param name="from">Raw value string for "from" box</param>
         /// <param name="to">Raw value for "to" box</param>
         /// <returns>Fluent</returns>
-        public static PluginConfigurationWrapper<RangeFilterUiConfig> RawDefault(this PluginConfigurationWrapper<RangeFilterUiConfig> config, string from = null,
-            string to = null)
+        public static PluginConfigurationWrapper<RangeFilterUiConfig> RawDefault(this PluginConfigurationWrapper<RangeFilterUiConfig> config, string from,string to)
         {
             config.Configuration.FromValue = from;
             config.Configuration.ToValue = to;
@@ -33,8 +32,7 @@ namespace PowerTables.Filters.Range
         /// <param name="from">Raw value string for "from" box</param>
         /// <param name="to">Raw value for "to" box</param>
         /// <returns>Fluent</returns>
-        public static ColumnPluginConfigurationWrapper<RangeFilterUiConfig, TColumn> Default<TColumn>(this ColumnPluginConfigurationWrapper<RangeFilterUiConfig, TColumn> config, TColumn from = null,
-            TColumn to = null) where TColumn : class
+        public static ColumnPluginConfigurationWrapper<RangeFilterUiConfig, TColumn> RangeDefault<TColumn>(this ColumnPluginConfigurationWrapper<RangeFilterUiConfig, TColumn> config, TColumn from,TColumn to) where TColumn : class
         {
             config.Configuration.FromValue = ValueConverter.ToFilterDefaultString(from);
             config.Configuration.ToValue = ValueConverter.ToFilterDefaultString(to);
@@ -49,8 +47,7 @@ namespace PowerTables.Filters.Range
         /// <param name="from">Raw value string for "from" box</param>
         /// <param name="to">Raw value for "to" box</param>
         /// <returns>Fluent</returns>
-        public static ColumnPluginConfigurationWrapper<RangeFilterUiConfig, TColumn?> Default<TColumn>(this ColumnPluginConfigurationWrapper<RangeFilterUiConfig, TColumn?> config, TColumn? from = null,
-            TColumn? to = null) where TColumn : struct 
+        public static ColumnPluginConfigurationWrapper<RangeFilterUiConfig, TColumn?> RangeDefault<TColumn>(this ColumnPluginConfigurationWrapper<RangeFilterUiConfig, TColumn?> config, TColumn? from, TColumn? to) where TColumn : struct 
         {
             config.Configuration.FromValue = ValueConverter.ToFilterDefaultString(from);
             config.Configuration.ToValue = ValueConverter.ToFilterDefaultString(to);
@@ -65,8 +62,7 @@ namespace PowerTables.Filters.Range
         /// <param name="from">Raw value string for "from" box</param>
         /// <param name="to">Raw value for "to" box</param>
         /// <returns>Fluent</returns>
-        public static ColumnPluginConfigurationWrapper<RangeFilterUiConfig, TColumn> Default<TColumn>(this ColumnPluginConfigurationWrapper<RangeFilterUiConfig, TColumn> config, TColumn? from = null,
-            TColumn? to = null) where TColumn : struct 
+        public static ColumnPluginConfigurationWrapper<RangeFilterUiConfig, TColumn> RangeDefault<TColumn>(this ColumnPluginConfigurationWrapper<RangeFilterUiConfig, TColumn> config, TColumn? from, TColumn? to) where TColumn : struct 
         {
             config.Configuration.FromValue = ValueConverter.ToFilterDefaultString(from);
             config.Configuration.ToValue = ValueConverter.ToFilterDefaultString(to);
@@ -81,8 +77,7 @@ namespace PowerTables.Filters.Range
         /// <param name="from">Raw value string for "from" box</param>
         /// <param name="to">Raw value for "to" box</param>
         /// <returns>Fluent</returns>
-        public static PluginConfigurationWrapper<RangeFilterUiConfig> Placeholders(this PluginConfigurationWrapper<RangeFilterUiConfig> config, string from = null,
-            string to = null)
+        public static PluginConfigurationWrapper<RangeFilterUiConfig> Placeholders(this PluginConfigurationWrapper<RangeFilterUiConfig> config, string from,string to)
         {
             config.Configuration.FromPlaceholder = from;
             config.Configuration.ToPlaceholder = to;

@@ -38,14 +38,14 @@ namespace PowerTables.Templating.BuiltIn
 
     public static class PluginWrapperExtensions
     {
-        public static PluignWrapperTemplateRegion<dynamic> PluginWrapper(this TemplatesPageBase t, string templateId = "pluginWrapper")
+        public static PluignWrapperTemplateRegion<dynamic> PluginWrapper(this ITemplatesScope t, string templateId = "pluginWrapper")
         {
-            return new PluignWrapperTemplateRegion<dynamic>(t.Model.Prefix, templateId, t.Output);
+            return new PluignWrapperTemplateRegion<dynamic>(t.TemplatesPrefix, templateId, t.Output);
         }
 
-        public static PluignWrapperTemplateRegion<T> PluginWrapper<T>(this TemplatesPageBase t, string templateId = "pluginWrapper")
+        public static PluignWrapperTemplateRegion<T> PluginWrapper<T>(this ITemplatesScope t, string templateId = "pluginWrapper")
         {
-            return new PluignWrapperTemplateRegion<T>(t.Model.Prefix,templateId, t.Output);
+            return new PluignWrapperTemplateRegion<T>(t.TemplatesPrefix,templateId, t.Output);
         }
 
         /// <summary>

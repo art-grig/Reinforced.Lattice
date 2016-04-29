@@ -66,7 +66,11 @@ module PowerTables.Rendering {
             case RenderingContextType.Row:
                 trk = TrackHelper.getRowTrack(<any>element);
                 break;
+            case RenderingContextType.Custom:
+                trk = 'custom';
+                break;
             default:
+
                 throw new Error('Invalid context element type');
             }
             return trk;
@@ -126,7 +130,12 @@ module PowerTables.Rendering {
         /**
          * Cell (belonging to row and column) (3)
          */
-        Cell
+        Cell,
+        /**
+         * Custom rendering object. 
+         * Needed for rendering of random templates bound to random objects
+         */
+        Custom
 
     }
 }

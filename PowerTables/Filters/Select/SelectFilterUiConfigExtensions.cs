@@ -50,6 +50,10 @@ namespace PowerTables.Filters.Select
         /// <returns>UI builder</returns>
         public static PluginConfigurationWrapper<SelectFilterUiConfig> RawDefault(this PluginConfigurationWrapper<SelectFilterUiConfig> config, string value)
         {
+            if (config.Configuration.Items == null)
+            {
+                throw new Exception("Please specify default value for range filter AFTER setting its items. We cannot select default value from empty possible values list.");
+            }
             config.Configuration.Items.ForEach(c => c.Selected = false);
             if (value != null)
             {
@@ -64,6 +68,42 @@ namespace PowerTables.Filters.Select
                         "Cannot find item in list with value '{0}' to make it default", value));
                 }
             }
+            return config;
+        }
+
+        /// <summary>
+        /// Specifies default value for filter. 
+        /// </summary>
+        /// <param name="config">Configuration</param>
+        /// <param name="selectValue">Filter default value</param>
+        /// <returns>Fluent</returns>
+        public static ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn> SelectDefault<TColumn>(this ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn> config, TColumn selectValue) where TColumn : class
+        {
+            config.Configuration.SelectedValue = ValueConverter.ToFilterDefaultString(selectValue);
+            return config;
+        }
+
+        /// <summary>
+        /// Specifies default value for filter. 
+        /// </summary>
+        /// <param name="config">Configuration</param>
+        /// <param name="selectValue">Filter default value</param>
+        /// <returns>Fluent</returns>
+        public static ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn?> SelectDefault<TColumn>(this ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn?> config, TColumn? selectValue) where TColumn : struct
+        {
+            config.Configuration.SelectedValue = ValueConverter.ToFilterDefaultString(selectValue);
+            return config;
+        }
+
+        /// <summary>
+        /// Specifies default value for filter. 
+        /// </summary>
+        /// <param name="config">Configuration</param>
+        /// <param name="selectNullValue">Filter default value</param>
+        /// <returns>Fluent</returns>
+        public static ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn> SelectDefault<TColumn>(this ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn> config, TColumn? selectNullValue) where TColumn : struct
+        {
+            config.Configuration.SelectedValue = ValueConverter.ToFilterDefaultString(selectNullValue);
             return config;
         }
     }

@@ -14,6 +14,17 @@ namespace PowerTables.Templating
     public static class TemplatingExtensions
     {
         /// <summary>
+        /// Begins region containing additional Lattice templates
+        /// </summary>
+        /// <param name="page">Web page where you want to begin additional templates region</param>
+        /// <param name="templatesPrefix">Templates prefix for </param>
+        /// <returns></returns>
+        public static AdditionalTemplatesScope LatticeAdditionalTemplates(this WebViewPage page, string templatesPrefix = "lt")
+        {
+            return new AdditionalTemplatesScope(page,templatesPrefix);
+        }
+
+        /// <summary>
         /// Binds event at specified element
         /// </summary>
         /// <param name="t">Template region</param>
@@ -35,11 +46,12 @@ namespace PowerTables.Templating
         /// </summary>
         /// <param name="t"></param>
         /// <param name="columnExpression">Column name to determine is datepicker needed or not</param>
+        /// <param name="forceNullable">Force datepicker to produce nullable date</param>
         /// <returns></returns>
-        public static MvcHtmlString Datepicker(this IProvidesDatepicker t, string columnExpression)
+        public static MvcHtmlString Datepicker(this IProvidesDatepicker t, string columnExpression,bool forceNullable = false)
         {
             return
-                MvcHtmlString.Create(string.Format("{{{{{{Datepicker {0}}}}}}}", columnExpression));
+                MvcHtmlString.Create(string.Format("{{{{{{Datepicker {0} {1} }}}}}}", columnExpression,forceNullable.ToString().ToLower()));
         }
 
         /// <summary>
@@ -97,6 +109,18 @@ namespace PowerTables.Templating
 
         }
 
+
+        public static MvcHtmlString Callback(this ITemplatesScope ts, string functionName, params string[] rawArgs)
+        {
+            var args = string.Join(" ", rawArgs);
+            return MvcHtmlString.Create(string.Format("{{{{{{RenderCallback \"{0}\" {1} }}}}}}", functionName, args));
+        }
+
+        public static MvcHtmlString DestroyCallback(this ITemplatesScope ts, string functionName, params string[] rawArgs)
+        {
+            var args = string.Join(" ", rawArgs);
+            return MvcHtmlString.Create(string.Format("{{{{{{DestroyCallback \"{0}\" {1} }}}}}}", functionName, args));
+        }
         
 
     }

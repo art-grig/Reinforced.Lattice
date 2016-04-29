@@ -174,17 +174,7 @@ namespace PowerTables.Mvc.Controllers
             return Handle(c => c.RedirectingFilters());
         }
         
-        [Tutorial("Checkboxify and simple buttons", 9)]
-        public ActionResult ButtonsAndCheckboxify()
-        {
-            return TutPage(c => c.ButtonsAndCheckboxify());
-        }
-
-        public ActionResult ButtonsAndCheckboxifyHandle()
-        {
-            return Handle(c => c.ButtonsAndCheckboxify());
-        }
-
+       
         [Tutorial("Buttons for server commands", 10)]
         public ActionResult ButtonsForCommands()
         {
@@ -205,6 +195,17 @@ namespace PowerTables.Mvc.Controllers
         public ActionResult HideoutAndResponseInfoHandle()
         {
             return Handle(c => c.HideoutAndResponseInfo());
+        }
+
+        [Tutorial("Client totals", 13)]
+        public ActionResult ClientTotals()
+        {
+            return TutPage(c => c.ClientTotals());
+        }
+
+        public ActionResult ClientTotalsHandle()
+        {
+            return Handle(c => c.ClientTotals());
         }
 
         

@@ -33,7 +33,7 @@ namespace PowerTables.Plugins.Total
         /// <summary>
         /// Client calculator functions
         /// </summary>
-        public IReadOnlyDictionary<string, string> ClientCalculators { get { return _clientCalculators; } }
+        public Dictionary<string, string> ClientCalculators { get { return _clientCalculators; } }
 
         /// <summary>
         /// Adds total calculator to table
@@ -84,7 +84,7 @@ namespace PowerTables.Plugins.Total
         /// <param name="column">Table column to provide total with</param>
         /// <param name="templateBuilder">Template builder like for usual column, but here is only self reference ('{@}') available </param>
         /// <returns></returns>
-        public TotalCalculatorBuilder<TSourceData, TTableData> AddTemplate<TTableColumn, TTotalType>(
+        public TotalCalculatorBuilder<TSourceData, TTableData> AddTemplate<TTableColumn>(
             Expression<Func<TTableData, TTableColumn>> column,
             Action<CellTemplateBuilder> templateBuilder
             )
@@ -104,7 +104,7 @@ namespace PowerTables.Plugins.Total
         /// <param name="column">Table column to provide total with</param>
         /// <param name="function">Client calculator function</param>
         /// <returns></returns>
-        public TotalCalculatorBuilder<TSourceData, TTableData> AddClientCalculator<TTableColumn, TTotalType>(
+        public TotalCalculatorBuilder<TSourceData, TTableData> AddClientCalculator<TTableColumn>(
             Expression<Func<TTableData, TTableColumn>> column,
             string function
             )
@@ -113,6 +113,7 @@ namespace PowerTables.Plugins.Total
             _clientCalculators.Add(name, function);
             return this;
         }
+        
 
         /// <summary>
         /// Adds total calculator to table with shortland format function

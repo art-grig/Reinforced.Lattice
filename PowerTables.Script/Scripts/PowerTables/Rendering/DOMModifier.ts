@@ -32,13 +32,13 @@
 
         private displayCache = {}
 
-        private hideElement(el: HTMLElement) {
+        public hideElement(el: HTMLElement) {
             if (!el) return;
             if (!el.getAttribute('displayOld')) el.setAttribute("displayOld", el.style.display);
             el.style.display = "none";
         }
 
-        private showElement(el: HTMLElement) {
+        public showElement(el: HTMLElement) {
             if (!el) return;
             if (this.getRealDisplay(el) !== 'none') return;
 
@@ -65,7 +65,7 @@
 
         private destroyElement(element: HTMLElement) {
             element.parentElement.removeChild(element);
-            this._ed.unsubscribeRedundantEvents(element);
+            this._ed.handleElementDestroy(element);
         }
 
         private destroyElements(elements: NodeList) {
@@ -74,14 +74,14 @@
             }
         }
 
-        private hideElements(element: NodeList) {
+        public hideElements(element: NodeList) {
             if (!element) return;
             for (var i = 0; i < element.length; i++) {
                 this.hideElement(<HTMLElement>element.item(i));
             }
         }
 
-        private showElements(element: NodeList) {
+        public showElements(element: NodeList) {
             if (!element) return;
             for (var i = 0; i < element.length; i++) {
                 this.showElement(<HTMLElement>element.item(i));
@@ -350,7 +350,7 @@
         private replaceElement(element: HTMLElement, html: string): HTMLElement {
             var node: HTMLElement = this.createElement(html);
             element.parentElement.replaceChild(node, element);
-            this._ed.unsubscribeRedundantEvents(element);
+            this._ed.handleElementDestroy(element);
             return node;
         }
 

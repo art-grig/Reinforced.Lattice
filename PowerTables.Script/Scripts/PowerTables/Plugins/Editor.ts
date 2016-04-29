@@ -40,16 +40,6 @@
         }
 
         private dispatchEditResponse(editResponse: EditionResult, then: () => void) {
-            var currentTableAdjustments = editResponse.TableAdjustments;
-            currentTableAdjustments.Updates.push(editResponse.ConfirmedObject);
-            this.MasterTable.proceedAdjustments(currentTableAdjustments);
-            for (var otherAdj in editResponse.OtherTablesAdjustments) {
-                if (editResponse.OtherTablesAdjustments.hasOwnProperty(otherAdj)) {
-                    if (window['__latticeInstances'][otherAdj]) {
-                        window['__latticeInstances'][otherAdj].proceedAdjustments(editResponse.OtherTablesAdjustments[otherAdj]);
-                    }
-                }
-            }
             if (then) then();
         }
 

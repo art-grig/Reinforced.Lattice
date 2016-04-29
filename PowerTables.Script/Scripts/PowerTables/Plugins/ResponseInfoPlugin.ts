@@ -13,6 +13,9 @@
         public onResponse(e: ITableEventArgs<IDataEventArgs>) {
             this._isServerRequest = true;
             if (this.Configuration.ResponseObjectOverriden) {
+                if (!e.EventArgs.Data.AdditionalData) return;
+                if (!e.EventArgs.Data.AdditionalData['ResponseInfo']) return;
+
                 this._recentData = e.EventArgs.Data.AdditionalData['ResponseInfo'];
                 this._isReadyForRendering = true;
                 this.MasterTable.Renderer.Modifier.redrawPlugin(this);

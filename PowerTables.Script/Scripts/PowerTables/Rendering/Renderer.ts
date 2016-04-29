@@ -86,7 +86,7 @@
             for (var i: number = 0; i < templates.length; i++) {
                 var item: HTMLElement = <HTMLElement>templates.item(i);
                 var key: string = item.id.substring(templatesPrefix.length + 1);
-                this._templatesCache[key] = this.HandlebarsInstance.compile(item.innerHTML);
+                this._templatesCache[key] = this.HandlebarsInstance.compile(item.innerHTML, { noEscape: true});
             }
         }
 
@@ -137,9 +137,30 @@
             this._events.BeforeClientRowsRendering.invoke(this, rows);
             this.clearBody();
             var html: string = this.ContentRenderer.renderBody(rows);
+            this.Delegator.handleElementDestroy(this.BodyElement);
             this.BodyElement.innerHTML = html;
             this.BackBinder.backBind(this.BodyElement);
             this._events.AfterDataRendered.invoke(this, null);
+        }
+
+        public renderObject(templateId: string, viewModelBehind: any, targetSelector: string) {
+            var parent = <HTMLElement>document.querySelector(targetSelector);
+            this._stack.clear();
+            this._stack.push(RenderingContextType.Custom, viewModelBehind);
+            var html = this.getCachedTemplate(templateId)(viewModelBehind);
+            var parser: Rendering.Html2Dom.HtmlParser = new Rendering.Html2Dom.HtmlParser();
+            var element = parser.html2DomElements(html);
+            parent.innerHTML = '';
+            for (var i = 0; i < element.length; i++) {
+                parent.appendChild(element[i]);
+            }
+            this.BackBinder.backBind(parent);
+        }
+
+        public destroyObject(targetSelector: string) {
+            var parent = <HTMLElement>document.querySelector(targetSelector);
+            this.Delegator.handleElementDestroy(parent);
+            parent.innerHTML = '';
         }
 
         /**
@@ -149,7 +170,7 @@
          */
         public clearBody(): void {
             if (this.Delegator) {
-                this.Delegator.unsubscribeRedundantEvents(this.BodyElement);
+                this.Delegator.handleElementDestroy(this.BodyElement);
             }
             while (this.BodyElement.firstChild) {
                 this.BodyElement.removeChild(this.BodyElement.firstChild);

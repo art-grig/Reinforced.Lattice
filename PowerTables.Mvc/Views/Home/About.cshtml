@@ -1,53 +1,20 @@
-﻿@using PowerTables
+﻿@using Microsoft.Ajax.Utilities
+@using PowerTables
 @using PowerTables.CellTemplating
 @using PowerTables.FrequentlyUsed
 @using PowerTables.Mvc.Models
+@using PowerTables.Mvc.Models.Tutorial
+@using PowerTables.Templating
+@using PowerTables.Templating.BuiltIn
+@using PowerTables.Templating.Handlebars
 @model PowerTables.Mvc.Models.AboutViewModel
 
-@{
-    ViewBag.Title = "About";
-
-    Model.Configuration.Column(c => c.SomeCustomTemplate).Template(tmpl =>
-    {
-        tmpl.ReturnsIf("{GroupName} == 'Alpha'",
-            el =>
-                el.Tag("button")
-                    .Class("btn btn-sm")
-                    .Content(icon => icon.Tag("span").Class("glyphicon glyphicon-time").Content("`{GroupName} + '%'`"))
-                    .OnClick("alert('{GroupName}');"));
-    });
-}
-<h2>@ViewBag.Title.</h2>
-
-<div class="container-fluid">
-    @Html.Partial("AdditionalSearchDataView", new AdditionalSearchData()
+@using (var v = this.LatticeAdditionalTemplates())
 {
-    ValuesForIcloudlock = new[]
+    using (var t = v.CellWrapper<Row>("strangeCell"))
     {
-        new SelectListItem(){Text = "On",Value = "On"},
-        new SelectListItem(){Text = "Off",Value = "Off"},
-        new SelectListItem(){Text = "Not matter",Value = "Notmatter"},
-    },
-    Types = EnumHelper.GetSelectList(typeof(SomeType))
-})
-    <div id="mytable"></div>
-</div>
-@{Html.RenderPartial("PowerTables_Templates");}
-<script id="rangeValue" type="text/x-handlebars-template">
-    <td>
-        {{#if Red}}
-        <div style="background-color:red">{{Value}}</div>
-        {{/if}}
-        {{#if Orange}}
-        <div style="background-color:yellow">{{Value}}</div>
-        {{/if}}
-        {{#if Green}}
-        <div style="background-color:green">{{Value}}</div>
-        {{/if}}
-    </td>
-</script>
-<script type="text/javascript">
-    $(document).ready(function () {
-        @Model.Configuration.InitializationCode("mytable","tbl",Model.Statics)
-    });
-</script>
+        <td>
+           
+        </td>
+    }
+}

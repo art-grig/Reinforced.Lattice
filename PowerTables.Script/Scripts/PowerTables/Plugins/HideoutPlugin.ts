@@ -65,6 +65,8 @@
             var shown = [];
 
             for (var i = 0; i < this.ColumnStates.length; i++) {
+                if (this.Configuration.ColumnInitiatingReload.indexOf(this.ColumnStates[i].RawName) < 0)
+                    continue;
                 if (!this.ColumnStates[i].Visible) {
                     hidden.push(this.ColumnStates[i].RawName);
                 } else {
@@ -98,7 +100,7 @@
 
             this.MasterTable.Renderer.Modifier.showHeader(c);
             this.MasterTable.Renderer.Modifier.showPluginsByPosition(`filter-${c.RawName}`);
-            
+
             if (this._isInitializing) return;
 
             if (wasNotExist) {
@@ -177,21 +179,24 @@ included into hideable columns list.
             e.AfterLayoutRendered.subscribe(this.onLayourRendered.bind(this), 'hideout');
         }
 
-        private ifColVisibleHelper(columnName: string,opts:any) {
+        private ifColVisibleHelper(columnName: string, opts: any) {
             var visible = false;
-            for (var i = 0; i < this.ColumnStates.length; i++) {
-                if (this.ColumnStates[i].RawName === columnName) {
-                    visible = this.ColumnStates[i].Visible;
-                    break;
+            if (this._isInitializing) {
+                visible = !this.Configuration.HiddenColumns.hasOwnProperty(columnName);
+            } else {
+                for (var i = 0; i < this.ColumnStates.length; i++) {
+                    if (this.ColumnStates[i].RawName === columnName) {
+                        visible = this.ColumnStates[i].Visible;
+                        break;
+                    }
                 }
             }
-
-            if (visible) opts.fn(this);
-            else opts.inverse(this);
+            if (visible) return opts.fn(this);
+            else return opts.inverse(this);
         }
 
         public registerAdditionalHelpers(hb: Handlebars.IHandlebars): void {
-            hb.registerHelper('ifColVisible',this.ifColVisibleHelper.bind(this));
+            hb.registerHelper('ifColVisible', this.ifColVisibleHelper.bind(this));
         }
     }
 

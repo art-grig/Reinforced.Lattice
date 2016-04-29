@@ -53,20 +53,25 @@ module PowerTables {
             this.Events = new EventsManager(this);
             this.InstanceManager = new InstanceManager(this._configuration, this, this.Events);
             this.DataHolder = new DataHolder(this);
-            this.Loader = new Loader(this._configuration.StaticData, this._configuration.OperationalAjaxUrl, this.Events, this.DataHolder);
+            this.Loader = new Loader(this._configuration.StaticData, this._configuration.OperationalAjaxUrl, this);
             this.Renderer = new Rendering.Renderer(this._configuration.TableRootId, this._configuration.Prefix, this.InstanceManager, this.Events, this.Date, this._configuration.CoreTemplates);
             this.Controller = new Controller(this);
+            this.MessageService = new MessagesService(this._configuration.MessageFunction, this.InstanceManager, this.DataHolder, this.Controller);
 
             this.InstanceManager.initPlugins();
             this.Renderer.layout();
             if (this._configuration.LoadImmediately) {
                 this.Controller.reload();
             } else {
-                this.Controller.showTableMessage({
-                    MessageType: 'initial',
-                    Message: 'No filtering specified',
-                    AdditionalData: 'To retrieve query results please specify several filters'
+                this.MessageService.showMessage({
+                    Class: 'initial',
+                    Title: 'No filtering specified',
+                    Details: 'To retrieve query results please specify several filters',
+                    Type: MessageType.Banner
                 });
+            }
+            if (this._configuration.CallbackFunction) {
+                this._configuration.CallbackFunction(this);
             }
         }
 
@@ -81,8 +86,8 @@ module PowerTables {
          * 
          * @returns {} 
          */
-        public reload(): void {
-            this.Controller.reload();
+        public reload(force:boolean): void {
+            this.Controller.reload(force);
         }
 
         /**
@@ -116,6 +121,11 @@ module PowerTables {
         public Controller: Controller;
 
         /**
+         * API for table messages
+         */
+        public MessageService:MessagesService;
+
+        /**
          * Fires specified DOM event on specified element
          * 
          * @param eventName DOM event id
@@ -132,10 +142,19 @@ module PowerTables {
         }
 
         public proceedAdjustments(adjustments: AdjustmentData): void {
+            this.Events.BeforeAdjustment.invoke(this,adjustments);
             var result = this.DataHolder.proceedAdjustments(adjustments);
             if (result != null) this.Controller.drawAdjustmentResult(result);
+            this.Events.AfterAdjustment.invoke(this, adjustments);
         }
 
+        public getStaticData() : any {
+            if (!this._configuration.StaticData) return null;
+            return JSON.parse(this._configuration.StaticData);
+        }
 
+        public setStaticData(obj:any) :void {
+            this._configuration.StaticData = JSON.stringify(obj);
+        }
     }
 } 

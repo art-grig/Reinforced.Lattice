@@ -96,7 +96,16 @@
          * 
          * @param adjustments Table adjustmetns object         
          */
-        proceedAdjustments(adjustments: AdjustmentData) : void;
+        proceedAdjustments(adjustments: AdjustmentData): void;
+
+         /**
+         * API for table messages
+         */
+        MessageService: MessagesService;
+
+         getStaticData(): any;
+
+         setStaticData(obj:any) :void;
     }
 
     /**
@@ -296,5 +305,15 @@
          * True when column holds boolean
          */
         IsBoolean: boolean;
+
+        /**
+         * Flag for special column that has plugin purpose and does not holds data
+         */
+        IsSpecial?:boolean;
+    }
+
+    export interface IUiMessage extends ITableMessage {
+        UiColumnsCount:number;
+        IsMessageObject?: boolean;
     }
 }

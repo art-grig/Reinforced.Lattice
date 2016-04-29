@@ -53,5 +53,9 @@ namespace PowerTables.Plugins.Toolbar
         public int InternalId { get; set; }
 
         public bool IsDisabled { get; set; }
+
+        public string ConfirmationTemplateId { get; set; }
+
+        public string ConfirmationTargetSelector { get; set; }
     }
 }

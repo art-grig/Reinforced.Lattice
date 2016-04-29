@@ -7,10 +7,7 @@ namespace PowerTables.Mvc.Models.Tutorial
 {
     public static partial class Tutorial
     {
-        public const string Remove = "remove";
-        public const string Download = "download";
-        public const string ExportSelected = "export-selected";
-        public const string ExportAll = "export-selected";
+       
 
         public static Configurator<Toy, Row> ButtonsForCommands(this Configurator<Toy, Row> conf)
         {

@@ -4,6 +4,7 @@
         private _markQueue: IMarkDescriptor[] = [];
         private _datepickersQueue: IDatepickerDescriptor[] = [];
         private _callbacksQueue: ICallbackDescriptor[] = [];
+        private _destroyCallbacksQueue: ICallbackDescriptor[] = [];
 
         private _instances: InstanceManager;
         private _stack: RenderingStack;
@@ -21,6 +22,7 @@
             hb.registerHelper('Datepicker', this.datepickerHelper.bind(this));
             hb.registerHelper('VState', this.visualStateHelper.bind(this));
             hb.registerHelper('RenderCallback', this.renderCallbackHelper.bind(this));
+            hb.registerHelper('DestroyCallback', this.destroyCallbackHelper.bind(this));
 
             this._stack = stack;
             this._dateService = dateService;
@@ -62,7 +64,12 @@
             var elements = this.getMatchingElements(parentElement,'data-dp');
             // back binding of datepickers
             this.traverseBackbind<IDatepickerDescriptor>(elements,parentElement, this._datepickersQueue, 'data-dp', (b, e) => {
-                this._dateService.createDatePicker(e);
+                this._dateService.createDatePicker(e,b.IsNullable);
+                this.Delegator.subscribeDestroy(e, {
+                    Callback: this._dateService.destroyDatePicker,
+                    CallbackArguments: [],
+                    Target: this._dateService
+                });
             });
 
             elements = this.getMatchingElements(parentElement,'data-mrk');
@@ -131,7 +138,12 @@
 
             elements = this.getMatchingElements(parentElement, `data-cb`);
             this.traverseBackbind<ICallbackDescriptor>(elements, parentElement, this._callbacksQueue, 'data-cb', (b, e) => {
-                window[b.CallbackName].apply(window, [e].concat(b.CallbackArguments));
+                (<any>window[b.Callback]).apply(window, [e].concat(b.CallbackArguments));
+            });
+
+            elements = this.getMatchingElements(parentElement, `data-dcb`);
+            this.traverseBackbind<ICallbackDescriptor>(elements, parentElement, this._destroyCallbacksQueue, 'data-dcb', (b, e) => {
+                this.Delegator.subscribeDestroy(e,b);
             });
 
             this._markQueue = [];
@@ -226,10 +238,26 @@
             }
             var index: number = this._callbacksQueue.length;
             this._callbacksQueue.push({
-                CallbackName: fn,
-                CallbackArguments: args
+                Callback: fn,
+                CallbackArguments: args,
+                Target:window
             });
             return `data-cb="${index}"`;
+        }
+
+        private destroyCallbackHelper(): string {
+            var fn = arguments[0];
+            var args = [];
+            for (var i = 1; i < arguments.length; i++) {
+                args.push(arguments[i]);
+            }
+            var index: number = this._destroyCallbacksQueue.length;
+            this._destroyCallbacksQueue.push({
+                Callback: fn,
+                CallbackArguments: args,
+                Target: window
+            });
+            return `data-dcb="${index}"`;
         }
 
         private markHelper(fieldName: any, key: any): string {
@@ -242,11 +270,12 @@
             this._markQueue.push(md);
             return `data-mrk="${index}"`;
         }
-        private datepickerHelper(columnName: string): string {
+        private datepickerHelper(columnName: string,forceNullable:boolean): string {
             var index: number = this._datepickersQueue.length;
             if (this._instances.Columns[columnName].IsDateTime) {
                 var md: IDatepickerDescriptor = <IDatepickerDescriptor>{
-                    ElementReceiver: this._stack.Current.Object
+                    ElementReceiver: this._stack.Current.Object,
+                    IsNullable: forceNullable|| this._instances.Columns[columnName].Configuration.IsNullable
                 };
                 this._datepickersQueue.push(md);
                 return `data-dp="${index}"`;
@@ -263,6 +292,10 @@
             this._hasVisualStates = true;
             return `data-state-${stateName}="${index}"`;
         }
+
+        public destroyDatepickers(e:HTMLElement) {
+            
+        }
     }
 
     interface IMarkDescriptor {
@@ -273,11 +306,14 @@
 
     interface IDatepickerDescriptor {
         ElementReceiver: any;
+        IsNullable:boolean;
     }
 
-    interface ICallbackDescriptor {
-        CallbackName: string;
-        CallbackArguments:any[];
+    export interface ICallbackDescriptor {
+        Element?:HTMLElement;
+        Callback: any; // function or function name
+        CallbackArguments: any[];
+        Target:any;
     }
 
     /**

@@ -51,187 +51,37 @@ textarea {
 }
 
 
-.cellfadeout{
-  animation: animationFrames linear 0.7s;
-  animation-iteration-count: 1;
-  transform-origin: 50% 50%;
-  animation-fill-mode:forwards; /*when the spec is finished*/
-  -webkit-animation: animationFrames linear 0.7s;
-  -webkit-animation-iteration-count: 1;
-  -webkit-transform-origin: 50% 50%;
-  -webkit-animation-fill-mode:forwards; /*Chrome 16+, Safari 4+*/ 
-  -moz-animation: animationFrames linear 0.7s;
-  -moz-animation-iteration-count: 1;
-  -moz-transform-origin: 50% 50%;
-  -moz-animation-fill-mode:forwards; /*FF 5+*/
-  -o-animation: animationFrames linear 0.7s;
-  -o-animation-iteration-count: 1;
-  -o-transform-origin: 50% 50%;
-  -o-animation-fill-mode:forwards; /*Not implemented yet*/
-  -ms-animation: animationFrames linear 0.7s;
-  -ms-animation-iteration-count: 1;
-  -ms-transform-origin: 50% 50%;
-  -ms-animation-fill-mode:forwards; /*IE 10+*/
-}
-
-@keyframes animationFrames{
-  0% {
-    opacity:1;
-    transform:  rotate(0deg) ;
-  }
-  3% {
-    transform:  rotate(6deg) ;
-  }
-  98% {
-    transform:  rotate(196deg) ;
-  }
-  100% {
-    opacity:0;
-    transform:  rotate(200deg) ;
-  }
-}
-
-@-moz-keyframes animationFrames{
-  0% {
-    opacity:1;
-    -moz-transform:  rotate(0deg) ;
-  }
-  3% {
-    -moz-transform:  rotate(6deg) ;
-  }
-  98% {
-    -moz-transform:  rotate(196deg) ;
-  }
-  100% {
-    opacity:0;
-    -moz-transform:  rotate(200deg) ;
-  }
-}
-
-@-webkit-keyframes animationFrames {
-  0% {
-    opacity:1;
-    -webkit-transform:  rotate(0deg) ;
-  }
-  3% {
-    -webkit-transform:  rotate(6deg) ;
-  }
-  98% {
-    -webkit-transform:  rotate(196deg) ;
-  }
-  100% {
-    opacity:0;
-    -webkit-transform:  rotate(200deg) ;
-  }
-}
-
-@-o-keyframes animationFrames {
-  0% {
-    opacity:1;
-    -o-transform:  rotate(0deg) ;
-  }
-  3% {
-    -o-transform:  rotate(6deg) ;
-  }
-  98% {
-    -o-transform:  rotate(196deg) ;
-  }
-  100% {
-    opacity:0;
-    -o-transform:  rotate(200deg) ;
-  }
-}
-
-@-ms-keyframes animationFrames {
-  0% {
-    opacity:1;
-    -ms-transform:  rotate(0deg) ;
-  }
-  3% {
-    -ms-transform:  rotate(6deg) ;
-  }
-  98% {
-    -ms-transform:  rotate(196deg) ;
-  }
-  100% {
-    opacity:0;
-    -ms-transform:  rotate(200deg) ;
-  }
+.touched {
+    -webkit-animation: pulse 2s forwards;
+    -moz-animation: pulse 2s forwards;
+    -ms-animation: pulse 2s forwards;
+    -o-animation: pulse 2s forwards;
+    animation: pulse 2s forwards;
 }
 
 
-
-.loader{
-  animation: animationFrames linear 0.7s;
-  animation-iteration-count: infinite;
-  transform-origin: 50% 50%;
-  -webkit-animation: animationFrames linear 0.7s;
-  -webkit-animation-iteration-count: infinite;
-  -webkit-transform-origin: 50% 50%;
-  -moz-animation: animationFrames linear 0.7s;
-  -moz-animation-iteration-count: infinite;
-  -moz-transform-origin: 50% 50%;
-  -o-animation: animationFrames linear 0.7s;
-  -o-animation-iteration-count: infinite;
-  -o-transform-origin: 50% 50%;
-  -ms-animation: animationFrames linear 0.7s;
-  -ms-animation-iteration-count: infinite;
-  -ms-transform-origin: 50% 50%;
+@-moz-keyframes pulse {
+   0% { background-color: orangered; }
+  30% { background-color: #fff; }
+  60% { background-color: #fff70f; }
+  99% { background-color: #fff; }
+  100% { background-color: transparent; }
 }
 
-@keyframes animationFrames{
-  0% {
-    opacity:0;
-    transform:  rotate(-200deg) ;
-  }
-  100% {
-    opacity:1;
-    transform:  rotate(0deg) ;
-  }
+@-webkit-keyframes pulse {
+ 0% { background-color: orangered; }
+  30% { background-color: #fff; }
+  60% { background-color: #fff70f; }
+  99% { background-color: #fff; }
+  100% { background-color: transparent; }
 }
 
-@-moz-keyframes animationFrames{
-  0% {
-    opacity:0;
-    -moz-transform:  rotate(-200deg) ;
-  }
-  100% {
-    opacity:1;
-    -moz-transform:  rotate(0deg) ;
-  }
-}
-
-@-webkit-keyframes animationFrames {
-  0% {
-    opacity:0;
-    -webkit-transform:  rotate(-200deg) ;
-  }
-  100% {
-    opacity:1;
-    -webkit-transform:  rotate(0deg) ;
-  }
-}
-
-@-o-keyframes animationFrames {
-  0% {
-    opacity:0;
-    -o-transform:  rotate(-200deg) ;
-  }
-  100% {
-    opacity:1;
-    -o-transform:  rotate(0deg) ;
-  }
-}
-
-@-ms-keyframes animationFrames {
-  0% {
-    opacity:0;
-    -ms-transform:  rotate(-200deg) ;
-  }
-  100% {
-    opacity:1;
-    -ms-transform:  rotate(0deg) ;
-  }
+@keyframes pulse {
+   0% { background-color: orangered; }
+  30% { background-color: #fff; }
+  60% { background-color: #fff70f; }
+  99% { background-color: #fff; }
+  100% { background-color: transparent; }
 }
 
 /***************************************************new css*/
@@ -321,11 +171,11 @@ textarea {
     line-height: 24px;
     display: block;
 }
-.pt-tab-tut-lay .active {
+.pt-tab-tut-lay .pt-active {
     background: #483d8b;
     
 }
-.pt-tab-tut-lay .active a {
+.pt-tab-tut-lay .pt-active a {
     color: #fff !important;
 }
 /****end pt-main-section***/
@@ -340,6 +190,6 @@ footer {
     display: none;
 }
 
-.pt-tab-container [role="tabpanel"].active {
+.pt-tab-container [role="tabpanel"].pt-active {
     display: block !important;
 }
