@@ -17,9 +17,9 @@
 
         private updateState() {
             if (!this._value) {
-                this.VisualStates.mixinState('checked');
-            } else {
                 this.VisualStates.unmixinState('checked');
+            } else {
+                this.VisualStates.mixinState('checked');
             }
         }
 
