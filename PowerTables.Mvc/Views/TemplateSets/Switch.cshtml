@@ -1,0 +1,22 @@
+﻿@using PowerTables
+@{
+    var tplCookie = Request.QueryString["tpl"];
+    if (string.IsNullOrEmpty(tplCookie))
+    {
+        tplCookie = "Bootstrap";
+    }
+    var tplFile = string.Format("~/Views/TemplateSets/Lattice_{0}.cshtml", tplCookie);
+}
+
+@if (tplCookie == "Bootstrap")
+{
+    <text>
+        <link rel="stylesheet" href="~/Content/bootstrap.css"/>
+        <script type="text/javascript" src="~/Scripts/bootstrap.min.js"></script>
+        @{ Html.RenderPartial("Datepicker"); }
+    </text>
+}
+
+<script>
+    @{ Html.RenderTemplates("lt",tplFile); }
+</script>

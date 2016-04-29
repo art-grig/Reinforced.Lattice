@@ -17,10 +17,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reinforced.Lattice | @cTut.TutorialTitle</title>
-    @{ Html.RenderPartial("Datepicker"); }
+   
     <script type="text/javascript" src="~/Scripts/handlebars.min.js"></script>
     <script type="text/javascript" src="~/Scripts/powertables.js"></script>
 
+    @{ Html.RenderPartial("~/Views/TemplateSets/Switch.cshtml"); }
 
     @Scripts.Render("~/bundles/modernizr")
     @Scripts.Render("~/bundles/jquery")
@@ -30,13 +31,19 @@
     <link rel="stylesheet" href="~/Content/prism.css" />
     <script type="text/javascript" src="~/Scripts/tabs.min.js"></script>
     <script type="text/javascript" src="~/Scripts/prism.js"></script>
+    <script type="text/javascript" src="~/Scripts/templateswitch.js"></script>
 
 </head>
 <body>
     <div class="pt-navbar body-content">
        
             @Html.ActionLink("Reinforced.Lattice Tutorial", "Index", "Tutorial", new { area = "" }, new { @class = "pt-navbar-brand" })
-        
+
+        <select id="tplSwitch">
+            <option value="Bootstrap">Bootstrap</option>
+            <option value="Foundation">Foundation</option>
+        </select>
+
     </div>
     <div class="pt-container-fluid body-content">
         <br />
