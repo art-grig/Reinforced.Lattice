@@ -28,11 +28,10 @@
     <script type="text/javascript" src="~/Scripts/powertables.js"></script>
     @Scripts.Render("~/bundles/modernizr")
     @Scripts.Render("~/bundles/jquery")
-    @{ Html.RenderPartial("~/Views/TemplateSets/Switch.cshtml"); }
-
-  
-
     @Styles.Render("~/Content/css")
+
+    @{ Html.RenderPartial("~/Views/TemplateSets/Switch.cshtml"); }
+  
     @RenderSection("Scripts", required: false)
     <link rel="stylesheet" href="~/Content/prism.css" />
     <script type="text/javascript" src="~/Scripts/tabs.min.js"></script>
@@ -41,82 +40,93 @@
 
 </head>
 <body>
-    <div class="pt-navbar body-content">
-       
-            @Html.ActionLink("Reinforced.Lattice Tutorial", "Index", "Tutorial", new { area = "" }, new { @class = "pt-navbar-brand" })
+<div class="pt-navbar body-content">
 
-        <select id="tplSwitch">
-            <option value="Bootstrap" @(tplCookie == "Bootstrap" ? "selected" : string.Empty)>Bootstrap</option>
-            <option value="Foundation" @(tplCookie == "Foundation" ? "selected" : string.Empty)>Foundation</option>
-        </select>
+    @Html.ActionLink("Reinforced.Lattice Tutorial", "Index", "Tutorial", new {area = ""}, new {@class = "pt-navbar-brand"})
 
-    </div>
-    <div class="pt-container-fluid body-content">
-        <br />
-        <div class="pt-row">
-            <div class="pt-right-tabs">
-                <ul class="pt-list-group">
-                    @foreach (var t in tutorials)
-                    {
-                        <li>
-                            <a href="@Url.Action(t.TutorialId, "Tutorial")" class="pt-list-group-item @(cTut.TutorialId == t.TutorialId ? "pt-active" : string.Empty)">@(t.TutorialNumber). @t.TutorialTitle</a>
-                        </li>
-                    }
-                </ul>
-            </div>
-            <div class="pt-main-section">
+    <select id="tplSwitch">
+        <option value="Bootstrap" @(tplCookie == "Bootstrap" ? "selected" : string.Empty)>Bootstrap</option>
+        <option value="Foundation" @(tplCookie == "Foundation" ? "selected" : string.Empty)>Foundation</option>
+    </select>
 
-                <div class="pt-container-fluid">
-                    <h2 class="pt-main-sect-h2">@cTut.TutorialTitle</h2>
-                    <div class="">
-                        <div class="pt-tab-container">
-                            <ul class="pt-tab-tut-lay" role="tablist">
-                                <li role="presentation" class="pt-active"><a href="#_result" aria-controls="_result" role="tab" data-toggle="tab">Sample</a></li>
-                                <li role="presentation"><a href="#_code" aria-controls="_code" role="tab" data-toggle="tab">Table configuration</a></li>
-                                @foreach (var c in additionaCode)
-                                {
+</div>
+<div class="pt-container-fluid body-content">
+    <br/>
+    <div class="pt-row">
+        <div class="pt-right-tabs">
+            <ul class="pt-list-group">
+                @foreach (var t in tutorials)
+                {
+                    <li>
+                        <a href="@Url.Action(t.TutorialId, "Tutorial")" class="pt-list-group-item @(cTut.TutorialId == t.TutorialId ? "pt-active" : string.Empty)">@(t.TutorialNumber). @t.TutorialTitle</a>
+                    </li>
+                }
+            </ul>
+        </div>
+        <div class="pt-main-section">
+
+            <div class="pt-container-fluid">
+                <h2 class="pt-main-sect-h2">@cTut.TutorialTitle</h2>
+                <div class="">
+                    <div class="pt-tab-container">
+                        <ul class="pt-tab-tut-lay" role="tablist">
+                            <li role="presentation" class="pt-active"><a href="#_result" aria-controls="_result" role="tab" data-toggle="tab">Sample</a></li>
+                            <li role="presentation"><a href="#_code" aria-controls="_code" role="tab" data-toggle="tab">Table configuration</a></li>
+                            @foreach (var c in additionaCode)
+                            {
                                 <li role="presentation"><a href="#_@(c.Key.Id)" aria-controls="_@(c.Key.Id)" role="tab" data-toggle="tab">@c.Key.File</a></li>
-                                }
-                            </ul>
-                            <div class="tab-content">
-                                <div role="tabpanel" class="tab-pane pt-active" id="_result">
+                            }
+                        </ul>
+                        <div class="tab-content">
+                            <div role="tabpanel" class="tab-pane pt-active" id="_result">
 
-                                    @RenderSection("Result")
-                                </div>
-                                <div role="tabpanel" class="tab-pane" id="_code">
+                                @RenderSection("Result")
+                            </div>
+                            <div role="tabpanel" class="tab-pane" id="_code">
 
-                                    <pre>
+                                <pre>
                                     <code class="language-csharp">
 @ViewBag.Code
 </code>
                                     </pre>
-                                </div>
-                                @foreach (var c in additionaCode)
-                                {
-                                    <div role="tabpanel" class="tab-pane" id="_@(c.Key.Id)">
-                                        <pre>
+                            </div>
+                            @foreach (var c in additionaCode)
+                            {
+                                <div role="tabpanel" class="tab-pane" id="_@(c.Key.Id)">
+                                    <pre>
                                         <code class="language-@(c.Key.Language)">
 @c.Value
 </code>
                                     </pre>
-                                    </div>
-                                }
-                            </div>
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>
-
             </div>
+
         </div>
-        <hr />
     </div>
-        <footer>
-            <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
-        </footer>
-    
-
-
-
-
+    <hr/>
+</div>
+<div id="footer">
+    <footer>
+        <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
+    </footer>
+</div>
 </body>
 </html>
+<script>
+    $(window).bind("load", function () {
+        var footer = $("#footer");
+        var pos = footer.position();
+        var height = $(window).height();
+        height = height - pos.top;
+        height = height - footer.height();
+        if (height > 0) {
+            footer.css({
+                'margin-top': height + 'px'
+            });
+        }
+    });
+</script>

@@ -20,6 +20,16 @@
 @if (tplCookie == "Foundation")
 {
     <text>
+        <link rel="stylesheet" href="~/Content/foundation.min.css" />
+        <script type="text/javascript" src="~/Scripts/foundation.min.js"></script>
+        <script type="text/javascript">
+            function initFoundation(e) {
+                $(e).foundation();
+            }
+            function destroyFoundation(e) {
+                $(e).foundation('destroy');
+            }
+        </script>
         @{ Html.RenderPartial("Datepicker"); }
     </text>
 }

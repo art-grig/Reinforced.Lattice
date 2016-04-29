@@ -31,23 +31,23 @@
 @using (var t = this.Layout())
 {
     <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-6 col-sm-6 col-xs-6 col-lg-6">
+        <div class="row expanded">
+            <div class="medium-6 large-6 small-6 columns">
                 @t.Plugins("lt")
-                <div class="btn-group" style="margin-bottom: 10px">@t.Plugins("toolbar-lt")</div>
+                <div class="button-group" style="margin-bottom: 10px">@t.Plugins("toolbar-lt")</div>
                 <br />
             </div>
-            <div class="col-md-6 col-sm-6 col-xs-6 col-lg-6 text-right">
+            <div class="medium-6 large-6 small-6 columns end text-right">
                 @t.Plugins("rt")
-                <div class="btn-group" style="padding-bottom: 10px">@t.Plugins("toolbar-rt")</div>
+                <div class="button-group" style="padding-bottom: 10px; overflow: hidden">@t.Plugins("toolbar-rt")</div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-12 col-sm-12 col-xs-12 col-lg-12">
+        <div class="row expanded">
+            <div class="medium-12 large-12 small-12 columns">
                 <hr />
             </div>
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <table class="table table-striped table-condensed table-bordered">
+            <div class="medium-12 large-12 small-12 columns">
+                <table class="stack hover">
                     <thead style="display: table-header-group;">
                         <tr>@t.Headers()</tr>
                         <tr>@t.Filters()</tr>
@@ -56,12 +56,12 @@
                 </table>
             </div>
         </div>
-        <div class="row">
-            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+        <div class="row expanded">
+            <div class="medium-6 large-6 small-6 columns">
                 @t.Plugins("lb")
                 <div class="btn-group">@t.Plugins("toolbar-lb")</div>
             </div>
-            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 text-right" style="float: right;">
+            <div class="medium-6 large-6 small-6 columns text-right" style="float: right;">
                 @t.Plugins("rb")
                 <div class="btn-group">@t.Plugins("toolbar-rb")</div>
             </div>
@@ -78,7 +78,7 @@
 {
     <text>
         @using (t.IfPlacement("lt"))
-        { <span @t.Track()> @t.Content() </span> }
+        { <div @t.Track()> @t.Content() </div> }
         @using (t.IfPlacement("toolbar-lt"))
         { <span @t.Track()> @t.Content() </span> }
         @using (t.IfPlacement("lb"))
@@ -190,29 +190,41 @@
 
 @using (var t = Plugin.Limit())
 {
-    <div class="btn-group">
-        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-            Results: <strong>@t.Value(c => c.SelectedValue.Label)</strong> <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu" role="menu">
+    <div @this.Callback("initFoundation")>
+        <button class="button dropdown" type="button" data-toggle="example-dropdown-1">Shown: <b>@t.Value(c => c.SelectedValue.Label)</b></button><br>
+        <div class="dropdown-pane" id="example-dropdown-1" data-dropdown data-hover="true" data-hover-pane="true">
+            <ul id="drop1" data-dropdown-content class="f-dropdown" aria-hidden="true">
+                @using (var sz = t.Each(c => c.Sizes))
+                {
+                    using (sz.If(c => c.IsSeparator))
+                    {
+                        <li class="divider"><hr /></li>
+                        @sz.Else()
+                        <li @sz.BindLimitChangeEvent("click")><a href="#">@sz.Value(c => c.Label)</a></li>
+                    }
+                }
+            </ul>
+        </div>
+        
+    </div>
+    @*<ul class="dropdown menu" data-dropdown-menu @this.Callback("initFoundation") @this.DestroyCallback("destroyFoundation")>
             @using (var sz = t.Each(c => c.Sizes))
             {
                 using (sz.If(c => c.IsSeparator))
                 {
                     <li class="divider"></li>
                     @sz.Else()
-                    <li><a href="#" @sz.BindLimitChangeEvent("click")>@sz.Value(c => c.Label)</a></li>
+                    <li @sz.BindLimitChangeEvent("click")><a href="#">@sz.Value(c => c.Label)</a></li>
                 }
             }
-        </ul>
-    </div>
+        </ul>*@
 }
 
 @using (var t = Plugin.Paging())
 {
     using (t.If(c => c.Shown))
     {
-        <div class="col-md-10">
+        <div class="medium-10 columns end">
             @using (var m = t.ArrowsMode())
             {
                 <nav style="margin: 0; width: 250px; margin-left: auto;">
@@ -267,7 +279,7 @@
                 </ul>
             }
         </div>
-        <div class="col-md-2">
+        <div class="medium-2 end">
             @using (var m = t.GotoPage())
             {
                 <div class="input-group" @m.WhenEnteredPageInvalid(c => c.AddClass("has-error"))>
@@ -391,35 +403,35 @@
 
 @using (var t = Plugin.Toolbar())
 {
-    <div class="btn-group">
+    <div class="button-group">
         @using (var btn = t.Buttons())
         {
             using (btn.Unless(c => c.HasSubmenu))
             {
                 using (btn.If(c => c.IsDisabled))
                 {
-                    <button disabled="disabled" type="button" data-role="toolbar-btn" class="btn btn-default @btn.Value(c => c.Css) disabled" title="@btn.Value(c => c.Title)" id="@btn.Value(c => c.Id)">@btn.HtmlValue(c => c.HtmlContent)</button>
+                    <button disabled="disabled" type="button" data-role="toolbar-btn" class="button @btn.Value(c => c.Css) disabled" title="@btn.Value(c => c.Title)" id="@btn.Value(c => c.Id)">@btn.HtmlValue(c => c.HtmlContent)</button>
                     @btn.Else()
-                    <button @btn.BindButton("click") type="button" data-role="toolbar-btn" class="btn btn-default @btn.Value(c => c.Css)" title="@btn.Value(c => c.Title)" id="@btn.Value(c => c.Id)">@btn.HtmlValue(c => c.HtmlContent)</button>
+                    <button @btn.BindButton("click") type="button" data-role="toolbar-btn" class="button @btn.Value(c => c.Css)" title="@btn.Value(c => c.Title)" id="@btn.Value(c => c.Id)">@btn.HtmlValue(c => c.HtmlContent)</button>
                 }
 
                 @btn.Else()
-                <div class="btn-group">
-                    @btn.If(c => c.IsMenu, "<div class=\"btn-group\" role=\"group\">")
+                <div class="button-group">
+                    @btn.If(c => c.IsMenu, "<div class=\"button-group\" role=\"group\">")
                     @using (btn.If(c => c.IsMenu))
                     {
-                        <button type="button" id="@btn.Value(c => c.Id)" class="btn @btn.Value(c => c.Css) dropdown-toggle" title="@btn.Value(c => c.Title)" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <button type="button" id="@btn.Value(c => c.Id)" class="button @btn.Value(c => c.Css) dropdown-toggle" title="@btn.Value(c => c.Title)" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             @btn.HtmlValue(c => c.HtmlContent)
                             <span class="caret"></span>
                         </button>
                         @btn.Else()
                         using (btn.If(c => c.IsDisabled))
                         {
-                            <button disabled="disabled" type="button" id="@btn.Value(c => c.Id)" class="btn @btn.Value(c => c.Css) disabled" title="@btn.Value(c => c.Title)">@btn.HtmlValue(c => c.HtmlContent)</button>
+                            <button disabled="disabled" type="button" id="@btn.Value(c => c.Id)" class="button @btn.Value(c => c.Css) disabled" title="@btn.Value(c => c.Title)">@btn.HtmlValue(c => c.HtmlContent)</button>
                             @btn.Else()
-                            <button @btn.BindButton("click") type="button" id="@btn.Value(c => c.Id)" class="btn @btn.Value(c => c.Css)" title="@btn.Value(c => c.Title)">@btn.HtmlValue(c => c.HtmlContent)</button>
+                            <button @btn.BindButton("click") type="button" id="@btn.Value(c => c.Id)" class="button @btn.Value(c => c.Css)" title="@btn.Value(c => c.Title)">@btn.HtmlValue(c => c.HtmlContent)</button>
                         }
-                        <button type="button" class="btn @btn.Value(c=>c.Css) dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <button type="button" class="button @btn.Value(c=>c.Css) dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <span class="caret"></span>
                             <span class="sr-only">Toggle Dropdown</span>
                         </button>
