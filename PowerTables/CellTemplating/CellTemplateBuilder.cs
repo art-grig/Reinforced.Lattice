@@ -11,8 +11,12 @@ namespace PowerTables.CellTemplating
     {
         private readonly List<string> _lines = new List<string>();
         private string _result;
-        private string _objectProperty;
+        private readonly string _objectProperty;
 
+        /// <summary>
+        /// Creates new instance of Cell template builder
+        /// </summary>
+        /// <param name="objectProperty"></param>
         public CellTemplateBuilder(string objectProperty = "DataObject")
         {
             _result = "return '';";
@@ -30,9 +34,8 @@ namespace PowerTables.CellTemplating
             return this;
         }
         /// <summary>
-        /// Template will return empty cell is specified column is null or 0 or undefined
+        /// Template will return empty cell is self-value ({@}) is null or undefined
         /// </summary>
-        /// <param name="columnName">Column</param>
         /// <returns></returns>
         public CellTemplateBuilder EmptyIfNotPresentSelf()
         {
@@ -42,8 +45,7 @@ namespace PowerTables.CellTemplating
 
         /// <summary>
         /// Template will return empty cell is specified expression met. 
-        /// Feel free to use {Something} syntax here where Something is one of 
-        /// raw column names
+        /// Feel free to use {@}-syntax here 
         /// </summary>
         /// <param name="expression">Expression</param>
         /// <returns></returns>

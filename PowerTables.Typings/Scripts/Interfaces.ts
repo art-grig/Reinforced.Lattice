@@ -589,7 +589,7 @@ module PowerTables.Editors.PlainText {
 module PowerTables.Plugins.LoadingOverlap {
 	export interface ILoadingOverlapUiConfig
 	{
-		OverlapMode: PowerTables.Plugins.LoadingOverlap.OverlapMode;
+		Overlaps: { [key:string]: string };
 		DefaultTemplateId: string;
 	}
 	export enum OverlapMode { 
@@ -605,5 +605,6 @@ module PowerTables.Plugins.Reload {
 		ForceReload: boolean;
 		/** Selector where to render reload button */
 		RenderTo: string;
+		DefaultTemplateId: string;
 	}
 }

@@ -8,11 +8,14 @@ namespace PowerTables.Plugins.LoadingOverlap
 {
     public class LoadingOverlapUiConfig : IProvidesTemplate
     {
-        public OverlapMode OverlapMode { get; set; }
-
-        
+        public Dictionary<string,string> Overlaps { get; set; }
 
         public string DefaultTemplateId { get { return "loadingOverlap"; } }
+
+        public LoadingOverlapUiConfig()
+        {
+            Overlaps = new Dictionary<string, string>();
+        }
     }
 
     public enum OverlapMode

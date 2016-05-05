@@ -6205,52 +6205,78 @@ var PowerTables;
             function LoadingOverlapPlugin() {
                 var _this = this;
                 _super.apply(this, arguments);
+                this._overlappingElement = [];
+                this._overlapLayer = [];
                 this.afterDrawn = function (e) {
-                    if (_this.Configuration.OverlapMode === Plugins.LoadingOverlap.OverlapMode.All) {
-                        _this._overlappingElement = _this.MasterTable.Renderer.RootElement;
-                    }
-                    else {
-                        _this._overlappingElement = _this.MasterTable.Renderer.BodyElement;
-                    }
                     _this.MasterTable.Events.BeforeLoading.subscribe(function (e) { return _this.onBeforeLoading(e); }, 'overlapLoading');
                     _this.MasterTable.Events.AfterDataRendered.subscribe(function () { return _this.deoverlap(); }, 'overlapLoading');
-                    window.addEventListener('resize', _this.updateCoords.bind(_this));
+                    window.addEventListener('resize', _this.updateCoordsAll.bind(_this));
                 };
             }
-            LoadingOverlapPlugin.prototype.overlap = function () {
-                if (this._overlapLayer)
-                    return;
-                this._overlapLayer = this.MasterTable.Renderer.Modifier.createElement(this.defaultRender(this.MasterTable.Renderer));
+            LoadingOverlapPlugin.prototype.overlapAll = function () {
+                this._overlapLayer = [];
+                this._overlappingElement = [];
+                for (var k in this.Configuration.Overlaps) {
+                    if (this.Configuration.Overlaps.hasOwnProperty(k)) {
+                        if (k === '$All')
+                            this._overlappingElement.push([this.MasterTable.Renderer.RootElement]);
+                        else if (k === '$BodyOnly')
+                            this._overlappingElement.push([this.MasterTable.Renderer.BodyElement]);
+                        else {
+                            var elements = document.querySelectorAll(k);
+                            var elems = [];
+                            var overlappers = [];
+                            for (var i = 0; i < elements.length; i++) {
+                                elems.push(elements.item(i));
+                                overlappers.push(this.createOverlap(elements.item(i), this.Configuration.Overlaps[k]));
+                            }
+                            this._overlappingElement.push(elems);
+                            this._overlapLayer.push(overlappers);
+                        }
+                    }
+                }
+            };
+            LoadingOverlapPlugin.prototype.createOverlap = function (efor, templateId) {
+                var element = this.MasterTable.Renderer.Modifier.createElement(this.MasterTable.Renderer.getCachedTemplate(templateId)(null));
                 var mezx = null;
                 if (this._overlappingElement.currentStyle)
                     mezx = this._overlappingElement.currentStyle.zIndex;
                 else if (window.getComputedStyle) {
-                    mezx = window.getComputedStyle(this._overlappingElement, null).zIndex;
+                    mezx = window.getComputedStyle(element, null).zIndex;
                 }
-                this._overlapLayer.style.position = "absolute";
-                this._overlapLayer.style.zIndex = (parseInt(mezx) + 1).toString();
-                document.body.appendChild(this._overlapLayer);
-                this.updateCoords();
+                element.style.position = "absolute";
+                element.style.zIndex = (parseInt(mezx) + 1).toString();
+                document.body.appendChild(element);
+                this.updateCoords(element, efor);
+                return element;
             };
-            LoadingOverlapPlugin.prototype.updateCoords = function () {
-                if (!this._overlapLayer)
-                    return;
-                var eo = this._overlappingElement.getBoundingClientRect();
-                this._overlapLayer.style.left = eo.left + 'px';
-                this._overlapLayer.style.top = eo.top + 'px';
-                this._overlapLayer.style.width = eo.width + 'px';
-                this._overlapLayer.style.height = eo.height + 'px';
+            LoadingOverlapPlugin.prototype.updateCoords = function (overlapLayer, overlapElement) {
+                var eo = overlapElement.getBoundingClientRect();
+                overlapLayer.style.left = eo.left + 'px';
+                overlapLayer.style.top = eo.top + 'px';
+                overlapLayer.style.width = eo.width + 'px';
+                overlapLayer.style.height = eo.height + 'px';
+            };
+            LoadingOverlapPlugin.prototype.updateCoordsAll = function () {
+                for (var j = 0; j < this._overlapLayer.length; j++) {
+                    for (var l = 0; l < this._overlapLayer[j].length; l++) {
+                        this.updateCoords(this._overlapLayer[j][l], this._overlappingElement[j][l]);
+                    }
+                }
             };
             LoadingOverlapPlugin.prototype.deoverlap = function () {
-                if (!this._overlapLayer)
-                    return;
-                document.body.removeChild(this._overlapLayer);
-                delete this._overlapLayer;
+                for (var j = 0; j < this._overlapLayer.length; j++) {
+                    for (var l = 0; l < this._overlapLayer[j].length; l++) {
+                        document.body.removeChild(this._overlapLayer[j][l]);
+                    }
+                }
+                this._overlapLayer = [];
+                this._overlappingElement = [];
             };
             LoadingOverlapPlugin.prototype.onBeforeLoading = function (e) {
                 if (e.EventArgs.Request.Command !== 'query')
                     return;
-                this.overlap();
+                this.overlapAll();
             };
             return LoadingOverlapPlugin;
         })(Plugins.PluginBase);

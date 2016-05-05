@@ -575,7 +575,9 @@ declare module PowerTables.Editors.PlainText {
 }
 declare module PowerTables.Plugins.LoadingOverlap {
     interface ILoadingOverlapUiConfig {
-        OverlapMode: PowerTables.Plugins.LoadingOverlap.OverlapMode;
+        Overlaps: {
+            [key: string]: string;
+        };
         DefaultTemplateId: string;
     }
     enum OverlapMode {
@@ -590,6 +592,7 @@ declare module PowerTables.Plugins.Reload {
         ForceReload: boolean;
         /** Selector where to render reload button */
         RenderTo: string;
+        DefaultTemplateId: string;
     }
 }
 declare module PowerTables {
@@ -3022,8 +3025,10 @@ declare module PowerTables.Plugins {
     class LoadingOverlapPlugin extends PluginBase<LoadingOverlapUiConfig> {
         private _overlappingElement;
         private _overlapLayer;
-        private overlap();
-        private updateCoords();
+        private overlapAll();
+        private createOverlap(efor, templateId);
+        private updateCoords(overlapLayer, overlapElement);
+        private updateCoordsAll();
         private deoverlap();
         private onBeforeLoading(e);
         afterDrawn: (e: ITableEventArgs<any>) => void;

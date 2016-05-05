@@ -7,6 +7,7 @@ using PowerTables.Filters.Range;
 using PowerTables.Filters.Value;
 using PowerTables.Plugins;
 using PowerTables.Plugins.Formwatch;
+using PowerTables.Plugins.LoadingOverlap;
 using PowerTables.Plugins.Reload;
 
 namespace PowerTables.Mvc.Models.Tutorial
@@ -18,6 +19,7 @@ namespace PowerTables.Mvc.Models.Tutorial
             conf.ButtonsAndCheckboxify();
             conf.ReloadButton(ui => ui.ForceReload().RenderTo("#reloadPlaceholder"));
             conf.ReloadButton(ui => ui.ForceReload().Order(3),"lt");
+            conf.LoadingOverlap(ui => ui.Overlap("#searchForm"));
             return conf;
         }
     }

@@ -18,9 +18,16 @@ namespace PowerTables.Plugins.LoadingOverlap
         }
 
         public static PluginConfigurationWrapper<LoadingOverlapUiConfig> Overlap(
-            this PluginConfigurationWrapper<LoadingOverlapUiConfig> ui, OverlapMode what = OverlapMode.BodyOnly)
+            this PluginConfigurationWrapper<LoadingOverlapUiConfig> ui, OverlapMode what = OverlapMode.BodyOnly, string tempalteId = "loadingOverlap")
         {
-            ui.Configuration.OverlapMode = what;
+            ui.Configuration.Overlaps[string.Format("${0}", what)] = tempalteId;
+            return ui;
+        }
+
+        public static PluginConfigurationWrapper<LoadingOverlapUiConfig> Overlap(
+            this PluginConfigurationWrapper<LoadingOverlapUiConfig> ui, string selector,string templateId = "loadingOverlap")
+        {
+            ui.Configuration.Overlaps[selector] = templateId;
             return ui;
         }
     }

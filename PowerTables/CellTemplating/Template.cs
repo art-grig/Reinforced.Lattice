@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace PowerTables.CellTemplating
@@ -10,12 +11,12 @@ namespace PowerTables.CellTemplating
     public class Template
     {
         private string _tag;
-        private string _classes;
-        private readonly List<string> _attributeNames = new List<string>();
-        private readonly List<string> _attributeValues = new List<string>();
+        private readonly List<string> _classes = new List<string>();
+        private readonly Dictionary<string, string> _attributes = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> _styles = new Dictionary<string, string>();
         private string _content;
         private readonly List<string> _ahead = new List<string>();
-        
+
         /// <summary>
         /// Specifies button tag
         /// </summary>
@@ -34,7 +35,19 @@ namespace PowerTables.CellTemplating
         /// <returns></returns>
         public Template Class(string classes)
         {
-            _classes = classes;
+            _classes.AddRange(classes.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
+            return this;
+        }
+
+        /// <summary>
+        /// Specifies button tag
+        /// </summary>
+        /// <param name="classes">Css classes string</param>
+        /// <returns></returns>
+        public Template RemoveClass(string classes)
+        {
+            var classesArr = classes.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            _classes.RemoveAll(c => classesArr.Contains(c));
             return this;
         }
 
@@ -46,12 +59,16 @@ namespace PowerTables.CellTemplating
         /// <returns></returns>
         public Template Attr(string attrName, string attrValue)
         {
-            if (string.IsNullOrEmpty(attrValue)) return this;
-            _attributeNames.Add(attrName);
-            _attributeValues.Add(attrValue);
+            _attributes[attrName] = attrValue;
             return this;
         }
 
+        /// <summary>
+        /// Changes/updates specified data-attribute of resulting tag
+        /// </summary>
+        /// <param name="dataName">data name</param>
+        /// <param name="dataValue">data value</param>
+        /// <returns></returns>
         public Template Data(string dataName, string dataValue)
         {
             return Attr("data-" + dataName, dataValue);
@@ -65,7 +82,7 @@ namespace PowerTables.CellTemplating
         /// <returns></returns>
         public Template Content(string content)
         {
-            _content = content; ;
+            _content = content;
             return this;
         }
 
@@ -107,21 +124,39 @@ namespace PowerTables.CellTemplating
             return this;
         }
 
+        /// <summary>
+        /// Changes specified style of element
+        /// </summary>
+        /// <param name="styleKey">CSS style namt</param>
+        /// <param name="styleValue">CSS style value</param>
+        /// <returns></returns>
+        public Template Css(string styleKey, string styleValue)
+        {
+            _styles[styleKey] = styleValue;
+            return this;
+        }
+
+        /// <summary>
+        /// Builds template into plain HTML strin with `{@}`-placeholders
+        /// </summary>
+        /// <returns>Built template</returns>
         public string Build()
         {
             StringBuilder sb = new StringBuilder();
             if (!string.IsNullOrEmpty(_tag))
             {
                 sb.AppendFormat("<{0}", _tag);
-                if (!string.IsNullOrEmpty(_classes))
+                if (_classes.Count > 0)
                 {
-                    sb.AppendFormat(" class=\"{0}\"", _classes);
+                    sb.AppendFormat(" class=\"{0}\"", string.Join(" ", _classes.ToArray()));
                 }
-                for (int index = 0; index < _attributeNames.Count; index++)
+                foreach (var attribute in _attributes)
                 {
-                    var attrName = _attributeNames[index];
-                    var attrValue = _attributeValues[index];
-                    sb.AppendFormat(" {0}=\"{1}\"", attrName, attrValue);
+                    sb.AppendFormat(" {0}=\"{1}\"", attribute.Key, attribute.Value);
+                }
+                if (_styles.Count > 0)
+                {
+                    sb.AppendFormat(" style=\"{0}\"", string.Join(";", _styles.Select(c => string.Format("{0}:{1}", c.Key, c.Value))).ToArray());
                 }
                 sb.AppendFormat(">{0}</{1}>", _content, _tag);
             }
@@ -136,11 +171,25 @@ namespace PowerTables.CellTemplating
             return sb.ToString();
         }
 
-        public string Compile(string modelName,string objectProperty)
+        /// <summary>
+        /// Compiles template revealing all the `{@}`-placeholder to complete Javascript code suitable to be returned from JS function
+        /// </summary>
+        /// <param name="modelName">Variable name or custom JS expression that is supposed to be used as model</param>
+        /// <param name="objectProperty">Model's property key that should be used to obtain exact model value. These 2 fields are made to support ^-syntax</param>
+        /// <returns></returns>
+        public string Compile(string modelName, string objectProperty)
         {
-            return Compile(Build(), modelName,objectProperty);
+            return Compile(Build(), modelName, objectProperty);
         }
 
+
+        /// <summary>
+        /// Compiles JS expression with {@}-placeholders to JS expression suitable for return statement
+        /// </summary>
+        /// <param name="expression">{@}-placeholder-expression. Grave accents are not needed here</param>
+        /// <param name="modelName">Variable name or custom JS expression that is supposed to be used as model</param>
+        /// <param name="objectProperty">Model's property key that should be used to obtain exact model value. These 2 fields are made to support ^-syntax</param>
+        /// <returns></returns>
         public static string CompileExpression(string expression, string modelName, string objectProperty)
         {
             StringBuilder sb = new StringBuilder();
@@ -182,7 +231,7 @@ namespace PowerTables.CellTemplating
 
             for (; i < tpl.Length; i++)
             {
-                if (tpl[i] == '}') 
+                if (tpl[i] == '}')
                     return i;
                 sb.Append(tpl[i]);
             }
@@ -193,6 +242,13 @@ namespace PowerTables.CellTemplating
             return char.IsLetter(token) || token == '@' || token == '^';
         }
 
+        /// <summary>
+        /// Compiles template revealing all the `{@}`-placeholder to complete Javascript code suitable to be returned from JS function
+        /// </summary>
+        /// <param name="tpl">Built template code containing `{@}`-placeholders</param>
+        /// <param name="modelName">Variable name or custom JS expression that is supposed to be used as model</param>
+        /// <param name="objectProperty">Model's property key that should be used to obtain exact model value. These 2 fields are made to support ^-syntax</param>
+        /// <returns></returns>
         public static string Compile(string tpl, string modelName, string objectProperty)
         {
             StringBuilder sb = new StringBuilder();
@@ -206,7 +262,7 @@ namespace PowerTables.CellTemplating
                 if (tpl[i] == '`')
                 {
                     if (i > 0) sb.Append("' +");
-                    i = CrunchExpression(tpl, modelName,objectProperty, sb, i + 1);
+                    i = CrunchExpression(tpl, modelName, objectProperty, sb, i + 1);
                     if (i < tpl.Length - 1) sb.Append("+ '");
                     continue;
                 }
@@ -227,6 +283,13 @@ namespace PowerTables.CellTemplating
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Shortcut method to compile templates directly from delegates
+        /// </summary>
+        /// <param name="templateDelegate">Template delegate</param>
+        /// <param name="modelName">Variable name or custom JS expression that is supposed to be used as model</param>
+        /// <param name="objectProperty">Model's property key that should be used to obtain exact model value. These 2 fields are made to support ^-syntax</param>
+        /// <returns></returns>
         public static string CompileDelegate(Action<Template> templateDelegate, string modelName, string objectProperty)
         {
             Template t = new Template();
@@ -234,6 +297,12 @@ namespace PowerTables.CellTemplating
             return t.Compile(modelName, objectProperty);
         }
 
+
+        /// <summary>
+        /// Shortcut method to build templates directly from delegates
+        /// </summary>
+        /// <param name="templateDelegate">Template delegate</param>
+        /// <returns></returns>
         public static string BuildDelegate(Action<Template> templateDelegate)
         {
             Template t = new Template();
