@@ -25,6 +25,9 @@ namespace PowerTables.Mvc.Models.Tutorial
                 .Template(tpl => tpl.Returns(a => a.Tag("span").Css("color", "blue").Css("cursor", "pointer").Content("{Name}")))
                 .SubscribeCellEvent("click", "objectEventHandler");
 
+            conf.Column(c => c.Preorders)
+                .Template(tpl => tpl.Returns(a => a.Tag("span").Css("background-color", "aliceblue").Css("cursor", "pointer").Content("{Preorders}").Class("moveme")));
+
             conf.Column(c => c.Price)
                 .Template(
                     tpl =>
@@ -35,6 +38,7 @@ namespace PowerTables.Mvc.Models.Tutorial
                                 .SubscribeCellEvent("mousemove", "selectorEventHandler", "[data-clickme]");
 
             conf.SubscribeRowEvent("click", "rowEventHandler");
+            conf.SubscribeRowEvent("click", "rowSelectorEventHandler", ".moveme");
 
             return conf;
         }
