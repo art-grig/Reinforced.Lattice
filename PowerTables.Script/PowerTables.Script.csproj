@@ -55,7 +55,6 @@
     <TypeScriptCompile Include="Scripts\PowerTables\PowerTables.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\PluginBase.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\FilterBase.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Loading.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Ordering.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Limit.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\PagingPlugin.ts" />
@@ -81,6 +80,9 @@
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Editors\MemoEditor.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\ToolbarConfirmation.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\MessagesService.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\ReloadPlugin.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\LoadingPlugin.ts" />
+    
   </ItemGroup>
   <ItemGroup />
   <PropertyGroup>

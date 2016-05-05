@@ -13,7 +13,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-md-5">
+            <div class="col-md-6">
                 <div class="form-horizontal">
                     <div class="form-group">
                         <label class="col-sm-2 control-label">@Html.LabelFor(c => c.MinimumCost)</label>
@@ -40,7 +40,7 @@
 
                 </div>
             </div>
-            <div class="col-md-5">
+            <div class="col-md-6">
                 <div class="form-group">
                     <label class="col-sm-2 control-label">@Html.LabelFor(c => c.ICloudLock)</label>
                     <div class="col-sm-10">
@@ -54,6 +54,11 @@
                         @Html.ListBoxFor(c => c.TypesList, Model.Types, new {@class = "form-control"})
                     </div>
                 </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 text-center" id="reloadPlaceholder">
+                
             </div>
         </div>
         <hr/>

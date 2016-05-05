@@ -172,6 +172,9 @@
     <Compile Include="Plugins\Paging\PagingTemplateRegion.cs" />
     <Compile Include="Plugins\PluginConfigurationCommonExtensions.cs" />
     <Compile Include="Plugins\PluginConfigurationWrapper.cs" />
+    <Compile Include="Plugins\Reload\ReloadExtensions.cs" />
+    <Compile Include="Plugins\Reload\ReloadTemplateRegion.cs" />
+    <Compile Include="Plugins\Reload\ReloadUiConfiguration.cs" />
     <Compile Include="Plugins\ResponseInfo\ActionBasedResponseModifier.cs" />
     <Compile Include="Plugins\Checkboxify\CheckboxifyClientConfig.cs" />
     <Compile Include="Plugins\ResponseInfo\ResponseInfoClientConfiguration.cs" />

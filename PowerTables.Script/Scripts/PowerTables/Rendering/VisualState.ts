@@ -3,6 +3,10 @@
      * Component for managing components visual states
      */
     export class VisualState {
+        constructor() {
+            this.Current = '';
+        }
+
         public States: { [key: string]: IState[] } = {};
 
         /**

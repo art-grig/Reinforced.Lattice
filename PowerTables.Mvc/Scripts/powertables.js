@@ -3513,6 +3513,7 @@ var PowerTables;
                 this.States = {};
                 this._subscribers = [];
                 this._stopEvents = false;
+                this.Current = '';
             }
             /**
              * Subscribes specified function to state change events
@@ -3886,39 +3887,6 @@ var PowerTables;
             return FilterBase;
         })(Plugins.PluginBase);
         Plugins.FilterBase = FilterBase;
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        var LoadingPlugin = (function (_super) {
-            __extends(LoadingPlugin, _super);
-            function LoadingPlugin() {
-                _super.apply(this, arguments);
-            }
-            LoadingPlugin.prototype.subscribe = function (e) {
-                var _this = this;
-                e.BeforeLoading.subscribe(function () { return _this.showLoadingIndicator(); }, "loading");
-                e.AfterLoading.subscribe(function () { return _this.hideLoadingIndicator(); }, "loading");
-                e.AfterLayoutRendered.subscribe(function () {
-                    _this.hideLoadingIndicator();
-                }, 'loading');
-            };
-            LoadingPlugin.prototype.showLoadingIndicator = function () {
-                this.MasterTable.Renderer.Modifier.showElement(this.BlinkElement);
-            };
-            LoadingPlugin.prototype.hideLoadingIndicator = function () {
-                this.MasterTable.Renderer.Modifier.hideElement(this.BlinkElement);
-            };
-            LoadingPlugin.prototype.renderContent = function (templatesProvider) {
-                return this.defaultRender(templatesProvider);
-            };
-            LoadingPlugin.Id = 'Loading';
-            return LoadingPlugin;
-        })(Plugins.PluginBase);
-        Plugins.LoadingPlugin = LoadingPlugin;
-        PowerTables.ComponentsContainer.registerComponent('Loading', LoadingPlugin);
     })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
@@ -6479,5 +6447,110 @@ var PowerTables;
         return MessagesService;
     })();
     PowerTables.MessagesService = MessagesService;
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var PluginBase = PowerTables.Plugins.PluginBase;
+    var ReloadPlugin = (function (_super) {
+        __extends(ReloadPlugin, _super);
+        function ReloadPlugin() {
+            var _this = this;
+            _super.apply(this, arguments);
+            this.afterDrawn = function (e) {
+                if (_this._renderedExternally) {
+                    _this._externalReloadBtn = new ReloadButton(_this.MasterTable.Controller, _this.Configuration.ForceReload);
+                    _this.MasterTable.Renderer.renderObject(_this.RawConfig.TemplateId, _this._externalReloadBtn, _this.Configuration.RenderTo);
+                    _this._ready = true;
+                }
+            };
+        }
+        ReloadPlugin.prototype.triggerReload = function () {
+            this.MasterTable.Controller.reload(this.Configuration.ForceReload);
+        };
+        ReloadPlugin.prototype.renderContent = function (templatesProvider) {
+            if (this._renderedExternally)
+                return '';
+            return this.defaultRender(templatesProvider);
+        };
+        ReloadPlugin.prototype.startLoading = function () {
+            if (this._renderedExternally) {
+                if (!this._ready)
+                    return;
+                this._externalReloadBtn.VisualStates.mixinState('loading');
+            }
+            else {
+                this.VisualStates.mixinState('loading');
+            }
+        };
+        ReloadPlugin.prototype.stopLoading = function () {
+            if (this._renderedExternally) {
+                if (!this._ready)
+                    return;
+                this._externalReloadBtn.VisualStates.unmixinState('loading');
+            }
+            else {
+                this.VisualStates.unmixinState('loading');
+            }
+        };
+        ReloadPlugin.prototype.subscribe = function (e) {
+            var _this = this;
+            _super.prototype.subscribe.call(this, e);
+            e.BeforeLoading.subscribe(function () { return _this.startLoading(); }, 'reload');
+            e.AfterLoading.subscribe(function () { return _this.stopLoading(); }, 'reload');
+            e.AfterLayoutRendered.subscribe(function () {
+                _this.stopLoading();
+            }, 'reload');
+        };
+        ReloadPlugin.prototype.init = function (masterTable) {
+            _super.prototype.init.call(this, masterTable);
+            this._renderedExternally = this.Configuration.RenderTo != null && this.Configuration.RenderTo != undefined && this.Configuration.RenderTo.length > 0;
+        };
+        return ReloadPlugin;
+    })(PluginBase);
+    PowerTables.ReloadPlugin = ReloadPlugin;
+    var ReloadButton = (function () {
+        function ReloadButton(controller, forceReload) {
+            this._controller = controller;
+            this._forceReload = forceReload;
+        }
+        ReloadButton.prototype.triggerReload = function () {
+            this._controller.reload(this._forceReload);
+        };
+        return ReloadButton;
+    })();
+    PowerTables.ComponentsContainer.registerComponent('Reload', ReloadPlugin);
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var LoadingPlugin = (function (_super) {
+            __extends(LoadingPlugin, _super);
+            function LoadingPlugin() {
+                _super.apply(this, arguments);
+            }
+            LoadingPlugin.prototype.subscribe = function (e) {
+                var _this = this;
+                e.BeforeLoading.subscribe(function () { return _this.showLoadingIndicator(); }, 'loading');
+                e.AfterLoading.subscribe(function () { return _this.hideLoadingIndicator(); }, 'loading');
+                e.AfterLayoutRendered.subscribe(function () {
+                    _this.hideLoadingIndicator();
+                }, 'loading');
+            };
+            LoadingPlugin.prototype.showLoadingIndicator = function () {
+                this.MasterTable.Renderer.Modifier.showElement(this.BlinkElement);
+            };
+            LoadingPlugin.prototype.hideLoadingIndicator = function () {
+                this.MasterTable.Renderer.Modifier.hideElement(this.BlinkElement);
+            };
+            LoadingPlugin.prototype.renderContent = function (templatesProvider) {
+                return this.defaultRender(templatesProvider);
+            };
+            LoadingPlugin.Id = 'Loading';
+            return LoadingPlugin;
+        })(Plugins.PluginBase);
+        Plugins.LoadingPlugin = LoadingPlugin;
+        PowerTables.ComponentsContainer.registerComponent('Loading', LoadingPlugin);
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
 })(PowerTables || (PowerTables = {}));
 //# sourceMappingURL=powertables.js.map

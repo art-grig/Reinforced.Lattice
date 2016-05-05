@@ -583,6 +583,15 @@ declare module PowerTables.Plugins.LoadingOverlap {
         BodyOnly = 1,
     }
 }
+declare module PowerTables.Plugins.Reload {
+    /** Client configuration for Reload plugin */
+    interface IReloadUiConfiguration {
+        /** Should table be reloaded forcibly */
+        ForceReload: boolean;
+        /** Selector where to render reload button */
+        RenderTo: string;
+    }
+}
 declare module PowerTables {
     /**
     * Helper class for producing track ids
@@ -2305,6 +2314,7 @@ declare module PowerTables.Rendering {
      * Component for managing components visual states
      */
     class VisualState {
+        constructor();
         States: {
             [key: string]: IState[];
         };
@@ -2488,30 +2498,6 @@ declare module PowerTables.Plugins {
          */
         protected itIsClientFilter(): void;
         filterPredicate(rowObject: any, query: IQuery): boolean;
-    }
-}
-declare module PowerTables.Plugins {
-    class LoadingPlugin extends PluginBase<any> implements ILoadingPlugin {
-        BlinkElement: HTMLElement;
-        subscribe(e: EventsManager): void;
-        showLoadingIndicator(): void;
-        hideLoadingIndicator(): void;
-        static Id: string;
-        renderContent(templatesProvider: ITemplatesProvider): string;
-    }
-    /**
-     * Loading indicator plugin.
-     * Plugin Id: Loading
-     */
-    interface ILoadingPlugin {
-        /**
-         * Shows loading indicator
-         */
-        showLoadingIndicator(): void;
-        /**
-         * Hides loading indicator
-         */
-        hideLoadingIndicator(): void;
     }
 }
 declare module PowerTables.Plugins.Ordering {
@@ -3102,5 +3088,45 @@ declare module PowerTables {
          */
         showMessage(message: ITableMessage): void;
         private showTableMessage(tableMessage);
+    }
+}
+declare module PowerTables {
+    import PluginBase = PowerTables.Plugins.PluginBase;
+    import ReloadUiConfiguration = PowerTables.Plugins.Reload.IReloadUiConfiguration;
+    class ReloadPlugin extends PluginBase<ReloadUiConfiguration> {
+        private _renderedExternally;
+        private _externalReloadBtn;
+        private _ready;
+        triggerReload(): void;
+        renderContent(templatesProvider: ITemplatesProvider): string;
+        startLoading(): void;
+        stopLoading(): void;
+        subscribe(e: EventsManager): void;
+        init(masterTable: IMasterTable): void;
+        afterDrawn: (e: ITableEventArgs<any>) => void;
+    }
+}
+declare module PowerTables.Plugins {
+    class LoadingPlugin extends PluginBase<any> implements ILoadingPlugin {
+        BlinkElement: HTMLElement;
+        subscribe(e: EventsManager): void;
+        showLoadingIndicator(): void;
+        hideLoadingIndicator(): void;
+        static Id: string;
+        renderContent(templatesProvider: ITemplatesProvider): string;
+    }
+    /**
+     * Loading indicator plugin.
+     * Plugin Id: Loading
+     */
+    interface ILoadingPlugin {
+        /**
+         * Shows loading indicator
+         */
+        showLoadingIndicator(): void;
+        /**
+         * Hides loading indicator
+         */
+        hideLoadingIndicator(): void;
     }
 }

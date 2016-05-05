@@ -597,3 +597,13 @@ module PowerTables.Plugins.LoadingOverlap {
 		BodyOnly = 1, 
 	}
 }
+module PowerTables.Plugins.Reload {
+	/** Client configuration for Reload plugin */
+	export interface IReloadUiConfiguration
+	{
+		/** Should table be reloaded forcibly */
+		ForceReload: boolean;
+		/** Selector where to render reload button */
+		RenderTo: string;
+	}
+}

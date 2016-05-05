@@ -5,7 +5,9 @@ using PowerTables.Configuration;
 using PowerTables.Filters;
 using PowerTables.Filters.Range;
 using PowerTables.Filters.Value;
+using PowerTables.Plugins;
 using PowerTables.Plugins.Formwatch;
+using PowerTables.Plugins.Reload;
 
 namespace PowerTables.Mvc.Models.Tutorial
 {
@@ -14,6 +16,8 @@ namespace PowerTables.Mvc.Models.Tutorial
         public static Configurator<Toy, Row> FormWatchForAdditionalData(this Configurator<Toy, Row> conf)
         {
             conf.ButtonsAndCheckboxify();
+            conf.ReloadButton(ui => ui.ForceReload().RenderTo("#reloadPlaceholder"));
+            conf.ReloadButton(ui => ui.ForceReload().Order(3),"lt");
             return conf;
         }
     }

@@ -1,9 +1,9 @@
-﻿module PowerTables.Plugins {
+module PowerTables.Plugins {
     export class LoadingPlugin extends PluginBase<any> implements ILoadingPlugin {
         public BlinkElement: HTMLElement;
         public subscribe(e: EventsManager): void {
-            e.BeforeLoading.subscribe(() => this.showLoadingIndicator(), "loading");
-            e.AfterLoading.subscribe(() => this.hideLoadingIndicator(), "loading");
+            e.BeforeLoading.subscribe(() => this.showLoadingIndicator(), 'loading');
+            e.AfterLoading.subscribe(() => this.hideLoadingIndicator(), 'loading');
             e.AfterLayoutRendered.subscribe(() => {
                 this.hideLoadingIndicator();
             }, 'loading');
@@ -41,4 +41,4 @@
          */
         hideLoadingIndicator(): void;
     }
-} 
+}

@@ -23,6 +23,7 @@ using PowerTables.Plugins.Limit;
 using PowerTables.Plugins.LoadingOverlap;
 using PowerTables.Plugins.Ordering;
 using PowerTables.Plugins.Paging;
+using PowerTables.Plugins.Reload;
 using PowerTables.Plugins.ResponseInfo;
 using PowerTables.Plugins.Toolbar;
 using PowerTables.Plugins.Total;
@@ -145,9 +146,9 @@ namespace PowerTables.Typings
 
             builder.ExportAsInterface<LoadingOverlapUiConfig>().WithPublicProperties();
             builder.ExportAsEnums(new[] { typeof(OverlapMode) });
-
-
             builder.ExportAsEnums(new[] { typeof(EditorType) });
+
+            builder.ExportAsInterface<ReloadUiConfiguration>().WithPublicProperties();
         }
 
     }
