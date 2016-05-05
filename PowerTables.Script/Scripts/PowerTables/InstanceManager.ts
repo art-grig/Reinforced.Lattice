@@ -195,12 +195,50 @@
             return part === postfix;
         }
 
+        public _subscribeConfiguredEvents() {
+            var delegator = this._masterTable.Renderer.Delegator;
+            var columns = this.getUiColumnNames();
+            var ths = this;
+            for (var i = 0; i < this.Configuration.Subscriptions.length; i++) {
+                var sub = this.Configuration.Subscriptions[i];
+                if (sub.IsRowSubscription) {
+                    var h = (function(hndlr) {
+                        return function(e: IRowEventArgs) {
+                            var obj = ths._masterTable.DataHolder.localLookupDisplayedData(e.DisplayingRowIndex);
+                            hndlr(obj.DataObject, e.OriginalEvent);
+                        }
+                    })(sub.Handler);
+                    delegator.subscribeRowEvent({
+                        EventId: sub.DomEvent,
+                        Selector: sub.Selector,
+                        Handler: h,
+                        SubscriptionId: 'configured-row-' + i
+                    });
+                } else {
+                    var colIdx = columns.indexOf(sub.ColumnName);
+                    var h2 = (function (hndlr,cidx) {
+                        return function (e: ICellEventArgs) {
+                            if (e.ColumnIndex !== cidx) return;
+                            var obj = ths._masterTable.DataHolder.localLookupDisplayedData(e.DisplayingRowIndex);
+                            hndlr(obj.DataObject, e.OriginalEvent);
+                        }
+                    })(sub.Handler, colIdx);
+                    delegator.subscribeCellEvent({
+                        EventId: sub.DomEvent,
+                        Selector: sub.Selector,
+                        Handler: h2,
+                        SubscriptionId: 'configured-cell-' + i
+                    });
+                }
+            }
+        }
+
         /**
-                 * Reteives plugin at specified placement
-                 * @param pluginId Plugin ID 
-                 * @param placement Pluign placement
-                 * @returns {} 
-                 */
+        * Reteives plugin at specified placement
+        * @param pluginId Plugin ID 
+        * @param placement Pluign placement
+        * @returns {} 
+        */
         public getPlugin<TPlugin>(pluginId: string, placement?: string): TPlugin {
             if (!placement) placement = '';
             var key: string = placement.length === 0 ? pluginId : `${placement}-${pluginId}`;

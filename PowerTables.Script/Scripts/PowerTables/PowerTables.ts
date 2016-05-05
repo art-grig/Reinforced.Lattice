@@ -73,6 +73,7 @@ module PowerTables {
             if (this._configuration.CallbackFunction) {
                 this._configuration.CallbackFunction(this);
             }
+            this.InstanceManager._subscribeConfiguredEvents();
         }
 
         /**

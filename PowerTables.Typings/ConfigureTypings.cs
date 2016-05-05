@@ -149,6 +149,9 @@ namespace PowerTables.Typings
             builder.ExportAsEnums(new[] { typeof(EditorType) });
 
             builder.ExportAsInterface<ReloadUiConfiguration>().WithPublicProperties();
+            builder.ExportAsInterface<ConfiguredSubscriptionInfo>()
+                .WithPublicProperties()
+                .WithProperty(c => c.Handler, c => c.Type("(dataObject:any, originalEvent:any) => void"));
         }
 
     }

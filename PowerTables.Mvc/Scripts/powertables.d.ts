@@ -45,6 +45,8 @@ declare module PowerTables.Configuration.Json {
         *             Function type is (msg: ITableMessage) =&gt; void
         */
         MessageFunction: (msg: ITableMessage) => void;
+        /** Cell/row event subscriptions */
+        Subscriptions: PowerTables.Configuration.Json.IConfiguredSubscriptionInfo[];
     }
     /** Table column JSON configuration */
     interface IColumnConfiguration {
@@ -80,6 +82,13 @@ declare module PowerTables.Configuration.Json {
         Order: number;
         /** Overridable plugin template Id */
         TemplateId: string;
+    }
+    interface IConfiguredSubscriptionInfo {
+        IsRowSubscription: boolean;
+        ColumnName: string;
+        Selector: string;
+        DomEvent: string;
+        Handler: (dataObject: any, originalEvent: any) => void;
     }
 }
 declare module PowerTables {
@@ -1671,12 +1680,13 @@ declare module PowerTables {
         initPlugins(): void;
         private static startsWith(s1, prefix);
         private static endsWith(s1, postfix);
+        _subscribeConfiguredEvents(): void;
         /**
-                 * Reteives plugin at specified placement
-                 * @param pluginId Plugin ID
-                 * @param placement Pluign placement
-                 * @returns {}
-                 */
+        * Reteives plugin at specified placement
+        * @param pluginId Plugin ID
+        * @param placement Pluign placement
+        * @returns {}
+        */
         getPlugin<TPlugin>(pluginId: string, placement?: string): TPlugin;
         /**
          * Retrieves plugins list at specific placement

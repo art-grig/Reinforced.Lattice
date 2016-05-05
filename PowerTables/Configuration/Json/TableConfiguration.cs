@@ -98,6 +98,11 @@ namespace PowerTables.Configuration.Json
         /// </summary>
         public JRaw MessageFunction { get; set; }
 
+        /// <summary>
+        /// Cell/row event subscriptions
+        /// </summary>
+        public List<ConfiguredSubscriptionInfo> Subscriptions { get; private set; }
+
         public TableConfiguration()
         {
             Columns = new List<ColumnConfiguration>();
@@ -105,8 +110,22 @@ namespace PowerTables.Configuration.Json
             LoadImmediately = true;
             Prefix = "lt";
             CoreTemplates = new CoreTemplateIds();
+            Subscriptions = new List<ConfiguredSubscriptionInfo>();
         }
         
+    }
+
+    public class ConfiguredSubscriptionInfo
+    {
+        public bool IsRowSubscription { get; set; }
+
+        public string ColumnName { get; set; }
+
+        public string Selector { get; set; }
+
+        public string DomEvent { get; set; }
+
+        public JRaw Handler { get; set; }
     }
 
     public class CoreTemplateIds

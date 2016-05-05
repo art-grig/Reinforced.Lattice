@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
+using PowerTables.CellTemplating;
 using PowerTables.Configuration;
 using PowerTables.Filters;
 using PowerTables.Filters.Range;
@@ -18,8 +19,23 @@ namespace PowerTables.Mvc.Models.Tutorial
         {
             conf.ButtonsAndCheckboxify();
             conf.ReloadButton(ui => ui.ForceReload().RenderTo("#reloadPlaceholder"));
-            conf.ReloadButton(ui => ui.ForceReload().Order(3),"lt");
+            conf.ReloadButton(ui => ui.ForceReload().Order(3), "lt");
             conf.LoadingOverlap(ui => ui.Overlap("#searchForm"));
+            conf.Column(c => c.Name)
+                .Template(tpl => tpl.Returns(a => a.Tag("span").Css("color", "blue").Css("cursor", "pointer").Content("{Name}")))
+                .SubscribeCellEvent("click", "objectEventHandler");
+
+            conf.Column(c => c.Price)
+                .Template(
+                    tpl =>
+                        tpl.Returns(
+                            a =>
+                                a.Tag("span").Content("`{Price}.toFixed(2)` ")
+                                .After(b => b.Tag("button").Class("btn btn-xs btn-info").Data("clickme","true").Content("Click me"))))
+                                .SubscribeCellEvent("mousemove", "selectorEventHandler", "[data-clickme]");
+
+            conf.SubscribeRowEvent("click", "rowEventHandler");
+
             return conf;
         }
     }

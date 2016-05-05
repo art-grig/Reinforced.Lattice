@@ -1661,12 +1661,51 @@ var PowerTables;
             var part = s1.substring(s1.length - postfix.length - 1, postfix.length);
             return part === postfix;
         };
+        InstanceManager.prototype._subscribeConfiguredEvents = function () {
+            var delegator = this._masterTable.Renderer.Delegator;
+            var columns = this.getUiColumnNames();
+            var ths = this;
+            for (var i = 0; i < this.Configuration.Subscriptions.length; i++) {
+                var sub = this.Configuration.Subscriptions[i];
+                if (sub.IsRowSubscription) {
+                    var h = (function (hndlr) {
+                        return function (e) {
+                            var obj = ths._masterTable.DataHolder.localLookupDisplayedData(e.DisplayingRowIndex);
+                            hndlr(obj.DataObject, e.OriginalEvent);
+                        };
+                    })(sub.Handler);
+                    delegator.subscribeRowEvent({
+                        EventId: sub.DomEvent,
+                        Selector: sub.Selector,
+                        Handler: h,
+                        SubscriptionId: 'configured-row-' + i
+                    });
+                }
+                else {
+                    var colIdx = columns.indexOf(sub.ColumnName);
+                    var h2 = (function (hndlr, cidx) {
+                        return function (e) {
+                            if (e.ColumnIndex !== cidx)
+                                return;
+                            var obj = ths._masterTable.DataHolder.localLookupDisplayedData(e.DisplayingRowIndex);
+                            hndlr(obj.DataObject, e.OriginalEvent);
+                        };
+                    })(sub.Handler, colIdx);
+                    delegator.subscribeCellEvent({
+                        EventId: sub.DomEvent,
+                        Selector: sub.Selector,
+                        Handler: h2,
+                        SubscriptionId: 'configured-cell-' + i
+                    });
+                }
+            }
+        };
         /**
-                 * Reteives plugin at specified placement
-                 * @param pluginId Plugin ID
-                 * @param placement Pluign placement
-                 * @returns {}
-                 */
+        * Reteives plugin at specified placement
+        * @param pluginId Plugin ID
+        * @param placement Pluign placement
+        * @returns {}
+        */
         InstanceManager.prototype.getPlugin = function (pluginId, placement) {
             if (!placement)
                 placement = '';
@@ -3758,6 +3797,7 @@ var PowerTables;
             if (this._configuration.CallbackFunction) {
                 this._configuration.CallbackFunction(this);
             }
+            this.InstanceManager._subscribeConfiguredEvents();
         };
         /**
          * Reloads table content.

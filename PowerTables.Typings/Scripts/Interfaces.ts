@@ -50,6 +50,8 @@ module PowerTables.Configuration.Json {
 		*             Function type is (msg: ITableMessage) =&gt; void
 		*/
 		MessageFunction: (msg: ITableMessage) => void;
+		/** Cell/row event subscriptions */
+		Subscriptions: PowerTables.Configuration.Json.IConfiguredSubscriptionInfo[];
 	}
 	/** Table column JSON configuration */
 	export interface IColumnConfiguration
@@ -87,6 +89,14 @@ module PowerTables.Configuration.Json {
 		Order: number;
 		/** Overridable plugin template Id */
 		TemplateId: string;
+	}
+	export interface IConfiguredSubscriptionInfo
+	{
+		IsRowSubscription: boolean;
+		ColumnName: string;
+		Selector: string;
+		DomEvent: string;
+		Handler: (dataObject:any,originalEvent:any) => void;
 	}
 }
 module PowerTables {

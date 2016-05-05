@@ -138,7 +138,6 @@
     <Compile Include="Models\SimpleConfirmationModel.cs" />
     <Compile Include="Models\TargetData.cs" />
     <Compile Include="Models\TestTable.cs" />
-    <Compile Include="Models\Tutorial\FormWatchTutorialModel.cs" />
     <Compile Include="Models\Tutorial\_17_PermanentQueryPartProvider.cs" />
     <Compile Include="Models\Tutorial\_16_ClientReloadingWithQueryPartProvider.cs" />
     <Compile Include="Models\Tutorial\_15_SubscribingCellAndRowEvents.cs" />
@@ -295,6 +294,7 @@
     <Content Include="Views\Shared\TutorialsLayout.cshtml" />
     <Content Include="Views\Tutorial\FormWatch.cshtml" />
     <Content Include="Views\Shared\Datepicker.cshtml" />
+    <Content Include="Views\Shared\ClientEvents.cshtml" />
     <None Include="Views\Tutorial\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
