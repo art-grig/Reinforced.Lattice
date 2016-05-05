@@ -1,11 +1,9 @@
 ﻿
-module PowerTables {
-    import TableConfiguration = Configuration.Json.ITableConfiguration;
-    import AdjustmentData = PowerTables.Editors.IAdjustmentData; /**
+module PowerTables { /**
      * Main entry point for all tables functionality
      */
     export class PowerTable implements IMasterTable {
-        constructor(configuration: TableConfiguration) {
+        constructor(configuration: Configuration.Json.ITableConfiguration) {
             this._configuration = configuration;
             this.bindReady();
         }
@@ -41,7 +39,7 @@ module PowerTables {
             });
         }
 
-        private _configuration: TableConfiguration;
+        private _configuration: Configuration.Json.ITableConfiguration;
 
         private initialize() {
             this._isReady = true;
@@ -142,7 +140,7 @@ module PowerTables {
                 element['fireEvent'](eventName);
         }
 
-        public proceedAdjustments(adjustments: AdjustmentData): void {
+        public proceedAdjustments(adjustments: PowerTables.Editors.IAdjustmentData): void {
             this.Events.BeforeAdjustment.invoke(this,adjustments);
             var result = this.DataHolder.proceedAdjustments(adjustments);
             if (result != null) this.Controller.drawAdjustmentResult(result);

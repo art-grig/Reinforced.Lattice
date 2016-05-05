@@ -1,8 +1,6 @@
 ﻿module PowerTables {
-    import PluginBase = PowerTables.Plugins.PluginBase;
-    import ReloadUiConfiguration = PowerTables.Plugins.Reload.IReloadUiConfiguration;
-
-    export class ReloadPlugin extends PluginBase<ReloadUiConfiguration> {
+    
+    export class ReloadPlugin extends PowerTables.Plugins.PluginBase<PowerTables.Plugins.Reload.IReloadUiConfiguration> {
         private _renderedExternally: boolean;
         private _externalReloadBtn: ReloadButton;
         private _ready: boolean;

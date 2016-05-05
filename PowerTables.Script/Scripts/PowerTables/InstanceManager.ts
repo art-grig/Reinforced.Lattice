@@ -1,7 +1,5 @@
 ﻿module PowerTables {
-    import TableConfiguration = Configuration.Json.ITableConfiguration;
-
-    /**
+     /**
      * This thing is used to manage instances of columns, plugins etc. 
      * It consumes PT configuration as source and provides caller with 
      * plugins instances, variable ways to query them and accessing their properties
@@ -66,7 +64,7 @@
         /**
          * Table configuration
          */
-        public Configuration: TableConfiguration;
+        public Configuration: Configuration.Json.ITableConfiguration;
 
         private _rawColumnNames: string[] = [];
         private _masterTable: IMasterTable;
@@ -216,13 +214,13 @@
                     });
                 } else {
                     var colIdx = columns.indexOf(sub.ColumnName);
-                    var h2 = (function (hndlr,cidx) {
+                    var h2 = (function (hndlr,im:InstanceManager,colName) {
                         return function (e: ICellEventArgs) {
-                            if (e.ColumnIndex !== cidx) return;
+                            if (im.getUiColumnNames().indexOf(colName) !== e.ColumnIndex) return;
                             var obj = ths._masterTable.DataHolder.localLookupDisplayedData(e.DisplayingRowIndex);
                             hndlr(obj.DataObject, e.OriginalEvent);
                         }
-                    })(sub.Handler, colIdx);
+                    })(sub.Handler, this._masterTable.InstanceManager,sub.ColumnName);
                     delegator.subscribeCellEvent({
                         EventId: sub.DomEvent,
                         Selector: sub.Selector,

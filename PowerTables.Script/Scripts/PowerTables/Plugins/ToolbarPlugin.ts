@@ -1,13 +1,9 @@
 ﻿module PowerTables.Plugins {
-    import ToolbarButtonsClientConfiguration = Plugins.Toolbar.IToolbarButtonsClientConfiguration;
-    import ToolbarButtonClientConfiguration = Plugins.Toolbar.IToolbarButtonClientConfiguration;
-    import TemplateBoundEvent = Rendering.ITemplateBoundEvent;
-
-    export class ToolbarPlugin extends PluginBase<ToolbarButtonsClientConfiguration> {
+    export class ToolbarPlugin extends PluginBase<Plugins.Toolbar.IToolbarButtonsClientConfiguration> {
         public AllButtons: { [id: number]: HTMLElement } = {};
-        private _buttonsConfig: { [key: number]: ToolbarButtonClientConfiguration } = {}
+        private _buttonsConfig: { [key: number]: Plugins.Toolbar.IToolbarButtonClientConfiguration } = {}
 
-        public buttonHandleEvent(e: TemplateBoundEvent) {
+        public buttonHandleEvent(e: Rendering.ITemplateBoundEvent) {
             var btnId = e.EventArguments[0];
             this.handleButtonAction(this._buttonsConfig[btnId]);
         }
@@ -16,7 +12,7 @@
             this.MasterTable.Renderer.Modifier.redrawPlugin(this);
         }
 
-        private handleButtonAction(btn: ToolbarButtonClientConfiguration) {
+        private handleButtonAction(btn: Plugins.Toolbar.IToolbarButtonClientConfiguration) {
             if (btn.OnClick) {
                 btn.OnClick.call(this.MasterTable, this.MasterTable, this.AllButtons[btn.InternalId]);
             }
@@ -89,7 +85,7 @@
             return this.defaultRender(templatesProvider);
         }
 
-        private traverseButtons(arr: ToolbarButtonClientConfiguration[]) {
+        private traverseButtons(arr: Plugins.Toolbar.IToolbarButtonClientConfiguration[]) {
             for (var i: number = 0; i < arr.length; i++) {
                 this._buttonsConfig[arr[i].InternalId] = arr[i];
                 if (arr[i].HasSubmenu) {

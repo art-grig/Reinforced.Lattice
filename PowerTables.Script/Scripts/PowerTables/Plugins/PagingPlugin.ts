@@ -1,8 +1,5 @@
 ﻿module PowerTables.Plugins {
-    import TemplateBoundEvent = Rendering.ITemplateBoundEvent;
-    import PagingClientConfiguration = Plugins.Paging.IPagingClientConfiguration;
-
-    export class PagingPlugin extends FilterBase<PagingClientConfiguration> implements IPagingPlugin {
+    export class PagingPlugin extends FilterBase<Plugins.Paging.IPagingClientConfiguration> {
 
         public Pages: IPagesElement[];
         public Shown: boolean;
@@ -75,7 +72,7 @@
             this.MasterTable.Controller.reload();
         }
 
-        public gotoPageClick(e: TemplateBoundEvent) {
+        public gotoPageClick(e: Rendering.ITemplateBoundEvent) {
             if (this.GotoInput) {
                 var v: string = this.GotoInput.value;
                 v = (parseInt(v) - 1).toString();
@@ -83,15 +80,15 @@
             }
         }
 
-        public navigateToPage(e: TemplateBoundEvent) {
+        public navigateToPage(e: Rendering.ITemplateBoundEvent) {
             this.goToPage(e.EventArguments[0]);
         }
 
-        public nextClick(e: TemplateBoundEvent) {
+        public nextClick(e: Rendering.ITemplateBoundEvent) {
             if (this._selectedPage < this._totalPages) this.goToPage((this._selectedPage + 1).toString());
         }
 
-        public previousClick(e: TemplateBoundEvent) {
+        public previousClick(e: Rendering.ITemplateBoundEvent) {
             if (this._selectedPage > 0) this.goToPage((this._selectedPage - 1).toString());
         }
 

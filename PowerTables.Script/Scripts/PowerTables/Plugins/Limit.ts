@@ -1,8 +1,5 @@
 ﻿module PowerTables.Plugins {
-    import LimitClientConfiguration = Plugins.Limit.ILimitClientConfiguration;
-    import TemplateBoundEvent = Rendering.ITemplateBoundEvent;
-
-    export class LimitPlugin extends FilterBase<LimitClientConfiguration> implements ILimitPlugin {
+    export class LimitPlugin extends FilterBase<Plugins.Limit.ILimitClientConfiguration> {
         public SelectedValue: ILimitSize;
         private _limitSize = 0;
         public Sizes: ILimitSize[] = [];
@@ -11,7 +8,7 @@
             return this.defaultRender(templatesProvider);
         }
 
-        public changeLimitHandler(e: TemplateBoundEvent) {
+        public changeLimitHandler(e: Rendering.ITemplateBoundEvent) {
             var limit = parseInt(e.EventArguments[0]);
             if (isNaN(limit)) limit = 0;
             this.changeLimit(limit);

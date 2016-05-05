@@ -1,5 +1,5 @@
-﻿module PowerTables {
-    import AdjustmentData = PowerTables.Editors.IAdjustmentData; /**
+﻿module PowerTables { 
+    /**
      * Class that is responsible for holding and managing data loaded from server
      */
     export class DataHolder {
@@ -415,7 +415,7 @@
             }
         }
 
-        public proceedAdjustments(adjustments: AdjustmentData): IAdjustmentResult {
+        public proceedAdjustments(adjustments: PowerTables.Editors.IAdjustmentData): IAdjustmentResult {
             if (this.RecentClientQuery == null || this.RecentClientQuery == undefined)return null;
             var needRefilter = false;
             var redrawVisibles = [];

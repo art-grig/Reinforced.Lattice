@@ -1,7 +1,6 @@
 ﻿module PowerTables {
 
-    import PluginConfiguration = Configuration.Json.IPluginConfiguration;
-    import AdjustmentData = PowerTables.Editors.IAdjustmentData; /**
+    /**
      * Client filter interface. 
      * This interface is registerable in the DataHolder as 
      * one of the part of filtering pipeline
@@ -29,7 +28,7 @@
         /**
          * Raw configuration object including Plugin Id
          */
-        RawConfig: PluginConfiguration;
+        RawConfig: Configuration.Json.IPluginConfiguration;
 
         /**
          * Plugin Id including placement
@@ -96,7 +95,7 @@
          * 
          * @param adjustments Table adjustmetns object         
          */
-        proceedAdjustments(adjustments: AdjustmentData): void;
+        proceedAdjustments(adjustments: PowerTables.Editors.IAdjustmentData): void;
 
          /**
          * API for table messages

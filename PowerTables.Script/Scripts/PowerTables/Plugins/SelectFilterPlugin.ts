@@ -1,7 +1,5 @@
 ﻿module PowerTables.Plugins {
-    import SelectFilterUiConfig = Filters.Select.ISelectFilterUiConfig;
-
-    export class SelectFilterPlugin extends FilterBase<SelectFilterUiConfig> {
+    export class SelectFilterPlugin extends FilterBase<Filters.Select.ISelectFilterUiConfig> {
         public FilterValueProvider: HTMLSelectElement;
         private _associatedColumn: IColumn;
 

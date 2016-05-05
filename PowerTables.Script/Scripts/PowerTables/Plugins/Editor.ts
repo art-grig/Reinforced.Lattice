@@ -1,9 +1,6 @@
 ﻿module PowerTables.Plugins {
-    import CellEditorBase = PowerTables.Plugins.Editors.ICellEditor;
-    import EditorUiConfig = PowerTables.Editors.IEditorUiConfig;
-    import EditionResult = PowerTables.Editors.IEditionResult;
-
-    export class Editor extends PluginBase<EditorUiConfig> implements IRow {
+    
+    export class Editor extends PluginBase<PowerTables.Editors.IEditorUiConfig> implements IRow {
 
         //#region IRow members
         public Cells: { [key: string]: ICell } = {};
@@ -14,13 +11,13 @@
 
         private _mode: Mode;
 
-        private _activeEditors: CellEditorBase[] = [];
+        private _activeEditors: PowerTables.Plugins.Editors.ICellEditor[] = [];
         private _currentDataObjectModified: any;
         private _isEditing: boolean = false;
         private _validationMessages: IValidationMessage[] = [];
 
         //#region Public interface
-        public notifyChanged(editor: CellEditorBase) {
+        public notifyChanged(editor: PowerTables.Plugins.Editors.ICellEditor) {
             this.retrieveEditorData(editor);
         }
 
@@ -39,7 +36,7 @@
             });
         }
 
-        private dispatchEditResponse(editResponse: EditionResult, then: () => void) {
+        private dispatchEditResponse(editResponse: PowerTables.Editors.IEditionResult, then: () => void) {
             if (then) then();
         }
 
@@ -50,7 +47,7 @@
             });
         }
 
-        public commit(editor: CellEditorBase) {
+        public commit(editor: PowerTables.Plugins.Editors.ICellEditor) {
             var msgs = [];
             this.retrieveEditorData(editor, msgs);
             if (msgs.length !== 0) return;
@@ -87,7 +84,7 @@
             }
         }
 
-        public redrawMe(editor: CellEditorBase) {
+        public redrawMe(editor: PowerTables.Plugins.Editors.ICellEditor) {
             this.MasterTable.Renderer.Modifier.redrawCell(editor);
             this.setEditorValue(editor);
             this.retrieveEditorData(editor, []);
@@ -104,7 +101,7 @@
             this.MasterTable.Controller.redrawVisibleDataObject(this.DataObject, this.Index);
         }
 
-        private finishEditing(editor: CellEditorBase, redraw: boolean) {
+        private finishEditing(editor: PowerTables.Plugins.Editors.ICellEditor, redraw: boolean) {
             if (redraw) editor.VisualStates.normalState();
             this._activeEditors.splice(this._activeEditors.indexOf(editor), 1);
             this.Cells[editor.Column.RawName] = this.MasterTable.Controller.produceCell(this.DataObject, editor.Column, this);
@@ -114,7 +111,7 @@
             if (this._activeEditors.length === 0) this.cleanupAfterEdit();
         }
 
-        public reject(editor: CellEditorBase) {
+        public reject(editor: PowerTables.Plugins.Editors.ICellEditor) {
             if (this._mode === Mode.Cell) {
                 this.finishEditing(editor, true);
             }
@@ -129,7 +126,7 @@
 
         
         //#region Private members
-        private retrieveEditorData(editor: CellEditorBase, errors?: IValidationMessage[]) {
+        private retrieveEditorData(editor: PowerTables.Plugins.Editors.ICellEditor, errors?: IValidationMessage[]) {
             var errorsArrayPresent = (!(!errors));
             errors = errors || [];
             this._currentDataObjectModified[editor.Column.RawName] = editor.getValue(errors);
@@ -173,9 +170,9 @@
             return this.Configuration.EditorsForColumns.hasOwnProperty(column.RawName);
         }
 
-        private createEditor(column: IColumn, canComplete: boolean, isForm: boolean, isRow: boolean): CellEditorBase {
+        private createEditor(column: IColumn, canComplete: boolean, isForm: boolean, isRow: boolean): PowerTables.Plugins.Editors.ICellEditor {
             var editorConf = this.Configuration.EditorsForColumns[column.RawName];
-            var editor: CellEditorBase = ComponentsContainer.resolveComponent<CellEditorBase>(editorConf.PluginId);
+            var editor = ComponentsContainer.resolveComponent<PowerTables.Plugins.Editors.ICellEditor>(editorConf.PluginId);
             editor.DataObject = this.DataObject;
             editor.ModifiedDataObject = this._currentDataObjectModified;
 
@@ -201,7 +198,7 @@
             editor.focus();
         }
 
-        private setEditorValue(editor: CellEditorBase) {
+        private setEditorValue(editor: PowerTables.Plugins.Editors.ICellEditor) {
             editor.IsInitialValueSetting = true;
             editor.setValue(this._currentDataObjectModified[editor.Column.RawName]);
             editor.IsInitialValueSetting = false;

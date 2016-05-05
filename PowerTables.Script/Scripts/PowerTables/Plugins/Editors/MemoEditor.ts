@@ -1,7 +1,6 @@
 ﻿module PowerTables.Plugins.Editors {
-    import MemoEditorUiConfig = PowerTables.Editors.Memo.IMemoEditorUiConfig;
-
-    export class MemoEditor extends CellEditorBase<MemoEditorUiConfig>{
+    
+    export class MemoEditor extends CellEditorBase<PowerTables.Editors.Memo.IMemoEditorUiConfig>{
         TextArea: HTMLInputElement;
 
         public MaxChars: number;

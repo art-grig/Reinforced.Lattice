@@ -1,7 +1,4 @@
 ﻿module PowerTables.Plugins {
-    import HideoutClientConfiguration = PowerTables.Plugins.Hideout.IHideoutPluginConfiguration;
-    import TemplateBoundEvent = PowerTables.Rendering.ITemplateBoundEvent;
-
     export interface IColumnState {
         Visible: boolean;
         RawName: string;
@@ -9,7 +6,7 @@
         DoesNotExists: boolean;
     }
 
-    export class HideoutPlugin extends PluginBase<HideoutClientConfiguration> implements IQueryPartProvider, IHideoutPlugin {
+    export class HideoutPlugin extends PluginBase<PowerTables.Plugins.Hideout.IHideoutPluginConfiguration> implements IQueryPartProvider {
 
         public ColumnStates: IColumnState[] = [];
         private _columnStates: { [key: string]: IColumnState } = {};
@@ -33,15 +30,15 @@
         }
 
         //#region Events handling
-        public toggleColumn(e: TemplateBoundEvent) {
+        public toggleColumn(e: PowerTables.Rendering.ITemplateBoundEvent) {
             this.toggleColumnByName(e.EventArguments[0]);
         }
 
-        public showColumn(e: TemplateBoundEvent) {
+        public showColumn(e: PowerTables.Rendering.ITemplateBoundEvent) {
             this.showColumnByName(e.EventArguments[0]);
         }
 
-        public hideColumn(e: TemplateBoundEvent) {
+        public hideColumn(e: PowerTables.Rendering.ITemplateBoundEvent) {
             this.hideColumnByName(e.EventArguments[0]);
         }
         //#endregion

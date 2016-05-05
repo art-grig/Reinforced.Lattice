@@ -1,7 +1,6 @@
 ﻿module PowerTables.Plugins.Editors {
-    import CheckEditorUiConfig = PowerTables.Editors.Check.ICheckEditorUiConfig;
-
-    export class CheckEditor extends CellEditorBase<CheckEditorUiConfig> {
+    
+    export class CheckEditor extends CellEditorBase<PowerTables.Editors.Check.ICheckEditorUiConfig> {
         FocusElement:HTMLElement;
         private _value: boolean;
 

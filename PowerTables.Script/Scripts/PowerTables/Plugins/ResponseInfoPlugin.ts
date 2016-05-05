@@ -1,7 +1,5 @@
 ﻿module PowerTables.Plugins {
-    import ResponseInfoClientConfiguration = Plugins.ResponseInfo.IResponseInfoClientConfiguration;
-
-    export class ResponseInfoPlugin extends PluginBase<ResponseInfoClientConfiguration> {
+    export class ResponseInfoPlugin extends PluginBase<Plugins.ResponseInfo.IResponseInfoClientConfiguration> {
         private _recentData: any;
         private _recentServerData: any;
         private _recentTemplate: HandlebarsTemplateDelegate;

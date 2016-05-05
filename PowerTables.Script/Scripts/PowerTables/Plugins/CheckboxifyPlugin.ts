@@ -1,9 +1,5 @@
 ﻿module PowerTables.Plugins {
-    import CheckboxifyClientConfig = Plugins.Checkboxify.ICheckboxifyClientConfig;
-    import ColumnConfiguration = Configuration.Json.IColumnConfiguration;
-    import TemplateBoundEvent = PowerTables.Rendering.ITemplateBoundEvent;
-
-    export class CheckboxifyPlugin extends PluginBase<CheckboxifyClientConfig> implements IQueryPartProvider {
+    export class CheckboxifyPlugin extends PluginBase<Plugins.Checkboxify.ICheckboxifyClientConfig> implements IQueryPartProvider {
         private _selectedItems: string[] = [];
         private _visibleAll: boolean = false;
         private _allSelected: boolean = false;
@@ -11,7 +7,7 @@
         public ValueColumnName: string;
         private _canSelectAll: boolean;
         private _pagingPlugin: PagingPlugin = null;
-        private _selectables:any[] = [];
+        private _selectables: any[] = [];
 
         public selectAll(selected?: boolean): void {
             if (!this._canSelectAll) return;
@@ -54,7 +50,7 @@
         }
 
         private createColumn(): IColumn {
-            var conf: ColumnConfiguration = {
+            var conf: Configuration.Json.IColumnConfiguration = {
                 IsDataOnly: false,
                 IsEnum: false,
                 IsNullable: false,
@@ -77,7 +73,7 @@
                 MasterTable: this.MasterTable,
                 Order: -1,
                 RawName: '_checkboxify',
-                IsSpecial:true
+                IsSpecial: true
             }
 
             var header: ISpecialHeader = {
@@ -112,21 +108,49 @@
             this.selectAll(false);
         }
 
-        public selectByRowIndex(rowIndex: number): void {
+        public selectByRowIndex(rowIndex: number, select: boolean = null): void {
             var displayedLookup: ILocalLookupResult = this.MasterTable.DataHolder.localLookupDisplayedData(rowIndex);
-            var v = displayedLookup.DataObject[this.ValueColumnName].toString();
+            this.toggleInternal(displayedLookup.DataObject, displayedLookup.DisplayedIndex, select);
+        }
+
+        public selectByDataObject(dataObject:any, select: boolean = null): boolean {
+            var displayedLookup: ILocalLookupResult = this.MasterTable.DataHolder.localLookupDisplayedDataObject(dataObject);
+            if (!displayedLookup.IsCurrentlyDisplaying) return false;
+            this.toggleInternal(displayedLookup.DataObject, displayedLookup.DisplayedIndex, select);
+            return true;
+        }
+
+        public selectByPredicate(predicate:(dataObject: any)=>boolean, select: boolean = null): boolean {
+            var displayedLookup: ILocalLookupResult[] = this.MasterTable.DataHolder.localLookup(predicate);
+            var result = false;
+            for (var i = 0; i < displayedLookup.length; i++) {
+                if (!displayedLookup[i].IsCurrentlyDisplaying) continue;
+                this.toggleInternal(displayedLookup[i].DataObject, displayedLookup[i].DisplayedIndex, select);
+                result = true;
+            }
+            return result;
+        }
+
+        private toggleInternal(dataObject: any, displayedIndex: number, select: boolean = null) {
+            var v = dataObject[this.ValueColumnName].toString();
             var idx: number = this._selectedItems.indexOf(v);
             var overrideRow: boolean = false;
+            var toggle: boolean = select == null;
+            var check: boolean = ((select != null) && (select));
             if (idx > -1) {
-                this._selectedItems.splice(idx, 1);
-                this._allSelected = false;
+                if (toggle || (!check)) {
+                    this._selectedItems.splice(idx, 1);
+                    this._allSelected = false;
+                }
             } else {
-                this._selectedItems.push(v);
-                overrideRow = true;
-                this._allSelected = this.MasterTable.DataHolder.DisplayedData.length === this._selectedItems.length;
+                if (toggle || (check)) {
+                    this._selectedItems.push(v);
+                    overrideRow = true;
+                    this._allSelected = this.MasterTable.DataHolder.DisplayedData.length === this._selectedItems.length;
+                }
             }
             this.redrawHeader();
-            var row: IRow = this.MasterTable.Controller.produceRow(displayedLookup.DataObject, displayedLookup.DisplayedIndex);
+            var row: IRow = this.MasterTable.Controller.produceRow(dataObject, displayedIndex);
             if (overrideRow) {
                 row.renderElement = (e) => e.getCachedTemplate(this.Configuration.RowTemplateId)(row);
             }
@@ -171,7 +195,7 @@
                 this.redrawHeader();
             }
         }
-        
+
 
         private onClientReload(e: ITableEventArgs<IClientDataResults>) {
             if (this.Configuration.ResetOnClientReload) {
@@ -213,7 +237,7 @@
             this.MasterTable.Loader.registerQueryPartProvider(this);
             try {
                 this._pagingPlugin = this.MasterTable.InstanceManager.getPlugin<PagingPlugin>('Paging');
-            }catch (e){}
+            } catch (e) { }
         }
 
 
@@ -239,7 +263,7 @@
     }
 
     interface ISpecialHeader extends IColumnHeader {
-        selectAllEvent(e: TemplateBoundEvent): void;
+        selectAllEvent(e: PowerTables.Rendering.ITemplateBoundEvent): void;
     }
 
     ComponentsContainer.registerComponent('Checkboxify', CheckboxifyPlugin);

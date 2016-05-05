@@ -96,7 +96,7 @@ module PowerTables.Configuration.Json {
 		ColumnName: string;
 		Selector: string;
 		DomEvent: string;
-		Handler: (dataObject:any,originalEvent:any) => void;
+		Handler: (dataObject:any, originalEvent:any) => void;
 	}
 }
 module PowerTables {

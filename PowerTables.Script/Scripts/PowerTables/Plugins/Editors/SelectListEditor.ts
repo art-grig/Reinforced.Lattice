@@ -1,12 +1,9 @@
 ﻿module PowerTables.Plugins.Editors {
-    import SelectListEditorUiConfig = PowerTables.Editors.SelectList.ISelectListEditorUiConfig;
-    import SelectListItem = System.Web.Mvc.ISelectListItem;
-    import StateChangedEvent = PowerTables.Rendering.IStateChangedEvent;
-
-    export class SelectListEditor extends CellEditorBase<SelectListEditorUiConfig> {
+    
+    export class SelectListEditor extends CellEditorBase<PowerTables.Editors.SelectList.ISelectListEditorUiConfig> {
         List: HTMLSelectElement;
-        Items: SelectListItem[];
-        SelectedItem: SelectListItem;
+        Items: System.Web.Mvc.ISelectListItem[];
+        SelectedItem: System.Web.Mvc.ISelectListItem;
         
         public getValue(errors: IValidationMessage[]): any {
             var selectedOption = this.List.options.item(this.List.selectedIndex);
@@ -46,7 +43,7 @@
             this.VisualStates.mixinState('selected');
         }
 
-        public onStateChange(e: StateChangedEvent) {
+        public onStateChange(e: PowerTables.Rendering.IStateChangedEvent) {
             if (e.State !== 'selected' && e.State !== 'saving') {
                 this.VisualStates.mixinState('selected');
             }
@@ -56,7 +53,7 @@
             super.init(masterTable);
             this.Items = this.Configuration.SelectListItems;
             if (this.Configuration.AddEmptyElement) {
-                var empty = <SelectListItem>{
+                var empty = <System.Web.Mvc.ISelectListItem>{
                     Text: this.Configuration.EmptyElementText,
                     Value: '',
                     Disabled: false,

@@ -1,9 +1,6 @@
 ﻿module PowerTables {
-    import DOMLocator = PowerTables.Rendering.DOMLocator;
-    import CallbackDescriptor = PowerTables.Rendering.ICallbackDescriptor;
-
     export class EventsDelegator {
-        constructor(locator: DOMLocator, bodyElement: HTMLElement, layoutElement: HTMLElement, rootId: string) {
+        constructor(locator: PowerTables.Rendering.DOMLocator, bodyElement: HTMLElement, layoutElement: HTMLElement, rootId: string) {
             this._locator = locator;
             this._bodyElement = bodyElement;
             this._layoutElement = layoutElement;
@@ -36,7 +33,7 @@
         }
 
         private _rootId: string;
-        private _locator: DOMLocator;
+        private _locator: PowerTables.Rendering.DOMLocator;
         private _bodyElement: HTMLElement;
         private _layoutElement: HTMLElement;
 
@@ -47,7 +44,7 @@
         private _matches: (e: HTMLElement) => boolean;
         private _domEvents: { [key: string]: any } = {};
         private _outEvents: { [key: string]: any } = {};
-        private _destroyCallbacks: CallbackDescriptor[] = [];
+        private _destroyCallbacks: PowerTables.Rendering.ICallbackDescriptor[] = [];
 
         private ensureEventSubscription(eventId: string) {
             if (this._domEvents.hasOwnProperty(eventId)) return;
@@ -300,7 +297,7 @@
             el.setAttribute('data-outsub', 'true');
         }
 
-        public subscribeDestroy(e: HTMLElement, callback:CallbackDescriptor) {
+        public subscribeDestroy(e: HTMLElement, callback: PowerTables.Rendering.ICallbackDescriptor) {
             callback.Element = e;
             e.setAttribute("data-dstrycb", "true");
             this._destroyCallbacks.push(callback);

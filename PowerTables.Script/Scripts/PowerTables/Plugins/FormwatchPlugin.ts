@@ -1,7 +1,5 @@
 ﻿module PowerTables.Plugins {
-    import FormwatchClientConfiguration = PowerTables.Plugins.Formwatch.IFormwatchClientConfiguration;
-
-    export class FormwatchPlugin extends PluginBase<FormwatchClientConfiguration>
+    export class FormwatchPlugin extends PluginBase<PowerTables.Plugins.Formwatch.IFormwatchClientConfiguration>
         implements IQueryPartProvider {
 
         private _existingValues: { [key: string]: any } = {};

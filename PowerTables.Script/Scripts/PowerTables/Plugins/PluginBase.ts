@@ -1,5 +1,5 @@
 ﻿module PowerTables.Plugins {
-    import State = PowerTables.Rendering.IState; /**
+    /**
      * Base class for plugins. 
      * It contains necessary infrastructure for convinence of plugins creation
      */

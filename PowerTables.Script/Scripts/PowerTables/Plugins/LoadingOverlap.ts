@@ -1,7 +1,5 @@
 ﻿module PowerTables.Plugins {
-    import LoadingOverlapUiConfig = PowerTables.Plugins.LoadingOverlap.ILoadingOverlapUiConfig;
-
-    export class LoadingOverlapPlugin extends PluginBase<LoadingOverlapUiConfig>  {
+    export class LoadingOverlapPlugin extends PluginBase<PowerTables.Plugins.LoadingOverlap.ILoadingOverlapUiConfig>  {
         private _overlappingElement: HTMLElement[][] = [];
         private _overlapLayer: HTMLElement[][] = [];
 

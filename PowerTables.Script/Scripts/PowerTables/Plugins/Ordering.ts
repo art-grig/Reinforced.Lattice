@@ -1,6 +1,4 @@
 ﻿module PowerTables.Plugins.Ordering {
-    import TemplateBoundEvent = Rendering.ITemplateBoundEvent;
-
     export class OrderingPlugin extends FilterBase<IOrderingConfiguration> {
         private _clientOrderings: { [key: string]: PowerTables.Ordering } = {};
         private _serverOrderings: { [key: string]: PowerTables.Ordering } = {};
@@ -138,7 +136,7 @@
     }
 
     interface ICustomHeader extends IColumnHeader {
-        switchOrdering: (e: TemplateBoundEvent) => void;
+        switchOrdering: (e: Rendering.ITemplateBoundEvent) => void;
         IsNeutral?: boolean;
         IsAscending?: boolean;
         IsDescending?: boolean;

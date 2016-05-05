@@ -1,8 +1,5 @@
 ﻿module PowerTables.Plugins {
-    import TotalClientConfiguration = Plugins.Total.ITotalClientConfiguration;
-    import TotalResponse = Plugins.Total.ITotalResponse;
-
-    export class TotalsPlugin extends PluginBase<TotalClientConfiguration> {
+    export class TotalsPlugin extends PluginBase<Plugins.Total.ITotalClientConfiguration> {
         private _totalsForColumns: { [key: string]: string };
 
         private makeTotalsRow(): IRow {
@@ -52,7 +49,7 @@
             if (!e.EventArgs.Data.AdditionalData.hasOwnProperty('Total')) return;
 
             var response: IPowerTablesResponse = e.EventArgs.Data;
-            var total: TotalResponse = response.AdditionalData['Total'];
+            var total: Plugins.Total.ITotalResponse = response.AdditionalData['Total'];
             this._totalsForColumns = total.TotalsForColumns;
         }
 
