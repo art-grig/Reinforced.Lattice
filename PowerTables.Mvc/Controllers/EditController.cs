@@ -39,7 +39,7 @@ namespace PowerTables.Mvc.Controllers
                 row.Name = "UFO edited this label";
                 row.IsPaid = true;
             }
-            edit.Adjustments.AddOrUpdate(mapped);
+            edit.Adjustments.AddOrUpdateAll(mapped);
             edit.Message(TableMessage.User("info", "Objects were updated", "Successful"));
         }
     }

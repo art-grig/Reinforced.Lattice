@@ -123,7 +123,16 @@
             }
 
             if (this._associatedColumn.IsDateTime) {
-                return ((frmEmpty) || objVal >= this.MasterTable.Date.parse(fromValue)) && ((toEmpty) || objVal <= this.MasterTable.Date.parse(toValue));
+                var toVal;
+                if (!toEmpty) {
+                    toVal = this.MasterTable.Date.parse(toValue);
+                    if (toVal.getHours() == 0 && toVal.getMinutes() == 0 && toVal.getSeconds() == 0) {
+                        toVal.setHours(23);
+                        toVal.setMinutes(59);
+                        toVal.setSeconds(59);
+                    }
+                }
+                return ((frmEmpty) || objVal >= this.MasterTable.Date.parse(fromValue)) && ((toEmpty) || objVal <= toVal);
             }
 
             return true;

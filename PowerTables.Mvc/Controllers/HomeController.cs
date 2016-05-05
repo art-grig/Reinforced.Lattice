@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Web.Mvc;
 using PowerTables.Configuration;
@@ -22,11 +23,7 @@ namespace PowerTables.Mvc.Controllers
 
         public ActionResult About()
         {
-            //AboutViewModel avm = new AboutViewModel() { Configuration = new Configurator<SourceData, TargetData>().Configure() };
-            //avm.Statics = new RequestStaticData() { SomeBool = true, SomeDate = DateTime.Today, SomeId = 12345, SomeString = "Hello!" };
-            //ViewBag.Message = "Your application description page.";
-            //return View(avm);
-
+            
             return View("Index");
         }
 

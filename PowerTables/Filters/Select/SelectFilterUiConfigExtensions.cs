@@ -21,7 +21,7 @@ namespace PowerTables.Filters.Select
         /// <param name="anyText">"any" select item text</param>
         /// <param name="allowAny">Add "any" element to select item or not</param>
         /// <returns></returns>
-        public static PluginConfigurationWrapper<SelectFilterUiConfig> SelectAny(this PluginConfigurationWrapper<SelectFilterUiConfig> config, bool allowAny = true, string anyText = "Any")
+        public static ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn> SelectAny<TColumn>(this ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn> config, bool allowAny = true, string anyText = "Any")
         {
             config.Configuration.NothingText = anyText;
             config.Configuration.AllowSelectNothing = allowAny;
@@ -34,7 +34,7 @@ namespace PowerTables.Filters.Select
         /// <param name="config">Configuration</param>
         /// <param name="items">Select list with available values</param>
         /// <returns></returns>
-        public static PluginConfigurationWrapper<SelectFilterUiConfig> SelectItems(this PluginConfigurationWrapper<SelectFilterUiConfig> config,
+        public static ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn> SelectItems<TColumn>(this ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn> config,
             IEnumerable<SelectListItem> items)
         {
             config.Configuration.Items = items.ToList();
@@ -48,7 +48,7 @@ namespace PowerTables.Filters.Select
         /// <param name="config">Configuration</param>
         /// <param name="value">Raw value string</param>
         /// <returns>UI builder</returns>
-        public static PluginConfigurationWrapper<SelectFilterUiConfig> RawDefault(this PluginConfigurationWrapper<SelectFilterUiConfig> config, string value)
+        public static ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn> RawDefault<TColumn>(this ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn> config, string value)
         {
             if (config.Configuration.Items == null)
             {
@@ -79,7 +79,7 @@ namespace PowerTables.Filters.Select
         /// <returns>Fluent</returns>
         public static ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn> SelectDefault<TColumn>(this ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn> config, TColumn selectValue) where TColumn : class
         {
-            config.Configuration.SelectedValue = ValueConverter.ToFilterDefaultString(selectValue);
+            config.RawDefault(ValueConverter.ToFilterDefaultString(selectValue));
             return config;
         }
 
@@ -91,7 +91,7 @@ namespace PowerTables.Filters.Select
         /// <returns>Fluent</returns>
         public static ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn?> SelectDefault<TColumn>(this ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn?> config, TColumn? selectValue) where TColumn : struct
         {
-            config.Configuration.SelectedValue = ValueConverter.ToFilterDefaultString(selectValue);
+            config.RawDefault(ValueConverter.ToFilterDefaultString(selectValue));
             return config;
         }
 
@@ -103,7 +103,7 @@ namespace PowerTables.Filters.Select
         /// <returns>Fluent</returns>
         public static ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn> SelectDefault<TColumn>(this ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn> config, TColumn? selectNullValue) where TColumn : struct
         {
-            config.Configuration.SelectedValue = ValueConverter.ToFilterDefaultString(selectNullValue);
+            config.RawDefault(ValueConverter.ToFilterDefaultString(selectNullValue));
             return config;
         }
     }

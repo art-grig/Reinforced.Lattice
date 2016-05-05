@@ -50,6 +50,15 @@ namespace PowerTables.Editors
             result.Message = message;
             return new TableUpdateResult(result);
         }
+
+        public static TableUpdateResult FromEditionResult<T>(Action<EditionResultWrapper<T>> editionResultAction)
+        {
+            EditionResult result = new EditionResult();
+            EditionResultWrapper<T> wrapper = new EditionResultWrapper<T>(result);
+            editionResultAction(wrapper);
+            return new TableUpdateResult(result);
+        }
+
     }
 
     public class EditionResult
@@ -104,7 +113,7 @@ namespace PowerTables.Editors
             return this;
         }
 
-        public AdjustmentDataWrapper<T> AddOrUpdate(IEnumerable<T> obj)
+        public AdjustmentDataWrapper<T> AddOrUpdateAll(IEnumerable<T> obj)
         {
             foreach (var v in obj)
             {
@@ -117,6 +126,15 @@ namespace PowerTables.Editors
         public AdjustmentDataWrapper<T> Remove(T obj)
         {
             _data.Removals.Add(obj);
+            return this;
+        }
+
+        public AdjustmentDataWrapper<T> RemoveAll(IEnumerable<T> obj)
+        {
+            foreach (var v in obj)
+            {
+                Remove(v);
+            }
             return this;
         }
     }

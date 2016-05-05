@@ -9,6 +9,7 @@ using PowerTables.CellTemplating;
 using PowerTables.Configuration;
 using PowerTables.Filters.Select;
 using PowerTables.Filters.Value;
+using PowerTables.Plugins;
 
 namespace PowerTables.FrequentlyUsed
 {
@@ -131,7 +132,8 @@ namespace PowerTables.FrequentlyUsed
             <TSourceData, TTableData>(
             this ColumnUsage<TSourceData, TTableData, bool> column,
             Expression<Func<TSourceData, bool>> sourceColumn,
-            string trueText, string falseText, string bothText = null, bool allowBoth = true
+            string trueText, string falseText, string bothText = null, bool allowBoth = true,
+            Action<ColumnPluginConfigurationWrapper<SelectFilterUiConfig, bool>> ui = null
             ) where TTableData : new()
         {
             var items = new[]
@@ -140,7 +142,13 @@ namespace PowerTables.FrequentlyUsed
                 new SelectListItem {Text = falseText,Value = "False"} 
             };
 
-            return column.FilterSelect(sourceColumn, v => v.SelectAny(allowBoth, bothText).SelectItems(items));
+            var cf = column.FilterSelect(sourceColumn, v =>
+            {
+                v.SelectAny(allowBoth, bothText).SelectItems(items);
+                if (ui != null) ui(v);
+            });
+            return cf;
+
         }
 
         private static void DoDateFormatColumnUsage<TSourceData, TTableData, TTableColumn>(ColumnUsage<TSourceData, TTableData, TTableColumn> col, string format = null, bool utc = false) where TTableData : new()
