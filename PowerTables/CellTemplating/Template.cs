@@ -156,7 +156,7 @@ namespace PowerTables.CellTemplating
                 }
                 if (_styles.Count > 0)
                 {
-                    sb.AppendFormat(" style=\"{0}\"", string.Join(";", _styles.Select(c => string.Format("{0}:{1}", c.Key, c.Value))).ToArray());
+                    sb.AppendFormat(" style=\"{0}\"", string.Join(";", _styles.Select(c => string.Format("{0}:{1}", c.Key, c.Value)).ToArray()));
                 }
                 sb.AppendFormat(">{0}</{1}>", _content, _tag);
             }
