@@ -19,6 +19,7 @@
             this.BackBinder = new BackBinder(this.HandlebarsInstance, instances, this._stack, dateService);
 
             this.HandlebarsInstance.registerHelper('ifq', this.ifqHelper);
+            this.HandlebarsInstance.registerHelper('ifcmp', this.ifcompHelper);
             this.HandlebarsInstance.registerHelper('ifloc', this.iflocHelper.bind(this));
             this.HandlebarsInstance.registerHelper('Content', this.contentHelper.bind(this));
             this.HandlebarsInstance.registerHelper('Track', this.trackHelper.bind(this));
@@ -206,6 +207,14 @@
 
         private ifqHelper(a: any, b: any, opts: any) {
             if (a == b)
+                return opts.fn(this);
+            else
+                return opts.inverse(this);
+        }
+
+        private ifcompHelper(a: any, b: any, comparison: any, opts: any) {
+            var comp = eval(comparison);
+            if (comp)
                 return opts.fn(this);
             else
                 return opts.inverse(this);

@@ -91,6 +91,32 @@ namespace PowerTables.Templating.Handlebars
         }
 
         /// <summary>
+        /// Renders handlebars "if" directive in region
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="t"></param>
+        /// <param name="field"></param>
+        /// <returns></returns>
+        public static HbTagRegion IfGt<T, TData>(this IModelProvider<T> t, Expression<Func<T, TData>> field, string comparisonConstant,bool inclusive=false)
+        {
+            var proname = TraversePropertyLambda(field, t.ExistingModel);
+            return new HbTagRegion("ifcmp", string.Format("{0} {1} \"{2}\"", proname, comparisonConstant, inclusive?"a>=b":"a>b"), t.Writer);
+        }
+
+        /// <summary>
+        /// Renders handlebars "if" directive in region
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="t"></param>
+        /// <param name="field"></param>
+        /// <returns></returns>
+        public static HbTagRegion IfLt<T, TData>(this IModelProvider<T> t, Expression<Func<T, TData>> field, string comparisonConstant, bool inclusive = false)
+        {
+            var proname = TraversePropertyLambda(field, t.ExistingModel);
+            return new HbTagRegion("ifcmp", string.Format("{0} {1} \"{2}\"", proname, comparisonConstant, inclusive ? "a<=b" : "a<b"), t.Writer);
+        }
+
+        /// <summary>
         /// Renders custom Lattice handlebars "if" helper that compares property and string
         /// </summary>
         /// <typeparam name="T"></typeparam>
