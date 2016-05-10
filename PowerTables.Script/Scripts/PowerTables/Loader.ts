@@ -206,8 +206,7 @@
                     this._events.LoadingError.invoke(this, {
                         Request: data,
                         XMLHttp: req,
-                        Reason: 'Network error',
-                        StackTrace: 'Unable to connect to server to complete query'
+                        Reason: 'Network error'
                     });
                 }
 

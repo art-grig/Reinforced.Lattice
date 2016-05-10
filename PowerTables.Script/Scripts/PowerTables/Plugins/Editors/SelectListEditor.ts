@@ -7,7 +7,7 @@
         
         public getValue(errors: IValidationMessage[]): any {
             var selectedOption = this.List.options.item(this.List.selectedIndex);
-            var item = <string>selectedOption.value.toString();
+            var item = <string>(<any>selectedOption).value.toString();
             var value = null;
             if (item.length === 0) {
                 if (this.Column.IsString && this.Configuration.AllowEmptyString) value = item;
@@ -30,8 +30,8 @@
         public setValue(value: any): void {
             var strvalue = this.Column.IsDateTime ? this.MasterTable.Date.serialize(value) : value.toString();
             for (var i = 0; i < this.List.options.length; i++) {
-                if (this.List.options.item(i).value === strvalue) {
-                    this.List.options.item(i).selected = true;
+                if ((<any>this.List.options.item(i)).value === strvalue) {
+                    (<any>this.List.options.item(i)).selected = true;
                 }
             }
             for (var i = 0; i < this.Items.length; i++) {
@@ -75,7 +75,7 @@
 
         public changedHandler(e: PowerTables.Rendering.ITemplateBoundEvent): void {
             super.changedHandler(e);
-            var item = this.List.options.item(this.List.selectedIndex).value;
+            var item = (<any>this.List.options.item(this.List.selectedIndex)).value;
             for (var i = 0; i < this.Items.length; i++) {
                 if (this.Items[i].Value == item) {
                     this.SelectedItem = this.Items[i];

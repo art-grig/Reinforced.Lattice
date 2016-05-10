@@ -192,6 +192,7 @@
         Page: number;
         First?: boolean;
         Last?: boolean;
+        Next?:boolean;
         InActivePage?: boolean;
         DisPage?: () => string;
     }

@@ -25,7 +25,7 @@
                                 var o = <HTMLSelectElement><any>element;
                                 value = [];
                                 for (var k = 0; k < o.options.length; k++) {
-                                    if (o.options[k].selected) value.push(o.options[k].value);
+                                    if ((<any>o.options[k]).selected) value.push((<any>o.options[k]).value);
                                 }
                             } else if (element.type === 'checkbox') {
                                 value = element.checked;

@@ -10,7 +10,7 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    <TypeScriptToolsVersion>1.7</TypeScriptToolsVersion>
+    <TypeScriptToolsVersion>1.8</TypeScriptToolsVersion>
     <UseIISExpress>true</UseIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
@@ -82,7 +82,6 @@
     <TypeScriptCompile Include="Scripts\PowerTables\MessagesService.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\ReloadPlugin.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\LoadingPlugin.ts" />
-    
   </ItemGroup>
   <ItemGroup />
   <PropertyGroup>

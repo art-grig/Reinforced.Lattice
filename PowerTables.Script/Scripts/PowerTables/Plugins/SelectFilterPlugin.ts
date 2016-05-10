@@ -11,13 +11,13 @@
             if (!this.FilterValueProvider) return [];
 
             if (!this.Configuration.IsMultiple) {
-                var selected = this.FilterValueProvider.options[this.FilterValueProvider.selectedIndex];
+                var selected = (<any>this.FilterValueProvider.options[this.FilterValueProvider.selectedIndex]);
                 return [selected.value];
 
             } else {
                 var elemValues: any[] = [];
                 for (var i: number = 0, iLen: number = this.FilterValueProvider.options.length; i < iLen; i++) {
-                    var opt = this.FilterValueProvider.options[i];
+                    var opt = (<any>this.FilterValueProvider.options[i]);
 
                     if (opt.selected) {
                         elemValues.push(opt.value);
