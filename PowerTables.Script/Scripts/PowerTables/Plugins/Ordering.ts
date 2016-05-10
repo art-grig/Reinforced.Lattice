@@ -15,6 +15,7 @@
             var templId = this.RawConfig.TemplateId;
             for (var ck in columns) {
                 if (columns.hasOwnProperty(ck)) {
+                    if (columns[ck].Configuration.IsDataOnly) continue;
                     var ordering = this.Configuration.DefaultOrderingsForColumns[ck];
                     if (ordering == null || ordering == undefined) continue;
                     var newHeader: ICustomHeader = {
