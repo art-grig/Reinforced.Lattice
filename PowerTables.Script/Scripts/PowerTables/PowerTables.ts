@@ -58,6 +58,10 @@ module PowerTables { /**
 
             this.InstanceManager.initPlugins();
             this.Renderer.layout();
+            if (this._configuration.CallbackFunction) {
+                this._configuration.CallbackFunction(this);
+            }
+            this.InstanceManager._subscribeConfiguredEvents();
             if (this._configuration.LoadImmediately) {
                 this.Controller.reload();
             } else {
@@ -68,10 +72,6 @@ module PowerTables { /**
                     Type: MessageType.Banner
                 });
             }
-            if (this._configuration.CallbackFunction) {
-                this._configuration.CallbackFunction(this);
-            }
-            this.InstanceManager._subscribeConfiguredEvents();
         }
 
         /**

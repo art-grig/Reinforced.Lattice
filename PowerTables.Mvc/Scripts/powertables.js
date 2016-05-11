@@ -3798,6 +3798,10 @@ var PowerTables;
             this.MessageService = new PowerTables.MessagesService(this._configuration.MessageFunction, this.InstanceManager, this.DataHolder, this.Controller);
             this.InstanceManager.initPlugins();
             this.Renderer.layout();
+            if (this._configuration.CallbackFunction) {
+                this._configuration.CallbackFunction(this);
+            }
+            this.InstanceManager._subscribeConfiguredEvents();
             if (this._configuration.LoadImmediately) {
                 this.Controller.reload();
             }
@@ -3809,10 +3813,6 @@ var PowerTables;
                     Type: PowerTables.MessageType.Banner
                 });
             }
-            if (this._configuration.CallbackFunction) {
-                this._configuration.CallbackFunction(this);
-            }
-            this.InstanceManager._subscribeConfiguredEvents();
         };
         /**
          * Reloads table content.
