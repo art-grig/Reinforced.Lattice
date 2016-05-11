@@ -33,19 +33,26 @@
             else if (window.getComputedStyle) {
                 mezx = window.getComputedStyle(element, null).zIndex;
             }
-            element.style.position = "absolute";
+            element.style.position = "relative";
+            element.style.display = "block";
             element.style.zIndex = (parseInt(mezx) + 1).toString();
-            document.body.appendChild(element);
+            //document.body.appendChild(element); //todo switch
+            efor.appendChild(element);
             this.updateCoords(element, efor);
             return element;
         }
 
         private updateCoords(overlapLayer: HTMLElement, overlapElement: HTMLElement) {
+            overlapLayer.style.display = "none";
             var eo = overlapElement.getBoundingClientRect();
-            overlapLayer.style.left = eo.left + 'px';
-            overlapLayer.style.top = eo.top + 'px';
+            //overlapLayer.style.left = eo.left + 'px';
+            //overlapLayer.style.top = overlapElement.offsetTop + 'px';
+            
+            overlapLayer.style.left = '0px';
+            overlapLayer.style.top = '0px';
             overlapLayer.style.width = eo.width + 'px';
             overlapLayer.style.height = eo.height + 'px';
+            overlapLayer.style.display = "block";
         }
 
 
@@ -60,7 +67,7 @@
         private deoverlap() {
             for (var j = 0; j < this._overlapLayer.length; j++) {
                 for (var l = 0; l < this._overlapLayer[j].length; l++) {
-                    document.body.removeChild(this._overlapLayer[j][l]);
+                    this._overlappingElement[j][l].removeChild(this._overlapLayer[j][l]);
                 }
             }
             this._overlapLayer = [];

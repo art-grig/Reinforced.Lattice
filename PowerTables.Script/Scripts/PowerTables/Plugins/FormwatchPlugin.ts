@@ -61,7 +61,9 @@
                     if (needToApply) {
                         switch (mappingConf.FilterType) {
                             case 0:
-                                query.Filterings[fm] = result[mappingConf.FieldKeys[0]];
+                                var val = result[mappingConf.FieldKeys[0]];
+                                if (!val || val.length === 0) break;
+                                query.Filterings[fm] = val;
                                 break;
                             case 1:
                                 if (mappingConf.FieldKeys.length === 1 && (Object.prototype.toString.call(result[mappingConf[0]]) === '[object Array]')) {
