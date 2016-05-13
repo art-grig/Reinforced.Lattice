@@ -6,10 +6,10 @@
         private _filteringExecuted: { [key: string]: boolean } = {};
         private _timeouts: { [key: string]: number } = {};
 
-        modifyQuery(query: IQuery, scope: QueryScope): void {
+        public static extractFormData(configuration: PowerTables.Plugins.Formwatch.IFormwatchFieldData[], rootElement: any,dateService:DateService) {
             var result = {}
-            for (var i = 0; i < this.Configuration.FieldsConfiguration.length; i++) {
-                var fieldConf = this.Configuration.FieldsConfiguration[i];
+            for (var i = 0; i < configuration.length; i++) {
+                var fieldConf = configuration[i];
                 var value = null;
                 var name = fieldConf.FieldJsonName;
 
@@ -19,7 +19,7 @@
                     if (fieldConf.FieldValueFunction) {
                         value = fieldConf.FieldValueFunction();
                     } else {
-                        var element = <HTMLInputElement>document.querySelector(fieldConf.FieldSelector);
+                        var element = <HTMLInputElement>rootElement.querySelector(fieldConf.FieldSelector);
                         if (element) {
                             if (element.type === 'select-multiple') {
                                 var o = <HTMLSelectElement><any>element;
@@ -32,10 +32,10 @@
                             }
                             else {
                                 if (fieldConf.IsDateTime) {
-                                    value = this.MasterTable.Date.getDateFromDatePicker(element);
-                                    if (!this.MasterTable.Date.isValidDate(value)) {
-                                        value = this.MasterTable.Date.parse(element.value);
-                                        if (!this.MasterTable.Date.isValidDate(value)) {
+                                    value = dateService.getDateFromDatePicker(element);
+                                    if (!dateService.isValidDate(value)) {
+                                        value = dateService.parse(element.value);
+                                        if (!dateService.isValidDate(value)) {
                                             value = null;
                                         }
                                     }
@@ -51,6 +51,10 @@
                 }
                 result[name] = value;
             }
+            return result;
+        }
+        modifyQuery(query: IQuery, scope: QueryScope): void {
+            var result = FormwatchPlugin.extractFormData(this.Configuration.FieldsConfiguration, document, this.MasterTable.Date);
             for (var fm in this.Configuration.FiltersMappings) {
                 if (this.Configuration.FiltersMappings.hasOwnProperty(fm)) {
                     var mappingConf = this.Configuration.FiltersMappings[fm];
@@ -97,6 +101,9 @@
                 var conf = this.Configuration.FieldsConfiguration[i];
                 if (conf.TriggerSearchOnEvents && conf.TriggerSearchOnEvents.length > 0) {
                     var element = <HTMLInputElement>document.querySelector(conf.FieldSelector);
+                    if (conf.AutomaticallyAttachDatepicker) {
+                        this.MasterTable.Date.createDatePicker(element);
+                    }
                     for (var j = 0; j < conf.TriggerSearchOnEvents.length; j++) {
                         var evtToTrigger = conf.TriggerSearchOnEvents[j];
 
@@ -105,10 +112,8 @@
                                 this.fieldChange(c.FieldSelector, c.SearchTriggerDelay, el, evt);
                             })(conf, element)
                             );
-                        if (conf.AutomaticallyAttachDatepicker) {
-                            this.MasterTable.Date.createDatePicker(element);
-                        }
                     }
+                    
                     this._existingValues[conf.FieldSelector] = element.value;
                 }
             }

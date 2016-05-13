@@ -36,9 +36,11 @@ namespace PowerTables.Mvc.Models.Tutorial
                         ;
                     b.AddCommandItem("save".GlyphIcon("left") + " Confirm selection", Remove)
                         .Confirmation("confirmationSelection", "#confirmationContent")
+                        
                         .DisableIfNothingChecked();
                     b.AddCommandItem("save".GlyphIcon("left") + " Confirm with small form", Update)
                         .Confirmation("confirmationSelectionForm", "#confirmationContent")
+                        .ConfirmationForm<SimpleConfirmationModel>(c => c.WatchAllFields())
                         .DisableIfNothingChecked();
 
                 }).Css("btn-primary");

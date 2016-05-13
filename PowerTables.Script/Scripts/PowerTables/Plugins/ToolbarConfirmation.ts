@@ -1,53 +1,41 @@
 ﻿module PowerTables.Plugins {
     export class ToolbarConfirmation {
-        constructor(confirm: (form: any) => void, reject: () => void, date: DateService) {
+        constructor(confirm: (form: any) => void, reject: () => void, date: DateService, autoform: PowerTables.Plugins.Formwatch.IFormwatchFieldData[]) {
             this._confirm = confirm;
             this._reject = reject;
             this._date = date;
+            this._autoform = autoform;
         }
 
+        private _autoform: PowerTables.Plugins.Formwatch.IFormwatchFieldData[];
         private _confirm: (form: any) => void;
         private _reject: () => void;
         private _date: DateService;
 
-        FormElements: { [key: string]: HTMLElement } = {};
-
+        RootElement:HTMLElement;
         SelectedItems: string[];
         SelectedObjects: any[];
 
+        public onRender(parent: HTMLElement) {
+            this.RootElement = parent;
+            if (this._autoform != null) {
+                for (var i = 0; i < this._autoform.length; i++) {
+                    var conf = this._autoform[i];
+                    if (conf.TriggerSearchOnEvents && conf.TriggerSearchOnEvents.length > 0) {
+                        var element = <HTMLInputElement>document.querySelector(conf.FieldSelector);
+                        if (conf.AutomaticallyAttachDatepicker) {
+                            this._date.createDatePicker(element);
+                        }
+                    }
+                }
+            }
+        }
+
         public confirmHandle() {
             var form = {};
-            for (var k in this.FormElements) {
-                var kt = k.split('-'),
-                    fieldName = kt[0],
-                    fieldType = InstanceManager.classifyType(kt[1]),
-                    value,
-                    element = <HTMLInputElement>this.FormElements[k];
-
-                if (element.type === 'select-multiple') {
-                    var o = <HTMLSelectElement><any>element;
-                    value = [];
-                    for (var i = 0; i < o.options.length; i++) {
-                        if ((<any>o.options[i]).selected) value.push((<any>o.options[i]).value);
-                    }
-                } else if (element.type === 'checkbox') {
-                    value = element.checked;
-                }
-                else {
-                    if (fieldType.IsDateTime) {
-                        value = this._date.getDateFromDatePicker(element);
-                        if (!this._date.isValidDate(value)) {
-                            value = this._date.parse(element.value);
-                            if (!this._date.isValidDate(value)) {
-                                value = null;
-                            }
-                        }
-                    } else {
-                        value = element.value;
-                    }
-                }
-                form[fieldName] = value;
-            }
+            if (this._autoform != null) {
+                form = FormwatchPlugin.extractFormData(this._autoform, this.RootElement, this._date);
+            } 
             this._confirm(form);
         }
 

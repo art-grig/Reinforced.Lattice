@@ -34,11 +34,11 @@
 
     <script type="text/javascript">
         var windowObj = {
-            val:1,
+            val: 1,
             elements: {
-                
+
             },
-            callback:function(e,handler) {
+            callback: function (e, handler) {
                 alert(e + ' created. This value: ' + this.val);
             }
         }
@@ -156,9 +156,9 @@
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title">Confirmation</h4>
                 </div>
-                <div class="modal-body" @t.Callback("windowObj.callback",".")>
+                <div class="modal-body" @t.Callback("windowObj.callback", ".")>
                     <p>
-                        Are you sure want to perform action 1 on @conf1.Value(c=>c.SelectedObjects.Length) items?
+                        Are you sure want to perform action 1 on @conf1.Value(c => c.SelectedObjects.Length) items?
                         <br />
                         Selected Items: <br />
                         @using (var item = @conf1.Each(c => c.SelectedObjects))
@@ -185,27 +185,18 @@
                 <div class="modal-body">
                     <p>
                         Are you sure want to perform action 1 on @conf1.Value(c => c.SelectedObjects.Length) items?
-                        <br/><br/>
+                        <br /><br />
                         <fieldset class="form-horizontal">
                             <div class="form-group">
-                                <label for="inputName" class="col-sm-2 control-label">Name</label>
+                                <label for="ToyName" class="col-sm-2 control-label">Name</label>
                                 <div class="col-sm-10">
-                                    <input type="text" class="form-control" id="inputName" placeholder="Name" @conf1.FormField(c=>c.ToyName) >
+                                    <input type="text" class="form-control" id="ToyName" placeholder="Name" name="ToyName">
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="toyTypeForm" class="col-sm-2 control-label">Toy type</label>
+                                <label for="ToyType" class="col-sm-2 control-label">Toy type</label>
                                 <div class="col-sm-10">
-                                    <select class="form-control" @conf1.FormField(c=>c.ToyType) id ="toyTypeForm">
-                                        @{
-                                            var items = EnumHelper.GetSelectList(typeof (ToyType));
-                                        }
-                                            <option value="">Leave as is</option>
-                                        @foreach (var v in items)
-                                        {
-                                            <option value="@v.Value" >@v.Text</option>
-                                        }
-                                    </select>
+                                    @Html.DropDownList("ToyType", EnumHelper.GetSelectList(typeof(ToyType)), new { @class = "form-control" })
                                 </div>
                             </div>
                         </fieldset>
@@ -220,4 +211,4 @@
     }
 
 </body>
-    </html>
+</html>

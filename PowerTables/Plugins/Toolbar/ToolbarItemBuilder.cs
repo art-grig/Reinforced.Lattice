@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using PowerTables.Plugins.Formwatch;
 
 namespace PowerTables.Plugins.Toolbar
 {
@@ -79,6 +80,14 @@ namespace PowerTables.Plugins.Toolbar
         {
             _configuration.ConfirmationTemplateId = confirmationTemplateId;
             _configuration.ConfirmationTargetSelector = targetElementSelector;
+            return this;
+        }
+
+        public ToolbarItemBuilder ConfirmationForm<TForm>(Action<FormWatchBuilder<TForm>> formWatchBuilder)
+        {
+            FormWatchBuilder<TForm> bld = new FormWatchBuilder<TForm>();
+            formWatchBuilder(bld);
+            _configuration.ConfirmationFormConfiguration = bld.ClientConfig.FieldsConfiguration;
             return this;
         }
     }

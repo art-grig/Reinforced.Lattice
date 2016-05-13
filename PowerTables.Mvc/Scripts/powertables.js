@@ -2364,7 +2364,7 @@ var PowerTables;
                 var receiver = this._stack.Current.Object;
                 if (receiverPath != null) {
                     var tp = this.traverseWindowPath(receiverPath);
-                    receiver = tp.target;
+                    receiver = tp.target || tp.parent;
                 }
                 var md = {
                     ElementReceiver: receiver,
@@ -3523,6 +3523,7 @@ var PowerTables;
                     parent.appendChild(element[i]);
                 }
                 this.BackBinder.backBind(parent);
+                return parent;
             };
             Renderer.prototype.destroyObject = function (targetSelector) {
                 var parent = document.querySelector(targetSelector);
@@ -5501,7 +5502,7 @@ var PowerTables;
                                 return q;
                             });
                             _this.MasterTable.Renderer.destroyObject(btn.ConfirmationTargetSelector);
-                        }, function () { _this.MasterTable.Renderer.destroyObject(btn.ConfirmationTargetSelector); }, this.MasterTable.Date);
+                        }, function () { _this.MasterTable.Renderer.destroyObject(btn.ConfirmationTargetSelector); }, this.MasterTable.Date, btn.ConfirmationFormConfiguration);
                         try {
                             var chb = this.MasterTable.InstanceManager.getPlugin('Checkboxify');
                             var selection = chb.getSelection();
@@ -5522,7 +5523,8 @@ var PowerTables;
                             tc.SelectedObjects = objects;
                         }
                         catch (e) { }
-                        this.MasterTable.Renderer.renderObject(btn.ConfirmationTemplateId, tc, btn.ConfirmationTargetSelector);
+                        var r = this.MasterTable.Renderer.renderObject(btn.ConfirmationTemplateId, tc, btn.ConfirmationTargetSelector);
+                        tc.RootElement = r;
                     }
                     else
                         f();
@@ -5589,10 +5591,10 @@ var PowerTables;
                 this._filteringExecuted = {};
                 this._timeouts = {};
             }
-            FormwatchPlugin.prototype.modifyQuery = function (query, scope) {
+            FormwatchPlugin.extractFormData = function (configuration, rootElement, dateService) {
                 var result = {};
-                for (var i = 0; i < this.Configuration.FieldsConfiguration.length; i++) {
-                    var fieldConf = this.Configuration.FieldsConfiguration[i];
+                for (var i = 0; i < configuration.length; i++) {
+                    var fieldConf = configuration[i];
                     var value = null;
                     var name = fieldConf.FieldJsonName;
                     if (fieldConf.ConstantValue) {
@@ -5603,7 +5605,7 @@ var PowerTables;
                             value = fieldConf.FieldValueFunction();
                         }
                         else {
-                            var element = document.querySelector(fieldConf.FieldSelector);
+                            var element = rootElement.querySelector(fieldConf.FieldSelector);
                             if (element) {
                                 if (element.type === 'select-multiple') {
                                     var o = element;
@@ -5618,10 +5620,10 @@ var PowerTables;
                                 }
                                 else {
                                     if (fieldConf.IsDateTime) {
-                                        value = this.MasterTable.Date.getDateFromDatePicker(element);
-                                        if (!this.MasterTable.Date.isValidDate(value)) {
-                                            value = this.MasterTable.Date.parse(element.value);
-                                            if (!this.MasterTable.Date.isValidDate(value)) {
+                                        value = dateService.getDateFromDatePicker(element);
+                                        if (!dateService.isValidDate(value)) {
+                                            value = dateService.parse(element.value);
+                                            if (!dateService.isValidDate(value)) {
                                                 value = null;
                                             }
                                         }
@@ -5638,6 +5640,10 @@ var PowerTables;
                     }
                     result[name] = value;
                 }
+                return result;
+            };
+            FormwatchPlugin.prototype.modifyQuery = function (query, scope) {
+                var result = FormwatchPlugin.extractFormData(this.Configuration.FieldsConfiguration, document, this.MasterTable.Date);
                 for (var fm in this.Configuration.FiltersMappings) {
                     if (this.Configuration.FiltersMappings.hasOwnProperty(fm)) {
                         var mappingConf = this.Configuration.FiltersMappings[fm];
@@ -5688,14 +5694,14 @@ var PowerTables;
                     var conf = this.Configuration.FieldsConfiguration[i];
                     if (conf.TriggerSearchOnEvents && conf.TriggerSearchOnEvents.length > 0) {
                         var element = document.querySelector(conf.FieldSelector);
+                        if (conf.AutomaticallyAttachDatepicker) {
+                            this.MasterTable.Date.createDatePicker(element);
+                        }
                         for (var j = 0; j < conf.TriggerSearchOnEvents.length; j++) {
                             var evtToTrigger = conf.TriggerSearchOnEvents[j];
                             element.addEventListener(evtToTrigger, (function (c, el) { return function (evt) {
                                 _this.fieldChange(c.FieldSelector, c.SearchTriggerDelay, el, evt);
                             }; })(conf, element));
-                            if (conf.AutomaticallyAttachDatepicker) {
-                                this.MasterTable.Date.createDatePicker(element);
-                            }
                         }
                         this._existingValues[conf.FieldSelector] = element.value;
                     }
@@ -6529,42 +6535,30 @@ var PowerTables;
     var Plugins;
     (function (Plugins) {
         var ToolbarConfirmation = (function () {
-            function ToolbarConfirmation(confirm, reject, date) {
-                this.FormElements = {};
+            function ToolbarConfirmation(confirm, reject, date, autoform) {
                 this._confirm = confirm;
                 this._reject = reject;
                 this._date = date;
+                this._autoform = autoform;
             }
-            ToolbarConfirmation.prototype.confirmHandle = function () {
-                var form = {};
-                for (var k in this.FormElements) {
-                    var kt = k.split('-'), fieldName = kt[0], fieldType = PowerTables.InstanceManager.classifyType(kt[1]), value, element = this.FormElements[k];
-                    if (element.type === 'select-multiple') {
-                        var o = element;
-                        value = [];
-                        for (var i = 0; i < o.options.length; i++) {
-                            if (o.options[i].selected)
-                                value.push(o.options[i].value);
-                        }
-                    }
-                    else if (element.type === 'checkbox') {
-                        value = element.checked;
-                    }
-                    else {
-                        if (fieldType.IsDateTime) {
-                            value = this._date.getDateFromDatePicker(element);
-                            if (!this._date.isValidDate(value)) {
-                                value = this._date.parse(element.value);
-                                if (!this._date.isValidDate(value)) {
-                                    value = null;
-                                }
+            ToolbarConfirmation.prototype.onRender = function (parent) {
+                this.RootElement = parent;
+                if (this._autoform != null) {
+                    for (var i = 0; i < this._autoform.length; i++) {
+                        var conf = this._autoform[i];
+                        if (conf.TriggerSearchOnEvents && conf.TriggerSearchOnEvents.length > 0) {
+                            var element = document.querySelector(conf.FieldSelector);
+                            if (conf.AutomaticallyAttachDatepicker) {
+                                this._date.createDatePicker(element);
                             }
                         }
-                        else {
-                            value = element.value;
-                        }
                     }
-                    form[fieldName] = value;
+                }
+            };
+            ToolbarConfirmation.prototype.confirmHandle = function () {
+                var form = {};
+                if (this._autoform != null) {
+                    form = Plugins.FormwatchPlugin.extractFormData(this._autoform, this.RootElement, this._date);
                 }
                 this._confirm(form);
             };

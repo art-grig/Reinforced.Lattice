@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json.Linq;
-using PowerTables.Configuration;
 using PowerTables.Filters;
 
 namespace PowerTables.Plugins.Formwatch
@@ -11,17 +10,16 @@ namespace PowerTables.Plugins.Formwatch
     {
         private readonly FormwatchFieldData _fieldData;
         internal readonly IFormWatchBuilder _formWatchBuilder;
-        private readonly IConfigurator _configurator;
+
         public FormwatchFieldData FieldData
         {
             get { return _fieldData; }
         }
 
-        internal FormWatchFieldBuilder(FormwatchFieldData fieldData, IFormWatchBuilder formWatchBuilder, IConfigurator configurator)
+        internal FormWatchFieldBuilder(FormwatchFieldData fieldData, IFormWatchBuilder formWatchBuilder)
         {
             _fieldData = fieldData;
             _formWatchBuilder = formWatchBuilder;
-            _configurator = configurator;
         }
 
         /// <summary>

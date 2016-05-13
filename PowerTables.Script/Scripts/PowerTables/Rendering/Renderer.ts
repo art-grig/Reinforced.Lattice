@@ -144,7 +144,7 @@
             this._events.AfterDataRendered.invoke(this, null);
         }
 
-        public renderObject(templateId: string, viewModelBehind: any, targetSelector: string) {
+        public renderObject(templateId: string, viewModelBehind: any, targetSelector: string):HTMLElement {
             var parent = <HTMLElement>document.querySelector(targetSelector);
             this._stack.clear();
             this._stack.push(RenderingContextType.Custom, viewModelBehind);
@@ -156,6 +156,7 @@
                 parent.appendChild(element[i]);
             }
             this.BackBinder.backBind(parent);
+            return parent;
         }
 
         public destroyObject(targetSelector: string) {

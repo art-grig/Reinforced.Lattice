@@ -483,6 +483,7 @@ declare module PowerTables.Plugins.Toolbar {
         IsDisabled: boolean;
         ConfirmationTemplateId: string;
         ConfirmationTargetSelector: string;
+        ConfirmationFormConfiguration: PowerTables.Plugins.Formwatch.IFormwatchFieldData[];
     }
 }
 declare module PowerTables.Plugins.Total {
@@ -513,13 +514,22 @@ declare module PowerTables.Editors {
         TemplateId: string;
         ValidationMessagesTemplateId: string;
     }
+    /** Client plugin configuration for editor plugin */
     interface IEditorUiConfig {
+        /** Event that should trigger editing event. DOMEvent class can be used here */
         BeginEditEventId: string;
+        /** DOM event on corresponding element that should trigger committing of edition */
         CommitEventId: string;
+        /** DOM event on corresponding element that should trigger rejecting of edition */
         RejectEventId: string;
+        /** Internal collection of editor's configuration for each column. Key = column ID, Value = per-column configuration object */
         EditorsForColumns: {
             [key: string]: PowerTables.Editors.ICellEditorUiConfigBase;
         };
+        /**
+        * Functon that will be called before saving data to server to check integrity of saving object against
+        *             client loaded data
+        */
         IntegrityCheckFunction: (dataObject: any) => boolean;
         DeferChanges: boolean;
         EditorType: PowerTables.Editors.EditorType;
@@ -2312,7 +2322,7 @@ declare module PowerTables.Rendering {
          * @param rows Set of table rows
          */
         body(rows: IRow[]): void;
-        renderObject(templateId: string, viewModelBehind: any, targetSelector: string): void;
+        renderObject(templateId: string, viewModelBehind: any, targetSelector: string): HTMLElement;
         destroyObject(targetSelector: string): void;
         /**
          * Removes all dynamically loaded content in table
@@ -2764,6 +2774,7 @@ declare module PowerTables.Plugins {
         private _existingValues;
         private _filteringExecuted;
         private _timeouts;
+        static extractFormData(configuration: PowerTables.Plugins.Formwatch.IFormwatchFieldData[], rootElement: any, dateService: DateService): {};
         modifyQuery(query: IQuery, scope: QueryScope): void;
         subscribe(e: EventsManager): void;
         fieldChange(fieldSelector: string, delay: number, element: HTMLInputElement, e: Event): void;
@@ -3062,15 +3073,15 @@ declare module PowerTables.Plugins.Editors {
 }
 declare module PowerTables.Plugins {
     class ToolbarConfirmation {
-        constructor(confirm: (form: any) => void, reject: () => void, date: DateService);
+        constructor(confirm: (form: any) => void, reject: () => void, date: DateService, autoform: PowerTables.Plugins.Formwatch.IFormwatchFieldData[]);
+        private _autoform;
         private _confirm;
         private _reject;
         private _date;
-        FormElements: {
-            [key: string]: HTMLElement;
-        };
+        RootElement: HTMLElement;
         SelectedItems: string[];
         SelectedObjects: any[];
+        onRender(parent: HTMLElement): void;
         confirmHandle(): void;
         dismissHandle(): void;
     }

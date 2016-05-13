@@ -58,16 +58,5 @@ namespace PowerTables.Plugins.Toolbar
         {
             return p.BindEvent("confirmHandle", eventId);
         }
-
-        public static MvcHtmlString FormField<TRow, TForm, TData>(this  ConfirmationTemplateRegion<TRow, TForm> p, Expression<Func<TForm, TData>> property)
-        {
-            var field = LambdaHelpers.ParsePropertyLambda(property);
-            string type = field.PropertyType.Name.Replace("System.",string.Empty);
-            if (field.PropertyType.IsEnum) type = "Int32";
-            if (field.PropertyType.IsNullable()) type += "?";
-            var fieldId = string.Format("{0}-{1}", field.Name, type);
-
-            return p.Mark("FormElements", fieldId);
-        }
     }
 }

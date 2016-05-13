@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
-using PowerTables.Configuration;
 
 namespace PowerTables.Plugins.Formwatch
 {
@@ -20,12 +19,6 @@ namespace PowerTables.Plugins.Formwatch
     {
         private readonly FormwatchClientConfiguration _clientConfig = new FormwatchClientConfiguration();
         private readonly Dictionary<string, IFormWatchFieldBuilder> _fieldsConfig = new Dictionary<string, IFormWatchFieldBuilder>();
-        private readonly IConfigurator _configurator;
-
-        public FormWatchBuilder(IConfigurator configurator)
-        {
-            _configurator = configurator;
-        }
 
         internal FormwatchClientConfiguration ClientConfig
         {
@@ -61,7 +54,7 @@ namespace PowerTables.Plugins.Formwatch
             if (!_fieldsConfig.ContainsKey(prop.Name))
             {
                 var fld = DefaultConfig(prop);
-                _fieldsConfig[prop.Name] = new FormWatchFieldBuilder<TData>(fld, this, _configurator);
+                _fieldsConfig[prop.Name] = new FormWatchFieldBuilder<TData>(fld, this);
                 _clientConfig.FieldsConfiguration.Add(fld);
             }
         }
@@ -85,7 +78,7 @@ namespace PowerTables.Plugins.Formwatch
             {
                 var fld = DefaultConfig(prop);
                 var type = typeof(FormWatchFieldBuilder<>).MakeGenericType(prop.PropertyType);
-                var obj = Activator.CreateInstance(type, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new object[] { fld, this, _configurator }, CultureInfo.InvariantCulture);
+                var obj = Activator.CreateInstance(type, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new object[] { fld, this }, CultureInfo.InvariantCulture);
                 _fieldsConfig[prop.Name] = (IFormWatchFieldBuilder)obj;
                 _clientConfig.FieldsConfiguration.Add(fld);
             }

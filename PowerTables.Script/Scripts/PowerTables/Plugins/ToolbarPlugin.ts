@@ -55,8 +55,8 @@
                             return q;
                         });
                         this.MasterTable.Renderer.destroyObject(btn.ConfirmationTargetSelector);
-                    }, () => { this.MasterTable.Renderer.destroyObject(btn.ConfirmationTargetSelector); }, this.MasterTable.Date);
-
+                    }, () => { this.MasterTable.Renderer.destroyObject(btn.ConfirmationTargetSelector); }, this.MasterTable.Date, btn.ConfirmationFormConfiguration);
+                    
                     try {
                         var chb = this.MasterTable.InstanceManager.getPlugin<CheckboxifyPlugin>('Checkboxify');
                         var selection = chb.getSelection();
@@ -75,7 +75,8 @@
                         }
                         tc.SelectedObjects = objects;
                     } catch (e) { }
-                    this.MasterTable.Renderer.renderObject(btn.ConfirmationTemplateId, tc, btn.ConfirmationTargetSelector);
+                    var r = this.MasterTable.Renderer.renderObject(btn.ConfirmationTemplateId, tc, btn.ConfirmationTargetSelector);
+                    tc.RootElement = r;
                 }
                 else f();
             }

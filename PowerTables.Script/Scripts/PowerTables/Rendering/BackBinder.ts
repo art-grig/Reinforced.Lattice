@@ -303,7 +303,7 @@
             var receiver = this._stack.Current.Object;
             if (receiverPath != null) {
                 var tp = this.traverseWindowPath(receiverPath);
-                receiver = tp.target;
+                receiver = tp.target || tp.parent;
             }
             var md: IMarkDescriptor = <IMarkDescriptor>{
                 ElementReceiver: receiver,

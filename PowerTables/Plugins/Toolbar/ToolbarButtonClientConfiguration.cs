@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 
 using Newtonsoft.Json.Linq;
+using PowerTables.Plugins.Formwatch;
 
 namespace PowerTables.Plugins.Toolbar
 {
@@ -57,5 +58,7 @@ namespace PowerTables.Plugins.Toolbar
         public string ConfirmationTemplateId { get; set; }
 
         public string ConfirmationTargetSelector { get; set; }
+
+        public List<FormwatchFieldData> ConfirmationFormConfiguration { get; set; }
     }
 }

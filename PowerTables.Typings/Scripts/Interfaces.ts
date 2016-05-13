@@ -497,6 +497,7 @@ module PowerTables.Plugins.Toolbar {
 		IsDisabled: boolean;
 		ConfirmationTemplateId: string;
 		ConfirmationTargetSelector: string;
+		ConfirmationFormConfiguration: PowerTables.Plugins.Formwatch.IFormwatchFieldData[];
 	}
 }
 module PowerTables.Plugins.Total {
@@ -524,12 +525,21 @@ module PowerTables.Editors {
 		TemplateId: string;
 		ValidationMessagesTemplateId: string;
 	}
+	/** Client plugin configuration for editor plugin */
 	export interface IEditorUiConfig
 	{
+		/** Event that should trigger editing event. DOMEvent class can be used here */
 		BeginEditEventId: string;
+		/** DOM event on corresponding element that should trigger committing of edition */
 		CommitEventId: string;
+		/** DOM event on corresponding element that should trigger rejecting of edition */
 		RejectEventId: string;
+		/** Internal collection of editor's configuration for each column. Key = column ID, Value = per-column configuration object */
 		EditorsForColumns: { [key:string]: PowerTables.Editors.ICellEditorUiConfigBase };
+		/**
+		* Functon that will be called before saving data to server to check integrity of saving object against 
+		*             client loaded data
+		*/
 		IntegrityCheckFunction: (dataObject:any)=>boolean;
 		DeferChanges: boolean;
 		EditorType: PowerTables.Editors.EditorType;
