@@ -32,7 +32,17 @@
     <script type="text/javascript" src="~/Scripts/powertables.js"></script>
     @{ Html.RenderPartial("Datepicker"); }
 
-
+    <script type="text/javascript">
+        var windowObj = {
+            val:1,
+            elements: {
+                
+            },
+            callback:function(e,handler) {
+                alert(e + ' created. This value: ' + this.val);
+            }
+        }
+    </script>
 </head>
 <body>
     <div class="navbar navbar-inverse navbar-fixed-top">
@@ -146,7 +156,7 @@
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title">Confirmation</h4>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body" @t.Callback("windowObj.callback",".")>
                     <p>
                         Are you sure want to perform action 1 on @conf1.Value(c=>c.SelectedObjects.Length) items?
                         <br />

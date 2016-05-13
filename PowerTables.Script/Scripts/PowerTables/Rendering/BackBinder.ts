@@ -28,7 +28,7 @@
             this._dateService = dateService;
         }
 
-        private traverseBackbind<T>(elements:HTMLElement[], parentElement: HTMLElement, backbindCollection: T[], attribute: string, fn: (backbind: T, element: HTMLElement) => void) {
+        private traverseBackbind<T>(elements: HTMLElement[], parentElement: HTMLElement, backbindCollection: T[], attribute: string, fn: (backbind: T, element: HTMLElement) => void) {
             for (var i: number = 0; i < elements.length; i++) {
                 var element: HTMLElement = elements[i];
                 var attr = null;
@@ -61,10 +61,10 @@
          */
         public backBind(parentElement: HTMLElement): void {
 
-            var elements = this.getMatchingElements(parentElement,'data-dp');
+            var elements = this.getMatchingElements(parentElement, 'data-dp');
             // back binding of datepickers
-            this.traverseBackbind<IDatepickerDescriptor>(elements,parentElement, this._datepickersQueue, 'data-dp', (b, e) => {
-                this._dateService.createDatePicker(e,b.IsNullable);
+            this.traverseBackbind<IDatepickerDescriptor>(elements, parentElement, this._datepickersQueue, 'data-dp', (b, e) => {
+                this._dateService.createDatePicker(e, b.IsNullable);
                 this.Delegator.subscribeDestroy(e, {
                     Callback: this._dateService.destroyDatePicker,
                     CallbackArguments: [],
@@ -72,9 +72,9 @@
                 });
             });
 
-            elements = this.getMatchingElements(parentElement,'data-mrk');
+            elements = this.getMatchingElements(parentElement, 'data-mrk');
             // back binding of componens needed HTML elements
-            this.traverseBackbind<IMarkDescriptor>(elements,parentElement, this._markQueue, 'data-mrk', (b, e) => {
+            this.traverseBackbind<IMarkDescriptor>(elements, parentElement, this._markQueue, 'data-mrk', (b, e) => {
                 var target = this._stealer || b.ElementReceiver;
                 if (Object.prototype.toString.call(b.ElementReceiver[b.FieldName]) === '[object Array]') {
                     target[b.FieldName].push(e);
@@ -87,16 +87,20 @@
                 }
             });
 
-            elements = this.getMatchingElements(parentElement,`data-evb`);
+            elements = this.getMatchingElements(parentElement, `data-evb`);
             // backbinding of events
-            this.traverseBackbind<IEventDescriptor>(elements,parentElement, this._eventsQueue, 'data-be', (subscription, element) => {
+            this.traverseBackbind<IEventDescriptor>(elements, parentElement, this._eventsQueue, 'data-be', (subscription, element) => {
                 for (var j: number = 0; j < subscription.Functions.length; j++) {
                     var bindFn: string = subscription.Functions[j];
                     var handler: void | Object = null;
                     var target = this._stealer || subscription.EventReceiver;
 
                     if (target[bindFn] && (typeof target[bindFn] === 'function')) handler = subscription.EventReceiver[bindFn];
-                    else handler = eval(bindFn);
+                    else {
+                        var traverse = this.evalCallback(bindFn);
+                        target = traverse.target;
+                        handler = traverse.fn;
+                    }
 
                     for (var k: number = 0; k < subscription.Events.length; k++) {
                         if (subscription.Events[k].length > 4 && subscription.Events[k].substring(0, 4) === 'out-') {
@@ -114,13 +118,13 @@
                 for (var vsk in this._cachedVisualStates) {
                     if (this._cachedVisualStates.hasOwnProperty(vsk)) {
                         var state = this._cachedVisualStates[vsk];
-                        elements = this.getMatchingElements(parentElement,`data-state-${vsk}`);
+                        elements = this.getMatchingElements(parentElement, `data-state-${vsk}`);
                         for (var i = 0; i < elements.length; i++) {
                             var element = elements[i];
                             state[i].Element = element;
                             element.removeAttribute(`data-state-${vsk}`);
 
-                            var target = <{VisualStates:VisualState}>this._stealer || state[i].Receiver;
+                            var target = <{ VisualStates: VisualState }>this._stealer || state[i].Receiver;
                             if (targetPendingNormal.indexOf(target) < 0) {
                                 targetPendingNormal.push(target);
                                 target.VisualStates = new VisualState();
@@ -138,12 +142,18 @@
 
             elements = this.getMatchingElements(parentElement, `data-cb`);
             this.traverseBackbind<ICallbackDescriptor>(elements, parentElement, this._callbacksQueue, 'data-cb', (b, e) => {
-                (<any>window[b.Callback]).apply(window, [e].concat(b.CallbackArguments));
+                var t = this.evalCallback(b.Callback);
+                (t.fn).apply(t.target, [e].concat(b.CallbackArguments));
             });
 
             elements = this.getMatchingElements(parentElement, `data-dcb`);
             this.traverseBackbind<ICallbackDescriptor>(elements, parentElement, this._destroyCallbacksQueue, 'data-dcb', (b, e) => {
-                this.Delegator.subscribeDestroy(e,b);
+                var tp = this.evalCallback(b.Callback);
+                this.Delegator.subscribeDestroy(e, {
+                    CallbackArguments: b.CallbackArguments,
+                    Target: tp.target,
+                    Callback: tp.fn
+                });
             });
 
             this._markQueue = [];
@@ -151,7 +161,35 @@
             this._datepickersQueue = [];
         }
 
-        private resolveNormalStates(targets: {VisualStates: VisualState }[]) {
+
+        private evalCallback(calbackString: any): { fn: any, target: any } {
+            if (typeof calbackString === "function") return { fn: calbackString, target: window };
+            if (calbackString.trim().substr(0, 'function'.length) === 'function') {
+                var cb: any = null;
+                eval(`cb = (${calbackString});`);
+                return { fn: cb, target: window };
+            }
+
+            var tp = this.traverseWindowPath(calbackString);
+            if (typeof tp.target !== "function") throw new Error(`${calbackString} supplied for rendering callback is not a function`);
+            return { fn: tp.target, target: tp.parent };
+        }
+
+        private traverseWindowPath(path: string): { target: any, parent: any } {
+            if (path.indexOf('.') > -1) {
+                var pth = path.split('.');
+                var parent = window;
+                var target = window;
+                for (var i = 0; i < pth.length; i++) {
+                    parent = target;
+                    target = parent[pth[i]];
+                }
+                return { target: target, parent: parent };
+            } else {
+                return { target: window[path], parent: window };
+            }
+        }
+        private resolveNormalStates(targets: { VisualStates: VisualState }[]) {
             for (var i = 0; i < targets.length; i++) {
                 this.addNormalState(targets[i].VisualStates.States, targets[i]);
             }
@@ -174,7 +212,7 @@
                                 styles: {},
                                 id: 'normal',
                                 Receiver: target,
-                                content: (states[sk][i].content != null && states[sk][i].content.length > 0) ? states[sk][i].Element.innerHTML:null
+                                content: (states[sk][i].content != null && states[sk][i].content.length > 0) ? states[sk][i].Element.innerHTML : null
                             };
                             normalState.push(newEntry);
                             for (var j = 0; j < newEntry.Element.classList.length; j++) {
@@ -240,7 +278,7 @@
             this._callbacksQueue.push({
                 Callback: fn,
                 CallbackArguments: args,
-                Target:window
+                Target: window
             });
             return `data-cb="${index}"`;
         }
@@ -260,22 +298,27 @@
             return `data-dcb="${index}"`;
         }
 
-        private markHelper(fieldName: any, key: any): string {
+        private markHelper(fieldName: string, key: string, receiverPath: string): string {
             var index: number = this._markQueue.length;
+            var receiver = this._stack.Current.Object;
+            if (receiverPath != null) {
+                var tp = this.traverseWindowPath(receiverPath);
+                receiver = tp.target;
+            }
             var md: IMarkDescriptor = <IMarkDescriptor>{
-                ElementReceiver: this._stack.Current.Object,
+                ElementReceiver: receiver,
                 FieldName: fieldName,
                 Key: key
             };
             this._markQueue.push(md);
             return `data-mrk="${index}"`;
         }
-        private datepickerHelper(columnName: string,forceNullable:boolean): string {
+        private datepickerHelper(columnName: string, forceNullable: boolean): string {
             var index: number = this._datepickersQueue.length;
             if (this._instances.Columns[columnName].IsDateTime) {
                 var md: IDatepickerDescriptor = <IDatepickerDescriptor>{
                     ElementReceiver: this._stack.Current.Object,
-                    IsNullable: forceNullable|| this._instances.Columns[columnName].Configuration.IsNullable
+                    IsNullable: forceNullable || this._instances.Columns[columnName].Configuration.IsNullable
                 };
                 this._datepickersQueue.push(md);
                 return `data-dp="${index}"`;
@@ -293,8 +336,8 @@
             return `data-state-${stateName}="${index}"`;
         }
 
-        public destroyDatepickers(e:HTMLElement) {
-            
+        public destroyDatepickers(e: HTMLElement) {
+
         }
     }
 
@@ -306,14 +349,14 @@
 
     interface IDatepickerDescriptor {
         ElementReceiver: any;
-        IsNullable:boolean;
+        IsNullable: boolean;
     }
 
     export interface ICallbackDescriptor {
-        Element?:HTMLElement;
+        Element?: HTMLElement;
         Callback: any; // function or function name
         CallbackArguments: any[];
-        Target:any;
+        Target: any;
     }
 
     /**

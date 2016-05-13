@@ -143,7 +143,7 @@ namespace PowerTables.CellTemplating
             return this;
         }
 
-        internal string Build()
+        public string Build()
         {
             StringBuilder sb = new StringBuilder();
             sb.Append("function (v) {");

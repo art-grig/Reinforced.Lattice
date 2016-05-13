@@ -21,7 +21,7 @@ namespace PowerTables.Templating
         /// <returns></returns>
         public static AdditionalTemplatesScope LatticeAdditionalTemplates(this WebViewPage page, string templatesPrefix = "lt")
         {
-            return new AdditionalTemplatesScope(page,templatesPrefix);
+            return new AdditionalTemplatesScope(page, templatesPrefix);
         }
 
         /// <summary>
@@ -48,12 +48,17 @@ namespace PowerTables.Templating
         /// <param name="columnExpression">Column name to determine is datepicker needed or not</param>
         /// <param name="forceNullable">Force datepicker to produce nullable date</param>
         /// <returns></returns>
-        public static MvcHtmlString Datepicker(this IProvidesDatepicker t, string columnExpression,bool forceNullable = false)
+        public static MvcHtmlString Datepicker(this IProvidesDatepicker t, string columnExpression, bool forceNullable = false)
         {
             return
-                MvcHtmlString.Create(string.Format("{{{{{{Datepicker {0} {1} }}}}}}", columnExpression,forceNullable.ToString().ToLower()));
+                MvcHtmlString.Create(string.Format("{{{{{{Datepicker {0} {1} }}}}}}", columnExpression, forceNullable.ToString().ToLower()));
         }
 
+        private static string WrapQuotesOrNull(this string param)
+        {
+            if (string.IsNullOrEmpty(param)) return "null";
+            return string.Concat("\"", param, "\"");
+        }
         /// <summary>
         /// Marks specified element and provides plugin with it further. 
         /// After plugin rendering, marked element will be put to plugin/header instance 
@@ -62,11 +67,12 @@ namespace PowerTables.Templating
         /// <param name="t"></param>
         /// <param name="fieldName">Where to put HTMLElement</param>
         /// <param name="key">Key to place element to hash</param>
+        /// <param name="receiver">Object (relative to window) that will receive element instance</param>
         /// <returns></returns>
-        public static MvcHtmlString Mark(this IProvidesMarking t, string fieldName, string key = null)
+        public static MvcHtmlString Mark(this IProvidesMarking t, string fieldName, string key = null, string receiver = null)
         {
             return
-                MvcHtmlString.Create(string.Format("{{{{{{Mark \"{0}\" {1}}}}}}}", fieldName, string.IsNullOrEmpty(key) ? "null" : key));
+                MvcHtmlString.Create(string.Format("{{{{{{Mark \"{0}\" {1} {2}}}}}}}", fieldName, key.WrapQuotesOrNull(), receiver.WrapQuotesOrNull()));
         }
 
         private static readonly MvcHtmlString _track = MvcHtmlString.Create("{{{Track}}}");
@@ -121,7 +127,7 @@ namespace PowerTables.Templating
             var args = string.Join(" ", rawArgs);
             return MvcHtmlString.Create(string.Format("{{{{{{DestroyCallback \"{0}\" {1} }}}}}}", functionName, args));
         }
-        
+
 
     }
 
