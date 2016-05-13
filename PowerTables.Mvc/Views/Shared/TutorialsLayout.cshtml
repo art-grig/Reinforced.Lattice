@@ -196,10 +196,13 @@
                             <div class="form-group">
                                 <label for="ToyType" class="col-sm-2 control-label">Toy type</label>
                                 <div class="col-sm-10">
-                                    @Html.DropDownList("ToyType", EnumHelper.GetSelectList(typeof(ToyType)), new { @class = "form-control" })
+                                    @Html.DropDownList("ToyType", EnumHelper.GetSelectList(typeof (ToyType)), new {@class = "form-control"})
                                 </div>
                             </div>
                         </fieldset>
+                        <script type="text/javascript">
+                            alert('o hai!');
+                        </script>
                     </p>
                 </div>
                 <div class="modal-footer">

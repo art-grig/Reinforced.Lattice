@@ -87,7 +87,7 @@
             for (var i: number = 0; i < templates.length; i++) {
                 var item: HTMLElement = <HTMLElement>templates.item(i);
                 var key: string = item.id.substring(templatesPrefix.length + 1);
-                this._templatesCache[key] = this.HandlebarsInstance.compile(item.innerHTML, { noEscape: true});
+                this._templatesCache[key] = this.HandlebarsInstance.compile(item.innerHTML.substring('<!--'.length, item.innerHTML.length - ('-->'.length)), { noEscape: true});
             }
         }
 

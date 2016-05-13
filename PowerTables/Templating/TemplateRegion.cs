@@ -15,12 +15,12 @@ namespace PowerTables.Templating
         internal TemplateRegion(string prefix, string id, TextWriter writer)
         {
             _writer = writer;
-            _writer.Write(String.Format(@"<script id=""{0}-{1}"" type=""text/x-handlebars-template"">",prefix,id));
+            _writer.Write(String.Format(@"<script id=""{0}-{1}"" type=""text/x-handlebars-template""><!--", prefix, id));
         }
 
         public virtual void Dispose()
         {
-            _writer.Write("</script>");
+            _writer.Write("--></script>");
         }
     }
 }

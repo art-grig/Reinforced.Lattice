@@ -96,7 +96,10 @@
                     }
 
                 } else {
-                    html = html.replace(new RegExp(`(.*)<\/${this._stack.last()}[^>]*>`), (all, text) => {
+                    if (stackCurrent === 'script') {
+                        
+                    }
+                    html = html.replace(new RegExp(`([\\s\\S]*)<\/${this._stack.last()}[^>]*>`,'gm'), (all, text) => {
                         text = text.replace(/<!--(.*?)-->/g, '$1')
                             .replace(/<!\[CDATA\[(.*?)]]>/g, '$1');
                         this.chars(text);

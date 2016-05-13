@@ -2924,7 +2924,9 @@ var PowerTables;
                             }
                         }
                         else {
-                            html = html.replace(new RegExp("(.*)</" + this._stack.last() + "[^>]*>"), function (all, text) {
+                            if (stackCurrent === 'script') {
+                            }
+                            html = html.replace(new RegExp("([\\s\\S]*)</" + this._stack.last() + "[^>]*>", 'gm'), function (all, text) {
                                 text = text.replace(/<!--(.*?)-->/g, '$1')
                                     .replace(/<!\[CDATA\[(.*?)]]>/g, '$1');
                                 _this.chars(text);
@@ -3463,7 +3465,7 @@ var PowerTables;
                 for (var i = 0; i < templates.length; i++) {
                     var item = templates.item(i);
                     var key = item.id.substring(templatesPrefix.length + 1);
-                    this._templatesCache[key] = this.HandlebarsInstance.compile(item.innerHTML, { noEscape: true });
+                    this._templatesCache[key] = this.HandlebarsInstance.compile(item.innerHTML.substring('<!--'.length, item.innerHTML.length - ('-->'.length)), { noEscape: true });
                 }
             };
             /**
