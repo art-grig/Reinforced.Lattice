@@ -62,6 +62,8 @@ namespace PowerTables.Plugins.Formwatch
         public string Key { get; set; }
         public bool AutomaticallyAttachDatepicker { get; set; }
         public bool IsDateTime { get; set; }
+        public bool IsArray { get; set; }
+        public string ArrayDelimiter { get; set; }
         
     }
 }

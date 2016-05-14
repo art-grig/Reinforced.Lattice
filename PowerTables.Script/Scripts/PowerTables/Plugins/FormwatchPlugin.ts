@@ -6,7 +6,59 @@
         private _filteringExecuted: { [key: string]: boolean } = {};
         private _timeouts: { [key: string]: number } = {};
 
-        public static extractFormData(configuration: PowerTables.Plugins.Formwatch.IFormwatchFieldData[], rootElement: any,dateService:DateService) {
+        private static extractValueFromMultiSelect(o: HTMLSelectElement): any[] {
+            var value = [];
+            for (var k = 0; k < o.options.length; k++) {
+                if ((<any>o.options[k]).selected) value.push((<any>o.options[k]).value);
+            }
+            return value;
+        }
+
+        private static extractInputValue(element: HTMLInputElement, fieldConf: PowerTables.Plugins.Formwatch.IFormwatchFieldData, dateService: DateService): any {
+            var value = null;
+            if (element.type === 'select-multiple') {
+                value = FormwatchPlugin.extractValueFromMultiSelect(<any>(element));
+            } else if (element.type === 'checkbox') {
+                value = element.checked;
+            }
+            else {
+                if (fieldConf.IsDateTime) {
+                    value = dateService.getDateFromDatePicker(element);
+                    if (!dateService.isValidDate(value)) {
+                        value = dateService.parse(element.value);
+                        if (!dateService.isValidDate(value)) {
+                            value = null;
+                        }
+                    }
+                } else {
+                    value = element.value;
+                }
+            }
+            return value;
+        }
+
+
+        private static extractData(elements: NodeListOf<Element>, fieldConf: PowerTables.Plugins.Formwatch.IFormwatchFieldData, dateService: DateService): any {
+            var value = null;
+            var element = <HTMLInputElement>(elements.length > 0 ? elements.item(0) : null);
+            if (element) {
+                if (fieldConf.IsArray) {
+                    if (fieldConf.ArrayDelimiter) {
+                        value = element.value.split(fieldConf.ArrayDelimiter);
+                    } else {
+                        value = [];
+                        for (var i = 0; i < elements.length; i++) {
+                            value.push(FormwatchPlugin.extractInputValue(<any>elements.item(i), fieldConf, dateService));
+                        }
+                    }
+                } else {
+                    value = FormwatchPlugin.extractInputValue(element, fieldConf, dateService);
+                }
+            }
+            return value;
+        }
+
+        public static extractFormData(configuration: PowerTables.Plugins.Formwatch.IFormwatchFieldData[], rootElement: any, dateService: DateService) {
             var result = {}
             for (var i = 0; i < configuration.length; i++) {
                 var fieldConf = configuration[i];
@@ -19,33 +71,10 @@
                     if (fieldConf.FieldValueFunction) {
                         value = fieldConf.FieldValueFunction();
                     } else {
-                        var element = <HTMLInputElement>rootElement.querySelector(fieldConf.FieldSelector);
-                        if (element) {
-                            if (element.type === 'select-multiple') {
-                                var o = <HTMLSelectElement><any>element;
-                                value = [];
-                                for (var k = 0; k < o.options.length; k++) {
-                                    if ((<any>o.options[k]).selected) value.push((<any>o.options[k]).value);
-                                }
-                            } else if (element.type === 'checkbox') {
-                                value = element.checked;
-                            }
-                            else {
-                                if (fieldConf.IsDateTime) {
-                                    value = dateService.getDateFromDatePicker(element);
-                                    if (!dateService.isValidDate(value)) {
-                                        value = dateService.parse(element.value);
-                                        if (!dateService.isValidDate(value)) {
-                                            value = null;
-                                        }
-                                    }
-                                } else {
-                                    value = element.value;
-                                }
-                            }
-                        }
+                        var elements = rootElement.querySelectorAll(fieldConf.FieldSelector);
+                        value = FormwatchPlugin.extractData(elements, fieldConf, dateService);
                     }
-                    if (fieldConf.SetConstantIfNotSupplied && !value) {
+                    if (fieldConf.SetConstantIfNotSupplied && (value == null)) {
                         value = fieldConf.ConstantValue;
                     }
                 }
@@ -111,9 +140,9 @@
                             ((c, el) => (evt: Event) => {
                                 this.fieldChange(c.FieldSelector, c.SearchTriggerDelay, el, evt);
                             })(conf, element)
-                            );
+                        );
                     }
-                    
+
                     this._existingValues[conf.FieldSelector] = element.value;
                 }
             }

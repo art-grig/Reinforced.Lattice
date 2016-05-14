@@ -274,6 +274,8 @@ module PowerTables.Plugins.Formwatch {
 		SetConstantIfNotSupplied: boolean;
 		AutomaticallyAttachDatepicker: boolean;
 		IsDateTime: boolean;
+		IsArray: boolean;
+		ArrayDelimiter: string;
 	}
 	export interface IFormWatchFilteringsMappings
 	{

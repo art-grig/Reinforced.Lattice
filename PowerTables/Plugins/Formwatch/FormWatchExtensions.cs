@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -143,6 +144,19 @@ namespace PowerTables.Plugins.Formwatch
             bool auto = true)
         {
             v.FieldData.AutomaticallyAttachDatepicker = auto;
+            return v;
+        }
+
+        /// <summary>
+        /// Sets array delimiter for array columns
+        /// </summary>
+        /// <param name="v"></param>
+        /// <param name="arrayDelimiter">Array delimiter string</param>
+        /// <returns></returns>
+        public static FormWatchFieldBuilder<T> Delimiter<T>(this FormWatchFieldBuilder<T> v,
+            string arrayDelimiter) where T:IEnumerable
+        {
+            v.FieldData.ArrayDelimiter = arrayDelimiter;
             return v;
         }
     }

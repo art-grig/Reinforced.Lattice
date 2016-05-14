@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq.Expressions;
@@ -59,6 +60,17 @@ namespace PowerTables.Plugins.Formwatch
             }
         }
 
+        private bool IsEnumerable(Type t)
+        {
+            if (t.IsArray) return true;
+            if (typeof(IEnumerable).IsAssignableFrom(t)) return true;
+            if (t.IsGenericType)
+            {
+                var tg = t.GetGenericTypeDefinition();
+                if (typeof(IEnumerable<>).IsAssignableFrom(tg)) return true;
+            }
+            return false;
+        }
         private FormwatchFieldData DefaultConfig(PropertyInfo prop)
         {
             var fld = new FormwatchFieldData
@@ -67,7 +79,8 @@ namespace PowerTables.Plugins.Formwatch
                 FieldSelector = "#" + prop.Name,
                 SearchTriggerDelay = 500,
                 Key = prop.Name,
-                IsDateTime = typeof(DateTime)==prop.PropertyType || typeof(DateTime?) == prop.PropertyType
+                IsDateTime = typeof(DateTime) == prop.PropertyType || typeof(DateTime?) == prop.PropertyType,
+                IsArray = IsEnumerable(prop.PropertyType)
             };
             return fld;
         }
