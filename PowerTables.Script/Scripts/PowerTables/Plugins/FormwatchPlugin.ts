@@ -46,9 +46,13 @@
                     if (fieldConf.ArrayDelimiter) {
                         value = element.value.split(fieldConf.ArrayDelimiter);
                     } else {
-                        value = [];
-                        for (var i = 0; i < elements.length; i++) {
-                            value.push(FormwatchPlugin.extractInputValue(<any>elements.item(i), fieldConf, dateService));
+                        if (elements.length === 1 && element.type === 'select-multiple') {
+                            value = FormwatchPlugin.extractValueFromMultiSelect(<any>element);
+                        } else {
+                            value = [];
+                            for (var i = 0; i < elements.length; i++) {
+                                value.push(FormwatchPlugin.extractInputValue(<any>elements.item(i), fieldConf, dateService));
+                            }
                         }
                     }
                 } else {

@@ -62,6 +62,7 @@ namespace PowerTables.Plugins.Formwatch
 
         private bool IsEnumerable(Type t)
         {
+            if (t == typeof (string)) return false;
             if (t.IsArray) return true;
             if (typeof(IEnumerable).IsAssignableFrom(t)) return true;
             if (t.IsGenericType)
