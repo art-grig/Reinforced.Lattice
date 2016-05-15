@@ -6395,6 +6395,7 @@ var PowerTables;
                 this.afterDrawn = function (e) {
                     _this.MasterTable.Events.BeforeLoading.subscribe(function (e) { return _this.onBeforeLoading(e); }, 'overlapLoading');
                     _this.MasterTable.Events.AfterDataRendered.subscribe(function () { return _this.deoverlap(); }, 'overlapLoading');
+                    _this.MasterTable.Events.AfterLoading.subscribe(function () { return _this.deoverlap(); }, 'overlapLoading');
                     window.addEventListener('resize', _this.updateCoordsAll.bind(_this));
                 };
             }
@@ -6459,6 +6460,8 @@ var PowerTables;
                 }
             };
             LoadingOverlapPlugin.prototype.deoverlap = function () {
+                if (!this._isOverlapped)
+                    return;
                 for (var j = 0; j < this._overlapLayer.length; j++) {
                     for (var l = 0; l < this._overlapLayer[j].length; l++) {
                         this._overlappingElement[j][l].removeChild(this._overlapLayer[j][l]);

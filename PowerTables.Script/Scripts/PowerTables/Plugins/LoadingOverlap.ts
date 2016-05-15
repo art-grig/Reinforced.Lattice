@@ -68,6 +68,7 @@
         }
 
         private deoverlap() {
+            if (!this._isOverlapped) return;
             for (var j = 0; j < this._overlapLayer.length; j++) {
                 for (var l = 0; l < this._overlapLayer[j].length; l++) {
                     this._overlappingElement[j][l].removeChild(this._overlapLayer[j][l]);
@@ -85,6 +86,7 @@
         public afterDrawn: (e: ITableEventArgs<any>) => void = e=> {
             this.MasterTable.Events.BeforeLoading.subscribe((e) => this.onBeforeLoading(e), 'overlapLoading');
             this.MasterTable.Events.AfterDataRendered.subscribe(() => this.deoverlap(), 'overlapLoading');
+            this.MasterTable.Events.AfterLoading.subscribe(() => this.deoverlap(), 'overlapLoading');
             window.addEventListener('resize', this.updateCoordsAll.bind(this));
         }
     }
