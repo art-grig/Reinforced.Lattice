@@ -138,9 +138,9 @@
                 return;
             }
             var edit: boolean = this.checkEditResult(json, data, req);
-            
 
-            if (edit||message) {
+
+            if (edit || message) {
                 callback(json);
                 return;
             }
@@ -259,10 +259,17 @@
                     Command: command,
                     Query: serverQuery
                 };
-
-                this.doServerQuery(data, clientQuery, callback, errorCallback);
+                if (this._masterTable.InstanceManager.Configuration.QueryConfirmation) {
+                    this._masterTable.InstanceManager.Configuration.QueryConfirmation(data, scope, () => this.doServerQuery(data, clientQuery, callback, errorCallback));
+                } else {
+                    this.doServerQuery(data, clientQuery, callback, errorCallback);
+                }
             } else {
-                this._dataHolder.filterStoredData(clientQuery);
+                if (this._masterTable.InstanceManager.Configuration.QueryConfirmation) {
+                    this._masterTable.InstanceManager.Configuration.QueryConfirmation({ Command: 'Query', Query: clientQuery }, QueryScope.Client, () => this._dataHolder.filterStoredData(clientQuery));
+                } else {
+                    this._dataHolder.filterStoredData(clientQuery);
+                }
                 callback(null);
             }
         }

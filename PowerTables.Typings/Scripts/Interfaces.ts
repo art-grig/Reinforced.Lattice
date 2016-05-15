@@ -52,6 +52,11 @@ module PowerTables.Configuration.Json {
 		MessageFunction: (msg: ITableMessage) => void;
 		/** Cell/row event subscriptions */
 		Subscriptions: PowerTables.Configuration.Json.IConfiguredSubscriptionInfo[];
+		/**
+		* Function that will be invoked before performing query
+		*             Function type is (query:IPowerTableRequest,scope:QueryScope,continueFn:any) =&gt; void
+		*/
+		QueryConfirmation: (query:IPowerTableRequest,scope:QueryScope,continueFn:any) => void;
 	}
 	/** Table column JSON configuration */
 	export interface IColumnConfiguration
@@ -546,19 +551,40 @@ module PowerTables.Editors {
 		DeferChanges: boolean;
 		EditorType: PowerTables.Editors.EditorType;
 	}
+	/** Result of table edition or other action */
 	export interface IEditionResult
 	{
 		/** Table message associated with this response */
 		Message: PowerTables.ITableMessage;
+		/** Special mark to disctinguish Edition result from others on client side */
 		IsUpdateResult: boolean;
+		/**
+		* Object which edition is confirmed. 
+		*             When using in-table editing, edited object will be passed here
+		*/
 		ConfirmedObject: any;
+		/** Adjustments set for table that has initiated request */
 		TableAdjustments: PowerTables.Editors.IAdjustmentData;
+		/**
+		* Adjustments for other tables located on same page. 
+		*             Here: key is other table id (the same that has passed to table initialization script)
+		*             value is adjustmetns set for mentioned table
+		*/
 		OtherTablesAdjustments: { [key:string]: PowerTables.Editors.IAdjustmentData };
 	}
+	/** Adjustments set for particular table */
 	export interface IAdjustmentData
 	{
+		/** Objects that should be removed from clien table */
 		Removals: any[];
+		/** Objects that should be updated in client table */
 		Updates: any[];
+		/**
+		* Additional data being serialized for client. 
+		*             This field could contain anything that will be parsed on client side and corresponding actions will be performed. 
+		*             See <see cref="T:PowerTables.ResponseProcessing.IResponseModifier" />
+		*/
+		AdditionalData: { [key:string]: any };
 	}
 	export enum EditorType { 
 		Cell = 0, 

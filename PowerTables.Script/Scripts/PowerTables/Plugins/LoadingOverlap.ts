@@ -2,8 +2,10 @@
     export class LoadingOverlapPlugin extends PluginBase<PowerTables.Plugins.LoadingOverlap.ILoadingOverlapUiConfig>  {
         private _overlappingElement: HTMLElement[][] = [];
         private _overlapLayer: HTMLElement[][] = [];
-
+        private _isOverlapped:boolean = false;
+        
         private overlapAll() {
+            if (this._isOverlapped) return;
             this._overlapLayer = [];
             this._overlappingElement = [];
             for (var k in this.Configuration.Overlaps) {
@@ -23,6 +25,7 @@
                     }
                 }
             }
+            this._isOverlapped = true;
         }
 
         private createOverlap(efor: HTMLElement, templateId: string): HTMLElement {
@@ -72,10 +75,10 @@
             }
             this._overlapLayer = [];
             this._overlappingElement = [];
+            this._isOverlapped = false;
         }
 
         private onBeforeLoading(e: ITableEventArgs<ILoadingEventArgs>) {
-            if (e.EventArgs.Request.Command !== 'query') return;
             this.overlapAll();
         }
 

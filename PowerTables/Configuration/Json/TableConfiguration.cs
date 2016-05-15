@@ -45,7 +45,7 @@ namespace PowerTables.Configuration.Json
         /// Table columns
         /// </summary>
         public List<ColumnConfiguration> Columns { get; set; }
-        
+
         /// <summary>
         /// Custom plugins configuration. Key: pluginId, Value: configuration
         /// </summary>
@@ -103,6 +103,12 @@ namespace PowerTables.Configuration.Json
         /// </summary>
         public List<ConfiguredSubscriptionInfo> Subscriptions { get; private set; }
 
+        /// <summary>
+        /// Function that will be invoked before performing query
+        /// Function type is (query:IPowerTableRequest,scope:QueryScope,continueFn:any) => void
+        /// </summary>
+        public JRaw QueryConfirmation { get; set; }
+
         public TableConfiguration()
         {
             Columns = new List<ColumnConfiguration>();
@@ -112,7 +118,7 @@ namespace PowerTables.Configuration.Json
             CoreTemplates = new CoreTemplateIds();
             Subscriptions = new List<ConfiguredSubscriptionInfo>();
         }
-        
+
     }
 
     public class ConfiguredSubscriptionInfo
@@ -199,7 +205,7 @@ namespace PowerTables.Configuration.Json
         /// </summary>
         public bool IsNullable { get; set; }
     }
-    
+
     /// <summary>
     /// Plugin JSON configuration
     /// </summary>
@@ -235,6 +241,6 @@ namespace PowerTables.Configuration.Json
         /// Overridable plugin template Id
         /// </summary>
         public string TemplateId { get; set; }
-        
+
     }
 }

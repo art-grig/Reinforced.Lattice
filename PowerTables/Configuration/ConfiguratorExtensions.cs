@@ -361,5 +361,16 @@ namespace PowerTables.Configuration
             return conf;
         }
 
+        /// <summary>
+        /// Sets query confirmation function that is being called every time befor query is performed to bring 
+        /// ability to handle heavy queries
+        /// </summary>
+        public static Configurator<TSourceData, TTableData> QueryConfirmation<TSourceData, TTableData>
+            (this Configurator<TSourceData, TTableData> conf, string confirmationFunction) where TTableData : new()
+        {
+            conf.TableConfiguration.QueryConfirmation = string.IsNullOrEmpty(confirmationFunction) ? null : new JRaw(confirmationFunction);
+            return conf;
+        }
+
     }
 }

@@ -154,8 +154,8 @@
             if (overrideRow) {
                 row.renderElement = (e) => e.getCachedTemplate(this.Configuration.RowTemplateId)(row);
             }
-            this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
             this.MasterTable.Renderer.Modifier.redrawRow(row);
+            this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
         }
 
         private afterLayoutRender() {
@@ -167,7 +167,6 @@
                     this.selectByRowIndex(e.DisplayingRowIndex);
                 }
             });
-            this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
         }
 
         private beforeRowsRendering(e: ITableEventArgs<IRow[]>) {

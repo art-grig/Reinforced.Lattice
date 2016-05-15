@@ -2048,6 +2048,7 @@ var PowerTables;
          * @returns {}
          */
         Loader.prototype.requestServer = function (command, callback, queryModifier, errorCallback, force) {
+            var _this = this;
             var scope = PowerTables.QueryScope.Transboundary;
             if (command === 'query')
                 scope = PowerTables.QueryScope.Server;
@@ -2066,10 +2067,20 @@ var PowerTables;
                     Command: command,
                     Query: serverQuery
                 };
-                this.doServerQuery(data, clientQuery, callback, errorCallback);
+                if (this._masterTable.InstanceManager.Configuration.QueryConfirmation) {
+                    this._masterTable.InstanceManager.Configuration.QueryConfirmation(data, scope, function () { return _this.doServerQuery(data, clientQuery, callback, errorCallback); });
+                }
+                else {
+                    this.doServerQuery(data, clientQuery, callback, errorCallback);
+                }
             }
             else {
-                this._dataHolder.filterStoredData(clientQuery);
+                if (this._masterTable.InstanceManager.Configuration.QueryConfirmation) {
+                    this._masterTable.InstanceManager.Configuration.QueryConfirmation({ Command: 'Query', Query: clientQuery }, PowerTables.QueryScope.Client, function () { return _this._dataHolder.filterStoredData(clientQuery); });
+                }
+                else {
+                    this._dataHolder.filterStoredData(clientQuery);
+                }
                 callback(null);
             }
         };
@@ -4011,9 +4022,10 @@ var PowerTables;
                     var templId = this.RawConfig.TemplateId;
                     for (var ck in columns) {
                         if (columns.hasOwnProperty(ck)) {
+                            var ordering = this.Configuration.DefaultOrderingsForColumns[ck];
+                            this.updateOrdering(ck, ordering);
                             if (columns[ck].Configuration.IsDataOnly)
                                 continue;
-                            var ordering = this.Configuration.DefaultOrderingsForColumns[ck];
                             if (ordering == null || ordering == undefined)
                                 continue;
                             var newHeader = {
@@ -4024,7 +4036,6 @@ var PowerTables;
                                 TemplateIdOverride: templId,
                                 IsClientOrdering: this.isClient(ck)
                             };
-                            this.updateOrdering(ck, ordering);
                             this.specifyOrdering(newHeader, ordering);
                             columns[ck].Header = newHeader;
                         }
@@ -5334,8 +5345,8 @@ var PowerTables;
                 if (overrideRow) {
                     row.renderElement = function (e) { return e.getCachedTemplate(_this.Configuration.RowTemplateId)(row); };
                 }
-                this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
                 this.MasterTable.Renderer.Modifier.redrawRow(row);
+                this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
             };
             CheckboxifyPlugin.prototype.afterLayoutRender = function () {
                 var _this = this;
@@ -5347,7 +5358,6 @@ var PowerTables;
                         _this.selectByRowIndex(e.DisplayingRowIndex);
                     }
                 });
-                this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
             };
             CheckboxifyPlugin.prototype.beforeRowsRendering = function (e) {
                 this._selectables = [];
@@ -5631,7 +5641,10 @@ var PowerTables;
                 if (element) {
                     if (fieldConf.IsArray) {
                         if (fieldConf.ArrayDelimiter) {
-                            value = element.value.split(fieldConf.ArrayDelimiter);
+                            if (element.value == null || element.value.length === 0)
+                                value = [];
+                            else
+                                value = element.value.split(fieldConf.ArrayDelimiter);
                         }
                         else {
                             if (elements.length === 1 && element.type === 'select-multiple') {
@@ -6378,6 +6391,7 @@ var PowerTables;
                 _super.apply(this, arguments);
                 this._overlappingElement = [];
                 this._overlapLayer = [];
+                this._isOverlapped = false;
                 this.afterDrawn = function (e) {
                     _this.MasterTable.Events.BeforeLoading.subscribe(function (e) { return _this.onBeforeLoading(e); }, 'overlapLoading');
                     _this.MasterTable.Events.AfterDataRendered.subscribe(function () { return _this.deoverlap(); }, 'overlapLoading');
@@ -6385,6 +6399,8 @@ var PowerTables;
                 };
             }
             LoadingOverlapPlugin.prototype.overlapAll = function () {
+                if (this._isOverlapped)
+                    return;
                 this._overlapLayer = [];
                 this._overlappingElement = [];
                 for (var k in this.Configuration.Overlaps) {
@@ -6406,6 +6422,7 @@ var PowerTables;
                         }
                     }
                 }
+                this._isOverlapped = true;
             };
             LoadingOverlapPlugin.prototype.createOverlap = function (efor, templateId) {
                 var element = this.MasterTable.Renderer.Modifier.createElement(this.MasterTable.Renderer.getCachedTemplate(templateId)(null));
@@ -6449,10 +6466,9 @@ var PowerTables;
                 }
                 this._overlapLayer = [];
                 this._overlappingElement = [];
+                this._isOverlapped = false;
             };
             LoadingOverlapPlugin.prototype.onBeforeLoading = function (e) {
-                if (e.EventArgs.Request.Command !== 'query')
-                    return;
                 this.overlapAll();
             };
             return LoadingOverlapPlugin;

@@ -44,7 +44,8 @@
             if (element) {
                 if (fieldConf.IsArray) {
                     if (fieldConf.ArrayDelimiter) {
-                        value = element.value.split(fieldConf.ArrayDelimiter);
+                        if (element.value == null || element.value.length === 0)value = [];
+                        else value = element.value.split(fieldConf.ArrayDelimiter);
                     } else {
                         if (elements.length === 1 && element.type === 'select-multiple') {
                             value = FormwatchPlugin.extractValueFromMultiSelect(<any>element);

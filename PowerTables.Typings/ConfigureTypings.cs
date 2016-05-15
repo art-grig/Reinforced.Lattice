@@ -50,6 +50,7 @@ namespace PowerTables.Typings
                 .WithProperty(c => c.CallbackFunction, c => c.Type("(table:IMasterTable) => void"))
                 .WithProperty(c => c.TemplateSelector, c => c.Type("(row:IRow)=>string"))
                 .WithProperty(c => c.MessageFunction, c => c.Type("(msg: ITableMessage) => void"))
+                .WithProperty(c => c.QueryConfirmation, c => c.Type("(query:IPowerTableRequest,scope:QueryScope,continueFn:any) => void"))
                 ;
             builder.ExportAsInterface<DatepickerOptions>()
                 .WithProperty(c => c.CreateDatePicker, c => c.Type("(element:HTMLElement, isNullableDate: boolean) => void"))
