@@ -33,6 +33,10 @@ namespace PowerTables.Configuration
         /// <returns></returns>
         object[] EncodeResults<T>(IQueryable<T> resultRows);
 
+        /// <summary>
+        /// Wraps result set into array understandable for client side
+        /// </summary>
+        /// <param name="resultRows">Result rows set</param>
         object[] EncodeResults(object[] resultRows);
 
         /// <summary>

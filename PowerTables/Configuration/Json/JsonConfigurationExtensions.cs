@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using PowerTables.Plugins;
 
 namespace PowerTables.Configuration.Json
@@ -13,6 +10,12 @@ namespace PowerTables.Configuration.Json
     /// </summary>
     public static class JsonConfigurationExtensions
     {
+        /// <summary>
+        /// Retrieves JSON column configuration by corresponding column's property info
+        /// </summary>
+        /// <param name="tconf">JSON table configuration</param>
+        /// <param name="property">Column's property info</param>
+        /// <returns>JSON column configuration</returns>
         public static ColumnConfiguration Column(this TableConfiguration tconf, PropertyInfo property)
         {
             var name = property.Name;
@@ -43,7 +46,7 @@ namespace PowerTables.Configuration.Json
         {
             var where = string.Concat("filter-", column.ColumnConfiguration.RawColumnName);
 
-            PluginConfiguration config = column.TableConfigurator.TableConfiguration.GetPluginConfiguration(pluginId, where); ;
+            PluginConfiguration config = column.TableConfigurator.TableConfiguration.GetPluginConfiguration(pluginId, where);
             if (config == null)
             {
                 config = new PluginConfiguration(pluginId)
@@ -105,7 +108,7 @@ namespace PowerTables.Configuration.Json
         public static void UpdatePluginConfig<TConfig>(this TableConfiguration conf, string pluginId, Action<PluginConfigurationWrapper<TConfig>> pluginConfiguration, string where = null)
             where TConfig : new()
         {
-            PluginConfiguration config = conf.GetPluginConfiguration(pluginId, where); ;
+            PluginConfiguration config = conf.GetPluginConfiguration(pluginId, where); 
             if (config == null)
             {
                 config = new PluginConfiguration(pluginId)

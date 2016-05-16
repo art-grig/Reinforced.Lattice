@@ -5,7 +5,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Web.Mvc;
 
 using Newtonsoft.Json;
 using PowerTables.Configuration.Json;
@@ -25,7 +24,7 @@ namespace PowerTables.Configuration
     /// as fluent method chains. Then simply create table configurator where it is needed and 
     /// configure with corresponding method chain. 
     /// To draw table on a web page create placeholder div, assign ID to it 
-    /// then call <see cref="JsonConfig"/> method to obtain javascript configuration code to be inserted 
+    /// then call <see cref="InitializationExtensions"/> methods to obtain javascript configuration code to be inserted 
     /// to page. 
     /// </summary>
     /// <typeparam name="TSourceData">Type of source raw data</typeparam>
@@ -209,6 +208,11 @@ namespace PowerTables.Configuration
                 index++;
             }
         }
+
+        /// <summary>
+        /// Wraps result set into array understandable for client side
+        /// </summary>
+        /// <param name="resultRows">Result rows set</param>
         public object[] EncodeResults(object[] resultRows)
         {
             object[] result = new object[resultRows.Length * TableColumns.Length];

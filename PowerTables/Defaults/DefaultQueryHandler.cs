@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Web.Mvc;
 using Newtonsoft.Json;
 using PowerTables.Configuration;
-using PowerTables.Filters;
 
 namespace PowerTables.Defaults
 {
@@ -14,7 +11,7 @@ namespace PowerTables.Defaults
     /// </summary>
     public class DefaultQueryHandler<TSourceData, TTableData> : IQueryHandler<TSourceData, TTableData> where TTableData : new()
     {
-        private PowerTableRequest _request = null;
+        private PowerTableRequest _request;
         public virtual PowerTableRequest ExtractRequest(ControllerContext context)
         {
             if (_request != null) return _request;
@@ -41,6 +38,15 @@ namespace PowerTables.Defaults
             _configuration = configurator;
         }
 
+        /// <summary>
+        /// Core method for applying paging to ordered and filtered source set
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source">FIltered and ordered source set</param>
+        /// <param name="request">Request object</param>
+        /// <param name="totalCount">Returned total results count</param>
+        /// <param name="pageIndex">Current pag index</param>
+        /// <returns></returns>
         protected virtual IQueryable<T> ApplyPagingCore<T>(IQueryable<T> source, Query request, out long totalCount, out int pageIndex)
         {
             totalCount = 0;
@@ -67,6 +73,12 @@ namespace PowerTables.Defaults
             return ApplyPagingCore(source, request, out totalCount, out pageIndex);
         }
 
+        /// <summary>
+        /// Method that should return total count of records
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source">Data set</param>
+        /// <returns>Records count</returns>
         protected virtual long TotalCount<T>(IQueryable<T> source)
         {
             return source.LongCount();

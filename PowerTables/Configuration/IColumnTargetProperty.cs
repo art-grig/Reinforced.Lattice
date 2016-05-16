@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PowerTables.Configuration
+﻿namespace PowerTables.Configuration
 {
+    /// <summary>
+    /// Generic interface for column where no additional properties matters, only target row type
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface IColumnTargetProperty<T> : IColumnConfigurator
     {
     }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -320,6 +319,7 @@ namespace PowerTables.Configuration
         /// improve event handling time and reduce RAM usage. This method actually makes table to subscribe row 
         /// event via events delegator
         /// </summary>
+        /// <param name="conf">Table configurator</param>
         /// <param name="eventId">DOM event ID. You can use clas DomEvent here</param>
         /// <param name="handler">Handler function that supplies data object as first parameter and row element as second one (inline function or function name)</param>
         /// <param name="selctor">(Optional) Selector of element triggering event (relative to row)</param>
@@ -343,6 +343,7 @@ namespace PowerTables.Configuration
         /// improve event handling time and reduce RAM usage. This method actually makes table to subscribe cell 
         /// event via events delegator
         /// </summary>
+        /// <param name="conf">Table configurator</param>
         /// <param name="eventId">DOM event ID. You can use clas DomEvent here</param>
         /// <param name="handler">Handler function that supplies data object as first parameter and row element as second one (inline function or function name)</param>
         /// <param name="selctor">(Optional) Selector of element triggering event (relative to cell)</param>

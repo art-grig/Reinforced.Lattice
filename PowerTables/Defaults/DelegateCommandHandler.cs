@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using PowerTables.ResponseProcessing;
@@ -30,12 +27,23 @@ namespace PowerTables.Defaults
             _forceDeferred = forceDeferred;
         }
 
+        /// <summary>
+        /// Constructs new delegate command handler
+        /// </summary>
+        /// <param name="handlerMethod">Method implementing command</param>
+        /// <param name="forceDeferred">Should this command be deferred (query cached for further results retrieving)</param>
         public DelegateCommandHandler(Func<PowerTablesData<TSourceData, TTargetData>, TResponse> handlerMethod, bool forceDeferred = false)
         {
             _handlerMethod = handlerMethod;
             _forceDeferred = forceDeferred;
         }
 
+        /// <summary>
+        /// Constructs new delegate command handler
+        /// </summary>
+        /// <param name="handlerMethod">Method implementing command</param>
+        /// <param name="asynchandlerMethod">Async method implementing command</param>
+        /// <param name="forceDeferred">Should this command be deferred (query cached for further results retrieving)</param>
         public DelegateCommandHandler(Func<PowerTablesData<TSourceData, TTargetData>, TResponse> handlerMethod, Func<PowerTablesData<TSourceData, TTargetData>, Task<TResponse>> asynchandlerMethod, bool forceDeferred = false)
         {
             _handlerMethod = handlerMethod;
@@ -89,11 +97,24 @@ namespace PowerTables.Defaults
             }
         }
 
+        /// <summary>
+        /// Type of command result
+        /// </summary>
         public Type ResultType { get { return typeof (TResponse); } }
     }
 
+    /// <summary>
+    /// Extensions for delegate command handler
+    /// </summary>
     public static class DelegateCommandHandlerExtensions
     {
+        /// <summary>
+        /// Registers delegate command handler
+        /// </summary>
+        /// <param name="handler">Request handler</param>
+        /// <param name="command">String command identifier</param>
+        /// <param name="method">Method implementing command</param>
+        /// <param name="forceDeferred">Should this command be deferred (query cached for further results retrieving)</param>
         public static void AddCommandHandler<TSourceData, TTargetData, TResponse>(
             this PowerTablesHandler<TSourceData,TTargetData> handler, 
             string command, 
@@ -104,6 +125,13 @@ namespace PowerTables.Defaults
             handler.RegisterCommandHandler(command,del);
         }
 
+        /// <summary>
+        /// Registers asynchronous delegate command handler
+        /// </summary>
+        /// <param name="handler">Request handler</param>
+        /// <param name="command">String command identifier</param>
+        /// <param name="method">Asynchronous method implementing command</param>
+        /// <param name="forceDeferred">Should this command be deferred (query cached for further results retrieving)</param>
         public static void AddCommandHandler<TSourceData, TTargetData, TResponse>(
             this PowerTablesHandler<TSourceData, TTargetData> handler, 
             string command, 
@@ -114,6 +142,17 @@ namespace PowerTables.Defaults
             handler.RegisterCommandHandler(command, del);
         }
 
+        /// <summary>
+        /// Registers asynchronous delegate command handler
+        /// </summary>
+        /// <typeparam name="TSourceData"></typeparam>
+        /// <typeparam name="TTargetData"></typeparam>
+        /// <typeparam name="TResponse"></typeparam>
+        /// <param name="handler">Request handler</param>
+        /// <param name="command">String command identifier</param>
+        /// <param name="asyncMethod">Asynchronous method implementing command</param>
+        /// <param name="syncmethod">Method implementing command</param>
+        /// <param name="forceDeferred">Should this command be deferred (query cached for further results retrieving)</param>
         public static void AddCommandHandler<TSourceData, TTargetData, TResponse>(
            this PowerTablesHandler<TSourceData, TTargetData> handler, string command, 
             Func<PowerTablesData<TSourceData, TTargetData>, Task<TResponse>> asyncMethod,

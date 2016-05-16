@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using PowerTables.ResponseProcessing;
@@ -14,7 +12,11 @@ namespace PowerTables.Defaults
     /// </summary>
     public class DefaultCommandHandler : ICommandHandler
     {
+        /// <summary>
+        /// Default query command name
+        /// </summary>
         public const string CommandId = "query";
+
         public ActionResult Handle(PowerTablesData data, IResponseModifiersApplier responseModifiers)
         {
             // queryable reveals here

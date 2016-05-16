@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
+﻿using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 
 namespace PowerTables.Configuration.Json
@@ -109,6 +107,9 @@ namespace PowerTables.Configuration.Json
         /// </summary>
         public JRaw QueryConfirmation { get; set; }
 
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public TableConfiguration()
         {
             Columns = new List<ColumnConfiguration>();
@@ -121,33 +122,75 @@ namespace PowerTables.Configuration.Json
 
     }
 
+    /// <summary>
+    /// Event subscription JSON configuration
+    /// </summary>
     public class ConfiguredSubscriptionInfo
     {
+        /// <summary>
+        /// Is row event subscription mentioned
+        /// </summary>
         public bool IsRowSubscription { get; set; }
 
+        /// <summary>
+        /// Column name (must be null in case of IsRowSubscription st to true
+        /// </summary>
         public string ColumnName { get; set; }
 
+        /// <summary>
+        /// Element selector (relative to row or cell)
+        /// </summary>
         public string Selector { get; set; }
 
+        /// <summary>
+        /// Filtered DOM event. DomEvent class can be used here
+        /// </summary>
         public string DomEvent { get; set; }
 
+        /// <summary>
+        /// Handler function
+        /// </summary>
         public JRaw Handler { get; set; }
     }
 
+    /// <summary>
+    /// Set of IDs of core templates
+    /// </summary>
     public class CoreTemplateIds
     {
+        /// <summary>
+        /// Layout template ID (default is "layout")
+        /// </summary>
         public string Layout { get; set; }
 
+        /// <summary>
+        /// Plugin wrapper template ID (default is "pluginWrapper")
+        /// </summary>
         public string PluginWrapper { get; set; }
 
+        /// <summary>
+        /// Row wrapper template ID (default is "rowWrapper")
+        /// </summary>
         public string RowWrapper { get; set; }
 
+        /// <summary>
+        /// Cell wrapper template ID (default is "cellWrapper")
+        /// </summary>
         public string CellWrapper { get; set; }
 
+        /// <summary>
+        /// Header wrapper template ID (default is "headerWrapper")
+        /// </summary>
         public string HeaderWrapper { get; set; }
 
+        /// <summary>
+        /// Banner messages template (default is "messages")
+        /// </summary>
         public string Messages { get; set; }
 
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public CoreTemplateIds()
         {
             Layout = "layout";
@@ -211,6 +254,9 @@ namespace PowerTables.Configuration.Json
     /// </summary>
     public class PluginConfiguration
     {
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public PluginConfiguration(string pluginId)
         {
             PluginId = pluginId;

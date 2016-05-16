@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
 namespace PowerTables.Configuration
@@ -42,6 +38,13 @@ namespace PowerTables.Configuration
         /// </summary>
         public JRaw DestroyDatepicker { get; private set; }
 
+        /// <summary>
+        /// Constructs new instance of datepicker options
+        /// </summary>
+        /// <param name="createDatepicker"><see cref="CreateDatePicker"/></param>
+        /// <param name="putToDatepicker"><see cref="PutToDatePicker"/></param>
+        /// <param name="getFromDatePicker"><see cref="GetFromDatePicker"/></param>
+        /// <param name="destroyDatepicker"><see cref="DestroyDatepicker"/></param>
         public DatepickerOptions(string createDatepicker, string putToDatepicker, string getFromDatePicker,string destroyDatepicker)
         {
             if (string.IsNullOrEmpty(createDatepicker) || string.IsNullOrEmpty(putToDatepicker) ||
