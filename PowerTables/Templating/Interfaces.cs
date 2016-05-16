@@ -27,6 +27,9 @@ namespace PowerTables.Templating
     /// </summary>
     public interface IProvidesEventsBinding : ITemplateRegion { }
 
+    /// <summary>
+    /// Template region providing tracking 
+    /// </summary>
     public interface IProvidesTracking : ITemplateRegion
     {
         /// <summary>
@@ -46,6 +49,7 @@ namespace PowerTables.Templating
     /// templating capabilities
     /// </summary>
     /// <typeparam name="T">CLR View-Model types</typeparam>
+    // ReSharper disable once UnusedTypeParameter
     public interface IModelProvider<T> : ITemplateRegion
     {
         /// <summary>

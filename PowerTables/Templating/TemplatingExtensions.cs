@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Web.Mvc;
-using System.Web.Mvc.Html;
-using JetBrains.Annotations;
 using Newtonsoft.Json;
-using PowerTables.Configuration;
-using PowerTables.Templating.BuiltIn;
+
+// ReSharper disable InconsistentNaming
 
 namespace PowerTables.Templating
 {
@@ -89,16 +87,35 @@ namespace PowerTables.Templating
         }
 
         private static readonly MvcHtmlString _content = MvcHtmlString.Create("{{{Content}}}");
+
+        /// <summary>
+        /// Content of <paramref name="t"/> should be put here
+        /// </summary>
+        /// <param name="t">Content provider</param>
+        /// <returns>Template placeholder for content</returns>
         public static MvcHtmlString Content(this IProvidesContent t)
         {
             return _content;
         }
 
+        /// <summary>
+        /// Content of <paramref name="t"/>'s for column <paramref name="columnName"/> should be put here
+        /// </summary>
+        /// <param name="t">Content provider</param>
+        /// <param name="columnName">Column name to output content for</param>
+        /// <returns>Template placeholder for content</returns>
         public static MvcHtmlString Content(this IProvidesColumnContent t, string columnName)
         {
             return MvcHtmlString.Create(string.Format("{{{{{{Content \"{0}\"}}}}}}", columnName));
         }
 
+        /// <summary>
+        /// Specifies VisualStat for mentioned element
+        /// </summary>
+        /// <param name="state">Visual state-providing region</param>
+        /// <param name="stateName">Visual state name</param>
+        /// <param name="visualState">Visual state builder</param>
+        /// <returns>Template instruction to cache Visual state for mentioned element</returns>
         public static MvcHtmlString State(this IProvidesVisualState state, string stateName, Action<VisualState> visualState)
         {
             VisualState vs = new VisualState();
@@ -108,6 +125,13 @@ namespace PowerTables.Templating
 
         }
 
+        /// <summary>
+        /// Specifies VisualStat for mentioned element
+        /// </summary>
+        /// <param name="state">Visual state-providing region</param>
+        /// <param name="stateName">Visual state name</param>
+        /// <param name="visualState">Visual state builder</param>
+        /// <returns>Template instruction to cache Visual state for mentioned element</returns>
         public static MvcHtmlString State(this IProvidesVisualState state, string stateName, VisualState visualState)
         {
             var json = JsonConvert.SerializeObject(visualState.Description, Formatting.None);
@@ -115,13 +139,28 @@ namespace PowerTables.Templating
 
         }
 
-
+        /// <summary>
+        /// Sets JavaScript function that will be called after mentioned element is rendered. 
+        /// Rendered element's HTMLElement object will be passed as 1st parameter to this function
+        /// </summary>
+        /// <param name="ts">Template scope </param>
+        /// <param name="functionName">Callback function reference or literal function</param>
+        /// <param name="rawArgs">Other arguments to provide. Remember that here should be not constant values but Handlebar's JS expression. Feel free to include references to teimplate's viewMdel here</param>
+        /// <returns></returns>
         public static MvcHtmlString Callback(this ITemplatesScope ts, string functionName, params string[] rawArgs)
         {
             var args = string.Join(" ", rawArgs);
             return MvcHtmlString.Create(string.Format("{{{{{{RenderCallback \"{0}\" {1} }}}}}}", functionName, args));
         }
 
+        /// <summary>
+        /// Sets JavaScript function that will be called after mentioned element is prepared to be destroyed (removed from HTML document). 
+        /// Rendered element's HTMLElement object will be passed as 1st parameter to this function
+        /// </summary>
+        /// <param name="ts">Template scope </param>
+        /// <param name="functionName">Callback function reference or literal function</param>
+        /// <param name="rawArgs">Other arguments to provide. Remember that here should be not constant values but Handlebar's JS expression. Feel free to include references to teimplate's viewMdel here</param>
+        /// <returns></returns>
         public static MvcHtmlString DestroyCallback(this ITemplatesScope ts, string functionName, params string[] rawArgs)
         {
             var args = string.Join(" ", rawArgs);
