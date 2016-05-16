@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PowerTables
 {
+    /// <summary>
+    /// Helper and extension methods to generate Lattice-suitable Tuple for filters
+    /// </summary>
     public static class FilterTuple
     {
         /// <summary>

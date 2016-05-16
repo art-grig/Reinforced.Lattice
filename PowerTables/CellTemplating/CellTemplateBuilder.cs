@@ -143,6 +143,10 @@ namespace PowerTables.CellTemplating
             return this;
         }
 
+        /// <summary>
+        /// Converts cell template fo Javascript function
+        /// </summary>
+        /// <returns>String containing JS function that can be run to get resulting HTML of supplied model</returns>
         public string Build()
         {
             StringBuilder sb = new StringBuilder();

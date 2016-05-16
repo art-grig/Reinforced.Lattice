@@ -1,14 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Mvc;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace PowerTables.ResponseProcessing
 {
+    /// <summary>
+    /// ActionResult used for Lattise's Default client responses
+    /// </summary>
     public class JsonNetResult : JsonResult
     {
         

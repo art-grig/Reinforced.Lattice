@@ -7,6 +7,9 @@ namespace PowerTables.Templating
     /// </summary>
     public class OverrideHbFieldNameAttribute : Attribute
     {
+        /// <summary>
+        /// Field name to be used in Handlebards
+        /// </summary>
         public string Name { get; private set; }
 
         public OverrideHbFieldNameAttribute(string name)

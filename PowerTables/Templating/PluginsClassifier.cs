@@ -3,7 +3,7 @@ using System.Web.Mvc;
 
 namespace PowerTables.Templating
 {
-    public class PluginsClassifier : IViewPlugins
+    internal class PluginsClassifier : IViewPlugins
     {
         private readonly WebViewPage _page;
 

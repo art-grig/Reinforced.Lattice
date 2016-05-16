@@ -50,6 +50,7 @@ namespace PowerTables.Templating
     /// Generic VisualState wrapper for parameter-specific extension methods
     /// </summary>
     /// <typeparam name="T">ViewState's template view model</typeparam>
+    // ReSharper disable once UnusedTypeParameter
     public class SpecialVisualStateDescription<T>
     {
         /// <summary>

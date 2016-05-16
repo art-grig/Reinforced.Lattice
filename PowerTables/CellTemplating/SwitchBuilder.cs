@@ -9,7 +9,7 @@ namespace PowerTables.CellTemplating
     /// </summary>
     public class SwitchBuilder
     {
-        private string _objectProperty;
+        private readonly string _objectProperty;
         internal SwitchBuilder(string expression,string objectProperty)
         {
             _expression = expression;
@@ -18,8 +18,14 @@ namespace PowerTables.CellTemplating
 
         private readonly string _expression;
         private readonly List<string> _lines = new List<string>();
-        private string _default = null;
+        private string _default;
 
+        /// <summary>
+        /// Specifies template for single condition
+        /// </summary>
+        /// <param name="caseExpression">Case `{@}`-expression</param>
+        /// <param name="template">TemplTE builder</param>
+        /// <returns>Fluent</returns>
         public SwitchBuilder When(string caseExpression, Action<Template> template)
         {
             Template tpl = new Template();
@@ -28,6 +34,11 @@ namespace PowerTables.CellTemplating
             return this;
         }
 
+        /// <summary>
+        /// Specifies template for default condition
+        /// </summary>
+        /// <param name="template">TemplTE builder</param>
+        /// <returns>Fluent</returns>
         public SwitchBuilder Default(Action<Template> template)
         {
             Template tpl = new Template();
@@ -36,12 +47,24 @@ namespace PowerTables.CellTemplating
             return this;
         }
 
+        /// <summary>
+        /// Default switch result will be empty string
+        /// </summary>
+        /// <returns>Fluent</returns>
         public SwitchBuilder DefaultEmpty()
         {
             _default = " default: return ''; ";
             return this;
         }
 
+        /// <summary>
+        /// Specifies template builders for several cases
+        /// </summary>
+        /// <typeparam name="T">Case option element type</typeparam>
+        /// <param name="options">Set of available options for cases</param>
+        /// <param name="expression">Case `{@}`-expression builder for every option</param>
+        /// <param name="template">Template builder for every option</param>
+        /// <returns></returns>
         public SwitchBuilder Cases<T>(IEnumerable<T> options, Func<T, string> expression,
             Action<Template, T> template)
         {
@@ -54,6 +77,10 @@ namespace PowerTables.CellTemplating
             return this;
         }
 
+        /// <summary>
+        /// Converts this switch builder to target piece of JS code
+        /// </summary>
+        /// <returns>JS code for embedding into template function</returns>
         public string Build()
         {
             StringBuilder sb = new StringBuilder();
