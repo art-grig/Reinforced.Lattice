@@ -1085,6 +1085,7 @@ var PowerTables;
             this._comparators = {};
             this._filters = [];
             this._anyClientFiltration = false;
+            this._clientValueFunction = {};
             /**
              * Data that actually is currently displayed in table
              */
@@ -1097,6 +1098,12 @@ var PowerTables;
             this._events = masterTable.Events;
             this._instances = masterTable.InstanceManager;
             this._masterTable = masterTable;
+            for (var ck in masterTable.InstanceManager.Columns) {
+                var col = masterTable.InstanceManager.Columns[ck];
+                if (col.Configuration.ClientValueFunction != null && col.Configuration.ClientValueFunction != undefined) {
+                    this._clientValueFunction[col.RawName] = col.Configuration.ClientValueFunction;
+                }
+            }
         }
         /**
          * Registers client filter
@@ -1148,6 +1155,9 @@ var PowerTables;
                 currentColIndex++;
                 if (currentColIndex >= this._rawColumnNames.length) {
                     currentColIndex = 0;
+                    for (var ck in this._clientValueFunction) {
+                        obj[ck] = this._clientValueFunction[ck](obj);
+                    }
                     data.push(obj);
                     obj = {};
                 }
@@ -1449,6 +1459,9 @@ var PowerTables;
                 }
                 if (dataObject[k] == undefined)
                     dataObject[k] = null;
+            }
+            for (var ck in this._clientValueFunction) {
+                dataObject[ck] = this._clientValueFunction[ck](dataObject);
             }
         };
         DataHolder.prototype.proceedAdjustments = function (adjustments) {
@@ -5249,7 +5262,8 @@ var PowerTables;
                     CellRenderingTemplateId: null,
                     CellRenderingValueFunction: null,
                     Title: 'Checkboxify',
-                    ColumnType: 'Int32'
+                    ColumnType: 'Int32',
+                    ClientValueFunction: null
                 };
                 var col = {
                     Configuration: conf,

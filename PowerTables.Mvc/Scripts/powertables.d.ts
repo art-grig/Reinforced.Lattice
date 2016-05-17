@@ -74,6 +74,11 @@ declare module PowerTables.Configuration.Json {
         IsEnum: boolean;
         /** Is column nullable */
         IsNullable: boolean;
+        /**
+        * Javascript function used to evaluate column value on the client-side.
+        *             Function signature: (dataObject:any) =&gt; any
+        */
+        ClientValueFunction: (a: any) => any;
     }
     /** Plugin JSON configuration */
     interface IPluginConfiguration {
@@ -88,11 +93,17 @@ declare module PowerTables.Configuration.Json {
         /** Overridable plugin template Id */
         TemplateId: string;
     }
+    /** Event subscription JSON configuration */
     interface IConfiguredSubscriptionInfo {
+        /** Is row event subscription mentioned */
         IsRowSubscription: boolean;
+        /** Column name (must be null in case of IsRowSubscription st to true */
         ColumnName: string;
+        /** Element selector (relative to row or cell) */
         Selector: string;
+        /** Filtered DOM event. DomEvent class can be used here */
         DomEvent: string;
+        /** Handler function */
         Handler: (dataObject: any, originalEvent: any) => void;
     }
 }
@@ -126,12 +137,19 @@ declare module PowerTables {
         */
         DestroyDatepicker: (element: HTMLElement) => void;
     }
+    /** Set of IDs of core templates */
     interface ICoreTemplateIds {
+        /** Layout template ID (default is "layout") */
         Layout: string;
+        /** Plugin wrapper template ID (default is "pluginWrapper") */
         PluginWrapper: string;
+        /** Row wrapper template ID (default is "rowWrapper") */
         RowWrapper: string;
+        /** Cell wrapper template ID (default is "cellWrapper") */
         CellWrapper: string;
+        /** Header wrapper template ID (default is "headerWrapper") */
         HeaderWrapper: string;
+        /** Banner messages template (default is "messages") */
         Messages: string;
     }
     /** JSON model for table message */
@@ -604,8 +622,11 @@ declare module PowerTables.Editors.Memo {
     }
 }
 declare module PowerTables.Editors.Check {
+    /** JSON configuration for Checkbox editor */
     interface ICheckEditorUiConfig extends PowerTables.Editors.ICellEditorUiConfigBase {
+        /** Plugin ID */
         PluginId: string;
+        /** Is checkbox mandatory to be checked */
         IsMandatory: boolean;
     }
 }
@@ -1516,6 +1537,7 @@ declare module PowerTables {
         private _events;
         private _instances;
         private _masterTable;
+        private _clientValueFunction;
         /**
          * Data that actually is currently displayed in table
          */

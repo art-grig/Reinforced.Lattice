@@ -1,4 +1,4 @@
-﻿module PowerTables { 
+﻿module PowerTables {
     /**
      * Class that is responsible for holding and managing data loaded from server
      */
@@ -8,6 +8,12 @@
             this._events = masterTable.Events;
             this._instances = masterTable.InstanceManager;
             this._masterTable = masterTable;
+            for (var ck in masterTable.InstanceManager.Columns) {
+                var col = masterTable.InstanceManager.Columns[ck];
+                if (col.Configuration.ClientValueFunction != null && col.Configuration.ClientValueFunction != undefined) {
+                    this._clientValueFunction[col.RawName] = col.Configuration.ClientValueFunction;
+                }
+            }
         }
 
         private _rawColumnNames: string[];
@@ -17,6 +23,7 @@
         private _events: EventsManager;
         private _instances: InstanceManager;
         private _masterTable: IMasterTable;
+        private _clientValueFunction: { [key: string]: (dataObject: any) => any } = {}
 
         /**
          * Data that actually is currently displayed in table
@@ -90,6 +97,9 @@
                 currentColIndex++;
                 if (currentColIndex >= this._rawColumnNames.length) {
                     currentColIndex = 0;
+                    for (var ck in this._clientValueFunction) {
+                        obj[ck] = this._clientValueFunction[ck](obj);
+                    }
                     data.push(obj);
                     obj = {};
                 }
@@ -99,7 +109,7 @@
             this.filterStoredData(clientQuery);
         }
 
-        
+
 
         /**
          * Client query that was used to obtain recent local data set
@@ -383,7 +393,7 @@
             return result;
         }
 
-        
+
         public copyData(source: any, target: any): string[] {
             var modColumns = [];
             for (var cd in source) {
@@ -413,19 +423,22 @@
                 }
                 if (dataObject[k] == undefined) dataObject[k] = null;
             }
+            for (var ck in this._clientValueFunction) {
+                dataObject[ck] = this._clientValueFunction[ck](dataObject);
+            }
         }
 
         public proceedAdjustments(adjustments: PowerTables.Editors.IAdjustmentData): IAdjustmentResult {
-            if (this.RecentClientQuery == null || this.RecentClientQuery == undefined)return null;
+            if (this.RecentClientQuery == null || this.RecentClientQuery == undefined) return null;
             var needRefilter = false;
             var redrawVisibles = [];
             var touchedData = [];
             var touchedColumns = [];
             var added = [];
-            
+
             for (var i = 0; i < adjustments.Updates.length; i++) {
                 this.normalizeObject(adjustments.Updates[i]);
-                
+
                 var update = this.localLookupPrimaryKey(adjustments.Updates[i]);
                 if (update.LoadedIndex < 0) {
                     if (this.StoredData.length > 0) {
@@ -442,7 +455,7 @@
                     needRefilter = true;
                 }
             }
-            
+
             for (var j = 0; j < adjustments.Removals.length; j++) {
                 this.normalizeObject(adjustments.Removals[j]);
                 var lookup = this.localLookupPrimaryKey(adjustments.Removals[j]);
@@ -473,11 +486,11 @@
     }
 
     export interface IAdjustmentResult {
-        NeedRedrawAllVisible:boolean;
+        NeedRedrawAllVisible: boolean;
         VisiblesToRedraw: any[];
-        AddedData:any[];
+        AddedData: any[];
         TouchedData: any[];
-        TouchedColumns:string[][];
+        TouchedColumns: string[][];
     }
 
     /**

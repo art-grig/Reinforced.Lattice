@@ -3,6 +3,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Newtonsoft.Json.Linq;
+using PowerTables.CellTemplating;
 using PowerTables.Configuration.Json;
 using PowerTables.Plugins;
 
@@ -72,7 +73,7 @@ namespace PowerTables.Configuration
         /// <param name="configurator"></param>
         /// <param name="placeholder">Location where to append empty filters</param>
         /// <returns></returns>
-        public static T AppendEmptyFilters<T>(this T configurator,string placeholder = "filter") where T : IConfigurator
+        public static T AppendEmptyFilters<T>(this T configurator, string placeholder = "filter") where T : IConfigurator
         {
             configurator.TableConfiguration.EmptyFiltersPlaceholder = placeholder;
             return configurator;
@@ -193,7 +194,7 @@ namespace PowerTables.Configuration
             return conf;
         }
 
-        
+
         /// <summary>
         /// Sets up ordering fallback. 
         /// Some frameworks are not working if no OrderBy supplied (like EF). 
@@ -226,7 +227,7 @@ namespace PowerTables.Configuration
             conf.ColumnConfiguration.IsDataOnly = isDataOnly;
         }
 
-       
+
         /// <summary>
         /// Overrides core table template IDs
         /// </summary>
@@ -267,7 +268,7 @@ namespace PowerTables.Configuration
         public static Configurator<TSourceData, TTableData> PrimaryKey<TSourceData, TTableData>
             (this Configurator<TSourceData, TTableData> conf, Action<ColumnListBuilder<TSourceData, TTableData>> columns) where TTableData : new()
         {
-            ColumnListBuilder<TSourceData,TTableData> clb = new ColumnListBuilder<TSourceData, TTableData>(conf);
+            ColumnListBuilder<TSourceData, TTableData> clb = new ColumnListBuilder<TSourceData, TTableData>(conf);
             columns(clb);
             conf.TableConfiguration.KeyFields = clb.Names.ToArray();
             return conf;
@@ -299,7 +300,7 @@ namespace PowerTables.Configuration
         public static Configurator<TSourceData, TTableData> RowTemplateSelector<TSourceData, TTableData>
             (this Configurator<TSourceData, TTableData> conf, string selectorFunction) where TTableData : new()
         {
-            conf.TableConfiguration.TemplateSelector = string.IsNullOrEmpty(selectorFunction)?null:new JRaw(selectorFunction);
+            conf.TableConfiguration.TemplateSelector = string.IsNullOrEmpty(selectorFunction) ? null : new JRaw(selectorFunction);
             return conf;
         }
 
@@ -325,7 +326,7 @@ namespace PowerTables.Configuration
         /// <param name="selctor">(Optional) Selector of element triggering event (relative to row)</param>
         /// <returns></returns>
         public static Configurator<TSourceData, TTableData> SubscribeRowEvent<TSourceData, TTableData>
-            (this Configurator<TSourceData, TTableData> conf, string eventId,string handler,string selctor = null) where TTableData : new()
+            (this Configurator<TSourceData, TTableData> conf, string eventId, string handler, string selctor = null) where TTableData : new()
         {
             conf.TableConfiguration.Subscriptions.Add(new ConfiguredSubscriptionInfo()
             {
@@ -370,6 +371,38 @@ namespace PowerTables.Configuration
             (this Configurator<TSourceData, TTableData> conf, string confirmationFunction) where TTableData : new()
         {
             conf.TableConfiguration.QueryConfirmation = string.IsNullOrEmpty(confirmationFunction) ? null : new JRaw(confirmationFunction);
+            return conf;
+        }
+
+
+        /// <summary>
+        /// Specifies JS function for client-side cell value evaluation for particular mentioned column
+        /// </summary>
+        /// <typeparam name="TSourceData"></typeparam>
+        /// <typeparam name="TTableData"></typeparam>
+        /// <typeparam name="TTableColumn"></typeparam>
+        /// <param name="conf">Column configurator</param>
+        /// <param name="clientValueFunction">Client valuation function. Can be reference to existing JS function or inline one. Function signature is (dataObject:any) => any</param>
+        /// <returns></returns>
+        public static ColumnUsage<TSourceData, TTableData, TTableColumn> ClientFunction<TSourceData, TTableData, TTableColumn>(this ColumnUsage<TSourceData, TTableData, TTableColumn> conf, string clientValueFunction) where TTableData : new()
+        {
+            conf.ColumnConfiguration.ClientValueFunction = string.IsNullOrEmpty(clientValueFunction) ? null : new JRaw(clientValueFunction);
+            return conf;
+        }
+
+        /// <summary>
+        /// Specifies JS function for client-side cell value evaluation for particular mentioned column
+        /// </summary>
+        /// <typeparam name="TSourceData"></typeparam>
+        /// <typeparam name="TTableData"></typeparam>
+        /// <typeparam name="TTableColumn"></typeparam>
+        /// <param name="conf">Column configurator</param>
+        /// <param name="clientValueFunction">Client valuation function. Can be reference to existing JS function or inline one. Function signature is (dataObject:any) => any</param>
+        /// <returns></returns>
+        public static ColumnUsage<TSourceData, TTableData, TTableColumn> ClientExpression<TSourceData, TTableData, TTableColumn>(this ColumnUsage<TSourceData, TTableData, TTableColumn> conf, string clientValueFunction) where TTableData : new()
+        {
+            clientValueFunction = Template.CompileExpression(clientValueFunction, "v", null);
+            conf.ColumnConfiguration.ClientValueFunction = string.IsNullOrEmpty(clientValueFunction) ? null : new JRaw(clientValueFunction);
             return conf;
         }
 

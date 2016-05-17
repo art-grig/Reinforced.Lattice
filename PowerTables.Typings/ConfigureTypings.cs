@@ -66,6 +66,7 @@ namespace PowerTables.Typings
             builder.ExportAsInterface<ColumnConfiguration>()
                 .WithPublicProperties()
                 .WithProperty(c => c.CellRenderingValueFunction, c => c.Type("(a:any) => string"))
+                .WithProperty(c => c.ClientValueFunction, c => c.Type("(a:any) => any"))
                 ;
 
             builder.ExportAsInterface<PluginConfiguration>().WithPublicProperties();

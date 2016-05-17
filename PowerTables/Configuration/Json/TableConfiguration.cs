@@ -247,6 +247,12 @@ namespace PowerTables.Configuration.Json
         /// Is column nullable
         /// </summary>
         public bool IsNullable { get; set; }
+
+        /// <summary>
+        /// Javascript function used to evaluate column value on the client-side.
+        /// Function signature: (dataObject:any) => any
+        /// </summary>
+        public JRaw ClientValueFunction { get; set; }
     }
 
     /// <summary>
