@@ -270,6 +270,19 @@ declare module PowerTables.Plugins.Checkboxify {
         CellTemplateId: string;
         CanSelectFunction: (v: any) => boolean;
     }
+    /** Additional JSON data that instructs client side what selection should be set */
+    interface ISelectionAdditionalData {
+        /** When true, selection on table will be replaced with <see cref="P:PowerTables.Plugins.Checkboxify.SelectionAdditionalData.SelectionToReplace" /> */
+        ReplaceSelection: boolean;
+        /** Object IDs that must be selected instead of existing selection */
+        SelectionToReplace: string[];
+        /** When true, selection on table will be modified */
+        ModifySelection: boolean;
+        /** Adds specified keys to selection */
+        AddToSelection: string[];
+        /** Removes specified keys from selection */
+        RemoveFromSelection: string[];
+    }
 }
 declare module PowerTables.Plugins.Formwatch {
     interface IFormwatchClientConfiguration {
@@ -2799,7 +2812,9 @@ declare module PowerTables.Plugins {
         private enableSelectAll(enabled);
         private onClientReload(e);
         private onServerReload(e);
-        private onAdjustments(e);
+        private applySelection(a);
+        private onBeforeAdjustments(e);
+        private onAfterAdjustments(e);
         init(masterTable: IMasterTable): void;
         modifyQuery(query: IQuery, scope: QueryScope): void;
         static registerEvents(e: EventsManager, masterTable: IMasterTable): void;

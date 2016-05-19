@@ -5420,8 +5420,39 @@ var PowerTables;
                 if (this.Configuration.ResetOnReload) {
                     this.selectAll(false);
                 }
+                if (e.EventArgs.Data.AdditionalData) {
+                    if (e.EventArgs.Data.AdditionalData['Selection'])
+                        this.applySelection(e.EventArgs.Data.AdditionalData['Selection']);
+                }
             };
-            CheckboxifyPlugin.prototype.onAdjustments = function (e) {
+            CheckboxifyPlugin.prototype.applySelection = function (a) {
+                if (!a)
+                    return;
+                if (a.ReplaceSelection) {
+                    this._selectedItems = a.SelectionToReplace;
+                    this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
+                    this.MasterTable.Controller.redrawVisibleData();
+                }
+                else if (a.ModifySelection) {
+                    for (var i = 0; i < a.AddToSelection.length; i++) {
+                        if (this._selectedItems.indexOf(a.AddToSelection[i]) < 0) {
+                            this._selectedItems.push(a.AddToSelection[i]);
+                        }
+                    }
+                    for (var i = 0; i < a.RemoveFromSelection.length; i++) {
+                        if (this._selectedItems.indexOf(a.RemoveFromSelection[i]) > -1) {
+                            this._selectedItems.splice(this._selectedItems.indexOf(a.RemoveFromSelection[i]), 1);
+                        }
+                    }
+                    this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
+                    this.MasterTable.Controller.redrawVisibleData();
+                }
+            };
+            CheckboxifyPlugin.prototype.onBeforeAdjustments = function (e) {
+                if (e.EventArgs.AdditionalData['Selection'])
+                    this.applySelection(e.EventArgs.AdditionalData['Selection']);
+            };
+            CheckboxifyPlugin.prototype.onAfterAdjustments = function (e) {
                 if (e.EventArgs.Removals.length > 0) {
                     for (var i = 0; i < e.EventArgs.Removals.length; i++) {
                         var removal = e.EventArgs.Removals[i];
@@ -5459,7 +5490,8 @@ var PowerTables;
                 e.BeforeClientRowsRendering.subscribe(this.beforeRowsRendering.bind(this), 'checkboxify');
                 e.AfterClientDataProcessing.subscribe(this.onClientReload.bind(this), 'checkboxify');
                 e.DataReceived.subscribe(this.onServerReload.bind(this), 'checkboxify');
-                e.AfterAdjustment.subscribe(this.onAdjustments.bind(this), 'checkboxify');
+                e.BeforeAdjustment.subscribe(this.onBeforeAdjustments.bind(this), 'checkboxify');
+                e.BeforeAdjustment.subscribe(this.onAfterAdjustments.bind(this), 'checkboxify');
             };
             return CheckboxifyPlugin;
         }(Plugins.PluginBase));

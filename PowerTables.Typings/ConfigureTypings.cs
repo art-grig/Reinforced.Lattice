@@ -72,6 +72,9 @@ namespace PowerTables.Typings
             builder.ExportAsInterface<PluginConfiguration>().WithPublicProperties();
             builder.ExportAsInterface<CheckboxifyClientConfig>().WithPublicProperties()
                 .WithProperty(c => c.CanSelectFunction, c => c.Type("(v:any)=>boolean"));
+            
+            builder.ExportAsInterface<SelectionAdditionalData>().WithPublicProperties();
+
             builder.ExportAsInterface<FormwatchClientConfiguration>().WithPublicProperties();
             builder.ExportAsInterface<FormwatchFieldData>().WithPublicProperties()
                 .WithProperty(c => c.FieldValueFunction, a => a.Type<Func<object>>())

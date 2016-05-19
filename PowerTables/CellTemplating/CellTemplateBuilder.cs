@@ -52,7 +52,7 @@ namespace PowerTables.CellTemplating
         /// <returns></returns>
         public CellTemplateBuilder IfNotPresent(string columnName, string content)
         {
-            _lines.Add(string.Format("if ((v{1}.{0}==null)||(v{1}.{0}==undefined)) return '{2}'; "
+            _lines.Add(string.Format("if ((v{1}.{0}==null)||(v{1}.{0}==undefined)) return {2}; "
                 , columnName
                 , string.IsNullOrEmpty(_objectProperty) ? string.Empty : ".DataObject"
                 , Template.Compile(content, "v", _objectProperty)));
@@ -68,7 +68,7 @@ namespace PowerTables.CellTemplating
         /// <returns></returns>
         public CellTemplateBuilder IfNotPresent(string columnName, Action<Template> content)
         {
-            _lines.Add(string.Format("if ((v{1}.{0}==null)||(v{1}.{0}==undefined)) return '{2}'; "
+            _lines.Add(string.Format("if ((v{1}.{0}==null)||(v{1}.{0}==undefined)) return {2}; "
                 , columnName
                 , string.IsNullOrEmpty(_objectProperty) ? string.Empty : ".DataObject"
                 , Template.BuildDelegate(content)));
@@ -82,7 +82,7 @@ namespace PowerTables.CellTemplating
         /// <returns></returns>
         public CellTemplateBuilder IfNotPresentSelf(string content)
         {
-            _lines.Add(String.Format("if ((v{0}==null)||(v{0}==undefined)) return \'{1}\'; "
+            _lines.Add(String.Format("if ((v{0}==null)||(v{0}==undefined)) return {1}; "
                 , string.IsNullOrEmpty(_objectProperty) ? string.Empty : ".DataObject"
                 , Template.Compile(content, "v", _objectProperty)));
             return this;
@@ -95,7 +95,7 @@ namespace PowerTables.CellTemplating
         /// <returns></returns>
         public CellTemplateBuilder IfNotPresentSelf(Action<Template> content)
         {
-            _lines.Add(String.Format("if ((v{0}==null)||(v{0}==undefined)) return \'{1}\'; "
+            _lines.Add(String.Format("if ((v{0}==null)||(v{0}==undefined)) return {1}; "
                 , string.IsNullOrEmpty(_objectProperty) ? string.Empty : ".DataObject"
                 , Template.BuildDelegate(content)));
             return this;

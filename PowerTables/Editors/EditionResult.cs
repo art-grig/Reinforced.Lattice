@@ -144,7 +144,7 @@ namespace PowerTables.Editors
     /// <summary>
     /// Adjustments set for particular table
     /// </summary>
-    public class AdjustmentData
+    public class AdjustmentData : IAdditionalDataProvider
     {
         /// <summary>
         /// Objects that should be removed from clien table

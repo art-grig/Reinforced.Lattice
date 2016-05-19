@@ -278,6 +278,20 @@ module PowerTables.Plugins.Checkboxify {
 		CellTemplateId: string;
 		CanSelectFunction: (v:any)=>boolean;
 	}
+	/** Additional JSON data that instructs client side what selection should be set */
+	export interface ISelectionAdditionalData
+	{
+		/** When true, selection on table will be replaced with <see cref="P:PowerTables.Plugins.Checkboxify.SelectionAdditionalData.SelectionToReplace" /> */
+		ReplaceSelection: boolean;
+		/** Object IDs that must be selected instead of existing selection */
+		SelectionToReplace: string[];
+		/** When true, selection on table will be modified */
+		ModifySelection: boolean;
+		/** Adds specified keys to selection */
+		AddToSelection: string[];
+		/** Removes specified keys from selection */
+		RemoveFromSelection: string[];
+	}
 }
 module PowerTables.Plugins.Formwatch {
 	export interface IFormwatchClientConfiguration

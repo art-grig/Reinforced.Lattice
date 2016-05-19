@@ -138,8 +138,10 @@
     <Compile Include="Filters\Value\ValueFilterExtensions.cs" />
     <Compile Include="FilterTuple.cs" />
     <Compile Include="FrequentlyUsed\FrequentlyUsedExtensions.cs" />
+    <Compile Include="IAdditionalDataProvider.cs" />
     <Compile Include="InitializationExtensions.cs" />
     <Compile Include="IQueryHandler.cs" />
+    <Compile Include="Plugins\Checkboxify\SelectionAdditionalData.cs" />
     <Compile Include="Plugins\Checkboxify\CheckboxifyExtensions.cs" />
     <Compile Include="Plugins\Checkboxify\CheckboxifyCommandHandler.cs" />
     <Compile Include="Plugins\Checkboxify\CheckboxifyTemplateRegion.cs" />

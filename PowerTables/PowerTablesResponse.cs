@@ -10,7 +10,7 @@ namespace PowerTables
     /// The respons that is being sent to client script. 
     /// This entity contains query results to be shown in table and also additional data
     /// </summary>
-    public class PowerTablesResponse
+    public class PowerTablesResponse : IAdditionalDataProvider
     {
         public static bool EnableStackTraces = true;
 
