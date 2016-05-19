@@ -15,12 +15,20 @@ namespace PowerTables.Mvc
 
         public string[] AdditionalCodeFiles { get; set; }
 
-        public TutorialAttribute(string tutorialTitle, int tutorialNumber, params string[] additionalCodePath)
+        public TutorialAttribute(string tutorialTitle, params string[] additionalCodePath)
         {
             TutorialTitle = tutorialTitle;
-            TutorialNumber = tutorialNumber;
             AdditionalCodeFiles = additionalCodePath;
         }
+
+        public TutorialAttribute(string tutorialTitle, int partial, params string[] additionalCodePath)
+        {
+            TutorialTitle = tutorialTitle;
+            AdditionalCodeFiles = additionalCodePath;
+            Partial = partial;
+        }
+
+        public int Partial { get; set; }
     }
 
     public class Code

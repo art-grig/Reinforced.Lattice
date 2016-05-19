@@ -13,6 +13,23 @@ namespace PowerTables.Mvc.Controllers
 {
     public partial class TutorialController : Controller
     {
+        private static readonly Dictionary<string, TutorialAttribute> TutorialMethods = new Dictionary<string, TutorialAttribute>();
+        static TutorialController()
+        {
+            var tutorialMethods = typeof(TutorialController).GetMethods()
+                .Where(c => c.GetCustomAttribute<TutorialAttribute>() != null)
+                .OrderBy(c => c.GetCustomAttribute<TutorialAttribute>().Partial);
+
+            TutorialMethods = tutorialMethods
+                .ToDictionary(c => c.Name, v => v.GetCustomAttribute<TutorialAttribute>());
+            int i = 1;
+            foreach (var tutorialAttribute in TutorialMethods)
+            {
+                tutorialAttribute.Value.TutorialNumber = i;
+                i++;
+                tutorialAttribute.Value.TutorialId = tutorialAttribute.Key;
+            }
+        }
         private Configurator<Toy, Row> Table()
         {
             var conf = new Configurator<Toy, Row>();
@@ -28,15 +45,19 @@ namespace PowerTables.Mvc.Controllers
         protected override void OnActionExecuting(ActionExecutingContext filterContext)
         {
             base.OnActionExecuting(filterContext);
-            
-            var attrs = filterContext.ActionDescriptor.GetCustomAttributes(typeof(TutorialAttribute), true);
-            if (attrs.Length != 0)
+
+            TutorialAttribute attrs = null;
+            if (TutorialMethods.ContainsKey(filterContext.ActionDescriptor.ActionName))
             {
-                TutorialAttribute currentTutorial = attrs[0] as TutorialAttribute;
+                attrs = TutorialMethods[filterContext.ActionDescriptor.ActionName];
+            }
+            if (attrs != null)
+            {
+                TutorialAttribute currentTutorial = attrs;
                 ViewBag.CurrentTutorial = currentTutorial;
                 _tutorialId = filterContext.ActionDescriptor.ActionName;
 
-                ViewBag.Code = GetCode(_tutorialId,currentTutorial.TutorialNumber);
+                ViewBag.Code = GetCode(_tutorialId, currentTutorial.TutorialNumber);
 
                 ViewBag.AdditionalCode = new Dictionary<Code, string>();
                 foreach (var additionalCodeFile in currentTutorial.AdditionalCodeFiles)
@@ -58,14 +79,8 @@ namespace PowerTables.Mvc.Controllers
                 }
             }
             List<TutorialAttribute> tutorials =
-                typeof(TutorialController).GetMethods()
-                    .Where(c => c.GetCustomAttribute<TutorialAttribute>() != null)
-                    .Select(c =>
-                    {
-                        var ct = c.GetCustomAttribute<TutorialAttribute>();
-                        ct.TutorialId = c.Name;
-                        return ct;
-                    }).OrderBy(v => v.TutorialNumber).ToList();
+                TutorialMethods
+                    .Select(c => c.Value).OrderBy(v => v.TutorialNumber).ToList();
             ViewBag.Tutorials = tutorials;
         }
         private string GetCode(string path)
@@ -76,7 +91,7 @@ namespace PowerTables.Mvc.Controllers
         }
         private string GetCode(string tutorialId, int tutorialNumber)
         {
-            var file = Server.MapPath(string.Format("~/Models/Tutorial/_{1}_{0}.cs", tutorialId, tutorialNumber));
+            var file = Server.MapPath(string.Format("~/Models/Tutorial/{0}.cs", tutorialId));
             var fileText = System.IO.File.ReadAllText(file);
             return fileText.Trim();
         }
@@ -86,7 +101,7 @@ namespace PowerTables.Mvc.Controllers
             return View();
         }
 
-        [Tutorial("Basic setup", 1, "Models/Data/Data.cs", "Views/Tutorial/BaseTutorial.cshtml")]
+        [Tutorial("Basic setup", "Models/Data/Data.cs", "Views/Tutorial/BaseTutorial.cshtml")]
         public ActionResult Basic()
         {
             return TutPage(c => c.Basic());
@@ -97,7 +112,7 @@ namespace PowerTables.Mvc.Controllers
             return Handle(c => c.Basic());
         }
 
-        [Tutorial("Projection, Titles and .DataOnly", 2)]
+        [Tutorial("Projection, Titles and .DataOnly")]
         public ActionResult ProjectionTitlesAndDataOnly()
         {
             return TutPage(c => c.ProjectionTitlesAndDataOnly());
@@ -108,7 +123,7 @@ namespace PowerTables.Mvc.Controllers
             return Handle(c => c.ProjectionTitlesAndDataOnly());
         }
 
-        [Tutorial("Ordering and Loading inidicator", 3)]
+        [Tutorial("Ordering and Loading inidicator")]
         public ActionResult OrderingAndLoadingInidicator()
         {
             return TutPage(c => c.OrderingAndLoadingInidicator());
@@ -119,7 +134,7 @@ namespace PowerTables.Mvc.Controllers
             return Handle(c => c.OrderingAndLoadingInidicator());
         }
 
-        [Tutorial("Messages and immediate loading", 4)]
+        [Tutorial("Messages and immediate loading")]
         public ActionResult Messages()
         {
             return TutPage(c => c.Messages());
@@ -130,7 +145,7 @@ namespace PowerTables.Mvc.Controllers
             return Handle(c => c.Messages());
         }
 
-        [Tutorial("Pagination and limiting", 5)]
+        [Tutorial("Pagination and limiting")]
         public ActionResult PaginationAndLimiting()
         {
             return TutPage(c => c.Pagination());
@@ -141,7 +156,7 @@ namespace PowerTables.Mvc.Controllers
             return Handle(c => c.Pagination());
         }
 
-        [Tutorial("Client-side pagination and limiting", 6)]
+        [Tutorial("Client-side pagination and limiting")]
         public ActionResult ClientPagination()
         {
             return TutPage(c => c.ClientPagination());
@@ -152,7 +167,7 @@ namespace PowerTables.Mvc.Controllers
             return Handle(c => c.ClientPagination());
         }
 
-        [Tutorial("Filtering", 7, "/Views/Shared/Datepicker.cshtml")]
+        [Tutorial("Filtering", "/Views/Shared/Datepicker.cshtml")]
         public ActionResult Filtering()
         {
             return TutPage(c => c.Filtering());
@@ -163,7 +178,7 @@ namespace PowerTables.Mvc.Controllers
             return Handle(c => c.Filtering());
         }
 
-        [Tutorial("Filters shuffling", 8)]
+        [Tutorial("Filters shuffling")]
         public ActionResult RedirectingFilters()
         {
             return TutPage(c => c.RedirectingFilters());
@@ -173,9 +188,9 @@ namespace PowerTables.Mvc.Controllers
         {
             return Handle(c => c.RedirectingFilters());
         }
-        
-       
-        [Tutorial("Buttons for server commands", 10)]
+
+
+        [Tutorial("Buttons for server commands")]
         public ActionResult ButtonsForCommands()
         {
             return TutPage(c => c.ButtonsForCommands());
@@ -186,7 +201,7 @@ namespace PowerTables.Mvc.Controllers
             return Handle(c => c.ButtonsForCommands());
         }
 
-        [Tutorial("Hideout and ResponseInfo", 14)]
+        [Tutorial("Hideout and ResponseInfo")]
         public ActionResult HideoutAndResponseInfo()
         {
             return TutPage(c => c.HideoutAndResponseInfo());
@@ -197,7 +212,7 @@ namespace PowerTables.Mvc.Controllers
             return Handle(c => c.HideoutAndResponseInfo());
         }
 
-        [Tutorial("Client totals", 13)]
+        [Tutorial("Client totals")]
         public ActionResult ClientTotals()
         {
             return TutPage(c => c.ClientTotals());
@@ -208,7 +223,7 @@ namespace PowerTables.Mvc.Controllers
             return Handle(c => c.ClientTotals());
         }
 
-        
+
 
         #region Utility
         private ActionResult TutPage(Action<Configurator<Toy, Row>> config)

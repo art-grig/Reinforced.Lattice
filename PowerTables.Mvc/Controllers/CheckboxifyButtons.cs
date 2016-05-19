@@ -15,7 +15,7 @@ namespace PowerTables.Mvc.Controllers
 {
     public partial class TutorialController
     {
-        [Tutorial("Checkboxify and simple buttons", 9)]
+        [Tutorial("Checkboxify and simple buttons",1)]
         public ActionResult ButtonsAndCheckboxify()
         {
             return TutPage(c => c.ButtonsAndCheckboxify());

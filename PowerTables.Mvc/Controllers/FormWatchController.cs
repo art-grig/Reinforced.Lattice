@@ -13,7 +13,7 @@ namespace PowerTables.Mvc.Controllers
 {
     public partial class TutorialController
     {
-        [Tutorial("Form watcher", 11, "Views/Tutorial/FormWatch.cshtml", "Controllers/FormWatchController.cs")]
+        [Tutorial("Form watcher",3, "Views/Tutorial/FormWatch.cshtml", "Controllers/FormWatchController.cs")]
         public ActionResult FormWatchForAdditionalData()
         {
             var vm = new FormWatchTutorialModel()

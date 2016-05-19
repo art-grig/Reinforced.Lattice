@@ -11,7 +11,7 @@ namespace PowerTables.Mvc.Controllers
 {
     public partial class TutorialController
     {
-        [Tutorial("Editing data", 12)]
+        [Tutorial("Editing data",2)]
         public ActionResult Editor()
         {
             return TutPage(c => c.Editor());
