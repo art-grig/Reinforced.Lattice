@@ -43,6 +43,64 @@ namespace PowerTables.CellTemplating
             return this;
         }
 
+
+        /// <summary>
+        /// Template will return specified content if specified column is null or undefined
+        /// </summary>
+        /// <param name="columnName">Column</param>
+        /// <param name="content">Content to return</param>
+        /// <returns></returns>
+        public CellTemplateBuilder IfNotPresent(string columnName, string content)
+        {
+            _lines.Add(string.Format("if ((v{1}.{0}==null)||(v{1}.{0}==undefined)) return '{2}'; "
+                , columnName
+                , string.IsNullOrEmpty(_objectProperty) ? string.Empty : ".DataObject"
+                , Template.Compile(content, "v", _objectProperty)));
+            return this;
+        }
+
+
+        /// <summary>
+        /// Template will return specified content if specified column is null or undefined
+        /// </summary>
+        /// <param name="columnName">Column</param>
+        /// <param name="content">Content to return</param>
+        /// <returns></returns>
+        public CellTemplateBuilder IfNotPresent(string columnName, Action<Template> content)
+        {
+            _lines.Add(string.Format("if ((v{1}.{0}==null)||(v{1}.{0}==undefined)) return '{2}'; "
+                , columnName
+                , string.IsNullOrEmpty(_objectProperty) ? string.Empty : ".DataObject"
+                , Template.BuildDelegate(content)));
+            return this;
+        }
+
+        /// <summary>
+        /// Template will return empty cell is self-value ({@}) is null or undefined
+        /// </summary>
+        /// <param name="content">Content to return</param>
+        /// <returns></returns>
+        public CellTemplateBuilder IfNotPresentSelf(string content)
+        {
+            _lines.Add(String.Format("if ((v{0}==null)||(v{0}==undefined)) return \'{1}\'; "
+                , string.IsNullOrEmpty(_objectProperty) ? string.Empty : ".DataObject"
+                , Template.Compile(content, "v", _objectProperty)));
+            return this;
+        }
+
+        /// <summary>
+        /// Template will return empty cell is self-value ({@}) is null or undefined
+        /// </summary>
+        /// <param name="content">Content to return</param>
+        /// <returns></returns>
+        public CellTemplateBuilder IfNotPresentSelf(Action<Template> content)
+        {
+            _lines.Add(String.Format("if ((v{0}==null)||(v{0}==undefined)) return \'{1}\'; "
+                , string.IsNullOrEmpty(_objectProperty) ? string.Empty : ".DataObject"
+                , Template.BuildDelegate(content)));
+            return this;
+        }
+
         /// <summary>
         /// Template will return empty cell is specified expression met. 
         /// Feel free to use {@}-syntax here 
@@ -63,7 +121,7 @@ namespace PowerTables.CellTemplating
         /// <returns></returns>
         public CellTemplateBuilder Switch(string expression, Action<SwitchBuilder> swtch)
         {
-            SwitchBuilder swb = new SwitchBuilder(expression,_objectProperty);
+            SwitchBuilder swb = new SwitchBuilder(expression, _objectProperty);
             swtch(swb);
             _lines.Add(swb.Build());
             return this;
