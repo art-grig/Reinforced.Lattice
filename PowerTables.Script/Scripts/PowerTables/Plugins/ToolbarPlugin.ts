@@ -20,32 +20,36 @@
                 var _self: ToolbarPlugin = this;
 
                 // ReSharper disable Lambda
-                var f: (queryModifier?: (a: IQuery) => IQuery) => void = function (queryModifier?: (a: IQuery) => IQuery) {
-                    if (btn.BlackoutWhileCommand) {
-                        btn.IsDisabled = true;
-                        _self.redrawMe();
-                    }
-
-                    _self.MasterTable.Loader.requestServer(btn.Command, function (response) {
-                        if (btn.CommandCallbackFunction) {
-                            btn.CommandCallbackFunction.apply(_self.MasterTable, [_self.MasterTable, response]);
-                        } else {
-                            if (response.$isDeferred && response.$url) {
-                                window.location.href = response.$url;
-                            }
-                        }
+                var f: (queryModifier?: (a: IQuery) => IQuery, success?: () => void, error?: () => void) => void
+                    =
+                    function (queryModifier?: (a: IQuery) => IQuery, success?: () => void, error?: () => void) {
                         if (btn.BlackoutWhileCommand) {
-                            btn.IsDisabled = false;
+                            btn.IsDisabled = true;
                             _self.redrawMe();
                         }
 
-                    }, queryModifier, function () {
+                        _self.MasterTable.Loader.requestServer(btn.Command, function (response) {
+                            if (btn.CommandCallbackFunction) {
+                                btn.CommandCallbackFunction.apply(_self.MasterTable, [_self.MasterTable, response]);
+                            } else {
+                                if (response.$isDeferred && response.$url) {
+                                    window.location.href = response.$url;
+                                }
+                            }
                             if (btn.BlackoutWhileCommand) {
                                 btn.IsDisabled = false;
                                 _self.redrawMe();
                             }
+                            if (success) success();
+
+                        }, queryModifier, function () {
+                            if (btn.BlackoutWhileCommand) {
+                                btn.IsDisabled = false;
+                                _self.redrawMe();
+                            }
+                            if (error) error();
                         });
-                }
+                    }
                 // ReSharper restore Lambda
                 if (btn.ConfirmationFunction) btn.ConfirmationFunction.apply(this.MasterTable, [f]);
                 else if (btn.ConfirmationTemplateId) {
@@ -53,10 +57,16 @@
                         f((q) => {
                             q.AdditionalData['Confirmation'] = JSON.stringify(data);
                             return q;
+                        }, () => {
+                            tc.fireEvents(tc.Form, tc.AfterConfirmationResponse);
+                        }, () => {
+                            tc.fireEvents(tc.Form, tc.ConfirmationResponseError);
                         });
                         this.MasterTable.Renderer.destroyObject(btn.ConfirmationTargetSelector);
-                    }, () => { this.MasterTable.Renderer.destroyObject(btn.ConfirmationTargetSelector); }, this.MasterTable.Date, btn.ConfirmationFormConfiguration);
-                    
+                    }, () => {
+                        this.MasterTable.Renderer.destroyObject(btn.ConfirmationTargetSelector);
+                    }, this.MasterTable.Date, btn.ConfirmationFormConfiguration);
+
                     try {
                         var chb = this.MasterTable.InstanceManager.getPlugin<CheckboxifyPlugin>('Checkboxify');
                         var selection = chb.getSelection();

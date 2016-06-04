@@ -109,14 +109,16 @@
             this.selectAll(false);
         }
 
-        public selectByRowIndex(rowIndex: number, select: boolean = null): void {
+        public selectByRowIndex(rowIndex: number, select: boolean = null): boolean {
             var displayedLookup: ILocalLookupResult = this.MasterTable.DataHolder.localLookupDisplayedData(rowIndex);
+            if (displayedLookup == null) return false;
             this.toggleInternal(displayedLookup.DataObject, displayedLookup.DisplayedIndex, select);
+            return true;
         }
 
         public selectByDataObject(dataObject:any, select: boolean = null): boolean {
-            var displayedLookup: ILocalLookupResult = this.MasterTable.DataHolder.localLookupDisplayedDataObject(dataObject);
-            if (!displayedLookup.IsCurrentlyDisplaying) return false;
+            var displayedLookup: ILocalLookupResult = this.MasterTable.DataHolder.localLookupStoredDataObject(dataObject);
+            if (displayedLookup==null) return false;
             this.toggleInternal(displayedLookup.DataObject, displayedLookup.DisplayedIndex, select);
             return true;
         }
@@ -150,12 +152,14 @@
                     this._allSelected = this.MasterTable.DataHolder.DisplayedData.length === this._selectedItems.length;
                 }
             }
-            this.redrawHeader();
-            var row: IRow = this.MasterTable.Controller.produceRow(dataObject, displayedIndex);
-            if (overrideRow) {
-                row.renderElement = (e) => e.getCachedTemplate(this.Configuration.RowTemplateId)(row);
+            if (displayedIndex >= 0) {
+                this.redrawHeader();
+                var row: IRow = this.MasterTable.Controller.produceRow(dataObject, displayedIndex);
+                if (overrideRow) {
+                    row.renderElement = (e) => e.getCachedTemplate(this.Configuration.RowTemplateId)(row);
+                }
+                this.MasterTable.Renderer.Modifier.redrawRow(row);
             }
-            this.MasterTable.Renderer.Modifier.redrawRow(row);
             this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
         }
 
@@ -168,6 +172,7 @@
                     this.selectByRowIndex(e.DisplayingRowIndex);
                 }
             });
+            this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
         }
 
         private beforeRowsRendering(e: ITableEventArgs<IRow[]>) {

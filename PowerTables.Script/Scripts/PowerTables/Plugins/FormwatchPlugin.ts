@@ -133,11 +133,12 @@
         subscribe(e: EventsManager): void {
             for (var i = 0; i < this.Configuration.FieldsConfiguration.length; i++) {
                 var conf = this.Configuration.FieldsConfiguration[i];
+                var element = <HTMLInputElement>document.querySelector(conf.FieldSelector);
+                if (conf.AutomaticallyAttachDatepicker) {
+                    this.MasterTable.Date.createDatePicker(element);
+                }
                 if (conf.TriggerSearchOnEvents && conf.TriggerSearchOnEvents.length > 0) {
-                    var element = <HTMLInputElement>document.querySelector(conf.FieldSelector);
-                    if (conf.AutomaticallyAttachDatepicker) {
-                        this.MasterTable.Date.createDatePicker(element);
-                    }
+                    
                     for (var j = 0; j < conf.TriggerSearchOnEvents.length; j++) {
                         var evtToTrigger = conf.TriggerSearchOnEvents[j];
 

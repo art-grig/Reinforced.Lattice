@@ -55,6 +55,7 @@ namespace PowerTables.Plugins.Paging
 
     public interface IPagingViewModel
     {
+        PagingClientConfiguration Configuration { get; }
         bool Shown { get; }
     }
 

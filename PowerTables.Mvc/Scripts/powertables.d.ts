@@ -2803,7 +2803,7 @@ declare module PowerTables.Plugins {
         private canCheck(dataObject, row);
         getSelection(): string[];
         resetSelection(): void;
-        selectByRowIndex(rowIndex: number, select?: boolean): void;
+        selectByRowIndex(rowIndex: number, select?: boolean): boolean;
         selectByDataObject(dataObject: any, select?: boolean): boolean;
         selectByPredicate(predicate: (dataObject: any) => boolean, select?: boolean): boolean;
         private toggleInternal(dataObject, displayedIndex, select?);
@@ -3149,12 +3149,27 @@ declare module PowerTables.Plugins {
         private _confirm;
         private _reject;
         private _date;
+        private _beforeConfirm;
+        AfterConfirm: ((form: any) => void)[];
+        private _beforeReject;
+        AfterReject: ((form: any) => void)[];
+        AfterConfirmationResponse: ((form: any) => void)[];
+        ConfirmationResponseError: ((form: any) => void)[];
+        Form: any;
         RootElement: HTMLElement;
         SelectedItems: string[];
         SelectedObjects: any[];
         onRender(parent: HTMLElement): void;
+        fireEvents(form: any, array: ((form: any) => void)[]): void;
+        private collectFormData();
         confirmHandle(): void;
         dismissHandle(): void;
+        onBeforeConfirm(fn: (form: any) => void): void;
+        onAfterConfirm(fn: (form: any) => void): void;
+        onBeforeReject(fn: (form: any) => void): void;
+        onAfterReject(fn: (form: any) => void): void;
+        onAfterConfirmationResponse(fn: (form: any) => void): void;
+        onConfirmationResponseError(fn: (form: any) => void): void;
     }
 }
 declare module PowerTables {

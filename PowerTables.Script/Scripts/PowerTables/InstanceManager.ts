@@ -137,7 +137,7 @@
 
                 plugin.init(this._masterTable);
                 if (this._isHandlingSpecialPlacementCase && InstanceManager.startsWith(conf.Placement, this._specialCasePlaceholder)) {
-                    specialCases[conf.Placement] = plugin;
+                    specialCases[conf.Placement+'-'] = plugin;
                     anySpecialCases = true;
                 } else {
                     this.Plugins[plugin.PluginLocation] = plugin;
@@ -150,7 +150,7 @@
                     var columns: string[] = this.getUiColumnNames();
                     for (var i: number = 0; i < columns.length; i++) {
                         var c: string = columns[i];
-                        var id: string = `${this._specialCasePlaceholder}-${c}`;
+                        var id: string = `${this._specialCasePlaceholder}-${c}-`;
                         var specialPlugin: IPlugin = null;
                         for (var k in specialCases) {
                             if (InstanceManager.startsWith(k, id)) {

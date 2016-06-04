@@ -1625,7 +1625,7 @@ var PowerTables;
                 plugin.Order = conf.Order || 0;
                 plugin.init(this._masterTable);
                 if (this._isHandlingSpecialPlacementCase && InstanceManager.startsWith(conf.Placement, this._specialCasePlaceholder)) {
-                    specialCases[conf.Placement] = plugin;
+                    specialCases[conf.Placement + '-'] = plugin;
                     anySpecialCases = true;
                 }
                 else {
@@ -1638,7 +1638,7 @@ var PowerTables;
                     var columns = this.getUiColumnNames();
                     for (var i = 0; i < columns.length; i++) {
                         var c = columns[i];
-                        var id = this._specialCasePlaceholder + "-" + c;
+                        var id = this._specialCasePlaceholder + "-" + c + "-";
                         var specialPlugin = null;
                         for (var k in specialCases) {
                             if (InstanceManager.startsWith(k, id)) {
@@ -5311,12 +5311,15 @@ var PowerTables;
             CheckboxifyPlugin.prototype.selectByRowIndex = function (rowIndex, select) {
                 if (select === void 0) { select = null; }
                 var displayedLookup = this.MasterTable.DataHolder.localLookupDisplayedData(rowIndex);
+                if (displayedLookup == null)
+                    return false;
                 this.toggleInternal(displayedLookup.DataObject, displayedLookup.DisplayedIndex, select);
+                return true;
             };
             CheckboxifyPlugin.prototype.selectByDataObject = function (dataObject, select) {
                 if (select === void 0) { select = null; }
-                var displayedLookup = this.MasterTable.DataHolder.localLookupDisplayedDataObject(dataObject);
-                if (!displayedLookup.IsCurrentlyDisplaying)
+                var displayedLookup = this.MasterTable.DataHolder.localLookupStoredDataObject(dataObject);
+                if (displayedLookup == null)
                     return false;
                 this.toggleInternal(displayedLookup.DataObject, displayedLookup.DisplayedIndex, select);
                 return true;
@@ -5354,12 +5357,14 @@ var PowerTables;
                         this._allSelected = this.MasterTable.DataHolder.DisplayedData.length === this._selectedItems.length;
                     }
                 }
-                this.redrawHeader();
-                var row = this.MasterTable.Controller.produceRow(dataObject, displayedIndex);
-                if (overrideRow) {
-                    row.renderElement = function (e) { return e.getCachedTemplate(_this.Configuration.RowTemplateId)(row); };
+                if (displayedIndex >= 0) {
+                    this.redrawHeader();
+                    var row = this.MasterTable.Controller.produceRow(dataObject, displayedIndex);
+                    if (overrideRow) {
+                        row.renderElement = function (e) { return e.getCachedTemplate(_this.Configuration.RowTemplateId)(row); };
+                    }
+                    this.MasterTable.Renderer.Modifier.redrawRow(row);
                 }
-                this.MasterTable.Renderer.Modifier.redrawRow(row);
                 this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
             };
             CheckboxifyPlugin.prototype.afterLayoutRender = function () {
@@ -5372,6 +5377,7 @@ var PowerTables;
                         _this.selectByRowIndex(e.DisplayingRowIndex);
                     }
                 });
+                this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
             };
             CheckboxifyPlugin.prototype.beforeRowsRendering = function (e) {
                 this._selectables = [];
@@ -5525,7 +5531,7 @@ var PowerTables;
                 if (btn.Command) {
                     var _self = this;
                     // ReSharper disable Lambda
-                    var f = function (queryModifier) {
+                    var f = function (queryModifier, success, error) {
                         if (btn.BlackoutWhileCommand) {
                             btn.IsDisabled = true;
                             _self.redrawMe();
@@ -5543,11 +5549,15 @@ var PowerTables;
                                 btn.IsDisabled = false;
                                 _self.redrawMe();
                             }
+                            if (success)
+                                success();
                         }, queryModifier, function () {
                             if (btn.BlackoutWhileCommand) {
                                 btn.IsDisabled = false;
                                 _self.redrawMe();
                             }
+                            if (error)
+                                error();
                         });
                     };
                     // ReSharper restore Lambda
@@ -5558,9 +5568,15 @@ var PowerTables;
                             f(function (q) {
                                 q.AdditionalData['Confirmation'] = JSON.stringify(data);
                                 return q;
+                            }, function () {
+                                tc.fireEvents(tc.Form, tc.AfterConfirmationResponse);
+                            }, function () {
+                                tc.fireEvents(tc.Form, tc.ConfirmationResponseError);
                             });
                             _this.MasterTable.Renderer.destroyObject(btn.ConfirmationTargetSelector);
-                        }, function () { _this.MasterTable.Renderer.destroyObject(btn.ConfirmationTargetSelector); }, this.MasterTable.Date, btn.ConfirmationFormConfiguration);
+                        }, function () {
+                            _this.MasterTable.Renderer.destroyObject(btn.ConfirmationTargetSelector);
+                        }, this.MasterTable.Date, btn.ConfirmationFormConfiguration);
                         try {
                             var chb = this.MasterTable.InstanceManager.getPlugin('Checkboxify');
                             var selection = chb.getSelection();
@@ -5785,11 +5801,11 @@ var PowerTables;
                 var _this = this;
                 for (var i = 0; i < this.Configuration.FieldsConfiguration.length; i++) {
                     var conf = this.Configuration.FieldsConfiguration[i];
+                    var element = document.querySelector(conf.FieldSelector);
+                    if (conf.AutomaticallyAttachDatepicker) {
+                        this.MasterTable.Date.createDatePicker(element);
+                    }
                     if (conf.TriggerSearchOnEvents && conf.TriggerSearchOnEvents.length > 0) {
-                        var element = document.querySelector(conf.FieldSelector);
-                        if (conf.AutomaticallyAttachDatepicker) {
-                            this.MasterTable.Date.createDatePicker(element);
-                        }
                         for (var j = 0; j < conf.TriggerSearchOnEvents.length; j++) {
                             var evtToTrigger = conf.TriggerSearchOnEvents[j];
                             element.addEventListener(evtToTrigger, (function (c, el) { return function (evt) {
@@ -6635,6 +6651,13 @@ var PowerTables;
     (function (Plugins) {
         var ToolbarConfirmation = (function () {
             function ToolbarConfirmation(confirm, reject, date, autoform) {
+                this._beforeConfirm = [];
+                this.AfterConfirm = [];
+                this._beforeReject = [];
+                this.AfterReject = [];
+                this.AfterConfirmationResponse = [];
+                this.ConfirmationResponseError = [];
+                this.Form = null;
                 this._confirm = confirm;
                 this._reject = reject;
                 this._date = date;
@@ -6654,16 +6677,38 @@ var PowerTables;
                     }
                 }
             };
-            ToolbarConfirmation.prototype.confirmHandle = function () {
+            ToolbarConfirmation.prototype.fireEvents = function (form, array) {
+                for (var i = 0; i < array.length; i++) {
+                    array[i](form);
+                }
+            };
+            ToolbarConfirmation.prototype.collectFormData = function () {
+                if (this.Form != null)
+                    return;
                 var form = {};
                 if (this._autoform != null) {
                     form = Plugins.FormwatchPlugin.extractFormData(this._autoform, this.RootElement, this._date);
                 }
-                this._confirm(form);
+                this.Form = form;
+            };
+            ToolbarConfirmation.prototype.confirmHandle = function () {
+                this.collectFormData();
+                this.fireEvents(this.Form, this._beforeConfirm);
+                this._confirm(this.Form);
+                this.fireEvents(this.Form, this.AfterConfirm);
             };
             ToolbarConfirmation.prototype.dismissHandle = function () {
+                this.collectFormData();
+                this.fireEvents(this.Form, this._beforeReject);
                 this._reject();
+                this.fireEvents(this.Form, this.AfterReject);
             };
+            ToolbarConfirmation.prototype.onBeforeConfirm = function (fn) { this._beforeConfirm.push(fn); };
+            ToolbarConfirmation.prototype.onAfterConfirm = function (fn) { this.AfterConfirm.push(fn); };
+            ToolbarConfirmation.prototype.onBeforeReject = function (fn) { this._beforeReject.push(fn); };
+            ToolbarConfirmation.prototype.onAfterReject = function (fn) { this.AfterReject.push(fn); };
+            ToolbarConfirmation.prototype.onAfterConfirmationResponse = function (fn) { this.AfterConfirmationResponse.push(fn); };
+            ToolbarConfirmation.prototype.onConfirmationResponseError = function (fn) { this.ConfirmationResponseError.push(fn); };
             return ToolbarConfirmation;
         }());
         Plugins.ToolbarConfirmation = ToolbarConfirmation;

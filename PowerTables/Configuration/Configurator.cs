@@ -130,9 +130,16 @@ namespace PowerTables.Configuration
                     ColumnType = typeName,
                     RawColumnName = tableDataProperty.Name,
                     Title = tableDataProperty.Name,
-                    IsEnum = tableDataProperty.PropertyType.IsEnum,
                     IsNullable = tableDataProperty.PropertyType.IsNullable()
                 };
+                if (columnConfiguration.IsNullable)
+                {
+                    columnConfiguration.IsEnum = tableDataProperty.PropertyType.GetGenericArguments()[0].IsEnum;
+                }
+                else
+                {
+                    columnConfiguration.IsEnum = tableDataProperty.PropertyType.IsEnum;
+                }
                 var attr = tableDataProperty.GetCustomAttribute<DisplayAttribute>();
                 if (attr != null)
                 {

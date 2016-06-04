@@ -2,6 +2,7 @@
 using PowerTables.Configuration;
 using PowerTables.Plugins;
 using PowerTables.Plugins.Hideout;
+using PowerTables.Plugins.Ordering;
 using PowerTables.Plugins.ResponseInfo;
 using PowerTables.Plugins.Total;
 
@@ -26,10 +27,10 @@ namespace PowerTables.Mvc.Models.Tutorial
                 .Except(a => a.DeliveryDelay)
                 .Except(a => a.ItemsWasInitially)
 
-                , ui => ui.PlaceAt("lt").TemplateId("abcd"));
+                , ui => ui.PlaceAt("lt"));
             
-            conf.Column(c => c.TypeOfToy).Hide(false, true);
-            conf.Column(c => c.Preorders).Hide();
+            conf.Column(c => c.TypeOfToy).Orderable(c=>c.GroupType).Hide();
+            conf.Column(c => c.Preorders).Orderable(c => c.GroupType).Hide();
 
             conf.ResponseInfo(ui => ui.PlaceAt("lb"), "lb");
             conf.ResponseInfo(

@@ -54,6 +54,24 @@ namespace PowerTables.Templating.Handlebars
             return MvcHtmlString.Empty;
         }
 
+        /// <summary>
+        /// Renders handlebars "if" directive in region
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="t"></param>
+        /// <param name="condition"></param>
+        /// <param name="textUnless">Text if condition is not met</param>
+        /// <returns></returns>
+        public static MvcHtmlString Unless<T>(this IModelProvider<T> t, Expression<Func<T, bool>> condition, string textUnless)
+        {
+            var proname = TraversePropertyLambda(condition, t.ExistingModel);
+            var tr = new HbTagRegion("unless", proname, t.Writer);
+            t.Writer.Write(" ");
+            t.Writer.Write(textUnless);
+            tr.Dispose();
+            return MvcHtmlString.Empty;
+        }
+
 
         /// <summary>
         /// Else helper
