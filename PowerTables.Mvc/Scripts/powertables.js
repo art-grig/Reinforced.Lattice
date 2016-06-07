@@ -4501,6 +4501,8 @@ var PowerTables;
                 var fval = query.Filterings[this._associatedColumn.RawName];
                 if (fval == null || fval == undefined)
                     return true;
+                if (fval === '$$lattice_not_present$$' && this._associatedColumn.Configuration.IsNullable)
+                    fval = null;
                 if (this.Configuration.ClientFilteringFunction) {
                     return this.Configuration.ClientFilteringFunction(rowObject, fval, query);
                 }
@@ -4508,7 +4510,7 @@ var PowerTables;
                     return true;
                 var objVal = rowObject[this._associatedColumn.RawName];
                 if (objVal == null)
-                    return false;
+                    return fval == null;
                 if (this._associatedColumn.IsString) {
                     objVal = objVal.toString();
                     var entries = fval.split(/\s/);
@@ -4765,10 +4767,6 @@ var PowerTables;
             SelectFilterPlugin.prototype.init = function (masterTable) {
                 _super.prototype.init.call(this, masterTable);
                 this._associatedColumn = this.MasterTable.InstanceManager.Columns[this.Configuration.ColumnName];
-                if (this.Configuration.AllowSelectNothing) {
-                    var nothingItem = { Value: '', Text: this.Configuration.NothingText || '-', Disabled: false, Selected: false };
-                    this.Configuration.Items = [nothingItem].concat(this.Configuration.Items);
-                }
                 var sv = this.Configuration.SelectedValue;
                 if (sv !== undefined && sv !== null) {
                     for (var i = 0; i < this.Configuration.Items.length; i++) {
@@ -4786,9 +4784,17 @@ var PowerTables;
             };
             SelectFilterPlugin.prototype.filterPredicate = function (rowObject, query) {
                 var fval = query.Filterings[this._associatedColumn.RawName];
-                if (!fval)
+                if (fval == null || fval == undefined)
                     return true;
-                var arr = fval.split('|');
+                if (fval === '$$lattice_not_present$$' && this._associatedColumn.Configuration.IsNullable)
+                    fval = null;
+                var arr = null;
+                if (this.Configuration.IsMultiple) {
+                    arr = fval != null ? fval.split('|') : [null];
+                }
+                else {
+                    arr = [fval];
+                }
                 if (this.Configuration.ClientFilteringFunction) {
                     return this.Configuration.ClientFilteringFunction(rowObject, arr, query);
                 }
@@ -4796,7 +4802,7 @@ var PowerTables;
                     return true;
                 var objVal = rowObject[this._associatedColumn.RawName];
                 if (objVal == null)
-                    return false;
+                    return arr.indexOf(null) > -1;
                 if (this._associatedColumn.IsString) {
                     return arr.indexOf(objVal) >= 0;
                 }

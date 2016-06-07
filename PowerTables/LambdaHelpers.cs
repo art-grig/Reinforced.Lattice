@@ -106,11 +106,29 @@ namespace PowerTables
         /// <param name="filterExpression">Filter expression</param>
         /// <param name="value">Constant value</param>
         /// <returns>Lambda expression denoting c=>c.Property</returns>
-        public static LambdaExpression BinaryLambdaExpression(ExpressionType expressionType, LambdaExpression filterExpression, object value)
+        public static LambdaExpression ConstantBinaryLambdaExpression(ExpressionType expressionType, LambdaExpression filterExpression, object value)
         {
-            ConstantExpression cex = Expression.Constant(value);
+            Expression cex = Expression.Constant(value);
+            if (filterExpression.Body.Type.IsNullable())
+            {
+                cex = Expression.Convert(cex, filterExpression.Body.Type);
+            }
             BinaryExpression bex = Expression.MakeBinary(expressionType, filterExpression.Body, cex);
             LambdaExpression lambda = Expression.Lambda(bex, filterExpression.Parameters);
+            return lambda;
+        }
+
+        /// <summary>
+        /// Dynamically constructs lambda equals expression (c=>c.Property == val)
+        /// </summary>
+        /// <param name="expressionType">Expression type (equal, less, more etc)</param>
+        /// <param name="left">Left expression part</param>
+        /// <param name="right">Right expression part</param>
+        /// <returns>Lambda expression denoting c=>c.Property</returns>
+        public static LambdaExpression BinaryLambdaExpression(ExpressionType expressionType, LambdaExpression left, LambdaExpression right)
+        {
+            BinaryExpression bex = Expression.MakeBinary(expressionType, left.Body, right.Body);
+            LambdaExpression lambda = Expression.Lambda(bex, left.Parameters);
             return lambda;
         }
 
@@ -166,18 +184,6 @@ namespace PowerTables
 
             LambdaExpression lambda = Expression.Lambda(and, filterExpression.Parameters);
             return lambda;
-        }
-
-        public static LambdaExpression FixNullableColumn<T1, T2>(Expression<Func<T1, T2>> column)
-        {
-            if (typeof(T2).IsNullable())
-            {
-                var val = typeof(T2).GetProperty("Value");
-                var pex = Expression.Property(column.Body, val);
-                return Expression.Lambda(pex, column.Parameters);
-            }
-
-            return column;
         }
     }
 }

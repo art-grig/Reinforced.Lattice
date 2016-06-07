@@ -19,8 +19,8 @@ namespace PowerTables.Filters.Multi
     {
         private readonly LambdaExpression _sourceExpression;
 
-        protected MultiColumnFilter(string columnName,IConfigurator conf, LambdaExpression sourceExpression)
-            : base(columnName,conf)
+        protected MultiColumnFilter(string columnName, IConfigurator conf, LambdaExpression sourceExpression)
+            : base(columnName, conf)
         {
             _sourceExpression = sourceExpression;
             ParseFunction = Parse;
@@ -37,20 +37,28 @@ namespace PowerTables.Filters.Multi
         protected override IEnumerable<TVal> Parse(string filterArgument)
         {
             string[] filterArguments = filterArgument.Split('|');
+
             return filterArguments.Select(ValueConverter.Convert<TVal>).ToList();
         }
 
         protected override IQueryable<TSourceData> DefaultFilter(IQueryable<TSourceData> source, IEnumerable<TVal> key)
         {
-            var expr = ReflectionCache.CallContainsMethod(key, _sourceExpression);
+            var anyNulls = key.Any(c => c == null);
+
+            var expr = ReflectionCache.CallContainsMethod(key.ToArray(), _sourceExpression);
+            if (anyNulls)
+            {
+                var nullcmp = LambdaHelpers.ConstantBinaryLambdaExpression(ExpressionType.Equal, _sourceExpression, null);
+                expr = LambdaHelpers.BinaryLambdaExpression(ExpressionType.Or, expr, nullcmp);
+            }
             return ReflectionCache.CallWhere(source, expr);
         }
 
-        public static MultiColumnFilter<TSourceData, TVal> Create<TSourceColumn>(PropertyInfo columnProp,IConfigurator conf,
+        public static MultiColumnFilter<TSourceData, TVal> Create<TSourceColumn>(PropertyInfo columnProp, IConfigurator conf,
             Expression<Func<TSourceData, TSourceColumn>> column)
         {
             columnProp = conf.CheckTableColum(columnProp);
-            var ex = LambdaHelpers.FixNullableColumn(column);
+            var ex = column; //LambdaHelpers.FixNullableColumn(column);
             var instance = new MultiColumnFilter<TSourceData, TVal>(columnProp.Name, conf, ex);
             return instance;
         }

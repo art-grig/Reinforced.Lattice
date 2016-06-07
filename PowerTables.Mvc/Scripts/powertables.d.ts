@@ -416,10 +416,10 @@ declare module PowerTables.Filters.Select {
         SelectedValue: string;
         /** When true, option to select "Any" entry will be added to filter */
         AllowSelectNothing: boolean;
+        /** When true, option to select "Any" entry will be added to filter */
+        AllowSelectNotPresent: boolean;
         /** When true, ability to select multiple possible values will be available */
         IsMultiple: boolean;
-        /** Text for "Any" select option */
-        NothingText: string;
         /** Column name this filter associated with */
         ColumnName: string;
         /** Select filter value list */

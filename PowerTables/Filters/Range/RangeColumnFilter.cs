@@ -64,19 +64,19 @@ namespace PowerTables.Filters.Range
             
             if (key.HasTo && key.HasFrom)
             {
-                var between = LambdaHelpers.BetweenLambdaExpression(_sourceExpression, ValueConverter.ExtractValueFromNullable(key.From), ValueConverter.ExtractValueFromNullable(key.To), _inclusive);
+                var between = LambdaHelpers.BetweenLambdaExpression(_sourceExpression, key.From.ExtractValueFromNullable(), key.To.ExtractValueFromNullable(), _inclusive);
                 return ReflectionCache.CallWhere(source, between);
             }
             if (key.HasTo)
             {
                 ExpressionType lt = _inclusive ? ExpressionType.LessThanOrEqual : ExpressionType.LessThan;
-                var less = LambdaHelpers.BinaryLambdaExpression(lt, _sourceExpression, ValueConverter.ExtractValueFromNullable(key.To));
+                var less = LambdaHelpers.ConstantBinaryLambdaExpression(lt, _sourceExpression, key.To.ExtractValueFromNullable());
                 return ReflectionCache.CallWhere(source, less);
             }
             if (key.HasFrom)
             {
                 ExpressionType gt = _inclusive ? ExpressionType.GreaterThanOrEqual : ExpressionType.GreaterThan;
-                var greater = LambdaHelpers.BinaryLambdaExpression(gt, _sourceExpression, ValueConverter.ExtractValueFromNullable(key.From));
+                var greater = LambdaHelpers.ConstantBinaryLambdaExpression(gt, _sourceExpression, key.From.ExtractValueFromNullable());
                 return ReflectionCache.CallWhere(source, greater);
             }
             return source;
@@ -92,7 +92,7 @@ namespace PowerTables.Filters.Range
             Expression<Func<TSourceData, TSourceColumn>> column)
         {
             columnProp = conf.CheckTableColum(columnProp);
-            var ex = LambdaHelpers.FixNullableColumn(column);
+            var ex = column;
             var instance = new RangeColumnFilter<TSourceData, TVal>(columnProp.Name, conf, ex);
             return instance;
         }

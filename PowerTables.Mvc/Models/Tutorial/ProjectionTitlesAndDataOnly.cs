@@ -31,6 +31,7 @@ namespace PowerTables.Mvc.Models.Tutorial
                 ResponsibleUserId = q.ResponsibleUser.Id,
                 ResponsibleUserName = q.ResponsibleUser.FirstName + " " + q.ResponsibleUser.LastName,
                 State = (State)q.StateCode,
+                PreviousState = q.PreviousStateCode,
                 SupplierAddress = q.SupplierAddress
             }));
 

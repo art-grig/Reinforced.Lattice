@@ -84,8 +84,12 @@ namespace PowerTables.Mvc.Models
                             ResponsibleUser = _users[r.Next(_users.Count)],
                             StateCode = (byte)r.Next(5),
                             ToyName = i > 0 ? string.Format("{0} ({1})", name, i) : name,
-                            SupplierAddress = _addresses[r.Next(_addresses.Length)]
+                            SupplierAddress = _addresses[r.Next(_addresses.Length)],
                         };
+                        if (r.Next(10) > 5)
+                        {
+                            sd.PreviousStateCode = (State?) sd.StateCode;
+                        }
                         _sourceData.Add(sd);
                     }
                 }

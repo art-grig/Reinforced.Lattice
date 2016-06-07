@@ -14,7 +14,6 @@ namespace PowerTables.Filters.Value
     /// </summary>
     public class ValueColumnFilter<TSourceData, TFilteringKey> : ColumnFilterBase<TSourceData, TFilteringKey>
     {
-        
         protected ValueColumnFilter(string columnName, IConfigurator conf, LambdaExpression sourceColumn)
             : base(columnName, conf)
         {
@@ -33,7 +32,7 @@ namespace PowerTables.Filters.Value
 
         protected override IQueryable<TSourceData> DefaultFilter(IQueryable<TSourceData> source, TFilteringKey key)
         {
-            var lambda = LambdaHelpers.BinaryLambdaExpression(ExpressionType.Equal, _sourceExpression, ValueConverter.ExtractValueFromNullable(key));
+            LambdaExpression lambda = LambdaHelpers.ConstantBinaryLambdaExpression(ExpressionType.Equal, _sourceExpression,key.ExtractValueFromNullable());
             return ReflectionCache.CallWhere(source, lambda);
         }
 
@@ -46,7 +45,7 @@ namespace PowerTables.Filters.Value
             Expression<Func<TSourceData, TSourceColumn>> column)
         {
             columnProp = conf.CheckTableColum(columnProp);
-            var ex = LambdaHelpers.FixNullableColumn(column);
+            var ex = column;// LambdaHelpers.FixNullableColumn(column);
             var instance = new ValueColumnFilter<TSourceData, TFilteringKey>(columnProp.Name, conf, ex);
             return instance;
         }

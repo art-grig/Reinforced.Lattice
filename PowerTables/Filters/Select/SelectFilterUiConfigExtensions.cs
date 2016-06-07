@@ -23,8 +23,37 @@ namespace PowerTables.Filters.Select
         /// <returns></returns>
         public static ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn> SelectAny<TColumn>(this ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn> config, bool allowAny = true, string anyText = "Any")
         {
-            config.Configuration.NothingText = anyText;
             config.Configuration.AllowSelectNothing = allowAny;
+            if (allowAny)
+            {
+                config.Configuration.Items.Add(new SelectListItem() {Text = anyText, Value = ""});
+            }
+            else
+            {
+                config.Configuration.Items.RemoveAll(c => c.Value == "");
+            }
+            return config;
+        }
+
+        /// <summary>
+        /// Allows or disallows "not present" selection that will filter out items where specified column is null
+        /// </summary>
+        /// <param name="config">Configuration</param>
+        /// <param name="notPresentText">"Not-Present" select item text</param>
+        /// <param name="allowNotPresent">Add "Not-Present" element to select list or not</param>
+        /// <returns></returns>
+        public static ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn?> SelectNotPresent<TColumn>(this ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn?> config, bool allowNotPresent = true, string notPresentText = "Not present")
+            where TColumn : struct
+        {
+            config.Configuration.AllowSelectNotPresent = allowNotPresent;
+            if (allowNotPresent)
+            {
+                config.Configuration.Items.Add(new SelectListItem() { Text = notPresentText, Value = ValueConverter.NotPresentValue });
+            }
+            else
+            {
+                config.Configuration.Items.RemoveAll(c => c.Value == ValueConverter.NotPresentValue);
+            }
             return config;
         }
 
@@ -33,11 +62,19 @@ namespace PowerTables.Filters.Select
         /// </summary>
         /// <param name="config">Configuration</param>
         /// <param name="items">Select list with available values</param>
+        /// <param name="replaceItems">When true, currently presented items will be replaced with newly supplied ones</param>
         /// <returns></returns>
         public static ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn> SelectItems<TColumn>(this ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn> config,
-            IEnumerable<SelectListItem> items)
+            IEnumerable<SelectListItem> items, bool replaceItems = false)
         {
-            config.Configuration.Items = items.ToList();
+            if (replaceItems)
+            {
+                config.Configuration.Items = (items.ToList());
+            }
+            else
+            {
+                config.Configuration.Items.AddRange(items.ToList());
+            }
             return config;
         }
 

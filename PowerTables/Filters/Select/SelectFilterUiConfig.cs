@@ -22,14 +22,14 @@ namespace PowerTables.Filters.Select
         public bool AllowSelectNothing { get; set; }
 
         /// <summary>
+        /// When true, option to select "Any" entry will be added to filter
+        /// </summary>
+        public bool AllowSelectNotPresent { get; set; }
+
+        /// <summary>
         /// When true, ability to select multiple possible values will be available
         /// </summary>
         public bool IsMultiple { get; set; }
-
-        /// <summary>
-        /// Text for "Any" select option
-        /// </summary>
-        public string NothingText { get; set; }
 
         /// <summary>
         /// Column name this filter associated with
@@ -59,6 +59,11 @@ namespace PowerTables.Filters.Select
         public JRaw ClientFilteringFunction { get; set; }
 
         public string DefaultTemplateId { get { return "selectFilter"; } }
+
+        public SelectFilterUiConfig()
+        {
+            Items = new List<SelectListItem>();
+        }
     }
 
     

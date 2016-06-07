@@ -52,12 +52,7 @@
         public init(masterTable: IMasterTable): void {
             super.init(masterTable);
             this._associatedColumn = this.MasterTable.InstanceManager.Columns[this.Configuration.ColumnName];
-            if (this.Configuration.AllowSelectNothing) {
-                var nothingItem: { Value: string;Text: string;Disabled: boolean;Selected: boolean } = { Value: '', Text: this.Configuration.NothingText || '-', Disabled: false, Selected: false };
-
-                this.Configuration.Items = [nothingItem].concat(this.Configuration.Items);
-            }
-
+            
             var sv: string = this.Configuration.SelectedValue;
             if (sv !== undefined && sv !== null) {
                 for (var i: number = 0; i < this.Configuration.Items.length; i++) {
@@ -76,9 +71,14 @@
 
         public filterPredicate(rowObject: any, query: IQuery): boolean {
             var fval: string = query.Filterings[this._associatedColumn.RawName];
-            if (!fval) return true;
-
-            var arr: string[] = fval.split('|');
+            if (fval == null || fval == undefined) return true;
+            if (fval === '$$lattice_not_present$$' && this._associatedColumn.Configuration.IsNullable) fval = null;
+            var arr: string[] = null;
+            if (this.Configuration.IsMultiple) {
+                arr = fval != null ? fval.split('|') : [null];
+            } else {
+                arr = [fval];
+            }
 
             if (this.Configuration.ClientFilteringFunction) {
                 return this.Configuration.ClientFilteringFunction(rowObject, arr, query);
@@ -86,7 +86,7 @@
 
             if (!query.Filterings.hasOwnProperty(this._associatedColumn.RawName)) return true;
             var objVal = rowObject[this._associatedColumn.RawName];
-            if (objVal == null) return false;
+            if (objVal == null) return arr.indexOf(null) > -1;
 
             if (this._associatedColumn.IsString) {
                 return arr.indexOf(objVal) >= 0;

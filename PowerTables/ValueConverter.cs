@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -12,6 +13,11 @@ namespace PowerTables
 {
     public static class ValueConverter
     {
+        /// <summary>
+        /// Filter value for not present value
+        /// </summary>
+        public const string NotPresentValue = "$$lattice_not_present$$";
+
         /// <summary>
         /// Determines is type derived from Nullable or not
         /// </summary>
@@ -39,19 +45,21 @@ namespace PowerTables
 
         public static object Convert(string src, Type targetType)
         {
-            if (string.IsNullOrEmpty(src)) return null;
-
-            if (targetType == typeof(DateTime))
-            {
-                return DateTime.Parse(src, null, System.Globalization.DateTimeStyles.RoundtripKind);
-            }
-
+            if (String.IsNullOrEmpty(src)) return null;
+            
             if (targetType.IsNullable())
             {
-                var tw = targetType.GetArg();
+                if (src == NotPresentValue) return null;
+                var tw = Nullable.GetUnderlyingType(targetType);
                 object arg = Convert(src, tw);
-                return Activator.CreateInstance(targetType, arg);
+                return arg;
             }
+            if (targetType == typeof(DateTime))
+            {
+                return DateTime.Parse(src, null, DateTimeStyles.RoundtripKind);
+            }
+
+            
 
             if (targetType.IsEnum)
             {
@@ -72,14 +80,14 @@ namespace PowerTables
             if (src == null) return null;
             if (src is string)
             {
-                if (string.IsNullOrEmpty(src.ToString()))
+                if (String.IsNullOrEmpty(src.ToString()))
                 {
                     return null;
                 }
             }
             if (targetType == typeof(DateTime) && src is string)
             {
-                return DateTime.Parse((string)src, null, System.Globalization.DateTimeStyles.RoundtripKind); ;
+                return DateTime.Parse((string)src, null, DateTimeStyles.RoundtripKind); ;
             }
 
             if (targetType.IsNullable())
@@ -100,8 +108,9 @@ namespace PowerTables
 
         private static readonly Dictionary<Type, PropertyInfo> _nullableValueProperties = new Dictionary<Type, PropertyInfo>();
 
-        public static object ExtractValueFromNullable(object nullable)
+        internal static object ExtractValueFromNullable(this object nullable)
         {
+            if (nullable == null) return null;
             var objType = nullable.GetType();
             if (!objType.IsNullable()) return nullable;
             if (!_nullableValueProperties.ContainsKey(objType))
@@ -132,6 +141,5 @@ namespace PowerTables
             }
             return s;
         }
-
     }
 }

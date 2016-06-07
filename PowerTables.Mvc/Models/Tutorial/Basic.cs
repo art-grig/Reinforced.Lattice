@@ -26,7 +26,7 @@ namespace PowerTables.Mvc.Models.Tutorial
             conf.Column(c => c.ResponsibleUserId).MappedFrom(c => c.ResponsibleUser.Id);
             conf.Column(c => c.Preorders).MappedFrom(c => c.PreordersCount);
             conf.Column(c => c.TypeOfToy).MappedFrom(c => c.GroupType);
-
+            
             /*
              * All the columns can be reference by them RawName that corresponds to C# proprty name
              * No columns numeric IDs
@@ -63,6 +63,7 @@ namespace PowerTables.Mvc.Models.Tutorial
         public double Price { get; set; }
         public bool IsPaid { get; set; }
         public State State { get; set; }
+        public State? PreviousState { get; set; }
         public int? Preorders { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime? LastSoldDate { get; set; }
@@ -119,6 +120,7 @@ namespace PowerTables.Mvc.Models.Tutorial
         public double Price { get; set; }
         public bool Paid { get; set; }
         public byte StateCode { get; set; }
+        public State? PreviousStateCode { get; set; }
         public int? PreordersCount { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime? LastSoldDate { get; set; }

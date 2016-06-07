@@ -60,6 +60,7 @@ namespace PowerTables.Mvc.Models.Tutorial
             conf.Column(c=>c.Id).DataOnly();
             conf.Column(c=>c.ResponsibleUserName).DataOnly();
             conf.Column(c=>c.ItemsWasInitially).DataOnly();
+            conf.Column(c => c.PreviousState).Title("Prev. state").FilterSelect(c => c.PreviousStateCode,ui=>ui.SelectNotPresent().SelectItems(EnumHelper.GetSelectList(typeof(State))).ClientFiltering());
             return conf;
         }
     }

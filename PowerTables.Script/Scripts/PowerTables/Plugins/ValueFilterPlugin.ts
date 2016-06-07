@@ -50,12 +50,13 @@
                 this.itIsClientFilter();
             }
             this._associatedColumn = this.MasterTable.InstanceManager.Columns[this.Configuration.ColumnName];
-            
+
         }
 
         public filterPredicate(rowObject: any, query: IQuery): boolean {
             var fval: string = query.Filterings[this._associatedColumn.RawName];
             if (fval == null || fval == undefined) return true;
+            if (fval === '$$lattice_not_present$$' && this._associatedColumn.Configuration.IsNullable) fval = null;
 
             if (this.Configuration.ClientFilteringFunction) {
                 return this.Configuration.ClientFilteringFunction(rowObject, fval, query);
@@ -63,7 +64,7 @@
 
             if (!query.Filterings.hasOwnProperty(this._associatedColumn.RawName)) return true;
             var objVal = rowObject[this._associatedColumn.RawName];
-            if (objVal == null) return false;
+            if (objVal == null) return fval == null;
             if (this._associatedColumn.IsString) {
                 objVal = objVal.toString();
                 var entries: string[] = fval.split(/\s/);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -230,6 +231,23 @@ namespace PowerTables
         {
             ConstantExpression cnst = Expression.Constant(enumerable);
             var method = GetCachedMethod(ContainsMethod, typeof (TVal));
+            var call = Expression.Call(method, cnst, filterExpression.Body);
+            LambdaExpression lambda = Expression.Lambda(call, filterExpression.Parameters);
+            return lambda;
+        }
+
+
+        /// <summary>
+        /// Returns lambda expression that wraps specified filter expression to .Contains call of specified Enumerable (c=>enumerable.Contains(c.Property))
+        /// </summary>
+        /// <typeparam name="TVal">Type of enumerable value</typeparam>
+        /// <param name="enumerable">Enumerable set</param>
+        /// <param name="filterExpression">Filter expression</param>
+        /// <returns>Lambda expression</returns>
+        public static LambdaExpression CallContainsMethodNongeneric(Type type, object enumerable, LambdaExpression filterExpression)
+        {
+            ConstantExpression cnst = Expression.Constant(enumerable);
+            var method = GetCachedMethod(ContainsMethod, type);
             var call = Expression.Call(method, cnst, filterExpression.Body);
             LambdaExpression lambda = Expression.Lambda(call, filterExpression.Parameters);
             return lambda;
