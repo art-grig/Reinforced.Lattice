@@ -181,8 +181,15 @@
             return objects;
         }
 
-        private _previouslyFiltered: any[];
-        private _previouslyOrdered: any[];
+        /**
+         * Part of data currently displayed without ordering and paging
+         */
+        public Filtered: any[];
+
+        /**
+         * Part of data currently displayed without paging
+         */
+        public  Ordered: any[];
 
         /**
          * Filter recent data and store it to currently displaying data
@@ -194,8 +201,8 @@
             this._events.BeforeClientDataProcessing.invoke(this, query);
 
             this.DisplayedData = this.StoredData;
-            this._previouslyFiltered = this.StoredData;
-            this._previouslyOrdered = this.StoredData;
+            this.Filtered = this.StoredData;
+            this.Ordered = this.StoredData;
 
             this.RecentClientQuery = query;
 
@@ -221,16 +228,16 @@
                     }
                 }
 
-                this._previouslyFiltered = filtered;
-                this._previouslyOrdered = ordered;
+                this.Filtered = filtered;
+                this.Ordered = ordered;
 
                 this.DisplayedData = selected;
             }
 
             this._events.AfterClientDataProcessing.invoke(this, {
                 Displaying: this.DisplayedData,
-                Filtered: this._previouslyFiltered,
-                Ordered: this._previouslyOrdered,
+                Filtered: this.Filtered,
+                Ordered: this.Ordered,
                 Source: this.StoredData
             });
         }

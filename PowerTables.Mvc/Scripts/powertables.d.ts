@@ -1610,8 +1610,14 @@ declare module PowerTables {
         * @returns {Array} Array of ordered items
         */
         orderSet(objects: any[], query: IQuery): any[];
-        private _previouslyFiltered;
-        private _previouslyOrdered;
+        /**
+         * Part of data currently displayed without ordering and paging
+         */
+        Filtered: any[];
+        /**
+         * Part of data currently displayed without paging
+         */
+        Ordered: any[];
         /**
          * Filter recent data and store it to currently displaying data
          *

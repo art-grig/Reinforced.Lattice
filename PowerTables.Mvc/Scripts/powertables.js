@@ -1239,8 +1239,8 @@ var PowerTables;
         DataHolder.prototype.filterStoredData = function (query) {
             this._events.BeforeClientDataProcessing.invoke(this, query);
             this.DisplayedData = this.StoredData;
-            this._previouslyFiltered = this.StoredData;
-            this._previouslyOrdered = this.StoredData;
+            this.Filtered = this.StoredData;
+            this.Ordered = this.StoredData;
             this.RecentClientQuery = query;
             if (this.isClientFiltrationPending() && (!(!query))) {
                 var copy = this.StoredData.slice();
@@ -1267,14 +1267,14 @@ var PowerTables;
                         }
                     }
                 }
-                this._previouslyFiltered = filtered;
-                this._previouslyOrdered = ordered;
+                this.Filtered = filtered;
+                this.Ordered = ordered;
                 this.DisplayedData = selected;
             }
             this._events.AfterClientDataProcessing.invoke(this, {
                 Displaying: this.DisplayedData,
-                Filtered: this._previouslyFiltered,
-                Ordered: this._previouslyOrdered,
+                Filtered: this.Filtered,
+                Ordered: this.Ordered,
                 Source: this.StoredData
             });
         };
