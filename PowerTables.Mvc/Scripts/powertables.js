@@ -5687,6 +5687,10 @@ var PowerTables;
                 else if (element.type === 'checkbox') {
                     value = element.checked;
                 }
+                else if (element.type === 'radio') {
+                    if (element.checked)
+                        value = element.value;
+                }
                 else {
                     if (fieldConf.IsDateTime) {
                         value = dateService.getDateFromDatePicker(element);
@@ -5727,7 +5731,13 @@ var PowerTables;
                         }
                     }
                     else {
-                        value = FormwatchPlugin.extractInputValue(element, fieldConf, dateService);
+                        for (var j = 0; j < elements.length; j++) {
+                            var v = FormwatchPlugin.extractInputValue(elements.item(j), fieldConf, dateService);
+                            if (v != null && v != undefined) {
+                                value = v;
+                                break;
+                            }
+                        }
                     }
                 }
                 return value;
@@ -5753,7 +5763,9 @@ var PowerTables;
                             value = fieldConf.ConstantValue;
                         }
                     }
-                    result[name] = value;
+                    if (value != null || result[name] == null || result[name] == undefined) {
+                        result[name] = value;
+                    }
                 }
                 return result;
             };

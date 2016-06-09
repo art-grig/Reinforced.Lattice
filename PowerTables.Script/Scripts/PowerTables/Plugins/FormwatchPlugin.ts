@@ -20,6 +20,8 @@
                 value = FormwatchPlugin.extractValueFromMultiSelect(<any>(element));
             } else if (element.type === 'checkbox') {
                 value = element.checked;
+            } else if (element.type === 'radio') {
+                if (element.checked) value = element.value;
             }
             else {
                 if (fieldConf.IsDateTime) {
@@ -44,7 +46,7 @@
             if (element) {
                 if (fieldConf.IsArray) {
                     if (fieldConf.ArrayDelimiter) {
-                        if (element.value == null || element.value.length === 0)value = [];
+                        if (element.value == null || element.value.length === 0) value = [];
                         else value = element.value.split(fieldConf.ArrayDelimiter);
                     } else {
                         if (elements.length === 1 && element.type === 'select-multiple') {
@@ -57,9 +59,17 @@
                         }
                     }
                 } else {
-                    value = FormwatchPlugin.extractInputValue(element, fieldConf, dateService);
+                    for (var j = 0; j < elements.length; j++) {
+                        var v = FormwatchPlugin.extractInputValue(<any>elements.item(j), fieldConf, dateService);    
+                        if (v != null && v != undefined) {
+                            value = v;
+                            break;
+                        }
+                    }
+                    
                 }
             }
+            
             return value;
         }
 
@@ -83,7 +93,9 @@
                         value = fieldConf.ConstantValue;
                     }
                 }
-                result[name] = value;
+                if (value != null || result[name] == null || result[name] == undefined) {
+                    result[name] = value;
+                }
             }
             return result;
         }
@@ -138,7 +150,7 @@
                     this.MasterTable.Date.createDatePicker(element);
                 }
                 if (conf.TriggerSearchOnEvents && conf.TriggerSearchOnEvents.length > 0) {
-                    
+
                     for (var j = 0; j < conf.TriggerSearchOnEvents.length; j++) {
                         var evtToTrigger = conf.TriggerSearchOnEvents[j];
 
