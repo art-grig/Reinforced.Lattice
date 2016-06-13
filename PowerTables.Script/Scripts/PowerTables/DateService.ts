@@ -3,6 +3,9 @@
      * API responsible for dates operations
      */
     export class DateService {
+        /*
+         * @internal
+         */
         constructor(datepickerOptions: IDatepickerOptions) {
             this._datepickerOptions = datepickerOptions;
         }

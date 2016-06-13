@@ -1,8 +1,16 @@
 ﻿
-module PowerTables { /**
+module PowerTables {
+    /**
      * Main entry point for all tables functionality
      */
     export class PowerTable implements IMasterTable {
+        /**
+         * Constructs new instance of PowerTable object. 
+         * Usually this method is being called automatically by .InitializationCode or .InitializationScript method, 
+         * but you also could combine call of Configurator<>.JsonConfig and call of Lattice constructor
+         * 
+         * @param configuration JSON configuration of whole table
+         */
         constructor(configuration: Configuration.Json.ITableConfiguration) {
             this._configuration = configuration;
             this.bindReady();

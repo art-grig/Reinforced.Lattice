@@ -5,6 +5,10 @@
      * plugins instances, variable ways to query them and accessing their properties
      */
     export class InstanceManager {
+
+        /*
+         * @internal
+         */
         constructor(configuration: Configuration.Json.ITableConfiguration, masterTable: IMasterTable, events: EventsManager) {
             this.Configuration = configuration;
             this._masterTable = masterTable;
@@ -76,6 +80,9 @@
         private static _integerTypes: string[] = ['Int32', 'Int64', 'Int16', 'SByte', 'Byte', 'UInt32', 'UInt64', 'UInt16', 'Int32?', 'Int64?', 'Int16?', 'SByte?', 'Byte?', 'UInt32?', 'UInt64?', 'UInt16?'];
         private static _booleanTypes: string[] = ['Boolean', 'Boolean?'];
 
+        /*
+         * @internal
+         */
         public static classifyType(fieldType: string): IClassifiedType {
             return {
                 IsDateTime: InstanceManager._datetimeTypes.indexOf(fieldType) > -1,
@@ -119,6 +126,9 @@
 
         }
 
+        /*
+         * @internal
+         */
         public initPlugins(): void {
             var pluginsConfiguration: Configuration.Json.IPluginConfiguration[] = this.Configuration.PluginsConfiguration;
             var specialCases: { [key: string]: IPlugin } = {};
@@ -192,7 +202,9 @@
             var part: string = s1.substring(s1.length - postfix.length - 1, postfix.length);
             return part === postfix;
         }
-
+        /*
+         * @internal
+         */
         public _subscribeConfiguredEvents() {
             var delegator = this._masterTable.Renderer.Delegator;
             var columns = this.getUiColumnNames();
@@ -235,7 +247,6 @@
         * Reteives plugin at specified placement
         * @param pluginId Plugin ID 
         * @param placement Pluign placement
-        * @returns {} 
         */
         public getPlugin<TPlugin>(pluginId: string, placement?: string): TPlugin {
             if (!placement) placement = '';
@@ -343,6 +354,10 @@
             return this.Columns[columnName];
         }
     }
+
+    /*
+    * @internal
+    */
     export interface IClassifiedType {
         IsDateTime: boolean;
         IsString: boolean;

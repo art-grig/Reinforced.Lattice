@@ -1,5 +1,14 @@
 ﻿module PowerTables {
+
+    /**
+     * Class responsible for handling of table messages. It handles internally thrown messages as well as 
+     * user's ones
+     */
     export class MessagesService {
+
+        /*
+         * @internal
+         */
         constructor(usersMessageFn: (msg: ITableMessage) => void, instances: InstanceManager, dataHolder: DataHolder, controller: Controller) {
             this._usersMessageFn = usersMessageFn;
             this._instances = instances;

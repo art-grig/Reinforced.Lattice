@@ -4,6 +4,10 @@
      * Component that is responsible for querying server
      */
     export class Loader {
+
+        /*
+         * @internal
+         */
         constructor(staticData: any, operationalAjaxUrl: string, masterTable: IMasterTable) {
             this._staticData = staticData;
             this._operationalAjaxUrl = operationalAjaxUrl;
@@ -235,7 +239,6 @@
          * @param callback Callback that will be invoked after data received
          * @param queryModifier Inline query modifier for in-place query modification
          * @param errorCallback Will be called if error occures
-         * @returns {} 
          */
         public requestServer(command: string, callback: (data: any) => void, queryModifier?: (a: IQuery) => IQuery, errorCallback?: (data: any) => void, force?: boolean): void {
 

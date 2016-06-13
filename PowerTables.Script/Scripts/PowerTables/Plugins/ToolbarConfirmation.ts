@@ -1,4 +1,7 @@
 ﻿module PowerTables.Plugins {
+    /**
+     * Backing class for confirmation panel created as part of button action
+     */
     export class ToolbarConfirmation {
         constructor(confirm: (form: any) => void, reject: () => void, date: DateService, autoform: PowerTables.Plugins.Formwatch.IFormwatchFieldData[]) {
             this._confirm = confirm;
@@ -12,12 +15,25 @@
         private _reject: () => void;
         private _date: DateService;
         private _beforeConfirm: ((form: any) => void)[] = [];
+/*
+ * @internal
+ */
         public  AfterConfirm: ((form: any) => void)[] = [];
        
         private _beforeReject: ((form: any) => void)[] = [];
-        public  AfterReject: ((form: any) => void)[] = [];
+/*
+ * @internal
+ */
+        public AfterReject: ((form: any) => void)[] = [];
+/*
+ * @internal
+ */
         public AfterConfirmationResponse: ((form: any) => void)[] = [];
+/*
+ * @internal
+ */
         public ConfirmationResponseError: ((form: any) => void)[] = [];
+
         public Form: any = null;
 
         RootElement: HTMLElement;
@@ -38,6 +54,9 @@
                 }
             }
         }
+/*
+ * @internal
+ */
         public fireEvents(form: any, array: ((form: any) => void)[]) {
             for (var i = 0; i < array.length; i++) {
                 array[i](form);

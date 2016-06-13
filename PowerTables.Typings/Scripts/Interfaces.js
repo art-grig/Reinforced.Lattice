@@ -3,6 +3,17 @@
 //     the code is regenerated.
 var PowerTables;
 (function (PowerTables) {
+    /** Message type enum */
+    (function (MessageType) {
+        /**
+        * UserMessage is shown using specified custom functions for
+        *             messages showing
+        */
+        MessageType[MessageType["UserMessage"] = 0] = "UserMessage";
+        /** Banner message is displayed among whole table instead of data */
+        MessageType[MessageType["Banner"] = 1] = "Banner";
+    })(PowerTables.MessageType || (PowerTables.MessageType = {}));
+    var MessageType = PowerTables.MessageType;
     /** Ordering */
     (function (Ordering) {
         /** Ascending */
@@ -14,4 +25,30 @@ var PowerTables;
     })(PowerTables.Ordering || (PowerTables.Ordering = {}));
     var Ordering = PowerTables.Ordering;
 })(PowerTables || (PowerTables = {}));
-//# sourceMappingURL=Interfaces.js.map
+var PowerTables;
+(function (PowerTables) {
+    var Editors;
+    (function (Editors) {
+        (function (EditorType) {
+            EditorType[EditorType["Cell"] = 0] = "Cell";
+            EditorType[EditorType["Row"] = 1] = "Row";
+            EditorType[EditorType["Form"] = 2] = "Form";
+        })(Editors.EditorType || (Editors.EditorType = {}));
+        var EditorType = Editors.EditorType;
+    })(Editors = PowerTables.Editors || (PowerTables.Editors = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var LoadingOverlap;
+        (function (LoadingOverlap) {
+            (function (OverlapMode) {
+                OverlapMode[OverlapMode["All"] = 0] = "All";
+                OverlapMode[OverlapMode["BodyOnly"] = 1] = "BodyOnly";
+            })(LoadingOverlap.OverlapMode || (LoadingOverlap.OverlapMode = {}));
+            var OverlapMode = LoadingOverlap.OverlapMode;
+        })(LoadingOverlap = Plugins.LoadingOverlap || (Plugins.LoadingOverlap = {}));
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+//# sourceMappingURL=../../../PowerTables.Mvc/Scripts/pt/PowerTables.Typings/Scripts/Interfaces.js.map

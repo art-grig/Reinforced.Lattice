@@ -1,9 +1,20 @@
 ﻿module PowerTables.Plugins {
+    /**
+     * Client-side supply for Toolbar plugin
+     */
     export class ToolbarPlugin extends PluginBase<Plugins.Toolbar.IToolbarButtonsClientConfiguration> {
+        /**
+         * HTML elements of all buttons that are registered for usage within toolbar plugin. Key= internal button id, Value = HTML element corresponding to button
+         */
         public AllButtons: { [id: number]: HTMLElement } = {};
         private _buttonsConfig: { [key: number]: Plugins.Toolbar.IToolbarButtonClientConfiguration } = {}
 
-        public buttonHandleEvent(e: Rendering.ITemplateBoundEvent) {
+        /**
+         * Simulates event happened on particular button. Internal button id must be supplied as first member of @memberref PowerTables.Rendering.ITemplateBoundEvent.EventArguments
+         * 
+         * @param e Template bound event for triggering button action
+         */
+        public buttonHandleEvent(e: Rendering.ITemplateBoundEvent):void {
             var btnId = e.EventArguments[0];
             this.handleButtonAction(this._buttonsConfig[btnId]);
         }
@@ -51,7 +62,7 @@
                         });
                     }
                 // ReSharper restore Lambda
-                if (btn.ConfirmationFunction) btn.ConfirmationFunction.apply(this.MasterTable, [f]);
+                if (btn.ConfirmationFunction) btn.ConfirmationFunction.apply(this.MasterTable, [f, this.MasterTable]);
                 else if (btn.ConfirmationTemplateId) {
                     var tc = new ToolbarConfirmation((data) => {
                         f((q) => {
@@ -91,7 +102,9 @@
                 else f();
             }
         }
-
+/*
+ * @internal
+ */
         public renderContent(templatesProvider: ITemplatesProvider): string {
             return this.defaultRender(templatesProvider);
         }
@@ -121,7 +134,9 @@
             }
             if (atleastOne) this.MasterTable.Renderer.Modifier.redrawPlugin(this);
         }
-
+/*
+ * @internal
+ */
         public init(masterTable: IMasterTable): void {
             super.init(masterTable);
             try {

@@ -3,6 +3,7 @@ module PowerTables.Rendering {
     /**
      * Rendering stack class. Provives common helper 
      * infrastructure for context-oriented rendering
+     * @internal
      */
     export class RenderingStack {
         private _contextStack: IRenderingContext[] = [];

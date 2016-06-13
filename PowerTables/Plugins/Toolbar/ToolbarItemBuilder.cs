@@ -23,17 +23,27 @@ namespace PowerTables.Plugins.Toolbar
             get { return _configuration; }
         }
 
-        public ToolbarItemBuilder(ToolbarButtonClientConfiguration configuration)
+        internal ToolbarItemBuilder(ToolbarButtonClientConfiguration configuration)
         {
             _configuration = configuration;
         }
 
+        /// <summary>
+        /// Sets HTML content of toolbar item
+        /// </summary>
+        /// <param name="content">HTML content to be set</param>
+        /// <returns>Fluent</returns>
         public ToolbarItemBuilder HtmlContent(string content)
         {
             _configuration.HtmlContent = content;
             return this;
         }
 
+        /// <summary>
+        /// Sets Title of toolbar item
+        /// </summary>
+        /// <param name="title">Title to be set</param>
+        /// <returns>Fluent</returns>
         public ToolbarItemBuilder Title(string title)
         {
             _configuration.Title = title;

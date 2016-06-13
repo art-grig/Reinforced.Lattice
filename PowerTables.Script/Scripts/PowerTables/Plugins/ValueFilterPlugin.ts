@@ -1,4 +1,7 @@
 ﻿module PowerTables.Plugins {
+    /**
+     * Client-side part of value filter
+     */
     export class ValueFilterPlugin extends FilterBase<Filters.Value.IValueFilterUiConfig> {
         private _filteringIsBeingExecuted: boolean = false;
         private _inpTimeout: any;
@@ -6,9 +9,16 @@
         private _associatedColumn: IColumn;
         private _isInitializing: boolean = true;
 
+        /**
+         * HTML element corresponding to <input/> tag this filter will retrieve value from
+         */
         public FilterValueProvider: HTMLInputElement;
 
-        private getValue() {
+        /**
+         * Retrieves entered value. Could be either string or Date object depending on 
+         * column associated within filter
+         */
+        public getValue() {
             if (!this.FilterValueProvider) return '';
             if (this._associatedColumn.IsDateTime) {
                 return this.MasterTable.Date.serialize(this.MasterTable.Date.getDateFromDatePicker(this.FilterValueProvider));
@@ -16,6 +26,9 @@
             return this.FilterValueProvider.value;
         }
 
+/**
+* @internal
+*/
         public handleValueChanged() {
             if (this._isInitializing) return;
             if (this._filteringIsBeingExecuted) return;
@@ -38,12 +51,16 @@
                 this._filteringIsBeingExecuted = false;
             }
         }
-
+/**
+* @internal
+*/
         public renderContent(templatesProvider: ITemplatesProvider): string {
             if (this.Configuration.Hidden) return '';
             return this.defaultRender(templatesProvider);
         }
-
+/**
+* @internal
+*/
         public init(masterTable: IMasterTable): void {
             super.init(masterTable);
             if (this.Configuration.ClientFiltering) {
@@ -52,7 +69,9 @@
             this._associatedColumn = this.MasterTable.InstanceManager.Columns[this.Configuration.ColumnName];
 
         }
-
+/**
+* @internal
+*/
         public filterPredicate(rowObject: any, query: IQuery): boolean {
             var fval: string = query.Filterings[this._associatedColumn.RawName];
             if (fval == null || fval == undefined) return true;
@@ -103,7 +122,9 @@
 
             return true;
         }
-
+/**
+* @internal
+*/
         public modifyQuery(query: IQuery, scope: QueryScope): void {
             if (this.Configuration.Hidden) return;
             var val: string = this.getValue();
@@ -115,7 +136,9 @@
                 query.Filterings[this._associatedColumn.RawName] = val;
             }
         }
-
+/**
+* @internal
+*/
         public afterDrawn = (e) => {
             if (this.Configuration.Hidden) return;
             if (this._associatedColumn.IsDateTime) {

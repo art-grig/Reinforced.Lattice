@@ -67,11 +67,7 @@
             this._comparators[dataField] = comparator;
         }
 
-        /**
-         * Is there any client filtration pending 
-         * @returns True if there are any actions to be performed on query after loading, false otherwise 
-         */
-        public isClientFiltrationPending(): boolean {
+        private isClientFiltrationPending(): boolean {
             return (this.EnableClientSkip || this.EnableClientTake || this._anyClientFiltration);
         }
 
@@ -401,7 +397,7 @@
         }
 
 
-        public copyData(source: any, target: any): string[] {
+        private copyData(source: any, target: any): string[] {
             var modColumns = [];
             for (var cd in source) {
                 if (source.hasOwnProperty(cd)) {

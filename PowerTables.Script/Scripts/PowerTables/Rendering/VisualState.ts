@@ -3,6 +3,10 @@
      * Component for managing components visual states
      */
     export class VisualState {
+
+        /**
+        * @internal
+        */
         constructor() {
             this.Current = '';
         }
@@ -184,6 +188,9 @@
         }
     }
 
+    /**
+    * @internal
+    */
     export interface IStateChangedEvent {
         State: string;
         CurrentState: string;

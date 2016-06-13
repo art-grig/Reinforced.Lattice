@@ -1,13 +1,27 @@
 ﻿module PowerTables.Plugins {
+    /**
+     * Client-side implementation of Select filter
+     */
     export class SelectFilterPlugin extends FilterBase<Filters.Select.ISelectFilterUiConfig> {
+
+        /**
+         * HTML element of select list supplying values for select filter. 
+         */
         public FilterValueProvider: HTMLSelectElement;
+
         private _associatedColumn: IColumn;
 
-        public getArgument(): string {
-            return this.getSelectionArray().join('|');
+        /**
+         * Retrieves selected values serialized with |-delimiter
+         */
+        public getSerializedValue(): string {
+            return this.getArrayValue().join('|');
         }
 
-        public getSelectionArray(): string[] {
+        /**
+         * Retrieves array of stringified selected values
+         */
+        public getArrayValue(): string[] {
             if (!this.FilterValueProvider) return [];
 
             if (!this.Configuration.IsMultiple) {
@@ -27,9 +41,12 @@
             }
         }
 
+        /**
+         * @internal
+         */
         public modifyQuery(query: IQuery, scope: QueryScope): void {
             if (this.Configuration.Hidden) return;
-            var val: string = this.getArgument();
+            var val: string = this.getSerializedValue();
             if (!val || val.length === 0) return;
 
             if (this.Configuration.ClientFiltering && scope === QueryScope.Client || scope === QueryScope.Transboundary) {
@@ -40,19 +57,28 @@
             }
         }
 
+        /**
+         * @internal
+         */
         public renderContent(templatesProvider: ITemplatesProvider): string {
             if (this.Configuration.Hidden) return '';
             return this.defaultRender(templatesProvider);
         }
 
+        /**
+         * @internal
+         */
         public handleValueChanged() {
             this.MasterTable.Controller.reload();
         }
 
+        /**
+         * @internal
+         */
         public init(masterTable: IMasterTable): void {
             super.init(masterTable);
             this._associatedColumn = this.MasterTable.InstanceManager.Columns[this.Configuration.ColumnName];
-            
+
             var sv: string = this.Configuration.SelectedValue;
             if (sv !== undefined && sv !== null) {
                 for (var i: number = 0; i < this.Configuration.Items.length; i++) {
@@ -69,6 +95,9 @@
             }
         }
 
+/**        
+ * @internal
+ */
         public filterPredicate(rowObject: any, query: IQuery): boolean {
             var fval: string = query.Filterings[this._associatedColumn.RawName];
             if (fval == null || fval == undefined) return true;

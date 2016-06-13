@@ -1,4 +1,7 @@
 ﻿module PowerTables.Rendering {
+    /**
+     * Internal component that is not supposed to be used directly.
+     */
     export class BackBinder {
         private _eventsQueue: IEventDescriptor[] = [];
         private _markQueue: IMarkDescriptor[] = [];
@@ -15,6 +18,9 @@
 
         public Delegator: EventsDelegator;
 
+         /**
+    * @internal
+    */
         constructor(hb: Handlebars.IHandlebars, instances: InstanceManager, stack: RenderingStack, dateService: DateService) {
             this._instances = instances;
             hb.registerHelper('BindEvent', this.bindEventHelper.bind(this));
@@ -335,23 +341,28 @@
             this._hasVisualStates = true;
             return `data-state-${stateName}="${index}"`;
         }
-
-        public destroyDatepickers(e: HTMLElement) {
-
-        }
     }
 
+    /**
+    * @internal
+    */
     interface IMarkDescriptor {
         ElementReceiver: any;
         FieldName: string;
         Key: any;
     }
 
+    /**
+   * @internal
+   */
     interface IDatepickerDescriptor {
         ElementReceiver: any;
         IsNullable: boolean;
     }
 
+     /**
+    * @internal
+    */
     export interface ICallbackDescriptor {
         Element?: HTMLElement;
         Callback: any; // function or function name
@@ -384,12 +395,35 @@
     }
 
     export interface IState {
+        /**
+         * HTML element this state is applicable to
+         */
         Element: HTMLElement,
+
+        /**
+         * Object that owns mentioned HTML element
+         */
         Receiver: any;
+
+        /**
+         * State ID
+         */
         id: string;
+        /**
+         * Classes to add/remove
+         */
         classes: string[];
+        /**
+         * Attributes values in desired state
+         */
         attrs: { [key: string]: string };
+        /**
+         * Styles to be changed in desired state
+         */
         styles: { [key: string]: string };
+        /**
+         * Element HTML content to be set in particular state
+         */
         content: string;
     }
 

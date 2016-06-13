@@ -13,9 +13,12 @@ module PowerTables.Rendering {
         private _templatesProvider: ITemplatesProvider;
         private _hb: Handlebars.IHandlebars;
         private _stack: RenderingStack;
-        private _templateIds:ICoreTemplateIds;
-        
-        constructor(templates: ITemplatesProvider, stack: RenderingStack, instances: InstanceManager,coreTemplates:ICoreTemplateIds) {
+        private _templateIds: ICoreTemplateIds;
+
+         /**
+         * @internal
+         */
+        constructor(templates: ITemplatesProvider, stack: RenderingStack, instances: InstanceManager, coreTemplates: ICoreTemplateIds) {
             this._hb = templates.HandlebarsInstance;
             this._templatesProvider = templates;
             this._stack = stack;
@@ -56,12 +59,12 @@ module PowerTables.Rendering {
             return result;
         }
 
-/**
-         * Renders specified plugin into string including its wrapper
-         * 
-         * @param plugin Plugin interface
-         * @returns {} 
-         */
+        /**
+        * Renders specified plugin into string including its wrapper
+        * 
+        * @param plugin Plugin interface
+        * @returns {} 
+        */
         public renderPlugin(plugin: IPlugin): string {
             if (plugin.renderElement) return plugin.renderElement(this._templatesProvider);
             if (!plugin.renderContent) return '';
@@ -71,7 +74,7 @@ module PowerTables.Rendering {
             return result;
         }
 
-//#endregion
+        //#endregion
 
         // #region headers helper
         private headerHelper(columnName: string): string {
@@ -90,7 +93,7 @@ module PowerTables.Rendering {
 
             if (column.Header.renderElement) result = column.Header.renderElement(this._templatesProvider);
             else {
-                result = this._templatesProvider.getCachedTemplate(column.Header.TemplateIdOverride||this._templateIds.HeaderWrapper)(column.Header);
+                result = this._templatesProvider.getCachedTemplate(column.Header.TemplateIdOverride || this._templateIds.HeaderWrapper)(column.Header);
             }
 
             this._stack.popContext();
@@ -109,20 +112,20 @@ module PowerTables.Rendering {
             return result;
         }
 
-//#endregion
+        //#endregion
 
         //#endregion
 
         public renderContent(columnName?: string): string {
             switch (this._stack.Current.Type) {
-            case RenderingContextType.Header:
-                return (<IColumnHeader>this._stack.Current.Object).Column.Configuration.Title
-                    || (<IColumnHeader>this._stack.Current.Object).Column.RawName;
+                case RenderingContextType.Header:
+                    return (<IColumnHeader>this._stack.Current.Object).Column.Configuration.Title
+                        || (<IColumnHeader>this._stack.Current.Object).Column.RawName;
 
-            case RenderingContextType.Plugin:
-                // if we are here then plugin's renderContent is not 
-                // overriden
-                throw new Error('It is required to override renderContent for plugin');
+                case RenderingContextType.Plugin:
+                    // if we are here then plugin's renderContent is not 
+                    // overriden
+                    throw new Error('It is required to override renderContent for plugin');
             }
             return '';
         }
@@ -130,5 +133,5 @@ module PowerTables.Rendering {
     }
 
 
-   
+
 }

@@ -154,7 +154,9 @@
         modifyQuery(query: IQuery, scope: QueryScope): void;
     }
 
-    /** Renderable entity */
+    /** 
+     * Renderable entity 
+     */
     export interface IRenderable {
         /**
 		* Renders whole element to string using templates provider
@@ -172,7 +174,9 @@
         renderContent?: (templatesProvider: ITemplatesProvider) => string;
     }
 
-    /** Cell object */
+    /** 
+     * Cell object 
+     */
     export interface ICell extends IRenderable {
         /** 
          * Associated row
@@ -252,7 +256,9 @@
     }
 
     export interface ITemplatesProvider {
-        /** Current handlebars.js engine instance */
+        /** 
+         * Current handlebars.js engine instance 
+         */
         HandlebarsInstance: Handlebars.IHandlebars;
         /**
 		* Retrieves cached template handlebars function
@@ -264,15 +270,25 @@
     }
 
     export interface IColumn {
-        /** Raw column name */
+        /** 
+         *Raw column name 
+         */
         RawName: string;
-        /** Column configuration */
+        /** 
+         * Column configuration 
+         */
         Configuration: Configuration.Json.IColumnConfiguration;
-        /** Reference to master table */
+        /** 
+         * Reference to master table 
+         */
         MasterTable: IMasterTable;
-        /** Column header */
+        /** 
+         * Column header 
+         */
         Header: IColumnHeader;
-        /** Column order (left-to-right) */
+        /** 
+         * Column order (left-to-right) 
+         */
         Order: number;
 
         /**

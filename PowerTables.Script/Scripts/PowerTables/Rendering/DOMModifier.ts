@@ -1,5 +1,11 @@
 ﻿module PowerTables.Rendering {
+    /**
+     * Class that is responsible for particular HTML elements redrawing/addition/removal
+     */
     export class DOMModifier {
+        /*
+        * @internal
+        */
         constructor(stack: RenderingStack, locator: DOMLocator, backBinder: BackBinder, templatesProvider: ITemplatesProvider, layoutRenderer: LayoutRenderer, instances: InstanceManager, ed: EventsDelegator) {
             this._stack = stack;
             this._locator = locator;

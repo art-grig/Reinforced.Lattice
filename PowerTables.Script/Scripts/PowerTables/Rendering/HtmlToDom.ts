@@ -214,7 +214,13 @@
 
 //#endregion
 
-
+        /**
+         * Parses supplied HTML string and promotes it to HTML element. 
+         * This implementation also supports <script/> tags inside of supplied HTML. Scripts will be executed 
+         * immediately after HTML element creation.
+         * 
+         * @param html HTML string to convert to HTML element
+         */
         public html2Dom(html: string): HTMLElement {
             this.parse(html.trim());
             if (this._topNodes.length > 1) {
@@ -223,18 +229,31 @@
             return this._topNodes.length ? this._topNodes[0] : null;
         }
 
+         /**
+         * Parses supplied HTML string and promotes it to set of HTML elements. 
+         * This implementation also supports <script/> tags inside of supplied HTML. Scripts will be executed 
+         * immediately after all of HTML elements creation.
+         * 
+         * @param html HTML string to convert to HTML element
+         */
         public html2DomElements(html: string): HTMLElement[] {
             this.parse(html.trim());
             return this._topNodes;
         }
     }
 
+    /**
+     * @internal
+     */
     interface IAttr {
         name: string;
         value: string;
         escaped: string;
     }
 
+     /**
+     * @internal
+     */
     interface IStack<T> extends Array<T> {
         last(): T;
     }

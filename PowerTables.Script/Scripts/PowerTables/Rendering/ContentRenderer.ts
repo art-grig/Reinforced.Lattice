@@ -24,7 +24,6 @@
          * Renders supplied table rows to string
          * 
          * @param rows Table rows
-         * @returns String containing HTML of table rows
          */
         public renderBody(rows: IRow[]): string {
             var result: string = '';
@@ -49,11 +48,17 @@
             return result;
         }
 
+        /*
+        * @internal
+        */
         public renderCell(cell: ICell): string {
             return this._columnsRenderFunctions[cell.Column.RawName](cell);
         }
 
 
+        /*
+        * @internal
+        */
         public renderContent(columnName?: string) {
             var result: string = '';
             switch (this._stack.Current.Type) {

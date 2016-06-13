@@ -1,4 +1,5 @@
 ﻿module PowerTables.Plugins.Editors {
+
     export class CellEditorBase<T> extends PluginBase<T> implements ICellEditor {
         
         /**

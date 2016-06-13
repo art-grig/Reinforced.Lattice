@@ -4,6 +4,10 @@
      * This module allows you to locate particular elements in table's DOM
      */
     export class DOMLocator {
+
+        /*
+        * @internal
+        */
         constructor(bodyElement: HTMLElement, rootElement: HTMLElement, rootId: string) {
             this._bodyElement = bodyElement;
             this._rootElement = rootElement;

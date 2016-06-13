@@ -3,6 +3,10 @@
      * Wrapper for table event with ability to subscribe/unsubscribe
      */
     export class TableEvent<TEventArgs> {
+
+        /*
+         * @internal
+         */
         constructor(masterTable: any) { this._masterTable = masterTable; }
 
         private _masterTable: IMasterTable;
@@ -41,7 +45,7 @@
          * @param handler Event handler to subscribe
          * @param subscriber Subscriber key to associate with handler
          */
-        public subscribe(handler: (e: ITableEventArgs<TEventArgs>) => any, subscriber: string) {
+        public subscribe(handler: (e: ITableEventArgs<TEventArgs>) => any, subscriber: string): void {
             if (!this._handlers[subscriber]) {
                 this._handlers[subscriber] = [];
             }
@@ -52,7 +56,7 @@
          * Unsubscribes specified addressee from event
          * @param subscriber Subscriber key associated with handler
          */
-        public unsubscribe(subscriber: string) {
+        public unsubscribe(subscriber: string): void {
             this._handlers[subscriber] = null;
             delete this._handlers[subscriber];
         }
@@ -97,13 +101,13 @@
         public BeforeLayoutRendered: TableEvent<any>;
 
 
-/**
-         * "Before Filter Gathering" event. 
-         * Occurs every time before sending request to server via Loader before 
-         * filtering information is being gathered. Here you can add your own 
-         * additional data to prepared query that will be probably overridden by 
-         * other query providers. 
-         */
+        /**
+        * "Before Filter Gathering" event. 
+        * Occurs every time before sending request to server via Loader before 
+        * filtering information is being gathered. Here you can add your own 
+        * additional data to prepared query that will be probably overridden by 
+        * other query providers. 
+        */
         public BeforeQueryGathering: TableEvent<IQueryGatheringEventArgs>;
         public BeforeClientQueryGathering: TableEvent<IQueryGatheringEventArgs>;
 

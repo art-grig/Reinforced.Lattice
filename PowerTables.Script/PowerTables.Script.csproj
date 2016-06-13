@@ -119,9 +119,9 @@
     <TypeScriptRemoveComments>False</TypeScriptRemoveComments>
     <TypeScriptSourceMap>True</TypeScriptSourceMap>
     <TypeScriptGeneratesDeclarations>True</TypeScriptGeneratesDeclarations>
-    <TypeScriptOutFile>../PowerTables.Mvc/Scripts/powertables.js</TypeScriptOutFile>
     <TypeScriptMapRoot>../PowerTables.Mvc/Scripts/</TypeScriptMapRoot>
     <TypeScriptModuleKind>none</TypeScriptModuleKind>
+    <TypeScriptOutFile>../PowerTables.Mvc/Scripts/powertables.js</TypeScriptOutFile>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
 </Project>

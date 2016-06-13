@@ -53,6 +53,9 @@
             }
         }
 
+        /*
+         * @internal
+         */
         public static registerAllEvents(eventsManager: EventsManager, masterTable: IMasterTable) {
             for (var key in this._components) {
                 if (this._components[key].registerEvents && typeof this._components[key].registerEvents === 'function') {

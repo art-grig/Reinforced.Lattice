@@ -1,5 +1,12 @@
 ﻿module PowerTables {
+    /**
+     * API for managing in-table elements' events
+     */
     export class EventsDelegator {
+
+        /**
+         * @internal
+         */
         constructor(locator: PowerTables.Rendering.DOMLocator, bodyElement: HTMLElement, layoutElement: HTMLElement, rootId: string) {
             this._locator = locator;
             this._bodyElement = bodyElement;
@@ -224,6 +231,9 @@
 
         private _directSubscriptions: IDirectSubscription[] = [];
 
+        /**
+         * @internal
+         */
         public subscribeEvent(el: HTMLElement, eventId: string, handler: any, receiver: any, eventArguments: any[]) {
             var eo = this.parseEventId(eventId);
             var fn: any;
@@ -281,6 +291,9 @@
             }
         }
 
+        /**
+         * @internal
+         */
         public subscribeOutOfElementEvent(el: HTMLElement, eventId: string, handler: any, receiver: any, eventArguments: any[]) {
             var eo = this.parseEventId(eventId);
             eventId = eo['__event'];
@@ -297,12 +310,21 @@
             el.setAttribute('data-outsub', 'true');
         }
 
-        public subscribeDestroy(e: HTMLElement, callback: PowerTables.Rendering.ICallbackDescriptor) {
+        /**
+         * Subscribes event that will be fired when supplied element will be destroyed
+         * 
+         * @param e HTML element destroying of which will fire event
+         * @param callback Callback being called when element is destroyed        
+         */
+        public subscribeDestroy(e: HTMLElement, callback: PowerTables.Rendering.ICallbackDescriptor):void {
             callback.Element = e;
             e.setAttribute("data-dstrycb", "true");
             this._destroyCallbacks.push(callback);
         }
 
+        /**
+         * @internal
+         */
         public handleElementDestroy(e: HTMLElement) {
             var arr: HTMLElement[] = this.collectElementsHavingAttribute(e, 'data-outsub');
             if (arr.length !== 0) {

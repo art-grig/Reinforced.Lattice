@@ -6,6 +6,9 @@
      */
     export class Controller {
 
+        /**
+         * @internal
+         */
         constructor(masterTable: IMasterTable) {
             this._masterTable = masterTable;
         }
@@ -56,6 +59,9 @@
             }
         }
 
+        /**
+         * @internal
+         */
         public drawAdjustmentResult(adjustmentResult: IAdjustmentResult) {
             var adjRowTemplate = this._masterTable.InstanceManager.Configuration.TouchedRowTemplateId;
             var adjCellTemplate = this._masterTable.InstanceManager.Configuration.TouchedCellTemplateId;
@@ -182,61 +188,5 @@
         }
 
 
-    }
-
-    /**
-     * Behavior of redrawing table after modification
-     */
-    export enum RedrawBehavior {
-
-        /**
-         * To perform UI redraw, data will be entirely reloaded from server. 
-         * Local data will not be affected due to further reloading
-         */
-        ReloadFromServer,
-
-        /**
-         * Filters will be reapplied only locally. 
-         * Currently displaying data will be entirely redrawn with client filters 
-         * using locally cached data from server. 
-         * 
-         * In this case, if modified rows are not satisfying any server conditions then 
-         * is will still stay in table. That may seem illogical for target users.
-         */
-        LocalFullRefresh,
-
-        /**
-         * Filters will be reapplied locally but only on currently displaying data. 
-         * 
-         * In this case, deleted row will simply disappear, added row will be added to currently 
-         * displaying cells set and currently displaying set will be re-ordered, modified 
-         * row will be ordered among only displaying set without filtering. 
-         * This approach is quite fast and may be useful in various cases
-         */
-        LocalVisibleReorder,
-
-        /**
-         * Simply redraw all the visible cells without additional filtering.
-         * 
-         * May lead to glitches e.g. invalid elements count on page or invalid 
-         * items order. Most suitable for updating that does not touch filtering/ordering-sensetive
-         * data.
-         */
-        RedrawVisible,
-
-        /**
-         * Only particular row mentioned in modification request will be updated. 
-         * No server reloading, no reordering, no re-sorting. Row will stay in place or 
-         * will be added at specified position or will be simply disappear from currently displayed set. 
-         * In some cases such behavior may confuse users, but still stay suitable for most cases. 
-         * Of course, it will disappear after on next filtering if no more satisfying 
-         * filter conditions.
-         */
-        ParticularRowUpdate,
-
-        /**
-         * Modification request will not affect UI anyhow until next filtering. Confusing.
-         */
-        DoNothing
     }
 }
