@@ -1752,9 +1752,11 @@ var PowerTables;
          */
         InstanceManager.prototype.getPlugins = function (placement) {
             var result = [];
+            if (!InstanceManager.endsWith(placement, "-"))
+                placement += "-";
             for (var k in this.Plugins) {
                 if (this.Plugins.hasOwnProperty(k)) {
-                    var kp = k.substring(0, placement.length);
+                    var kp = (k + "-").substring(0, placement.length);
                     if (kp === placement) {
                         result.push(this.Plugins[k]);
                     }

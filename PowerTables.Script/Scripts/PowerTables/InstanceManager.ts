@@ -1,9 +1,9 @@
 ﻿module PowerTables {
-     /**
-     * This thing is used to manage instances of columns, plugins etc. 
-     * It consumes PT configuration as source and provides caller with 
-     * plugins instances, variable ways to query them and accessing their properties
-     */
+    /**
+    * This thing is used to manage instances of columns, plugins etc. 
+    * It consumes PT configuration as source and provides caller with 
+    * plugins instances, variable ways to query them and accessing their properties
+    */
     export class InstanceManager {
         constructor(configuration: Configuration.Json.ITableConfiguration, masterTable: IMasterTable, events: EventsManager) {
             this.Configuration = configuration;
@@ -84,7 +84,7 @@
                 IsInteger: InstanceManager._integerTypes.indexOf(fieldType) > -1,
                 IsBoolean: InstanceManager._booleanTypes.indexOf(fieldType) > -1,
                 IsNullable: InstanceManager.endsWith(fieldType, '?')
-        };
+            };
         }
 
         private initColumns(): void {
@@ -133,17 +133,17 @@
                 var plugin: IPlugin = ComponentsContainer.resolveComponent<IPlugin>(conf.PluginId);
                 plugin.PluginLocation = (!conf.Placement) ? conf.PluginId : `${conf.Placement}-${conf.PluginId}`;
                 plugin.RawConfig = conf;
-                plugin.Order = conf.Order||0;
+                plugin.Order = conf.Order || 0;
 
                 plugin.init(this._masterTable);
                 if (this._isHandlingSpecialPlacementCase && InstanceManager.startsWith(conf.Placement, this._specialCasePlaceholder)) {
-                    specialCases[conf.Placement+'-'] = plugin;
+                    specialCases[conf.Placement + '-'] = plugin;
                     anySpecialCases = true;
                 } else {
                     this.Plugins[plugin.PluginLocation] = plugin;
                 }
             }
-            
+
             // handling special filters case
             if (this._isHandlingSpecialPlacementCase) {
                 if (anySpecialCases) {
@@ -184,7 +184,7 @@
             return part === prefix;
         }
 
-        private  static endsWith(s1: string, postfix: string): boolean {
+        private static endsWith(s1: string, postfix: string): boolean {
             if (s1 == undefined || s1 === null) return false;
             if (postfix.length > s1.length) return false;
             if (s1 === postfix) return true;
@@ -200,8 +200,8 @@
             for (var i = 0; i < this.Configuration.Subscriptions.length; i++) {
                 var sub = this.Configuration.Subscriptions[i];
                 if (sub.IsRowSubscription) {
-                    var h = (function(hndlr) {
-                        return function(e: IRowEventArgs) {
+                    var h = (function (hndlr) {
+                        return function (e: IRowEventArgs) {
                             var obj = ths._masterTable.DataHolder.localLookupDisplayedData(e.DisplayingRowIndex);
                             hndlr(obj.DataObject, e.OriginalEvent);
                         }
@@ -214,13 +214,13 @@
                     });
                 } else {
                     var colIdx = columns.indexOf(sub.ColumnName);
-                    var h2 = (function (hndlr,im:InstanceManager,colName) {
+                    var h2 = (function (hndlr, im: InstanceManager, colName) {
                         return function (e: ICellEventArgs) {
                             if (im.getUiColumnNames().indexOf(colName) !== e.ColumnIndex) return;
                             var obj = ths._masterTable.DataHolder.localLookupDisplayedData(e.DisplayingRowIndex);
                             hndlr(obj.DataObject, e.OriginalEvent);
                         }
-                    })(sub.Handler, this._masterTable.InstanceManager,sub.ColumnName);
+                    })(sub.Handler, this._masterTable.InstanceManager, sub.ColumnName);
                     delegator.subscribeCellEvent({
                         EventId: sub.DomEvent,
                         Selector: sub.Selector,
@@ -260,10 +260,10 @@
          */
         public getPlugins(placement: string): IPlugin[] {
             var result: IPlugin[] = [];
-
+            if (!InstanceManager.endsWith(placement,"-")) placement += "-";
             for (var k in this.Plugins) {
                 if (this.Plugins.hasOwnProperty(k)) {
-                    var kp = k.substring(0, placement.length);
+                    var kp = (k + "-").substring(0, placement.length);
                     if (kp === placement) {
                         result.push(this.Plugins[k]);
                     }
