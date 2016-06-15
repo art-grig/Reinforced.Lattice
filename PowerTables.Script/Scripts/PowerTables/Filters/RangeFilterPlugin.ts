@@ -1,5 +1,5 @@
-﻿module PowerTables.Plugins {
-    export class RangeFilterPlugin extends FilterBase<Filters.Range.IRangeFilterUiConfig> {
+﻿module PowerTables.Filters.Range {
+    export class RangeFilterPlugin extends PowerTables.Filters.FilterBase<Filters.Range.IRangeFilterUiConfig> {
         private _filteringIsBeingExecuted: boolean = false;
         private _inpTimeout: any;
         private _fromPreviousValue: string;

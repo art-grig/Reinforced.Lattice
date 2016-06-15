@@ -512,30 +512,48 @@ module PowerTables.Plugins.Toolbar {
 		Buttons: PowerTables.Plugins.Toolbar.IToolbarButtonClientConfiguration[];
 		DefaultTemplateId: string;
 	}
+	/** JSON configuration for toolbar button */
 	export interface IToolbarButtonClientConfiguration
 	{
+		/** Gets or sets value of button's 'id' HTML attribute value */
 		Id: string;
+		/** Gets or sets value of button's 'class' HTML attribute value */
 		Css: string;
+		/** Gets or sets value of button's 'style' HTML attribute value */
 		Style: string;
+		/** Gets or sets button's inner HTML */
 		HtmlContent: string;
+		/** Gets or sets command associated within this button */
 		Command: string;
+		/** When true, button/menu item will be disabled while command is being executed */
 		BlackoutWhileCommand: boolean;
+		/** Button will be disabled when nothing is checked within checkboxify plugin */
 		DisableIfNothingChecked: boolean;
+		/** Button title */
 		Title: string;
-		/** Function (table:PowerTables.PowerTable, response:IPowerTablesResponse) =&gt; void */
+		/** Gets or sets JS function to be executed after command execution. JS function is of type: (table:PowerTables.PowerTable, response:IPowerTablesResponse) =&gt; void */
 		CommandCallbackFunction: (table:any /*PowerTables.PowerTable*/,response:IPowerTablesResponse)=>void;
-		/** Function (continuation: ( queryModifier?:(a:IQuery) =&gt; IQuery ) =&gt; void ) =&gt; void */
+		/** Gets or sets JS function to be executed before command execution with ability to confinue or reject action. JS function is of type: (continuation: ( queryModifier?:(a:IQuery) =&gt; IQuery ) =&gt; void ) =&gt; void */
 		ConfirmationFunction: (continuation:(queryModifier?:(a:IQuery)=>void)=>void)=>void;
-		/** Function (table:any (PowerTables.PowerTable), menuElement:any)=&gt;void */
+		/** Gets or sets JS function to be executed on button click. JS function is of type: (table:any (PowerTables.PowerTable), menuElement:any)=&gt;void */
 		OnClick: (table:any /*PowerTables.PowerTable*/,menuElement:any)=>void;
+		/** Collection of button's submenu items */
 		Submenu: PowerTables.Plugins.Toolbar.IToolbarButtonClientConfiguration[];
+		/** Gets value indicating where button has submenu items */
 		HasSubmenu: boolean;
+		/** Gets or sets value indicating whether button is menu holder */
 		IsMenu: boolean;
+		/** Gets or sets value indicating whether button is separator */
 		Separator: boolean;
+		/** Gets button id that is used internally */
 		InternalId: number;
+		/** Gets or sets value indicating whether button is disabled */
 		IsDisabled: boolean;
+		/** Gets or sets template ID for confirmation button's action */
 		ConfirmationTemplateId: string;
+		/** Gets or sets element selector where confirmation panel will be placed to */
 		ConfirmationTargetSelector: string;
+		/** Gets or sets confirmation form fields configuration */
 		ConfirmationFormConfiguration: PowerTables.Plugins.Formwatch.IFormwatchFieldData[];
 	}
 }
@@ -662,7 +680,7 @@ module PowerTables.Editors.PlainText {
 		ValidationRegex: string;
 		EnableBasicValidation: boolean;
 		FormatFunction: (value:any,column:IColumn) => string;
-		ParseFunction: (value:string,column:IColumn,errors:PowerTables.Plugins.IValidationMessage[]) => any;
+        ParseFunction: (value: string, column: IColumn, errors: PowerTables.Editors.IValidationMessage[]) => any;
 		FloatRemoveSeparatorsRegex: string;
 		FloatDotReplaceSeparatorsRegex: string;
 		AllowEmptyString: boolean;

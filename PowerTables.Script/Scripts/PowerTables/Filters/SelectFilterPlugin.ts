@@ -1,8 +1,8 @@
-﻿module PowerTables.Plugins {
+﻿module PowerTables.Filters.Select {
     /**
      * Client-side implementation of Select filter
      */
-    export class SelectFilterPlugin extends FilterBase<Filters.Select.ISelectFilterUiConfig> {
+    export class SelectFilterPlugin extends PowerTables.Filters.FilterBase<Filters.Select.ISelectFilterUiConfig> {
 
         /**
          * HTML element of select list supplying values for select filter. 

@@ -1,5 +1,7 @@
-﻿module PowerTables.Plugins {
-    export class LimitPlugin extends FilterBase<Plugins.Limit.ILimitClientConfiguration> {
+﻿
+module PowerTables.Plugins.Limit {
+    
+    export class LimitPlugin extends PowerTables.Filters.FilterBase<Plugins.Limit.ILimitClientConfiguration> {
         public SelectedValue: ILimitSize;
         private _limitSize = 0;
         public Sizes: ILimitSize[] = [];

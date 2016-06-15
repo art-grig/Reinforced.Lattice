@@ -1,4 +1,4 @@
-﻿module PowerTables.Plugins {
+﻿module PowerTables.Plugins.ResponseInfo {
     export class ResponseInfoPlugin extends PluginBase<Plugins.ResponseInfo.IResponseInfoClientConfiguration> {
         private _recentData: any;
         private _recentServerData: any;

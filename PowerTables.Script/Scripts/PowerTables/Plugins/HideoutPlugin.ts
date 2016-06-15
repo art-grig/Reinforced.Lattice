@@ -1,4 +1,4 @@
-﻿module PowerTables.Plugins {
+﻿module PowerTables.Plugins.Hideout {
     export interface IColumnState {
         Visible: boolean;
         RawName: string;

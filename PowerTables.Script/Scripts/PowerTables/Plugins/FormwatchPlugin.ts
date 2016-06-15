@@ -1,4 +1,4 @@
-﻿module PowerTables.Plugins {
+﻿module PowerTables.Plugins.Formwatch {
     export class FormwatchPlugin extends PluginBase<PowerTables.Plugins.Formwatch.IFormwatchClientConfiguration>
         implements IQueryPartProvider {
 

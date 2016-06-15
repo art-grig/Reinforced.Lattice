@@ -1,4 +1,4 @@
-module PowerTables.Plugins {
+module PowerTables.Plugins.Loading {
     export class LoadingPlugin extends PluginBase<any> implements ILoadingPlugin {
         public BlinkElement: HTMLElement;
         public subscribe(e: EventsManager): void {

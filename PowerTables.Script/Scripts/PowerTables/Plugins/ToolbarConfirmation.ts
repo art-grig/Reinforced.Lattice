@@ -1,4 +1,4 @@
-﻿module PowerTables.Plugins {
+﻿module PowerTables.Plugins.Toolbar {
     /**
      * Backing class for confirmation panel created as part of button action
      */
@@ -67,7 +67,7 @@
             if (this.Form != null) return;
             var form = {};
             if (this._autoform != null) {
-                form = FormwatchPlugin.extractFormData(this._autoform, this.RootElement, this._date);
+                form = PowerTables.Plugins.Formwatch.FormwatchPlugin.extractFormData(this._autoform, this.RootElement, this._date);
             }
             this.Form = form;
         }

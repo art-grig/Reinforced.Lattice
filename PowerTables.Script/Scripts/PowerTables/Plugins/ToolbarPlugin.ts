@@ -1,4 +1,4 @@
-﻿module PowerTables.Plugins {
+﻿module PowerTables.Plugins.Toolbar {
     /**
      * Client-side supply for Toolbar plugin
      */
@@ -79,7 +79,7 @@
                     }, this.MasterTable.Date, btn.ConfirmationFormConfiguration);
 
                     try {
-                        var chb = this.MasterTable.InstanceManager.getPlugin<CheckboxifyPlugin>('Checkboxify');
+                        var chb = this.MasterTable.InstanceManager.getPlugin<PowerTables.Plugins.Checkboxify.CheckboxifyPlugin>('Checkboxify');
                         var selection = chb.getSelection();
                         tc.SelectedItems = selection;
                         var objects = [];
@@ -140,7 +140,7 @@
         public init(masterTable: IMasterTable): void {
             super.init(masterTable);
             try {
-                var p: Plugins.CheckboxifyPlugin = this.MasterTable.InstanceManager.getPlugin<CheckboxifyPlugin>('Checkboxify');
+                var p: PowerTables.Plugins.Checkboxify.CheckboxifyPlugin = this.MasterTable.InstanceManager.getPlugin<PowerTables.Plugins.Checkboxify.CheckboxifyPlugin>('Checkboxify');
                 var nothingSelected: boolean = p.getSelection().length === 0;
                 for (var i: number = 0; i < this.Configuration.Buttons.length; i++) {
                     if (this.Configuration.Buttons[i].DisableIfNothingChecked) {

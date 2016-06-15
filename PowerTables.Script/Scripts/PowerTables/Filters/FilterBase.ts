@@ -1,9 +1,9 @@
-﻿module PowerTables.Plugins {
+﻿module PowerTables.Filters {
 
     /**
      * Base class for creating filters
      */
-    export class FilterBase<T> extends PluginBase<T> implements IQueryPartProvider, IClientFilter {
+    export class FilterBase<T> extends PowerTables.Plugins.PluginBase<T> implements IQueryPartProvider, IClientFilter {
 
         public modifyQuery(query: IQuery, scope: QueryScope): void {}
 

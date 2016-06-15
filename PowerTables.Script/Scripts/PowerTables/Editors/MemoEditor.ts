@@ -1,6 +1,6 @@
-﻿module PowerTables.Plugins.Editors {
+﻿module PowerTables.Editors.Memo {
     
-    export class MemoEditor extends CellEditorBase<PowerTables.Editors.Memo.IMemoEditorUiConfig>{
+    export class MemoEditor extends PowerTables.Editors.CellEditorBase<PowerTables.Editors.Memo.IMemoEditorUiConfig>{
         TextArea: HTMLInputElement;
 
         public MaxChars: number;
@@ -32,7 +32,7 @@
             this.TextArea.value = value;
         }
 
-        public getValue(errors: PowerTables.Plugins.IValidationMessage[]): any {
+        public getValue(errors: PowerTables.Editors.IValidationMessage[]): any {
             var value = this.TextArea.value;
             if (this.MaxChars > 0 && value.length > this.MaxChars) {
                 errors.push({ Code: 'MAXCHARS', Message: `Maximum ${this.Column.Configuration.Title} length exceeded` });

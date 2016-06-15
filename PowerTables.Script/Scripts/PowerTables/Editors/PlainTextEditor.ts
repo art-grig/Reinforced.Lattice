@@ -1,6 +1,6 @@
-﻿module PowerTables.Plugins.Editors {
+﻿module PowerTables.Editors.PlainText {
     
-    export class PlainTextEditor extends CellEditorBase<PowerTables.Editors.PlainText.IPlainTextEditorUiConfig> {
+    export class PlainTextEditor extends PowerTables.Editors.CellEditorBase<PowerTables.Editors.PlainText.IPlainTextEditorUiConfig> {
         Input: HTMLInputElement;
         ValidationRegex: RegExp;
         private _removeSeparators: RegExp;

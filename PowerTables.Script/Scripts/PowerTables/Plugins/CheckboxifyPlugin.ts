@@ -1,4 +1,4 @@
-﻿module PowerTables.Plugins {
+﻿module PowerTables.Plugins.Checkboxify {
     export class CheckboxifyPlugin extends PluginBase<Plugins.Checkboxify.ICheckboxifyClientConfig> implements IQueryPartProvider {
         private _selectedItems: string[] = [];
         private _visibleAll: boolean = false;
@@ -6,7 +6,7 @@
         private _ourColumn: IColumn;
         public ValueColumnName: string;
         private _canSelectAll: boolean;
-        private _pagingPlugin: PagingPlugin = null;
+        private _pagingPlugin: PowerTables.Plugins.Paging.PagingPlugin = null;
         private _selectables: any[] = [];
 
         public selectAll(selected?: boolean): void {
@@ -272,7 +272,7 @@
             this._canSelectAll = this.Configuration.EnableSelectAll;
             this.MasterTable.Loader.registerQueryPartProvider(this);
             try {
-                this._pagingPlugin = this.MasterTable.InstanceManager.getPlugin<PagingPlugin>('Paging');
+                this._pagingPlugin = this.MasterTable.InstanceManager.getPlugin<PowerTables.Plugins.Paging.PagingPlugin>('Paging');
             } catch (e) { }
         }
 

@@ -308,7 +308,6 @@
     <None Include="Project_Readme.html" />
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="Scripts\powertables.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\handlebars\handlebars.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\jquery\jquery.d.ts" />
   </ItemGroup>

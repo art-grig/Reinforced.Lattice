@@ -1,8 +1,10 @@
-﻿module PowerTables.Plugins {
+﻿module PowerTables.Filters.Value {
+    
+
     /**
      * Client-side part of value filter
      */
-    export class ValueFilterPlugin extends FilterBase<Filters.Value.IValueFilterUiConfig> {
+    export class ValueFilterPlugin extends PowerTables.Filters.FilterBase<Filters.Value.IValueFilterUiConfig> {
         private _filteringIsBeingExecuted: boolean = false;
         private _inpTimeout: any;
         private _previousValue: string;

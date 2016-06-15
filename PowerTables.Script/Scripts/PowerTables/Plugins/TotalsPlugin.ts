@@ -1,4 +1,4 @@
-﻿module PowerTables.Plugins {
+﻿module PowerTables.Plugins.Total {
     /**
      * Client-side implementation of totals plugin
      */

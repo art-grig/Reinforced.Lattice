@@ -1,4 +1,4 @@
-﻿module PowerTables {
+﻿module PowerTables.Plugins.Reload {
     
     export class ReloadPlugin extends PowerTables.Plugins.PluginBase<PowerTables.Plugins.Reload.IReloadUiConfiguration> {
         private _renderedExternally: boolean;

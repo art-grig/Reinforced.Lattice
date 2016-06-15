@@ -1,4 +1,4 @@
-﻿declare module PowerTables.Plugins {
+﻿declare module PowerTables.Plugins.Limit {
     /**
      * Limit plugin interface
      */

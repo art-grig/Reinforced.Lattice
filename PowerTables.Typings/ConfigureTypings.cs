@@ -146,7 +146,7 @@ namespace PowerTables.Typings
             builder.ExportAsInterface<PlainTextEditorUiConfig>()
                 .WithPublicProperties()
                 .WithProperty(c => c.FormatFunction, c => c.Type("(value:any,column:IColumn) => string"))
-                .WithProperty(c => c.ParseFunction, c => c.Type("(value:string,column:IColumn,errors:PowerTables.Plugins.IValidationMessage[]) => any"))
+                .WithProperty(c => c.ParseFunction, c => c.Type("(value:string,column:IColumn,errors:PowerTables.Editors.IValidationMessage[]) => any"))
                 ;
 
             builder.ExportAsInterface<LoadingOverlapUiConfig>().WithPublicProperties();

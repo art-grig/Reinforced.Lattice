@@ -1,5 +1,5 @@
-﻿module PowerTables.Plugins {
-    export class PagingPlugin extends FilterBase<Plugins.Paging.IPagingClientConfiguration> {
+﻿module PowerTables.Plugins.Paging {
+    export class PagingPlugin extends PowerTables.Filters.FilterBase<Plugins.Paging.IPagingClientConfiguration> {
 
         public Pages: IPagesElement[];
         public Shown: boolean;

@@ -1,6 +1,6 @@
-﻿module PowerTables.Plugins.Editors {
+﻿module PowerTables.Editors {
 
-    export class CellEditorBase<T> extends PluginBase<T> implements ICellEditor {
+    export class CellEditorBase<T> extends PowerTables.Plugins.PluginBase<T> implements PowerTables.Editors.ICellEditor {
         
         /**
          * Is current editor valid (flag set by master editor)
@@ -222,6 +222,9 @@
          */
         ValidationMessages: IValidationMessage[];
     }
-
+    export interface IValidationMessage {
+        Message: string;
+        Code: string;
+    }
 
 } 

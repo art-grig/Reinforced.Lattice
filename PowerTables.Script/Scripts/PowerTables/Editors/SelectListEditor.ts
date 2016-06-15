@@ -1,11 +1,11 @@
-﻿module PowerTables.Plugins.Editors {
+﻿module PowerTables.Plugins.Editors.SelectList {
     
-    export class SelectListEditor extends CellEditorBase<PowerTables.Editors.SelectList.ISelectListEditorUiConfig> {
+    export class SelectListEditor extends PowerTables.Editors.CellEditorBase<PowerTables.Editors.SelectList.ISelectListEditorUiConfig> {
         List: HTMLSelectElement;
         Items: System.Web.Mvc.ISelectListItem[];
         SelectedItem: System.Web.Mvc.ISelectListItem;
         
-        public getValue(errors: IValidationMessage[]): any {
+        public getValue(errors: PowerTables.Editors.IValidationMessage[]): any {
             var selectedOption = this.List.options.item(this.List.selectedIndex);
             var item = <string>(<any>selectedOption).value.toString();
             var value = null;
