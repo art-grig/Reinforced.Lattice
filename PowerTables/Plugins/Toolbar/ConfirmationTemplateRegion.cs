@@ -82,12 +82,12 @@ namespace PowerTables.Plugins.Toolbar
 
         public static MvcHtmlString BindDismiss<TRow, TForm>(this  ConfirmationTemplateRegion<TRow, TForm> p, string eventId)
         {
-            return p.BindEvent("dismissHandle", eventId);
+            return p.BindEvent("dismiss", eventId);
         }
 
         public static MvcHtmlString BindConfirm<TRow, TForm>(this  ConfirmationTemplateRegion<TRow, TForm> p, string eventId)
         {
-            return p.BindEvent("confirmHandle", eventId);
+            return p.BindEvent("confirm", eventId);
         }
     }
 }

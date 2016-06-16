@@ -7,11 +7,12 @@
         /**
          * @internal
          */
-        constructor(locator: PowerTables.Rendering.DOMLocator, bodyElement: HTMLElement, layoutElement: HTMLElement, rootId: string) {
+        constructor(locator: PowerTables.Rendering.DOMLocator, bodyElement: HTMLElement, layoutElement: HTMLElement, rootId: string, masterTable:IMasterTable) {
             this._locator = locator;
             this._bodyElement = bodyElement;
             this._layoutElement = layoutElement;
             this._rootId = rootId;
+            this._masterTable = masterTable;
 
             this._matches = (function (el: any) {
                 if (!el) return null;
@@ -39,6 +40,7 @@
             }
         }
 
+        private _masterTable:IMasterTable;
         private _rootId: string;
         private _locator: PowerTables.Rendering.DOMLocator;
         private _bodyElement: HTMLElement;
@@ -115,6 +117,7 @@
 
             if (cellLocation != null) {
                 var cellArgs: ICellEventArgs = {
+                    Master:this._masterTable,
                     OriginalEvent: e,
                     DisplayingRowIndex: cellLocation.RowIndex,
                     ColumnIndex: cellLocation.ColumnIndex
@@ -124,6 +127,7 @@
 
             if (rowIndex != null) {
                 var rowArgs: IRowEventArgs = {
+                    Master: this._masterTable,
                     OriginalEvent: e,
                     DisplayingRowIndex: rowIndex
                 };
@@ -399,6 +403,11 @@
     }
 
     export interface IRowEventArgs {
+        /**
+         * Master table reference
+         */
+        Master: IMasterTable;
+
         /**
          * Original event reference
          */

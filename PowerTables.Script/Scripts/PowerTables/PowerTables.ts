@@ -60,7 +60,7 @@ module PowerTables {
             this.InstanceManager = new InstanceManager(this._configuration, this, this.Events);
             this.DataHolder = new DataHolder(this);
             this.Loader = new Loader(this._configuration.StaticData, this._configuration.OperationalAjaxUrl, this);
-            this.Renderer = new Rendering.Renderer(this._configuration.TableRootId, this._configuration.Prefix, this.InstanceManager, this.Events, this.Date, this._configuration.CoreTemplates);
+            this.Renderer = new Rendering.Renderer(this._configuration.TableRootId, this._configuration.Prefix, this);
             this.Controller = new Controller(this);
             this.MessageService = new MessagesService(this._configuration.MessageFunction, this.InstanceManager, this.DataHolder, this.Controller);
 

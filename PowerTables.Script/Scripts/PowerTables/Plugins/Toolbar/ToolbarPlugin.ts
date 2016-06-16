@@ -64,7 +64,7 @@
                 // ReSharper restore Lambda
                 if (btn.ConfirmationFunction) btn.ConfirmationFunction.apply(this.MasterTable, [f, this.MasterTable]);
                 else if (btn.ConfirmationTemplateId) {
-                    var tc = new ToolbarConfirmation((data) => {
+                    var tc = new PowerTables.Plugins.Toolbar.CommandConfirmation((data) => {
                         f((q) => {
                             q.AdditionalData['Confirmation'] = JSON.stringify(data);
                             return q;

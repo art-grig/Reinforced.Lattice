@@ -4,19 +4,20 @@
      * Enity responsible for displaying table
      */
     export class Renderer implements ITemplatesProvider {
-        constructor(rootId: string, prefix: string, instances: InstanceManager, events: EventsManager, dateService: DateService, coreTemplates: ICoreTemplateIds) {
-            this._instances = instances;
+        constructor(rootId: string, prefix: string, masterTable: IMasterTable) {
+            this._instances = this._masterTable.InstanceManager;
             this._stack = new RenderingStack();
             this.RootElement = document.getElementById(rootId);
             this._rootId = rootId;
-            this._events = events;
-            this._templateIds = coreTemplates;
+            this._events = masterTable.Events;
+            this._templateIds = this._instances.Configuration.CoreTemplates;
 
             this.HandlebarsInstance = Handlebars.create();
 
-            this.LayoutRenderer = new LayoutRenderer(this, this._stack, this._instances, coreTemplates);
-            this.ContentRenderer = new ContentRenderer(this, this._stack, this._instances, coreTemplates);
-            this.BackBinder = new BackBinder(this.HandlebarsInstance, instances, this._stack, dateService);
+            this.LayoutRenderer = new LayoutRenderer(this, this._stack, this._instances, this._templateIds);
+            this.ContentRenderer = new ContentRenderer(this, this._stack, this._instances, this._templateIds);
+            this.BackBinder = new BackBinder(this.HandlebarsInstance, this._instances, this._stack, this._masterTable.Date);
+            this._masterTable = masterTable;
 
             this.HandlebarsInstance.registerHelper('ifq', this.ifqHelper);
             this.HandlebarsInstance.registerHelper('ifcmp', this.ifcompHelper);
@@ -72,6 +73,7 @@
          */
         public Delegator: EventsDelegator;
 
+        private _masterTable: IMasterTable;
         private _instances: InstanceManager;
         private _stack: RenderingStack;
         private _datepickerFunction: (e: HTMLElement) => void;
@@ -79,7 +81,7 @@
         private _rootId: string;
         private _events: EventsManager;
         private _templateIds: ICoreTemplateIds;
-        
+
         //#region Templates caching
         private cacheTemplates(templatesPrefix: string): void {
             var selector: string = `script[type="text/x-handlebars-template"][id^="${templatesPrefix}-"]`;
@@ -87,7 +89,7 @@
             for (var i: number = 0; i < templates.length; i++) {
                 var item: HTMLElement = <HTMLElement>templates.item(i);
                 var key: string = item.id.substring(templatesPrefix.length + 1);
-                this._templatesCache[key] = this.HandlebarsInstance.compile(item.innerHTML.substring('<!--'.length, item.innerHTML.length - ('-->'.length)), { noEscape: true});
+                this._templatesCache[key] = this.HandlebarsInstance.compile(item.innerHTML.substring('<!--'.length, item.innerHTML.length - ('-->'.length)), { noEscape: true });
             }
         }
 
@@ -120,7 +122,7 @@
             this.BodyElement.removeChild(bodyMarker);
 
             this.Locator = new DOMLocator(this.BodyElement, this.RootElement, this._rootId);
-            this.Delegator = new EventsDelegator(this.Locator, this.BodyElement, this.RootElement, this._rootId);
+            this.Delegator = new EventsDelegator(this.Locator, this.BodyElement, this.RootElement, this._rootId, this._masterTable);
             this.BackBinder.Delegator = this.Delegator;
             this.Modifier = new DOMModifier(this._stack, this.Locator, this.BackBinder, this, this.LayoutRenderer, this._instances, this.Delegator);
 
@@ -144,7 +146,7 @@
             this._events.AfterDataRendered.invoke(this, null);
         }
 
-        public renderObject(templateId: string, viewModelBehind: any, targetSelector: string):HTMLElement {
+        public renderObject(templateId: string, viewModelBehind: any, targetSelector: string): HTMLElement {
             var parent = <HTMLElement>document.querySelector(targetSelector);
             this._stack.clear();
             this._stack.push(RenderingContextType.Custom, viewModelBehind);

@@ -32,6 +32,7 @@
     <TypeScriptCompile Include="..\PowerTables.Typings\Scripts\Interfaces.ts">
       <Link>Scripts\Interfaces.ts</Link>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\RowActionPlugin.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\TrackHelper.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\ComponentsContainer.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\CoreInterfaces.ts" />
@@ -66,7 +67,7 @@
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\TotalsPlugin.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\CheckboxifyPlugin.ts" />
     <TypeScriptCompile Include="Scripts\Typings\CheckboxifyPlugin.d.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\ToolbarPlugin.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Toolbar\ToolbarPlugin.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\FormwatchPlugin.ts" />
     <TypeScriptCompile Include="Scripts\Typings\HideoutPlugin.d.ts" />
     <TypeScriptCompile Include="Scripts\Typings\Limit.d.ts" />
@@ -78,7 +79,7 @@
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\LoadingOverlapPlugin.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Editors\CheckEditor.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Editors\MemoEditor.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\ToolbarConfirmation.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Toolbar\CommandConfirmation.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\MessagesService.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\ReloadPlugin.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\LoadingPlugin.ts" />
@@ -114,6 +115,8 @@
     <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
     <TypeScriptOutFile>..\PowerTables.Mvc\Scripts\powertables.js</TypeScriptOutFile>
+    <TypeScriptGeneratesDeclarations>True</TypeScriptGeneratesDeclarations>
+    <TypeScriptMapRoot>..\PowerTables.Mvc\Scripts\</TypeScriptMapRoot>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TypeScriptRemoveComments>False</TypeScriptRemoveComments>
