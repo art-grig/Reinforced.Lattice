@@ -8,24 +8,14 @@ var __extends = (this && this.__extends) || function (d, b) {
 //     the code is regenerated.
 var PowerTables;
 (function (PowerTables) {
-    /** Message type enum */
     (function (MessageType) {
-        /**
-        * UserMessage is shown using specified custom functions for
-        *             messages showing
-        */
         MessageType[MessageType["UserMessage"] = 0] = "UserMessage";
-        /** Banner message is displayed among whole table instead of data */
         MessageType[MessageType["Banner"] = 1] = "Banner";
     })(PowerTables.MessageType || (PowerTables.MessageType = {}));
     var MessageType = PowerTables.MessageType;
-    /** Ordering */
     (function (Ordering) {
-        /** Ascending */
         Ordering[Ordering["Ascending"] = 0] = "Ascending";
-        /** Descending */
         Ordering[Ordering["Descending"] = 1] = "Descending";
-        /** Ordering is not applied */
         Ordering[Ordering["Neutral"] = 2] = "Neutral";
     })(PowerTables.Ordering || (PowerTables.Ordering = {}));
     var Ordering = PowerTables.Ordering;
@@ -5040,6 +5030,7 @@ var PowerTables;
             __extends(ResponseInfoPlugin, _super);
             function ResponseInfoPlugin() {
                 _super.apply(this, arguments);
+                this._recentData = {};
                 this._isReadyForRendering = false;
             }
             ResponseInfoPlugin.prototype.onResponse = function (e) {
@@ -5062,22 +5053,27 @@ var PowerTables;
                     };
                 }
             };
+            ResponseInfoPlugin.prototype.addClientData = function (e) {
+                for (var k in this.Configuration.ClientCalculators) {
+                    if (this.Configuration.ClientCalculators.hasOwnProperty(k)) {
+                        this._recentData[k] = this.Configuration.ClientCalculators[k](e);
+                    }
+                }
+            };
             ResponseInfoPlugin.prototype.onClientDataProcessed = function (e) {
-                if (this.Configuration.ResponseObjectOverriden)
+                if (this.Configuration.ResponseObjectOverriden) {
+                    this.addClientData(e.EventArgs);
+                    this.MasterTable.Renderer.Modifier.redrawPlugin(this);
                     return;
-                if (!this.Configuration.ClientEvaluationFunction) {
-                    this._recentData = {
-                        TotalCount: this._recentServerData.TotalCount || this.MasterTable.DataHolder.StoredData.length,
-                        IsLocalRequest: !this._isServerRequest,
-                        CurrentPage: this._recentServerData.CurrentPage || ((!this._pagingPlugin) ? 0 : this._pagingPlugin.getCurrentPage() + 1),
-                        TotalPages: ((!this._pagingPlugin) ? 0 : this._pagingPlugin.getTotalPages()),
-                        PagingEnabled: this._pagingEnabled,
-                        CurrentlyShown: this.MasterTable.DataHolder.DisplayedData.length
-                    };
                 }
-                else {
-                    this._recentData = this.Configuration.ClientEvaluationFunction(e.EventArgs, (!this._pagingPlugin) ? 0 : (this._pagingPlugin.getCurrentPage()), (!this._pagingPlugin) ? 0 : (this._pagingPlugin.getTotalPages()));
-                }
+                this._recentData = {
+                    TotalCount: this._recentServerData.TotalCount || this.MasterTable.DataHolder.StoredData.length,
+                    IsLocalRequest: !this._isServerRequest,
+                    CurrentPage: this._recentServerData.CurrentPage || ((!this._pagingPlugin) ? 0 : this._pagingPlugin.getCurrentPage() + 1),
+                    TotalPages: ((!this._pagingPlugin) ? 0 : this._pagingPlugin.getTotalPages()),
+                    PagingEnabled: this._pagingEnabled
+                };
+                this.addClientData(e.EventArgs);
                 this._isServerRequest = false;
                 this._isReadyForRendering = true;
                 this.MasterTable.Renderer.Modifier.redrawPlugin(this);
@@ -6873,4 +6869,4 @@ var PowerTables;
         PowerTables.ComponentsContainer.registerComponent('Loading', LoadingPlugin);
     })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
 })(PowerTables || (PowerTables = {}));
-//# sourceMappingURL=../../../PowerTables.Mvc/Scripts/powertables.js.map
+//# sourceMappingURL=powertables.js.map
