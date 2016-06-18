@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using PowerTables.Templating;
+using PowerTables.Templating.BuiltIn;
 using PowerTables.Templating.Handlebars;
 
 namespace PowerTables.Filters.Range
@@ -21,6 +22,7 @@ namespace PowerTables.Filters.Range
     public interface IRangeFilterModel
     {
         RangeFilterUiConfig Configuration { get; }
+        IColumn AssociatedColumn { get; }
     }
 
     public static class RangeFilterTemplateExtensions

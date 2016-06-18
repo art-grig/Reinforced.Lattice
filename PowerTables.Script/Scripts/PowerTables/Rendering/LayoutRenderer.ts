@@ -75,7 +75,11 @@ module PowerTables.Rendering {
 
         // #region headers helper
         private headerHelper(columnName: string): string {
-            return this.renderHeader(this._instances.getColumn(columnName));
+            try {
+                return this.renderHeader(this._instances.getColumn(columnName));
+            } catch (a) {
+                return '';
+            }
         }
 
         /**

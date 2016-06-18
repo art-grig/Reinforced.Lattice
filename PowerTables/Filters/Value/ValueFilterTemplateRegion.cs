@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Web.Mvc;
 using PowerTables.Plugins.Limit;
 using PowerTables.Templating;
+using PowerTables.Templating.BuiltIn;
 using PowerTables.Templating.Handlebars;
 
 namespace PowerTables.Filters.Value
@@ -23,6 +24,8 @@ namespace PowerTables.Filters.Value
     public interface IValueFilterModel
     {
         ValueFilterUiConfig Configuration { get; }
+
+        IColumn AssociatedColumn { get; }
     }
 
     public static class ValueFilterTemplateExtensions

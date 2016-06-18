@@ -2689,7 +2689,7 @@ declare module PowerTables.Plugins {
         private _filteringIsBeingExecuted;
         private _inpTimeout;
         private _previousValue;
-        private _associatedColumn;
+        private AssociatedColumn;
         private _isInitializing;
         FilterValueProvider: HTMLInputElement;
         private getValue();
@@ -2707,7 +2707,7 @@ declare module PowerTables.Plugins {
         private _inpTimeout;
         private _fromPreviousValue;
         private _toPreviousValue;
-        private _associatedColumn;
+        private AssociatedColumn;
         private _isInitializing;
         FromValueProvider: HTMLInputElement;
         ToValueProvider: HTMLInputElement;
@@ -2725,7 +2725,7 @@ declare module PowerTables.Plugins {
 declare module PowerTables.Plugins {
     class SelectFilterPlugin extends FilterBase<Filters.Select.ISelectFilterUiConfig> {
         FilterValueProvider: HTMLSelectElement;
-        private _associatedColumn;
+        private AssociatedColumn;
         getArgument(): string;
         getSelectionArray(): string[];
         modifyQuery(query: IQuery, scope: QueryScope): void;

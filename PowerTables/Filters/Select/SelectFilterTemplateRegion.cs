@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Web.Mvc;
 using PowerTables.Filters.Value;
 using PowerTables.Templating;
+using PowerTables.Templating.BuiltIn;
 
 namespace PowerTables.Filters.Select
 {
@@ -22,6 +23,7 @@ namespace PowerTables.Filters.Select
     public interface ISelectFilterModel
     {
         SelectFilterUiConfig Configuration { get; }
+        IColumn AssociatedColumn { get; }
     }
 
     public static class SelectFilterTemplateExtensions
