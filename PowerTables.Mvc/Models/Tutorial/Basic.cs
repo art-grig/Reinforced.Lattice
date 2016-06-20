@@ -26,6 +26,7 @@ namespace PowerTables.Mvc.Models.Tutorial
             conf.Column(c => c.ResponsibleUserId).MappedFrom(c => c.ResponsibleUser.Id);
             conf.Column(c => c.Preorders).MappedFrom(c => c.PreordersCount);
             conf.Column(c => c.TypeOfToy).MappedFrom(c => c.GroupType);
+            conf.Column(c=>c.Edit).DataOnly();
             
             /*
              * All the columns can be reference by them RawName that corresponds to C# proprty name
@@ -70,6 +71,7 @@ namespace PowerTables.Mvc.Models.Tutorial
         public int ResponsibleUserId { get; set; }
         public string ResponsibleUserName { get; set; }
         public string SupplierAddress { get; set; }
+        public string Edit { get; set; }
     }
 
     public enum ToyType

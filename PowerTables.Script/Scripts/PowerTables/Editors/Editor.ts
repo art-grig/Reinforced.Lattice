@@ -1,5 +1,5 @@
 ﻿module PowerTables.Editors {
-    
+
     export class Editor extends PowerTables.Plugins.PluginBase<PowerTables.Editors.IEditorUiConfig> implements IRow {
 
         //#region IRow members
@@ -121,10 +121,10 @@
                 editor.getValue([]);
             }
         }
-        
+
         //#endregion
 
-        
+
         //#region Private members
         private retrieveEditorData(editor: PowerTables.Editors.ICellEditor, errors?: IValidationMessage[]) {
             var errorsArrayPresent = (!(!errors));
@@ -186,16 +186,38 @@
             return editor;
         }
 
-        private beginCellEdit(column: IColumn, canComplete: boolean, isForm: boolean, isRow: boolean, rowIndex: number) {
+        private beginCellEdit(column: IColumn, rowIndex: number): ICellEditor {
             if (!this.isEditable(column)) return;
             this.ensureEditing(rowIndex);
-            var editor = this.createEditor(column, canComplete, isForm, isRow);
+            var editor = this.createEditor(column, true, false, false);
             this.Cells[column.RawName] = editor;
             this._activeEditors.push(editor);
             var e = this.MasterTable.Renderer.Modifier.redrawCell(editor);
             editor.onAfterRender(e);
             this.setEditorValue(editor);
             editor.focus();
+            return editor;
+        }
+
+        private beginRowEdit(rowIndex: number) {
+            this.ensureEditing(rowIndex);
+            for (var k in this.Cells) {
+                if (this.Cells.hasOwnProperty(k)) {
+                    if (!this.isEditable(this.Cells[k].Column)) {
+                        this.Cells[k]['IsEditing'] = true;
+                        continue;
+                    }
+                    var columnName = this.Cells[k].Column.RawName;
+                    var editor = this.createEditor(this.Cells[k].Column, false, false, true);
+                    this.Cells[columnName] = editor;
+                    this._activeEditors.push(editor);
+                }
+            }
+            this.MasterTable.Renderer.Modifier.redrawRow(this);
+            for (var i = 0; i < this._activeEditors.length; i++) {
+                this.setEditorValue(this._activeEditors[i]);
+            }
+            if (this._activeEditors.length > 0) this._activeEditors[0].focus();
         }
 
         private setEditorValue(editor: PowerTables.Editors.ICellEditor) {
@@ -230,10 +252,20 @@
             this._mode = Mode.Cell;
 
             var col = this.MasterTable.InstanceManager.getUiColumns()[e.ColumnIndex];
-            this.beginCellEdit(col, true, false, false, e.DisplayingRowIndex);
+            this.beginCellEdit(col, e.DisplayingRowIndex);
         }
 
         public beginRowEditHandle(e: IRowEventArgs) {
+            if (this._isEditing) return;
+            this._mode = Mode.Row;
+            this.beginRowEdit(e.DisplayingRowIndex);
+        }
+
+        public commitRowEditHandle(e: IRowEventArgs) {
+
+        }
+
+        public rejectRowEditHandle(e: IRowEventArgs) {
 
         }
 
@@ -241,17 +273,11 @@
 
         }
 
-        public commitRowEditHandle(e: IRowEventArgs) {
-
-        }
-
         public commitFormEditHandle(e: IRowEventArgs) {
 
         }
 
-        public rejectRowEditHandle(e: IRowEventArgs) {
 
-        }
 
         public rejectFormEditHandle(e: IRowEventArgs) {
 
@@ -307,6 +333,6 @@
         Form
     }
 
-    
+
     ComponentsContainer.registerComponent('Editor', Editor);
 } 

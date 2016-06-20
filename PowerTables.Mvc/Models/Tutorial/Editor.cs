@@ -42,9 +42,9 @@ namespace PowerTables.Mvc.Models.Tutorial
             conf.Column(c => c.LastSoldDate).DataOnly();
             conf.Column(c => c.ResponsibleUserName).DataOnly();
             conf.Column(c => c.Price).OrderableUi(ui => ui.DefaultOrdering(Ordering.Neutral));
-            conf.Column(c => c.Id).Orderable(c=>c.Id,ui=>ui.DefaultOrdering(Ordering.Descending));
+            conf.Column(c => c.Id).Orderable(c => c.Id, ui => ui.DefaultOrdering(Ordering.Descending));
+            conf.Column(c => c.Edit).DataOnly(false);
 
-            
             conf.AdjustmentTemplates("updatedRow", "updatedCell", "addedRow");
 
             conf.Column(c => c.Name)
@@ -83,6 +83,19 @@ namespace PowerTables.Mvc.Models.Tutorial
                 .FormatEnumWithDisplayAttribute((tpl, v) => tpl.Content(v.Text).EditPencil())
                 .EditSelectList(c => c.Items(EnumHelper.GetSelectList(typeof(ToyType))).WithEmptyElement("---Select---", false))
                 ;
+
+            conf.Column(c => c.Edit).Template(c =>
+            {
+                c.ReturnsIf("{^IsEditing}", v =>
+                {
+                    v.Tag("button").Class("btn btn-default btn-sm").Content("Save").RowCommitTrigger()
+                        .After(x => x.Tag("button").Class("btn btn-default btn-sm").Content("Cancel").RowRejectTrigger());
+                });
+                c.Returns(v =>
+                {
+                    v.Tag("button").Class("btn btn-default btn-sm").Content("Edit").RowEditTrigger();
+                });
+            });
             return conf;
         }
 

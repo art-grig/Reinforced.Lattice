@@ -5,7 +5,8 @@
      */
     export class Renderer implements ITemplatesProvider {
         constructor(rootId: string, prefix: string, masterTable: IMasterTable) {
-            this._instances = this._masterTable.InstanceManager;
+            this._masterTable = masterTable;
+            this._instances = masterTable.InstanceManager;
             this._stack = new RenderingStack();
             this.RootElement = document.getElementById(rootId);
             this._rootId = rootId;
@@ -17,7 +18,7 @@
             this.LayoutRenderer = new LayoutRenderer(this, this._stack, this._instances, this._templateIds);
             this.ContentRenderer = new ContentRenderer(this, this._stack, this._instances, this._templateIds);
             this.BackBinder = new BackBinder(this.HandlebarsInstance, this._instances, this._stack, this._masterTable.Date);
-            this._masterTable = masterTable;
+            
 
             this.HandlebarsInstance.registerHelper('ifq', this.ifqHelper);
             this.HandlebarsInstance.registerHelper('ifcmp', this.ifcompHelper);

@@ -158,6 +158,31 @@ namespace PowerTables.Configuration
         }
 
         /// <summary>
+        /// Sets up column description
+        /// </summary>
+        /// <param name="conf">Column</param>
+        /// <param name="descriptionHtml">Column description or HTML</param>
+        /// <returns>Fluent</returns>
+        public static ColumnUsage<TSourceData, TTableData, TTableColumn> Description<TSourceData, TTableData, TTableColumn>(this ColumnUsage<TSourceData, TTableData, TTableColumn> conf, string descriptionHtml) where TTableData : new()
+        {
+            conf.ColumnConfiguration.Description = descriptionHtml;
+            return conf;
+        }
+
+
+        /// <summary>
+        /// Sets up random column metadata object
+        /// </summary>
+        /// <param name="conf">Column</param>
+        /// <param name="meta">Metadata object</param>
+        /// <returns>Fluent</returns>
+        public static ColumnUsage<TSourceData, TTableData, TTableColumn> Meta<TSourceData, TTableData, TTableColumn>(this ColumnUsage<TSourceData, TTableData, TTableColumn> conf, object meta) where TTableData : new()
+        {
+            conf.ColumnConfiguration.Meta = meta;
+            return conf;
+        }
+
+        /// <summary>
         /// Specifies handlebarsjs template id to be used for rendering of this column. 
         /// Specified template will be compiled at the beginnig of processing. 
         /// JSON-ed TTableData is used as tempalte model. So you can use all columns and not only current  

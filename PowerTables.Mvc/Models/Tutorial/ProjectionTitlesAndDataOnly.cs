@@ -54,7 +54,7 @@ namespace PowerTables.Mvc.Models.Tutorial
             conf.Column(c => c.ItemsLeft).DataOnly();
             conf.Column(c => c.ResponsibleUserId).DataOnly();
             conf.Column(c => c.SupplierAddress).DataOnly(); // we hide it because it is long
-
+            conf.Column(c => c.Edit).DataOnly();
             /*
              * We didnt use .Basec here, so I have to repeat dates displaying configuration
              */

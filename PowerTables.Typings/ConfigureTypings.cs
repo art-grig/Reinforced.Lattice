@@ -67,12 +67,13 @@ namespace PowerTables.Typings
                 .WithPublicProperties()
                 .WithProperty(c => c.CellRenderingValueFunction, c => c.Type("(a:any) => string"))
                 .WithProperty(c => c.ClientValueFunction, c => c.Type("(a:any) => any"))
+                .WithProperty(c => c.Meta, v => v.ForceNullable(true))
                 ;
 
             builder.ExportAsInterface<PluginConfiguration>().WithPublicProperties();
             builder.ExportAsInterface<CheckboxifyClientConfig>().WithPublicProperties()
                 .WithProperty(c => c.CanSelectFunction, c => c.Type("(v:any)=>boolean"));
-            
+
             builder.ExportAsInterface<SelectionAdditionalData>().WithPublicProperties();
 
             builder.ExportAsInterface<FormwatchClientConfiguration>().WithPublicProperties();

@@ -213,6 +213,16 @@ namespace PowerTables.Configuration.Json
         public string Title { get; set; }
 
         /// <summary>
+        /// Column description
+        /// </summary>
+        public string Description { get; set; }
+
+        /// <summary>
+        /// Random metadata object that can be bound within column
+        /// </summary>
+        public object Meta { get; set; }
+
+        /// <summary>
         /// Raw column name
         /// </summary>
         public string RawColumnName { get; set; }

@@ -59,7 +59,8 @@
                 CellRenderingValueFunction: null,
                 Title: 'Checkboxify',
                 ColumnType: 'Int32',
-                ClientValueFunction: null
+                ClientValueFunction: null,
+                Description: null
             };
 
             var col: IColumn = {
