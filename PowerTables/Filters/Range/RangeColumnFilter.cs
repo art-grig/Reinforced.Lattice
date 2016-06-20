@@ -61,7 +61,8 @@ namespace PowerTables.Filters.Range
         protected override IQueryable<TSourceData> DefaultFilter(IQueryable<TSourceData> source, RangeTuple<TVal> key)
         {
             if (_sourceExpression == null) throw new Exception("Trying to call FilterDelegate with null source expression");
-            
+            var srcTypeNullable = _sourceExpression.Type.IsNullable();
+
             if (key.HasTo && key.HasFrom)
             {
                 var between = LambdaHelpers.BetweenLambdaExpression(_sourceExpression, key.From.ExtractValueFromNullable(), key.To.ExtractValueFromNullable(), _inclusive);

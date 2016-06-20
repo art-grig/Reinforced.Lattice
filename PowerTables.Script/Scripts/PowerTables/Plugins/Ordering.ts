@@ -68,7 +68,7 @@
             this.MasterTable.Controller.reload();
         }
 
-        protected nextOrdering(currentOrdering: PowerTables.Ordering) {
+        protected nextOrdering(currentOrdering: PowerTables.Ordering) : PowerTables.Ordering {
 
             switch (currentOrdering) {
                 case PowerTables.Ordering.Neutral: return PowerTables.Ordering.Ascending;
