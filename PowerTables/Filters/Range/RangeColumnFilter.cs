@@ -21,7 +21,12 @@ namespace PowerTables.Filters.Range
     {
         private readonly LambdaExpression _sourceExpression;
         private bool _inclusive;
-       
+
+        /// <summary>
+        /// Gets or sets ability of range filter to convert dates ranges to 1 day automatically when single day is selected
+        /// </summary>
+        internal bool TreatEqualDateAsWholeDay { get; set; }
+
         protected RangeColumnFilter(string columnName, IConfigurator conf, LambdaExpression sourceExpression)
             : base(columnName, conf)
         {
@@ -61,7 +66,23 @@ namespace PowerTables.Filters.Range
         protected override IQueryable<TSourceData> DefaultFilter(IQueryable<TSourceData> source, RangeTuple<TVal> key)
         {
             if (_sourceExpression == null) throw new Exception("Trying to call FilterDelegate with null source expression");
-            var srcTypeNullable = _sourceExpression.Type.IsNullable();
+
+            if (TreatEqualDateAsWholeDay)
+            {
+                if (typeof (TVal) == typeof (DateTime) || typeof (TVal) == typeof (DateTime?))
+                {
+                    if (key.HasFrom && key.HasTo)
+                    {
+                        var from = (DateTime) (object) key.From;
+                        var to = (DateTime) (object) key.To;
+                        if (from.Date == to.Date)
+                        {
+                            key.From = (TVal) (object) new DateTime(from.Year, from.Month, from.Day, 00, 00, 00);
+                            key.To = (TVal) (object) new DateTime(from.Year, from.Month, from.Day, 23, 59, 59);
+                        }
+                    }
+                }
+            }
 
             if (key.HasTo && key.HasFrom)
             {

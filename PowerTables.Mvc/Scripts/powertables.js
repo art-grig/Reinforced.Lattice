@@ -8,14 +8,24 @@ var __extends = (this && this.__extends) || function (d, b) {
 //     the code is regenerated.
 var PowerTables;
 (function (PowerTables) {
+    /** Message type enum */
     (function (MessageType) {
+        /**
+        * UserMessage is shown using specified custom functions for
+        *             messages showing
+        */
         MessageType[MessageType["UserMessage"] = 0] = "UserMessage";
+        /** Banner message is displayed among whole table instead of data */
         MessageType[MessageType["Banner"] = 1] = "Banner";
     })(PowerTables.MessageType || (PowerTables.MessageType = {}));
     var MessageType = PowerTables.MessageType;
+    /** Ordering */
     (function (Ordering) {
+        /** Ascending */
         Ordering[Ordering["Ascending"] = 0] = "Ascending";
+        /** Descending */
         Ordering[Ordering["Descending"] = 1] = "Descending";
+        /** Ordering is not applied */
         Ordering[Ordering["Neutral"] = 2] = "Neutral";
     })(PowerTables.Ordering || (PowerTables.Ordering = {}));
     var Ordering = PowerTables.Ordering;
@@ -4718,7 +4728,7 @@ var PowerTables;
                     var toVal;
                     if (!toEmpty) {
                         toVal = this.MasterTable.Date.parse(toValue);
-                        if (toVal.getHours() == 0 && toVal.getMinutes() == 0 && toVal.getSeconds() == 0) {
+                        if (this.Configuration.TreatEqualDateAsWholeDay) {
                             toVal.setHours(23);
                             toVal.setMinutes(59);
                             toVal.setSeconds(59);
@@ -5727,6 +5737,8 @@ var PowerTables;
                                 value = null;
                             }
                         }
+                        if (value != null)
+                            value = dateService.serialize(value);
                     }
                     else {
                         value = element.value;

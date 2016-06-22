@@ -124,7 +124,7 @@
                 var toVal;
                 if (!toEmpty) {
                     toVal = this.MasterTable.Date.parse(toValue);
-                    if (toVal.getHours() == 0 && toVal.getMinutes() == 0 && toVal.getSeconds() == 0) {
+                    if (this.Configuration.TreatEqualDateAsWholeDay) {
                         toVal.setHours(23);
                         toVal.setMinutes(59);
                         toVal.setSeconds(59);
