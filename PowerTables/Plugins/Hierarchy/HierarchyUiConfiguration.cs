@@ -5,10 +5,14 @@
     /// </summary>
     public class HierarchyUiConfiguration
     {
+        /// <summary>
+        /// Gets or sets expansion behavior. Options are - to load collapsed nodes contents from server-side everywhere or try to fetch from local cache
+        /// </summary>
         public NodeExpandBehavior ExpandBehavior { get; set; }
 
-        public TreeFilteringScope FilteringScope { get; set; }
-
+        /// <summary>
+        /// Gets or sets tree filtering behavior. Setting this option to ExcludeCollapsed will disallow searching inside collapsed nodes
+        /// </summary>
         public TreeCollapsedNodeFilterBehavior CollapsedNodeFilterBehavior { get; set; }
     }
 
@@ -28,27 +32,6 @@
         /// </summary>
         AlwaysLoadRemotely
         
-    }
-
-    /// <summary>
-    /// This option controls tree filtering scope
-    /// </summary>
-    public enum TreeFilteringScope
-    {
-        /// <summary>
-        /// Client filtering will be applied to both roots and leafs
-        /// </summary>
-        All,
-
-        /// <summary>
-        /// Client filtering will be applied only to leafs
-        /// </summary>
-        LeafsOnly,
-
-        /// <summary>
-        /// Client filtering will be applied only to roots
-        /// </summary>
-        RootsOnly
     }
 
     /// <summary>

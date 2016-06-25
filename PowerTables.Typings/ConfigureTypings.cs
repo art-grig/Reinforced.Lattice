@@ -161,7 +161,7 @@ namespace PowerTables.Typings
                 .WithProperty(c => c.Handler, c => c.Type("(dataObject:any, originalEvent:any) => void"));
 
             builder.ExportAsInterface<HierarchyUiConfiguration>().WithPublicProperties();
-            builder.ExportAsEnums(new[] { typeof(NodeExpandBehavior), typeof(TreeFilteringScope), typeof(TreeCollapsedNodeFilterBehavior) });
+            builder.ExportAsEnums(new[] { typeof(NodeExpandBehavior), typeof(TreeCollapsedNodeFilterBehavior) });
         }
 
     }

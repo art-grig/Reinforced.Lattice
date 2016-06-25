@@ -1,5 +1,5 @@
 ﻿module PowerTables.Plugins.Hierarchy {
-    export class HierarchyPlugin extends PluginBase<IHierarchyUiConfiguration> {
+    export class HierarchyPlugin extends PluginBase<IHierarchyUiConfiguration> implements IClientFilter {
 
         public expandSubtree(args: IRowEventArgs): void {
             this.toggleSubtreeByObject(this.MasterTable.DataHolder.localLookupDisplayedData(args.DisplayingRowIndex).DataObject, true, args.DisplayingRowIndex);
@@ -160,12 +160,100 @@
             this.stackOrder(data);
 
         }
+
+        private _isFunctionsStolen: boolean = false;
+        private _stolenFilterFunctions: {
+            filterFun: (rowObject: any, query: IQuery) => boolean;
+            Filter: IClientFilter;
+        }[] = [];
+
+        private stealFilterFunctions() {
+            if (this._isFunctionsStolen) return;
+            var filters = this.MasterTable.DataHolder.getClientFilters();
+            var idPredicate = function (a, b) { return true; }
+            for (var i = 0; i < filters.length; i++) {
+                this._stolenFilterFunctions.push({
+                    filterFun: filters[i].filterPredicate,
+                    Filter: filters[i]
+                });
+                filters[i].filterPredicate = idPredicate;
+            }
+            this.MasterTable.DataHolder.registerClientFilter(this);
+            this._isFunctionsStolen = true;
+        }
+
+
+
         private onAfterClientDataProcessing(e: ITableEventArgs<IClientDataResults>) {
             this.recalculateSubtreeReferences(e.EventArgs);
         }
 
         subscribe(e: EventsManager): void {
             e.AfterClientDataProcessing.subscribe(this.onAfterClientDataProcessing.bind(this), 'Hierarchy');
+            e.BeforeClientDataProcessing.subscribe(this.onBeforeClientDataProcessing.bind(this), 'Hierarchy');
+            e.AfterLayoutRendered.subscribe(this.onAfterLayoutRendered.bind(this), 'Hierarchy');
+        }
+
+        private onAfterLayoutRendered() {
+            this.stealFilterFunctions();
+        }
+
+
+        filterPredicate(rowObject, query: IQuery): boolean {
+            if (rowObject._filtered) return rowObject._acceptable;
+            
+            var searchAlsoCollapsed = this.Configuration.CollapsedNodeFilterBehavior === TreeCollapsedNodeFilterBehavior.IncludeCollapsed;
+            if ((!searchAlsoCollapsed) && !rowObject.IsVisible) return false;
+
+            var acceptableFilter = true;
+
+            for (var i = 0; i < this._stolenFilterFunctions.length; i++) {
+                var fn = this._stolenFilterFunctions[i];
+                var v = fn.filterFun.apply(fn.Filter, [rowObject, query]);
+                if (!v) {
+                    acceptableFilter = false;
+                    break;
+                }
+            }
+            var acceptableChild = false;
+            if (rowObject._subtree) {
+                if (searchAlsoCollapsed || rowObject.IsExpanded) {
+                    for (var j = 0; j < rowObject._subtree.length; j++) {
+                        var childAcceptable = this.filterPredicate(rowObject._subtree[j], query);
+                        if (childAcceptable) {
+                            acceptableChild = true;
+                            if (searchAlsoCollapsed) {
+                                rowObject._subtree[j].IsVisible = true;
+                                rowObject.IsExpanded = true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            var acceptableParent = false;
+            //var cNode = rowObject;
+            //while (cNode._parent) {
+            //    var parentAcceptable = this.filterPredicate(cNode._parent, query);
+            //    if (parentAcceptable) {
+            //        acceptableParent = true;
+            //        break;
+            //    }
+            //    cNode = cNode._parent;
+            //}
+            rowObject._filtered = true;
+            rowObject._acceptable = acceptableChild || acceptableFilter;
+            if (rowObject._acceptable && rowObject._parent) {
+                rowObject._parent.filtered = true;
+                rowObject._acceptable = true;
+            }
+            return rowObject._acceptable;
+        }
+
+        private onBeforeClientDataProcessing() {
+            for (var i = 0; i < this.MasterTable.DataHolder.StoredData.length; i++) {
+                delete this.MasterTable.DataHolder.StoredData[i]['_filtered'];
+            }
         }
     }
     ComponentsContainer.registerComponent('Hierarchy', HierarchyPlugin);

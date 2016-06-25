@@ -4,10 +4,6 @@ using PowerTables.CellTemplating;
 using PowerTables.Configuration;
 using PowerTables.Configuration.Json;
 using PowerTables.Defaults;
-using PowerTables.Editors;
-using PowerTables.Filters;
-using PowerTables.Filters.Select;
-using PowerTables.FrequentlyUsed;
 
 namespace PowerTables.Plugins.Hierarchy
 {
@@ -25,7 +21,6 @@ namespace PowerTables.Plugins.Hierarchy
             conf.TableConfiguration.UpdatePluginConfig(PluginId, ui);
             conf.Column(c => c.ChildrenCount).DataOnly();
             conf.Column(c => c.IsVisible).DataOnly();
-            conf.Column(c => c.IsVisible).FilterBooleanUi("1", "0", ui: f => f.SelectDefault(true).ClientFiltering());
             conf.Column(c => c.IsExpanded).DataOnly();
             conf.Column(c => c.RootKey).DataOnly();
             conf.Column(c => c.ParentKey).DataOnly();

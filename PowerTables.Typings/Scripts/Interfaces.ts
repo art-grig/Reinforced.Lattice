@@ -718,7 +718,6 @@ module PowerTables.Plugins.Hierarchy {
 	export interface IHierarchyUiConfiguration
 	{
 		ExpandBehavior: PowerTables.Plugins.Hierarchy.NodeExpandBehavior;
-		FilteringScope: PowerTables.Plugins.Hierarchy.TreeFilteringScope;
 		CollapsedNodeFilterBehavior: PowerTables.Plugins.Hierarchy.TreeCollapsedNodeFilterBehavior;
 	}
 	/** Controls policy of nodes collapsing and expanding */
@@ -730,15 +729,6 @@ module PowerTables.Plugins.Hierarchy {
 		*             server-side even if local data available
 		*/
 		AlwaysLoadRemotely = 1, 
-	}
-	/** This option controls tree filtering scope */
-	export enum TreeFilteringScope { 
-		/** Client filtering will be applied to both roots and leafs */
-		All = 0, 
-		/** Client filtering will be applied only to leafs */
-		LeafsOnly = 1, 
-		/** Client filtering will be applied only to roots */
-		RootsOnly = 2, 
 	}
 	/** This option controls client filtering policy related to collapsed nodes */
 	export enum TreeCollapsedNodeFilterBehavior { 

@@ -31,6 +31,7 @@ namespace PowerTables.Mvc.Models.Tutorial
             }));
 
             conf.AppendEmptyFilters();
+            conf.Column(c=>c.Id).DataOnly();
             conf.Column(c => c.Text).Template(tpl =>
             {
                 tpl.ReturnsIf("{ChildrenCount} <= 0", c => c.Tag("span").Offset().Content("{Text}"));
