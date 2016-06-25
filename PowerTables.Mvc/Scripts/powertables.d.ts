@@ -52,6 +52,8 @@ declare module PowerTables.Configuration.Json {
         *             Function type is (query:IPowerTableRequest,scope:QueryScope,continueFn:any) =&gt; void
         */
         QueryConfirmation: (query: IPowerTableRequest, scope: QueryScope, continueFn: any) => void;
+        /** Gets or sets table prefetched data */
+        PrefetchedData: any[];
     }
     /** Table column JSON configuration */
     interface IColumnConfiguration {
@@ -703,7 +705,9 @@ declare module PowerTables.Plugins.Reload {
 declare module PowerTables.Plugins.Hierarchy {
     /** Client-side configuration of hierarchy plugin */
     interface IHierarchyUiConfiguration {
+        /** Gets or sets expansion behavior. Options are - to load collapsed nodes contents from server-side everywhere or try to fetch from local cache */
         ExpandBehavior: PowerTables.Plugins.Hierarchy.NodeExpandBehavior;
+        /** Gets or sets tree filtering behavior. Setting this option to ExcludeCollapsed will disallow searching inside collapsed nodes */
         CollapsedNodeFilterBehavior: PowerTables.Plugins.Hierarchy.TreeCollapsedNodeFilterBehavior;
     }
     /** Controls policy of nodes collapsing and expanding */
@@ -722,73 +726,6 @@ declare module PowerTables.Plugins.Hierarchy {
         IncludeCollapsed = 0,
         /** In this case, even collapsed nodes will be excluded from filter results */
         ExcludeCollapsed = 1,
-    }
-}
-declare module PowerTables {
-    /**
-    * Helper class for producing track ids.
-    * You can use this class directly, but it is better to use it via @memberref PowerTables.PowerTable.Renderer.Rendering.Modifier instance
-    */
-    class TrackHelper {
-        /**
-         * Returns string track ID for cell
-         */
-        static getCellTrack(cell: ICell): string;
-        /**
-         * Returns string track ID for cell
-         */
-        static getCellTrackByIndexes(rowIndex: number, columnIndex: number): string;
-        /**
-         * Returns string track ID for plugin
-         */
-        static getPluginTrack(plugin: IPlugin): string;
-        /**
-         * Returns string track ID for plugin
-         */
-        static getPluginTrackByLocation(pluginLocation: string): string;
-        /**
-         * Returns string track ID for header
-         */
-        static getHeaderTrack(header: IColumnHeader): string;
-        /**
-         * Returns string track ID for header
-         */
-        static getHeaderTrackByColumnName(columnName: string): string;
-        /**
-         * Returns string track ID for row
-         */
-        static getRowTrack(row: IRow): string;
-        /**
-         * Returns string track ID for row
-         */
-        static getRowTrackByIndex(index: number): string;
-        /**
-         * Parses cell track to retrieve column and row index
-         *
-         * @param e HTML element containing cell with wrapper
-         * @returns {ICellLocation} Cell location
-         */
-        static getCellLocation(e: HTMLElement): ICellLocation;
-        /**
-         * Parses row track to retrieve row index
-         *
-         * @param e HTML element containing row with wrapper
-         * @returns {number} Row index
-         */
-        static getRowIndex(e: HTMLElement): number;
-    }
-    /**
-     * Interface describing cell location
-     */
-    interface ICellLocation {
-        /**
-         * Row index
-         */
-        RowIndex: number;
-        /**
-         * Column index
-         */
-        ColumnIndex: number;
     }
 }
 declare module PowerTables {
@@ -825,6 +762,61 @@ declare module PowerTables {
          */
         static registerComponentEvents(key: string, eventsManager: EventsManager, masterTable: IMasterTable): void;
         static registerAllEvents(eventsManager: EventsManager, masterTable: IMasterTable): void;
+    }
+}
+declare module PowerTables {
+    /**
+     * This entity is responsible for integration of data between storage and rendere.
+     * Also it provides functionality for table events subscription and
+     * elements location
+     */
+    class Controller {
+        /**
+         * @internal
+         */
+        constructor(masterTable: IMasterTable);
+        private _masterTable;
+        /**
+         * Initializes full reloading cycle
+         * @returns {}
+         */
+        reload(forceServer?: boolean): void;
+        /**
+         * Redraws row containing currently visible data object
+         *
+         * @param dataObject Data object
+         * @param idx
+         * @returns {}
+         */
+        redrawVisibleDataObject(dataObject: any, idx?: number): HTMLElement;
+        /**
+         * Redraws locally visible data
+         */
+        redrawVisibleData(): void;
+        /**
+         * @internal
+         */
+        drawAdjustmentResult(adjustmentResult: IAdjustmentResult): void;
+        /**
+         * Converts data object,row and column to cell
+         *
+         * @param dataObject Data object
+         * @param idx Object's displaying index
+         * @param column Column that this cell belongs to
+         * @param row Row that this cell belongs to
+         * @returns {ICell} Cell representing data
+         */
+        produceCell(dataObject: any, column: IColumn, row: IRow): ICell;
+        /**
+         * Converts data object to display row
+         *
+         * @param dataObject Data object
+         * @param idx Object's displaying index
+         * @param columns Optional displaying columns set
+         * @returns {IRow} Row representing displayed object
+         */
+        produceRow(dataObject: any, idx: number, columns?: IColumn[]): IRow;
+        private produceRows();
     }
 }
 declare module PowerTables {
@@ -1122,6 +1114,179 @@ declare module PowerTables {
 }
 declare module PowerTables {
     /**
+     * Class that is responsible for holding and managing data loaded from server
+     */
+    class DataHolder {
+        constructor(masterTable: IMasterTable);
+        private _rawColumnNames;
+        private _comparators;
+        private _filters;
+        private _anyClientFiltration;
+        private _events;
+        private _instances;
+        private _masterTable;
+        private _clientValueFunction;
+        /**
+         * Data that actually is currently displayed in table
+         */
+        DisplayedData: any[];
+        /**
+         * Data that was recently loaded from server
+         */
+        StoredData: any[];
+        /**
+         * Enable query truncation from beginning during executing client queries
+         */
+        EnableClientSkip: boolean;
+        /**
+         * Enable query truncation by data cound during executing client queries
+         */
+        EnableClientTake: boolean;
+        /**
+         * Registers client filter
+         *
+         * @param filter Client filter
+         */
+        registerClientFilter(filter: IClientFilter): void;
+        getClientFilters(): IClientFilter[];
+        clearClientFilters(): void;
+        /**
+         * Registers new client ordering comparer function
+         *
+         * @param dataField Field for which this comparator is applicable
+         * @param comparator Comparator fn that should return 0 if entries are equal, -1 if a<b, +1 if a>b
+         * @returns {}
+         */
+        registerClientOrdering(dataField: string, comparator: (a: any, b: any) => number, mandatory?: boolean): void;
+        private _manadatoryOrderings;
+        private isClientFiltrationPending();
+        /**
+        * Parses response from server and turns it to objects array
+        */
+        storeResponse(response: IPowerTablesResponse, clientQuery: IQuery): void;
+        /**
+         * Client query that was used to obtain recent local data set
+         */
+        RecentClientQuery: IQuery;
+        /**
+         * Filters supplied data set using client query
+         *
+         * @param objects Data set
+         * @param query Client query
+         * @returns {Array} Array of filtered items
+         */
+        filterSet(objects: any[], query: IQuery): any[];
+        /**
+        * Orders supplied data set using client query
+        *
+        * @param objects Data set
+        * @param query Client query
+        * @returns {Array} Array of ordered items
+        */
+        orderSet(objects: any[], query: IQuery): any[];
+        private skipTakeSet(ordered, query);
+        /**
+         * Part of data currently displayed without ordering and paging
+         */
+        Filtered: any[];
+        /**
+         * Part of data currently displayed without paging
+         */
+        Ordered: any[];
+        /**
+         * Filter recent data and store it to currently displaying data
+         *
+         * @param query Table query
+         * @returns {}
+         */
+        filterStoredData(query: IQuery): void;
+        /**
+         * Filter recent data and store it to currently displaying data
+         * using query that was previously applied to local data
+         */
+        filterStoredDataWithPreviousQuery(): void;
+        /**
+         * Finds data matching predicate among locally stored data
+         *
+         * @param predicate Filtering predicate returning true for required objects
+         * @returns Array of ILocalLookupResults
+         */
+        localLookup(predicate: (object: any) => boolean): ILocalLookupResult[];
+        /**
+         * Finds data object among currently displayed and returns ILocalLookupResult
+         * containing also Loaded-set index of this data object
+         *
+         * @param index Index of desired data object among locally displaying data
+         * @returns ILocalLookupResult
+         */
+        localLookupDisplayedDataObject(dataObject: any): ILocalLookupResult;
+        /**
+         * Finds data object among currently displayed and returns ILocalLookupResult
+         * containing also Loaded-set index of this data object
+         *
+         * @param index Index of desired data object among locally displaying data
+         * @returns ILocalLookupResult
+         */
+        localLookupStoredDataObject(dataObject: any): ILocalLookupResult;
+        /**
+         * Finds data object among currently displayed and returns ILocalLookupResult
+         * containing also Loaded-set index of this data object
+         *
+         * @param index Index of desired data object among locally displaying data
+         * @returns ILocalLookupResult
+         */
+        localLookupDisplayedData(index: number): ILocalLookupResult;
+        /**
+         * Finds data object among recently loaded and returns ILocalLookupResult
+         * containing also Loaded-set index of this data object
+         *
+         * @param index Index of desired data object among locally displaying data
+         * @returns ILocalLookupResult
+         */
+        localLookupStoredData(index: number): ILocalLookupResult;
+        /**
+         * Finds data object among recently loaded by primary key and returns ILocalLookupResult
+         * containing also Loaded-set index of this data object
+         *
+         * @param dataObject Object to match
+         * @returns ILocalLookupResult
+         */
+        localLookupPrimaryKey(dataObject: any): ILocalLookupResult;
+        private copyData(source, target);
+        private normalizeObject(dataObject);
+        proceedAdjustments(adjustments: PowerTables.Editors.IAdjustmentData): IAdjustmentResult;
+    }
+    interface IAdjustmentResult {
+        NeedRedrawAllVisible: boolean;
+        VisiblesToRedraw: any[];
+        AddedData: any[];
+        TouchedData: any[];
+        TouchedColumns: string[][];
+    }
+    /**
+     * Result of searching among local data
+     */
+    interface ILocalLookupResult {
+        /**
+         * Data object reference itself
+         */
+        DataObject: any;
+        /**
+         * Is data object currently displaying or not
+         */
+        IsCurrentlyDisplaying: boolean;
+        /**
+         * Row index among loaded data
+         */
+        LoadedIndex: number;
+        /**
+         * Row index among displayed data
+         */
+        DisplayedIndex: number;
+    }
+}
+declare module PowerTables {
+    /**
      * API responsible for dates operations
      */
     class DateService {
@@ -1176,124 +1341,282 @@ declare module PowerTables {
         putDateToDatePicker(element: HTMLElement, date: Date): void;
     }
 }
-declare module PowerTables {
-    /**
-     * API for managing in-table elements' events
-     */
-    class EventsDelegator {
+declare module PowerTables.Editors {
+    class CellEditorBase<T> extends PowerTables.Plugins.PluginBase<T> implements PowerTables.Editors.ICellEditor {
         /**
-         * @internal
+         * Is current editor valid (flag set by master editor)
          */
-        constructor(locator: PowerTables.Rendering.DOMLocator, bodyElement: HTMLElement, layoutElement: HTMLElement, rootId: string, masterTable: IMasterTable);
-        private static addHandler(element, type, handler);
-        private static removeHandler(element, type, handler);
-        private _masterTable;
-        private _rootId;
-        private _locator;
-        private _bodyElement;
-        private _layoutElement;
-        private _outSubscriptions;
-        private _cellDomSubscriptions;
-        private _rowDomSubscriptions;
-        private _matches;
-        private _domEvents;
-        private _outEvents;
-        private _destroyCallbacks;
-        private ensureEventSubscription(eventId);
-        private ensureOutSubscription(eventId);
-        private traverseAndFire(subscriptions, path, args);
-        private onTableEvent(e);
+        IsValid: boolean;
         /**
-         * Subscribe handler to any DOM event happening on particular table cell
+         * True when field is single, false when multiple (e.g. row edit, form edit)
+         */
+        CanComplete: boolean;
+        /**
+         * True when cell editor is part of row edit, otherwise false
+         */
+        IsRowEdit: boolean;
+        /**
+         * True when cell editor is part of form edit, otherwise false
+         */
+        IsFormEdit: boolean;
+        /**
+         * Original, locally displayed data object
+         */
+        DataObject: any;
+        /**
+         * Value for particular editor column
+         */
+        Data: any;
+        /**
+         * Collection with editor's recent validation messages
+         */
+        ValidationMessages: IValidationMessage[];
+        renderedValidationMessages(): string;
+        /**
+         * Retrieves original value for this particular cell editor
          *
-         * @param subscription Event subscription
+         * @returns {Any} Original, unchanged value
          */
-        subscribeCellEvent(subscription: IUiSubscription<ICellEventArgs>): void;
+        protected getThisOriginalValue(): any;
         /**
-         * Subscribe handler to any DOM event happening on particular table row.
-         * Note that handler will fire even if particular table cell event happened
+         * Resets editor value to initial settings
+         */
+        reset(): void;
+        /**
+         * Data object that is modified within editing process
+         */
+        ModifiedDataObject: any;
+        /**
+         * Reference to parent editor
+         */
+        Row: Editor;
+        /**
+         * Corresponding column
+         */
+        Column: IColumn;
+        /**
+         * Flag when initial value setting occures
+         */
+        IsInitialValueSetting: boolean;
+        /**
+         * Returns entered editor value
          *
-         * @param subscription Event subscription
+         * @returns {}
          */
-        subscribeRowEvent(subscription: IUiSubscription<IRowEventArgs>): void;
-        private parseEventId(eventId);
-        private filterEvent(e, propsObject);
-        private _directSubscriptions;
+        getValue(errors: IValidationMessage[]): any;
         /**
-         * @internal
+         * Sets editor value from the outside
          */
-        subscribeEvent(el: HTMLElement, eventId: string, handler: any, receiver: any, eventArguments: any[]): void;
-        private onOutTableEvent(e);
+        setValue(value: any): void;
         /**
-         * @internal
+         * Template-bound event raising on changing this editor's value
          */
-        subscribeOutOfElementEvent(el: HTMLElement, eventId: string, handler: any, receiver: any, eventArguments: any[]): void;
+        changedHandler(e: PowerTables.Rendering.ITemplateBoundEvent): void;
         /**
-         * Subscribes event that will be fired when supplied element will be destroyed
+         * Event handler for commit (save edited, ok, submit etc) event raised from inside of CellEditor
+         * Commit leads to validation. Cell editor should be notified
+         */
+        commitHandler(e: PowerTables.Rendering.ITemplateBoundEvent): void;
+        /**
+         * Event handler for reject (cancel editing) event raised from inside of CellEditor
+         * Cell editor should be notified
+         */
+        rejectHandler(e: PowerTables.Rendering.ITemplateBoundEvent): void;
+        /**
+         * Called when cell editor has been drawn
          *
-         * @param e HTML element destroying of which will fire event
-         * @param callback Callback being called when element is destroyed
+         * @param e HTML element where editor is rendered
+         * @returns {}
          */
-        subscribeDestroy(e: HTMLElement, callback: PowerTables.Rendering.ICallbackDescriptor): void;
+        onAfterRender(e: HTMLElement): void;
         /**
-         * @internal
+         * Needed by editor in some cases
+         *
+         * @returns {}
          */
-        handleElementDestroy(e: HTMLElement): void;
-        private collectElementsHavingAttribute(parent, attribute);
+        focus(): void;
+        OriginalContent(): string;
     }
-    interface IRowEventArgs {
+    interface ICellEditor extends IPlugin, ICell {
         /**
-         * Master table reference
+         * Plugin's visual states collection.
+         * Usually it is not used, but always it is better to have one
          */
-        Master: IMasterTable;
+        VisualStates: PowerTables.Rendering.VisualState;
         /**
-         * Original event reference
+         * Original, locally displayed data object
          */
-        OriginalEvent: Event;
+        DataObject: any;
         /**
-         * Row index.
-         * Data object can be restored using Table.DataHolder.localLookupDisplayedData(RowIndex)
+         * Data object that is modified within editing process
          */
-        DisplayingRowIndex: number;
+        ModifiedDataObject: any;
+        /**
+         * Returns entered editor value
+         *
+         * @param errors Validation errors collection
+         * @returns {}
+         */
+        getValue(errors: IValidationMessage[]): any;
+        /**
+         * Sets editor value from the outside
+         */
+        setValue(value: any): void;
+        /**
+         * Corresponding column
+         */
+        Column: IColumn;
+        /**
+         * Resets editor value to initial settings
+         */
+        reset(): void;
+        /**
+         * True when field is single, false when multiple (e.g. row edit, form edit)
+         */
+        CanComplete: boolean;
+        /**
+         * True when cell editor is part of row edit, otherwise false
+         */
+        IsRowEdit: boolean;
+        /**
+         * True when cell editor is part of form edit, otherwise false
+         */
+        IsFormEdit: boolean;
+        /**
+         * Flag when initial value setting occures
+         */
+        IsInitialValueSetting: boolean;
+        /**
+        * Called when cell editor has been drawn
+        *
+        * @param e HTML element where editor is rendered
+        * @returns {}
+        */
+        onAfterRender(e: HTMLElement): void;
+        /**
+         * Is current editor valid (flag set by master editor)
+         */
+        IsValid: boolean;
+        /**
+         * Needed by editor in some cases
+         *
+         * @returns {}
+         */
+        focus(): void;
+        /**
+         * Collection with editor's recent validation messages
+         */
+        ValidationMessages: IValidationMessage[];
     }
-    /**
-     * Event arguments for particular cell event
-     */
-    interface ICellEventArgs extends IRowEventArgs {
-        /**
-         * Column index related to particular cell.
-         * Column object can be restored using Table.InstanceManager.getUiColumns()[ColumnIndex]
-         */
-        ColumnIndex: number;
+    interface IValidationMessage {
+        Message: string;
+        Code: string;
     }
-    interface ISubscription {
-        /**
-         * Event Id
-         */
-        EventId: string;
-        /**
-         * Selector of element
-         */
-        Selector?: string;
-        /**
-         * Subscription ID (for easier unsubscribe)
-         */
-        SubscriptionId: string;
-        Handler: any;
-        filter?: {
-            [key: string]: any;
+}
+declare module PowerTables.Editors.Check {
+    class CheckEditor extends PowerTables.Editors.CellEditorBase<PowerTables.Editors.Check.ICheckEditorUiConfig> {
+        FocusElement: HTMLElement;
+        private _value;
+        renderContent(templatesProvider: ITemplatesProvider): string;
+        changedHandler(e: PowerTables.Rendering.ITemplateBoundEvent): void;
+        private updateState();
+        getValue(errors: PowerTables.Editors.IValidationMessage[]): any;
+        setValue(value: any): void;
+        focus(): void;
+    }
+}
+declare module PowerTables.Editors {
+    class Editor extends PowerTables.Plugins.PluginBase<PowerTables.Editors.IEditorUiConfig> implements IRow {
+        Cells: {
+            [key: string]: ICell;
         };
+        DataObject: any;
+        IsSpecial: boolean;
+        Index: number;
+        private _mode;
+        private _activeEditors;
+        private _currentDataObjectModified;
+        private _isEditing;
+        private _validationMessages;
+        notifyChanged(editor: PowerTables.Editors.ICellEditor): void;
+        commitAll(): void;
+        private dispatchEditResponse(editResponse, then);
+        private sendDataObjectToServer(then);
+        commit(editor: PowerTables.Editors.ICellEditor): void;
+        redrawEditingRow(collectData: boolean): void;
+        redrawMe(editor: PowerTables.Editors.ICellEditor): void;
+        private cleanupAfterEdit();
+        rejectAll(): void;
+        private finishEditing(editor, redraw);
+        reject(editor: PowerTables.Editors.ICellEditor): void;
+        private retrieveEditorData(editor, errors?);
+        private retrieveAllEditorsData();
+        private ensureEditing(rowDisplayIndex);
+        private isEditable(column);
+        private createEditor(column, canComplete, isForm, isRow);
+        private beginCellEdit(column, rowIndex);
+        private beginRowEdit(rowIndex);
+        private setEditorValue(editor);
+        onBeforeClientRowsRendering(e: ITableEventArgs<IRow[]>): void;
+        onAfterDataRendered(e: any): void;
+        beginCellEditHandle(e: ICellEventArgs): void;
+        beginRowEditHandle(e: IRowEventArgs): void;
+        commitRowEditHandle(e: IRowEventArgs): void;
+        rejectRowEditHandle(e: IRowEventArgs): void;
+        beginFormEditHandle(e: IRowEventArgs): void;
+        commitFormEditHandle(e: IRowEventArgs): void;
+        rejectFormEditHandle(e: IRowEventArgs): void;
+        afterDrawn: (e: ITableEventArgs<any>) => void;
     }
-    /**
-     * Information about UI subscription
-     */
-    interface IUiSubscription<TEventArgs> extends ISubscription {
-        /**
-         * Event handler
-         *
-         * @param e Event arguments
-         */
-        Handler: (e: TEventArgs) => any;
+}
+declare module PowerTables.Editors.Memo {
+    class MemoEditor extends PowerTables.Editors.CellEditorBase<PowerTables.Editors.Memo.IMemoEditorUiConfig> {
+        TextArea: HTMLInputElement;
+        MaxChars: number;
+        CurrentChars: number;
+        Rows: number;
+        WarningChars: number;
+        Columns: number;
+        init(masterTable: IMasterTable): void;
+        changedHandler(e: PowerTables.Rendering.ITemplateBoundEvent): void;
+        setValue(value: any): void;
+        getValue(errors: PowerTables.Editors.IValidationMessage[]): any;
+        renderContent(templatesProvider: ITemplatesProvider): string;
+        focus(): void;
+    }
+}
+declare module PowerTables.Editors.PlainText {
+    class PlainTextEditor extends PowerTables.Editors.CellEditorBase<PowerTables.Editors.PlainText.IPlainTextEditorUiConfig> {
+        Input: HTMLInputElement;
+        ValidationRegex: RegExp;
+        private _removeSeparators;
+        private _dotSeparators;
+        private _floatRegex;
+        private _formatFunction;
+        private _parseFunction;
+        getValue(errors: IValidationMessage[]): any;
+        setValue(value: any): void;
+        init(masterTable: IMasterTable): void;
+        private defaultParse(value, column, errors);
+        private defaultFormat(value, column);
+        changedHandler(e: PowerTables.Rendering.ITemplateBoundEvent): void;
+        renderContent(templatesProvider: ITemplatesProvider): string;
+        focus(): void;
+    }
+}
+declare module PowerTables.Editors.SelectList {
+    class SelectListEditor extends PowerTables.Editors.CellEditorBase<PowerTables.Editors.SelectList.ISelectListEditorUiConfig> {
+        List: HTMLSelectElement;
+        Items: System.Web.Mvc.ISelectListItem[];
+        SelectedItem: System.Web.Mvc.ISelectListItem;
+        getValue(errors: PowerTables.Editors.IValidationMessage[]): any;
+        setValue(value: any): void;
+        onStateChange(e: PowerTables.Rendering.IStateChangedEvent): void;
+        init(masterTable: IMasterTable): void;
+        renderContent(templatesProvider: ITemplatesProvider): string;
+        onAfterRender(e: HTMLElement): void;
+        changedHandler(e: PowerTables.Rendering.ITemplateBoundEvent): void;
+        focus(): void;
     }
 }
 declare module PowerTables {
@@ -1530,230 +1853,243 @@ declare module PowerTables {
 }
 declare module PowerTables {
     /**
-     * This entity is responsible for integration of data between storage and rendere.
-     * Also it provides functionality for table events subscription and
-     * elements location
+     * API for managing in-table elements' events
      */
-    class Controller {
+    class EventsDelegator {
         /**
          * @internal
          */
-        constructor(masterTable: IMasterTable);
+        constructor(locator: PowerTables.Rendering.DOMLocator, bodyElement: HTMLElement, layoutElement: HTMLElement, rootId: string, masterTable: IMasterTable);
+        private static addHandler(element, type, handler);
+        private static removeHandler(element, type, handler);
         private _masterTable;
+        private _rootId;
+        private _locator;
+        private _bodyElement;
+        private _layoutElement;
+        private _outSubscriptions;
+        private _cellDomSubscriptions;
+        private _rowDomSubscriptions;
+        private _matches;
+        private _domEvents;
+        private _outEvents;
+        private _destroyCallbacks;
+        private ensureEventSubscription(eventId);
+        private ensureOutSubscription(eventId);
+        private traverseAndFire(subscriptions, path, args);
+        private onTableEvent(e);
         /**
-         * Initializes full reloading cycle
-         * @returns {}
-         */
-        reload(forceServer?: boolean): void;
-        /**
-         * Redraws row containing currently visible data object
+         * Subscribe handler to any DOM event happening on particular table cell
          *
-         * @param dataObject Data object
-         * @param idx
-         * @returns {}
+         * @param subscription Event subscription
          */
-        redrawVisibleDataObject(dataObject: any, idx?: number): HTMLElement;
+        subscribeCellEvent(subscription: IUiSubscription<ICellEventArgs>): void;
         /**
-         * Redraws locally visible data
+         * Subscribe handler to any DOM event happening on particular table row.
+         * Note that handler will fire even if particular table cell event happened
+         *
+         * @param subscription Event subscription
          */
-        redrawVisibleData(): void;
+        subscribeRowEvent(subscription: IUiSubscription<IRowEventArgs>): void;
+        private parseEventId(eventId);
+        private filterEvent(e, propsObject);
+        private _directSubscriptions;
         /**
          * @internal
          */
-        drawAdjustmentResult(adjustmentResult: IAdjustmentResult): void;
+        subscribeEvent(el: HTMLElement, eventId: string, handler: any, receiver: any, eventArguments: any[]): void;
+        private onOutTableEvent(e);
         /**
-         * Converts data object,row and column to cell
-         *
-         * @param dataObject Data object
-         * @param idx Object's displaying index
-         * @param column Column that this cell belongs to
-         * @param row Row that this cell belongs to
-         * @returns {ICell} Cell representing data
+         * @internal
          */
-        produceCell(dataObject: any, column: IColumn, row: IRow): ICell;
+        subscribeOutOfElementEvent(el: HTMLElement, eventId: string, handler: any, receiver: any, eventArguments: any[]): void;
         /**
-         * Converts data object to display row
+         * Subscribes event that will be fired when supplied element will be destroyed
          *
-         * @param dataObject Data object
-         * @param idx Object's displaying index
-         * @param columns Optional displaying columns set
-         * @returns {IRow} Row representing displayed object
+         * @param e HTML element destroying of which will fire event
+         * @param callback Callback being called when element is destroyed
          */
-        produceRow(dataObject: any, idx: number, columns?: IColumn[]): IRow;
-        private produceRows();
+        subscribeDestroy(e: HTMLElement, callback: PowerTables.Rendering.ICallbackDescriptor): void;
+        /**
+         * @internal
+         */
+        handleElementDestroy(e: HTMLElement): void;
+        private collectElementsHavingAttribute(parent, attribute);
+    }
+    interface IRowEventArgs {
+        /**
+         * Master table reference
+         */
+        Master: IMasterTable;
+        /**
+         * Original event reference
+         */
+        OriginalEvent: Event;
+        /**
+         * Row index.
+         * Data object can be restored using Table.DataHolder.localLookupDisplayedData(RowIndex)
+         */
+        DisplayingRowIndex: number;
+    }
+    /**
+     * Event arguments for particular cell event
+     */
+    interface ICellEventArgs extends IRowEventArgs {
+        /**
+         * Column index related to particular cell.
+         * Column object can be restored using Table.InstanceManager.getUiColumns()[ColumnIndex]
+         */
+        ColumnIndex: number;
+    }
+    interface ISubscription {
+        /**
+         * Event Id
+         */
+        EventId: string;
+        /**
+         * Selector of element
+         */
+        Selector?: string;
+        /**
+         * Subscription ID (for easier unsubscribe)
+         */
+        SubscriptionId: string;
+        Handler: any;
+        filter?: {
+            [key: string]: any;
+        };
+    }
+    /**
+     * Information about UI subscription
+     */
+    interface IUiSubscription<TEventArgs> extends ISubscription {
+        /**
+         * Event handler
+         *
+         * @param e Event arguments
+         */
+        Handler: (e: TEventArgs) => any;
     }
 }
-declare module PowerTables {
+declare module PowerTables.Filters {
     /**
-     * Class that is responsible for holding and managing data loaded from server
+     * Base class for creating filters
      */
-    class DataHolder {
-        constructor(masterTable: IMasterTable);
-        private _rawColumnNames;
-        private _comparators;
-        private _filters;
-        private _anyClientFiltration;
-        private _events;
-        private _instances;
-        private _masterTable;
-        private _clientValueFunction;
+    class FilterBase<T> extends PowerTables.Plugins.PluginBase<T> implements IQueryPartProvider, IClientFilter {
+        modifyQuery(query: IQuery, scope: QueryScope): void;
+        init(masterTable: IMasterTable): void;
         /**
-         * Data that actually is currently displayed in table
+         * Call this method inside init and override filterPredicate method to make this filter
+         * participate in client-side filtering
          */
-        DisplayedData: any[];
-        /**
-         * Data that was recently loaded from server
-         */
-        StoredData: any[];
-        /**
-         * Enable query truncation from beginning during executing client queries
-         */
-        EnableClientSkip: boolean;
-        /**
-         * Enable query truncation by data cound during executing client queries
-         */
-        EnableClientTake: boolean;
-        /**
-         * Registers client filter
-         *
-         * @param filter Client filter
-         */
-        registerClientFilter(filter: IClientFilter): void;
-        getClientFilters(): IClientFilter[];
-        clearClientFilters(): void;
-        /**
-         * Registers new client ordering comparer function
-         *
-         * @param dataField Field for which this comparator is applicable
-         * @param comparator Comparator fn that should return 0 if entries are equal, -1 if a<b, +1 if a>b
-         * @returns {}
-         */
-        registerClientOrdering(dataField: string, comparator: (a: any, b: any) => number, mandatory?: boolean): void;
-        private _manadatoryOrderings;
-        private isClientFiltrationPending();
-        /**
-        * Parses response from server and turns it to objects array
-        */
-        storeResponse(response: IPowerTablesResponse, clientQuery: IQuery): void;
-        /**
-         * Client query that was used to obtain recent local data set
-         */
-        RecentClientQuery: IQuery;
-        /**
-         * Filters supplied data set using client query
-         *
-         * @param objects Data set
-         * @param query Client query
-         * @returns {Array} Array of filtered items
-         */
-        filterSet(objects: any[], query: IQuery): any[];
-        /**
-        * Orders supplied data set using client query
-        *
-        * @param objects Data set
-        * @param query Client query
-        * @returns {Array} Array of ordered items
-        */
-        orderSet(objects: any[], query: IQuery): any[];
-        private skipTakeSet(ordered, query);
-        /**
-         * Part of data currently displayed without ordering and paging
-         */
-        Filtered: any[];
-        /**
-         * Part of data currently displayed without paging
-         */
-        Ordered: any[];
-        /**
-         * Filter recent data and store it to currently displaying data
-         *
-         * @param query Table query
-         * @returns {}
-         */
-        filterStoredData(query: IQuery): void;
-        /**
-         * Filter recent data and store it to currently displaying data
-         * using query that was previously applied to local data
-         */
-        filterStoredDataWithPreviousQuery(): void;
-        /**
-         * Finds data matching predicate among locally stored data
-         *
-         * @param predicate Filtering predicate returning true for required objects
-         * @returns Array of ILocalLookupResults
-         */
-        localLookup(predicate: (object: any) => boolean): ILocalLookupResult[];
-        /**
-         * Finds data object among currently displayed and returns ILocalLookupResult
-         * containing also Loaded-set index of this data object
-         *
-         * @param index Index of desired data object among locally displaying data
-         * @returns ILocalLookupResult
-         */
-        localLookupDisplayedDataObject(dataObject: any): ILocalLookupResult;
-        /**
-         * Finds data object among currently displayed and returns ILocalLookupResult
-         * containing also Loaded-set index of this data object
-         *
-         * @param index Index of desired data object among locally displaying data
-         * @returns ILocalLookupResult
-         */
-        localLookupStoredDataObject(dataObject: any): ILocalLookupResult;
-        /**
-         * Finds data object among currently displayed and returns ILocalLookupResult
-         * containing also Loaded-set index of this data object
-         *
-         * @param index Index of desired data object among locally displaying data
-         * @returns ILocalLookupResult
-         */
-        localLookupDisplayedData(index: number): ILocalLookupResult;
-        /**
-         * Finds data object among recently loaded and returns ILocalLookupResult
-         * containing also Loaded-set index of this data object
-         *
-         * @param index Index of desired data object among locally displaying data
-         * @returns ILocalLookupResult
-         */
-        localLookupStoredData(index: number): ILocalLookupResult;
-        /**
-         * Finds data object among recently loaded by primary key and returns ILocalLookupResult
-         * containing also Loaded-set index of this data object
-         *
-         * @param dataObject Object to match
-         * @returns ILocalLookupResult
-         */
-        localLookupPrimaryKey(dataObject: any): ILocalLookupResult;
-        private copyData(source, target);
-        private normalizeObject(dataObject);
-        proceedAdjustments(adjustments: PowerTables.Editors.IAdjustmentData): IAdjustmentResult;
+        protected itIsClientFilter(): void;
+        filterPredicate(rowObject: any, query: IQuery): boolean;
     }
-    interface IAdjustmentResult {
-        NeedRedrawAllVisible: boolean;
-        VisiblesToRedraw: any[];
-        AddedData: any[];
-        TouchedData: any[];
-        TouchedColumns: string[][];
+}
+declare module PowerTables.Filters.Range {
+    class RangeFilterPlugin extends PowerTables.Filters.FilterBase<Filters.Range.IRangeFilterUiConfig> {
+        private _filteringIsBeingExecuted;
+        private _inpTimeout;
+        private _fromPreviousValue;
+        private _toPreviousValue;
+        private _associatedColumn;
+        private _isInitializing;
+        FromValueProvider: HTMLInputElement;
+        ToValueProvider: HTMLInputElement;
+        private getFromValue();
+        private getToValue();
+        handleValueChanged(): void;
+        getFilterArgument(): string;
+        modifyQuery(query: IQuery, scope: QueryScope): void;
+        init(masterTable: IMasterTable): void;
+        renderContent(templatesProvider: ITemplatesProvider): string;
+        filterPredicate(rowObject: any, query: IQuery): boolean;
+        afterDrawn: (e: any) => void;
     }
+}
+declare module PowerTables.Filters.Select {
     /**
-     * Result of searching among local data
+     * Client-side implementation of Select filter
      */
-    interface ILocalLookupResult {
+    class SelectFilterPlugin extends PowerTables.Filters.FilterBase<Filters.Select.ISelectFilterUiConfig> {
         /**
-         * Data object reference itself
+         * HTML element of select list supplying values for select filter.
          */
-        DataObject: any;
+        FilterValueProvider: HTMLSelectElement;
+        private _associatedColumn;
         /**
-         * Is data object currently displaying or not
+         * Retrieves selected values serialized with |-delimiter
          */
-        IsCurrentlyDisplaying: boolean;
+        getSerializedValue(): string;
         /**
-         * Row index among loaded data
+         * Retrieves array of stringified selected values
          */
-        LoadedIndex: number;
+        getArrayValue(): string[];
         /**
-         * Row index among displayed data
+         * @internal
          */
-        DisplayedIndex: number;
+        modifyQuery(query: IQuery, scope: QueryScope): void;
+        /**
+         * @internal
+         */
+        renderContent(templatesProvider: ITemplatesProvider): string;
+        /**
+         * @internal
+         */
+        handleValueChanged(): void;
+        /**
+         * @internal
+         */
+        init(masterTable: IMasterTable): void;
+        /**
+         * @internal
+         */
+        filterPredicate(rowObject: any, query: IQuery): boolean;
+    }
+}
+declare module PowerTables.Filters.Value {
+    /**
+     * Client-side part of value filter
+     */
+    class ValueFilterPlugin extends PowerTables.Filters.FilterBase<Filters.Value.IValueFilterUiConfig> {
+        private _filteringIsBeingExecuted;
+        private _inpTimeout;
+        private _previousValue;
+        private _associatedColumn;
+        private _isInitializing;
+        /**
+         * HTML element corresponding to <input/> tag this filter will retrieve value from
+         */
+        FilterValueProvider: HTMLInputElement;
+        /**
+         * Retrieves entered value. Could be either string or Date object depending on
+         * column associated within filter
+         */
+        getValue(): any;
+        /**
+        * @internal
+        */
+        handleValueChanged(): void;
+        /**
+        * @internal
+        */
+        renderContent(templatesProvider: ITemplatesProvider): string;
+        /**
+        * @internal
+        */
+        init(masterTable: IMasterTable): void;
+        /**
+        * @internal
+        */
+        filterPredicate(rowObject: any, query: IQuery): boolean;
+        /**
+        * @internal
+        */
+        modifyQuery(query: IQuery, scope: QueryScope): void;
+        /**
+        * @internal
+        */
+        afterDrawn: (e: any) => void;
     }
 }
 declare module PowerTables {
@@ -1885,6 +2221,7 @@ declare module PowerTables {
          * @returns {}
          */
         registerQueryPartProvider(provider: IQueryPartProvider): void;
+        prefetchData(data: any[]): void;
         private gatherQuery(queryScope);
         private getXmlHttp();
         private _previousQueryString;
@@ -1905,6 +2242,560 @@ declare module PowerTables {
          * @param errorCallback Will be called if error occures
          */
         requestServer(command: string, callback: (data: any) => void, queryModifier?: (a: IQuery) => IQuery, errorCallback?: (data: any) => void, force?: boolean): void;
+    }
+}
+declare module PowerTables {
+    /**
+     * Class responsible for handling of table messages. It handles internally thrown messages as well as
+     * user's ones
+     */
+    class MessagesService {
+        constructor(usersMessageFn: (msg: ITableMessage) => void, instances: InstanceManager, dataHolder: DataHolder, controller: Controller);
+        private _usersMessageFn;
+        private _instances;
+        private _dataHolder;
+        private _controller;
+        /**
+         * Shows table message according to its settings
+         * @param message Message of type ITableMessage
+         * @returns {}
+         */
+        showMessage(message: ITableMessage): void;
+        private showTableMessage(tableMessage);
+    }
+}
+declare module PowerTables.Plugins.Checkboxify {
+    class CheckboxifyPlugin extends PluginBase<Plugins.Checkboxify.ICheckboxifyClientConfig> implements IQueryPartProvider {
+        private _selectedItems;
+        private _visibleAll;
+        private _allSelected;
+        private _ourColumn;
+        ValueColumnName: string;
+        private _canSelectAll;
+        private _pagingPlugin;
+        private _selectables;
+        selectAll(selected?: boolean): void;
+        private redrawHeader();
+        private createColumn();
+        private canCheck(dataObject, row);
+        getSelection(): string[];
+        resetSelection(): void;
+        selectByRowIndex(rowIndex: number, select?: boolean): boolean;
+        selectByDataObject(dataObject: any, select?: boolean): boolean;
+        selectByPredicate(predicate: (dataObject: any) => boolean, select?: boolean): boolean;
+        private toggleInternal(dataObject, displayedIndex, select?);
+        private afterLayoutRender();
+        private beforeRowsRendering(e);
+        private enableSelectAll(enabled);
+        private onClientReload(e);
+        private onServerReload(e);
+        private applySelection(a);
+        private onBeforeAdjustments(e);
+        private onAfterAdjustments(e);
+        init(masterTable: IMasterTable): void;
+        modifyQuery(query: IQuery, scope: QueryScope): void;
+        static registerEvents(e: EventsManager, masterTable: IMasterTable): void;
+        subscribe(e: EventsManager): void;
+    }
+}
+declare module PowerTables.Plugins.Formwatch {
+    class FormwatchPlugin extends PluginBase<PowerTables.Plugins.Formwatch.IFormwatchClientConfiguration> implements IQueryPartProvider {
+        private _existingValues;
+        private _filteringExecuted;
+        private _timeouts;
+        private static extractValueFromMultiSelect(o);
+        private static extractInputValue(element, fieldConf, dateService);
+        private static extractData(elements, fieldConf, dateService);
+        static extractFormData(configuration: PowerTables.Plugins.Formwatch.IFormwatchFieldData[], rootElement: any, dateService: DateService): {};
+        modifyQuery(query: IQuery, scope: QueryScope): void;
+        subscribe(e: EventsManager): void;
+        fieldChange(fieldSelector: string, delay: number, element: HTMLInputElement, e: Event): void;
+        init(masterTable: IMasterTable): void;
+    }
+}
+declare module PowerTables.Plugins.Hideout {
+    interface IColumnState {
+        Visible: boolean;
+        RawName: string;
+        Name: string;
+        DoesNotExists: boolean;
+    }
+    class HideoutPlugin extends PluginBase<PowerTables.Plugins.Hideout.IHideoutPluginConfiguration> implements IQueryPartProvider {
+        ColumnStates: IColumnState[];
+        private _columnStates;
+        private _isInitializing;
+        isColumnVisible(columnName: string): boolean;
+        isColumnInstanceVisible(col: IColumn): boolean;
+        hideColumnByName(rawColname: string): void;
+        showColumnByName(rawColname: string): void;
+        toggleColumn(e: PowerTables.Rendering.ITemplateBoundEvent): void;
+        showColumn(e: PowerTables.Rendering.ITemplateBoundEvent): void;
+        hideColumn(e: PowerTables.Rendering.ITemplateBoundEvent): void;
+        toggleColumnByName(columnName: string): boolean;
+        modifyQuery(query: IQuery, scope: QueryScope): void;
+        hideColumnInstance(c: IColumn): void;
+        showColumnInstance(c: IColumn): void;
+        private onBeforeDataRendered();
+        private onDataRendered();
+        private onLayourRendered();
+        init(masterTable: IMasterTable): void;
+        renderContent(templatesProvider: ITemplatesProvider): string;
+        subscribe(e: EventsManager): void;
+        private ifColVisibleHelper(columnName, opts);
+        registerAdditionalHelpers(hb: Handlebars.IHandlebars): void;
+    }
+}
+declare module PowerTables.Plugins.Hierarchy {
+    class HierarchyPlugin extends PluginBase<IHierarchyUiConfiguration> implements IClientFilter {
+        expandSubtree(args: IRowEventArgs): void;
+        collapseSubtree(args: IRowEventArgs): void;
+        toggleSubtree(args: IRowEventArgs): void;
+        toggleSubtreeByObject(dataObject: any, turnOpen?: boolean, index?: number): void;
+        private expand(dataObject, index);
+        private toggleVisibleRec(dataObject);
+        private collapse(dataObject, index);
+        private collapseChildren(dataObject);
+        init(masterTable: IMasterTable): void;
+        private hierarchicalOrder(a, b);
+        private refilterStoredData();
+        private _hierarchyFiltered;
+        private stackOrder(data);
+        private recalculateSubtreeReferences(e);
+        private _isFunctionsStolen;
+        private _stolenFilterFunctions;
+        private stealFilterFunctions();
+        private onAfterClientDataProcessing(e);
+        subscribe(e: EventsManager): void;
+        private onAfterLayoutRendered();
+        filterPredicate(rowObject: any, query: IQuery): boolean;
+        private onBeforeClientDataProcessing();
+    }
+}
+declare module PowerTables.Plugins.Limit {
+    class LimitPlugin extends PowerTables.Filters.FilterBase<Plugins.Limit.ILimitClientConfiguration> {
+        SelectedValue: ILimitSize;
+        private _limitSize;
+        Sizes: ILimitSize[];
+        renderContent(templatesProvider: ITemplatesProvider): string;
+        changeLimitHandler(e: Rendering.ITemplateBoundEvent): void;
+        changeLimit(limit: number): void;
+        modifyQuery(query: IQuery, scope: QueryScope): void;
+        init(masterTable: IMasterTable): void;
+        private onColumnsCreation();
+    }
+    /**
+     * Size entry for limit plugin
+     */
+    interface ILimitSize {
+        IsSeparator: boolean;
+        Value: number;
+        Label: string;
+    }
+}
+declare module PowerTables.Plugins.LoadingOverlap {
+    class LoadingOverlapPlugin extends PluginBase<PowerTables.Plugins.LoadingOverlap.ILoadingOverlapUiConfig> {
+        private _overlappingElement;
+        private _overlapLayer;
+        private _isOverlapped;
+        private overlapAll();
+        private createOverlap(efor, templateId);
+        private updateCoords(overlapLayer, overlapElement);
+        private updateCoordsAll();
+        private deoverlap();
+        private onBeforeLoading(e);
+        afterDrawn: (e: ITableEventArgs<any>) => void;
+    }
+}
+declare module PowerTables.Plugins.Loading {
+    class LoadingPlugin extends PluginBase<any> implements ILoadingPlugin {
+        BlinkElement: HTMLElement;
+        subscribe(e: EventsManager): void;
+        showLoadingIndicator(): void;
+        hideLoadingIndicator(): void;
+        static Id: string;
+        renderContent(templatesProvider: ITemplatesProvider): string;
+    }
+    /**
+     * Loading indicator plugin.
+     * Plugin Id: Loading
+     */
+    interface ILoadingPlugin {
+        /**
+         * Shows loading indicator
+         */
+        showLoadingIndicator(): void;
+        /**
+         * Hides loading indicator
+         */
+        hideLoadingIndicator(): void;
+    }
+}
+declare module PowerTables.Plugins.Ordering {
+    class OrderingPlugin extends PowerTables.Filters.FilterBase<IOrderingConfiguration> {
+        private _clientOrderings;
+        private _serverOrderings;
+        private _boundHandler;
+        subscribe(e: EventsManager): void;
+        private overrideHeadersTemplates(columns);
+        private updateOrdering(columnName, ordering);
+        private specifyOrdering(object, ordering);
+        private isClient(columnName);
+        switchOrderingForColumn(columnName: string): void;
+        setOrderingForColumn(columnName: string, ordering: PowerTables.Ordering): void;
+        protected nextOrdering(currentOrdering: PowerTables.Ordering): Ordering;
+        private makeDefaultOrderingFunction(fieldName);
+        init(masterTable: IMasterTable): void;
+        private mixinOrderings(orderingsCollection, query);
+        modifyQuery(query: IQuery, scope: QueryScope): void;
+    }
+}
+declare module PowerTables.Plugins.Paging {
+    class PagingPlugin extends PowerTables.Filters.FilterBase<Plugins.Paging.IPagingClientConfiguration> {
+        Pages: IPagesElement[];
+        Shown: boolean;
+        NextArrow: boolean;
+        PrevArrow: boolean;
+        private _selectedPage;
+        CurrentPage(): number;
+        TotalPages(): number;
+        PageSize(): number;
+        private _totalPages;
+        private _pageSize;
+        GotoInput: HTMLInputElement;
+        getCurrentPage(): number;
+        getTotalPages(): number;
+        getPageSize(): number;
+        private onFilterGathered(e);
+        private onColumnsCreation();
+        private onResponse(e);
+        private onClientDataProcessing(e);
+        goToPage(page: string): void;
+        gotoPageClick(e: Rendering.ITemplateBoundEvent): void;
+        navigateToPage(e: Rendering.ITemplateBoundEvent): void;
+        nextClick(e: Rendering.ITemplateBoundEvent): void;
+        previousClick(e: Rendering.ITemplateBoundEvent): void;
+        private constructPagesElements();
+        renderContent(templatesProvider: ITemplatesProvider): string;
+        validateGotopage(): void;
+        modifyQuery(query: IQuery, scope: QueryScope): void;
+        init(masterTable: IMasterTable): void;
+    }
+    interface IPagesElement {
+        Prev?: boolean;
+        Period?: boolean;
+        ActivePage?: boolean;
+        Page: number;
+        First?: boolean;
+        Last?: boolean;
+        Next?: boolean;
+        InActivePage?: boolean;
+        DisPage?: () => string;
+    }
+}
+declare module PowerTables.Plugins {
+    /**
+     * Base class for plugins.
+     * It contains necessary infrastructure for convinence of plugins creation
+     */
+    class PluginBase<TConfiguration> implements IPlugin {
+        init(masterTable: IMasterTable): void;
+        /**
+         * Raw plugin configuration
+         */
+        RawConfig: Configuration.Json.IPluginConfiguration;
+        /**
+         * Plugin location ID
+         */
+        PluginLocation: string;
+        /**
+         * Plugin's visual states collection.
+         * Usually it is not used, but always it is better to have one
+         */
+        VisualStates: PowerTables.Rendering.VisualState;
+        /**
+         * Plugin configuration object
+         */
+        protected Configuration: TConfiguration;
+        /**
+         * Reference to master table this plugin belongs to
+         */
+        MasterTable: IMasterTable;
+        /**
+         * Events subscription method.
+         * In derived class here should be subscription to various events
+         *
+         * @param e Events manager
+         */
+        protected subscribe(e: EventsManager): void;
+        /**
+         * In this method you can register any additional Handlebars.js helpers in case of your
+         * templates needs ones
+         *
+         * @param hb Handlebars instance
+         * @returns {}
+         */
+        protected registerAdditionalHelpers(hb: Handlebars.IHandlebars): void;
+        /**
+         * Function that is called after plugin is drawn
+         *
+         * @param e Event arguments
+         */
+        protected afterDrawn: (e: ITableEventArgs<any>) => void;
+        /**
+         * Plugin order among particular placement
+         */
+        Order: number;
+        /**
+         * Default render function using TemplateId from plugin configuration
+         * @param e Templates provider
+         * @returns content string
+         */
+        defaultRender(e: ITemplatesProvider): string;
+    }
+}
+declare module PowerTables.Plugins.Reload {
+    class ReloadPlugin extends PowerTables.Plugins.PluginBase<PowerTables.Plugins.Reload.IReloadUiConfiguration> {
+        private _renderedExternally;
+        private _externalReloadBtn;
+        private _ready;
+        triggerReload(): void;
+        renderContent(templatesProvider: ITemplatesProvider): string;
+        startLoading(): void;
+        stopLoading(): void;
+        subscribe(e: EventsManager): void;
+        init(masterTable: IMasterTable): void;
+        afterDrawn: (e: ITableEventArgs<any>) => void;
+    }
+}
+declare module PowerTables.Plugins.ResponseInfo {
+    class ResponseInfoPlugin extends PluginBase<Plugins.ResponseInfo.IResponseInfoClientConfiguration> {
+        private _recentData;
+        private _recentServerData;
+        private _recentTemplate;
+        private _pagingEnabled;
+        private _pagingPlugin;
+        private _isServerRequest;
+        private _isReadyForRendering;
+        onResponse(e: ITableEventArgs<IDataEventArgs>): void;
+        onClientDataProcessed(e: ITableEventArgs<IClientDataResults>): void;
+        renderContent(templatesProvider: ITemplatesProvider): string;
+        init(masterTable: IMasterTable): void;
+    }
+}
+declare module PowerTables.Plugins.RowAction {
+    class RowAction extends PowerTables.Plugins.PluginBase<any> {
+    }
+}
+declare module PowerTables.Plugins.Toolbar {
+    /**
+     * Backing class for confirmation panel created as part of button action
+     */
+    class CommandConfirmation {
+        /**
+         * @internal
+         */
+        constructor(confirm: (form: any) => void, reject: () => void, date: DateService, autoform: PowerTables.Plugins.Formwatch.IFormwatchFieldData[]);
+        private _autoform;
+        private _confirm;
+        private _reject;
+        private _date;
+        private _beforeConfirm;
+        /**
+         * @internal
+         */
+        AfterConfirm: ((form: any) => void)[];
+        private _beforeReject;
+        /**
+         * @internal
+         */
+        AfterReject: ((form: any) => void)[];
+        /**
+         * @internal
+         */
+        AfterConfirmationResponse: ((form: any) => void)[];
+        /**
+         * @internal
+         */
+        ConfirmationResponseError: ((form: any) => void)[];
+        /**
+         * Set of form values (available only after window is commited or dismissed)
+         */
+        Form: any;
+        /**
+         * Reference to root element of confirmation window
+         */
+        RootElement: HTMLElement;
+        /**
+         * Set of selected item keys defined in corresponding Checboxify plugin
+         */
+        SelectedItems: string[];
+        /**
+         * Set of selected corresponding objects selected by checkboxify plugin
+         */
+        SelectedObjects: any[];
+        /**
+         * @internal
+         */
+        onRender(parent: HTMLElement): void;
+        /**
+         * @internal
+         */
+        fireEvents(form: any, array: ((form: any) => void)[]): void;
+        private collectFormData();
+        /**
+         * Commits confirmation form, collects form, destroys confirmation panel element and proceeds server command, fires corresponding events
+         */
+        confirm(): void;
+        /**
+         * Destroys confirmation panel element, collects form, does not send anything to server, fires corresponding events
+         */
+        dismiss(): void;
+        /**
+         * Subscribes specified function to be invoked after pressing confirm button (or calling confirm method) but before processing
+         * @param fn Function that consumes form data
+         */
+        onBeforeConfirm(fn: (form: any) => void): void;
+        /**
+         * Subscribes specified function to be invoked after pressing confirm button and client-side form processing (it is possible to add something to form)
+         * but before sending data to server
+         * @param fn Function that consumes form data
+         */
+        onAfterConfirm(fn: (form: any) => void): void;
+        /**
+         * Subscribes specified function to be invoked after pressing reject button (or calling reject method) but before processing
+         * @param fn Function that consumes form data
+         */
+        onBeforeReject(fn: (form: any) => void): void;
+        /**
+         * Subscribes specified function to be invoked after pressing reject button (or calling reject method) but before processing
+         * @param fn Function that consumes form data
+         */
+        onAfterReject(fn: (form: any) => void): void;
+        onAfterConfirmationResponse(fn: (form: any) => void): void;
+        onConfirmationResponseError(fn: (form: any) => void): void;
+    }
+}
+declare module PowerTables.Plugins.Toolbar {
+    /**
+     * Client-side supply for Toolbar plugin
+     */
+    class ToolbarPlugin extends PluginBase<Plugins.Toolbar.IToolbarButtonsClientConfiguration> {
+        /**
+         * HTML elements of all buttons that are registered for usage within toolbar plugin. Key= internal button id, Value = HTML element corresponding to button
+         */
+        AllButtons: {
+            [id: number]: HTMLElement;
+        };
+        private _buttonsConfig;
+        /**
+         * Simulates event happened on particular button. Internal button id must be supplied as first member of @memberref PowerTables.Rendering.ITemplateBoundEvent.EventArguments
+         *
+         * @param e Template bound event for triggering button action
+         */
+        buttonHandleEvent(e: Rendering.ITemplateBoundEvent): void;
+        private redrawMe();
+        private handleButtonAction(btn);
+        renderContent(templatesProvider: ITemplatesProvider): string;
+        private traverseButtons(arr);
+        private onSelectionChanged(e);
+        init(masterTable: IMasterTable): void;
+    }
+}
+declare module PowerTables.Plugins.Total {
+    /**
+     * Client-side implementation of totals plugin
+     */
+    class TotalsPlugin extends PluginBase<Plugins.Total.ITotalClientConfiguration> {
+        private _totalsForColumns;
+        private makeTotalsRow();
+        /**
+        * @internal
+        */
+        onResponse(e: ITableEventArgs<IDataEventArgs>): void;
+        /**
+        * @internal
+        */
+        onClientRowsRendering(e: ITableEventArgs<IRow[]>): void;
+        /**
+        * @internal
+        */
+        private onAdjustments(e);
+        /**
+        * @internal
+        */
+        onClientDataProcessed(e: ITableEventArgs<IClientDataResults>): void;
+        /**
+        * @internal
+        */
+        subscribe(e: EventsManager): void;
+    }
+}
+declare module PowerTables {
+    /**
+     * Main entry point for all tables functionality
+     */
+    class PowerTable implements IMasterTable {
+        /**
+         * Constructs new instance of PowerTable object.
+         * Usually this method is being called automatically by .InitializationCode or .InitializationScript method,
+         * but you also could combine call of Configurator<>.JsonConfig and call of Lattice constructor
+         *
+         * @param configuration JSON configuration of whole table
+         */
+        constructor(configuration: Configuration.Json.ITableConfiguration);
+        private _isReady;
+        private bindReady();
+        private _configuration;
+        private initialize();
+        /**
+         * API for working with dates
+         */
+        Date: DateService;
+        /**
+         * Reloads table content.
+         * This method is left for backward compatibility
+         *
+         * @returns {}
+         */
+        reload(force: boolean): void;
+        /**
+         * API for raising and handling various table events
+         */
+        Events: EventsManager;
+        /**
+         * API for managing local data
+         */
+        DataHolder: DataHolder;
+        /**
+         * API for data loading
+         */
+        Loader: Loader;
+        /**
+         * API for rendering functionality
+         */
+        Renderer: Rendering.Renderer;
+        /**
+         * API for locating instances of different components
+         */
+        InstanceManager: InstanceManager;
+        /**
+         * API for overall workflow controlling
+         */
+        Controller: Controller;
+        /**
+         * API for table messages
+         */
+        MessageService: MessagesService;
+        /**
+         * Fires specified DOM event on specified element
+         *
+         * @param eventName DOM event id
+         * @param element Element is about to dispatch event
+         */
+        static fireDomEvent(eventName: string, element: HTMLElement): void;
+        proceedAdjustments(adjustments: PowerTables.Editors.IAdjustmentData): void;
+        getStaticData(): any;
+        setStaticData(obj: any): void;
     }
 }
 declare module PowerTables.Rendering {
@@ -2042,6 +2933,108 @@ declare module PowerTables.Rendering {
          * @param fn Rendering function
          */
         cacheColumnRenderingFunction(column: IColumn, fn: (x: ICell) => string): void;
+    }
+}
+declare module PowerTables.Rendering {
+    /**
+     * This module allows you to locate particular elements in table's DOM
+     */
+    class DOMLocator {
+        constructor(bodyElement: HTMLElement, rootElement: HTMLElement, rootId: string);
+        private _bodyElement;
+        private _rootElement;
+        private _rootIdPrefix;
+        /**
+         * Retrieves cell element by cell object
+         *
+         * @param cell Cell element
+         * @returns {HTMLElement} Element containing cell (with wrapper)
+         */
+        getCellElement(cell: ICell): HTMLElement;
+        /**
+         * Retrieves cell element using supplied coordinates
+         *
+         * @param cell Cell element
+         * @returns {HTMLElement} Element containing cell (with wrapper)
+         */
+        getCellElementByIndex(rowDisplayIndex: number, columnIndex: number): HTMLElement;
+        /**
+         * Retrieves row element (including wrapper)
+         *
+         * @param row Row
+         * @returns HTML element
+         */
+        getRowElement(row: IRow): HTMLElement;
+        /**
+        * Retrieves row element (including wrapper) by specified row index
+        *
+        * @param row Row
+        * @returns HTML element
+        */
+        getRowElementByIndex(rowDisplayingIndex: number): HTMLElement;
+        /**
+         * Retrieves data cells for specified column (including wrappers)
+         *
+         * @param column Column desired data cells belongs to
+         * @returns HTML NodeList containing results
+         */
+        getColumnCellsElements(column: IColumn): NodeList;
+        /**
+         * Retrieves data cells for specified column (including wrappers) by column index
+         *
+         * @param column Column desired data cells belongs to
+         * @returns HTML NodeList containing results
+         */
+        getColumnCellsElementsByColumnIndex(columnIndex: number): NodeList;
+        /**
+         * Retrieves data cells for whole row (including wrapper)
+         *
+         * @param row Row with data cells
+         * @returns NodeList containing results
+         */
+        getRowCellsElements(row: IRow): NodeList;
+        /**
+         * Retrieves data cells for whole row (including wrapper)
+         *
+         * @param row Row with data cells
+         * @returns NodeList containing results
+         */
+        getRowCellsElementsByIndex(rowDisplayingIndex: number): NodeList;
+        /**
+         * Retrieves HTML element for column header (including wrapper)
+         *
+         * @param header Column header
+         * @returns HTML element
+         */
+        getHeaderElement(header: IColumnHeader): HTMLElement;
+        /**
+         * Retrieves HTML element for plugin (including wrapper)
+         *
+         * @param plugin Plugin
+         * @returns HTML element
+         */
+        getPluginElement(plugin: IPlugin): HTMLElement;
+        /**
+         * Retrieves HTML element for plugin (including wrapper)
+         *
+         * @param plugin Plugin
+         * @returns HTML element
+         */
+        getPluginElementsByPositionPart(placement: string): NodeList;
+        /**
+         * Determines if supplied element is table row
+         *
+         * @param e Testing element
+         * @returns {boolean} True when supplied element is row, false otherwise
+         */
+        isRow(e: HTMLElement): boolean;
+        /**
+         * Determines if supplied element is table cell
+         *
+         * @param e Testing element
+         * @returns {boolean} True when supplied element is cell, false otherwise
+         */
+        isCell(e: HTMLElement): boolean;
     }
 }
 declare module PowerTables.Rendering {
@@ -2320,108 +3313,6 @@ declare module PowerTables.Rendering {
 }
 declare module PowerTables.Rendering {
     /**
-     * This module allows you to locate particular elements in table's DOM
-     */
-    class DOMLocator {
-        constructor(bodyElement: HTMLElement, rootElement: HTMLElement, rootId: string);
-        private _bodyElement;
-        private _rootElement;
-        private _rootIdPrefix;
-        /**
-         * Retrieves cell element by cell object
-         *
-         * @param cell Cell element
-         * @returns {HTMLElement} Element containing cell (with wrapper)
-         */
-        getCellElement(cell: ICell): HTMLElement;
-        /**
-         * Retrieves cell element using supplied coordinates
-         *
-         * @param cell Cell element
-         * @returns {HTMLElement} Element containing cell (with wrapper)
-         */
-        getCellElementByIndex(rowDisplayIndex: number, columnIndex: number): HTMLElement;
-        /**
-         * Retrieves row element (including wrapper)
-         *
-         * @param row Row
-         * @returns HTML element
-         */
-        getRowElement(row: IRow): HTMLElement;
-        /**
-        * Retrieves row element (including wrapper) by specified row index
-        *
-        * @param row Row
-        * @returns HTML element
-        */
-        getRowElementByIndex(rowDisplayingIndex: number): HTMLElement;
-        /**
-         * Retrieves data cells for specified column (including wrappers)
-         *
-         * @param column Column desired data cells belongs to
-         * @returns HTML NodeList containing results
-         */
-        getColumnCellsElements(column: IColumn): NodeList;
-        /**
-         * Retrieves data cells for specified column (including wrappers) by column index
-         *
-         * @param column Column desired data cells belongs to
-         * @returns HTML NodeList containing results
-         */
-        getColumnCellsElementsByColumnIndex(columnIndex: number): NodeList;
-        /**
-         * Retrieves data cells for whole row (including wrapper)
-         *
-         * @param row Row with data cells
-         * @returns NodeList containing results
-         */
-        getRowCellsElements(row: IRow): NodeList;
-        /**
-         * Retrieves data cells for whole row (including wrapper)
-         *
-         * @param row Row with data cells
-         * @returns NodeList containing results
-         */
-        getRowCellsElementsByIndex(rowDisplayingIndex: number): NodeList;
-        /**
-         * Retrieves HTML element for column header (including wrapper)
-         *
-         * @param header Column header
-         * @returns HTML element
-         */
-        getHeaderElement(header: IColumnHeader): HTMLElement;
-        /**
-         * Retrieves HTML element for plugin (including wrapper)
-         *
-         * @param plugin Plugin
-         * @returns HTML element
-         */
-        getPluginElement(plugin: IPlugin): HTMLElement;
-        /**
-         * Retrieves HTML element for plugin (including wrapper)
-         *
-         * @param plugin Plugin
-         * @returns HTML element
-         */
-        getPluginElementsByPositionPart(placement: string): NodeList;
-        /**
-         * Determines if supplied element is table row
-         *
-         * @param e Testing element
-         * @returns {boolean} True when supplied element is row, false otherwise
-         */
-        isRow(e: HTMLElement): boolean;
-        /**
-         * Determines if supplied element is table cell
-         *
-         * @param e Testing element
-         * @returns {boolean} True when supplied element is cell, false otherwise
-         */
-        isCell(e: HTMLElement): boolean;
-    }
-}
-declare module PowerTables.Rendering {
-    /**
      * Enity responsible for displaying table
      */
     class Renderer implements ITemplatesProvider {
@@ -2569,954 +3460,68 @@ declare module PowerTables.Rendering {
 }
 declare module PowerTables {
     /**
-     * Main entry point for all tables functionality
-     */
-    class PowerTable implements IMasterTable {
+    * Helper class for producing track ids.
+    * You can use this class directly, but it is better to use it via @memberref PowerTables.PowerTable.Renderer.Rendering.Modifier instance
+    */
+    class TrackHelper {
         /**
-         * Constructs new instance of PowerTable object.
-         * Usually this method is being called automatically by .InitializationCode or .InitializationScript method,
-         * but you also could combine call of Configurator<>.JsonConfig and call of Lattice constructor
+         * Returns string track ID for cell
+         */
+        static getCellTrack(cell: ICell): string;
+        /**
+         * Returns string track ID for cell
+         */
+        static getCellTrackByIndexes(rowIndex: number, columnIndex: number): string;
+        /**
+         * Returns string track ID for plugin
+         */
+        static getPluginTrack(plugin: IPlugin): string;
+        /**
+         * Returns string track ID for plugin
+         */
+        static getPluginTrackByLocation(pluginLocation: string): string;
+        /**
+         * Returns string track ID for header
+         */
+        static getHeaderTrack(header: IColumnHeader): string;
+        /**
+         * Returns string track ID for header
+         */
+        static getHeaderTrackByColumnName(columnName: string): string;
+        /**
+         * Returns string track ID for row
+         */
+        static getRowTrack(row: IRow): string;
+        /**
+         * Returns string track ID for row
+         */
+        static getRowTrackByIndex(index: number): string;
+        /**
+         * Parses cell track to retrieve column and row index
          *
-         * @param configuration JSON configuration of whole table
+         * @param e HTML element containing cell with wrapper
+         * @returns {ICellLocation} Cell location
          */
-        constructor(configuration: Configuration.Json.ITableConfiguration);
-        private _isReady;
-        private bindReady();
-        private _configuration;
-        private initialize();
+        static getCellLocation(e: HTMLElement): ICellLocation;
         /**
-         * API for working with dates
-         */
-        Date: DateService;
-        /**
-         * Reloads table content.
-         * This method is left for backward compatibility
+         * Parses row track to retrieve row index
          *
-         * @returns {}
+         * @param e HTML element containing row with wrapper
+         * @returns {number} Row index
          */
-        reload(force: boolean): void;
-        /**
-         * API for raising and handling various table events
-         */
-        Events: EventsManager;
-        /**
-         * API for managing local data
-         */
-        DataHolder: DataHolder;
-        /**
-         * API for data loading
-         */
-        Loader: Loader;
-        /**
-         * API for rendering functionality
-         */
-        Renderer: Rendering.Renderer;
-        /**
-         * API for locating instances of different components
-         */
-        InstanceManager: InstanceManager;
-        /**
-         * API for overall workflow controlling
-         */
-        Controller: Controller;
-        /**
-         * API for table messages
-         */
-        MessageService: MessagesService;
-        /**
-         * Fires specified DOM event on specified element
-         *
-         * @param eventName DOM event id
-         * @param element Element is about to dispatch event
-         */
-        static fireDomEvent(eventName: string, element: HTMLElement): void;
-        proceedAdjustments(adjustments: PowerTables.Editors.IAdjustmentData): void;
-        getStaticData(): any;
-        setStaticData(obj: any): void;
-    }
-}
-declare module PowerTables.Plugins {
-    /**
-     * Base class for plugins.
-     * It contains necessary infrastructure for convinence of plugins creation
-     */
-    class PluginBase<TConfiguration> implements IPlugin {
-        init(masterTable: IMasterTable): void;
-        /**
-         * Raw plugin configuration
-         */
-        RawConfig: Configuration.Json.IPluginConfiguration;
-        /**
-         * Plugin location ID
-         */
-        PluginLocation: string;
-        /**
-         * Plugin's visual states collection.
-         * Usually it is not used, but always it is better to have one
-         */
-        VisualStates: PowerTables.Rendering.VisualState;
-        /**
-         * Plugin configuration object
-         */
-        protected Configuration: TConfiguration;
-        /**
-         * Reference to master table this plugin belongs to
-         */
-        MasterTable: IMasterTable;
-        /**
-         * Events subscription method.
-         * In derived class here should be subscription to various events
-         *
-         * @param e Events manager
-         */
-        protected subscribe(e: EventsManager): void;
-        /**
-         * In this method you can register any additional Handlebars.js helpers in case of your
-         * templates needs ones
-         *
-         * @param hb Handlebars instance
-         * @returns {}
-         */
-        protected registerAdditionalHelpers(hb: Handlebars.IHandlebars): void;
-        /**
-         * Function that is called after plugin is drawn
-         *
-         * @param e Event arguments
-         */
-        protected afterDrawn: (e: ITableEventArgs<any>) => void;
-        /**
-         * Plugin order among particular placement
-         */
-        Order: number;
-        /**
-         * Default render function using TemplateId from plugin configuration
-         * @param e Templates provider
-         * @returns content string
-         */
-        defaultRender(e: ITemplatesProvider): string;
-    }
-}
-declare module PowerTables.Filters {
-    /**
-     * Base class for creating filters
-     */
-    class FilterBase<T> extends PowerTables.Plugins.PluginBase<T> implements IQueryPartProvider, IClientFilter {
-        modifyQuery(query: IQuery, scope: QueryScope): void;
-        init(masterTable: IMasterTable): void;
-        /**
-         * Call this method inside init and override filterPredicate method to make this filter
-         * participate in client-side filtering
-         */
-        protected itIsClientFilter(): void;
-        filterPredicate(rowObject: any, query: IQuery): boolean;
-    }
-}
-declare module PowerTables.Plugins.Ordering {
-    class OrderingPlugin extends PowerTables.Filters.FilterBase<IOrderingConfiguration> {
-        private _clientOrderings;
-        private _serverOrderings;
-        private _boundHandler;
-        subscribe(e: EventsManager): void;
-        private overrideHeadersTemplates(columns);
-        private updateOrdering(columnName, ordering);
-        private specifyOrdering(object, ordering);
-        private isClient(columnName);
-        switchOrderingForColumn(columnName: string): void;
-        setOrderingForColumn(columnName: string, ordering: PowerTables.Ordering): void;
-        protected nextOrdering(currentOrdering: PowerTables.Ordering): Ordering;
-        private makeDefaultOrderingFunction(fieldName);
-        init(masterTable: IMasterTable): void;
-        private mixinOrderings(orderingsCollection, query);
-        modifyQuery(query: IQuery, scope: QueryScope): void;
-    }
-}
-declare module PowerTables.Plugins.Limit {
-    class LimitPlugin extends PowerTables.Filters.FilterBase<Plugins.Limit.ILimitClientConfiguration> {
-        SelectedValue: ILimitSize;
-        private _limitSize;
-        Sizes: ILimitSize[];
-        renderContent(templatesProvider: ITemplatesProvider): string;
-        changeLimitHandler(e: Rendering.ITemplateBoundEvent): void;
-        changeLimit(limit: number): void;
-        modifyQuery(query: IQuery, scope: QueryScope): void;
-        init(masterTable: IMasterTable): void;
-        private onColumnsCreation();
+        static getRowIndex(e: HTMLElement): number;
     }
     /**
-     * Size entry for limit plugin
+     * Interface describing cell location
      */
-    interface ILimitSize {
-        IsSeparator: boolean;
-        Value: number;
-        Label: string;
-    }
-}
-declare module PowerTables.Plugins.Paging {
-    class PagingPlugin extends PowerTables.Filters.FilterBase<Plugins.Paging.IPagingClientConfiguration> {
-        Pages: IPagesElement[];
-        Shown: boolean;
-        NextArrow: boolean;
-        PrevArrow: boolean;
-        private _selectedPage;
-        CurrentPage(): number;
-        TotalPages(): number;
-        PageSize(): number;
-        private _totalPages;
-        private _pageSize;
-        GotoInput: HTMLInputElement;
-        getCurrentPage(): number;
-        getTotalPages(): number;
-        getPageSize(): number;
-        private onFilterGathered(e);
-        private onColumnsCreation();
-        private onResponse(e);
-        private onClientDataProcessing(e);
-        goToPage(page: string): void;
-        gotoPageClick(e: Rendering.ITemplateBoundEvent): void;
-        navigateToPage(e: Rendering.ITemplateBoundEvent): void;
-        nextClick(e: Rendering.ITemplateBoundEvent): void;
-        previousClick(e: Rendering.ITemplateBoundEvent): void;
-        private constructPagesElements();
-        renderContent(templatesProvider: ITemplatesProvider): string;
-        validateGotopage(): void;
-        modifyQuery(query: IQuery, scope: QueryScope): void;
-        init(masterTable: IMasterTable): void;
-    }
-    interface IPagesElement {
-        Prev?: boolean;
-        Period?: boolean;
-        ActivePage?: boolean;
-        Page: number;
-        First?: boolean;
-        Last?: boolean;
-        Next?: boolean;
-        InActivePage?: boolean;
-        DisPage?: () => string;
-    }
-}
-declare module PowerTables.Filters.Value {
-    /**
-     * Client-side part of value filter
-     */
-    class ValueFilterPlugin extends PowerTables.Filters.FilterBase<Filters.Value.IValueFilterUiConfig> {
-        private _filteringIsBeingExecuted;
-        private _inpTimeout;
-        private _previousValue;
-        private _associatedColumn;
-        private _isInitializing;
+    interface ICellLocation {
         /**
-         * HTML element corresponding to <input/> tag this filter will retrieve value from
+         * Row index
          */
-        FilterValueProvider: HTMLInputElement;
+        RowIndex: number;
         /**
-         * Retrieves entered value. Could be either string or Date object depending on
-         * column associated within filter
+         * Column index
          */
-        getValue(): any;
-        /**
-        * @internal
-        */
-        handleValueChanged(): void;
-        /**
-        * @internal
-        */
-        renderContent(templatesProvider: ITemplatesProvider): string;
-        /**
-        * @internal
-        */
-        init(masterTable: IMasterTable): void;
-        /**
-        * @internal
-        */
-        filterPredicate(rowObject: any, query: IQuery): boolean;
-        /**
-        * @internal
-        */
-        modifyQuery(query: IQuery, scope: QueryScope): void;
-        /**
-        * @internal
-        */
-        afterDrawn: (e: any) => void;
-    }
-}
-declare module PowerTables.Filters.Range {
-    class RangeFilterPlugin extends PowerTables.Filters.FilterBase<Filters.Range.IRangeFilterUiConfig> {
-        private _filteringIsBeingExecuted;
-        private _inpTimeout;
-        private _fromPreviousValue;
-        private _toPreviousValue;
-        private _associatedColumn;
-        private _isInitializing;
-        FromValueProvider: HTMLInputElement;
-        ToValueProvider: HTMLInputElement;
-        private getFromValue();
-        private getToValue();
-        handleValueChanged(): void;
-        getFilterArgument(): string;
-        modifyQuery(query: IQuery, scope: QueryScope): void;
-        init(masterTable: IMasterTable): void;
-        renderContent(templatesProvider: ITemplatesProvider): string;
-        filterPredicate(rowObject: any, query: IQuery): boolean;
-        afterDrawn: (e: any) => void;
-    }
-}
-declare module PowerTables.Filters.Select {
-    /**
-     * Client-side implementation of Select filter
-     */
-    class SelectFilterPlugin extends PowerTables.Filters.FilterBase<Filters.Select.ISelectFilterUiConfig> {
-        /**
-         * HTML element of select list supplying values for select filter.
-         */
-        FilterValueProvider: HTMLSelectElement;
-        private _associatedColumn;
-        /**
-         * Retrieves selected values serialized with |-delimiter
-         */
-        getSerializedValue(): string;
-        /**
-         * Retrieves array of stringified selected values
-         */
-        getArrayValue(): string[];
-        /**
-         * @internal
-         */
-        modifyQuery(query: IQuery, scope: QueryScope): void;
-        /**
-         * @internal
-         */
-        renderContent(templatesProvider: ITemplatesProvider): string;
-        /**
-         * @internal
-         */
-        handleValueChanged(): void;
-        /**
-         * @internal
-         */
-        init(masterTable: IMasterTable): void;
-        /**
-         * @internal
-         */
-        filterPredicate(rowObject: any, query: IQuery): boolean;
-    }
-}
-declare module PowerTables.Plugins.Hideout {
-    interface IColumnState {
-        Visible: boolean;
-        RawName: string;
-        Name: string;
-        DoesNotExists: boolean;
-    }
-    class HideoutPlugin extends PluginBase<PowerTables.Plugins.Hideout.IHideoutPluginConfiguration> implements IQueryPartProvider {
-        ColumnStates: IColumnState[];
-        private _columnStates;
-        private _isInitializing;
-        isColumnVisible(columnName: string): boolean;
-        isColumnInstanceVisible(col: IColumn): boolean;
-        hideColumnByName(rawColname: string): void;
-        showColumnByName(rawColname: string): void;
-        toggleColumn(e: PowerTables.Rendering.ITemplateBoundEvent): void;
-        showColumn(e: PowerTables.Rendering.ITemplateBoundEvent): void;
-        hideColumn(e: PowerTables.Rendering.ITemplateBoundEvent): void;
-        toggleColumnByName(columnName: string): boolean;
-        modifyQuery(query: IQuery, scope: QueryScope): void;
-        hideColumnInstance(c: IColumn): void;
-        showColumnInstance(c: IColumn): void;
-        private onBeforeDataRendered();
-        private onDataRendered();
-        private onLayourRendered();
-        init(masterTable: IMasterTable): void;
-        renderContent(templatesProvider: ITemplatesProvider): string;
-        subscribe(e: EventsManager): void;
-        private ifColVisibleHelper(columnName, opts);
-        registerAdditionalHelpers(hb: Handlebars.IHandlebars): void;
-    }
-}
-declare module PowerTables.Plugins.ResponseInfo {
-    class ResponseInfoPlugin extends PluginBase<Plugins.ResponseInfo.IResponseInfoClientConfiguration> {
-        private _recentData;
-        private _recentServerData;
-        private _recentTemplate;
-        private _pagingEnabled;
-        private _pagingPlugin;
-        private _isServerRequest;
-        private _isReadyForRendering;
-        onResponse(e: ITableEventArgs<IDataEventArgs>): void;
-        onClientDataProcessed(e: ITableEventArgs<IClientDataResults>): void;
-        renderContent(templatesProvider: ITemplatesProvider): string;
-        init(masterTable: IMasterTable): void;
-    }
-}
-declare module PowerTables.Plugins.Total {
-    /**
-     * Client-side implementation of totals plugin
-     */
-    class TotalsPlugin extends PluginBase<Plugins.Total.ITotalClientConfiguration> {
-        private _totalsForColumns;
-        private makeTotalsRow();
-        /**
-        * @internal
-        */
-        onResponse(e: ITableEventArgs<IDataEventArgs>): void;
-        /**
-        * @internal
-        */
-        onClientRowsRendering(e: ITableEventArgs<IRow[]>): void;
-        /**
-        * @internal
-        */
-        private onAdjustments(e);
-        /**
-        * @internal
-        */
-        onClientDataProcessed(e: ITableEventArgs<IClientDataResults>): void;
-        /**
-        * @internal
-        */
-        subscribe(e: EventsManager): void;
-    }
-}
-declare module PowerTables.Plugins.Checkboxify {
-    class CheckboxifyPlugin extends PluginBase<Plugins.Checkboxify.ICheckboxifyClientConfig> implements IQueryPartProvider {
-        private _selectedItems;
-        private _visibleAll;
-        private _allSelected;
-        private _ourColumn;
-        ValueColumnName: string;
-        private _canSelectAll;
-        private _pagingPlugin;
-        private _selectables;
-        selectAll(selected?: boolean): void;
-        private redrawHeader();
-        private createColumn();
-        private canCheck(dataObject, row);
-        getSelection(): string[];
-        resetSelection(): void;
-        selectByRowIndex(rowIndex: number, select?: boolean): boolean;
-        selectByDataObject(dataObject: any, select?: boolean): boolean;
-        selectByPredicate(predicate: (dataObject: any) => boolean, select?: boolean): boolean;
-        private toggleInternal(dataObject, displayedIndex, select?);
-        private afterLayoutRender();
-        private beforeRowsRendering(e);
-        private enableSelectAll(enabled);
-        private onClientReload(e);
-        private onServerReload(e);
-        private applySelection(a);
-        private onBeforeAdjustments(e);
-        private onAfterAdjustments(e);
-        init(masterTable: IMasterTable): void;
-        modifyQuery(query: IQuery, scope: QueryScope): void;
-        static registerEvents(e: EventsManager, masterTable: IMasterTable): void;
-        subscribe(e: EventsManager): void;
-    }
-}
-declare module PowerTables.Plugins.Toolbar {
-    /**
-     * Client-side supply for Toolbar plugin
-     */
-    class ToolbarPlugin extends PluginBase<Plugins.Toolbar.IToolbarButtonsClientConfiguration> {
-        /**
-         * HTML elements of all buttons that are registered for usage within toolbar plugin. Key= internal button id, Value = HTML element corresponding to button
-         */
-        AllButtons: {
-            [id: number]: HTMLElement;
-        };
-        private _buttonsConfig;
-        /**
-         * Simulates event happened on particular button. Internal button id must be supplied as first member of @memberref PowerTables.Rendering.ITemplateBoundEvent.EventArguments
-         *
-         * @param e Template bound event for triggering button action
-         */
-        buttonHandleEvent(e: Rendering.ITemplateBoundEvent): void;
-        private redrawMe();
-        private handleButtonAction(btn);
-        renderContent(templatesProvider: ITemplatesProvider): string;
-        private traverseButtons(arr);
-        private onSelectionChanged(e);
-        init(masterTable: IMasterTable): void;
-    }
-}
-declare module PowerTables.Plugins.Formwatch {
-    class FormwatchPlugin extends PluginBase<PowerTables.Plugins.Formwatch.IFormwatchClientConfiguration> implements IQueryPartProvider {
-        private _existingValues;
-        private _filteringExecuted;
-        private _timeouts;
-        private static extractValueFromMultiSelect(o);
-        private static extractInputValue(element, fieldConf, dateService);
-        private static extractData(elements, fieldConf, dateService);
-        static extractFormData(configuration: PowerTables.Plugins.Formwatch.IFormwatchFieldData[], rootElement: any, dateService: DateService): {};
-        modifyQuery(query: IQuery, scope: QueryScope): void;
-        subscribe(e: EventsManager): void;
-        fieldChange(fieldSelector: string, delay: number, element: HTMLInputElement, e: Event): void;
-        init(masterTable: IMasterTable): void;
-    }
-}
-declare module PowerTables.Editors {
-    class Editor extends PowerTables.Plugins.PluginBase<PowerTables.Editors.IEditorUiConfig> implements IRow {
-        Cells: {
-            [key: string]: ICell;
-        };
-        DataObject: any;
-        IsSpecial: boolean;
-        Index: number;
-        private _mode;
-        private _activeEditors;
-        private _currentDataObjectModified;
-        private _isEditing;
-        private _validationMessages;
-        notifyChanged(editor: PowerTables.Editors.ICellEditor): void;
-        commitAll(): void;
-        private dispatchEditResponse(editResponse, then);
-        private sendDataObjectToServer(then);
-        commit(editor: PowerTables.Editors.ICellEditor): void;
-        redrawEditingRow(collectData: boolean): void;
-        redrawMe(editor: PowerTables.Editors.ICellEditor): void;
-        private cleanupAfterEdit();
-        rejectAll(): void;
-        private finishEditing(editor, redraw);
-        reject(editor: PowerTables.Editors.ICellEditor): void;
-        private retrieveEditorData(editor, errors?);
-        private retrieveAllEditorsData();
-        private ensureEditing(rowDisplayIndex);
-        private isEditable(column);
-        private createEditor(column, canComplete, isForm, isRow);
-        private beginCellEdit(column, rowIndex);
-        private beginRowEdit(rowIndex);
-        private setEditorValue(editor);
-        onBeforeClientRowsRendering(e: ITableEventArgs<IRow[]>): void;
-        onAfterDataRendered(e: any): void;
-        beginCellEditHandle(e: ICellEventArgs): void;
-        beginRowEditHandle(e: IRowEventArgs): void;
-        commitRowEditHandle(e: IRowEventArgs): void;
-        rejectRowEditHandle(e: IRowEventArgs): void;
-        beginFormEditHandle(e: IRowEventArgs): void;
-        commitFormEditHandle(e: IRowEventArgs): void;
-        rejectFormEditHandle(e: IRowEventArgs): void;
-        afterDrawn: (e: ITableEventArgs<any>) => void;
-    }
-}
-declare module PowerTables.Editors {
-    class CellEditorBase<T> extends PowerTables.Plugins.PluginBase<T> implements PowerTables.Editors.ICellEditor {
-        /**
-         * Is current editor valid (flag set by master editor)
-         */
-        IsValid: boolean;
-        /**
-         * True when field is single, false when multiple (e.g. row edit, form edit)
-         */
-        CanComplete: boolean;
-        /**
-         * True when cell editor is part of row edit, otherwise false
-         */
-        IsRowEdit: boolean;
-        /**
-         * True when cell editor is part of form edit, otherwise false
-         */
-        IsFormEdit: boolean;
-        /**
-         * Original, locally displayed data object
-         */
-        DataObject: any;
-        /**
-         * Value for particular editor column
-         */
-        Data: any;
-        /**
-         * Collection with editor's recent validation messages
-         */
-        ValidationMessages: IValidationMessage[];
-        renderedValidationMessages(): string;
-        /**
-         * Retrieves original value for this particular cell editor
-         *
-         * @returns {Any} Original, unchanged value
-         */
-        protected getThisOriginalValue(): any;
-        /**
-         * Resets editor value to initial settings
-         */
-        reset(): void;
-        /**
-         * Data object that is modified within editing process
-         */
-        ModifiedDataObject: any;
-        /**
-         * Reference to parent editor
-         */
-        Row: Editor;
-        /**
-         * Corresponding column
-         */
-        Column: IColumn;
-        /**
-         * Flag when initial value setting occures
-         */
-        IsInitialValueSetting: boolean;
-        /**
-         * Returns entered editor value
-         *
-         * @returns {}
-         */
-        getValue(errors: IValidationMessage[]): any;
-        /**
-         * Sets editor value from the outside
-         */
-        setValue(value: any): void;
-        /**
-         * Template-bound event raising on changing this editor's value
-         */
-        changedHandler(e: PowerTables.Rendering.ITemplateBoundEvent): void;
-        /**
-         * Event handler for commit (save edited, ok, submit etc) event raised from inside of CellEditor
-         * Commit leads to validation. Cell editor should be notified
-         */
-        commitHandler(e: PowerTables.Rendering.ITemplateBoundEvent): void;
-        /**
-         * Event handler for reject (cancel editing) event raised from inside of CellEditor
-         * Cell editor should be notified
-         */
-        rejectHandler(e: PowerTables.Rendering.ITemplateBoundEvent): void;
-        /**
-         * Called when cell editor has been drawn
-         *
-         * @param e HTML element where editor is rendered
-         * @returns {}
-         */
-        onAfterRender(e: HTMLElement): void;
-        /**
-         * Needed by editor in some cases
-         *
-         * @returns {}
-         */
-        focus(): void;
-        OriginalContent(): string;
-    }
-    interface ICellEditor extends IPlugin, ICell {
-        /**
-         * Plugin's visual states collection.
-         * Usually it is not used, but always it is better to have one
-         */
-        VisualStates: PowerTables.Rendering.VisualState;
-        /**
-         * Original, locally displayed data object
-         */
-        DataObject: any;
-        /**
-         * Data object that is modified within editing process
-         */
-        ModifiedDataObject: any;
-        /**
-         * Returns entered editor value
-         *
-         * @param errors Validation errors collection
-         * @returns {}
-         */
-        getValue(errors: IValidationMessage[]): any;
-        /**
-         * Sets editor value from the outside
-         */
-        setValue(value: any): void;
-        /**
-         * Corresponding column
-         */
-        Column: IColumn;
-        /**
-         * Resets editor value to initial settings
-         */
-        reset(): void;
-        /**
-         * True when field is single, false when multiple (e.g. row edit, form edit)
-         */
-        CanComplete: boolean;
-        /**
-         * True when cell editor is part of row edit, otherwise false
-         */
-        IsRowEdit: boolean;
-        /**
-         * True when cell editor is part of form edit, otherwise false
-         */
-        IsFormEdit: boolean;
-        /**
-         * Flag when initial value setting occures
-         */
-        IsInitialValueSetting: boolean;
-        /**
-        * Called when cell editor has been drawn
-        *
-        * @param e HTML element where editor is rendered
-        * @returns {}
-        */
-        onAfterRender(e: HTMLElement): void;
-        /**
-         * Is current editor valid (flag set by master editor)
-         */
-        IsValid: boolean;
-        /**
-         * Needed by editor in some cases
-         *
-         * @returns {}
-         */
-        focus(): void;
-        /**
-         * Collection with editor's recent validation messages
-         */
-        ValidationMessages: IValidationMessage[];
-    }
-    interface IValidationMessage {
-        Message: string;
-        Code: string;
-    }
-}
-declare module PowerTables.Editors.PlainText {
-    class PlainTextEditor extends PowerTables.Editors.CellEditorBase<PowerTables.Editors.PlainText.IPlainTextEditorUiConfig> {
-        Input: HTMLInputElement;
-        ValidationRegex: RegExp;
-        private _removeSeparators;
-        private _dotSeparators;
-        private _floatRegex;
-        private _formatFunction;
-        private _parseFunction;
-        getValue(errors: IValidationMessage[]): any;
-        setValue(value: any): void;
-        init(masterTable: IMasterTable): void;
-        private defaultParse(value, column, errors);
-        private defaultFormat(value, column);
-        changedHandler(e: PowerTables.Rendering.ITemplateBoundEvent): void;
-        renderContent(templatesProvider: ITemplatesProvider): string;
-        focus(): void;
-    }
-}
-declare module PowerTables.Editors.SelectList {
-    class SelectListEditor extends PowerTables.Editors.CellEditorBase<PowerTables.Editors.SelectList.ISelectListEditorUiConfig> {
-        List: HTMLSelectElement;
-        Items: System.Web.Mvc.ISelectListItem[];
-        SelectedItem: System.Web.Mvc.ISelectListItem;
-        getValue(errors: PowerTables.Editors.IValidationMessage[]): any;
-        setValue(value: any): void;
-        onStateChange(e: PowerTables.Rendering.IStateChangedEvent): void;
-        init(masterTable: IMasterTable): void;
-        renderContent(templatesProvider: ITemplatesProvider): string;
-        onAfterRender(e: HTMLElement): void;
-        changedHandler(e: PowerTables.Rendering.ITemplateBoundEvent): void;
-        focus(): void;
-    }
-}
-declare module PowerTables.Plugins.LoadingOverlap {
-    class LoadingOverlapPlugin extends PluginBase<PowerTables.Plugins.LoadingOverlap.ILoadingOverlapUiConfig> {
-        private _overlappingElement;
-        private _overlapLayer;
-        private _isOverlapped;
-        private overlapAll();
-        private createOverlap(efor, templateId);
-        private updateCoords(overlapLayer, overlapElement);
-        private updateCoordsAll();
-        private deoverlap();
-        private onBeforeLoading(e);
-        afterDrawn: (e: ITableEventArgs<any>) => void;
-    }
-}
-declare module PowerTables.Editors.Check {
-    class CheckEditor extends PowerTables.Editors.CellEditorBase<PowerTables.Editors.Check.ICheckEditorUiConfig> {
-        FocusElement: HTMLElement;
-        private _value;
-        renderContent(templatesProvider: ITemplatesProvider): string;
-        changedHandler(e: PowerTables.Rendering.ITemplateBoundEvent): void;
-        private updateState();
-        getValue(errors: PowerTables.Editors.IValidationMessage[]): any;
-        setValue(value: any): void;
-        focus(): void;
-    }
-}
-declare module PowerTables.Editors.Memo {
-    class MemoEditor extends PowerTables.Editors.CellEditorBase<PowerTables.Editors.Memo.IMemoEditorUiConfig> {
-        TextArea: HTMLInputElement;
-        MaxChars: number;
-        CurrentChars: number;
-        Rows: number;
-        WarningChars: number;
-        Columns: number;
-        init(masterTable: IMasterTable): void;
-        changedHandler(e: PowerTables.Rendering.ITemplateBoundEvent): void;
-        setValue(value: any): void;
-        getValue(errors: PowerTables.Editors.IValidationMessage[]): any;
-        renderContent(templatesProvider: ITemplatesProvider): string;
-        focus(): void;
-    }
-}
-declare module PowerTables.Plugins.Toolbar {
-    /**
-     * Backing class for confirmation panel created as part of button action
-     */
-    class CommandConfirmation {
-        /**
-         * @internal
-         */
-        constructor(confirm: (form: any) => void, reject: () => void, date: DateService, autoform: PowerTables.Plugins.Formwatch.IFormwatchFieldData[]);
-        private _autoform;
-        private _confirm;
-        private _reject;
-        private _date;
-        private _beforeConfirm;
-        /**
-         * @internal
-         */
-        AfterConfirm: ((form: any) => void)[];
-        private _beforeReject;
-        /**
-         * @internal
-         */
-        AfterReject: ((form: any) => void)[];
-        /**
-         * @internal
-         */
-        AfterConfirmationResponse: ((form: any) => void)[];
-        /**
-         * @internal
-         */
-        ConfirmationResponseError: ((form: any) => void)[];
-        /**
-         * Set of form values (available only after window is commited or dismissed)
-         */
-        Form: any;
-        /**
-         * Reference to root element of confirmation window
-         */
-        RootElement: HTMLElement;
-        /**
-         * Set of selected item keys defined in corresponding Checboxify plugin
-         */
-        SelectedItems: string[];
-        /**
-         * Set of selected corresponding objects selected by checkboxify plugin
-         */
-        SelectedObjects: any[];
-        /**
-         * @internal
-         */
-        onRender(parent: HTMLElement): void;
-        /**
-         * @internal
-         */
-        fireEvents(form: any, array: ((form: any) => void)[]): void;
-        private collectFormData();
-        /**
-         * Commits confirmation form, collects form, destroys confirmation panel element and proceeds server command, fires corresponding events
-         */
-        confirm(): void;
-        /**
-         * Destroys confirmation panel element, collects form, does not send anything to server, fires corresponding events
-         */
-        dismiss(): void;
-        /**
-         * Subscribes specified function to be invoked after pressing confirm button (or calling confirm method) but before processing
-         * @param fn Function that consumes form data
-         */
-        onBeforeConfirm(fn: (form: any) => void): void;
-        /**
-         * Subscribes specified function to be invoked after pressing confirm button and client-side form processing (it is possible to add something to form)
-         * but before sending data to server
-         * @param fn Function that consumes form data
-         */
-        onAfterConfirm(fn: (form: any) => void): void;
-        /**
-         * Subscribes specified function to be invoked after pressing reject button (or calling reject method) but before processing
-         * @param fn Function that consumes form data
-         */
-        onBeforeReject(fn: (form: any) => void): void;
-        /**
-         * Subscribes specified function to be invoked after pressing reject button (or calling reject method) but before processing
-         * @param fn Function that consumes form data
-         */
-        onAfterReject(fn: (form: any) => void): void;
-        onAfterConfirmationResponse(fn: (form: any) => void): void;
-        onConfirmationResponseError(fn: (form: any) => void): void;
-    }
-}
-declare module PowerTables {
-    /**
-     * Class responsible for handling of table messages. It handles internally thrown messages as well as
-     * user's ones
-     */
-    class MessagesService {
-        constructor(usersMessageFn: (msg: ITableMessage) => void, instances: InstanceManager, dataHolder: DataHolder, controller: Controller);
-        private _usersMessageFn;
-        private _instances;
-        private _dataHolder;
-        private _controller;
-        /**
-         * Shows table message according to its settings
-         * @param message Message of type ITableMessage
-         * @returns {}
-         */
-        showMessage(message: ITableMessage): void;
-        private showTableMessage(tableMessage);
-    }
-}
-declare module PowerTables.Plugins.Reload {
-    class ReloadPlugin extends PowerTables.Plugins.PluginBase<PowerTables.Plugins.Reload.IReloadUiConfiguration> {
-        private _renderedExternally;
-        private _externalReloadBtn;
-        private _ready;
-        triggerReload(): void;
-        renderContent(templatesProvider: ITemplatesProvider): string;
-        startLoading(): void;
-        stopLoading(): void;
-        subscribe(e: EventsManager): void;
-        init(masterTable: IMasterTable): void;
-        afterDrawn: (e: ITableEventArgs<any>) => void;
-    }
-}
-declare module PowerTables.Plugins.Loading {
-    class LoadingPlugin extends PluginBase<any> implements ILoadingPlugin {
-        BlinkElement: HTMLElement;
-        subscribe(e: EventsManager): void;
-        showLoadingIndicator(): void;
-        hideLoadingIndicator(): void;
-        static Id: string;
-        renderContent(templatesProvider: ITemplatesProvider): string;
-    }
-    /**
-     * Loading indicator plugin.
-     * Plugin Id: Loading
-     */
-    interface ILoadingPlugin {
-        /**
-         * Shows loading indicator
-         */
-        showLoadingIndicator(): void;
-        /**
-         * Hides loading indicator
-         */
-        hideLoadingIndicator(): void;
-    }
-}
-declare module PowerTables.Plugins.RowAction {
-    class RowAction extends PowerTables.Plugins.PluginBase<any> {
-    }
-}
-declare module PowerTables.Plugins.Hierarchy {
-    class HierarchyPlugin extends PluginBase<IHierarchyUiConfiguration> implements IClientFilter {
-        expandSubtree(args: IRowEventArgs): void;
-        collapseSubtree(args: IRowEventArgs): void;
-        toggleSubtree(args: IRowEventArgs): void;
-        toggleSubtreeByObject(dataObject: any, turnOpen?: boolean, index?: number): void;
-        private expand(dataObject, index);
-        private toggleVisibleRec(dataObject);
-        private collapse(dataObject, index);
-        private collapseChildren(dataObject);
-        init(masterTable: IMasterTable): void;
-        private hierarchicalOrder(a, b);
-        private refilterStoredData();
-        private _hierarchyFiltered;
-        private stackOrder(data);
-        private recalculateSubtreeReferences(e);
-        private _isFunctionsStolen;
-        private _stolenFilterFunctions;
-        private stealFilterFunctions();
-        private onAfterClientDataProcessing(e);
-        subscribe(e: EventsManager): void;
-        private onAfterLayoutRendered();
-        filterPredicate(rowObject: any, query: IQuery): boolean;
-        private onBeforeClientDataProcessing();
+        ColumnIndex: number;
     }
 }

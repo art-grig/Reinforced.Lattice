@@ -36,6 +36,14 @@
             this._queryPartProviders.push(provider);
         }
 
+        public prefetchData(data: any[]) {
+            var query = this.gatherQuery(QueryScope.Client);
+            this._dataHolder.storeResponse(<any>{
+                Data:data
+            }, query);
+            this._previousQueryString = JSON.stringify(query);
+        }
+        
         private gatherQuery(queryScope: QueryScope): IQuery {
             var a: IQuery = {
                 Paging: {

@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -456,6 +459,34 @@ namespace PowerTables.Configuration
             conf.ColumnConfiguration.ClientValueFunction = string.IsNullOrEmpty(clientValueFunction) ? null : new JRaw(clientValueFunction);
             return conf;
         }
+
+        /// <summary>
+        /// Sets up data that is embedded to configuration and will be automatically displayed after table is rendered
+        /// </summary>
+        /// <param name="configurator"></param>
+        /// <param name="data">Data to embed to configuration</param>
+        /// <returns></returns>
+        public static Configurator<TSource, TData> Prefetch<TSource, TData>(this Configurator<TSource, TData> configurator, IEnumerable<TSource> data) where TData : new()
+        {
+            var mapped = configurator.MapRange(data);
+            configurator.TableConfiguration.PrefetchedData = configurator.EncodeResults(mapped,mapped.Length);
+            return configurator;
+        }
+
+
+        /// <summary>
+        /// Sets up data that is embedded to configuration and will be automatically displayed after table is rendered
+        /// </summary>
+        /// <param name="configurator"></param>
+        /// <param name="data">Data to embed to configuration</param>
+        /// <returns></returns>
+        public static Configurator<TSource, TData> Prefetch<TSource, TData>(this Configurator<TSource, TData> configurator, IQueryable<TSource> data) where TData : new()
+        {
+            var mapped = configurator.MapRange(data);
+            configurator.TableConfiguration.PrefetchedData = configurator.EncodeResults(mapped, mapped.Length);
+            return configurator;
+        }
+
 
     }
 }

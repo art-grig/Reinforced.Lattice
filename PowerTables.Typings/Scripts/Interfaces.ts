@@ -57,6 +57,8 @@ module PowerTables.Configuration.Json {
 		*             Function type is (query:IPowerTableRequest,scope:QueryScope,continueFn:any) =&gt; void
 		*/
 		QueryConfirmation: (query:IPowerTableRequest,scope:QueryScope,continueFn:any) => void;
+		/** Gets or sets table prefetched data */
+		PrefetchedData: any[];
 	}
 	/** Table column JSON configuration */
 	export interface IColumnConfiguration
@@ -717,7 +719,9 @@ module PowerTables.Plugins.Hierarchy {
 	/** Client-side configuration of hierarchy plugin */
 	export interface IHierarchyUiConfiguration
 	{
+		/** Gets or sets expansion behavior. Options are - to load collapsed nodes contents from server-side everywhere or try to fetch from local cache */
 		ExpandBehavior: PowerTables.Plugins.Hierarchy.NodeExpandBehavior;
+		/** Gets or sets tree filtering behavior. Setting this option to ExcludeCollapsed will disallow searching inside collapsed nodes */
 		CollapsedNodeFilterBehavior: PowerTables.Plugins.Hierarchy.TreeCollapsedNodeFilterBehavior;
 	}
 	/** Controls policy of nodes collapsing and expanding */

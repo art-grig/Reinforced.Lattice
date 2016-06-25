@@ -120,6 +120,11 @@ namespace PowerTables.Configuration.Json
             Subscriptions = new List<ConfiguredSubscriptionInfo>();
         }
 
+        /// <summary>
+        /// Gets or sets table prefetched data
+        /// </summary>
+        public object[] PrefetchedData { get; internal set; }
+
     }
 
     /// <summary>

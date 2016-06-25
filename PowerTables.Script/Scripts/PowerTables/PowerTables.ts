@@ -70,15 +70,20 @@ module PowerTables {
                 this._configuration.CallbackFunction(this);
             }
             this.InstanceManager._subscribeConfiguredEvents();
-            if (this._configuration.LoadImmediately) {
-                this.Controller.reload();
+            if (this._configuration.PrefetchedData != null && this._configuration.PrefetchedData.length > 0) {
+                this.Loader.prefetchData(this._configuration.PrefetchedData);
+                this.Controller.redrawVisibleData();
             } else {
-                this.MessageService.showMessage({
-                    Class: 'initial',
-                    Title: 'No filtering specified',
-                    Details: 'To retrieve query results please specify several filters',
-                    Type: MessageType.Banner
-                });
+                if (this._configuration.LoadImmediately) {
+                    this.Controller.reload();
+                } else {
+                    this.MessageService.showMessage({
+                        Class: 'initial',
+                        Title: 'No filtering specified',
+                        Details: 'To retrieve query results please specify several filters',
+                        Type: MessageType.Banner
+                    });
+                }
             }
         }
 
