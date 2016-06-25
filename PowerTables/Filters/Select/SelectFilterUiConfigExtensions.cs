@@ -105,6 +105,7 @@ namespace PowerTables.Filters.Select
                         "Cannot find item in list with value '{0}' to make it default", value));
                 }
             }
+            config.Configuration.SelectedValue = ValueConverter.ToFilterDefaultString(value);
             return config;
         }
 
@@ -114,7 +115,7 @@ namespace PowerTables.Filters.Select
         /// <param name="config">Configuration</param>
         /// <param name="selectValue">Filter default value</param>
         /// <returns>Fluent</returns>
-        public static ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn> SelectDefault<TColumn>(this ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn> config, TColumn selectValue) where TColumn : class
+        public static ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn> SelectDefault<TColumn>(this ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn> config, TColumn selectValue)
         {
             config.RawDefault(ValueConverter.ToFilterDefaultString(selectValue));
             return config;

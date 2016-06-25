@@ -19,6 +19,7 @@ using PowerTables.Filters.Value;
 using PowerTables.Plugins.Checkboxify;
 using PowerTables.Plugins.Formwatch;
 using PowerTables.Plugins.Hideout;
+using PowerTables.Plugins.Hierarchy;
 using PowerTables.Plugins.Limit;
 using PowerTables.Plugins.LoadingOverlap;
 using PowerTables.Plugins.Ordering;
@@ -158,6 +159,9 @@ namespace PowerTables.Typings
             builder.ExportAsInterface<ConfiguredSubscriptionInfo>()
                 .WithPublicProperties()
                 .WithProperty(c => c.Handler, c => c.Type("(dataObject:any, originalEvent:any) => void"));
+
+            builder.ExportAsInterface<HierarchyUiConfiguration>().WithPublicProperties();
+            builder.ExportAsEnums(new[] { typeof(NodeExpandBehavior), typeof(TreeFilteringScope), typeof(TreeCollapsedNodeFilterBehavior) });
         }
 
     }

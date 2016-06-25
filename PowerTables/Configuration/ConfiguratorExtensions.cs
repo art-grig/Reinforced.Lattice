@@ -346,20 +346,33 @@ namespace PowerTables.Configuration
         /// event via events delegator
         /// </summary>
         /// <param name="conf">Table configurator</param>
-        /// <param name="eventId">DOM event ID. You can use clas DomEvent here</param>
-        /// <param name="handler">Handler function that supplies data object as first parameter and row element as second one (inline function or function name)</param>
-        /// <param name="selctor">(Optional) Selector of element triggering event (relative to row)</param>
+        /// <param name="subscription">Event subscription configuration</param>
         /// <returns></returns>
         public static Configurator<TSourceData, TTableData> SubscribeRowEvent<TSourceData, TTableData>
-            (this Configurator<TSourceData, TTableData> conf, string eventId, string handler, string selctor = null) where TTableData : new()
+            (this Configurator<TSourceData, TTableData> conf, Action<TableEventSubscription> subscription) where TTableData : new()
         {
-            conf.TableConfiguration.Subscriptions.Add(new ConfiguredSubscriptionInfo()
-            {
-                IsRowSubscription = true,
-                DomEvent = eventId,
-                Handler = new JRaw(handler),
-                Selector = selctor
-            });
+            TableEventSubscription sub = new TableEventSubscription();
+            sub.SubscriptionInfo.IsRowSubscription = true;
+            subscription(sub);
+            conf.TableConfiguration.Subscriptions.Add(sub.SubscriptionInfo);
+            return conf;
+        }
+
+
+        /// <summary>
+        /// Subscribes event handler of DOM event occured on each row. 
+        /// Please use this function to subscribe row events instead of template bindings or onclick to 
+        /// improve event handling time and reduce RAM usage. This method actually makes table to subscribe row 
+        /// event via events delegator
+        /// </summary>
+        /// <param name="conf">Table configurator</param>
+        /// <param name="subscription">Event subscription</param>
+        /// <returns></returns>
+        public static Configurator<TSourceData, TTableData> SubscribeRowEvent<TSourceData, TTableData>
+            (this Configurator<TSourceData, TTableData> conf, TableEventSubscription subscription) where TTableData : new()
+        {
+            subscription.SubscriptionInfo.IsRowSubscription = true;
+            conf.TableConfiguration.Subscriptions.Add(subscription.SubscriptionInfo);
             return conf;
         }
 
@@ -370,21 +383,34 @@ namespace PowerTables.Configuration
         /// event via events delegator
         /// </summary>
         /// <param name="conf">Table configurator</param>
-        /// <param name="eventId">DOM event ID. You can use clas DomEvent here</param>
-        /// <param name="handler">Handler function that supplies data object as first parameter and row element as second one (inline function or function name)</param>
-        /// <param name="selctor">(Optional) Selector of element triggering event (relative to cell)</param>
+        /// <param name="subscription">Event subscription configuration</param>
         /// <returns></returns>
         public static ColumnUsage<TSourceData, TTableData, TColumn> SubscribeCellEvent<TSourceData, TTableData, TColumn>
-            (this ColumnUsage<TSourceData, TTableData, TColumn> conf, string eventId, string handler, string selctor = null) where TTableData : new()
+            (this ColumnUsage<TSourceData, TTableData, TColumn> conf, Action<TableEventSubscription> subscription) where TTableData : new()
         {
-            conf.TableConfigurator.TableConfiguration.Subscriptions.Add(new ConfiguredSubscriptionInfo()
-            {
-                IsRowSubscription = false,
-                ColumnName = conf.ColumnProperty.Name,
-                DomEvent = eventId,
-                Handler = new JRaw(handler),
-                Selector = selctor
-            });
+            TableEventSubscription sub = new TableEventSubscription();
+            sub.SubscriptionInfo.IsRowSubscription = false;
+            sub.SubscriptionInfo.ColumnName = conf.ColumnProperty.Name;
+
+            subscription(sub);
+            conf.TableConfigurator.TableConfiguration.Subscriptions.Add(sub.SubscriptionInfo);
+            return conf;
+        }
+
+        /// <summary>
+        /// Subscribes event handler of DOM event occured on each cell of this column (without headers)
+        /// Please use this function to subscribe cell events instead of template bindings or onclick to 
+        /// improve event handling time and reduce RAM usage. This method actually makes table to subscribe cell 
+        /// event via events delegator
+        /// </summary>
+        /// <param name="conf">Table configurator</param>
+        /// <param name="subscription">Event subscription</param>
+        /// <returns></returns>
+        public static ColumnUsage<TSourceData, TTableData, TColumn> SubscribeCellEvent<TSourceData, TTableData, TColumn>
+            (this ColumnUsage<TSourceData, TTableData, TColumn> conf, TableEventSubscription subscription) where TTableData : new()
+        {
+            subscription.SubscriptionInfo.IsRowSubscription = false;
+            conf.TableConfigurator.TableConfiguration.Subscriptions.Add(subscription.SubscriptionInfo);
             return conf;
         }
 

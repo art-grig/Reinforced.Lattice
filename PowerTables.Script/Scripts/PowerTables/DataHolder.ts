@@ -55,6 +55,15 @@
             this._filters.push(filter);
         }
 
+        public getClientFilters(): IClientFilter[] {
+            return this._filters;
+        }
+
+        public clearClientFilters() {
+            this._anyClientFiltration = false;
+            this._filters = [];
+        }
+
         /**
          * Registers new client ordering comparer function
          * 
@@ -62,10 +71,13 @@
          * @param comparator Comparator fn that should return 0 if entries are equal, -1 if a<b, +1 if a>b
          * @returns {} 
          */
-        public registerClientOrdering(dataField: string, comparator: (a: any, b: any) => number): void {
+        public registerClientOrdering(dataField: string, comparator: (a: any, b: any) => number, mandatory: boolean = false): void {
             this._anyClientFiltration = true;
             this._comparators[dataField] = comparator;
+            if (mandatory) this._manadatoryOrderings.push(dataField);
         }
+
+        private _manadatoryOrderings: string[] = [];
 
         private isClientFiltrationPending(): boolean {
             return (this.EnableClientSkip || this.EnableClientTake || this._anyClientFiltration);
@@ -106,6 +118,7 @@
         }
 
 
+        //#region Client processing
 
         /**
          * Client query that was used to obtain recent local data set
@@ -154,7 +167,7 @@
 
                 for (var i: number = 0; i < this._rawColumnNames.length; i++) {
                     var orderingKey: string = this._rawColumnNames[i];
-                    if (query.Orderings.hasOwnProperty(orderingKey)) {
+                    if (query.Orderings.hasOwnProperty(orderingKey) || (this._manadatoryOrderings.indexOf(orderingKey) >= 0)) {
                         var orderingDirection: Ordering = query.Orderings[orderingKey];
                         if (orderingDirection === Ordering.Neutral) continue;
                         if (!this._comparators[orderingKey]) continue;
@@ -177,6 +190,26 @@
             return objects;
         }
 
+        private skipTakeSet(ordered: any[], query: IQuery): any[] {
+            var selected = ordered;
+            var startingIndex: number = query.Paging.PageIndex * query.Paging.PageSize;
+            if (startingIndex > ordered.length) startingIndex = 0;
+            var take: number = query.Paging.PageSize;
+            if (this.EnableClientSkip && this.EnableClientTake) {
+                if (take === 0) selected = ordered.slice(startingIndex);
+                else selected = ordered.slice(startingIndex, startingIndex + take);
+            } else {
+                if (this.EnableClientSkip) {
+                    selected = ordered.slice(startingIndex);
+                } else if (this.EnableClientTake) {
+                    if (take !== 0) {
+                        selected = ordered.slice(0, query.Paging.PageSize);
+                    }
+                }
+            }
+            return selected;
+        }
+
         /**
          * Part of data currently displayed without ordering and paging
          */
@@ -185,7 +218,7 @@
         /**
          * Part of data currently displayed without paging
          */
-        public  Ordered: any[];
+        public Ordered: any[];
 
         /**
          * Filter recent data and store it to currently displaying data
@@ -206,27 +239,10 @@
                 var copy: any[] = this.StoredData.slice();
                 var filtered: any[] = this.filterSet(copy, query);
                 var ordered: any[] = this.orderSet(filtered, query);
-                var selected: any[] = ordered;
-
-                var startingIndex: number = query.Paging.PageIndex * query.Paging.PageSize;
-                if (startingIndex > filtered.length) startingIndex = 0;
-                var take: number = query.Paging.PageSize;
-                if (this.EnableClientSkip && this.EnableClientTake) {
-                    if (take === 0) selected = ordered.slice(startingIndex);
-                    else selected = ordered.slice(startingIndex, startingIndex + take);
-                } else {
-                    if (this.EnableClientSkip) {
-                        selected = ordered.slice(startingIndex);
-                    } else if (this.EnableClientTake) {
-                        if (take !== 0) {
-                            selected = ordered.slice(0, query.Paging.PageSize);
-                        }
-                    }
-                }
+                var selected: any[] = this.skipTakeSet(ordered, query);
 
                 this.Filtered = filtered;
                 this.Ordered = ordered;
-
                 this.DisplayedData = selected;
             }
 
@@ -238,6 +254,7 @@
             });
         }
 
+
         /**
          * Filter recent data and store it to currently displaying data 
          * using query that was previously applied to local data         
@@ -245,6 +262,10 @@
         public filterStoredDataWithPreviousQuery() {
             this.filterStoredData(this.RecentClientQuery);
         }
+
+        //#endregion
+
+        //#region Lookups
 
         /**
          * Finds data matching predicate among locally stored data
@@ -396,6 +417,9 @@
             return result;
         }
 
+        //#endregion
+
+        //#region Adjustments
 
         private copyData(source: any, target: any): string[] {
             var modColumns = [];
@@ -486,6 +510,7 @@
                 TouchedColumns: touchedColumns
             }
         }
+        //#endregion
     }
 
     export interface IAdjustmentResult {

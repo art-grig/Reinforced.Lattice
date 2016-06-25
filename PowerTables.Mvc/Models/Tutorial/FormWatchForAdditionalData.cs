@@ -23,7 +23,7 @@ namespace PowerTables.Mvc.Models.Tutorial
             conf.LoadingOverlap(ui => ui.Overlap("#searchForm"));
             conf.Column(c => c.Name)
                 .Template(tpl => tpl.Returns(a => a.Tag("span").Css("color", "blue").Css("cursor", "pointer").Content("{Name}")))
-                .SubscribeCellEvent("click", "objectEventHandler");
+                .SubscribeCellEvent(c => c.Handle("click", "objectEventHandler"));
 
             conf.Column(c => c.Preorders)
                 .Template(tpl => tpl.Returns(a => a.Tag("span").Css("background-color", "aliceblue").Css("cursor", "pointer").Content("{Preorders}").Class("moveme")));
@@ -34,11 +34,11 @@ namespace PowerTables.Mvc.Models.Tutorial
                         tpl.Returns(
                             a =>
                                 a.Tag("span").Content("`{Price}.toFixed(2)` ")
-                                .After(b => b.Tag("button").Class("btn btn-xs btn-info").Data("clickme","true").Content("Click me"))))
-                                .SubscribeCellEvent("mousemove", "selectorEventHandler", "[data-clickme]");
+                                .After(b => b.Tag("button").Class("btn btn-xs btn-info").Data("clickme", "true").Content("Click me"))))
+                                .SubscribeCellEvent(c => c.Handle("mousemove", "selectorEventHandler").Selector("[data-clickme]"));
 
-            conf.SubscribeRowEvent("click", "rowEventHandler");
-            conf.SubscribeRowEvent("click", "rowSelectorEventHandler", ".moveme");
+            conf.SubscribeRowEvent(c => c.Handle("click", "rowEventHandler"));
+            conf.SubscribeRowEvent(c => c.Handle("click", "rowSelectorEventHandler").Selector(".moveme"));
 
             return conf;
         }

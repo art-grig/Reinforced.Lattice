@@ -214,8 +214,7 @@
                 if (sub.IsRowSubscription) {
                     var h = (function(hndlr) {
                         return function(e: IRowEventArgs) {
-                            var obj = ths._masterTable.DataHolder.localLookupDisplayedData(e.DisplayingRowIndex);
-                            hndlr(obj.DataObject, e.OriginalEvent);
+                            hndlr(e);
                         }
                     })(sub.Handler);
                     delegator.subscribeRowEvent({
@@ -225,12 +224,10 @@
                         SubscriptionId: 'configured-row-' + i
                     });
                 } else {
-                    var colIdx = columns.indexOf(sub.ColumnName);
                     var h2 = (function (hndlr,im:InstanceManager,colName) {
                         return function (e: ICellEventArgs) {
                             if (im.getUiColumnNames().indexOf(colName) !== e.ColumnIndex) return;
-                            var obj = ths._masterTable.DataHolder.localLookupDisplayedData(e.DisplayingRowIndex);
-                            hndlr(obj.DataObject, e.OriginalEvent);
+                            hndlr(e);
                         }
                     })(sub.Handler, this._masterTable.InstanceManager,sub.ColumnName);
                     delegator.subscribeCellEvent({

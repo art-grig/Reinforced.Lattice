@@ -81,6 +81,7 @@
     <Compile Include="CellTemplating\TemplatesExtensions.cs" />
     <Compile Include="Configuration\ConfiguratorExtensions.cs" />
     <Compile Include="Configuration\DatepickerOptions.cs" />
+    <Compile Include="Configuration\EventSubscriptionWrapper.cs" />
     <Compile Include="Configuration\IColumnConfigurator.cs" />
     <Compile Include="Configuration\IColumnTargetProperty.cs" />
     <Compile Include="Configuration\IConfigurator.cs" />
@@ -156,6 +157,10 @@
     <Compile Include="Plugins\Hideout\HideoutPluginConfiguration.cs" />
     <Compile Include="Plugins\Hideout\HideoutExtensions.cs" />
     <Compile Include="Plugins\Hideout\HideoutTemplateRegion.cs" />
+    <Compile Include="Plugins\Hierarchy\HierarchyChildrenResult.cs" />
+    <Compile Include="Plugins\Hierarchy\HierarchyExtensions.cs" />
+    <Compile Include="Plugins\Hierarchy\HierarchyUiConfiguration.cs" />
+    <Compile Include="Plugins\Hierarchy\IHierarchyItem.cs" />
     <Compile Include="Plugins\IProvidesColumnName.cs" />
     <Compile Include="Plugins\IProvidesTemplate.cs" />
     <Compile Include="Plugins\Limit\LimitPluginExtensions.cs" />

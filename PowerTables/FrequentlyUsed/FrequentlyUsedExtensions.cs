@@ -151,6 +151,38 @@ namespace PowerTables.FrequentlyUsed
 
         }
 
+        /// <summary>
+        /// Shortcut for creating multi-select filter for boolean value
+        /// </summary>
+        /// <typeparam name="TSourceData"></typeparam>
+        /// <typeparam name="TTableData"></typeparam>
+        /// <param name="column">Column configuration</param>
+        /// <param name="trueText">Text for true</param>
+        /// <param name="falseText">Text for false</param>
+        /// <param name="bothText">Text for both value (a.k.a. "not matter")</param>
+        /// <param name="allowBoth">Allow "not matter" case or not</param>
+        /// <returns>Value filter</returns>
+        public static void
+            FilterBooleanUi
+            <TSourceData, TTableData>(
+            this ColumnUsage<TSourceData, TTableData, bool> column,
+            string trueText, string falseText, string bothText = null, bool allowBoth = true,
+            Action<ColumnPluginConfigurationWrapper<SelectFilterUiConfig, bool>> ui = null
+            ) where TTableData : new()
+        {
+            var items = new[]
+            {
+                new SelectListItem {Text = trueText,Value = "True"}, 
+                new SelectListItem {Text = falseText,Value = "False"} 
+            };
+
+            column.FilterSelectUi(v =>
+            {
+                v.SelectAny(allowBoth, bothText).SelectItems(items);
+                if (ui != null) ui(v);
+            });
+        }
+
         private static void DoDateFormatColumnUsage<TSourceData, TTableData, TTableColumn>(ColumnUsage<TSourceData, TTableData, TTableColumn> col, string format = null, bool utc = false) where TTableData : new()
         {
             col.Template(

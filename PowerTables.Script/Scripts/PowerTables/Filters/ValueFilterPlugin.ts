@@ -21,6 +21,9 @@
          * column associated within filter
          */
         public getValue() {
+            if (this._associatedColumn.Configuration.IsDataOnly && this.Configuration.DefaultValue) {
+                return this.Configuration.DefaultValue;
+            }
             if (!this.FilterValueProvider) return '';
             if (this._associatedColumn.IsDateTime) {
                 return this.MasterTable.Date.serialize(this.MasterTable.Date.getDateFromDatePicker(this.FilterValueProvider));

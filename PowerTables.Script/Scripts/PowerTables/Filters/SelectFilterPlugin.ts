@@ -15,6 +15,9 @@
          * Retrieves selected values serialized with |-delimiter
          */
         public getSerializedValue(): string {
+            if (this._associatedColumn.Configuration.IsDataOnly && this.Configuration.SelectedValue) {
+                return this.Configuration.SelectedValue;
+            }
             return this.getArrayValue().join('|');
         }
 

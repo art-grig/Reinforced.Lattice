@@ -21,9 +21,9 @@ namespace PowerTables.Filters
         /// <param name="c"></param>
         /// <param name="hide">When true, filter will be hidden</param>
         /// <returns></returns>
-        public static T HideFilter<T>(this T c, bool hide = true) where T : IHideableFilter
+        public static PluginConfigurationWrapper<T> HideFilter<T>(this PluginConfigurationWrapper<T> c, bool hide = true) where T : IHideableFilter, new()
         {
-            c.Hidden = hide;
+            c.Configuration.Hidden = hide;
             return c;
         }
 

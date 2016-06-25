@@ -11,6 +11,9 @@
         public ToValueProvider: HTMLInputElement;
 
         private getFromValue(): string {
+            if (this._associatedColumn.Configuration.IsDataOnly) {
+                return this.Configuration.FromValue;
+            }
             if (!this.FromValueProvider) return '';
             if (this._associatedColumn.IsDateTime) {
                 var date = this.MasterTable.Date.getDateFromDatePicker(this.FromValueProvider);
@@ -20,6 +23,9 @@
         }
 
         private getToValue(): string {
+            if (this._associatedColumn.Configuration.IsDataOnly) {
+                return this.Configuration.ToValue;
+            }
             if (!this.ToValueProvider) return '';
             if (this._associatedColumn.IsDateTime) {
                 var date = this.MasterTable.Date.getDateFromDatePicker(this.ToValueProvider);
