@@ -1,6 +1,6 @@
 ﻿module PowerTables.Plugins.ResponseInfo {
     export class ResponseInfoPlugin extends PluginBase<Plugins.ResponseInfo.IResponseInfoClientConfiguration> {
-        private _recentData: any;
+        private _recentData: any = {};
         private _recentServerData: any;
         private _recentTemplate: HandlebarsTemplateDelegate;
         private _pagingEnabled: boolean;
@@ -27,25 +27,30 @@
             }
         }
 
-        public onClientDataProcessed(e: ITableEventArgs<IClientDataResults>) {
-            if (this.Configuration.ResponseObjectOverriden) return;
-
-            if (!this.Configuration.ClientEvaluationFunction) {
-                this._recentData = {
-                    TotalCount: this._recentServerData.TotalCount || this.MasterTable.DataHolder.StoredData.length,
-                    IsLocalRequest: !this._isServerRequest,
-                    CurrentPage: this._recentServerData.CurrentPage || ((!this._pagingPlugin) ? 0 : this._pagingPlugin.getCurrentPage() + 1),
-                    TotalPages: ((!this._pagingPlugin) ? 0 : this._pagingPlugin.getTotalPages()),
-                    PagingEnabled: this._pagingEnabled,
-                    CurrentlyShown: this.MasterTable.DataHolder.DisplayedData.length
-                };
-            } else {
-                this._recentData = this.Configuration.ClientEvaluationFunction(
-                    e.EventArgs,
-                    (!this._pagingPlugin) ? 0 : (this._pagingPlugin.getCurrentPage()),
-                    (!this._pagingPlugin) ? 0 : (this._pagingPlugin.getTotalPages())
-                    );
+        private addClientData(e: IClientDataResults) {
+            for (var k in this.Configuration.ClientCalculators) {
+                if (this.Configuration.ClientCalculators.hasOwnProperty(k)) {
+                    this._recentData[k] = this.Configuration.ClientCalculators[k](e);
+                }
             }
+        }
+
+        public onClientDataProcessed(e: ITableEventArgs<IClientDataResults>) {
+            
+            if (this.Configuration.ResponseObjectOverriden) {
+                this.addClientData(e.EventArgs);
+                this.MasterTable.Renderer.Modifier.redrawPlugin(this);
+                return;
+            }
+            this._recentData = {
+                TotalCount: this._recentServerData.TotalCount || this.MasterTable.DataHolder.StoredData.length,
+                IsLocalRequest: !this._isServerRequest,
+                CurrentPage: this._recentServerData.CurrentPage || ((!this._pagingPlugin) ? 0 : this._pagingPlugin.getCurrentPage() + 1),
+                TotalPages: ((!this._pagingPlugin) ? 0 : this._pagingPlugin.getTotalPages()),
+                PagingEnabled: this._pagingEnabled
+            };
+            this.addClientData(e.EventArgs);
+
             this._isServerRequest = false;
             this._isReadyForRendering = true;
             this.MasterTable.Renderer.Modifier.redrawPlugin(this);

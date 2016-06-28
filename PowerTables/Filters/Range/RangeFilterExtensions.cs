@@ -108,5 +108,31 @@ namespace PowerTables.Filters.Range
         {
             column.UpdateFilterConfig(PluginId, ui);
         }
+
+        /// <summary>
+        /// Forces server to treat equal date ranges as necessarity of selecting the whole day
+        /// </summary>
+        /// <typeparam name="TSourceData"></typeparam>
+        /// <param name="f"></param>
+        /// <param name="treat">When true, equal selected dates will be treated as whole day</param>
+        /// <returns></returns>
+        public static RangeColumnFilter<TSourceData, DateTime> TreatEqualDateAsWholeDay<TSourceData>(this RangeColumnFilter<TSourceData, DateTime> f, bool treat = true)
+        {
+            f.TreatEqualDateAsWholeDay = treat;
+            return f;
+        }
+
+        /// <summary>
+        /// Forces server to treat equal date ranges as necessarity of selecting the whole day
+        /// </summary>
+        /// <typeparam name="TSourceData"></typeparam>
+        /// <param name="f"></param>
+        /// <param name="treat">When true, equal selected dates will be treated as whole day</param>
+        /// <returns></returns>
+        public static RangeColumnFilter<TSourceData, DateTime?> TreatEqualDateAsWholeDay<TSourceData>(this RangeColumnFilter<TSourceData, DateTime?> f, bool treat = true)
+        {
+            f.TreatEqualDateAsWholeDay = treat;
+            return f;
+        }
     }
 }

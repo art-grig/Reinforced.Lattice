@@ -71,7 +71,7 @@ namespace PowerTables.CellTemplating
             _lines.Add(string.Format("if ((v{1}.{0}==null)||(v{1}.{0}==undefined)) return {2}; "
                 , columnName
                 , string.IsNullOrEmpty(_objectProperty) ? string.Empty : ".DataObject"
-                , Template.BuildDelegate(content)));
+                , Template.CompileDelegate(content, "v", _objectProperty)));
             return this;
         }
 
@@ -97,7 +97,7 @@ namespace PowerTables.CellTemplating
         {
             _lines.Add(String.Format("if ((v{0}==null)||(v{0}==undefined)) return {1}; "
                 , string.IsNullOrEmpty(_objectProperty) ? string.Empty : ".DataObject"
-                , Template.BuildDelegate(content)));
+                , Template.CompileDelegate(content, "v", _objectProperty)));
             return this;
         }
 

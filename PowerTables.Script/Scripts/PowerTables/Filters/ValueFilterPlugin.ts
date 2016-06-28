@@ -8,7 +8,7 @@
         private _filteringIsBeingExecuted: boolean = false;
         private _inpTimeout: any;
         private _previousValue: string;
-        private _associatedColumn: IColumn;
+        public AssociatedColumn: IColumn;
         private _isInitializing: boolean = true;
 
         /**
@@ -21,11 +21,11 @@
          * column associated within filter
          */
         public getValue() {
-            if (this._associatedColumn.Configuration.IsDataOnly && this.Configuration.DefaultValue) {
+            if (this.AssociatedColumn.Configuration.IsDataOnly && this.Configuration.DefaultValue) {
                 return this.Configuration.DefaultValue;
             }
             if (!this.FilterValueProvider) return '';
-            if (this._associatedColumn.IsDateTime) {
+            if (this.AssociatedColumn.IsDateTime) {
                 return this.MasterTable.Date.serialize(this.MasterTable.Date.getDateFromDatePicker(this.FilterValueProvider));
             }
             return this.FilterValueProvider.value;
@@ -71,25 +71,25 @@
             if (this.Configuration.ClientFiltering) {
                 this.itIsClientFilter();
             }
-            this._associatedColumn = this.MasterTable.InstanceManager.Columns[this.Configuration.ColumnName];
+            this.AssociatedColumn = this.MasterTable.InstanceManager.Columns[this.Configuration.ColumnName];
 
         }
         /**
         * @internal
         */
         public filterPredicate(rowObject: any, query: IQuery): boolean {
-            var fval: string = query.Filterings[this._associatedColumn.RawName];
+            var fval: string = query.Filterings[this.AssociatedColumn.RawName];
             if (fval == null || fval == undefined) return true;
-            if (fval === '$$lattice_not_present$$' && this._associatedColumn.Configuration.IsNullable) fval = null;
+            if (fval === '$$lattice_not_present$$' && this.AssociatedColumn.Configuration.IsNullable) fval = null;
 
             if (this.Configuration.ClientFilteringFunction) {
                 return this.Configuration.ClientFilteringFunction(rowObject, fval, query);
             }
 
-            if (!query.Filterings.hasOwnProperty(this._associatedColumn.RawName)) return true;
-            var objVal = rowObject[this._associatedColumn.RawName];
+            if (!query.Filterings.hasOwnProperty(this.AssociatedColumn.RawName)) return true;
+            var objVal = rowObject[this.AssociatedColumn.RawName];
             if (objVal == null) return fval == null;
-            if (this._associatedColumn.IsString) {
+            if (this.AssociatedColumn.IsString) {
                 objVal = objVal.toString();
                 var entries: string[] = fval.split(/\s/);
                 for (var i: number = 0; i < entries.length; i++) {
@@ -101,17 +101,17 @@
                 return true;
             }
 
-            if (this._associatedColumn.IsFloat) {
+            if (this.AssociatedColumn.IsFloat) {
                 var f: number = parseFloat(fval);
                 return objVal === f;
             }
 
-            if (this._associatedColumn.IsInteger || this._associatedColumn.IsEnum) {
+            if (this.AssociatedColumn.IsInteger || this.AssociatedColumn.IsEnum) {
                 var int: number = parseInt(fval);
                 return objVal === int;
             }
 
-            if (this._associatedColumn.IsBoolean) {
+            if (this.AssociatedColumn.IsBoolean) {
                 var bv: boolean = fval.toLocaleUpperCase() === 'TRUE' ? true :
                     fval.toLocaleUpperCase() === 'FALSE' ? false : null;
                 if (bv == null) {
@@ -120,7 +120,7 @@
                 return objVal === bv;
             }
 
-            if (this._associatedColumn.IsDateTime) {
+            if (this.AssociatedColumn.IsDateTime) {
                 var date = this.MasterTable.Date.parse(fval);
                 if (this.Configuration.CompareOnlyDates) {
                     return date.getFullYear() === objVal.getFullYear()
@@ -140,10 +140,10 @@
             var val: string = this.getValue();
             if (!val || val.length === 0) return;
             if (this.Configuration.ClientFiltering && scope === QueryScope.Client || scope === QueryScope.Transboundary) {
-                query.Filterings[this._associatedColumn.RawName] = val;
+                query.Filterings[this.AssociatedColumn.RawName] = val;
             }
             if ((!this.Configuration.ClientFiltering) && scope === QueryScope.Server || scope === QueryScope.Transboundary) {
-                query.Filterings[this._associatedColumn.RawName] = val;
+                query.Filterings[this.AssociatedColumn.RawName] = val;
             }
         }
         /**
@@ -151,7 +151,7 @@
         */
         public afterDrawn = (e) => {
             if (this.Configuration.Hidden) return;
-            if (this._associatedColumn.IsDateTime) {
+            if (this.AssociatedColumn.IsDateTime) {
                 var date = this.MasterTable.Date.parse(this.Configuration.DefaultValue);
                 this.MasterTable.Date.putDateToDatePicker(this.FilterValueProvider, date);
             }

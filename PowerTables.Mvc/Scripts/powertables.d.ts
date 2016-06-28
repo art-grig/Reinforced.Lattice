@@ -184,6 +184,7 @@ declare module PowerTables.Filters.Range {
         ToValue: string;
         ClientFiltering: boolean;
         ClientFilteringFunction: (object: any, fromValue: string, toValue: string, query: IQuery) => boolean;
+        TreatEqualDateAsWholeDay: boolean;
         Hidden: boolean;
         DefaultTemplateId: string;
     }
@@ -203,7 +204,9 @@ declare module PowerTables.Filters.Value {
 }
 declare module PowerTables.Plugins.ResponseInfo {
     interface IResponseInfoClientConfiguration {
-        ClientEvaluationFunction: (data: IClientDataResults, currentPage: number, totalPages: number) => any;
+        ClientCalculators: {
+            [key: string]: (data: IClientDataResults) => any;
+        };
         ClientTemplateFunction: (data: any) => string;
         ResponseObjectOverriden: boolean;
         DefaultTemplateId: string;
@@ -1375,7 +1378,7 @@ declare module PowerTables {
          * @param predicate Filtering predicate returning true for required objects
          * @returns Array of ILocalLookupResults
          */
-        localLookup(predicate: (object: any) => boolean): ILocalLookupResult[];
+        localLookup(predicate: (object: any) => boolean, setToLookup?: any[]): ILocalLookupResult[];
         /**
          * Finds data object among currently displayed and returns ILocalLookupResult
          * containing also Loaded-set index of this data object
@@ -1415,7 +1418,7 @@ declare module PowerTables {
          * @param dataObject Object to match
          * @returns ILocalLookupResult
          */
-        localLookupPrimaryKey(dataObject: any): ILocalLookupResult;
+        localLookupPrimaryKey(dataObject: any, setToLookup?: any[]): ILocalLookupResult;
         private copyData(source, target);
         private normalizeObject(dataObject);
         proceedAdjustments(adjustments: PowerTables.Editors.IAdjustmentData): IAdjustmentResult;
@@ -1728,6 +1731,7 @@ declare module PowerTables.Rendering {
         renderBody(rows: IRow[]): string;
         renderCell(cell: ICell): string;
         renderContent(columnName?: string): string;
+        private renderCellAsPartOfRow(cell, cellWrapper);
         private cacheColumnRenderers(columns);
         /**
          * Adds/replaces column rendering function for specified column
@@ -2417,7 +2421,7 @@ declare module PowerTables.Plugins.Ordering {
         private isClient(columnName);
         switchOrderingForColumn(columnName: string): void;
         setOrderingForColumn(columnName: string, ordering: PowerTables.Ordering): void;
-        protected nextOrdering(currentOrdering: PowerTables.Ordering): Ordering;
+        protected nextOrdering(currentOrdering: PowerTables.Ordering): PowerTables.Ordering;
         private makeDefaultOrderingFunction(fieldName);
         init(masterTable: IMasterTable): void;
         private mixinOrderings(orderingsCollection, query);
@@ -2496,7 +2500,7 @@ declare module PowerTables.Filters.Value {
         private _filteringIsBeingExecuted;
         private _inpTimeout;
         private _previousValue;
-        private _associatedColumn;
+        AssociatedColumn: IColumn;
         private _isInitializing;
         /**
          * HTML element corresponding to <input/> tag this filter will retrieve value from
@@ -2539,7 +2543,7 @@ declare module PowerTables.Filters.Range {
         private _inpTimeout;
         private _fromPreviousValue;
         private _toPreviousValue;
-        private _associatedColumn;
+        AssociatedColumn: IColumn;
         private _isInitializing;
         FromValueProvider: HTMLInputElement;
         ToValueProvider: HTMLInputElement;
@@ -2563,7 +2567,7 @@ declare module PowerTables.Filters.Select {
          * HTML element of select list supplying values for select filter.
          */
         FilterValueProvider: HTMLSelectElement;
-        private _associatedColumn;
+        AssociatedColumn: IColumn;
         /**
          * Retrieves selected values serialized with |-delimiter
          */
@@ -2636,6 +2640,7 @@ declare module PowerTables.Plugins.ResponseInfo {
         private _isServerRequest;
         private _isReadyForRendering;
         onResponse(e: ITableEventArgs<IDataEventArgs>): void;
+        private addClientData(e);
         onClientDataProcessed(e: ITableEventArgs<IClientDataResults>): void;
         renderContent(templatesProvider: ITemplatesProvider): string;
         init(masterTable: IMasterTable): void;

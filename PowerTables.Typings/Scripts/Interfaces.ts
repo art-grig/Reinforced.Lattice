@@ -194,6 +194,7 @@ module PowerTables.Filters.Range {
 		ToValue: string;
 		ClientFiltering: boolean;
 		ClientFilteringFunction: (object: any, fromValue:string, toValue:string, query: IQuery)=>boolean;
+		TreatEqualDateAsWholeDay: boolean;
 		Hidden: boolean;
 		DefaultTemplateId: string;
 	}
@@ -215,7 +216,7 @@ module PowerTables.Filters.Value {
 module PowerTables.Plugins.ResponseInfo {
 	export interface IResponseInfoClientConfiguration
 	{
-		ClientEvaluationFunction: (data:IClientDataResults, currentPage:number, totalPages:number) => any;
+		ClientCalculators: { [key:string] : (data:IClientDataResults) => any };
 		ClientTemplateFunction: (data:any) => string;
 		ResponseObjectOverriden: boolean;
 		DefaultTemplateId: string;

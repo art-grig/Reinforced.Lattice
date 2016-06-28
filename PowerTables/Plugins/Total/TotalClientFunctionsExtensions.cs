@@ -34,7 +34,7 @@ namespace PowerTables.Plugins.Total
     /// </summary>
     public static class TotalClientFunctionsExtensions
     {
-        private static string CreateSumFunction(string sumExpression, ClientDataSet dataSet)
+        internal static string CreateSumFunction(string sumExpression, ClientDataSet dataSet)
         {
             StringBuilder sb = new StringBuilder("function(v){var s=0;");
             sb.AppendFormat("for(var i=0;i<v.{0}.length;i++){{", dataSet);
@@ -43,7 +43,7 @@ namespace PowerTables.Plugins.Total
             return sb.ToString();
         }
 
-        private static string CreateSumFunctionWithPredicate(string sumExpression, string predicateExpression, ClientDataSet dataSet)
+        internal static string CreateSumFunctionWithPredicate(string sumExpression, string predicateExpression, ClientDataSet dataSet)
         {
             StringBuilder sb = new StringBuilder("function(v){var s=0;");
             sb.AppendFormat("for(var i=0;i<v.{0}.length;i++){{", dataSet);
@@ -53,7 +53,7 @@ namespace PowerTables.Plugins.Total
             return sb.ToString();
         }
 
-        private static string CreateWeightedAvgFunction(string avgExpression, string weightExpression, ClientDataSet dataSet)
+        internal static string CreateWeightedAvgFunction(string avgExpression, string weightExpression, ClientDataSet dataSet)
         {
             StringBuilder sb = new StringBuilder("function(v){var s=0,w=0;");
             sb.AppendFormat("for(var i=0;i<v.{0}.length;i++){{", dataSet);
@@ -63,7 +63,7 @@ namespace PowerTables.Plugins.Total
             return sb.ToString();
         }
 
-        private static string CreateAvgFunction(string avgExpression, ClientDataSet dataSet)
+        internal static string CreateAvgFunction(string avgExpression, ClientDataSet dataSet)
         {
             StringBuilder sb = new StringBuilder("function(v){var s=0;");
             sb.AppendFormat("for(var i=0;i<v.{0}.length;i++){{", dataSet);
@@ -72,7 +72,7 @@ namespace PowerTables.Plugins.Total
             return sb.ToString();
         }
 
-        private static string CreateExtremumFunction(string expression, bool isMax, ClientDataSet dataSet)
+        internal static string CreateExtremumFunction(string expression, bool isMax, ClientDataSet dataSet)
         {
             StringBuilder sb = new StringBuilder("function(v){var r=");
             if (isMax) sb.Append("(0-Infinity);");

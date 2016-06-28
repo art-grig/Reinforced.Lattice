@@ -8,14 +8,13 @@
          * HTML element of select list supplying values for select filter. 
          */
         public FilterValueProvider: HTMLSelectElement;
-
-        private _associatedColumn: IColumn;
+        public AssociatedColumn: IColumn;
 
         /**
          * Retrieves selected values serialized with |-delimiter
          */
         public getSerializedValue(): string {
-            if (this._associatedColumn.Configuration.IsDataOnly && this.Configuration.SelectedValue) {
+            if (this.AssociatedColumn.Configuration.IsDataOnly && this.Configuration.SelectedValue) {
                 return this.Configuration.SelectedValue;
             }
             return this.getArrayValue().join('|');
@@ -53,10 +52,10 @@
             if (!val || val.length === 0) return;
 
             if (this.Configuration.ClientFiltering && scope === QueryScope.Client || scope === QueryScope.Transboundary) {
-                query.Filterings[this._associatedColumn.RawName] = val;
+                query.Filterings[this.AssociatedColumn.RawName] = val;
             }
             if ((!this.Configuration.ClientFiltering) && scope === QueryScope.Server || scope === QueryScope.Transboundary) {
-                query.Filterings[this._associatedColumn.RawName] = val;
+                query.Filterings[this.AssociatedColumn.RawName] = val;
             }
         }
 
@@ -80,7 +79,7 @@
          */
         public init(masterTable: IMasterTable): void {
             super.init(masterTable);
-            this._associatedColumn = this.MasterTable.InstanceManager.Columns[this.Configuration.ColumnName];
+            this.AssociatedColumn = this.MasterTable.InstanceManager.Columns[this.Configuration.ColumnName];
 
             var sv: string = this.Configuration.SelectedValue;
             if (sv !== undefined && sv !== null) {
@@ -102,9 +101,9 @@
  * @internal
  */
         public filterPredicate(rowObject: any, query: IQuery): boolean {
-            var fval: string = query.Filterings[this._associatedColumn.RawName];
+            var fval: string = query.Filterings[this.AssociatedColumn.RawName];
             if (fval == null || fval == undefined) return true;
-            if (fval === '$$lattice_not_present$$' && this._associatedColumn.Configuration.IsNullable) fval = null;
+            if (fval === '$$lattice_not_present$$' && this.AssociatedColumn.Configuration.IsNullable) fval = null;
             var arr: string[] = null;
             if (this.Configuration.IsMultiple) {
                 arr = fval != null ? fval.split('|') : [null];
@@ -116,16 +115,16 @@
                 return this.Configuration.ClientFilteringFunction(rowObject, arr, query);
             }
 
-            if (!query.Filterings.hasOwnProperty(this._associatedColumn.RawName)) return true;
-            var objVal = rowObject[this._associatedColumn.RawName];
+            if (!query.Filterings.hasOwnProperty(this.AssociatedColumn.RawName)) return true;
+            var objVal = rowObject[this.AssociatedColumn.RawName];
             if (objVal == null) return arr.indexOf(null) > -1;
 
-            if (this._associatedColumn.IsString) {
+            if (this.AssociatedColumn.IsString) {
                 return arr.indexOf(objVal) >= 0;
             }
 
             var single: boolean = false;
-            if (this._associatedColumn.IsFloat) {
+            if (this.AssociatedColumn.IsFloat) {
 
                 arr.map((v) => {
                     if (parseFloat(v) === objVal) single = true;
@@ -133,7 +132,7 @@
                 return single;
             }
 
-            if (this._associatedColumn.IsInteger || this._associatedColumn.IsEnum) {
+            if (this.AssociatedColumn.IsInteger || this.AssociatedColumn.IsEnum) {
                 single = false;
                 arr.map((v) => {
                     if (parseInt(v) === objVal) single = true;
@@ -141,7 +140,7 @@
                 return single;
             }
 
-            if (this._associatedColumn.IsBoolean) {
+            if (this.AssociatedColumn.IsBoolean) {
                 single = false;
                 arr.map((v) => {
                     var bv: boolean = v.toLocaleUpperCase() === 'TRUE' ? true :

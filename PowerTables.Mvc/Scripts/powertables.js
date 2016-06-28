@@ -1303,12 +1303,13 @@ var PowerTables;
          * @param predicate Filtering predicate returning true for required objects
          * @returns Array of ILocalLookupResults
          */
-        DataHolder.prototype.localLookup = function (predicate) {
+        DataHolder.prototype.localLookup = function (predicate, setToLookup) {
+            if (setToLookup === void 0) { setToLookup = this.StoredData; }
             var result = [];
-            for (var i = 0; i < this.StoredData.length; i++) {
-                if (predicate(this.StoredData[i])) {
+            for (var i = 0; i < setToLookup.length; i++) {
+                if (predicate(setToLookup[i])) {
                     result.push({
-                        DataObject: this.StoredData[i],
+                        DataObject: setToLookup[i],
                         IsCurrentlyDisplaying: false,
                         LoadedIndex: i,
                         DisplayedIndex: -1
@@ -1409,15 +1410,16 @@ var PowerTables;
          * @param dataObject Object to match
          * @returns ILocalLookupResult
          */
-        DataHolder.prototype.localLookupPrimaryKey = function (dataObject) {
+        DataHolder.prototype.localLookupPrimaryKey = function (dataObject, setToLookup) {
+            if (setToLookup === void 0) { setToLookup = this.StoredData; }
             var found = null;
             var foundIdx = 0;
             if (this._masterTable.InstanceManager.DataObjectComparisonFunction == null || this._masterTable.InstanceManager.DataObjectComparisonFunction == undefined) {
                 throw Error('You must specify key fields for table row to use current setup. Please call .PrimaryKey on configuration object and specify set of columns exposing primary key.');
             }
-            for (var i = 0; i < this.StoredData.length; i++) {
-                if (this._masterTable.InstanceManager.DataObjectComparisonFunction(dataObject, this.StoredData[i])) {
-                    found = this.StoredData[i];
+            for (var i = 0; i < setToLookup.length; i++) {
+                if (this._masterTable.InstanceManager.DataObjectComparisonFunction(dataObject, setToLookup[i])) {
+                    found = setToLookup[i];
                     foundIdx = i;
                     break;
                 }
@@ -1510,6 +1512,16 @@ var PowerTables;
                 var lookup = this.localLookupPrimaryKey(adjustments.Removals[j]);
                 if (lookup.LoadedIndex > -1) {
                     this.StoredData.splice(lookup.LoadedIndex, 1);
+                    needRefilter = true;
+                }
+                lookup = this.localLookupPrimaryKey(adjustments.Removals[j], this.Filtered);
+                if (lookup.LoadedIndex > -1) {
+                    this.Filtered.splice(lookup.LoadedIndex, 1);
+                    needRefilter = true;
+                }
+                lookup = this.localLookupPrimaryKey(adjustments.Removals[j], this.Ordered);
+                if (lookup.LoadedIndex > -1) {
+                    this.Ordered.splice(lookup.LoadedIndex, 1);
                     needRefilter = true;
                 }
             }
@@ -1774,9 +1786,11 @@ var PowerTables;
          */
         InstanceManager.prototype.getPlugins = function (placement) {
             var result = [];
+            if (!InstanceManager.endsWith(placement, "-"))
+                placement += "-";
             for (var k in this.Plugins) {
                 if (this.Plugins.hasOwnProperty(k)) {
-                    var kp = k.substring(0, placement.length);
+                    var kp = (k + "-").substring(0, placement.length);
                     if (kp === placement) {
                         result.push(this.Plugins[k]);
                     }
@@ -2526,18 +2540,14 @@ var PowerTables;
                         var cellWrapper = this._templatesProvider.getCachedTemplate(this._templateIds.CellWrapper);
                         for (var i = 0; i < columns.length; i++) {
                             var cell = row.Cells[columns[i].RawName];
-                            this._stack.push(Rendering.RenderingContextType.Cell, cell, columns[i].RawName);
-                            if (cell.renderElement)
-                                result += cell.renderElement(this._templatesProvider);
-                            else {
-                                if (cell.TemplateIdOverride) {
-                                    result += this._templatesProvider.getCachedTemplate(cell.TemplateIdOverride)(cell);
-                                }
-                                else {
-                                    result += cellWrapper(cell);
+                            if (columnName != null && columnName != undefined && typeof columnName == 'string') {
+                                if (cell.Column.RawName === columnName) {
+                                    result += this.renderCellAsPartOfRow(cell, cellWrapper);
                                 }
                             }
-                            this._stack.popContext();
+                            else {
+                                result += this.renderCellAsPartOfRow(cell, cellWrapper);
+                            }
                         }
                         break;
                     case Rendering.RenderingContextType.Cell:
@@ -2545,6 +2555,22 @@ var PowerTables;
                         result += tmpl(this._stack.Current.Object);
                         break;
                 }
+                return result;
+            };
+            ContentRenderer.prototype.renderCellAsPartOfRow = function (cell, cellWrapper) {
+                this._stack.push(Rendering.RenderingContextType.Cell, cell, cell.Column.RawName);
+                var result = '';
+                if (cell.renderElement)
+                    result = cell.renderElement(this._templatesProvider);
+                else {
+                    if (cell.TemplateIdOverride) {
+                        result = this._templatesProvider.getCachedTemplate(cell.TemplateIdOverride)(cell);
+                    }
+                    else {
+                        result = cellWrapper(cell);
+                    }
+                }
+                this._stack.popContext();
                 return result;
             };
             ContentRenderer.prototype.cacheColumnRenderers = function (columns) {
@@ -3311,7 +3337,12 @@ var PowerTables;
             //#endregion
             // #region headers helper
             LayoutRenderer.prototype.headerHelper = function (columnName) {
-                return this.renderHeader(this._instances.getColumn(columnName));
+                try {
+                    return this.renderHeader(this._instances.getColumn(columnName));
+                }
+                catch (a) {
+                    return '';
+                }
             };
             /**
              * Renders specified column's header into string including its wrapper
@@ -4547,7 +4578,7 @@ var PowerTables;
                     this.afterDrawn = function (e) {
                         if (_this.Configuration.Hidden)
                             return;
-                        if (_this._associatedColumn.IsDateTime) {
+                        if (_this.AssociatedColumn.IsDateTime) {
                             var date = _this.MasterTable.Date.parse(_this.Configuration.DefaultValue);
                             _this.MasterTable.Date.putDateToDatePicker(_this.FilterValueProvider, date);
                         }
@@ -4559,12 +4590,12 @@ var PowerTables;
                  * column associated within filter
                  */
                 ValueFilterPlugin.prototype.getValue = function () {
-                    if (this._associatedColumn.Configuration.IsDataOnly && this.Configuration.DefaultValue) {
+                    if (this.AssociatedColumn.Configuration.IsDataOnly && this.Configuration.DefaultValue) {
                         return this.Configuration.DefaultValue;
                     }
                     if (!this.FilterValueProvider)
                         return '';
-                    if (this._associatedColumn.IsDateTime) {
+                    if (this.AssociatedColumn.IsDateTime) {
                         return this.MasterTable.Date.serialize(this.MasterTable.Date.getDateFromDatePicker(this.FilterValueProvider));
                     }
                     return this.FilterValueProvider.value;
@@ -4612,26 +4643,26 @@ var PowerTables;
                     if (this.Configuration.ClientFiltering) {
                         this.itIsClientFilter();
                     }
-                    this._associatedColumn = this.MasterTable.InstanceManager.Columns[this.Configuration.ColumnName];
+                    this.AssociatedColumn = this.MasterTable.InstanceManager.Columns[this.Configuration.ColumnName];
                 };
                 /**
                 * @internal
                 */
                 ValueFilterPlugin.prototype.filterPredicate = function (rowObject, query) {
-                    var fval = query.Filterings[this._associatedColumn.RawName];
+                    var fval = query.Filterings[this.AssociatedColumn.RawName];
                     if (fval == null || fval == undefined)
                         return true;
-                    if (fval === '$$lattice_not_present$$' && this._associatedColumn.Configuration.IsNullable)
+                    if (fval === '$$lattice_not_present$$' && this.AssociatedColumn.Configuration.IsNullable)
                         fval = null;
                     if (this.Configuration.ClientFilteringFunction) {
                         return this.Configuration.ClientFilteringFunction(rowObject, fval, query);
                     }
-                    if (!query.Filterings.hasOwnProperty(this._associatedColumn.RawName))
+                    if (!query.Filterings.hasOwnProperty(this.AssociatedColumn.RawName))
                         return true;
-                    var objVal = rowObject[this._associatedColumn.RawName];
+                    var objVal = rowObject[this.AssociatedColumn.RawName];
                     if (objVal == null)
                         return fval == null;
-                    if (this._associatedColumn.IsString) {
+                    if (this.AssociatedColumn.IsString) {
                         objVal = objVal.toString();
                         var entries = fval.split(/\s/);
                         for (var i = 0; i < entries.length; i++) {
@@ -4643,15 +4674,15 @@ var PowerTables;
                         }
                         return true;
                     }
-                    if (this._associatedColumn.IsFloat) {
+                    if (this.AssociatedColumn.IsFloat) {
                         var f = parseFloat(fval);
                         return objVal === f;
                     }
-                    if (this._associatedColumn.IsInteger || this._associatedColumn.IsEnum) {
+                    if (this.AssociatedColumn.IsInteger || this.AssociatedColumn.IsEnum) {
                         var int = parseInt(fval);
                         return objVal === int;
                     }
-                    if (this._associatedColumn.IsBoolean) {
+                    if (this.AssociatedColumn.IsBoolean) {
                         var bv = fval.toLocaleUpperCase() === 'TRUE' ? true :
                             fval.toLocaleUpperCase() === 'FALSE' ? false : null;
                         if (bv == null) {
@@ -4659,7 +4690,7 @@ var PowerTables;
                         }
                         return objVal === bv;
                     }
-                    if (this._associatedColumn.IsDateTime) {
+                    if (this.AssociatedColumn.IsDateTime) {
                         var date = this.MasterTable.Date.parse(fval);
                         if (this.Configuration.CompareOnlyDates) {
                             return date.getFullYear() === objVal.getFullYear()
@@ -4680,10 +4711,10 @@ var PowerTables;
                     if (!val || val.length === 0)
                         return;
                     if (this.Configuration.ClientFiltering && scope === PowerTables.QueryScope.Client || scope === PowerTables.QueryScope.Transboundary) {
-                        query.Filterings[this._associatedColumn.RawName] = val;
+                        query.Filterings[this.AssociatedColumn.RawName] = val;
                     }
                     if ((!this.Configuration.ClientFiltering) && scope === PowerTables.QueryScope.Server || scope === PowerTables.QueryScope.Transboundary) {
-                        query.Filterings[this._associatedColumn.RawName] = val;
+                        query.Filterings[this.AssociatedColumn.RawName] = val;
                     }
                 };
                 return ValueFilterPlugin;
@@ -4709,7 +4740,7 @@ var PowerTables;
                     this.afterDrawn = function (e) {
                         if (_this.Configuration.Hidden)
                             return;
-                        if (_this._associatedColumn.IsDateTime) {
+                        if (_this.AssociatedColumn.IsDateTime) {
                             var fromDate = _this.MasterTable.Date.parse(_this.Configuration.FromValue);
                             var toDate = _this.MasterTable.Date.parse(_this.Configuration.ToValue);
                             _this.MasterTable.Date.putDateToDatePicker(_this.FromValueProvider, fromDate);
@@ -4719,24 +4750,24 @@ var PowerTables;
                     };
                 }
                 RangeFilterPlugin.prototype.getFromValue = function () {
-                    if (this._associatedColumn.Configuration.IsDataOnly) {
+                    if (this.AssociatedColumn.Configuration.IsDataOnly) {
                         return this.Configuration.FromValue;
                     }
                     if (!this.FromValueProvider)
                         return '';
-                    if (this._associatedColumn.IsDateTime) {
+                    if (this.AssociatedColumn.IsDateTime) {
                         var date = this.MasterTable.Date.getDateFromDatePicker(this.FromValueProvider);
                         return this.MasterTable.Date.serialize(date);
                     }
                     return this.FromValueProvider.value;
                 };
                 RangeFilterPlugin.prototype.getToValue = function () {
-                    if (this._associatedColumn.Configuration.IsDataOnly) {
+                    if (this.AssociatedColumn.Configuration.IsDataOnly) {
                         return this.Configuration.ToValue;
                     }
                     if (!this.ToValueProvider)
                         return '';
-                    if (this._associatedColumn.IsDateTime) {
+                    if (this.AssociatedColumn.IsDateTime) {
                         var date = this.MasterTable.Date.getDateFromDatePicker(this.ToValueProvider);
                         return this.MasterTable.Date.serialize(date);
                     }
@@ -4783,10 +4814,10 @@ var PowerTables;
                     if (!val || val.length === 0)
                         return;
                     if (this.Configuration.ClientFiltering && scope === PowerTables.QueryScope.Client || scope === PowerTables.QueryScope.Transboundary) {
-                        query.Filterings[this._associatedColumn.RawName] = val;
+                        query.Filterings[this.AssociatedColumn.RawName] = val;
                     }
                     if ((!this.Configuration.ClientFiltering) && scope === PowerTables.QueryScope.Server || scope === PowerTables.QueryScope.Transboundary) {
-                        query.Filterings[this._associatedColumn.RawName] = val;
+                        query.Filterings[this.AssociatedColumn.RawName] = val;
                     }
                 };
                 RangeFilterPlugin.prototype.init = function (masterTable) {
@@ -4794,7 +4825,7 @@ var PowerTables;
                     if (this.Configuration.ClientFiltering) {
                         this.itIsClientFilter();
                     }
-                    this._associatedColumn = this.MasterTable.InstanceManager.Columns[this.Configuration.ColumnName];
+                    this.AssociatedColumn = this.MasterTable.InstanceManager.Columns[this.Configuration.ColumnName];
                 };
                 RangeFilterPlugin.prototype.renderContent = function (templatesProvider) {
                     if (this.Configuration.Hidden)
@@ -4802,7 +4833,7 @@ var PowerTables;
                     return this.defaultRender(templatesProvider);
                 };
                 RangeFilterPlugin.prototype.filterPredicate = function (rowObject, query) {
-                    var fval = query.Filterings[this._associatedColumn.RawName];
+                    var fval = query.Filterings[this.AssociatedColumn.RawName];
                     if (!fval)
                         return true;
                     var args = fval.split('|');
@@ -4815,26 +4846,26 @@ var PowerTables;
                     var toEmpty = toValue.trim().length === 0;
                     if (frmEmpty && toEmpty)
                         return true;
-                    if (!query.Filterings.hasOwnProperty(this._associatedColumn.RawName))
+                    if (!query.Filterings.hasOwnProperty(this.AssociatedColumn.RawName))
                         return true;
-                    var objVal = rowObject[this._associatedColumn.RawName];
+                    var objVal = rowObject[this.AssociatedColumn.RawName];
                     if (objVal == null)
                         return false;
-                    if (this._associatedColumn.IsString) {
+                    if (this.AssociatedColumn.IsString) {
                         var str = objVal.toString();
                         return ((frmEmpty) || str.localeCompare(fromValue) >= 0) && ((toEmpty) || str.localeCompare(toValue) <= 0);
                     }
-                    if (this._associatedColumn.IsFloat) {
+                    if (this.AssociatedColumn.IsFloat) {
                         return ((frmEmpty) || objVal >= parseFloat(fromValue)) && ((toEmpty) || objVal <= parseFloat(toValue));
                     }
-                    if (this._associatedColumn.IsInteger || this._associatedColumn.IsEnum) {
+                    if (this.AssociatedColumn.IsInteger || this.AssociatedColumn.IsEnum) {
                         return ((frmEmpty) || objVal >= parseInt(fromValue)) && ((toEmpty) || objVal <= parseInt(toValue));
                     }
-                    if (this._associatedColumn.IsDateTime) {
+                    if (this.AssociatedColumn.IsDateTime) {
                         var toVal;
                         if (!toEmpty) {
                             toVal = this.MasterTable.Date.parse(toValue);
-                            if (toVal.getHours() == 0 && toVal.getMinutes() == 0 && toVal.getSeconds() == 0) {
+                            if (this.Configuration.TreatEqualDateAsWholeDay) {
                                 toVal.setHours(23);
                                 toVal.setMinutes(59);
                                 toVal.setSeconds(59);
@@ -4869,7 +4900,7 @@ var PowerTables;
                  * Retrieves selected values serialized with |-delimiter
                  */
                 SelectFilterPlugin.prototype.getSerializedValue = function () {
-                    if (this._associatedColumn.Configuration.IsDataOnly && this.Configuration.SelectedValue) {
+                    if (this.AssociatedColumn.Configuration.IsDataOnly && this.Configuration.SelectedValue) {
                         return this.Configuration.SelectedValue;
                     }
                     return this.getArrayValue().join('|');
@@ -4905,10 +4936,10 @@ var PowerTables;
                     if (!val || val.length === 0)
                         return;
                     if (this.Configuration.ClientFiltering && scope === PowerTables.QueryScope.Client || scope === PowerTables.QueryScope.Transboundary) {
-                        query.Filterings[this._associatedColumn.RawName] = val;
+                        query.Filterings[this.AssociatedColumn.RawName] = val;
                     }
                     if ((!this.Configuration.ClientFiltering) && scope === PowerTables.QueryScope.Server || scope === PowerTables.QueryScope.Transboundary) {
-                        query.Filterings[this._associatedColumn.RawName] = val;
+                        query.Filterings[this.AssociatedColumn.RawName] = val;
                     }
                 };
                 /**
@@ -4930,7 +4961,7 @@ var PowerTables;
                  */
                 SelectFilterPlugin.prototype.init = function (masterTable) {
                     _super.prototype.init.call(this, masterTable);
-                    this._associatedColumn = this.MasterTable.InstanceManager.Columns[this.Configuration.ColumnName];
+                    this.AssociatedColumn = this.MasterTable.InstanceManager.Columns[this.Configuration.ColumnName];
                     var sv = this.Configuration.SelectedValue;
                     if (sv !== undefined && sv !== null) {
                         for (var i = 0; i < this.Configuration.Items.length; i++) {
@@ -4950,10 +4981,10 @@ var PowerTables;
                  * @internal
                  */
                 SelectFilterPlugin.prototype.filterPredicate = function (rowObject, query) {
-                    var fval = query.Filterings[this._associatedColumn.RawName];
+                    var fval = query.Filterings[this.AssociatedColumn.RawName];
                     if (fval == null || fval == undefined)
                         return true;
-                    if (fval === '$$lattice_not_present$$' && this._associatedColumn.Configuration.IsNullable)
+                    if (fval === '$$lattice_not_present$$' && this.AssociatedColumn.Configuration.IsNullable)
                         fval = null;
                     var arr = null;
                     if (this.Configuration.IsMultiple) {
@@ -4965,23 +4996,23 @@ var PowerTables;
                     if (this.Configuration.ClientFilteringFunction) {
                         return this.Configuration.ClientFilteringFunction(rowObject, arr, query);
                     }
-                    if (!query.Filterings.hasOwnProperty(this._associatedColumn.RawName))
+                    if (!query.Filterings.hasOwnProperty(this.AssociatedColumn.RawName))
                         return true;
-                    var objVal = rowObject[this._associatedColumn.RawName];
+                    var objVal = rowObject[this.AssociatedColumn.RawName];
                     if (objVal == null)
                         return arr.indexOf(null) > -1;
-                    if (this._associatedColumn.IsString) {
+                    if (this.AssociatedColumn.IsString) {
                         return arr.indexOf(objVal) >= 0;
                     }
                     var single = false;
-                    if (this._associatedColumn.IsFloat) {
+                    if (this.AssociatedColumn.IsFloat) {
                         arr.map(function (v) {
                             if (parseFloat(v) === objVal)
                                 single = true;
                         });
                         return single;
                     }
-                    if (this._associatedColumn.IsInteger || this._associatedColumn.IsEnum) {
+                    if (this.AssociatedColumn.IsInteger || this.AssociatedColumn.IsEnum) {
                         single = false;
                         arr.map(function (v) {
                             if (parseInt(v) === objVal)
@@ -4989,7 +5020,7 @@ var PowerTables;
                         });
                         return single;
                     }
-                    if (this._associatedColumn.IsBoolean) {
+                    if (this.AssociatedColumn.IsBoolean) {
                         single = false;
                         arr.map(function (v) {
                             var bv = v.toLocaleUpperCase() === 'TRUE' ? true :
@@ -5211,6 +5242,7 @@ var PowerTables;
                 __extends(ResponseInfoPlugin, _super);
                 function ResponseInfoPlugin() {
                     _super.apply(this, arguments);
+                    this._recentData = {};
                     this._isReadyForRendering = false;
                 }
                 ResponseInfoPlugin.prototype.onResponse = function (e) {
@@ -5233,22 +5265,27 @@ var PowerTables;
                         };
                     }
                 };
+                ResponseInfoPlugin.prototype.addClientData = function (e) {
+                    for (var k in this.Configuration.ClientCalculators) {
+                        if (this.Configuration.ClientCalculators.hasOwnProperty(k)) {
+                            this._recentData[k] = this.Configuration.ClientCalculators[k](e);
+                        }
+                    }
+                };
                 ResponseInfoPlugin.prototype.onClientDataProcessed = function (e) {
-                    if (this.Configuration.ResponseObjectOverriden)
+                    if (this.Configuration.ResponseObjectOverriden) {
+                        this.addClientData(e.EventArgs);
+                        this.MasterTable.Renderer.Modifier.redrawPlugin(this);
                         return;
-                    if (!this.Configuration.ClientEvaluationFunction) {
-                        this._recentData = {
-                            TotalCount: this._recentServerData.TotalCount || this.MasterTable.DataHolder.StoredData.length,
-                            IsLocalRequest: !this._isServerRequest,
-                            CurrentPage: this._recentServerData.CurrentPage || ((!this._pagingPlugin) ? 0 : this._pagingPlugin.getCurrentPage() + 1),
-                            TotalPages: ((!this._pagingPlugin) ? 0 : this._pagingPlugin.getTotalPages()),
-                            PagingEnabled: this._pagingEnabled,
-                            CurrentlyShown: this.MasterTable.DataHolder.DisplayedData.length
-                        };
                     }
-                    else {
-                        this._recentData = this.Configuration.ClientEvaluationFunction(e.EventArgs, (!this._pagingPlugin) ? 0 : (this._pagingPlugin.getCurrentPage()), (!this._pagingPlugin) ? 0 : (this._pagingPlugin.getTotalPages()));
-                    }
+                    this._recentData = {
+                        TotalCount: this._recentServerData.TotalCount || this.MasterTable.DataHolder.StoredData.length,
+                        IsLocalRequest: !this._isServerRequest,
+                        CurrentPage: this._recentServerData.CurrentPage || ((!this._pagingPlugin) ? 0 : this._pagingPlugin.getCurrentPage() + 1),
+                        TotalPages: ((!this._pagingPlugin) ? 0 : this._pagingPlugin.getTotalPages()),
+                        PagingEnabled: this._pagingEnabled
+                    };
+                    this.addClientData(e.EventArgs);
                     this._isServerRequest = false;
                     this._isReadyForRendering = true;
                     this.MasterTable.Renderer.Modifier.redrawPlugin(this);
@@ -5921,6 +5958,8 @@ var PowerTables;
                                     value = null;
                                 }
                             }
+                            if (value != null)
+                                value = dateService.serialize(value);
                         }
                         else {
                             value = element.value;

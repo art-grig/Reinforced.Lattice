@@ -63,21 +63,18 @@
             var result: string = '';
             switch (this._stack.Current.Type) {
                 case RenderingContextType.Row:
-                    var row: IRow = <IRow> this._stack.Current.Object;
+                    var row: IRow = <IRow>this._stack.Current.Object;
                     var columns: IColumn[] = this._instances.getUiColumns();
                     var cellWrapper: (arg: any) => string = this._templatesProvider.getCachedTemplate(this._templateIds.CellWrapper);
                     for (var i: number = 0; i < columns.length; i++) {
                         var cell: ICell = row.Cells[columns[i].RawName];
-                        this._stack.push(RenderingContextType.Cell, cell, columns[i].RawName);
-                        if (cell.renderElement) result += cell.renderElement(this._templatesProvider);
-                        else {
-                            if (cell.TemplateIdOverride) {
-                                result += this._templatesProvider.getCachedTemplate(cell.TemplateIdOverride)(cell);
-                            } else {
-                                result += cellWrapper(cell);
+                        if (columnName != null && columnName != undefined && typeof columnName == 'string') {
+                            if (cell.Column.RawName === columnName) {
+                                result += this.renderCellAsPartOfRow(cell, cellWrapper);
                             }
+                        } else {
+                            result += this.renderCellAsPartOfRow(cell, cellWrapper);
                         }
-                        this._stack.popContext();
                     }
                     break;
                 case RenderingContextType.Cell:
@@ -85,6 +82,21 @@
                     result += tmpl((<ICell>this._stack.Current.Object));
                     break;
             }
+            return result;
+        }
+
+        private renderCellAsPartOfRow(cell: ICell, cellWrapper: (arg: any) => string): string {
+            this._stack.push(RenderingContextType.Cell, cell, cell.Column.RawName);
+            var result = '';
+            if (cell.renderElement) result = cell.renderElement(this._templatesProvider);
+            else {
+                if (cell.TemplateIdOverride) {
+                    result = this._templatesProvider.getCachedTemplate(cell.TemplateIdOverride)(cell);
+                } else {
+                    result = cellWrapper(cell);
+                }
+            }
+            this._stack.popContext();
             return result;
         }
 
@@ -102,7 +114,7 @@
                         continue;
                     }
                     this._columnsRenderFunctions[columnConfig.RawColumnName] =
-                    (x: ICell) => ((x.Data !== null && x.Data != undefined) ? x.Data : '');
+                        (x: ICell) => ((x.Data !== null && x.Data != undefined) ? x.Data : '');
                 }
             };
         }

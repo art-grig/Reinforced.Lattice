@@ -32,6 +32,7 @@
                             value = null;
                         }
                     }
+                    if (value != null) value = dateService.serialize(value);
                 } else {
                     value = element.value;
                 }

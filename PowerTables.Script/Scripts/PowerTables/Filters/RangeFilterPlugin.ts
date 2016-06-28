@@ -4,18 +4,18 @@
         private _inpTimeout: any;
         private _fromPreviousValue: string;
         private _toPreviousValue: string;
-        private _associatedColumn: IColumn;
+        public AssociatedColumn: IColumn;
         private _isInitializing: boolean = true;
 
         public FromValueProvider: HTMLInputElement;
         public ToValueProvider: HTMLInputElement;
 
         private getFromValue(): string {
-            if (this._associatedColumn.Configuration.IsDataOnly) {
+            if (this.AssociatedColumn.Configuration.IsDataOnly) {
                 return this.Configuration.FromValue;
             }
             if (!this.FromValueProvider) return '';
-            if (this._associatedColumn.IsDateTime) {
+            if (this.AssociatedColumn.IsDateTime) {
                 var date = this.MasterTable.Date.getDateFromDatePicker(this.FromValueProvider);
                 return this.MasterTable.Date.serialize(date);
             }
@@ -23,11 +23,11 @@
         }
 
         private getToValue(): string {
-            if (this._associatedColumn.Configuration.IsDataOnly) {
+            if (this.AssociatedColumn.Configuration.IsDataOnly) {
                 return this.Configuration.ToValue;
             }
             if (!this.ToValueProvider) return '';
-            if (this._associatedColumn.IsDateTime) {
+            if (this.AssociatedColumn.IsDateTime) {
                 var date = this.MasterTable.Date.getDateFromDatePicker(this.ToValueProvider);
                 return this.MasterTable.Date.serialize(date);
             }
@@ -72,10 +72,10 @@
             var val: string = this.getFilterArgument();
             if (!val || val.length === 0) return;
             if (this.Configuration.ClientFiltering && scope === QueryScope.Client || scope === QueryScope.Transboundary) {
-                query.Filterings[this._associatedColumn.RawName] = val;
+                query.Filterings[this.AssociatedColumn.RawName] = val;
             }
             if ((!this.Configuration.ClientFiltering) && scope === QueryScope.Server || scope === QueryScope.Transboundary) {
-                query.Filterings[this._associatedColumn.RawName] = val;
+                query.Filterings[this.AssociatedColumn.RawName] = val;
             }
         }
 
@@ -84,7 +84,7 @@
             if (this.Configuration.ClientFiltering) {
                 this.itIsClientFilter();
             }
-            this._associatedColumn = this.MasterTable.InstanceManager.Columns[this.Configuration.ColumnName];
+            this.AssociatedColumn = this.MasterTable.InstanceManager.Columns[this.Configuration.ColumnName];
         }
 
         public renderContent(templatesProvider: ITemplatesProvider): string {
@@ -93,7 +93,7 @@
         }
 
         public filterPredicate(rowObject: any, query: IQuery): boolean {
-            var fval: string = query.Filterings[this._associatedColumn.RawName];
+            var fval: string = query.Filterings[this.AssociatedColumn.RawName];
             if (!fval) return true;
             var args: string[] = fval.split('|');
             var fromValue: string = args[0];
@@ -107,30 +107,30 @@
             var toEmpty: boolean = toValue.trim().length === 0;
             if (frmEmpty && toEmpty) return true;
 
-            if (!query.Filterings.hasOwnProperty(this._associatedColumn.RawName)) return true;
+            if (!query.Filterings.hasOwnProperty(this.AssociatedColumn.RawName)) return true;
 
-            var objVal = rowObject[this._associatedColumn.RawName];
+            var objVal = rowObject[this.AssociatedColumn.RawName];
             if (objVal == null) return false;
 
 
-            if (this._associatedColumn.IsString) {
+            if (this.AssociatedColumn.IsString) {
                 var str = objVal.toString();
                 return ((frmEmpty) || str.localeCompare(fromValue) >= 0) && ((toEmpty) || str.localeCompare(toValue) <= 0);
             }
 
-            if (this._associatedColumn.IsFloat) {
+            if (this.AssociatedColumn.IsFloat) {
                 return ((frmEmpty) || objVal >= parseFloat(fromValue)) && ((toEmpty) || objVal <= parseFloat(toValue));
             }
 
-            if (this._associatedColumn.IsInteger || this._associatedColumn.IsEnum) {
+            if (this.AssociatedColumn.IsInteger || this.AssociatedColumn.IsEnum) {
                 return ((frmEmpty) || objVal >= parseInt(fromValue)) && ((toEmpty) || objVal <= parseInt(toValue));
             }
 
-            if (this._associatedColumn.IsDateTime) {
+            if (this.AssociatedColumn.IsDateTime) {
                 var toVal;
                 if (!toEmpty) {
                     toVal = this.MasterTable.Date.parse(toValue);
-                    if (toVal.getHours() == 0 && toVal.getMinutes() == 0 && toVal.getSeconds() == 0) {
+                    if (this.Configuration.TreatEqualDateAsWholeDay) {
                         toVal.setHours(23);
                         toVal.setMinutes(59);
                         toVal.setSeconds(59);
@@ -144,7 +144,7 @@
 
         public afterDrawn = (e) => {
             if (this.Configuration.Hidden) return;
-            if (this._associatedColumn.IsDateTime) {
+            if (this.AssociatedColumn.IsDateTime) {
                 var fromDate = this.MasterTable.Date.parse(this.Configuration.FromValue);
                 var toDate = this.MasterTable.Date.parse(this.Configuration.ToValue);
 

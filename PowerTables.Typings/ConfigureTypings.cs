@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Mvc;
 using PowerTables.Configuration;
 using PowerTables.Configuration.Json;
@@ -12,7 +9,6 @@ using PowerTables.Editors.Check;
 using PowerTables.Editors.Memo;
 using PowerTables.Editors.PlainText;
 using PowerTables.Editors.SelectList;
-using PowerTables.Filters;
 using PowerTables.Filters.Range;
 using PowerTables.Filters.Select;
 using PowerTables.Filters.Value;
@@ -88,9 +84,8 @@ namespace PowerTables.Typings
             builder.ExportAsInterface<RangeFilterUiConfig>().WithPublicProperties().WithProperty(c => c.ClientFilteringFunction, c => c.Type("(object: any, fromValue:string, toValue:string, query: IQuery)=>boolean"));
             builder.ExportAsInterface<ValueFilterUiConfig>().WithPublicProperties().WithProperty(c => c.ClientFilteringFunction, c => c.Type("(object: any, filterValue:string, query: IQuery)=>boolean"));
             builder.ExportAsInterface<ResponseInfoClientConfiguration>().WithPublicProperties()
-                .WithProperty(c => c.ClientEvaluationFunction, c => c.Type("(data:IClientDataResults, currentPage:number, totalPages:number) => any"))
+                .WithProperty(c => c.ClientCalculators, c => c.Type("{ [key:string] : (data:IClientDataResults) => any }"))
                 .WithProperty(c => c.ClientTemplateFunction, c => c.Type("(data:any) => string"))
-
                 ;
             builder.ExportAsInterface<SelectListItem>()
                 .WithPublicProperties()

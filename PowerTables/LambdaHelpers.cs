@@ -142,8 +142,14 @@ namespace PowerTables
         /// <returns>Lambda expression denoting c=>c.Property</returns>
         public static LambdaExpression BetweenLambdaExpression(PropertyInfo property, object from, object to, bool inclusive = false)
         {
-            ConstantExpression cfrom = Expression.Constant(@from);
-            ConstantExpression cto = Expression.Constant(to);
+            Expression cfrom = Expression.Constant(@from);
+            Expression cto = Expression.Constant(to);
+
+            if (property.PropertyType.IsNullable())
+            {
+                cfrom = Expression.Convert(cfrom, property.PropertyType);
+                cto = Expression.Convert(cto, property.PropertyType);
+            }
 
             ParameterExpression pex = Expression.Parameter(property.DeclaringType);
             MemberExpression mex = Expression.Property(pex, property);
@@ -171,8 +177,14 @@ namespace PowerTables
         /// <returns>Lambda expression denoting c=>c.Property</returns>
         public static LambdaExpression BetweenLambdaExpression(LambdaExpression filterExpression, object from, object to, bool inclusive = false)
         {
-            ConstantExpression cfrom = Expression.Constant(@from);
-            ConstantExpression cto = Expression.Constant(to);
+            Expression cfrom = Expression.Constant(@from);
+            Expression cto = Expression.Constant(to);
+            
+            if (filterExpression.Body.Type.IsNullable())
+            {
+                cfrom = Expression.Convert(cfrom,filterExpression.Body.Type);
+                cto = Expression.Convert(cto, filterExpression.Body.Type);
+            }
 
             ExpressionType gt = inclusive ? ExpressionType.GreaterThanOrEqual : ExpressionType.GreaterThan;
             ExpressionType lt = inclusive ? ExpressionType.LessThanOrEqual : ExpressionType.LessThan;

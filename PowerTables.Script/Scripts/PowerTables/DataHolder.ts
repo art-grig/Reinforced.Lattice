@@ -273,12 +273,12 @@
          * @param predicate Filtering predicate returning true for required objects
          * @returns Array of ILocalLookupResults
          */
-        public localLookup(predicate: (object: any) => boolean): ILocalLookupResult[] {
+        public localLookup(predicate: (object: any) => boolean, setToLookup: any[] = this.StoredData): ILocalLookupResult[] {
             var result: ILocalLookupResult[] = [];
-            for (var i: number = 0; i < this.StoredData.length; i++) {
-                if (predicate(this.StoredData[i])) {
+            for (var i: number = 0; i < setToLookup.length; i++) {
+                if (predicate(setToLookup[i])) {
                     result.push({
-                        DataObject: this.StoredData[i],
+                        DataObject: setToLookup[i],
                         IsCurrentlyDisplaying: false,
                         LoadedIndex: i,
                         DisplayedIndex: -1
@@ -384,15 +384,15 @@
          * @param dataObject Object to match
          * @returns ILocalLookupResult
          */
-        public localLookupPrimaryKey(dataObject: any): ILocalLookupResult {
+        public localLookupPrimaryKey(dataObject: any, setToLookup: any[] = this.StoredData): ILocalLookupResult {
             var found = null;
             var foundIdx = 0;
             if (this._masterTable.InstanceManager.DataObjectComparisonFunction == null || this._masterTable.InstanceManager.DataObjectComparisonFunction == undefined) {
                 throw Error('You must specify key fields for table row to use current setup. Please call .PrimaryKey on configuration object and specify set of columns exposing primary key.');
             }
-            for (var i = 0; i < this.StoredData.length; i++) {
-                if (this._masterTable.InstanceManager.DataObjectComparisonFunction(dataObject, this.StoredData[i])) {
-                    found = this.StoredData[i];
+            for (var i = 0; i < setToLookup.length; i++) {
+                if (this._masterTable.InstanceManager.DataObjectComparisonFunction(dataObject, setToLookup[i])) {
+                    found = setToLookup[i];
                     foundIdx = i;
                     break;
                 }
@@ -488,6 +488,18 @@
                 var lookup = this.localLookupPrimaryKey(adjustments.Removals[j]);
                 if (lookup.LoadedIndex > -1) {
                     this.StoredData.splice(lookup.LoadedIndex, 1);
+                    needRefilter = true;
+                }
+
+                lookup = this.localLookupPrimaryKey(adjustments.Removals[j],this.Filtered);
+                if (lookup.LoadedIndex > -1) {
+                    this.Filtered.splice(lookup.LoadedIndex, 1);
+                    needRefilter = true;
+                }
+
+                lookup = this.localLookupPrimaryKey(adjustments.Removals[j], this.Ordered);
+                if (lookup.LoadedIndex > -1) {
+                    this.Ordered.splice(lookup.LoadedIndex, 1);
                     needRefilter = true;
                 }
             }

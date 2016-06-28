@@ -55,6 +55,11 @@ namespace PowerTables.Filters.Range
         public JRaw ClientFilteringFunction { get; set; }
 
 
+        /// <summary>
+        /// Gets or sets ability of range filter to convert dates ranges to 1 day automatically when single day is selected
+        /// </summary>
+        public bool TreatEqualDateAsWholeDay { get; set; }
+
         public RangeFilterUiConfig()
         {
             FromPlaceholder = "From";
