@@ -54,6 +54,11 @@ namespace PowerTables.Filters.Value
         /// </summary>
         public bool Hidden { get; set; }
 
+        /// <summary>
+        /// When true, client value filter will ignore time in case of dates filtering
+        /// </summary>
+        public bool CompareOnlyDates { get; set; }
+
         public ValueFilterUiConfig()
         {
             InputDelay = 500;

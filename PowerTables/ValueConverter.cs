@@ -77,7 +77,11 @@ namespace PowerTables
 
         public static object MapValue(object src, Type targetType, IConfigurator conf)
         {
-            if (src == null) return null;
+            if (src == null)
+            {
+                return null;
+            }
+            if (src.GetType() == targetType) return src;
             if (src is string)
             {
                 if (String.IsNullOrEmpty(src.ToString()))

@@ -61,6 +61,30 @@ namespace PowerTables.Filters.Value
         }
 
         /// <summary>
+        /// Forces value filter to compare inly dates, ignoring time during client filtering
+        /// </summary>
+        /// <param name="filter">Filter configuration</param>
+        /// <param name="compare"></param>
+        /// <returns>Fluent</returns>
+        public static ValueColumnFilter<TSourceData, DateTime> CompareOnlyDates<TSourceData>(this ValueColumnFilter<TSourceData, DateTime> filter,bool compare = true)
+        {
+            filter.CompareOnlyDates = compare;
+            return filter;
+        }
+
+        /// <summary>
+        /// Forces value filter to compare inly dates, ignoring time during client filtering
+        /// </summary>
+        /// <param name="filter">Filter configuration</param>
+        /// <param name="compare"></param>
+        /// <returns>Fluent</returns>
+        public static ValueColumnFilter<TSourceData, DateTime?> CompareOnlyDates<TSourceData>(this ValueColumnFilter<TSourceData, DateTime?> filter, bool compare = true)
+        {
+            filter.CompareOnlyDates = compare;
+            return filter;
+        }
+
+        /// <summary>
         /// Attaches simple value filter to column. 
         /// Value column filter supports specifying only one value. 
         /// This filter filters out source query leaving records that are having value denoted by column that is equal to specified value in filter. 
@@ -127,6 +151,31 @@ namespace PowerTables.Filters.Value
         public static ColumnPluginConfigurationWrapper<ValueFilterUiConfig, TColumn> Default<TColumn>(this ColumnPluginConfigurationWrapper<ValueFilterUiConfig, TColumn> config, TColumn value) where TColumn : class
         {
             config.Configuration.DefaultValue = ValueConverter.ToFilterDefaultString(value);
+            return config;
+        }
+
+
+        /// <summary>
+        /// Forces value filter to compare inly dates, ignoring time during client filtering
+        /// </summary>
+        /// <param name="config">Configuration</param>
+        /// <param name="compare"></param>
+        /// <returns>Fluent</returns>
+        public static ColumnPluginConfigurationWrapper<ValueFilterUiConfig, DateTime> CompareOnlyDates(this ColumnPluginConfigurationWrapper<ValueFilterUiConfig, DateTime> config, bool compare = true)
+        {
+            config.Configuration.CompareOnlyDates = compare;
+            return config;
+        }
+
+        /// <summary>
+        /// Forces value filter to compare inly dates, ignoring time during client filtering
+        /// </summary>
+        /// <param name="config">Configuration</param>
+        /// <param name="compare"></param>
+        /// <returns>Fluent</returns>
+        public static ColumnPluginConfigurationWrapper<ValueFilterUiConfig, DateTime?> CompareOnlyDates(this ColumnPluginConfigurationWrapper<ValueFilterUiConfig, DateTime?> config, bool compare = true)
+        {
+            config.Configuration.CompareOnlyDates = compare;
             return config;
         }
 

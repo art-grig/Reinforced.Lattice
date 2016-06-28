@@ -14,6 +14,8 @@ namespace PowerTables.Filters.Value
     /// </summary>
     public class ValueColumnFilter<TSourceData, TFilteringKey> : ColumnFilterBase<TSourceData, TFilteringKey>
     {
+        internal bool CompareOnlyDates { get; set; }
+
         protected ValueColumnFilter(string columnName, IConfigurator conf, LambdaExpression sourceColumn)
             : base(columnName, conf)
         {
@@ -32,7 +34,16 @@ namespace PowerTables.Filters.Value
 
         protected override IQueryable<TSourceData> DefaultFilter(IQueryable<TSourceData> source, TFilteringKey key)
         {
-            LambdaExpression lambda = LambdaHelpers.ConstantBinaryLambdaExpression(ExpressionType.Equal, _sourceExpression,key.ExtractValueFromNullable());
+            if (CompareOnlyDates)
+            {
+                DateTime dt = (DateTime)(object)key;
+                DateTime from = dt.Date;
+                DateTime to = dt.Date.AddDays(1).AddSeconds(-1);
+
+                LambdaExpression lambdaBetween = LambdaHelpers.BetweenLambdaExpression(_sourceExpression, from, to, true);
+                return ReflectionCache.CallWhere(source, lambdaBetween);
+            }
+            LambdaExpression lambda = LambdaHelpers.ConstantBinaryLambdaExpression(ExpressionType.Equal, _sourceExpression, key.ExtractValueFromNullable());
             return ReflectionCache.CallWhere(source, lambda);
         }
 

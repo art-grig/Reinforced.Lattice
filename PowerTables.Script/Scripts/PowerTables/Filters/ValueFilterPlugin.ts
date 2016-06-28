@@ -1,5 +1,5 @@
 ﻿module PowerTables.Filters.Value {
-    
+
 
     /**
      * Client-side part of value filter
@@ -31,9 +31,9 @@
             return this.FilterValueProvider.value;
         }
 
-/**
-* @internal
-*/
+        /**
+        * @internal
+        */
         public handleValueChanged() {
             if (this._isInitializing) return;
             if (this._filteringIsBeingExecuted) return;
@@ -56,16 +56,16 @@
                 this._filteringIsBeingExecuted = false;
             }
         }
-/**
-* @internal
-*/
+        /**
+        * @internal
+        */
         public renderContent(templatesProvider: ITemplatesProvider): string {
             if (this.Configuration.Hidden) return '';
             return this.defaultRender(templatesProvider);
         }
-/**
-* @internal
-*/
+        /**
+        * @internal
+        */
         public init(masterTable: IMasterTable): void {
             super.init(masterTable);
             if (this.Configuration.ClientFiltering) {
@@ -74,9 +74,9 @@
             this._associatedColumn = this.MasterTable.InstanceManager.Columns[this.Configuration.ColumnName];
 
         }
-/**
-* @internal
-*/
+        /**
+        * @internal
+        */
         public filterPredicate(rowObject: any, query: IQuery): boolean {
             var fval: string = query.Filterings[this._associatedColumn.RawName];
             if (fval == null || fval == undefined) return true;
@@ -122,14 +122,19 @@
 
             if (this._associatedColumn.IsDateTime) {
                 var date = this.MasterTable.Date.parse(fval);
+                if (this.Configuration.CompareOnlyDates) {
+                    return date.getFullYear() === objVal.getFullYear()
+                        && date.getDate() === objVal.getDate()
+                        && date.getMonth() === objVal.getMonth();
+                }
                 return date === objVal;
             }
 
             return true;
         }
-/**
-* @internal
-*/
+        /**
+        * @internal
+        */
         public modifyQuery(query: IQuery, scope: QueryScope): void {
             if (this.Configuration.Hidden) return;
             var val: string = this.getValue();
@@ -141,9 +146,9 @@
                 query.Filterings[this._associatedColumn.RawName] = val;
             }
         }
-/**
-* @internal
-*/
+        /**
+        * @internal
+        */
         public afterDrawn = (e) => {
             if (this.Configuration.Hidden) return;
             if (this._associatedColumn.IsDateTime) {

@@ -37,7 +37,7 @@
         }
 
         public prefetchData(data: any[]) {
-            var query = this.gatherQuery(QueryScope.Client);
+            var query = this.gatherQuery(QueryScope.Server);
             this._dataHolder.storeResponse(<any>{
                 Data:data
             }, query);

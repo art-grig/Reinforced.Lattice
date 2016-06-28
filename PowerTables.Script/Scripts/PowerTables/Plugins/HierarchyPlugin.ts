@@ -131,8 +131,8 @@
                 stackCur._order = stackIdx++;
 
                 if (stackCur._subtree) {
-                    for (var l = 0; l < stackCur._subtree.length; l++) {
-                        stack.push(stackCur._subtree[l]);
+                    for (var l = 1; l <= stackCur._subtree.length; l++) {
+                        stack.push(stackCur._subtree[stackCur._subtree.length-l]);
                     }
                 }
             }

@@ -1,10 +1,8 @@
--- ModelBuilding
 Model aircraft
 Model car
 Model railway
 Carpet railway
 Lionel Trains
--- PhysicalActivity
 BB guns
 Big Wheel
 Bilibo
@@ -33,15 +31,11 @@ Soap-box cart
 Space Pets
 Toy weapon
 Water gun
-Wiffle bat and ball
--- Puzzle
-Jigsaw Puzzle
+Wiffle bat and ballJigsaw Puzzle
 Mr. Potato Head
 Puzzle
 Rubik's Cube
-Tangrams
--- Science
-Chemistry set
+TangramsChemistry set
 Etch A Sketch
 Kaleidoscope
 Magic 8-Ball
@@ -50,14 +44,11 @@ Sea Monkeys
 Spinning top
 View-Master
 Wooly Willy
-Zoetrope
--- Sound
-Noise makers
+ZoetropeNoise makers
 Synthesizer
 Toy piano
 Toy rattle
 Whistle
--- Spinning 
 Chinese yo-yo (Diabolo)
 Frisbee (1950s)
 Gyroscope
@@ -65,9 +56,7 @@ Hula hoop (1950s)
 Magnet Space Wheel (Whee-Lo)
 Pinwheel
 Top
-Yo-yo (1930s onwards)
--- Games
-Atari 2600
+Yo-yo (1930s onwards)Atari 2600
 Barrel O' Monkeys
 Battleship
 Candy Land
@@ -96,31 +85,21 @@ Sorry!
 Trivial Pursuit
 Twister
 Uno
-Xbox
--- FoodRelated
-Easy-Bake Oven
+XboxEasy-Bake Oven
 Pez dispenser
 Snow cone machine
-Tea set
--- Executive
-Newton's cradle
-Pin Art
--- Electronic
-Digital pet
+Tea setNewton's cradle
+Pin ArtDigital pet
 Entertainment robot
 Robot dog
 Robot kit
-USB toy
--- Educational
-Ant Farm
+USB toyAnt Farm
 Lego Mindstorms
 Lego Mindstorms NXT
 Little Golden Books
 qfix robot kits
 See 'n Say
-Speak & Spell
--- Dolls
-African doll
+Speak & SpellAfrican doll
 Amish doll
 Anatomically correct doll
 Apple doll
@@ -144,9 +123,7 @@ Rag doll
 Reborn doll
 Shopkins
 Tanjore doll
-Topsy-Turvy doll
--- Creative
-Cleversticks
+Topsy-Turvy dollCleversticks
 Colorforms
 Crayola Crayons
 Creepy Crawlers
@@ -158,9 +135,7 @@ Rainbow Loom
 Shrinky Dinks
 Silly Putty
 Spirograph
-Stickers
--- Construction
-Lego
+StickersLego
 Lincoln Logs
 Märklin
 Meccano
@@ -172,9 +147,7 @@ STIKFAS
 Tinkertoy
 Tog'l
 Zaks
-Zome
--- CarsAndRc
-Corgi toy cars
+ZomeCorgi toy cars
 Dinky toy cars
 Hot Wheels toy cars
 Matchbox cars
@@ -185,15 +158,11 @@ Radio-controlled boat
 Radio-controlled cars
 Slot cars
 Tonka Toys
-Walkie-talkie
--- Animals
-Breyer Animal Creations
+Walkie-talkieBreyer Animal Creations
 Littlest Pet Shop
 My Little Pony
 Puppy in My Pocket
-Pound Puppies
--- ActionFigures
-B-Daman
+Pound PuppiesB-Daman
 Digital pet
 Evel Knievel Action Figure
 G.I. Joe
@@ -210,9 +179,7 @@ Stretch Armstrong
 Teenage Mutant Ninja Turtles
 Toy soldier
 Transformers
-Weebles
--- BoardGames
-Abalone
+WeeblesAbalone
 Agon
 Backgammon
 Battleship

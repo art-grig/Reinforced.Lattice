@@ -88,7 +88,7 @@ namespace PowerTables.Configuration
         /// <param name="c">Table configurator</param>
         /// <param name="load">Load (or not)</param>
         /// <returns>Fluent</returns>
-        public static Configurator<TSourceData, TTableData> LoadImmediately<TSourceData, TTableData>(this Configurator<TSourceData, TTableData> c, bool load) where TTableData : new()
+        public static T LoadImmediately<T>(this T c, bool load) where T : IConfigurator
         {
             c.TableConfiguration.LoadImmediately = load;
             return c;
@@ -101,7 +101,7 @@ namespace PowerTables.Configuration
         /// <param name="c">Table configurator</param>
         /// <param name="url">Server handling URL</param>
         /// <returns></returns>
-        public static Configurator<TSourceData, TTableData> Url<TSourceData, TTableData>(this Configurator<TSourceData, TTableData> c, string url) where TTableData : new()
+        public static T Url<T>(this T c, string url) where T : IConfigurator
         {
             c.TableConfiguration.OperationalAjaxUrl = url;
             return c;
@@ -116,7 +116,7 @@ namespace PowerTables.Configuration
         /// <param name="c">Table configurator</param>
         /// <param name="dpo">Datepicker options object</param>
         /// <returns></returns>
-        public static Configurator<TSourceData, TTableData> DatePicker<TSourceData, TTableData>(this Configurator<TSourceData, TTableData> c, DatepickerOptions dpo) where TTableData : new()
+        public static T DatePicker<T>(this T c, DatepickerOptions dpo) where T : IConfigurator
         {
             c.TableConfiguration.DatepickerOptions = dpo;
             return c;
@@ -267,14 +267,14 @@ namespace PowerTables.Configuration
         /// <param name="cellWrapper">TemplateID for cell wrapper</param>
         /// <param name="messages">Template ID for messages wrappers</param>
         /// <returns></returns>
-        public static Configurator<TSourceData, TTableData> CoreTemplates<TSourceData, TTableData>(this Configurator<TSourceData, TTableData> t,
+        public static T CoreTemplates<T>(this T t,
             string layout = "layout",
             string pluginWrapper = "pluginWrapper",
             string rowWrapper = "rowWrapper",
             string headerWrapper = "headerWrapper",
             string cellWrapper = "cellWrapper",
             string messages = "messages"
-            ) where TTableData : new()
+            ) where T : IConfigurator
         {
             t.TableConfiguration.CoreTemplates.Layout = layout;
             t.TableConfiguration.CoreTemplates.PluginWrapper = pluginWrapper;
@@ -310,8 +310,8 @@ namespace PowerTables.Configuration
         /// <param name="touchedRowTemplateId">Template ID for touched row</param>
         /// <param name="touchedCellTemplateId">Template ID for touched columns</param>
         /// <param name="addedRowTemplateId">Template ID for added row</param>
-        public static Configurator<TSourceData, TTableData> AdjustmentTemplates<TSourceData, TTableData>
-            (this Configurator<TSourceData, TTableData> conf, string touchedRowTemplateId, string touchedCellTemplateId, string addedRowTemplateId) where TTableData : new()
+        public static T AdjustmentTemplates<T>
+            (this T conf, string touchedRowTemplateId, string touchedCellTemplateId, string addedRowTemplateId) where T : IConfigurator
         {
             conf.TableConfiguration.TouchedCellTemplateId = touchedCellTemplateId;
             conf.TableConfiguration.TouchedRowTemplateId = touchedRowTemplateId;
@@ -325,8 +325,7 @@ namespace PowerTables.Configuration
         /// Return null/empty/undefined will let system to choose default template. 
         /// You can access row data via .DataObject property
         /// </summary>
-        public static Configurator<TSourceData, TTableData> RowTemplateSelector<TSourceData, TTableData>
-            (this Configurator<TSourceData, TTableData> conf, string selectorFunction) where TTableData : new()
+        public static T RowTemplateSelector<T>(this T conf, string selectorFunction) where T : IConfigurator
         {
             conf.TableConfiguration.TemplateSelector = string.IsNullOrEmpty(selectorFunction) ? null : new JRaw(selectorFunction);
             return conf;
