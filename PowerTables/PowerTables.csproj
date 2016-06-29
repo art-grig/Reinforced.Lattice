@@ -187,6 +187,7 @@
     <Compile Include="Plugins\ResponseInfo\ResponseInfoClientConfiguration.cs" />
     <Compile Include="Plugins\ResponseInfo\ResponseInfoTemplateRegion.cs" />
     <Compile Include="Plugins\RowAction\ClientRowActionDescription.cs" />
+    <Compile Include="Plugins\RowAction\RowActionTemplateRegion.cs" />
     <Compile Include="Plugins\Toolbar\ConfirmationTemplateRegion.cs" />
     <Compile Include="Plugins\Toolbar\ToolbarBuilder.cs" />
     <Compile Include="Plugins\Toolbar\ToolbarButtonClientConfiguration.cs" />

@@ -47,5 +47,10 @@ namespace PowerTables.Plugins.RowAction
         /// Gets or sets JS function to be executed when action happens. JS function is of type: (table:any (PowerTables.PowerTable), menuElement:any)=>void
         /// </summary>
         public JRaw OnTrigger { get; set; }
+
+        /// <summary>
+        /// Gets or sets URL that HTML content will be loaded from for particular row
+        /// </summary>
+        public string UrlToLoad { get; set; }
     }
 }
