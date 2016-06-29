@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Web;
 
 namespace PowerTables.CellTemplating
 {
@@ -59,6 +60,17 @@ namespace PowerTables.CellTemplating
             return this;
         }
 
+        /// <summary>
+        /// Template will return specified content if specified column is null or undefined
+        /// </summary>
+        /// <param name="columnName">Column</param>
+        /// <param name="content">Content to return</param>
+        /// <returns></returns>
+        public CellTemplateBuilder IfNotPresent(string columnName, IHtmlString content)
+        {
+            return IfNotPresent(columnName, Template.SanitizeHtmlString(content));
+        }
+
 
         /// <summary>
         /// Template will return specified content if specified column is null or undefined
@@ -87,6 +99,17 @@ namespace PowerTables.CellTemplating
                 , Template.Compile(content, "v", _objectProperty)));
             return this;
         }
+
+        /// <summary>
+        /// Template will return empty cell is self-value ({@}) is null or undefined
+        /// </summary>
+        /// <param name="content">Content to return</param>
+        /// <returns></returns>
+        public CellTemplateBuilder IfNotPresentSelf(IHtmlString content)
+        {
+            return IfNotPresentSelf(Template.SanitizeHtmlString(content));
+        }
+
 
         /// <summary>
         /// Template will return empty cell is self-value ({@}) is null or undefined
@@ -142,12 +165,23 @@ namespace PowerTables.CellTemplating
         /// Returns specified template part if condition met
         /// </summary>
         /// <param name="expression">Expression</param>
-        /// <param name="text">Text to return</param>
+        /// <param name="content">Text to return</param>
         /// <returns></returns>
-        public CellTemplateBuilder ReturnsIf(string expression, string text)
+        public CellTemplateBuilder ReturnsIf(string expression, string content)
         {
-            _lines.Add(string.Format("if ({0}) return {1}; ", Template.CompileExpression(expression, "v", _objectProperty), Template.Compile(text, "v", _objectProperty)));
+            _lines.Add(string.Format("if ({0}) return {1}; ", Template.CompileExpression(expression, "v", _objectProperty), Template.Compile(content, "v", _objectProperty)));
             return this;
+        }
+
+        /// <summary>
+        /// Returns specified template part if condition met
+        /// </summary>
+        /// <param name="expression">Expression</param>
+        /// <param name="content">Text to return</param>
+        /// <returns></returns>
+        public CellTemplateBuilder ReturnsIf(string expression, IHtmlString content)
+        {
+            return ReturnsIf(expression, Template.SanitizeHtmlString(content));
         }
 
         /// <summary>
@@ -161,7 +195,6 @@ namespace PowerTables.CellTemplating
         {
             return ReturnsIf(expression, Template.BuildDelegate(elment), Template.BuildDelegate(elseElment));
         }
-
 
         /// <summary>
         /// Returns specified template part if condition met
@@ -177,6 +210,43 @@ namespace PowerTables.CellTemplating
                 Template.Compile(positiveContent, "v", _objectProperty),
                 Template.Compile(negativeContent, "v", _objectProperty)));
             return this;
+        }
+
+        /// <summary>
+        /// Returns specified template part if condition met
+        /// </summary>
+        /// <param name="expression">Expression</param>
+        /// <param name="positiveContent">Content if expression is positive</param>
+        /// <param name="negativeContent">Content if expression is negative</param>
+        /// <returns></returns>
+        public CellTemplateBuilder ReturnsIf(string expression, IHtmlString positiveContent, IHtmlString negativeContent)
+        {
+            return ReturnsIf(expression, Template.SanitizeHtmlString(positiveContent),
+                Template.SanitizeHtmlString(negativeContent));
+        }
+
+        /// <summary>
+        /// Returns specified template part if condition met
+        /// </summary>
+        /// <param name="expression">Expression</param>
+        /// <param name="positiveContent">Content if expression is positive</param>
+        /// <param name="negativeContent">Content if expression is negative</param>
+        /// <returns></returns>
+        public CellTemplateBuilder ReturnsIf(string expression, IHtmlString positiveContent, string negativeContent)
+        {
+            return ReturnsIf(expression, Template.SanitizeHtmlString(positiveContent), negativeContent);
+        }
+
+        /// <summary>
+        /// Returns specified template part if condition met
+        /// </summary>
+        /// <param name="expression">Expression</param>
+        /// <param name="positiveContent">Content if expression is positive</param>
+        /// <param name="negativeContent">Content if expression is negative</param>
+        /// <returns></returns>
+        public CellTemplateBuilder ReturnsIf(string expression, string positiveContent, IHtmlString negativeContent)
+        {
+            return ReturnsIf(expression, positiveContent, Template.SanitizeHtmlString(negativeContent));
         }
 
         /// <summary>
@@ -199,6 +269,16 @@ namespace PowerTables.CellTemplating
             var text = Template.Compile(content, "v", _objectProperty);
             _result = string.Format("return {0}; ", text);
             return this;
+        }
+
+        /// <summary>
+        /// Returns specified template part if condition met
+        /// </summary>
+        /// <param name="content">Content to return</param>
+        /// <returns></returns>
+        public CellTemplateBuilder Returns(IHtmlString content)
+        {
+            return Returns(Template.SanitizeHtmlString(content));
         }
 
         /// <summary>
