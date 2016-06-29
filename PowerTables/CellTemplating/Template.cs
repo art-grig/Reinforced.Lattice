@@ -336,7 +336,11 @@ namespace PowerTables.CellTemplating
 
         internal static string SanitizeHtmlString(IHtmlString str)
         {
-            var s = str.ToHtmlString();
+            return SanitizeHtmlString(str.ToHtmlString());
+        }
+
+        internal static string SanitizeHtmlString(string s)
+        {
             StringBuilder sb = new StringBuilder(s.Length);
 
             char[] hex = new char[2];
@@ -344,7 +348,7 @@ namespace PowerTables.CellTemplating
             {
                 if (s[i] == '%')
                 {
-                    if (i < s.Length - 3)
+                    if (i < s.Length - 2)
                     {
                         hex[0] = s[i + 1];
                         hex[1] = s[i + 2];
@@ -354,7 +358,8 @@ namespace PowerTables.CellTemplating
                             case "40": sb.Append("@"); i += 2; break;
                             case "60": sb.Append("`"); i += 2; break;
                             case "7b": sb.Append("{"); i += 2; break;
-                            case "4d": sb.Append("}"); i += 2; break;
+                            case "7d": sb.Append("}"); i += 2; break;
+                            default: sb.Append(s[i]); break;
                         }
                         continue;
                     }

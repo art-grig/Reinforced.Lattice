@@ -1,8 +1,10 @@
 ﻿@using PowerTables
+@using PowerTables.CellTemplating
 @using PowerTables.Configuration
 @model PowerTables.Mvc.Models.Tutorial.FormWatchTutorialModel
 @{
     Layout = "~/Views/Shared/TutorialsLayout.cshtml";
+    Model.Table.Column(c => c.State).Template(tpl => tpl.Returns(Url.Action("Editor", new { param = "{State}%%%" }).TemplateHTMLDecode()));
 }
 
 @section Result{
@@ -76,7 +78,7 @@
 
     @Model.Table.InitializationScript("mytable", "window.$$table")
 
-   
+
 }
 
 

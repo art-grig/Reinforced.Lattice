@@ -72,5 +72,16 @@ namespace PowerTables.CellTemplating
                 c.Returns(a => a.Tag("a").Attr("href", linkFormat).Content(textFormat).Attr("target", target));
             });
         }
+
+        /// <summary>
+        /// Replaces escaped %XX-symbols used by Lattice with regular symbols. 
+        /// This method only affects `,@,{,} symbols
+        /// </summary>
+        /// <param name="s">Escaped HTML string</param>
+        /// <returns></returns>
+        public static string TemplateHTMLDecode(this string s)
+        {
+            return CellTemplating.Template.SanitizeHtmlString(s);
+        }
     }
 }
