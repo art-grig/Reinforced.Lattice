@@ -399,6 +399,19 @@ namespace PowerTables.Configuration
             return conf;
         }
 
+
+        /// <summary>
+        /// Function that should consume ICell instance and return template name for this particular cell.
+        /// Return null/empty/undefined will let system to choose default template. 
+        /// You can access cell data via .DataObject property
+        /// </summary>
+        public static ColumnUsage<TSourceData, TTableData, TColumn> TemplateSelector<TSourceData, TTableData, TColumn>(this ColumnUsage<TSourceData, TTableData, TColumn> conf, string selectorFunction) 
+            where TTableData : new()
+        {
+            conf.ColumnConfiguration.TemplateSelector = string.IsNullOrEmpty(selectorFunction) ? null : new JRaw(selectorFunction);
+            return conf;
+        }
+
         /// <summary>
         /// Subscribes event handler of DOM event occured on each cell of this column (without headers)
         /// Please use this function to subscribe cell events instead of template bindings or onclick to 

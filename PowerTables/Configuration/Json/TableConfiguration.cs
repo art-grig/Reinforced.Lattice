@@ -268,6 +268,12 @@ namespace PowerTables.Configuration.Json
         /// Function signature: (dataObject:any) => any
         /// </summary>
         public JRaw ClientValueFunction { get; set; }
+
+        /// <summary>
+        /// Function that should consume IRow instance and return template name for this particular row.
+        /// Return null/empty/undefined will let system to choose default template
+        /// </summary>
+        public JRaw TemplateSelector { get; set; }
     }
 
     /// <summary>

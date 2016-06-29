@@ -90,6 +90,9 @@
             var result = '';
             if (cell.renderElement) result = cell.renderElement(this._templatesProvider);
             else {
+                if (cell.Column.Configuration.TemplateSelector) {
+                    cell.TemplateIdOverride = cell.Column.Configuration.TemplateSelector(cell);
+                }
                 if (cell.TemplateIdOverride) {
                     result = this._templatesProvider.getCachedTemplate(cell.TemplateIdOverride)(cell);
                 } else {

@@ -65,6 +65,7 @@ namespace PowerTables.Typings
                 .WithProperty(c => c.CellRenderingValueFunction, c => c.Type("(a:any) => string"))
                 .WithProperty(c => c.ClientValueFunction, c => c.Type("(a:any) => any"))
                 .WithProperty(c => c.Meta, v => v.ForceNullable(true))
+                .WithProperty(c => c.TemplateSelector, c => c.Type("(cell:ICell)=>string"))
                 ;
 
             builder.ExportAsInterface<PluginConfiguration>().WithPublicProperties();

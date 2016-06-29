@@ -40,6 +40,7 @@ module PowerTables.Configuration.Json {
 		IsEnum: boolean;
 		IsNullable: boolean;
 		ClientValueFunction: (a:any) => any;
+		TemplateSelector: (cell:ICell)=>string;
 	}
 	export interface IPluginConfiguration
 	{

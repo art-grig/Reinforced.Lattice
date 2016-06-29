@@ -59,6 +59,14 @@
             }
         }
 
+
+        /**
+         * Redraws locally visible data
+         */
+        public replaceVisibleData(rows:IRow[]): void {
+            this._masterTable.Renderer.body(rows);
+        }
+
         /**
          * @internal
          */
