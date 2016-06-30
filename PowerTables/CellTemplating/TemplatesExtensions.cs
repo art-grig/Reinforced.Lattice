@@ -26,7 +26,7 @@ namespace PowerTables.CellTemplating
             CellTemplateBuilder ctb = new CellTemplateBuilder();
             elementsConf(ctb);
             var fun = ctb.Build();
-            col.ValueFunction(fun);
+            col.TemplateFunction(fun);
             return col;
         }
 
