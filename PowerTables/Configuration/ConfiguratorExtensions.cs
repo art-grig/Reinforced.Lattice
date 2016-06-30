@@ -210,13 +210,13 @@ namespace PowerTables.Configuration
         /// <param name="conf">Column</param>
         /// <param name="function">JS function text. Like "function(v){ ... }"</param>
         /// <returns>Fluent</returns>
-        public static ColumnUsage<TSourceData, TTableData, TTableColumn> ValueFunction<TSourceData, TTableData, TTableColumn>
+        public static ColumnUsage<TSourceData, TTableData, TTableColumn> TemplateFunction<TSourceData, TTableData, TTableColumn>
             (this ColumnUsage<TSourceData, TTableData, TTableColumn> conf, string function) where TTableData : new()
         {
 
             if (!string.IsNullOrEmpty(conf.ColumnConfiguration.CellRenderingTemplateId))
             {
-                throw new Exception("Column has already specified TemplateId. ValueFunction is redundant. Please remove it.");
+                throw new Exception("Column has already specified TemplateId. TemplateFunction is redundant. Please remove it.");
             }
             conf.ColumnConfiguration.CellRenderingValueFunction = new JRaw(function);
             return conf;

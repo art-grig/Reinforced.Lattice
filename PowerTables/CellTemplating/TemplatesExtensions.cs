@@ -26,7 +26,7 @@ namespace PowerTables.CellTemplating
             CellTemplateBuilder ctb = new CellTemplateBuilder();
             elementsConf(ctb);
             var fun = ctb.Build();
-            col.ValueFunction(fun);
+            col.TemplateFunction(fun);
             return col;
         }
 
@@ -71,6 +71,17 @@ namespace PowerTables.CellTemplating
                 c.EmptyIfNotPresent(col.ColumnConfiguration.RawColumnName);
                 c.Returns(a => a.Tag("a").Attr("href", linkFormat).Content(textFormat).Attr("target", target));
             });
+        }
+
+        /// <summary>
+        /// Replaces escaped %XX-symbols used by Lattice with regular symbols. 
+        /// This method only affects `,@,{,} symbols
+        /// </summary>
+        /// <param name="s">Escaped HTML string</param>
+        /// <returns></returns>
+        public static string TemplateHTMLDecode(this string s)
+        {
+            return CellTemplating.Template.SanitizeHtmlString(s);
         }
     }
 }

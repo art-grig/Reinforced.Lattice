@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Web;
+using System.Web.Mvc;
 
 namespace PowerTables.CellTemplating
 {
@@ -31,12 +33,32 @@ namespace PowerTables.CellTemplating
         /// <summary>
         /// Specifies button tag
         /// </summary>
+        /// <param name="tag"></param>
+        /// <returns></returns>
+        public Template Tag(IHtmlString tag)
+        {
+            return Tag(SanitizeHtmlString(tag));
+        }
+
+        /// <summary>
+        /// Specifies button tag
+        /// </summary>
         /// <param name="classes">Css classes string</param>
         /// <returns></returns>
         public Template Class(string classes)
         {
             _classes.AddRange(classes.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
             return this;
+        }
+
+        /// <summary>
+        /// Specifies button tag
+        /// </summary>
+        /// <param name="classes">Css classes string</param>
+        /// <returns></returns>
+        public Template Class(IHtmlString classes)
+        {
+            return Class(SanitizeHtmlString(classes));
         }
 
         /// <summary>
@@ -52,6 +74,16 @@ namespace PowerTables.CellTemplating
         }
 
         /// <summary>
+        /// Specifies button tag
+        /// </summary>
+        /// <param name="classes">Css classes string</param>
+        /// <returns></returns>
+        public Template RemoveClass(IHtmlString classes)
+        {
+            return RemoveClass(SanitizeHtmlString(classes));
+        }
+
+        /// <summary>
         /// Adds attribute to in-cell element
         /// </summary>
         /// <param name="attrName">Attribute name</param>
@@ -61,6 +93,39 @@ namespace PowerTables.CellTemplating
         {
             _attributes[attrName] = attrValue;
             return this;
+        }
+
+        /// <summary>
+        /// Adds attribute to in-cell element
+        /// </summary>
+        /// <param name="attrName">Attribute name</param>
+        /// <param name="attrValue">Attribute value</param>
+        /// <returns></returns>
+        public Template Attr(IHtmlString attrName, IHtmlString attrValue)
+        {
+            return Attr(SanitizeHtmlString(attrName), SanitizeHtmlString(attrValue));
+        }
+
+        /// <summary>
+        /// Adds attribute to in-cell element
+        /// </summary>
+        /// <param name="attrName">Attribute name</param>
+        /// <param name="attrValue">Attribute value</param>
+        /// <returns></returns>
+        public Template Attr(string attrName, IHtmlString attrValue)
+        {
+            return Attr(attrName, SanitizeHtmlString(attrValue));
+        }
+
+        /// <summary>
+        /// Adds attribute to in-cell element
+        /// </summary>
+        /// <param name="attrName">Attribute name</param>
+        /// <param name="attrValue">Attribute value</param>
+        /// <returns></returns>
+        public Template Attr(IHtmlString attrName, string attrValue)
+        {
+            return Attr(SanitizeHtmlString(attrName), attrValue);
         }
 
         /// <summary>
@@ -75,6 +140,39 @@ namespace PowerTables.CellTemplating
         }
 
         /// <summary>
+        /// Changes/updates specified data-attribute of resulting tag
+        /// </summary>
+        /// <param name="dataName">data name</param>
+        /// <param name="dataValue">data value</param>
+        /// <returns></returns>
+        public Template Data(IHtmlString dataName, IHtmlString dataValue)
+        {
+            return Data(SanitizeHtmlString(dataName), SanitizeHtmlString(dataValue));
+        }
+
+        /// <summary>
+        /// Changes/updates specified data-attribute of resulting tag
+        /// </summary>
+        /// <param name="dataName">data name</param>
+        /// <param name="dataValue">data value</param>
+        /// <returns></returns>
+        public Template Data(string dataName, IHtmlString dataValue)
+        {
+            return Data(dataName, SanitizeHtmlString(dataValue));
+        }
+
+        /// <summary>
+        /// Changes/updates specified data-attribute of resulting tag
+        /// </summary>
+        /// <param name="dataName">data name</param>
+        /// <param name="dataValue">data value</param>
+        /// <returns></returns>
+        public Template Data(IHtmlString dataName, string dataValue)
+        {
+            return Data(SanitizeHtmlString(dataName), dataValue);
+        }
+
+        /// <summary>
         /// Specifies in-element content
         /// Supports {- and `-syntax
         /// </summary>
@@ -84,6 +182,17 @@ namespace PowerTables.CellTemplating
         {
             _content = content;
             return this;
+        }
+
+        /// <summary>
+        /// Specifies in-element content
+        /// Supports {- and `-syntax
+        /// </summary>
+        /// <param name="content">Raw HTML content</param>
+        /// <returns></returns>
+        public Template Content(IHtmlString content)
+        {
+            return Content(SanitizeHtmlString(content));
         }
 
         /// <summary>
@@ -110,6 +219,16 @@ namespace PowerTables.CellTemplating
             return this;
         }
 
+        /// <summary>
+        /// Specifies in-element content
+        /// </summary>
+        /// <param name="content">Raw HTML content</param>
+        /// <returns></returns>
+        public Template After(IHtmlString content)
+        {
+            return After(SanitizeHtmlString(content));
+        }
+
 
         /// <summary>
         /// Specifies in-element content
@@ -134,6 +253,39 @@ namespace PowerTables.CellTemplating
         {
             _styles[styleKey] = styleValue;
             return this;
+        }
+
+        /// <summary>
+        /// Changes specified style of element
+        /// </summary>
+        /// <param name="styleKey">CSS style namt</param>
+        /// <param name="styleValue">CSS style value</param>
+        /// <returns></returns>
+        public Template Css(IHtmlString styleKey, IHtmlString styleValue)
+        {
+            return Css(SanitizeHtmlString(styleKey), SanitizeHtmlString(styleValue));
+        }
+
+        /// <summary>
+        /// Changes specified style of element
+        /// </summary>
+        /// <param name="styleKey">CSS style namt</param>
+        /// <param name="styleValue">CSS style value</param>
+        /// <returns></returns>
+        public Template Css(string styleKey, IHtmlString styleValue)
+        {
+            return Css(styleKey, SanitizeHtmlString(styleValue));
+        }
+
+        /// <summary>
+        /// Changes specified style of element
+        /// </summary>
+        /// <param name="styleKey">CSS style namt</param>
+        /// <param name="styleValue">CSS style value</param>
+        /// <returns></returns>
+        public Template Css(IHtmlString styleKey, string styleValue)
+        {
+            return Css(SanitizeHtmlString(styleKey), styleValue);
         }
 
         /// <summary>
@@ -182,6 +334,40 @@ namespace PowerTables.CellTemplating
             return Compile(Build(), modelName, objectProperty);
         }
 
+        internal static string SanitizeHtmlString(IHtmlString str)
+        {
+            return SanitizeHtmlString(str.ToHtmlString());
+        }
+
+        internal static string SanitizeHtmlString(string s)
+        {
+            StringBuilder sb = new StringBuilder(s.Length);
+
+            char[] hex = new char[2];
+            for (int i = 0; i < s.Length; i++)
+            {
+                if (s[i] == '%')
+                {
+                    if (i < s.Length - 2)
+                    {
+                        hex[0] = s[i + 1];
+                        hex[1] = s[i + 2];
+                        string hx = new string(hex, 0, 2);
+                        switch (hx.ToLower())
+                        {
+                            case "40": sb.Append("@"); i += 2; break;
+                            case "60": sb.Append("`"); i += 2; break;
+                            case "7b": sb.Append("{"); i += 2; break;
+                            case "7d": sb.Append("}"); i += 2; break;
+                            default: sb.Append(s[i]); break;
+                        }
+                        continue;
+                    }
+                }
+                sb.Append(s[i]);
+            }
+            return sb.ToString();
+        }
 
         /// <summary>
         /// Compiles JS expression with {@}-placeholders to JS expression suitable for return statement
@@ -257,8 +443,16 @@ namespace PowerTables.CellTemplating
 
             for (int i = 0; i < tpl.Length; i++)
             {
-
-
+                if (tpl[i] == '\n')
+                {
+                    sb.Append("\\n");
+                    continue;
+                }
+                if (tpl[i] == '\r')
+                {
+                    sb.Append("\\r");
+                    continue;
+                }
                 if (tpl[i] == '`')
                 {
                     if (i > 0) sb.Append("' +");

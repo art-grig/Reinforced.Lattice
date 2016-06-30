@@ -95,7 +95,7 @@ namespace PowerTables.Mvc.Models
 //                .TextForBoolean("On", "Off")
 //                .Title("iCloud Lock");
 
-//            conf.Column(c => c.Cost).ValueFunction("function (a) {return a.Cost + ' EUR';}")
+//            conf.Column(c => c.Cost).TemplateFunction("function (a) {return a.Cost + ' EUR';}")
 //                .Orderable(c => c.Cost)
 //                .FilterRange(c => c.Cost, ui =>
 //                {
@@ -105,7 +105,7 @@ namespace PowerTables.Mvc.Models
 
 //            conf.Column(c => c.ItemsCount)
 //                .Title("Items count")
-//                .ValueFunction(@"
+//                .TemplateFunction(@"
 //                    function(a) { 
 //                        var  templ = null;
 //    
