@@ -1862,6 +1862,7 @@ var PowerTables;
         function Loader(staticData, operationalAjaxUrl, masterTable) {
             this._queryPartProviders = [];
             this._isFirstTimeLoading = false;
+            this._isLoading = false;
             this._staticData = staticData;
             this._operationalAjaxUrl = operationalAjaxUrl;
             this._masterTable = masterTable;
@@ -2017,8 +2018,12 @@ var PowerTables;
                 callback({ $isDeferred: true, $url: this._operationalAjaxUrl + '?q=' + token, $token: token });
             }
         };
+        Loader.prototype.isLoading = function () {
+            return this._isLoading;
+        };
         Loader.prototype.doServerQuery = function (data, clientQuery, callback, errorCallback) {
             var _this = this;
+            this._isLoading = true;
             var dataText = JSON.stringify(data);
             var req = this.getXmlHttp();
             this._events.BeforeLoading.invoke(this, {
@@ -2052,6 +2057,7 @@ var PowerTables;
                         Reason: 'Network error'
                     });
                 }
+                _this._isLoading = false;
                 _this._events.AfterLoading.invoke(_this, {
                     Request: data,
                     XMLHttp: req
@@ -2103,12 +2109,19 @@ var PowerTables;
             }
             else {
                 if (this._masterTable.InstanceManager.Configuration.QueryConfirmation) {
-                    this._masterTable.InstanceManager.Configuration.QueryConfirmation({ Command: 'Query', Query: clientQuery }, PowerTables.QueryScope.Client, function () { return _this._dataHolder.filterStoredData(clientQuery); });
+                    this._masterTable.InstanceManager.Configuration.QueryConfirmation({ Command: 'Query', Query: clientQuery }, PowerTables.QueryScope.Client, function () {
+                        _this._isLoading = true;
+                        _this._dataHolder.filterStoredData(clientQuery);
+                        callback(null);
+                        _this._isLoading = false;
+                    });
                 }
                 else {
+                    this._isLoading = true;
                     this._dataHolder.filterStoredData(clientQuery);
+                    callback(null);
+                    this._isLoading = false;
                 }
-                callback(null);
             }
         };
         return Loader;
