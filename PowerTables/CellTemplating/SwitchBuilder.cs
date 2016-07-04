@@ -10,10 +10,12 @@ namespace PowerTables.CellTemplating
     public class SwitchBuilder
     {
         private readonly string _objectProperty;
-        internal SwitchBuilder(string expression,string objectProperty)
+        private readonly string _defaultProperty;
+        internal SwitchBuilder(string expression,string objectProperty,string defaultProperty)
         {
             _expression = expression;
             _objectProperty = objectProperty;
+            _defaultProperty = defaultProperty;
         }
 
         private readonly string _expression;
@@ -30,7 +32,7 @@ namespace PowerTables.CellTemplating
         {
             Template tpl = new Template();
             template(tpl);
-            _lines.Add(string.Format(" case {0}: return {1}; ", Template.CompileExpression(caseExpression, "v", _objectProperty), tpl.Compile("v", _objectProperty)));
+            _lines.Add(string.Format(" case {0}: return {1}; ", Template.CompileExpression(caseExpression, "v", _objectProperty, _defaultProperty), tpl.Compile("v", _objectProperty, _defaultProperty)));
             return this;
         }
 
@@ -43,7 +45,7 @@ namespace PowerTables.CellTemplating
         {
             Template tpl = new Template();
             template(tpl);
-            _default = string.Format(" default: return {0}; ", tpl.Compile("v", _objectProperty));
+            _default = string.Format(" default: return {0}; ", tpl.Compile("v", _objectProperty, _defaultProperty));
             return this;
         }
 
@@ -72,7 +74,7 @@ namespace PowerTables.CellTemplating
             {
                 Template tpl = new Template();
                 template(tpl, option);
-                _lines.Add(string.Format(" case {0}: return {1}; ", Template.CompileExpression(expression(option), "v", _objectProperty), tpl.Compile("v", _objectProperty)));
+                _lines.Add(string.Format(" case {0}: return {1}; ", Template.CompileExpression(expression(option), "v", _objectProperty, _defaultProperty), tpl.Compile("v", _objectProperty, _defaultProperty)));
             }
             return this;
         }
@@ -84,7 +86,7 @@ namespace PowerTables.CellTemplating
         public string Build()
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendFormat("switch ({0}) {{", Template.CompileExpression(_expression, "v", _objectProperty));
+            sb.AppendFormat("switch ({0}) {{", Template.CompileExpression(_expression, "v", _objectProperty, _defaultProperty));
             foreach (var line in _lines)
             {
                 sb.Append(line);

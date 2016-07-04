@@ -13,114 +13,69 @@ namespace PowerTables.CellTemplating
         private readonly List<string> _lines = new List<string>();
         private string _result;
         private readonly string _objectProperty;
+        private readonly string _defaultProperty;
 
         /// <summary>
         /// Creates new instance of Cell template builder
         /// </summary>
         /// <param name="objectProperty"></param>
-        public CellTemplateBuilder(string objectProperty = "DataObject")
+        /// <param name="defaultProperty"></param>
+        public CellTemplateBuilder(string objectProperty = "DataObject",string defaultProperty = "Data")
         {
             _result = "return '';";
             _objectProperty = objectProperty;
+            _defaultProperty = defaultProperty;
         }
 
         /// <summary>
         /// Template will return empty cell is specified column is null or 0 or undefined
         /// </summary>
-        /// <param name="columnName">Column</param>
+        /// <param name="expression">Expression to check</param>
         /// <returns></returns>
-        public CellTemplateBuilder EmptyIfNotPresent(string columnName)
+        public CellTemplateBuilder EmptyIfNotPresent(string expression)
         {
-            _lines.Add(string.Format("if ((v{1}.{0}==null)||(v{1}.{0}==undefined)) return ''; ", columnName, string.IsNullOrEmpty(_objectProperty) ? string.Empty : ".DataObject"));
-            return this;
+            return IfNotPresent(expression, string.Empty);
         }
-        /// <summary>
-        /// Template will return empty cell is self-value ({@}) is null or undefined
-        /// </summary>
-        /// <returns></returns>
-        public CellTemplateBuilder EmptyIfNotPresentSelf()
-        {
-            _lines.Add(String.Format("if ((v{0}==null)||(v{0}==undefined)) return \'\'; ", string.IsNullOrEmpty(_objectProperty) ? string.Empty : ".DataObject"));
-            return this;
-        }
-
 
         /// <summary>
         /// Template will return specified content if specified column is null or undefined
         /// </summary>
-        /// <param name="columnName">Column</param>
+        /// <param name="expression">Expression to check</param>
         /// <param name="content">Content to return</param>
         /// <returns></returns>
-        public CellTemplateBuilder IfNotPresent(string columnName, string content)
+        public CellTemplateBuilder IfNotPresent(string expression, string content)
         {
-            _lines.Add(string.Format("if ((v{1}.{0}==null)||(v{1}.{0}==undefined)) return {2}; "
-                , columnName
-                , string.IsNullOrEmpty(_objectProperty) ? string.Empty : ".DataObject"
-                , Template.Compile(content, "v", _objectProperty)));
+            expression = Template.CompileExpression(expression, "v", _objectProperty, _defaultProperty);
+            _lines.Add(string.Format("if ((({0})==null)||(({0})==undefined)) return {1}; "
+                , expression
+                , Template.Compile(content, "v", _objectProperty,_defaultProperty)));
             return this;
         }
 
         /// <summary>
         /// Template will return specified content if specified column is null or undefined
         /// </summary>
-        /// <param name="columnName">Column</param>
+        /// <param name="expression">Expression to check</param>
         /// <param name="content">Content to return</param>
         /// <returns></returns>
-        public CellTemplateBuilder IfNotPresent(string columnName, IHtmlString content)
+        public CellTemplateBuilder IfNotPresent(string expression, IHtmlString content)
         {
-            return IfNotPresent(columnName, Template.SanitizeHtmlString(content));
+            return IfNotPresent(expression, Template.SanitizeHtmlString(content));
         }
 
 
         /// <summary>
         /// Template will return specified content if specified column is null or undefined
         /// </summary>
-        /// <param name="columnName">Column</param>
+        /// <param name="expression">Expression to check</param>
         /// <param name="content">Content to return</param>
         /// <returns></returns>
-        public CellTemplateBuilder IfNotPresent(string columnName, Action<Template> content)
+        public CellTemplateBuilder IfNotPresent(string expression, Action<Template> content)
         {
-            _lines.Add(string.Format("if ((v{1}.{0}==null)||(v{1}.{0}==undefined)) return {2}; "
-                , columnName
-                , string.IsNullOrEmpty(_objectProperty) ? string.Empty : ".DataObject"
-                , Template.CompileDelegate(content, "v", _objectProperty)));
-            return this;
-        }
-
-        /// <summary>
-        /// Template will return empty cell is self-value ({@}) is null or undefined
-        /// </summary>
-        /// <param name="content">Content to return</param>
-        /// <returns></returns>
-        public CellTemplateBuilder IfNotPresentSelf(string content)
-        {
-            _lines.Add(String.Format("if ((v{0}==null)||(v{0}==undefined)) return {1}; "
-                , string.IsNullOrEmpty(_objectProperty) ? string.Empty : ".DataObject"
-                , Template.Compile(content, "v", _objectProperty)));
-            return this;
-        }
-
-        /// <summary>
-        /// Template will return empty cell is self-value ({@}) is null or undefined
-        /// </summary>
-        /// <param name="content">Content to return</param>
-        /// <returns></returns>
-        public CellTemplateBuilder IfNotPresentSelf(IHtmlString content)
-        {
-            return IfNotPresentSelf(Template.SanitizeHtmlString(content));
-        }
-
-
-        /// <summary>
-        /// Template will return empty cell is self-value ({@}) is null or undefined
-        /// </summary>
-        /// <param name="content">Content to return</param>
-        /// <returns></returns>
-        public CellTemplateBuilder IfNotPresentSelf(Action<Template> content)
-        {
-            _lines.Add(String.Format("if ((v{0}==null)||(v{0}==undefined)) return {1}; "
-                , string.IsNullOrEmpty(_objectProperty) ? string.Empty : ".DataObject"
-                , Template.CompileDelegate(content, "v", _objectProperty)));
+            expression = Template.CompileExpression(expression, "v", _objectProperty, _defaultProperty);
+            _lines.Add(string.Format("if ((({0})==null)||(({0})==undefined)) return {1}; "
+                , expression
+                , Template.CompileDelegate(content, "v", _objectProperty, _defaultProperty)));
             return this;
         }
 
@@ -132,7 +87,7 @@ namespace PowerTables.CellTemplating
         /// <returns></returns>
         public CellTemplateBuilder EmptyIf(string expression)
         {
-            _lines.Add(string.Format("if ({0}) return ''; ", Template.CompileExpression(expression, "v", _objectProperty)));
+            _lines.Add(string.Format("if ({0}) return ''; ", Template.CompileExpression(expression, "v", _objectProperty,_defaultProperty)));
             return this;
         }
 
@@ -144,7 +99,7 @@ namespace PowerTables.CellTemplating
         /// <returns></returns>
         public CellTemplateBuilder Switch(string expression, Action<SwitchBuilder> swtch)
         {
-            SwitchBuilder swb = new SwitchBuilder(expression, _objectProperty);
+            SwitchBuilder swb = new SwitchBuilder(expression, _objectProperty, _defaultProperty);
             swtch(swb);
             _lines.Add(swb.Build());
             return this;
@@ -169,7 +124,7 @@ namespace PowerTables.CellTemplating
         /// <returns></returns>
         public CellTemplateBuilder ReturnsIf(string expression, string content)
         {
-            _lines.Add(string.Format("if ({0}) return {1}; ", Template.CompileExpression(expression, "v", _objectProperty), Template.Compile(content, "v", _objectProperty)));
+            _lines.Add(string.Format("if ({0}) return {1}; ", Template.CompileExpression(expression, "v", _objectProperty, _defaultProperty), Template.Compile(content, "v", _objectProperty, _defaultProperty)));
             return this;
         }
 
@@ -206,9 +161,9 @@ namespace PowerTables.CellTemplating
         public CellTemplateBuilder ReturnsIf(string expression, string positiveContent, string negativeContent)
         {
             _lines.Add(string.Format("if ({0}) {{ return {1}; }} else {{ return {2};}} ",
-                Template.CompileExpression(expression, "v", _objectProperty),
-                Template.Compile(positiveContent, "v", _objectProperty),
-                Template.Compile(negativeContent, "v", _objectProperty)));
+                Template.CompileExpression(expression, "v", _objectProperty, _defaultProperty),
+                Template.Compile(positiveContent, "v", _objectProperty, _defaultProperty),
+                Template.Compile(negativeContent, "v", _objectProperty, _defaultProperty)));
             return this;
         }
 
@@ -266,7 +221,7 @@ namespace PowerTables.CellTemplating
         /// <returns></returns>
         public CellTemplateBuilder Returns(string content)
         {
-            var text = Template.Compile(content, "v", _objectProperty);
+            var text = Template.Compile(content, "v", _objectProperty, _defaultProperty);
             _result = string.Format("return {0}; ", text);
             return this;
         }

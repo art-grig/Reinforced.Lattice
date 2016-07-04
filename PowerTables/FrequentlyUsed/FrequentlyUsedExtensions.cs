@@ -41,7 +41,7 @@ namespace PowerTables.FrequentlyUsed
             }
             var items = EnumHelper.GetSelectList(enumType);
 
-            column.Template(a => a.EmptyIfNotPresent(column.ColumnConfiguration.RawColumnName)
+            column.Template(a => a.EmptyIfNotPresent("{" + column.ColumnConfiguration.RawColumnName + "}")
                 .Switch("{" + column.ColumnConfiguration.RawColumnName + "}",
                     swtch =>
                         swtch
@@ -81,7 +81,7 @@ namespace PowerTables.FrequentlyUsed
             }
             var items = EnumHelper.GetSelectList(enumType);
 
-            column.Template(a => a.EmptyIfNotPresent(column.ColumnConfiguration.RawColumnName)
+            column.Template(a => a.EmptyIfNotPresent("{" + column.ColumnConfiguration.RawColumnName + "}")
                 .Switch("{" + column.ColumnConfiguration.RawColumnName + "}",
                     swtch =>
                         swtch
@@ -187,7 +187,7 @@ namespace PowerTables.FrequentlyUsed
         {
             col.Template(
                 c =>
-                    c.EmptyIfNotPresent(col.ColumnConfiguration.RawColumnName)
+                    c.EmptyIfNotPresent("{" + col.ColumnConfiguration.RawColumnName + "}")
                         .Returns(string.Format("`dateFormat({{{0}}},'{1}',{2})`", col.ColumnConfiguration.RawColumnName, format, utc ? "true" : "false")));
         }
 

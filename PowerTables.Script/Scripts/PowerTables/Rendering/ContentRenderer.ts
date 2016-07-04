@@ -112,7 +112,7 @@
                         continue;
                     }
                     if (columnConfig.CellRenderingTemplateId) {
-                        var compiled: HandlebarsTemplateDelegate = this._hb.compile(document.getElementById(columnConfig.CellRenderingTemplateId).innerHTML, { noEscape: true });
+                        var compiled: HandlebarsTemplateDelegate = this._templatesProvider.getCachedTemplate(columnConfig.CellRenderingTemplateId);
                         this._columnsRenderFunctions[columnConfig.RawColumnName] = compiled;
                         continue;
                     }

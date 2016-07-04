@@ -56,9 +56,9 @@ namespace PowerTables.Filters
         public static PluginConfigurationWrapper<T> ClientFilteringExpression<T>(this PluginConfigurationWrapper<T> c, string expression = null)
             where T : IClientFiltering, new()
         {
-            var expr = Template.CompileExpression(expression, "v", null);
+            var expr = Template.CompileExpression(expression, "v", null, c.Configuration.ColumnName);
             c.Configuration.ClientFiltering = true;
-            c.Configuration.ClientFilteringFunction = new JRaw(string.Format("function(v) {{ return ({0}); }}",expr));
+            c.Configuration.ClientFilteringFunction = new JRaw(string.Format("function(v) {{ return ({0}); }}", expr));
             return c;
         }
 
@@ -73,7 +73,7 @@ namespace PowerTables.Filters
         }
     }
 
-    public interface IClientFiltering
+    public interface IClientFiltering : IProvidesColumnName
     {
         /// <summary>
         /// Turn this filter to be working on client-side

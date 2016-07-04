@@ -14,12 +14,6 @@
             this._templateIds = this._instances.Configuration.CoreTemplates;
 
             this.HandlebarsInstance = Handlebars.create();
-
-            this.LayoutRenderer = new LayoutRenderer(this, this._stack, this._instances, this._templateIds);
-            this.ContentRenderer = new ContentRenderer(this, this._stack, this._instances, this._templateIds);
-            this.BackBinder = new BackBinder(this.HandlebarsInstance, this._instances, this._stack, this._masterTable.Date);
-            
-
             this.HandlebarsInstance.registerHelper('ifq', this.ifqHelper);
             this.HandlebarsInstance.registerHelper('ifcmp', this.ifcompHelper);
             this.HandlebarsInstance.registerHelper('ifloc', this.iflocHelper.bind(this));
@@ -27,6 +21,10 @@
             this.HandlebarsInstance.registerHelper('Track', this.trackHelper.bind(this));
 
             this.cacheTemplates(prefix);
+
+            this.LayoutRenderer = new LayoutRenderer(this, this._stack, this._instances, this._templateIds);
+            this.ContentRenderer = new ContentRenderer(this, this._stack, this._instances, this._templateIds);
+            this.BackBinder = new BackBinder(this.HandlebarsInstance, this._instances, this._stack, this._masterTable.Date);
         }
 
         /**
@@ -139,7 +137,7 @@
          */
         public body(rows: IRow[]): void {
             this._events.BeforeClientRowsRendering.invoke(this, rows);
-            this.clearBody();
+            //this.clearBody();
             var html: string = this.ContentRenderer.renderBody(rows);
             this.Delegator.handleElementDestroy(this.BodyElement);
             this.BodyElement.innerHTML = html;
@@ -177,9 +175,7 @@
             if (this.Delegator) {
                 this.Delegator.handleElementDestroy(this.BodyElement);
             }
-            while (this.BodyElement.firstChild) {
-                this.BodyElement.removeChild(this.BodyElement.firstChild);
-            }
+            this.BodyElement.innerHTML = '';
         }
 
         //#endregion

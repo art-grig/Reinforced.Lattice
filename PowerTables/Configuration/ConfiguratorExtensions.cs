@@ -154,7 +154,8 @@ namespace PowerTables.Configuration
         /// <param name="conf">Column</param>
         /// <param name="title">Title text</param>
         /// <returns>Fluent</returns>
-        public static ColumnUsage<TSourceData, TTableData, TTableColumn> Title<TSourceData, TTableData, TTableColumn>(this ColumnUsage<TSourceData, TTableData, TTableColumn> conf, string title) where TTableData : new()
+        public static ColumnUsage<TSourceData, TTableData, TTableColumn> Title<TSourceData, TTableData, TTableColumn>(this ColumnUsage<TSourceData, TTableData, TTableColumn> conf, string title) 
+            where TTableData : new()
         {
             conf.ColumnConfiguration.Title = title;
             return conf;
@@ -405,7 +406,7 @@ namespace PowerTables.Configuration
         /// Return null/empty/undefined will let system to choose default template. 
         /// You can access cell data via .DataObject property
         /// </summary>
-        public static ColumnUsage<TSourceData, TTableData, TColumn> TemplateSelector<TSourceData, TTableData, TColumn>(this ColumnUsage<TSourceData, TTableData, TColumn> conf, string selectorFunction) 
+        public static ColumnUsage<TSourceData, TTableData, TColumn> TemplateSelector<TSourceData, TTableData, TColumn>(this ColumnUsage<TSourceData, TTableData, TColumn> conf, string selectorFunction)
             where TTableData : new()
         {
             conf.ColumnConfiguration.TemplateSelector = string.IsNullOrEmpty(selectorFunction) ? null : new JRaw(selectorFunction);
@@ -467,7 +468,7 @@ namespace PowerTables.Configuration
         /// <returns></returns>
         public static ColumnUsage<TSourceData, TTableData, TTableColumn> ClientExpression<TSourceData, TTableData, TTableColumn>(this ColumnUsage<TSourceData, TTableData, TTableColumn> conf, string clientValueFunction) where TTableData : new()
         {
-            clientValueFunction = Template.CompileExpression(clientValueFunction, "v", null);
+            clientValueFunction = Template.CompileExpression(clientValueFunction, "v", null, conf.ColumnConfiguration.RawColumnName);
             conf.ColumnConfiguration.ClientValueFunction = string.IsNullOrEmpty(clientValueFunction) ? null : new JRaw(clientValueFunction);
             return conf;
         }
@@ -481,7 +482,7 @@ namespace PowerTables.Configuration
         public static Configurator<TSource, TData> Prefetch<TSource, TData>(this Configurator<TSource, TData> configurator, IEnumerable<TSource> data) where TData : new()
         {
             var mapped = configurator.MapRange(data);
-            configurator.TableConfiguration.PrefetchedData = configurator.EncodeResults(mapped,mapped.Length);
+            configurator.TableConfiguration.PrefetchedData = configurator.EncodeResults(mapped, mapped.Length);
             return configurator;
         }
 

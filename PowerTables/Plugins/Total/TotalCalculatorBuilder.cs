@@ -15,7 +15,7 @@ namespace PowerTables.Plugins.Total
     /// </summary>
     public class TotalCalculatorBuilder<TSourceData, TTableData> where TTableData : new()
     {
-        
+
         private readonly Dictionary<string, Delegate> _calculators = new Dictionary<string, Delegate>();
         private readonly Dictionary<string, string> _valueFunctions = new Dictionary<string, string>();
         private readonly Dictionary<string, string> _clientCalculators = new Dictionary<string, string>();
@@ -52,8 +52,8 @@ namespace PowerTables.Plugins.Total
             )
         {
             var name = LambdaHelpers.ParsePropertyLambda(column).Name;
-            _calculators.Add(name,calculator);
-            _valueFunctions.Add(name,valueFunction);
+            _calculators.Add(name, calculator);
+            _valueFunctions.Add(name, valueFunction);
             return this;
         }
 
@@ -72,7 +72,7 @@ namespace PowerTables.Plugins.Total
         {
             var name = LambdaHelpers.ParsePropertyLambda(column).Name;
             _calculators.Add(name, calculator);
-            CellTemplateBuilder ctb = new CellTemplateBuilder(null);
+            CellTemplateBuilder ctb = new CellTemplateBuilder(null, null);
             templateBuilder(ctb);
             _valueFunctions.Add(name, ctb.Build());
             return this;
@@ -90,7 +90,7 @@ namespace PowerTables.Plugins.Total
             )
         {
             var name = LambdaHelpers.ParsePropertyLambda(column).Name;
-            CellTemplateBuilder ctb = new CellTemplateBuilder(null);
+            CellTemplateBuilder ctb = new CellTemplateBuilder(null, null);
             templateBuilder(ctb);
             _valueFunctions.Add(name, ctb.Build());
             return this;
@@ -113,7 +113,7 @@ namespace PowerTables.Plugins.Total
             _clientCalculators.Add(name, function);
             return this;
         }
-        
+
 
         /// <summary>
         /// Adds total calculator to table with shortland format function
@@ -128,10 +128,10 @@ namespace PowerTables.Plugins.Total
             string format
             )
         {
-            format = format.Replace("{", "\" + ").Replace("}"," + \"");
+            format = format.Replace("{", "\" + ").Replace("}", " + \"");
 
             format = String.Concat("function (v) { return \"", format, "\";}");
-            
+
             return AddTotal(column, calculator, format);
         }
 

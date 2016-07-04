@@ -137,6 +137,7 @@ namespace PowerTables.Filters.Value
         {
             column.UpdateFilterConfig<ValueFilterUiConfig, TTableColumn>(PluginId, a =>
             {
+                a.Configuration.ColumnName = column.ColumnConfiguration.RawColumnName;
                 a.Placeholder(column.ColumnConfiguration.Title);
                 if (ui != null) ui(a);
             });

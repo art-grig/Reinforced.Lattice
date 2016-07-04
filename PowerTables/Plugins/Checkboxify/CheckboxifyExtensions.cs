@@ -169,7 +169,7 @@ namespace PowerTables.Plugins.Checkboxify
         /// <returns></returns>
         public static PluginConfigurationWrapper<CheckboxifyClientConfig> CanSelectExpression(this PluginConfigurationWrapper<CheckboxifyClientConfig> c, string expression)
         {
-            var function = string.Format("function(v) {{ return ({0});}}", Template.CompileExpression(expression, "v", "DataObject"));
+            var function = string.Format("function(v) {{ return ({0});}}", Template.CompileExpression(expression, "v", "DataObject",null));
             c.Configuration.CanSelectFunction = new JRaw(function);
             return c;
         }

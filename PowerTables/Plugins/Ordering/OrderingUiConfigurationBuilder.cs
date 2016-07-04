@@ -51,8 +51,8 @@ namespace PowerTables.Plugins.Ordering
         /// <returns></returns>
         public OrderingUiConfigurationBuilder UseClientOrderingNumericExpression(string expression)
         {
-            var exprLeft = Template.CompileExpression(expression, "x", null);
-            var exprRight = Template.CompileExpression(expression, "y", null);
+            var exprLeft = Template.CompileExpression(expression, "x", null, _columnName);
+            var exprRight = Template.CompileExpression(expression, "y", null, _columnName);
             var fn = string.Format("function(x,y){{ return (({0}) - ({1})); }}", exprLeft, exprRight);
             _configuration.ClientSortableColumns[_columnName] = new JRaw(fn);
             return this;

@@ -68,7 +68,7 @@ namespace PowerTables.CellTemplating
         {
             return col.Template(c =>
             {
-                c.EmptyIfNotPresent(col.ColumnConfiguration.RawColumnName);
+                c.EmptyIfNotPresent("{" + col.ColumnConfiguration.RawColumnName + "}");
                 c.Returns(a => a.Tag("a").Attr("href", linkFormat).Content(textFormat).Attr("target", target));
             });
         }

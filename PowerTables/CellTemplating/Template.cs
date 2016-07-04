@@ -328,10 +328,11 @@ namespace PowerTables.CellTemplating
         /// </summary>
         /// <param name="modelName">Variable name or custom JS expression that is supposed to be used as model</param>
         /// <param name="objectProperty">Model's property key that should be used to obtain exact model value. These 2 fields are made to support ^-syntax</param>
+        /// <param name="defaultProperty">Property to reveal "@" access</param>
         /// <returns></returns>
-        public string Compile(string modelName, string objectProperty)
+        public string Compile(string modelName, string objectProperty, string defaultProperty)
         {
-            return Compile(Build(), modelName, objectProperty);
+            return Compile(Build(), modelName, objectProperty, defaultProperty);
         }
 
         internal static string SanitizeHtmlString(IHtmlString str)
@@ -375,15 +376,16 @@ namespace PowerTables.CellTemplating
         /// <param name="expression">{@}-placeholder-expression. Grave accents are not needed here</param>
         /// <param name="modelName">Variable name or custom JS expression that is supposed to be used as model</param>
         /// <param name="objectProperty">Model's property key that should be used to obtain exact model value. These 2 fields are made to support ^-syntax</param>
+        /// <param name="defaulProperty">Object property to reveal "@" access</param>
         /// <returns></returns>
-        public static string CompileExpression(string expression, string modelName, string objectProperty)
+        public static string CompileExpression(string expression, string modelName, string objectProperty, string defaulProperty)
         {
             StringBuilder sb = new StringBuilder();
-            CrunchExpression(expression, modelName, objectProperty, sb, 0);
+            CrunchExpression(expression, modelName, objectProperty, defaulProperty, sb, 0);
             return sb.ToString();
         }
 
-        private static int CrunchExpression(string tpl, string modelName, string objectProperty, StringBuilder sb,
+        private static int CrunchExpression(string tpl, string modelName, string objectProperty, string defaulProperty, StringBuilder sb,
             int beginIndex)
         {
             for (int i = beginIndex; i < tpl.Length; i++)
@@ -392,7 +394,7 @@ namespace PowerTables.CellTemplating
 
                 if (tpl[i] == '{' && (i < tpl.Length - 2 && IsValidToken(tpl[i + 1])))
                 {
-                    i = CrunchFieldReference(tpl, modelName, objectProperty, sb, i + 1);
+                    i = CrunchFieldReference(tpl, modelName, objectProperty, defaulProperty, sb, i + 1);
                     continue;
                 }
                 sb.Append(tpl[i]);
@@ -400,10 +402,14 @@ namespace PowerTables.CellTemplating
             return tpl.Length;
         }
 
-        private static int CrunchFieldReference(string tpl, string modelName, string objectProperty, StringBuilder sb, int i)
+        private static int CrunchFieldReference(string tpl, string modelName, string objectProperty, string defaultProperty, StringBuilder sb, int i)
         {
             sb.Append(modelName);
-            if (tpl[i] == '@' && tpl[i + 1] == '}') return i + 1;
+            if (tpl[i] == '@' && tpl[i + 1] == '}')
+            {
+                if (!string.IsNullOrEmpty(defaultProperty)) sb.AppendFormat(".{0}", defaultProperty);
+                return i + 1;
+            }
             if (tpl[i] == '^')
             {
                 sb.Append('.');
@@ -434,9 +440,11 @@ namespace PowerTables.CellTemplating
         /// <param name="tpl">Built template code containing `{@}`-placeholders</param>
         /// <param name="modelName">Variable name or custom JS expression that is supposed to be used as model</param>
         /// <param name="objectProperty">Model's property key that should be used to obtain exact model value. These 2 fields are made to support ^-syntax</param>
+        /// <param name="defaultProperty">Object property to reveal "@" access</param>
         /// <returns></returns>
-        public static string Compile(string tpl, string modelName, string objectProperty)
+        public static string Compile(string tpl, string modelName, string objectProperty, string defaultProperty)
         {
+            if (string.IsNullOrEmpty(tpl)) return "''";
             StringBuilder sb = new StringBuilder();
 
             if (tpl[0] != '`' && tpl[0] != '{') sb.Append("'");
@@ -456,7 +464,7 @@ namespace PowerTables.CellTemplating
                 if (tpl[i] == '`')
                 {
                     if (i > 0) sb.Append("' +");
-                    i = CrunchExpression(tpl, modelName, objectProperty, sb, i + 1);
+                    i = CrunchExpression(tpl, modelName, objectProperty, defaultProperty, sb, i + 1);
                     if (i < tpl.Length - 1) sb.Append("+ '");
                     continue;
                 }
@@ -464,7 +472,7 @@ namespace PowerTables.CellTemplating
                 if (tpl[i] == '{' && IsValidToken(tpl[i + 1]))
                 {
                     if (i > 0) sb.Append("' +");
-                    i = CrunchFieldReference(tpl, modelName, objectProperty, sb, i + 1);
+                    i = CrunchFieldReference(tpl, modelName, objectProperty, defaultProperty, sb, i + 1);
                     if (i < tpl.Length - 1) sb.Append("+ '");
                     continue;
                 }
@@ -483,12 +491,13 @@ namespace PowerTables.CellTemplating
         /// <param name="templateDelegate">Template delegate</param>
         /// <param name="modelName">Variable name or custom JS expression that is supposed to be used as model</param>
         /// <param name="objectProperty">Model's property key that should be used to obtain exact model value. These 2 fields are made to support ^-syntax</param>
+        /// <param name="defaultProperty">Object property to reveal "@" access</param>
         /// <returns></returns>
-        public static string CompileDelegate(Action<Template> templateDelegate, string modelName, string objectProperty)
+        public static string CompileDelegate(Action<Template> templateDelegate, string modelName, string objectProperty, string defaultProperty)
         {
             Template t = new Template();
             templateDelegate(t);
-            return t.Compile(modelName, objectProperty);
+            return t.Compile(modelName, objectProperty, defaultProperty);
         }
 
 

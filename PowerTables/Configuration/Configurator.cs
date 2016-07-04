@@ -151,11 +151,12 @@ namespace PowerTables.Configuration
         }
 
         #region Configurator
+
         /// <summary>
         /// Retrieves column configurator
         /// </summary>
         /// <typeparam name="TColType">Column type</typeparam>
-        /// <param name="column">Column</param>
+        /// <param name="column">Expression pointing to the TTargetData's property which column is being configured</param>
         /// <returns>Corresponding column configurator</returns>
         public ColumnUsage<TSourceData, TTableData, TColType> Column<TColType>(Expression<Func<TTableData, TColType>> column)
         {

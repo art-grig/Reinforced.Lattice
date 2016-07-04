@@ -60,7 +60,8 @@
                 Title: 'Checkboxify',
                 ColumnType: 'Int32',
                 ClientValueFunction: null,
-                Description: null
+                Description: null,
+                TemplateSelector: null
             };
 
             var col: IColumn = {

@@ -38,7 +38,7 @@ namespace PowerTables.Plugins.Total
         {
             StringBuilder sb = new StringBuilder("function(v){var s=0;");
             sb.AppendFormat("for(var i=0;i<v.{0}.length;i++){{", dataSet);
-            var compiledExpr = Template.CompileExpression(sumExpression, "v", string.Format("{0}[i]", dataSet));
+            var compiledExpr = Template.CompileExpression(sumExpression, "v", string.Format("{0}[i]", dataSet),null);
             sb.AppendFormat("if ((({0})!=null)&&(({0})!=undefined)) s+=({0});}}return s;}}", compiledExpr);
             return sb.ToString();
         }
@@ -47,8 +47,8 @@ namespace PowerTables.Plugins.Total
         {
             StringBuilder sb = new StringBuilder("function(v){var s=0;");
             sb.AppendFormat("for(var i=0;i<v.{0}.length;i++){{", dataSet);
-            var compiledExpr = Template.CompileExpression(sumExpression, "v", string.Format("{0}[i]", dataSet));
-            var compiledPredicate = Template.CompileExpression(predicateExpression, string.Format("v.{0}[i]", dataSet), string.Empty);
+            var compiledExpr = Template.CompileExpression(sumExpression, "v", string.Format("{0}[i]", dataSet), null);
+            var compiledPredicate = Template.CompileExpression(predicateExpression, string.Format("v.{0}[i]", dataSet), string.Empty, null);
             sb.AppendFormat("if ((({0})!=null)&&(({0})!=undefined)) s+=(({1})?({0}):0);}}return s;}}", compiledExpr, compiledPredicate);
             return sb.ToString();
         }
@@ -57,8 +57,8 @@ namespace PowerTables.Plugins.Total
         {
             StringBuilder sb = new StringBuilder("function(v){var s=0,w=0;");
             sb.AppendFormat("for(var i=0;i<v.{0}.length;i++){{", dataSet);
-            var compiledExpr = Template.CompileExpression(avgExpression, "v", string.Format("{0}[i]", dataSet));
-            var compiledAvg = Template.CompileExpression(weightExpression, "v", string.Format("{0}[i]", dataSet));
+            var compiledExpr = Template.CompileExpression(avgExpression, "v", string.Format("{0}[i]", dataSet), null);
+            var compiledAvg = Template.CompileExpression(weightExpression, "v", string.Format("{0}[i]", dataSet), null);
             sb.AppendFormat("if ((({0})!=null)&&(({0})!=undefined)&&(({1})!=null)&&(({1})!=undefined)) {{s+=(({0})*({1}));w+=({1});}}}}return ((w==0)?0:(s/w));}}", compiledExpr, compiledAvg);
             return sb.ToString();
         }
@@ -67,7 +67,7 @@ namespace PowerTables.Plugins.Total
         {
             StringBuilder sb = new StringBuilder("function(v){var s=0;");
             sb.AppendFormat("for(var i=0;i<v.{0}.length;i++){{", dataSet);
-            var compiledExpr = Template.CompileExpression(avgExpression, "v", string.Format("{0}[i]", dataSet));
+            var compiledExpr = Template.CompileExpression(avgExpression, "v", string.Format("{0}[i]", dataSet), null);
             sb.AppendFormat("if ((({0})!=null)&&(({0})!=undefined)) s+=(({0}));}}return ((v.{1}.length==0)?0:(s/(v.{1}.length)));}}", compiledExpr, dataSet);
             return sb.ToString();
         }
@@ -78,7 +78,7 @@ namespace PowerTables.Plugins.Total
             if (isMax) sb.Append("(0-Infinity);");
             else sb.Append("Infinity;");
             sb.AppendFormat("for(var i=0;i<v.{0}.length;i++){{", dataSet);
-            var compiledExpr = Template.CompileExpression(expression, "v", string.Format("{0}[i]", dataSet));
+            var compiledExpr = Template.CompileExpression(expression, "v", string.Format("{0}[i]", dataSet), null);
             sb.AppendFormat("if ((({0})!=null)&&(({0})!=undefined)) r=(({0}){1}r?({0}):r);}}return r;}}", compiledExpr, isMax ? ">" : "<");
             return sb.ToString();
         }
