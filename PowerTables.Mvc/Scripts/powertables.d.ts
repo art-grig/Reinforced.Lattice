@@ -761,6 +761,13 @@ declare module PowerTables {
         * @returns Handlebars function
         */
         getCachedTemplate(templateId: string): (arg: any) => string;
+        /**
+         * Determines whether template id is present and cached
+         *
+         * @param templateId
+         * @returns {}
+         */
+        hasCachedTemplate(templateId: string): boolean;
     }
     interface IColumn {
         /**
@@ -2205,6 +2212,7 @@ declare module PowerTables.Rendering {
         private ifqHelper(a, b, opts);
         private ifcompHelper(a, b, comparison, opts);
         private iflocHelper(location, opts);
+        hasCachedTemplate(templateId: string): boolean;
     }
 }
 declare module PowerTables.Rendering {
@@ -3144,11 +3152,12 @@ declare module PowerTables {
      * user's ones
      */
     class MessagesService {
-        constructor(usersMessageFn: (msg: ITableMessage) => void, instances: InstanceManager, dataHolder: DataHolder, controller: Controller);
+        constructor(usersMessageFn: (msg: ITableMessage) => void, instances: InstanceManager, dataHolder: DataHolder, controller: Controller, templatesProvider: ITemplatesProvider);
         private _usersMessageFn;
         private _instances;
         private _dataHolder;
         private _controller;
+        private _templatesProvider;
         /**
          * Shows table message according to its settings
          * @param message Message of type ITableMessage

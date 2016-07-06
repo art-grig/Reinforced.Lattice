@@ -8,6 +8,16 @@ using PowerTables.Plugins.Formwatch;
 
 namespace PowerTables.Plugins.RowAction
 {
+    public class ClientRowAction
+    {
+        internal ClientRowActionDescription Action { get; private set; }
+
+        internal ClientRowAction()
+        {
+            Action = new ClientRowActionDescription();
+        }
+    }
+
     /// <summary>
     /// JSON configuration for client row action
     /// </summary>
@@ -49,7 +59,7 @@ namespace PowerTables.Plugins.RowAction
         public JRaw OnTrigger { get; set; }
 
         /// <summary>
-        /// Gets or sets URL that HTML content will be loaded from for particular row
+        /// Gets or sets URL that HTML content will be loaded from for particular row. Row object will be passed as QueryString parameter
         /// </summary>
         public string UrlToLoad { get; set; }
     }

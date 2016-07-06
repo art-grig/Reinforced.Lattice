@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using PowerTables.Configuration.Json;
+using PowerTables.Templating;
 
 namespace PowerTables.Configuration
 {
@@ -56,7 +57,7 @@ namespace PowerTables.Configuration
         /// <param name="eventId">DOM event ID. You can use clas DomEvent here</param>
         /// <param name="handler">Handler function that supplies data object as first parameter and row element as second one (inline function or function name)</param>
         /// <returns>Fluent</returns>        
-        public static TableEventSubscription Handle(this TableEventSubscription conf, string eventId, string handler)
+        public static TableEventSubscription Handle(this TableEventSubscription conf, DOMEvent eventId, string handler)
         {
             conf.SubscriptionInfo.DomEvent = eventId;
             conf.SubscriptionInfo.Handler = new JRaw(handler);

@@ -231,5 +231,6 @@
         }
 
         //#endregion
+        hasCachedTemplate(templateId: string): boolean { return this._templatesCache.hasOwnProperty(templateId); }
     }
 }

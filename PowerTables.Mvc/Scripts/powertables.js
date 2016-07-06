@@ -913,7 +913,10 @@ var PowerTables;
          */
         Controller.prototype.reload = function (forceServer) {
             var _this = this;
-            this._masterTable.Loader.requestServer('query', function () {
+            this._masterTable.Loader.requestServer('query', function (e) {
+                if (e['Success'] === false && e['Message'] && e['Message']['__Go7XIV13OA'] === true) {
+                    return;
+                }
                 _this.redrawVisibleData();
             }, null, null, forceServer);
         };
@@ -3738,6 +3741,8 @@ var PowerTables;
                 }
                 return opts.inverse(this);
             };
+            //#endregion
+            Renderer.prototype.hasCachedTemplate = function (templateId) { return this._templatesCache.hasOwnProperty(templateId); };
             return Renderer;
         }());
         Rendering.Renderer = Renderer;
@@ -3996,7 +4001,7 @@ var PowerTables;
             this.Loader = new PowerTables.Loader(this._configuration.StaticData, this._configuration.OperationalAjaxUrl, this);
             this.Renderer = new PowerTables.Rendering.Renderer(this._configuration.TableRootId, this._configuration.Prefix, this);
             this.Controller = new PowerTables.Controller(this);
-            this.MessageService = new PowerTables.MessagesService(this._configuration.MessageFunction, this.InstanceManager, this.DataHolder, this.Controller);
+            this.MessageService = new PowerTables.MessagesService(this._configuration.MessageFunction, this.InstanceManager, this.DataHolder, this.Controller, this.Renderer);
             this.InstanceManager.initPlugins();
             this.Renderer.layout();
             if (this._configuration.CallbackFunction) {
@@ -7103,11 +7108,12 @@ var PowerTables;
         /*
          * @internal
          */
-        function MessagesService(usersMessageFn, instances, dataHolder, controller) {
+        function MessagesService(usersMessageFn, instances, dataHolder, controller, templatesProvider) {
             this._usersMessageFn = usersMessageFn;
             this._instances = instances;
             this._dataHolder = dataHolder;
             this._controller = controller;
+            this._templatesProvider = templatesProvider;
             if (!usersMessageFn) {
                 this._usersMessageFn = function (m) { alert(m.Title + '\r\n' + m.Details); };
             }
@@ -7126,10 +7132,21 @@ var PowerTables;
             }
         };
         MessagesService.prototype.showTableMessage = function (tableMessage) {
+            if (!this._templatesProvider.hasCachedTemplate("ltmsg-" + tableMessage.Class)) {
+                this._controller.replaceVisibleData([]);
+                return;
+            }
+            var msgRow = {
+                DataObject: tableMessage,
+                IsSpecial: true,
+                TemplateIdOverride: "ltmsg-" + tableMessage.Class,
+                MasterTable: null,
+                Index: 0,
+                Cells: {}
+            };
             tableMessage.UiColumnsCount = this._instances.getUiColumns().length;
             tableMessage.IsMessageObject = true;
-            this._dataHolder.DisplayedData = [tableMessage];
-            this._controller.redrawVisibleData();
+            this._controller.replaceVisibleData([msgRow]);
         };
         return MessagesService;
     }());

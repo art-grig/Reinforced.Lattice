@@ -13,7 +13,12 @@ namespace PowerTables.Templating
     {
         private readonly string _baseId;
         private bool _isOut;
+        private string _hardcoded;
 
+        private DOMEvent()
+        {
+            
+        }
         private readonly StringBuilder _sb;
 
         /// <summary>
@@ -88,6 +93,8 @@ namespace PowerTables.Templating
 
         public override string ToString()
         {
+            if (_hardcoded != null) return _hardcoded;
+
             _sb.AppendFormat("|{0}", _baseId);
             if (_isOut)
             {
@@ -104,6 +111,18 @@ namespace PowerTables.Templating
         public static implicit operator string(DOMEvent de)
         {
             return de.ToString();
+        }
+
+        /// <summary>
+        /// Implicit string conversion to make DOMEvents able to be provided everywhere string is required
+        /// </summary>
+        /// <param name="de">Filtered DOM event</param>
+        /// <returns></returns>
+        public static implicit operator DOMEvent(string de)
+        {
+            var dom = new DOMEvent();
+            dom._hardcoded = de;
+            return dom;
         }
 
         /// <summary>

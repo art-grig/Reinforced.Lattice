@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace PowerTables.Templating.BuiltIn
 {
-    public class MessageWrapperTemplateRegion : ModeledTemplateRegion<IMessageRowModel>,
+    public class MessageTemplateRegion : ModeledTemplateRegion<ICellModel<IMessageRowModel>>,
         IProvidesTracking
     {
 
 
         public bool IsTrackSet { get; set; }
 
-        public MessageWrapperTemplateRegion(string prefix, string id, TextWriter writer)
+        public MessageTemplateRegion(string prefix, string id, TextWriter writer)
             : base(prefix, id, writer)
         {
         }
@@ -48,9 +48,9 @@ namespace PowerTables.Templating.BuiltIn
 
     public static class MessagesTemplatesExtensions
     {
-        public static MessageWrapperTemplateRegion MessagesWrapper(this ITemplatesScope t, string templateId = "messages")
+        public static MessageTemplateRegion Message(this ITemplatesScope t, string messageClass)
         {
-            return new MessageWrapperTemplateRegion(t.TemplatesPrefix, templateId, t.Output);
+            return new MessageTemplateRegion(t.TemplatesPrefix, "ltmsg-" + messageClass, t.Output);
         }
     }
 }

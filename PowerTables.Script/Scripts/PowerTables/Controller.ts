@@ -20,7 +20,10 @@
          * @returns {} 
          */
         public reload(forceServer?: boolean): void {
-            this._masterTable.Loader.requestServer('query', () => {
+            this._masterTable.Loader.requestServer('query', (e: IPowerTablesResponse) => {
+                if (e['Success'] === false && e['Message'] && e['Message']['__Go7XIV13OA'] === true) {
+                    return;
+                }
                 this.redrawVisibleData();
             }, null, null, forceServer);
         }

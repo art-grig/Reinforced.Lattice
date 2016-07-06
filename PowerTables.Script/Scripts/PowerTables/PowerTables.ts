@@ -62,7 +62,7 @@ module PowerTables {
             this.Loader = new Loader(this._configuration.StaticData, this._configuration.OperationalAjaxUrl, this);
             this.Renderer = new Rendering.Renderer(this._configuration.TableRootId, this._configuration.Prefix, this);
             this.Controller = new Controller(this);
-            this.MessageService = new MessagesService(this._configuration.MessageFunction, this.InstanceManager, this.DataHolder, this.Controller);
+            this.MessageService = new MessagesService(this._configuration.MessageFunction, this.InstanceManager, this.DataHolder, this.Controller, this.Renderer);
 
             this.InstanceManager.initPlugins();
             this.Renderer.layout();
@@ -98,7 +98,7 @@ module PowerTables {
          * 
          * @returns {} 
          */
-        public reload(force:boolean): void {
+        public reload(force: boolean): void {
             this.Controller.reload(force);
         }
 
@@ -135,7 +135,7 @@ module PowerTables {
         /**
          * API for table messages
          */
-        public MessageService:MessagesService;
+        public MessageService: MessagesService;
 
         /**
          * Fires specified DOM event on specified element
@@ -154,18 +154,18 @@ module PowerTables {
         }
 
         public proceedAdjustments(adjustments: PowerTables.Editors.IAdjustmentData): void {
-            this.Events.BeforeAdjustment.invoke(this,adjustments);
+            this.Events.BeforeAdjustment.invoke(this, adjustments);
             var result = this.DataHolder.proceedAdjustments(adjustments);
             if (result != null) this.Controller.drawAdjustmentResult(result);
             this.Events.AfterAdjustment.invoke(this, adjustments);
         }
 
-        public getStaticData() : any {
+        public getStaticData(): any {
             if (!this._configuration.StaticData) return null;
             return JSON.parse(this._configuration.StaticData);
         }
 
-        public setStaticData(obj:any) :void {
+        public setStaticData(obj: any): void {
             this._configuration.StaticData = JSON.stringify(obj);
         }
     }

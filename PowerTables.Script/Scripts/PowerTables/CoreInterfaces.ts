@@ -267,6 +267,14 @@
 		* @returns Handlebars function
 		*/
         getCachedTemplate(templateId: string): (arg: any) => string;
+
+        /**
+         * Determines whether template id is present and cached
+         * 
+         * @param templateId 
+         * @returns {} 
+         */
+        hasCachedTemplate(templateId: string):boolean;
     }
 
     export interface IColumn {

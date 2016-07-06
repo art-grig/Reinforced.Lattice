@@ -154,7 +154,7 @@ namespace PowerTables.Configuration
         /// <param name="conf">Column</param>
         /// <param name="title">Title text</param>
         /// <returns>Fluent</returns>
-        public static ColumnUsage<TSourceData, TTableData, TTableColumn> Title<TSourceData, TTableData, TTableColumn>(this ColumnUsage<TSourceData, TTableData, TTableColumn> conf, string title) 
+        public static ColumnUsage<TSourceData, TTableData, TTableColumn> Title<TSourceData, TTableData, TTableColumn>(this ColumnUsage<TSourceData, TTableData, TTableColumn> conf, string title)
             where TTableData : new()
         {
             conf.ColumnConfiguration.Title = title;
@@ -351,8 +351,7 @@ namespace PowerTables.Configuration
         /// <param name="conf">Table configurator</param>
         /// <param name="subscription">Event subscription configuration</param>
         /// <returns></returns>
-        public static Configurator<TSourceData, TTableData> SubscribeRowEvent<TSourceData, TTableData>
-            (this Configurator<TSourceData, TTableData> conf, Action<TableEventSubscription> subscription) where TTableData : new()
+        public static T SubscribeRowEvent<T>(this T conf, Action<TableEventSubscription> subscription) where T : IConfigurator
         {
             TableEventSubscription sub = new TableEventSubscription();
             sub.SubscriptionInfo.IsRowSubscription = true;
@@ -371,8 +370,7 @@ namespace PowerTables.Configuration
         /// <param name="conf">Table configurator</param>
         /// <param name="subscription">Event subscription</param>
         /// <returns></returns>
-        public static Configurator<TSourceData, TTableData> SubscribeRowEvent<TSourceData, TTableData>
-            (this Configurator<TSourceData, TTableData> conf, TableEventSubscription subscription) where TTableData : new()
+        public static T SubscribeRowEvent<T>(this T conf, TableEventSubscription subscription) where T : IConfigurator
         {
             subscription.SubscriptionInfo.IsRowSubscription = true;
             conf.TableConfiguration.Subscriptions.Add(subscription.SubscriptionInfo);

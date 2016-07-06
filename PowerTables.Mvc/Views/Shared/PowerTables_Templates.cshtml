@@ -128,43 +128,40 @@
 @using (var t = this.CellWrapper("updatedCell"))
 { <td class="touched" @t.Track()>@t.Content()</td> }
 
-@using (var t = this.MessagesWrapper())
+@using (var t = this.Message("error"))
 {
-    using (t.IfStrEquals(c => c.Class, "error"))
-    {
-        <tr class="danger" @t.Track() style="padding: 30px">
-            <td colspan="@t.Value(c => c.UiColumnsCount)">
-                <h4 class="text-center"><span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>  Error occured</h4>
-                <p style="margin-left:25px;margin-right:25px">
-                    @t.Value(c => c.Title)
-                    <hr />
-                    @t.Value(c => c.Details)
-                </p>
-            </td>
-        </tr>
-    }
+    <tr class="danger" @t.Track() style="padding: 30px">
+        <td colspan="@t.Value(c => c.TypedDataObject.UiColumnsCount)">
+            <h4 class="text-center"><span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>  Error occured</h4>
+            <p style="margin-left:25px;margin-right:25px">
+                @t.Value(c => c.TypedDataObject.Title)
+                <hr />
+                @t.Value(c => c.TypedDataObject.Details)
+            </p>
+        </td>
+    </tr>
+}
 
-    using (t.IfStrEquals(c => c.Class, "noresults"))
-    {
-        <tr class="info" @t.Track()>
-            <td colspan="@t.Value(c => c.UiColumnsCount)">
-                <h4 class="text-center text-info bg-info">
-                    <span class="glyphicon glyphicon-eye-close"></span>  No data found
-                </h4>
-            </td>
-        </tr>
-    }
+@using (var t = this.Message("noresults"))
+{
+    <tr class="info" @t.Track()>
+        <td colspan="@t.Value(c => c.TypedDataObject.UiColumnsCount)">
+            <h4 class="text-center text-info bg-info">
+                <span class="glyphicon glyphicon-eye-close"></span>  No data found
+            </h4>
+        </td>
+    </tr>
+}
 
-    using (t.IfStrEquals(c => c.Class, "initial"))
-    {
-        <tr class="warning" @t.Track()>
-            <td colspan="@t.Value(c => c.UiColumnsCount)">
-                <h4 class="text-center text-info bg-info">
-                    <span class="glyphicon glyphicon-search"></span>  Please change filter settings to get search results
-                </h4>
-            </td>
-        </tr>
-    }
+@using (var t = this.Message("initial"))
+{
+    <tr class="warning" @t.Track()>
+        <td colspan="@t.Value(c => c.TypedDataObject.UiColumnsCount)">
+            <h4 class="text-center text-info bg-info">
+                <span class="glyphicon glyphicon-search"></span>  Please change filter settings to get search results
+            </h4>
+        </td>
+    </tr>
 }
 
 @using (var t = Plugin.Loading())
