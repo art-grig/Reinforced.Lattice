@@ -19,7 +19,7 @@ namespace PowerTables.Defaults
             if (context.HttpContext.Request.HttpMethod == "GET")
             {
                 var token = context.HttpContext.Request.QueryString["q"];
-                _request = TokenStorage.Lookup(token);
+                _request = InMemoryTokenStorage.Lookup(token);
                 return _request;
             }
 

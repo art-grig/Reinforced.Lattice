@@ -37,7 +37,7 @@ namespace PowerTables.ResponseProcessing
         /// with XMLHttpRequest. Set IsDeferable to true/false to make table handler to store request and make client 
         /// side to re-query your handler with GET request. 
         /// Warning! IsDeferable is called BEFORE .Handle/.HandleAsync. So you must evaluate it in advance. 
-        /// Also see <see cref="TokenStorage"/>
+        /// Also see <see cref="InMemoryTokenStorage"/>
         /// </summary>
         bool IsDeferable { get; }
     }

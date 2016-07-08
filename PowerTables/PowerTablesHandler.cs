@@ -120,8 +120,8 @@ Btw, original message was: {0}", ex.Message),
                 if (!request.IsDeferred && commandHandler.IsDeferable)
                 {
                     request.IsDeferred = true;
-                    var token = TokenStorage.StoreRequest(request);
-                    return new ContentResult() { Content = TokenStorage.TokenPrefix + token, ContentEncoding = Encoding.UTF8, ContentType = "lattice/service" };
+                    var token = InMemoryTokenStorage.StoreRequest(request);
+                    return new ContentResult() { Content = InMemoryTokenStorage.TokenPrefix + token, ContentEncoding = Encoding.UTF8, ContentType = "lattice/service" };
                 }
                 var data = ProduceData(source, request);
 
@@ -149,8 +149,8 @@ Btw, original message was: {0}", ex.Message),
                 if (!request.IsDeferred && commandHandler.IsDeferable)
                 {
                     request.IsDeferred = true;
-                    var token = TokenStorage.StoreRequest(request);
-                    return new ContentResult() { Content = TokenStorage.TokenPrefix + token, ContentEncoding = Encoding.UTF8, ContentType = "lattice/service" };
+                    var token = InMemoryTokenStorage.StoreRequest(request);
+                    return new ContentResult() { Content = InMemoryTokenStorage.TokenPrefix + token, ContentEncoding = Encoding.UTF8, ContentType = "lattice/service" };
                 }
                 var data = ProduceData(source, request);
 

@@ -142,6 +142,7 @@
     <Compile Include="IAdditionalDataProvider.cs" />
     <Compile Include="InitializationExtensions.cs" />
     <Compile Include="IQueryHandler.cs" />
+    <Compile Include="ITokenStorage.cs" />
     <Compile Include="Plugins\Checkboxify\SelectionAdditionalData.cs" />
     <Compile Include="Plugins\Checkboxify\CheckboxifyExtensions.cs" />
     <Compile Include="Plugins\Checkboxify\CheckboxifyCommandHandler.cs" />
@@ -258,7 +259,7 @@
     <Compile Include="Templating\TemplatesPageBase.cs" />
     <Compile Include="Templating\TemplatingExtensions.cs" />
     <Compile Include="Templating\VisualStateDescription.cs" />
-    <Compile Include="TokenStorage.cs" />
+    <Compile Include="InMemoryTokenStorage.cs" />
     <Compile Include="ValueConverter.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -6,7 +6,7 @@ using System.Linq;
 namespace PowerTables
 {
     /// <summary>
-    /// It is static token storage for deferred requests handling. 
+    /// It is token storage for deferred requests handling. 
     /// This construction allows to return FileResult and RedirectResult for handling commands. 
     /// So it is easy to implement functionality like export-to-excel and export-to-pdf. 
     /// This works in a following way:
@@ -19,8 +19,15 @@ namespace PowerTables
     /// 5) Table handler retrieves deferred request from dictionary, performs necessary operations 
     /// and returns FileResult or something else.
     /// </summary>
-    public static class TokenStorage
+    public class InMemoryTokenStorage
     {
+        public static InMemoryTokenStorage Instance { get; private set; }
+
+        static InMemoryTokenStorage()
+        {
+            Instance = new InMemoryTokenStorage();
+        }
+
         internal const string TokenPrefix = "$Token=";
 
         private struct StoredRequest
@@ -28,10 +35,10 @@ namespace PowerTables
             public string Token;
             public DateTime ExpireDate;
         }
-        private static bool _isDirty = false;
-        private static readonly ConcurrentDictionary<string, PowerTableRequest> StoredRequests = new ConcurrentDictionary<string, PowerTableRequest>();
-        private static readonly List<StoredRequest> ExpirationTokens = new List<StoredRequest>();
-        private static bool _useSingleRequestTokens;
+        private bool _isDirty = false;
+        private readonly ConcurrentDictionary<string, PowerTableRequest> StoredRequests = new ConcurrentDictionary<string, PowerTableRequest>();
+        private readonly List<StoredRequest> ExpirationTokens = new List<StoredRequest>();
+        private bool _useSingleRequestTokens;
 
         /// <summary>
         /// Gets or sets tokens Time to Live. 
@@ -41,14 +48,14 @@ namespace PowerTables
         /// are older than supplied TTL.
         /// Warning! TTL is default behavior. Setting of <see cref="UseSingleRequestTokens"/> to true will disable tokens TTL mechanism!
         /// </summary>
-        public static TimeSpan TokenTimeToLive { get; set; }
+        public TimeSpan TokenTimeToLive { get; set; }
 
         /// <summary>
         /// Instructs TokenStorage to assure tokens to be used only one time without saving them. 
         /// Requested token will be rogrotten right after request. 
         /// Warning! TTL is default behavior. Setting of <see cref="UseSingleRequestTokens"/> to true will disable tokens TTL mechanism!
         /// </summary>
-        public static bool UseSingleRequestTokens
+        public bool UseSingleRequestTokens
         {
             get { return _useSingleRequestTokens; }
             set
@@ -58,7 +65,7 @@ namespace PowerTables
             }
         }
 
-        static TokenStorage()
+        InMemoryTokenStorage()
         {
             TokenTimeToLive = TimeSpan.FromMinutes(5);
             UseSingleRequestTokens = false;
@@ -69,7 +76,7 @@ namespace PowerTables
         /// </summary>
         /// <param name="request">Request to store</param>
         /// <returns>Token value</returns>
-        public static string StoreRequest(PowerTableRequest request)
+        public string StoreRequest(PowerTableRequest request)
         {
             _isDirty = true;
             string token = null;
@@ -96,7 +103,7 @@ namespace PowerTables
         /// </summary>
         /// <param name="token">Token</param>
         /// <returns>Request</returns>
-        public static PowerTableRequest Lookup(string token)
+        public PowerTableRequest Lookup(string token)
         {
             PowerTableRequest result = null;
             if (UseSingleRequestTokens)
@@ -111,7 +118,7 @@ namespace PowerTables
             return result;
         }
 
-        private static void Cleanup()
+        private void Cleanup()
         {
             if (UseSingleRequestTokens) return;
             var cDate = DateTime.Now;
