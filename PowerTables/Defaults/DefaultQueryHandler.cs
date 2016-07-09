@@ -11,6 +11,7 @@ namespace PowerTables.Defaults
     /// </summary>
     public class DefaultQueryHandler<TSourceData, TTableData> : IQueryHandler<TSourceData, TTableData> where TTableData : new()
     {
+        private ITokenStorage _tokenStorage;
         private PowerTableRequest _request;
         public virtual PowerTableRequest ExtractRequest(ControllerContext context)
         {
@@ -19,7 +20,7 @@ namespace PowerTables.Defaults
             if (context.HttpContext.Request.HttpMethod == "GET")
             {
                 var token = context.HttpContext.Request.QueryString["q"];
-                _request = InMemoryTokenStorage.Lookup(token);
+                _request = _tokenStorage.Lookup(token);
                 return _request;
             }
 
@@ -32,6 +33,12 @@ namespace PowerTables.Defaults
         }
 
         private Configurator<TSourceData, TTableData> _configuration;
+
+        public DefaultQueryHandler(ITokenStorage tokenStorage)
+        {
+            _tokenStorage = tokenStorage;
+            if (_tokenStorage == null) _tokenStorage = InMemoryTokenStorage.Instance;
+        }
 
         public void SetConfigurator(Configurator<TSourceData, TTableData> configurator)
         {

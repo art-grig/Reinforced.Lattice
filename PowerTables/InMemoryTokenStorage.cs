@@ -19,7 +19,7 @@ namespace PowerTables
     /// 5) Table handler retrieves deferred request from dictionary, performs necessary operations 
     /// and returns FileResult or something else.
     /// </summary>
-    public class InMemoryTokenStorage
+    public class InMemoryTokenStorage : ITokenStorage
     {
         public static InMemoryTokenStorage Instance { get; private set; }
 

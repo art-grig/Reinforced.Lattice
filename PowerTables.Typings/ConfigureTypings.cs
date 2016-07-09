@@ -22,6 +22,7 @@ using PowerTables.Plugins.Ordering;
 using PowerTables.Plugins.Paging;
 using PowerTables.Plugins.Reload;
 using PowerTables.Plugins.ResponseInfo;
+using PowerTables.Plugins.RowAction;
 using PowerTables.Plugins.Toolbar;
 using PowerTables.Plugins.Total;
 using Reinforced.Typings.Fluent;
@@ -158,6 +159,15 @@ namespace PowerTables.Typings
 
             builder.ExportAsInterface<HierarchyUiConfiguration>().WithPublicProperties();
             builder.ExportAsEnums(new[] { typeof(NodeExpandBehavior), typeof(TreeCollapsedNodeFilterBehavior) });
+
+            builder.ExportAsInterface<RowActionUiConfiguration>().WithPublicProperties();
+            builder.ExportAsInterface<ClientRowActionDescription>()
+                .WithPublicProperties()
+                .WithProperty(c => c.CommandCallbackFunction,
+                    c => c.Type("(table:any /*PowerTables.PowerTable*/,response:IPowerTablesResponse)=>void"))
+                .WithProperty(c => c.OnTrigger, c => c.Type("(e:any)=>void"))
+                .WithProperty(c => c.ConfirmationFunction,
+                    c => c.Type("(continuation:(queryModifier?:(a:IQuery)=>void)=>void)=>void"));
         }
 
     }

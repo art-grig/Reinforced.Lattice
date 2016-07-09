@@ -20,6 +20,7 @@ namespace PowerTables
     {
         private readonly Configurator<TSourceData, TTableData> _configuration;
         private readonly IQueryHandler<TSourceData, TTableData> _queryHandler;
+        private readonly ITokenStorage _tokenStorage;
 
         /// <summary>
         /// Table configurator
@@ -34,11 +35,14 @@ namespace PowerTables
         /// </summary>
         /// <param name="configuration">Source table configurator</param>
         /// <param name="queryHandler">(optional) Query handler that will handle source data selecting</param>
-        public PowerTablesHandler(Configurator<TSourceData, TTableData> configuration, IQueryHandler<TSourceData, TTableData> queryHandler = null)
+        /// <param name="tokenStorage">Implementation of token storage interface for correct handling of deferred queries inside distributed environment</param>
+        public PowerTablesHandler(Configurator<TSourceData, TTableData> configuration, IQueryHandler<TSourceData, TTableData> queryHandler = null, ITokenStorage tokenStorage = null)
         {
             _configuration = configuration;
-            _queryHandler = queryHandler ?? new DefaultQueryHandler<TSourceData, TTableData>();
+            _queryHandler = queryHandler ?? new DefaultQueryHandler<TSourceData, TTableData>(tokenStorage);
             _queryHandler.SetConfigurator(_configuration);
+            _tokenStorage = tokenStorage;
+            if (_tokenStorage == null) _tokenStorage = InMemoryTokenStorage.Instance;
         }
         private Dictionary<string, ICommandHandler> _inplaceCommandHandlers = new Dictionary<string, ICommandHandler>();
 
@@ -120,7 +124,7 @@ Btw, original message was: {0}", ex.Message),
                 if (!request.IsDeferred && commandHandler.IsDeferable)
                 {
                     request.IsDeferred = true;
-                    var token = InMemoryTokenStorage.StoreRequest(request);
+                    var token = _tokenStorage.StoreRequest(request);
                     return new ContentResult() { Content = InMemoryTokenStorage.TokenPrefix + token, ContentEncoding = Encoding.UTF8, ContentType = "lattice/service" };
                 }
                 var data = ProduceData(source, request);
@@ -149,7 +153,7 @@ Btw, original message was: {0}", ex.Message),
                 if (!request.IsDeferred && commandHandler.IsDeferable)
                 {
                     request.IsDeferred = true;
-                    var token = InMemoryTokenStorage.StoreRequest(request);
+                    var token = _tokenStorage.StoreRequest(request);
                     return new ContentResult() { Content = InMemoryTokenStorage.TokenPrefix + token, ContentEncoding = Encoding.UTF8, ContentType = "lattice/service" };
                 }
                 var data = ProduceData(source, request);
