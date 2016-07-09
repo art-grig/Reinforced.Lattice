@@ -1855,7 +1855,9 @@ declare module PowerTables {
         private checkEditResult(json, data, req);
         private handleRegularJsonResponse(req, data, clientQuery, callback, errorCallback);
         private handleDeferredResponse(req, data, callback);
+        isLoading(): boolean;
         private doServerQuery(data, clientQuery, callback, errorCallback?);
+        private _isLoading;
         /**
          * Sends specified request to server and lets table handle it.
          * Always use this method to invoke table's server functionality because this method

@@ -401,7 +401,7 @@ namespace PowerTables.Configuration
         /// <returns></returns>
         public static ColumnUsage<TSourceData, TTableData, TTableColumn> ClientExpression<TSourceData, TTableData, TTableColumn>(this ColumnUsage<TSourceData, TTableData, TTableColumn> conf, string clientValueFunction) where TTableData : new()
         {
-            clientValueFunction = Template.CompileExpression(clientValueFunction, "v", null);
+            clientValueFunction = string.Format("function(v) {{ {0} }}", Template.CompileExpression(clientValueFunction, "v", null));
             conf.ColumnConfiguration.ClientValueFunction = string.IsNullOrEmpty(clientValueFunction) ? null : new JRaw(clientValueFunction);
             return conf;
         }

@@ -2555,7 +2555,7 @@ var PowerTables;
                             continue;
                         }
                         if (columnConfig.CellRenderingTemplateId) {
-                            var compiled = this._hb.compile(document.getElementById(columnConfig.CellRenderingTemplateId).innerHTML, { noEscape: true });
+                            var compiled = this._templatesProvider.getCachedTemplate(columnConfig.CellRenderingTemplateId);
                             this._columnsRenderFunctions[columnConfig.RawColumnName] = compiled;
                             continue;
                         }
@@ -3516,6 +3516,7 @@ var PowerTables;
                 this._events = events;
                 this._templateIds = coreTemplates;
                 this.HandlebarsInstance = Handlebars.create();
+                this.cacheTemplates(prefix);
                 this.LayoutRenderer = new Rendering.LayoutRenderer(this, this._stack, this._instances, coreTemplates);
                 this.ContentRenderer = new Rendering.ContentRenderer(this, this._stack, this._instances, coreTemplates);
                 this.BackBinder = new Rendering.BackBinder(this.HandlebarsInstance, instances, this._stack, dateService);
@@ -3524,7 +3525,6 @@ var PowerTables;
                 this.HandlebarsInstance.registerHelper('ifloc', this.iflocHelper.bind(this));
                 this.HandlebarsInstance.registerHelper('Content', this.contentHelper.bind(this));
                 this.HandlebarsInstance.registerHelper('Track', this.trackHelper.bind(this));
-                this.cacheTemplates(prefix);
             }
             //#region Templates caching
             Renderer.prototype.cacheTemplates = function (templatesPrefix) {
@@ -6923,4 +6923,4 @@ var PowerTables;
         PowerTables.ComponentsContainer.registerComponent('Loading', LoadingPlugin);
     })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
 })(PowerTables || (PowerTables = {}));
-//# sourceMappingURL=powertables.js.map
+//# sourceMappingURL=../../../PowerTables.Mvc/Scripts/powertables.js.map
