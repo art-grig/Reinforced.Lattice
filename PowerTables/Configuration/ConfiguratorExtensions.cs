@@ -466,7 +466,8 @@ namespace PowerTables.Configuration
         /// <returns></returns>
         public static ColumnUsage<TSourceData, TTableData, TTableColumn> ClientExpression<TSourceData, TTableData, TTableColumn>(this ColumnUsage<TSourceData, TTableData, TTableColumn> conf, string clientValueFunction) where TTableData : new()
         {
-            clientValueFunction = Template.CompileExpression(clientValueFunction, "v", null, conf.ColumnConfiguration.RawColumnName);
+            var expr = Template.CompileExpression(clientValueFunction, "v", null, conf.ColumnConfiguration.RawColumnName);
+            clientValueFunction = string.Format("function(v) {{ return {0}; }}", expr);
             conf.ColumnConfiguration.ClientValueFunction = string.IsNullOrEmpty(clientValueFunction) ? null : new JRaw(clientValueFunction);
             return conf;
         }

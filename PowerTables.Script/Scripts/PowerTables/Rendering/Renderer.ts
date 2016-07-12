@@ -20,7 +20,7 @@
             this.HandlebarsInstance.registerHelper('Content', this.contentHelper.bind(this));
             this.HandlebarsInstance.registerHelper('Track', this.trackHelper.bind(this));
 
-            this.cacheTemplates(prefix);
+            
 
             this.LayoutRenderer = new LayoutRenderer(this, this._stack, this._instances, this._templateIds);
             this.ContentRenderer = new ContentRenderer(this, this._stack, this._instances, this._templateIds);
