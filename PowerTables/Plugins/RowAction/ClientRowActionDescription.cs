@@ -61,6 +61,11 @@ namespace PowerTables.Plugins.RowAction
         /// <summary>
         /// Gets or sets URL that HTML content will be loaded from for particular row. Row object will be passed as QueryString parameter
         /// </summary>
-        public string UrlToLoad { get; set; }
+        public string ContentUrl { get; set; }
+
+        /// <summary>
+        /// Gets or sets URL that HTML content will be loaded from for particular row. Row object will be passed as QueryString parameter
+        /// </summary>
+        public string ContentCommand { get; set; }
     }
 }

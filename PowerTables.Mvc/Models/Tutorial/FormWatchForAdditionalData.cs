@@ -18,6 +18,11 @@ namespace PowerTables.Mvc.Models.Tutorial
         public static Configurator<Toy, Row> FormWatchForAdditionalData(this Configurator<Toy, Row> conf)
         {
             conf.ButtonsAndCheckboxify();
+            conf.WatchForm<FormWatchTutorialModel>(c =>
+            {
+                c.WatchAllFields();
+                c.Field(x => x.IdFrom).TriggerSearchOnEvents("change", "keyup");
+            });
             conf.ReloadButton(ui => ui.ForceReload().RenderTo("#reloadPlaceholder"));
             conf.ReloadButton(ui => ui.ForceReload().Order(3), "lt");
             conf.LoadingOverlap(ui => ui.Overlap("#searchForm"));
@@ -27,7 +32,7 @@ namespace PowerTables.Mvc.Models.Tutorial
 
             conf.Column(c => c.Preorders)
                 .Template(tpl => tpl.Returns(a => a.Tag("span").Css("background-color", "aliceblue").Css("cursor", "pointer").Content("{Preorders}").Class("moveme")));
-            
+
             conf.Column(c => c.Price)
                 .Template(
                     tpl =>

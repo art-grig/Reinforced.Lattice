@@ -36,7 +36,8 @@ namespace PowerTables.Mvc.Controllers
             var handler = new PowerTablesHandler<Toy, Row>(table);
 
             var request = handler.ExtractRequest(ControllerContext);
-            //var formValues = request.Form<FormWatchTutorialModel>();
+            var formValues = request.Form<FormWatchTutorialModel>();
+            var id = formValues.IdFrom;
 
             var q = Data.SourceData.AsQueryable();
 
