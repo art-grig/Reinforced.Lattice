@@ -20,8 +20,8 @@
             this.HandlebarsInstance.registerHelper('Content', this.contentHelper.bind(this));
             this.HandlebarsInstance.registerHelper('Track', this.trackHelper.bind(this));
 
-            
-
+            this._prefix = prefix;
+            this.cacheTemplates(this._prefix);
             this.LayoutRenderer = new LayoutRenderer(this, this._stack, this._instances, this._templateIds);
             this.ContentRenderer = new ContentRenderer(this, this._stack, this._instances, this._templateIds);
             this.BackBinder = new BackBinder(this.HandlebarsInstance, this._instances, this._stack, this._masterTable.Date);
@@ -80,6 +80,7 @@
         private _rootId: string;
         private _events: EventsManager;
         private _templateIds: ICoreTemplateIds;
+        private _prefix : string;
 
         //#region Templates caching
         private cacheTemplates(templatesPrefix: string): void {

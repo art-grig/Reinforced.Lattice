@@ -180,6 +180,7 @@
             editor.CanComplete = canComplete;
             editor.IsFormEdit = isForm;
             editor.IsRowEdit = isRow;
+            editor.IsCellEdit = !(isForm || isRow);
             editor.Row = this;
             editor.RawConfig = { Configuration: editorConf, Order: 0, PluginId: editorConf.PluginId, Placement: '', TemplateId: editorConf.TemplateId }
             editor.init(this.MasterTable);

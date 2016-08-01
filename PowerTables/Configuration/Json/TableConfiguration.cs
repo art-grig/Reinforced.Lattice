@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
+using PowerTables.Plugins.Formwatch;
 
 namespace PowerTables.Configuration.Json
 {
@@ -314,6 +315,38 @@ namespace PowerTables.Configuration.Json
         /// Overridable plugin template Id
         /// </summary>
         public string TemplateId { get; set; }
+
+    }
+
+    /// <summary>
+    /// Description of command to be performed on table
+    /// </summary>
+    public class TableCommandDescription
+    {
+        /// <summary>
+        /// Gets or sets command name
+        /// </summary>
+        public string Command { get; set; }
+
+        /// <summary>
+        /// Gets or sets confirmation form fields configuration
+        /// </summary>
+        public List<FormwatchFieldData> ConfirmationFormConfiguration { get; set; }
+
+        /// <summary>
+        /// Gets or sets template ID for confirmation button's action
+        /// </summary>
+        public string ConfirmationTemplateId { get; set; }
+
+        /// <summary>
+        /// Gets or sets element selector where confirmation panel will be placed to
+        /// </summary>
+        public string ConfirmationTargetSelector { get; set; }
+
+        /// <summary>
+        /// Command handler viewmodel mixins
+        /// </summary>
+        public JRaw[] CommandMixins { get; set; }
 
     }
 }

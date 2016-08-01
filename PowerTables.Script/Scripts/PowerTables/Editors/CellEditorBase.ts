@@ -23,6 +23,11 @@
         public IsFormEdit: boolean;
 
         /**
+        * True when cell editor is editing cell
+        */
+        public IsCellEdit: boolean;
+
+        /**
          * Original, locally displayed data object
          */
         public DataObject: any;
@@ -191,6 +196,11 @@
          * True when cell editor is part of form edit, otherwise false
          */
         IsFormEdit: boolean;
+
+        /**
+        * True when cell editor is editing cell
+        */
+        IsCellEdit: boolean;
 
         /**
          * Flag when initial value setting occures

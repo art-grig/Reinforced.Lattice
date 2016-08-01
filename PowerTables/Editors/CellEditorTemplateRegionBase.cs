@@ -23,6 +23,8 @@ namespace PowerTables.Editors
         bool IsRowEdit { get; }
 
         bool IsFormEdit { get; }
+        
+        bool IsCellEdit { get; }
 
         bool CanComplete { get; }
 

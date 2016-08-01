@@ -461,31 +461,52 @@
 
 @using (var t = Plugin.Editor_PlainText())
 {
-    <div style="position: relative" @t.BindReject("out-click")>
-        <div>
-            @t.OriginalContent()
+    using (t.If(c => c.IsCellEdit))
+    {
+        <div style="position: relative" @t.BindReject("out-click")>
+            <div>
+                @t.OriginalContent()
+            </div>
+            <div class="popover fade top in" role="tooltip" style="top: -88px; left: -50px; display: block; position: absolute;">
+                <div class="arrow" style="top: 100%;"></div>
+                <h3 class="popover-title">
+                    @t.Value(c => c.Column.Configuration.Title)
+                    <button type="button" class="close" @t.BindReject("click")><span aria-hidden="true">×</span></button>
+                </h3>
+                <div class="popover-content">
+                    <input type="text"
+                           class="form-control input-md"
+                           style="min-width: 200px;" aria-label="..."
+                           @t.WhenSaving(c => c.Hide())
+                           @t.ThisIsInput()
+                           @t.BindChanged("keyup")
+                           @t.BindCommit(DOMEvent.Filter("keyup").Prop(13, "keyCode", "which"))
+                           @t.WhenInvalid(c => c.State.Color("red").Style("border-color", "red"))/>
+                    <span class="text-center" style="display: none; min-width: 200px; min-height: 28px; margin-top: 5px;" @t.WhenSaving(c => c.Show())>
+                    <span class="badge"><span class="glyphicon glyphicon-refresh loader"></span> Saving...</span>
+                </span>
+                </div>
+            </div>
         </div>
-        <div class="popover fade top in" role="tooltip" style="top: -88px; left: -50px; display: block; position: absolute;">
-            <div class="arrow" style="top: 100%;"></div>
-            <h3 class="popover-title">
-                @t.Value(c => c.Column.Configuration.Title)
-                <button type="button" class="close" @t.BindReject("click")><span aria-hidden="true">×</span></button>
-            </h3>
-            <div class="popover-content">
-                <input type="text"
-                       class="form-control input-md"
-                       style="min-width: 200px;" aria-label="..."
-                       @t.WhenSaving(c => c.Hide())
+    }
+    using (t.If(c => c.IsRowEdit))
+    {
+        <div>
+            <div @t.WhenInvalid(c => c.State.AddClass("has-error"))>
+                <input type="text" class="form-control input-sm"
+                       @t.WhenSaving(c => c.Attr("disabled","disabled"))
                        @t.ThisIsInput()
                        @t.BindChanged("keyup")
                        @t.BindCommit(DOMEvent.Filter("keyup").Prop(13, "keyCode", "which"))
-                       @t.WhenInvalid(c => c.State.Color("red").Style("border-color", "red")) />
-                <span class="text-center" style="display: none;min-width: 200px; min-height: 28px;margin-top: 5px;" @t.WhenSaving(c => c.Show())>
-                    <span class="badge"><span class="glyphicon glyphicon-refresh loader"></span> Saving...</span>
-                </span>
+                       @t.WhenInvalid(c => c.State.Color("red")) />
+                <div class="tooltip bottom" role="tooltip" style="opacity: 1; top: 21px; display: none;"
+                     @t.WhenInvalid(c => c.State.Show())>
+                    <div class="tooltip-arrow" style="border-bottom-color: #E15C5C; left: 15%"></div>
+                    <div class="tooltip-inner" style="max-width: 400px; background-color: #E15C5C;" @t.WhenInvalid(c => c.Content(v => v.ValidationMessages))></div>
+                </div>
             </div>
         </div>
-    </div>
+    }
 }
 
 @using (var t = Plugin.Editor_ValidationMessages())
@@ -500,50 +521,80 @@
 
 @using (var t = Plugin.Editor_PlainText("plainTextEditorAlternate"))
 {
-    <div @t.BindReject(DOMEvent.Filter("click").Out().Prop(true, "ctrlKey"))>
-        <div class="input-group" @t.WhenInvalid(c => c.State.AddClass("has-error")) style="max-width: 200px;" @t.WhenSaving(c => c.Hide())>
-            <input @t.ThisIsInput() @t.BindChanged("keyup") @t.BindCommit(DOMEvent.Filter("keyup").Prop(13, "keyCode", "which")) type="text" @t.WhenInvalid(c => c.State.Color("red")) class="form-control input-sm" aria-label="..." style="height: 28px; margin-top: -10px; margin-bottom: -10px" />
-            <div class="tooltip bottom" role="tooltip" style="opacity: 1; top: 21px;display: none;"
-                 @t.WhenInvalid(c => c.State.Show())>
-                <div class="tooltip-arrow" style="border-bottom-color: #E15C5C;left:15%"></div>
+    using (t.If(c=>c.IsCellEdit))
+    {
+        <div @t.BindReject(DOMEvent.Filter("click").Out().Prop(true, "ctrlKey"))>
+            <div class="input-group" @t.WhenInvalid(c => c.State.AddClass("has-error")) style="max-width: 200px;" @t.WhenSaving(c => c.Hide())>
+                <input @t.ThisIsInput() @t.BindChanged("keyup") @t.BindCommit(DOMEvent.Filter("keyup").Prop(13, "keyCode", "which")) type="text" @t.WhenInvalid(c => c.State.Color("red")) class="form-control input-sm" aria-label="..." style="height: 28px; margin-top: -10px; margin-bottom: -10px"/>
+                <div class="tooltip bottom" role="tooltip" style="opacity: 1; top: 21px; display: none;"
+                     @t.WhenInvalid(c => c.State.Show())>
+                    <div class="tooltip-arrow" style="border-bottom-color: #E15C5C; left: 15%"></div>
 
-                <div class="tooltip-inner" style="max-width: 400px; background-color: #E15C5C;" @t.WhenInvalid(c => c.Content(v => v.ValidationMessages))></div>
+                    <div class="tooltip-inner" style="max-width: 400px; background-color: #E15C5C;" @t.WhenInvalid(c => c.Content(v => v.ValidationMessages))></div>
+                </div>
+                <div class="input-group-btn">
+                    <button style="margin: -4px 0px; padding: 4px 10px;" type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                        <li @t.WhenInvalid(c => c.State.Disabled().AddClass("disabled"))><a style="cursor: pointer;" @t.BindCommit("click")><span class="glyphicon glyphicon-floppy-disk"></span> Save</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a style="cursor: pointer;" @t.BindReject("click")><span class="glyphicon glyphicon-remove"></span> Cancel</a></li>
+                    </ul>
+                </div>
             </div>
-            <div class="input-group-btn">
-                <button style="margin: -4px 0px; padding: 4px 10px;" type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-right">
-                    <li @t.WhenInvalid(c => c.State.Disabled().AddClass("disabled"))><a style="cursor: pointer;" @t.BindCommit("click")><span class="glyphicon glyphicon-floppy-disk"></span> Save</a></li>
-                    <li role="separator" class="divider"></li>
-                    <li><a style="cursor: pointer;" @t.BindReject("click")><span class="glyphicon glyphicon-remove"></span> Cancel</a></li>
-                </ul>
-            </div>
-        </div>
 
-        <span class="text-center" style="display: none" @t.WhenSaving(c => c.Show())>
+            <span class="text-center" style="display: none" @t.WhenSaving(c => c.Show())>
             <span class="badge"><span class="glyphicon glyphicon-refresh"></span> Saving...</span>
         </span>
-    </div>
+        </div>
+    }
+
+    
 }
 
 @using (var t = Plugin.Editor_SelectList())
 {
-    <div style="position: relative" @t.BindReject("out-click")>
-        <div>
-            @t.OriginalContent()
-        </div>
-        <div class="popover fade top in" role="tooltip" style="top: -88px; left: -50px; display: block; position: absolute;">
-            <div class="arrow" style="top: 100%;"></div>
-            <h3 class="popover-title">
-                @t.Value(c => c.Column.Configuration.Title)
-                <button type="button" class="close" @t.BindReject("click")><span aria-hidden="true">×</span></button>
-            </h3>
-            <div class="popover-content">
-                <select @t.WhenSaving(c => c.Hide())
+    using (t.If(c => c.IsCellEdit))
+    {
+        <div style="position: relative" @t.BindReject("out-click")>
+            <div>
+                @t.OriginalContent()
+            </div>
+            <div class="popover fade top in" role="tooltip" style="top: -88px; left: -50px; display: block; position: absolute;">
+                <div class="arrow" style="top: 100%;"></div>
+                <h3 class="popover-title">
+                    @t.Value(c => c.Column.Configuration.Title)
+                    <button type="button" class="close" @t.BindReject("click")><span aria-hidden="true">×</span></button>
+                </h3>
+                <div class="popover-content">
+                    <select @t.WhenSaving(c => c.Hide())
                         @t.WhenInvalid(c => c.State.Style("background-color", "#FFF7F7"))
                         class="form-control input-md"
                         style="min-width: 150px;"
+                        @t.ThisIsList()
+                        @t.BindChanged("change")
+                        @t.BindCommit("change")>
+                        @using (var itm = t.Each(c => c.Items))
+                        {
+                            <option value="@itm.Value(c => c.Value)">@itm.Value(c => c.Text)</option>
+                        }
+                    </select>
+                    <span class="text-center" style="display: none; min-width: 150px; min-height: 28px; margin-top: 5px;" @t.WhenSaving(c => c.Show())>
+                    <span class="badge"><span class="glyphicon glyphicon-refresh loader"></span> Saving...</span>
+                </span>
+                </div>
+            </div>
+        </div>
+    }
+
+    using (t.If(c => c.IsRowEdit))
+    {
+        <div>
+            <div @t.WhenInvalid(c => c.State.AddClass("has-error"))>
+                <select @t.WhenSaving(c => c.Attr("disabled","disabled"))
+                        @t.WhenInvalid(c => c.State.Style("background-color", "#FFF7F7"))
+                        class="form-control input-sm"
                         @t.ThisIsList()
                         @t.BindChanged("change")
                         @t.BindCommit("change")>
@@ -552,80 +603,127 @@
                         <option value="@itm.Value(c => c.Value)">@itm.Value(c => c.Text)</option>
                     }
                 </select>
-                <span class="text-center" style="display: none;min-width: 150px; min-height: 28px;margin-top: 5px;" @t.WhenSaving(c => c.Show())>
-                    <span class="badge"><span class="glyphicon glyphicon-refresh loader"></span> Saving...</span>
-                </span>
+
+                <div class="tooltip bottom" role="tooltip" style="opacity: 1; top: 21px; display: none;"
+                     @t.WhenInvalid(c => c.State.Show())>
+                    <div class="tooltip-arrow" style="border-bottom-color: #E15C5C; left: 15%"></div>
+                    <div class="tooltip-inner" style="max-width: 400px; background-color: #E15C5C;" @t.WhenInvalid(c => c.Content(v => v.ValidationMessages))></div>
+                </div>
             </div>
         </div>
-    </div>
+    }
 }
 
 @using (var t = Plugin.Editor_Memo())
 {
-    <div style="position: relative" @t.BindReject("out-click")>
-        <div>
-            @t.OriginalContent()
-        </div>
-        <div class="popover fade top in" role="tooltip"
-             style="top: -160px; left: -50px; display: block; position: absolute; width: 300px;"
-             @t.WhenSaving(c => c.Style("top", "-86px"))>
-            <div class="arrow" style="top: 100%;"></div>
-            <h3 class="popover-title">
-                @t.Value(c => c.Column.Configuration.Title)
-                <button type="button" class="close" @t.BindReject("click")><span aria-hidden="true">×</span></button>
-            </h3>
-            <div class="popover-content">
-                <div class="col-md-12" @t.WhenSaving(c => c.Hide())>
-                    <textarea class="form-control"
-                              style="width: 100%;height:70px"
-                              @t.ThisIsInput()
-                              @t.BindChanged("change")
-                              @t.WhenInvalid(c => c.State.Style("background-color", "#FFF7F7"))
-                              rows="@t.Value(c => c.Rows)"
-                              cols="@t.Value(c => c.Columns)"></textarea>
-                </div>
-                <br />
-                <div class="col-md-12" @t.WhenSaving(c => c.Hide())>
-                    <button class="btn btn-default btn-xs btn-block" @t.BindCommit("click") @t.WhenInvalid(c => c.State.Disabled())>Save</button>
-                </div>
-                <span class="text-center" style="display: none;min-width: 150px; min-height: 28px;margin-top: -15px;" @t.WhenSaving(c => c.Show())>
+    using (t.If(c => c.IsCellEdit))
+    {
+        <div style="position: relative" @t.BindReject("out-click")>
+            <div>
+                @t.OriginalContent()
+            </div>
+            <div class="popover fade top in" role="tooltip"
+                 style="top: -160px; left: -50px; display: block; position: absolute; width: 300px;"
+                 @t.WhenSaving(c => c.Style("top", "-86px"))>
+                <div class="arrow" style="top: 100%;"></div>
+                <h3 class="popover-title">
+                    @t.Value(c => c.Column.Configuration.Title)
+                    <button type="button" class="close" @t.BindReject("click")><span aria-hidden="true">×</span></button>
+                </h3>
+                <div class="popover-content">
+                    <div class="col-md-12" @t.WhenSaving(c => c.Hide())>
+                        <textarea class="form-control"
+                                  @t.WhenSaving(c => c.Attr("disabled", "disabled"))
+                                  style="width: 100%; height: 70px"
+                                  @t.ThisIsInput()
+                                  @t.BindChanged("change")
+                                  @t.WhenInvalid(c => c.State.Style("background-color", "#FFF7F7"))
+                                  rows="@t.Value(c => c.Rows)"
+                                  cols="@t.Value(c => c.Columns)"></textarea>
+                    </div>
+                    <br/>
+                    <div class="col-md-12" @t.WhenSaving(c => c.Hide())>
+                        <button class="btn btn-default btn-xs btn-block" @t.BindCommit("click") @t.WhenInvalid(c => c.State.Disabled())>Save</button>
+                    </div>
+                    <span class="text-center" style="display: none; min-width: 150px; min-height: 28px; margin-top: -15px;" @t.WhenSaving(c => c.Show())>
                     <span class="badge"><span class="glyphicon glyphicon-refresh loader"></span> Saving...</span>
                 </span>
+                </div>
             </div>
         </div>
-    </div>
+    }
+
+    using (t.If(c => c.IsRowEdit))
+    {
+        <div>
+            <div @t.WhenInvalid(c => c.State.AddClass("has-error"))>
+                <textarea class="form-control"
+                          @t.WhenSaving(c => c.Attr("disabled", "disabled"))
+                          @t.ThisIsInput()
+                          @t.BindChanged("change")
+                          @t.WhenInvalid(c => c.State.Style("background-color", "#FFF7F7"))
+                          rows="@t.Value(c => c.Rows)"
+                          cols="@t.Value(c => c.Columns)"></textarea>
+
+                <div class="tooltip bottom" role="tooltip" style="opacity: 1; top: 21px; display: none;"
+                     @t.WhenInvalid(c => c.State.Show())>
+                    <div class="tooltip-arrow" style="border-bottom-color: #E15C5C; left: 15%"></div>
+                    <div class="tooltip-inner" style="max-width: 400px; background-color: #E15C5C;" @t.WhenInvalid(c => c.Content(v => v.ValidationMessages))></div>
+                </div>
+            </div>
+        </div>
+    }
 }
 
 @using (var t = Plugin.Editor_Check())
 {
-    <div style="position: relative" @t.BindReject("out-click")>
-        <div>
-            @t.OriginalContent()
-        </div>
-        <div class="popover fade top in" role="tooltip"
-             style="top: -101px; left: -74px; display: block; position: absolute; width: 300px;"
-             @t.WhenSaving(c => c.Style("top", "-86px"))>
-            <div class="arrow" style="top: 100%;"></div>
-            <h3 class="popover-title">
-                @t.Value(c => c.Column.Configuration.Title)
-                <button type="button" class="close" @t.BindReject("click")><span aria-hidden="true">×</span></button>
-            </h3>
-            <div class="popover-content">
-                <div class="col-md-12" @t.WhenSaving(c => c.Hide())>
-                    <div class="checkbox">
-                        <label style="padding-left: 10px; line-height: 2; font-size: 16px;">
-                            <input type="checkbox" @t.BindChanged("change") @t.BindCommit("change") style="width: 20px; height: 20px; cursor: pointer"
-                                   @t.WhenChecked(c => c.Attr("checked", "checked")) />
-                            @t.Value(c => c.Column.Configuration.Title) -
-                            @t.Value(c => c.DataObject["Name"])
-                        </label>
-                    </div>
+    using (t.If(c => c.IsCellEdit))
+    {
+        <div style="position: relative" @t.BindReject("out-click")>
+            <div>
+                @t.OriginalContent()
+            </div>
+            <div class="popover fade top in" role="tooltip"
+                 style="top: -101px; left: -74px; display: block; position: absolute; width: 300px;"
+                 @t.WhenSaving(c => c.Style("top", "-86px"))>
+                <div class="arrow" style="top: 100%;"></div>
+                <h3 class="popover-title">
+                    @t.Value(c => c.Column.Configuration.Title)
+                    <button type="button" class="close" @t.BindReject("click")><span aria-hidden="true">×</span></button>
+                </h3>
+                <div class="popover-content">
+                    <div class="col-md-12" @t.WhenSaving(c => c.Hide())>
+                        <div class="checkbox">
+                            <label style="padding-left: 10px; line-height: 2; font-size: 16px;">
+                                <input type="checkbox" @t.BindChanged("change") @t.BindCommit("change") style="width: 20px; height: 20px; cursor: pointer"
+                                       @t.WhenChecked(c => c.Attr("checked", "checked"))/>
+                                @t.Value(c => c.Column.Configuration.Title) 
+                            </label>
+                        </div>
 
-                </div>
-                <span class="text-center" style="display: none;min-width: 150px; min-height: 48px;margin-top: -15px;" @t.WhenSaving(c => c.Show())>
+                    </div>
+                    <span class="text-center" style="display: none; min-width: 150px; min-height: 48px; margin-top: -15px;" @t.WhenSaving(c => c.Show())>
                     <span class="badge" style="margin-top: 20px"><span class="glyphicon glyphicon-refresh loader"></span> Saving...</span>
                 </span>
+                </div>
             </div>
         </div>
-    </div>
+    }
+
+    using (t.If(c => c.IsRowEdit))
+    {
+        <div>
+            <div @t.WhenInvalid(c => c.State.AddClass("has-error"))>
+                <input type="checkbox" style="width: 20px; height: 20px; cursor: pointer"
+                       @t.BindChanged("change") @t.BindCommit("change")
+                       @t.WhenChecked(c => c.Attr("checked", "checked")) />
+                        @t.Value(c => c.Column.Configuration.Title) 
+                <div class="tooltip bottom" role="tooltip" style="opacity: 1; top: 21px; display: none;"
+                     @t.WhenInvalid(c => c.State.Show())>
+                    <div class="tooltip-arrow" style="border-bottom-color: #E15C5C; left: 15%"></div>
+                    <div class="tooltip-inner" style="max-width: 400px; background-color: #E15C5C;" @t.WhenInvalid(c => c.Content(v => v.ValidationMessages))></div>
+                </div>
+            </div>
+        </div>
+    }
 }
