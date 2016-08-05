@@ -32,14 +32,18 @@
             for (var i: number = 0; i < elements.length; i++) {
                 var element: HTMLElement = elements[i];
                 var attr = null;
+                var attrNamesToRemove = [];
                 for (var j = 0; j < element.attributes.length; j++) {
                     if (element.attributes.item(j).name.substring(0, attribute.length) === attribute) {
                         attr = element.attributes.item(j);
                         var idx: number = parseInt(attr.value);
                         var backbindDescription: T = backbindCollection[idx];
                         fn.call(this, backbindDescription, element);
-                        element.removeAttribute(attr.name);
+                        attrNamesToRemove.push(attr.name);
                     }
+                }
+                for (var k = 0; k < attrNamesToRemove.length; k++) {
+                    element.removeAttribute(attrNamesToRemove[k]);
                 }
             }
         }

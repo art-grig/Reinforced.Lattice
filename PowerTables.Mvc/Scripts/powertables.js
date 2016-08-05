@@ -2009,13 +2009,18 @@ var PowerTables;
         Loader.prototype.handleDeferredResponse = function (req, data, callback) {
             if (req.responseText.indexOf('$Token=') === 0) {
                 var token = req.responseText.substr(7, req.responseText.length - 7);
+                var deferredUrl = (this._operationalAjaxUrl.indexOf('?') > -1 ? '&' : '?') + 'q=' + token;
                 this._events.DeferredDataReceived.invoke(this, {
                     Request: data,
                     XMLHttp: req,
                     Token: token,
-                    DataUrl: this._operationalAjaxUrl + '?q=' + token
+                    DataUrl: deferredUrl
                 });
-                callback({ $isDeferred: true, $url: this._operationalAjaxUrl + '?q=' + token, $token: token });
+                callback({
+                    $isDeferred: true,
+                    $url: deferredUrl,
+                    $token: token
+                });
             }
         };
         Loader.prototype.isLoading = function () {
@@ -2155,14 +2160,18 @@ var PowerTables;
                 for (var i = 0; i < elements.length; i++) {
                     var element = elements[i];
                     var attr = null;
+                    var attrNamesToRemove = [];
                     for (var j = 0; j < element.attributes.length; j++) {
                         if (element.attributes.item(j).name.substring(0, attribute.length) === attribute) {
                             attr = element.attributes.item(j);
                             var idx = parseInt(attr.value);
                             var backbindDescription = backbindCollection[idx];
                             fn.call(this, backbindDescription, element);
-                            element.removeAttribute(attr.name);
+                            attrNamesToRemove.push(attr.name);
                         }
+                    }
+                    for (var k = 0; k < attrNamesToRemove.length; k++) {
+                        element.removeAttribute(attrNamesToRemove[k]);
                     }
                 }
             };
