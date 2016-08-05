@@ -346,7 +346,7 @@ namespace PowerTables.Configuration.Json
         /// <summary>
         /// Command handler viewmodel mixins
         /// </summary>
-        public JRaw[] CommandMixins { get; set; }
+        public JRaw ConfirmationWindowViewModel { get; set; }
 
     }
 }
