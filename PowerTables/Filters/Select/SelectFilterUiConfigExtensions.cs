@@ -23,7 +23,6 @@ namespace PowerTables.Filters.Select
         /// <returns></returns>
         public static ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn> SelectAny<TColumn>(this ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn> config, bool allowAny = true, string anyText = "Any")
         {
-            config.Configuration.AllowSelectNothing = allowAny;
             if (allowAny)
             {
                 config.Configuration.Items.Add(new SelectListItem() {Text = anyText, Value = ""});
@@ -45,7 +44,6 @@ namespace PowerTables.Filters.Select
         public static ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn?> SelectNotPresent<TColumn>(this ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn?> config, bool allowNotPresent = true, string notPresentText = "Not present")
             where TColumn : struct
         {
-            config.Configuration.AllowSelectNotPresent = allowNotPresent;
             if (allowNotPresent)
             {
                 config.Configuration.Items.Add(new SelectListItem() { Text = notPresentText, Value = ValueConverter.NotPresentValue });

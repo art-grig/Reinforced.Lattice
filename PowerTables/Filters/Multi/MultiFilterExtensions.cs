@@ -102,7 +102,6 @@ namespace PowerTables.Filters.Multi
             column.UpdateFilterConfig<SelectFilterUiConfig, TTableColumn>(SelectFilterExtensions.PluginId, c =>
             {
                 if (ui != null) ui(c);
-                c.Configuration.AllowSelectNothing = false;
                 c.Configuration.IsMultiple = true;
             });
         }
