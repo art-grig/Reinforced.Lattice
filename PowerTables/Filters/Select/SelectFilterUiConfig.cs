@@ -17,16 +17,6 @@ namespace PowerTables.Filters.Select
         public string SelectedValue { get; set; }
 
         /// <summary>
-        /// When true, option to select "Any" entry will be added to filter
-        /// </summary>
-        public bool AllowSelectNothing { get; set; }
-
-        /// <summary>
-        /// When true, option to select "Any" entry will be added to filter
-        /// </summary>
-        public bool AllowSelectNotPresent { get; set; }
-
-        /// <summary>
         /// When true, ability to select multiple possible values will be available
         /// </summary>
         public bool IsMultiple { get; set; }

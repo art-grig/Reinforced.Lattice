@@ -92,7 +92,7 @@ namespace PowerTables.Defaults
             get
             {
                 return _forceDeferred || (
-                    typeof (FileResult).IsAssignableFrom(typeof(TResponse)) ||
+                    typeof(FileResult).IsAssignableFrom(typeof(TResponse)) ||
                     typeof(RedirectResult).IsAssignableFrom(typeof(TResponse)));
             }
         }
@@ -100,7 +100,7 @@ namespace PowerTables.Defaults
         /// <summary>
         /// Type of command result
         /// </summary>
-        public Type ResultType { get { return typeof (TResponse); } }
+        public Type ResultType { get { return typeof(TResponse); } }
     }
 
     /// <summary>
@@ -116,13 +116,14 @@ namespace PowerTables.Defaults
         /// <param name="method">Method implementing command</param>
         /// <param name="forceDeferred">Should this command be deferred (query cached for further results retrieving)</param>
         public static void AddCommandHandler<TSourceData, TTargetData, TResponse>(
-            this PowerTablesHandler<TSourceData,TTargetData> handler, 
-            string command, 
-            Func<PowerTablesData<TSourceData, TTargetData>, TResponse> method, 
+            this PowerTablesHandler<TSourceData, TTargetData> handler,
+            string command,
+            Func<PowerTablesData<TSourceData, TTargetData>, TResponse> method,
             bool forceDeferred = false) where TTargetData : new()
         {
-            var del = new DelegateCommandHandler<TSourceData, TTargetData, TResponse>(method);
-            handler.RegisterCommandHandler(command,del);
+            var del = new DelegateCommandHandler<TSourceData, TTargetData, TResponse>(method, forceDeferred: forceDeferred);
+
+            handler.RegisterCommandHandler(command, del);
         }
 
         /// <summary>
@@ -133,12 +134,12 @@ namespace PowerTables.Defaults
         /// <param name="method">Asynchronous method implementing command</param>
         /// <param name="forceDeferred">Should this command be deferred (query cached for further results retrieving)</param>
         public static void AddCommandHandler<TSourceData, TTargetData, TResponse>(
-            this PowerTablesHandler<TSourceData, TTargetData> handler, 
-            string command, 
-            Func<PowerTablesData<TSourceData, TTargetData>, Task<TResponse>> method, 
+            this PowerTablesHandler<TSourceData, TTargetData> handler,
+            string command,
+            Func<PowerTablesData<TSourceData, TTargetData>, Task<TResponse>> method,
             bool forceDeferred = false) where TTargetData : new()
         {
-            var del = new DelegateCommandHandler<TSourceData, TTargetData, TResponse>(method);
+            var del = new DelegateCommandHandler<TSourceData, TTargetData, TResponse>(method, forceDeferred: forceDeferred);
             handler.RegisterCommandHandler(command, del);
         }
 
@@ -154,12 +155,12 @@ namespace PowerTables.Defaults
         /// <param name="syncmethod">Method implementing command</param>
         /// <param name="forceDeferred">Should this command be deferred (query cached for further results retrieving)</param>
         public static void AddCommandHandler<TSourceData, TTargetData, TResponse>(
-           this PowerTablesHandler<TSourceData, TTargetData> handler, string command, 
+           this PowerTablesHandler<TSourceData, TTargetData> handler, string command,
             Func<PowerTablesData<TSourceData, TTargetData>, Task<TResponse>> asyncMethod,
             Func<PowerTablesData<TSourceData, TTargetData>, TResponse> syncmethod,
             bool forceDeferred = false) where TTargetData : new()
         {
-            var del = new DelegateCommandHandler<TSourceData, TTargetData, TResponse>(syncmethod,asyncMethod);
+            var del = new DelegateCommandHandler<TSourceData, TTargetData, TResponse>(syncmethod, asyncMethod, forceDeferred: forceDeferred);
             handler.RegisterCommandHandler(command, del);
         }
 

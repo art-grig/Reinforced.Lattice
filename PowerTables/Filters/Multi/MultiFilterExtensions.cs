@@ -103,7 +103,6 @@ namespace PowerTables.Filters.Multi
             {
                 c.Configuration.ColumnName = column.ColumnConfiguration.RawColumnName;
                 if (ui != null) ui(c);
-                c.Configuration.AllowSelectNothing = false;
                 c.Configuration.IsMultiple = true;
             });
         }

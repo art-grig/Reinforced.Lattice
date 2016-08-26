@@ -434,10 +434,6 @@ declare module PowerTables.Filters.Select {
     interface ISelectFilterUiConfig {
         /** Preselected filter value */
         SelectedValue: string;
-        /** When true, option to select "Any" entry will be added to filter */
-        AllowSelectNothing: boolean;
-        /** When true, option to select "Any" entry will be added to filter */
-        AllowSelectNotPresent: boolean;
         /** When true, ability to select multiple possible values will be available */
         IsMultiple: boolean;
         /** Column name this filter associated with */

@@ -53,7 +53,7 @@
                 Orderings: {},
                 Filterings: {},
                 AdditionalData: {},
-                StaticDataJson: this._staticData
+                StaticDataJson: this._masterTable.InstanceManager.Configuration.StaticData
             };
             if (queryScope === QueryScope.Client) {
                 this._events.BeforeClientQueryGathering.invoke(this, { Query: a, Scope: queryScope });
@@ -177,13 +177,18 @@
         private handleDeferredResponse(req: any, data: any, callback: any) {
             if (req.responseText.indexOf('$Token=') === 0) {
                 var token: string = req.responseText.substr(7, req.responseText.length - 7);
+                var deferredUrl = (this._operationalAjaxUrl.indexOf('?') > -1 ? '&' : '?') + 'q=' + token;
                 this._events.DeferredDataReceived.invoke(this, {
                     Request: data,
                     XMLHttp: req,
                     Token: token,
-                    DataUrl: this._operationalAjaxUrl + '?q=' + token
+                    DataUrl: deferredUrl
                 });
-                callback({ $isDeferred: true, $url: this._operationalAjaxUrl + '?q=' + token, $token: token });
+                callback({
+                    $isDeferred: true,
+                    $url: deferredUrl,
+                    $token: token
+                });
             }
         }
         public isLoading() {
