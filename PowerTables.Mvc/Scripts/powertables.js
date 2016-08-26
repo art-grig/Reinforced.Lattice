@@ -58,8 +58,37 @@ var PowerTables;
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var Hierarchy;
+        (function (Hierarchy) {
+            /** Controls policy of nodes collapsing and expanding */
+            (function (NodeExpandBehavior) {
+                /** This option will not fetch subtree nodes when locally loaded data available */
+                NodeExpandBehavior[NodeExpandBehavior["LoadFromCacheWhenPossible"] = 0] = "LoadFromCacheWhenPossible";
+                /**
+                * This option will make hierarchy plugin always fetch subtree from
+                *             server-side even if local data available
+                */
+                NodeExpandBehavior[NodeExpandBehavior["AlwaysLoadRemotely"] = 1] = "AlwaysLoadRemotely";
+            })(Hierarchy.NodeExpandBehavior || (Hierarchy.NodeExpandBehavior = {}));
+            var NodeExpandBehavior = Hierarchy.NodeExpandBehavior;
+            /** This option controls client filtering policy related to collapsed nodes */
+            (function (TreeCollapsedNodeFilterBehavior) {
+                /** In this case, even collapsed nodes will be included to filter results */
+                TreeCollapsedNodeFilterBehavior[TreeCollapsedNodeFilterBehavior["IncludeCollapsed"] = 0] = "IncludeCollapsed";
+                /** In this case, even collapsed nodes will be excluded from filter results */
+                TreeCollapsedNodeFilterBehavior[TreeCollapsedNodeFilterBehavior["ExcludeCollapsed"] = 1] = "ExcludeCollapsed";
+            })(Hierarchy.TreeCollapsedNodeFilterBehavior || (Hierarchy.TreeCollapsedNodeFilterBehavior = {}));
+            var TreeCollapsedNodeFilterBehavior = Hierarchy.TreeCollapsedNodeFilterBehavior;
+        })(Hierarchy = Plugins.Hierarchy || (Plugins.Hierarchy = {}));
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
     /**
-    * Helper class for producing track ids
+    * Helper class for producing track ids.
+    * You can use this class directly, but it is better to use it via @memberref PowerTables.PowerTable.Renderer.Rendering.Modifier instance
     */
     var TrackHelper = (function () {
         function TrackHelper() {
@@ -202,6 +231,9 @@ var PowerTables;
                 this._components[key].registerEvents.call(eventsManager, eventsManager, masterTable);
             }
         };
+        /*
+         * @internal
+         */
         ComponentsContainer.registerAllEvents = function (eventsManager, masterTable) {
             for (var key in this._components) {
                 if (this._components[key].registerEvents && typeof this._components[key].registerEvents === 'function') {
@@ -250,6 +282,9 @@ var PowerTables;
      * API responsible for dates operations
      */
     var DateService = (function () {
+        /*
+         * @internal
+         */
         function DateService(datepickerOptions) {
             this._datepickerOptions = datepickerOptions;
         }
@@ -393,8 +428,14 @@ if (!Date.prototype.toISOString) {
 }
 var PowerTables;
 (function (PowerTables) {
+    /**
+     * API for managing in-table elements' events
+     */
     var EventsDelegator = (function () {
-        function EventsDelegator(locator, bodyElement, layoutElement, rootId) {
+        /**
+         * @internal
+         */
+        function EventsDelegator(locator, bodyElement, layoutElement, rootId, masterTable) {
             this._outSubscriptions = {};
             this._cellDomSubscriptions = {};
             this._rowDomSubscriptions = {};
@@ -406,6 +447,7 @@ var PowerTables;
             this._bodyElement = bodyElement;
             this._layoutElement = layoutElement;
             this._rootId = rootId;
+            this._masterTable = masterTable;
             this._matches = (function (el) {
                 if (!el)
                     return null;
@@ -497,6 +539,7 @@ var PowerTables;
             }
             if (cellLocation != null) {
                 var cellArgs = {
+                    Master: this._masterTable,
                     OriginalEvent: e,
                     DisplayingRowIndex: cellLocation.RowIndex,
                     ColumnIndex: cellLocation.ColumnIndex
@@ -505,6 +548,7 @@ var PowerTables;
             }
             if (rowIndex != null) {
                 var rowArgs = {
+                    Master: this._masterTable,
                     OriginalEvent: e,
                     DisplayingRowIndex: rowIndex
                 };
@@ -610,6 +654,9 @@ var PowerTables;
             }
             return true;
         };
+        /**
+         * @internal
+         */
         EventsDelegator.prototype.subscribeEvent = function (el, eventId, handler, receiver, eventArguments) {
             var eo = this.parseEventId(eventId);
             var fn;
@@ -667,6 +714,9 @@ var PowerTables;
                 }
             }
         };
+        /**
+         * @internal
+         */
         EventsDelegator.prototype.subscribeOutOfElementEvent = function (el, eventId, handler, receiver, eventArguments) {
             var eo = this.parseEventId(eventId);
             eventId = eo['__event'];
@@ -683,11 +733,20 @@ var PowerTables;
             });
             el.setAttribute('data-outsub', 'true');
         };
+        /**
+         * Subscribes event that will be fired when supplied element will be destroyed
+         *
+         * @param e HTML element destroying of which will fire event
+         * @param callback Callback being called when element is destroyed
+         */
         EventsDelegator.prototype.subscribeDestroy = function (e, callback) {
             callback.Element = e;
             e.setAttribute("data-dstrycb", "true");
             this._destroyCallbacks.push(callback);
         };
+        /**
+         * @internal
+         */
         EventsDelegator.prototype.handleElementDestroy = function (e) {
             var arr = this.collectElementsHavingAttribute(e, 'data-outsub');
             if (arr.length !== 0) {
@@ -753,6 +812,9 @@ var PowerTables;
      * Wrapper for table event with ability to subscribe/unsubscribe
      */
     var TableEvent = (function () {
+        /*
+         * @internal
+         */
         function TableEvent(masterTable) {
             this._handlers = {};
             this._masterTable = masterTable;
@@ -858,6 +920,9 @@ var PowerTables;
      * elements location
      */
     var Controller = (function () {
+        /**
+         * @internal
+         */
         function Controller(masterTable) {
             this._masterTable = masterTable;
         }
@@ -867,7 +932,10 @@ var PowerTables;
          */
         Controller.prototype.reload = function (forceServer) {
             var _this = this;
-            this._masterTable.Loader.requestServer('query', function () {
+            this._masterTable.Loader.requestServer('query', function (e) {
+                if (e['Success'] === false && e['Message'] && e['Message']['__Go7XIV13OA'] === true) {
+                    return;
+                }
                 _this.redrawVisibleData();
             }, null, null, forceServer);
         };
@@ -905,6 +973,15 @@ var PowerTables;
                 this._masterTable.Renderer.body(rows);
             }
         };
+        /**
+         * Redraws locally visible data
+         */
+        Controller.prototype.replaceVisibleData = function (rows) {
+            this._masterTable.Renderer.body(rows);
+        };
+        /**
+         * @internal
+         */
         Controller.prototype.drawAdjustmentResult = function (adjustmentResult) {
             var adjRowTemplate = this._masterTable.InstanceManager.Configuration.TouchedRowTemplateId;
             var adjCellTemplate = this._masterTable.InstanceManager.Configuration.TouchedCellTemplateId;
@@ -1024,56 +1101,6 @@ var PowerTables;
         return Controller;
     }());
     PowerTables.Controller = Controller;
-    /**
-     * Behavior of redrawing table after modification
-     */
-    (function (RedrawBehavior) {
-        /**
-         * To perform UI redraw, data will be entirely reloaded from server.
-         * Local data will not be affected due to further reloading
-         */
-        RedrawBehavior[RedrawBehavior["ReloadFromServer"] = 0] = "ReloadFromServer";
-        /**
-         * Filters will be reapplied only locally.
-         * Currently displaying data will be entirely redrawn with client filters
-         * using locally cached data from server.
-         *
-         * In this case, if modified rows are not satisfying any server conditions then
-         * is will still stay in table. That may seem illogical for target users.
-         */
-        RedrawBehavior[RedrawBehavior["LocalFullRefresh"] = 1] = "LocalFullRefresh";
-        /**
-         * Filters will be reapplied locally but only on currently displaying data.
-         *
-         * In this case, deleted row will simply disappear, added row will be added to currently
-         * displaying cells set and currently displaying set will be re-ordered, modified
-         * row will be ordered among only displaying set without filtering.
-         * This approach is quite fast and may be useful in various cases
-         */
-        RedrawBehavior[RedrawBehavior["LocalVisibleReorder"] = 2] = "LocalVisibleReorder";
-        /**
-         * Simply redraw all the visible cells without additional filtering.
-         *
-         * May lead to glitches e.g. invalid elements count on page or invalid
-         * items order. Most suitable for updating that does not touch filtering/ordering-sensetive
-         * data.
-         */
-        RedrawBehavior[RedrawBehavior["RedrawVisible"] = 3] = "RedrawVisible";
-        /**
-         * Only particular row mentioned in modification request will be updated.
-         * No server reloading, no reordering, no re-sorting. Row will stay in place or
-         * will be added at specified position or will be simply disappear from currently displayed set.
-         * In some cases such behavior may confuse users, but still stay suitable for most cases.
-         * Of course, it will disappear after on next filtering if no more satisfying
-         * filter conditions.
-         */
-        RedrawBehavior[RedrawBehavior["ParticularRowUpdate"] = 4] = "ParticularRowUpdate";
-        /**
-         * Modification request will not affect UI anyhow until next filtering. Confusing.
-         */
-        RedrawBehavior[RedrawBehavior["DoNothing"] = 5] = "DoNothing";
-    })(PowerTables.RedrawBehavior || (PowerTables.RedrawBehavior = {}));
-    var RedrawBehavior = PowerTables.RedrawBehavior;
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
@@ -1094,6 +1121,7 @@ var PowerTables;
              * Data that was recently loaded from server
              */
             this.StoredData = [];
+            this._manadatoryOrderings = [];
             this._rawColumnNames = masterTable.InstanceManager.getColumnNames();
             this._events = masterTable.Events;
             this._instances = masterTable.InstanceManager;
@@ -1114,6 +1142,13 @@ var PowerTables;
             this._anyClientFiltration = true;
             this._filters.push(filter);
         };
+        DataHolder.prototype.getClientFilters = function () {
+            return this._filters;
+        };
+        DataHolder.prototype.clearClientFilters = function () {
+            this._anyClientFiltration = false;
+            this._filters = [];
+        };
         /**
          * Registers new client ordering comparer function
          *
@@ -1121,14 +1156,13 @@ var PowerTables;
          * @param comparator Comparator fn that should return 0 if entries are equal, -1 if a<b, +1 if a>b
          * @returns {}
          */
-        DataHolder.prototype.registerClientOrdering = function (dataField, comparator) {
+        DataHolder.prototype.registerClientOrdering = function (dataField, comparator, mandatory) {
+            if (mandatory === void 0) { mandatory = false; }
             this._anyClientFiltration = true;
             this._comparators[dataField] = comparator;
+            if (mandatory)
+                this._manadatoryOrderings.push(dataField);
         };
-        /**
-         * Is there any client filtration pending
-         * @returns True if there are any actions to be performed on query after loading, false otherwise
-         */
         DataHolder.prototype.isClientFiltrationPending = function () {
             return (this.EnableClientSkip || this.EnableClientTake || this._anyClientFiltration);
         };
@@ -1207,7 +1241,7 @@ var PowerTables;
                 var orderFns = [];
                 for (var i = 0; i < this._rawColumnNames.length; i++) {
                     var orderingKey = this._rawColumnNames[i];
-                    if (query.Orderings.hasOwnProperty(orderingKey)) {
+                    if (query.Orderings.hasOwnProperty(orderingKey) || (this._manadatoryOrderings.indexOf(orderingKey) >= 0)) {
                         var orderingDirection = query.Orderings[orderingKey];
                         if (orderingDirection === PowerTables.Ordering.Neutral)
                             continue;
@@ -1230,6 +1264,30 @@ var PowerTables;
             }
             return objects;
         };
+        DataHolder.prototype.skipTakeSet = function (ordered, query) {
+            var selected = ordered;
+            var startingIndex = query.Paging.PageIndex * query.Paging.PageSize;
+            if (startingIndex > ordered.length)
+                startingIndex = 0;
+            var take = query.Paging.PageSize;
+            if (this.EnableClientSkip && this.EnableClientTake) {
+                if (take === 0)
+                    selected = ordered.slice(startingIndex);
+                else
+                    selected = ordered.slice(startingIndex, startingIndex + take);
+            }
+            else {
+                if (this.EnableClientSkip) {
+                    selected = ordered.slice(startingIndex);
+                }
+                else if (this.EnableClientTake) {
+                    if (take !== 0) {
+                        selected = ordered.slice(0, query.Paging.PageSize);
+                    }
+                }
+            }
+            return selected;
+        };
         /**
          * Filter recent data and store it to currently displaying data
          *
@@ -1246,27 +1304,7 @@ var PowerTables;
                 var copy = this.StoredData.slice();
                 var filtered = this.filterSet(copy, query);
                 var ordered = this.orderSet(filtered, query);
-                var selected = ordered;
-                var startingIndex = query.Paging.PageIndex * query.Paging.PageSize;
-                if (startingIndex > filtered.length)
-                    startingIndex = 0;
-                var take = query.Paging.PageSize;
-                if (this.EnableClientSkip && this.EnableClientTake) {
-                    if (take === 0)
-                        selected = ordered.slice(startingIndex);
-                    else
-                        selected = ordered.slice(startingIndex, startingIndex + take);
-                }
-                else {
-                    if (this.EnableClientSkip) {
-                        selected = ordered.slice(startingIndex);
-                    }
-                    else if (this.EnableClientTake) {
-                        if (take !== 0) {
-                            selected = ordered.slice(0, query.Paging.PageSize);
-                        }
-                    }
-                }
+                var selected = this.skipTakeSet(ordered, query);
                 this.Filtered = filtered;
                 this.Ordered = ordered;
                 this.DisplayedData = selected;
@@ -1285,6 +1323,8 @@ var PowerTables;
         DataHolder.prototype.filterStoredDataWithPreviousQuery = function () {
             this.filterStoredData(this.RecentClientQuery);
         };
+        //#endregion
+        //#region Lookups
         /**
          * Finds data matching predicate among locally stored data
          *
@@ -1432,6 +1472,8 @@ var PowerTables;
             }
             return result;
         };
+        //#endregion
+        //#region Adjustments
         DataHolder.prototype.copyData = function (source, target) {
             var modColumns = [];
             for (var cd in source) {
@@ -1543,6 +1585,9 @@ var PowerTables;
     * plugins instances, variable ways to query them and accessing their properties
     */
     var InstanceManager = (function () {
+        /*
+         * @internal
+         */
         function InstanceManager(configuration, masterTable, events) {
             /**
              * Dictionary containing current table columns configurations.
@@ -1582,6 +1627,9 @@ var PowerTables;
             var fnText = "(function(x,y) { return (" + conditionsStr + "); })";
             this.DataObjectComparisonFunction = eval(fnText);
         };
+        /*
+         * @internal
+         */
         InstanceManager.classifyType = function (fieldType) {
             return {
                 IsDateTime: InstanceManager._datetimeTypes.indexOf(fieldType) > -1,
@@ -1622,6 +1670,9 @@ var PowerTables;
                 this._rawColumnNames.push(columns[j].RawName);
             }
         };
+        /*
+         * @internal
+         */
         InstanceManager.prototype.initPlugins = function () {
             var pluginsConfiguration = this.Configuration.PluginsConfiguration;
             var specialCases = {};
@@ -1694,6 +1745,9 @@ var PowerTables;
             var part = s1.substring(s1.length - postfix.length - 1, postfix.length);
             return part === postfix;
         };
+        /*
+         * @internal
+         */
         InstanceManager.prototype._subscribeConfiguredEvents = function () {
             var delegator = this._masterTable.Renderer.Delegator;
             var columns = this.getUiColumnNames();
@@ -1703,8 +1757,7 @@ var PowerTables;
                 if (sub.IsRowSubscription) {
                     var h = (function (hndlr) {
                         return function (e) {
-                            var obj = ths._masterTable.DataHolder.localLookupDisplayedData(e.DisplayingRowIndex);
-                            hndlr(obj.DataObject, e.OriginalEvent);
+                            hndlr(e);
                         };
                     })(sub.Handler);
                     delegator.subscribeRowEvent({
@@ -1715,13 +1768,11 @@ var PowerTables;
                     });
                 }
                 else {
-                    var colIdx = columns.indexOf(sub.ColumnName);
                     var h2 = (function (hndlr, im, colName) {
                         return function (e) {
                             if (im.getUiColumnNames().indexOf(colName) !== e.ColumnIndex)
                                 return;
-                            var obj = ths._masterTable.DataHolder.localLookupDisplayedData(e.DisplayingRowIndex);
-                            hndlr(obj.DataObject, e.OriginalEvent);
+                            hndlr(e);
                         };
                     })(sub.Handler, this._masterTable.InstanceManager, sub.ColumnName);
                     delegator.subscribeCellEvent({
@@ -1737,7 +1788,6 @@ var PowerTables;
         * Reteives plugin at specified placement
         * @param pluginId Plugin ID
         * @param placement Pluign placement
-        * @returns {}
         */
         InstanceManager.prototype.getPlugin = function (pluginId, placement) {
             if (!placement)
@@ -1859,6 +1909,9 @@ var PowerTables;
      * Component that is responsible for querying server
      */
     var Loader = (function () {
+        /*
+         * @internal
+         */
         function Loader(staticData, operationalAjaxUrl, masterTable) {
             this._queryPartProviders = [];
             this._isFirstTimeLoading = false;
@@ -1878,6 +1931,13 @@ var PowerTables;
          */
         Loader.prototype.registerQueryPartProvider = function (provider) {
             this._queryPartProviders.push(provider);
+        };
+        Loader.prototype.prefetchData = function (data) {
+            var query = this.gatherQuery(PowerTables.QueryScope.Server);
+            this._dataHolder.storeResponse({
+                Data: data
+            }, query);
+            this._previousQueryString = JSON.stringify(query);
         };
         Loader.prototype.gatherQuery = function (queryScope) {
             var a = {
@@ -2083,7 +2143,6 @@ var PowerTables;
          * @param callback Callback that will be invoked after data received
          * @param queryModifier Inline query modifier for in-place query modification
          * @param errorCallback Will be called if error occures
-         * @returns {}
          */
         Loader.prototype.requestServer = function (command, callback, queryModifier, errorCallback, force) {
             var _this = this;
@@ -2137,7 +2196,13 @@ var PowerTables;
 (function (PowerTables) {
     var Rendering;
     (function (Rendering) {
+        /**
+         * Internal component that is not supposed to be used directly.
+         */
         var BackBinder = (function () {
+            /**
+       * @internal
+       */
             function BackBinder(hb, instances, stack, dateService) {
                 this._eventsQueue = [];
                 this._markQueue = [];
@@ -2456,8 +2521,6 @@ var PowerTables;
                 this._hasVisualStates = true;
                 return "data-state-" + stateName + "=\"" + index + "\"";
             };
-            BackBinder.prototype.destroyDatepickers = function (e) {
-            };
             return BackBinder;
         }());
         Rendering.BackBinder = BackBinder;
@@ -2484,7 +2547,6 @@ var PowerTables;
              * Renders supplied table rows to string
              *
              * @param rows Table rows
-             * @returns String containing HTML of table rows
              */
             ContentRenderer.prototype.renderBody = function (rows) {
                 var result = '';
@@ -2510,9 +2572,15 @@ var PowerTables;
                 }
                 return result;
             };
+            /*
+            * @internal
+            */
             ContentRenderer.prototype.renderCell = function (cell) {
                 return this._columnsRenderFunctions[cell.Column.RawName](cell);
             };
+            /*
+            * @internal
+            */
             ContentRenderer.prototype.renderContent = function (columnName) {
                 var result = '';
                 switch (this._stack.Current.Type) {
@@ -2545,6 +2613,9 @@ var PowerTables;
                 if (cell.renderElement)
                     result = cell.renderElement(this._templatesProvider);
                 else {
+                    if (cell.Column.Configuration.TemplateSelector) {
+                        cell.TemplateIdOverride = cell.Column.Configuration.TemplateSelector(cell);
+                    }
                     if (cell.TemplateIdOverride) {
                         result = this._templatesProvider.getCachedTemplate(cell.TemplateIdOverride)(cell);
                     }
@@ -2592,7 +2663,13 @@ var PowerTables;
 (function (PowerTables) {
     var Rendering;
     (function (Rendering) {
+        /**
+         * Class that is responsible for particular HTML elements redrawing/addition/removal
+         */
         var DOMModifier = (function () {
+            /*
+            * @internal
+            */
             function DOMModifier(stack, locator, backBinder, templatesProvider, layoutRenderer, instances, ed) {
                 this.displayCache = {};
                 this._stack = stack;
@@ -3095,6 +3172,13 @@ var PowerTables;
                     this._curParentNode.appendChild(document.createTextNode(text));
                 };
                 //#endregion
+                /**
+                 * Parses supplied HTML string and promotes it to HTML element.
+                 * This implementation also supports <script/> tags inside of supplied HTML. Scripts will be executed
+                 * immediately after HTML element creation.
+                 *
+                 * @param html HTML string to convert to HTML element
+                 */
                 HtmlParser.prototype.html2Dom = function (html) {
                     this.parse(html.trim());
                     if (this._topNodes.length > 1) {
@@ -3102,6 +3186,13 @@ var PowerTables;
                     }
                     return this._topNodes.length ? this._topNodes[0] : null;
                 };
+                /**
+                * Parses supplied HTML string and promotes it to set of HTML elements.
+                * This implementation also supports <script/> tags inside of supplied HTML. Scripts will be executed
+                * immediately after all of HTML elements creation.
+                *
+                * @param html HTML string to convert to HTML element
+                */
                 HtmlParser.prototype.html2DomElements = function (html) {
                     this.parse(html.trim());
                     return this._topNodes;
@@ -3119,6 +3210,7 @@ var PowerTables;
         /**
          * Rendering stack class. Provives common helper
          * infrastructure for context-oriented rendering
+         * @internal
          */
         var RenderingStack = (function () {
             function RenderingStack() {
@@ -3242,6 +3334,9 @@ var PowerTables;
          * Is responsive for common layout rendering (with plugins, columns, etc)
          */
         var LayoutRenderer = (function () {
+            /**
+            * @internal
+            */
             function LayoutRenderer(templates, stack, instances, coreTemplates) {
                 this._hb = templates.HandlebarsInstance;
                 this._templatesProvider = templates;
@@ -3277,11 +3372,11 @@ var PowerTables;
                 return result;
             };
             /**
-                     * Renders specified plugin into string including its wrapper
-                     *
-                     * @param plugin Plugin interface
-                     * @returns {}
-                     */
+            * Renders specified plugin into string including its wrapper
+            *
+            * @param plugin Plugin interface
+            * @returns {}
+            */
             LayoutRenderer.prototype.renderPlugin = function (plugin) {
                 if (plugin.renderElement)
                     return plugin.renderElement(this._templatesProvider);
@@ -3357,6 +3452,9 @@ var PowerTables;
          * This module allows you to locate particular elements in table's DOM
          */
         var DOMLocator = (function () {
+            /*
+            * @internal
+            */
             function DOMLocator(bodyElement, rootElement, rootId) {
                 this._bodyElement = bodyElement;
                 this._rootElement = rootElement;
@@ -3516,24 +3614,26 @@ var PowerTables;
          * Enity responsible for displaying table
          */
         var Renderer = (function () {
-            function Renderer(rootId, prefix, instances, events, dateService, coreTemplates) {
+            function Renderer(rootId, prefix, masterTable) {
                 this._templatesCache = {};
-                this._instances = instances;
+                this._masterTable = masterTable;
+                this._instances = masterTable.InstanceManager;
                 this._stack = new Rendering.RenderingStack();
                 this.RootElement = document.getElementById(rootId);
                 this._rootId = rootId;
-                this._events = events;
-                this._templateIds = coreTemplates;
+                this._events = masterTable.Events;
+                this._templateIds = this._instances.Configuration.CoreTemplates;
                 this.HandlebarsInstance = Handlebars.create();
-                this.cacheTemplates(prefix);
-                this.LayoutRenderer = new Rendering.LayoutRenderer(this, this._stack, this._instances, coreTemplates);
-                this.ContentRenderer = new Rendering.ContentRenderer(this, this._stack, this._instances, coreTemplates);
-                this.BackBinder = new Rendering.BackBinder(this.HandlebarsInstance, instances, this._stack, dateService);
                 this.HandlebarsInstance.registerHelper('ifq', this.ifqHelper);
                 this.HandlebarsInstance.registerHelper('ifcmp', this.ifcompHelper);
                 this.HandlebarsInstance.registerHelper('ifloc', this.iflocHelper.bind(this));
                 this.HandlebarsInstance.registerHelper('Content', this.contentHelper.bind(this));
                 this.HandlebarsInstance.registerHelper('Track', this.trackHelper.bind(this));
+                this._prefix = prefix;
+                this.cacheTemplates(this._prefix);
+                this.LayoutRenderer = new Rendering.LayoutRenderer(this, this._stack, this._instances, this._templateIds);
+                this.ContentRenderer = new Rendering.ContentRenderer(this, this._stack, this._instances, this._templateIds);
+                this.BackBinder = new Rendering.BackBinder(this.HandlebarsInstance, this._instances, this._stack, this._masterTable.Date);
             }
             //#region Templates caching
             Renderer.prototype.cacheTemplates = function (templatesPrefix) {
@@ -3570,7 +3670,7 @@ var PowerTables;
                 this.BodyElement = bodyMarker.parentElement;
                 this.BodyElement.removeChild(bodyMarker);
                 this.Locator = new Rendering.DOMLocator(this.BodyElement, this.RootElement, this._rootId);
-                this.Delegator = new PowerTables.EventsDelegator(this.Locator, this.BodyElement, this.RootElement, this._rootId);
+                this.Delegator = new PowerTables.EventsDelegator(this.Locator, this.BodyElement, this.RootElement, this._rootId, this._masterTable);
                 this.BackBinder.Delegator = this.Delegator;
                 this.Modifier = new Rendering.DOMModifier(this._stack, this.Locator, this.BackBinder, this, this.LayoutRenderer, this._instances, this.Delegator);
                 this.BackBinder.backBind(this.RootElement);
@@ -3583,7 +3683,7 @@ var PowerTables;
              */
             Renderer.prototype.body = function (rows) {
                 this._events.BeforeClientRowsRendering.invoke(this, rows);
-                this.clearBody();
+                //this.clearBody();
                 var html = this.ContentRenderer.renderBody(rows);
                 this.Delegator.handleElementDestroy(this.BodyElement);
                 this.BodyElement.innerHTML = html;
@@ -3618,9 +3718,7 @@ var PowerTables;
                 if (this.Delegator) {
                     this.Delegator.handleElementDestroy(this.BodyElement);
                 }
-                while (this.BodyElement.firstChild) {
-                    this.BodyElement.removeChild(this.BodyElement.firstChild);
-                }
+                this.BodyElement.innerHTML = '';
             };
             //#endregion
             //#region Helpers
@@ -3672,6 +3770,8 @@ var PowerTables;
                 }
                 return opts.inverse(this);
             };
+            //#endregion
+            Renderer.prototype.hasCachedTemplate = function (templateId) { return this._templatesCache.hasOwnProperty(templateId); };
             return Renderer;
         }());
         Rendering.Renderer = Renderer;
@@ -3685,6 +3785,9 @@ var PowerTables;
          * Component for managing components visual states
          */
         var VisualState = (function () {
+            /**
+            * @internal
+            */
             function VisualState() {
                 this.States = {};
                 this._subscribers = [];
@@ -3865,7 +3968,17 @@ var PowerTables;
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
+    /**
+     * Main entry point for all tables functionality
+     */
     var PowerTable = (function () {
+        /**
+         * Constructs new instance of PowerTable object.
+         * Usually this method is being called automatically by .InitializationCode or .InitializationScript method,
+         * but you also could combine call of Configurator<>.JsonConfig and call of Lattice constructor
+         *
+         * @param configuration JSON configuration of whole table
+         */
         function PowerTable(configuration) {
             this._configuration = configuration;
             this.bindReady();
@@ -3915,25 +4028,31 @@ var PowerTables;
             this.InstanceManager = new PowerTables.InstanceManager(this._configuration, this, this.Events);
             this.DataHolder = new PowerTables.DataHolder(this);
             this.Loader = new PowerTables.Loader(this._configuration.StaticData, this._configuration.OperationalAjaxUrl, this);
-            this.Renderer = new PowerTables.Rendering.Renderer(this._configuration.TableRootId, this._configuration.Prefix, this.InstanceManager, this.Events, this.Date, this._configuration.CoreTemplates);
+            this.Renderer = new PowerTables.Rendering.Renderer(this._configuration.TableRootId, this._configuration.Prefix, this);
             this.Controller = new PowerTables.Controller(this);
-            this.MessageService = new PowerTables.MessagesService(this._configuration.MessageFunction, this.InstanceManager, this.DataHolder, this.Controller);
+            this.MessageService = new PowerTables.MessagesService(this._configuration.MessageFunction, this.InstanceManager, this.DataHolder, this.Controller, this.Renderer);
             this.InstanceManager.initPlugins();
             this.Renderer.layout();
             if (this._configuration.CallbackFunction) {
                 this._configuration.CallbackFunction(this);
             }
             this.InstanceManager._subscribeConfiguredEvents();
-            if (this._configuration.LoadImmediately) {
-                this.Controller.reload();
+            if (this._configuration.PrefetchedData != null && this._configuration.PrefetchedData.length > 0) {
+                this.Loader.prefetchData(this._configuration.PrefetchedData);
+                this.Controller.redrawVisibleData();
             }
             else {
-                this.MessageService.showMessage({
-                    Class: 'initial',
-                    Title: 'No filtering specified',
-                    Details: 'To retrieve query results please specify several filters',
-                    Type: PowerTables.MessageType.Banner
-                });
+                if (this._configuration.LoadImmediately) {
+                    this.Controller.reload();
+                }
+                else {
+                    this.MessageService.showMessage({
+                        Class: 'initial',
+                        Title: 'No filtering specified',
+                        Details: 'To retrieve query results please specify several filters',
+                        Type: PowerTables.MessageType.Banner
+                    });
+                }
             }
         };
         /**
@@ -4036,8 +4155,8 @@ var PowerTables;
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
+    var Filters;
+    (function (Filters) {
         /**
          * Base class for creating filters
          */
@@ -4060,9 +4179,9 @@ var PowerTables;
             };
             FilterBase.prototype.filterPredicate = function (rowObject, query) { throw new Error('Please override this method'); };
             return FilterBase;
-        }(Plugins.PluginBase));
-        Plugins.FilterBase = FilterBase;
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+        }(PowerTables.Plugins.PluginBase));
+        Filters.FilterBase = FilterBase;
+    })(Filters = PowerTables.Filters || (PowerTables.Filters = {}));
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
@@ -4210,7 +4329,7 @@ var PowerTables;
                     }
                 };
                 return OrderingPlugin;
-            }(Plugins.FilterBase));
+            }(PowerTables.Filters.FilterBase));
             Ordering.OrderingPlugin = OrderingPlugin;
             PowerTables.ComponentsContainer.registerComponent('Ordering', OrderingPlugin);
         })(Ordering = Plugins.Ordering || (Plugins.Ordering = {}));
@@ -4220,1718 +4339,1854 @@ var PowerTables;
 (function (PowerTables) {
     var Plugins;
     (function (Plugins) {
-        var LimitPlugin = (function (_super) {
-            __extends(LimitPlugin, _super);
-            function LimitPlugin() {
-                _super.apply(this, arguments);
-                this._limitSize = 0;
-                this.Sizes = [];
-            }
-            LimitPlugin.prototype.renderContent = function (templatesProvider) {
-                return this.defaultRender(templatesProvider);
-            };
-            LimitPlugin.prototype.changeLimitHandler = function (e) {
-                var limit = parseInt(e.EventArguments[0]);
-                if (isNaN(limit))
-                    limit = 0;
-                this.changeLimit(limit);
-            };
-            LimitPlugin.prototype.changeLimit = function (limit) {
-                var changed = this._limitSize !== limit;
-                if (!changed)
-                    return;
-                this._limitSize = limit;
-                var labelPair = null;
-                for (var i = 0; i < this.Sizes.length; i++) {
-                    labelPair = this.Sizes[i];
-                    if (labelPair.Value === limit) {
-                        break;
-                    }
-                }
-                if (labelPair != null)
-                    this.SelectedValue = labelPair;
-                this.MasterTable.Renderer.Modifier.redrawPlugin(this);
-                if (this.Configuration.ReloadTableOnLimitChange)
-                    this.MasterTable.Controller.reload();
-            };
-            LimitPlugin.prototype.modifyQuery = function (query, scope) {
-                var client = this.Configuration.EnableClientLimiting;
-                if (client && (scope === PowerTables.QueryScope.Client || scope === PowerTables.QueryScope.Transboundary)) {
-                    query.Paging.PageSize = this._limitSize;
-                }
-                if (!client && (scope === PowerTables.QueryScope.Server || scope === PowerTables.QueryScope.Transboundary)) {
-                    query.Paging.PageSize = this._limitSize;
-                }
-            };
-            LimitPlugin.prototype.init = function (masterTable) {
-                _super.prototype.init.call(this, masterTable);
-                var def = null;
-                for (var i = 0; i < this.Configuration.LimitValues.length; i++) {
-                    var a = {
-                        Value: this.Configuration.LimitValues[i],
-                        Label: this.Configuration.LimitLabels[i],
-                        IsSeparator: this.Configuration.LimitLabels[i] === '-'
-                    };
-                    this.Sizes.push(a);
-                    if (a.Label === this.Configuration.DefaultValue) {
-                        def = a;
-                    }
-                }
-                if (def) {
-                    this.SelectedValue = def;
-                    this._limitSize = def.Value;
-                }
-                else {
+        var Limit;
+        (function (Limit) {
+            var LimitPlugin = (function (_super) {
+                __extends(LimitPlugin, _super);
+                function LimitPlugin() {
+                    _super.apply(this, arguments);
                     this._limitSize = 0;
+                    this.Sizes = [];
                 }
-                if (this.Configuration.EnableClientLimiting) {
-                    this.MasterTable.DataHolder.EnableClientTake = true;
-                }
-                this.MasterTable.Events.ColumnsCreation.subscribe(this.onColumnsCreation.bind(this), 'paging');
-            };
-            LimitPlugin.prototype.onColumnsCreation = function () {
-                if (this.Configuration.EnableClientLimiting && !this.MasterTable.DataHolder.EnableClientSkip) {
-                    var paging = null;
-                    try {
-                        paging = this.MasterTable.InstanceManager.getPlugin('Paging');
-                    }
-                    catch (a) {
-                    }
-                    if (paging != null)
-                        throw new Error('Limit ang paging plugin must both work locally or both remote. Please enable client paging');
-                }
-            };
-            return LimitPlugin;
-        }(Plugins.FilterBase));
-        Plugins.LimitPlugin = LimitPlugin;
-        PowerTables.ComponentsContainer.registerComponent('Limit', LimitPlugin);
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        var PagingPlugin = (function (_super) {
-            __extends(PagingPlugin, _super);
-            function PagingPlugin() {
-                _super.apply(this, arguments);
-                this._selectedPage = 0;
-            }
-            PagingPlugin.prototype.CurrentPage = function () { return this._selectedPage + 1; };
-            PagingPlugin.prototype.TotalPages = function () { return this._totalPages; };
-            PagingPlugin.prototype.PageSize = function () { return this._pageSize; };
-            PagingPlugin.prototype.getCurrentPage = function () {
-                return this._selectedPage;
-            };
-            PagingPlugin.prototype.getTotalPages = function () {
-                return this._totalPages;
-            };
-            PagingPlugin.prototype.getPageSize = function () {
-                return this._pageSize;
-            };
-            PagingPlugin.prototype.onFilterGathered = function (e) {
-                this._pageSize = e.EventArgs.Query.Paging.PageSize;
-            };
-            PagingPlugin.prototype.onColumnsCreation = function () {
-                if (this.Configuration.EnableClientPaging && !this.MasterTable.DataHolder.EnableClientTake) {
-                    var limit = null;
-                    try {
-                        limit = this.MasterTable.InstanceManager.getPlugin('Limit');
-                    }
-                    catch (a) { }
-                    if (limit != null)
-                        throw new Error('Paging ang Limit plugins must both work locally or both remote. Please enable client limiting');
-                }
-            };
-            PagingPlugin.prototype.onResponse = function (e) {
-                this._selectedPage = e.EventArgs.Data.PageIndex;
-                var tp = e.EventArgs.Data.ResultsCount / this._pageSize;
-                if (tp !== parseInt(tp)) {
-                    tp = parseInt(tp) + 1;
-                }
-                this._totalPages = tp;
-                this.MasterTable.Renderer.Modifier.redrawPlugin(this);
-            };
-            PagingPlugin.prototype.onClientDataProcessing = function (e) {
-                var tp = e.EventArgs.Filtered.length / this._pageSize;
-                if (tp !== parseInt(tp)) {
-                    tp = parseInt(tp) + 1;
-                }
-                if (tp < this._selectedPage) {
-                    this._selectedPage = 0;
-                }
-                this._totalPages = tp;
-                this.MasterTable.Renderer.Modifier.redrawPlugin(this);
-            };
-            PagingPlugin.prototype.goToPage = function (page) {
-                this._selectedPage = parseInt(page);
-                this.MasterTable.Controller.reload();
-            };
-            PagingPlugin.prototype.gotoPageClick = function (e) {
-                if (this.GotoInput) {
-                    var v = this.GotoInput.value;
-                    v = (parseInt(v) - 1).toString();
-                    this.goToPage(v);
-                }
-            };
-            PagingPlugin.prototype.navigateToPage = function (e) {
-                this.goToPage(e.EventArguments[0]);
-            };
-            PagingPlugin.prototype.nextClick = function (e) {
-                if (this._selectedPage < this._totalPages)
-                    this.goToPage((this._selectedPage + 1).toString());
-            };
-            PagingPlugin.prototype.previousClick = function (e) {
-                if (this._selectedPage > 0)
-                    this.goToPage((this._selectedPage - 1).toString());
-            };
-            PagingPlugin.prototype.constructPagesElements = function () {
-                var a = [];
-                var total = this._totalPages;
-                var cur = this._selectedPage;
-                var pdiff = this.Configuration.PagesToHideUnderPeriod;
-                if (total > 1) {
-                    this.Shown = true;
-                    if (!this.Configuration.ArrowsMode) {
-                        if (this.Configuration.UseFirstLastPage)
-                            a.push({ Page: 0, First: true });
-                        if (cur > 0)
-                            a.push({ Page: 0, Prev: true });
-                        if (this.Configuration.UsePeriods) {
-                            if (cur - 1 >= pdiff)
-                                a.push({ Page: 0, Period: true });
-                            if (cur - 1 > 0)
-                                a.push({ Page: cur - 1, InActivePage: true });
-                            a.push({ Page: cur, ActivePage: true });
-                            if (cur + 1 < total)
-                                a.push({ Page: cur + 1, InActivePage: true });
-                            if (total - (cur + 1) >= pdiff)
-                                a.push({ Page: 0, Period: true });
-                        }
-                        else {
-                            for (var i = 0; i < total; i++) {
-                                if (cur === i) {
-                                    a.push({ Page: i, ActivePage: true });
-                                }
-                                else {
-                                    a.push({ Page: i, InActivePage: true });
-                                }
-                            }
-                        }
-                        if (cur < total - 1)
-                            a.push({ Page: 0, Next: true });
-                        if (this.Configuration.UseFirstLastPage)
-                            a.push({ Page: total - 1, Last: true });
-                        var disFunction = function () { return this.Page + 1; };
-                        for (var j = 0; j < a.length; j++) {
-                            a[j].DisPage = disFunction;
-                        }
-                        this.Pages = a;
-                    }
-                    else {
-                        this.NextArrow = cur < total - 1;
-                        this.PrevArrow = cur > 0;
-                    }
-                }
-                else {
-                    this.Shown = false;
-                }
-            };
-            PagingPlugin.prototype.renderContent = function (templatesProvider) {
-                this.constructPagesElements();
-                return templatesProvider.getCachedTemplate('paging')(this);
-            };
-            PagingPlugin.prototype.validateGotopage = function () {
-                var v = this.GotoInput.value;
-                var i = parseInt(v);
-                var valid = !isNaN(i) && (i > 0) && (i <= this._totalPages);
-                if (valid) {
-                    this.VisualStates.normalState();
-                }
-                else {
-                    this.VisualStates.changeState('invalid');
-                }
-            };
-            PagingPlugin.prototype.modifyQuery = function (query, scope) {
-                if (this.Configuration.EnableClientPaging && scope === PowerTables.QueryScope.Client) {
-                    query.Paging.PageIndex = this._selectedPage;
-                }
-                if ((!this.Configuration.EnableClientPaging) && scope !== PowerTables.QueryScope.Client) {
-                    query.Paging.PageIndex = this._selectedPage;
-                }
-            };
-            PagingPlugin.prototype.init = function (masterTable) {
-                _super.prototype.init.call(this, masterTable);
-                if (!this.Configuration.EnableClientPaging) {
-                    this.MasterTable.Events.AfterQueryGathering.subscribe(this.onFilterGathered.bind(this), 'paging');
-                }
-                else {
-                    this.MasterTable.Events.AfterClientQueryGathering.subscribe(this.onFilterGathered.bind(this), 'paging');
-                }
-                if (!this.Configuration.EnableClientPaging) {
-                    this.MasterTable.Events.DataReceived.subscribe(this.onResponse.bind(this), 'paging');
-                }
-                else {
-                    this.MasterTable.Events.AfterClientDataProcessing.subscribe(this.onClientDataProcessing.bind(this), 'paging');
-                }
-                this.MasterTable.Events.ColumnsCreation.subscribe(this.onColumnsCreation.bind(this), 'paging');
-                if (this.Configuration.EnableClientPaging) {
-                    this.MasterTable.DataHolder.EnableClientSkip = true;
-                }
-            };
-            return PagingPlugin;
-        }(Plugins.FilterBase));
-        Plugins.PagingPlugin = PagingPlugin;
-        PowerTables.ComponentsContainer.registerComponent('Paging', PagingPlugin);
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        var ValueFilterPlugin = (function (_super) {
-            __extends(ValueFilterPlugin, _super);
-            function ValueFilterPlugin() {
-                var _this = this;
-                _super.apply(this, arguments);
-                this._filteringIsBeingExecuted = false;
-                this._isInitializing = true;
-                this.afterDrawn = function (e) {
-                    if (_this.Configuration.Hidden)
-                        return;
-                    if (_this.AssociatedColumn.IsDateTime) {
-                        var date = _this.MasterTable.Date.parse(_this.Configuration.DefaultValue);
-                        _this.MasterTable.Date.putDateToDatePicker(_this.FilterValueProvider, date);
-                    }
-                    _this._isInitializing = false;
+                LimitPlugin.prototype.renderContent = function (templatesProvider) {
+                    return this.defaultRender(templatesProvider);
                 };
-            }
-            ValueFilterPlugin.prototype.getValue = function () {
-                if (!this.FilterValueProvider)
-                    return '';
-                if (this.AssociatedColumn.IsDateTime) {
-                    return this.MasterTable.Date.serialize(this.MasterTable.Date.getDateFromDatePicker(this.FilterValueProvider));
-                }
-                return this.FilterValueProvider.value;
-            };
-            ValueFilterPlugin.prototype.handleValueChanged = function () {
-                var _this = this;
-                if (this._isInitializing)
-                    return;
-                if (this._filteringIsBeingExecuted)
-                    return;
-                if (this.getValue() === this._previousValue) {
-                    return;
-                }
-                this._previousValue = this.getValue();
-                if (this.Configuration.InputDelay > 0) {
-                    clearTimeout(this._inpTimeout);
-                    this._inpTimeout = setTimeout(function () {
-                        _this._filteringIsBeingExecuted = true;
-                        _this.MasterTable.Controller.reload();
-                        _this._filteringIsBeingExecuted = false;
-                    }, this.Configuration.InputDelay);
-                }
-                else {
-                    this._filteringIsBeingExecuted = true;
-                    this.MasterTable.Controller.reload();
-                    this._filteringIsBeingExecuted = false;
-                }
-            };
-            ValueFilterPlugin.prototype.renderContent = function (templatesProvider) {
-                if (this.Configuration.Hidden)
-                    return '';
-                return this.defaultRender(templatesProvider);
-            };
-            ValueFilterPlugin.prototype.init = function (masterTable) {
-                _super.prototype.init.call(this, masterTable);
-                if (this.Configuration.ClientFiltering) {
-                    this.itIsClientFilter();
-                }
-                this.AssociatedColumn = this.MasterTable.InstanceManager.Columns[this.Configuration.ColumnName];
-            };
-            ValueFilterPlugin.prototype.filterPredicate = function (rowObject, query) {
-                var fval = query.Filterings[this.AssociatedColumn.RawName];
-                if (fval == null || fval == undefined)
-                    return true;
-                if (fval === '$$lattice_not_present$$' && this.AssociatedColumn.Configuration.IsNullable)
-                    fval = null;
-                if (this.Configuration.ClientFilteringFunction) {
-                    return this.Configuration.ClientFilteringFunction(rowObject, fval, query);
-                }
-                if (!query.Filterings.hasOwnProperty(this.AssociatedColumn.RawName))
-                    return true;
-                var objVal = rowObject[this.AssociatedColumn.RawName];
-                if (objVal == null)
-                    return fval == null;
-                if (this.AssociatedColumn.IsString) {
-                    objVal = objVal.toString();
-                    var entries = fval.split(/\s/);
-                    for (var i = 0; i < entries.length; i++) {
-                        var e = entries[i].trim();
-                        if (e.length > 0) {
-                            if (objVal.toLocaleLowerCase().indexOf(e.toLocaleLowerCase()) < 0)
-                                return false;
-                        }
-                    }
-                    return true;
-                }
-                if (this.AssociatedColumn.IsFloat) {
-                    var f = parseFloat(fval);
-                    return objVal === f;
-                }
-                if (this.AssociatedColumn.IsInteger || this.AssociatedColumn.IsEnum) {
-                    var int = parseInt(fval);
-                    return objVal === int;
-                }
-                if (this.AssociatedColumn.IsBoolean) {
-                    var bv = fval.toLocaleUpperCase() === 'TRUE' ? true :
-                        fval.toLocaleUpperCase() === 'FALSE' ? false : null;
-                    if (bv == null) {
-                        bv = parseInt(fval) > 0;
-                    }
-                    return objVal === bv;
-                }
-                if (this.AssociatedColumn.IsDateTime) {
-                    var date = this.MasterTable.Date.parse(fval);
-                    return date === objVal;
-                }
-                return true;
-            };
-            ValueFilterPlugin.prototype.modifyQuery = function (query, scope) {
-                if (this.Configuration.Hidden)
-                    return;
-                var val = this.getValue();
-                if (!val || val.length === 0)
-                    return;
-                if (this.Configuration.ClientFiltering && scope === PowerTables.QueryScope.Client || scope === PowerTables.QueryScope.Transboundary) {
-                    query.Filterings[this.AssociatedColumn.RawName] = val;
-                }
-                if ((!this.Configuration.ClientFiltering) && scope === PowerTables.QueryScope.Server || scope === PowerTables.QueryScope.Transboundary) {
-                    query.Filterings[this.AssociatedColumn.RawName] = val;
-                }
-            };
-            return ValueFilterPlugin;
-        }(Plugins.FilterBase));
-        Plugins.ValueFilterPlugin = ValueFilterPlugin;
-        PowerTables.ComponentsContainer.registerComponent('ValueFilter', ValueFilterPlugin);
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        var RangeFilterPlugin = (function (_super) {
-            __extends(RangeFilterPlugin, _super);
-            function RangeFilterPlugin() {
-                var _this = this;
-                _super.apply(this, arguments);
-                this._filteringIsBeingExecuted = false;
-                this._isInitializing = true;
-                this.afterDrawn = function (e) {
-                    if (_this.Configuration.Hidden)
-                        return;
-                    if (_this.AssociatedColumn.IsDateTime) {
-                        var fromDate = _this.MasterTable.Date.parse(_this.Configuration.FromValue);
-                        var toDate = _this.MasterTable.Date.parse(_this.Configuration.ToValue);
-                        _this.MasterTable.Date.putDateToDatePicker(_this.FromValueProvider, fromDate);
-                        _this.MasterTable.Date.putDateToDatePicker(_this.ToValueProvider, toDate);
-                    }
-                    _this._isInitializing = false;
+                LimitPlugin.prototype.changeLimitHandler = function (e) {
+                    var limit = parseInt(e.EventArguments[0]);
+                    if (isNaN(limit))
+                        limit = 0;
+                    this.changeLimit(limit);
                 };
-            }
-            RangeFilterPlugin.prototype.getFromValue = function () {
-                if (!this.FromValueProvider)
-                    return '';
-                if (this.AssociatedColumn.IsDateTime) {
-                    var date = this.MasterTable.Date.getDateFromDatePicker(this.FromValueProvider);
-                    return this.MasterTable.Date.serialize(date);
-                }
-                return this.FromValueProvider.value;
-            };
-            RangeFilterPlugin.prototype.getToValue = function () {
-                if (!this.ToValueProvider)
-                    return '';
-                if (this.AssociatedColumn.IsDateTime) {
-                    var date = this.MasterTable.Date.getDateFromDatePicker(this.ToValueProvider);
-                    return this.MasterTable.Date.serialize(date);
-                }
-                return this.ToValueProvider.value;
-            };
-            RangeFilterPlugin.prototype.handleValueChanged = function () {
-                var _this = this;
-                if (this._isInitializing)
-                    return;
-                if (this._filteringIsBeingExecuted)
-                    return;
-                if ((this._fromPreviousValue === this.getFromValue())
-                    && (this._toPreviousValue === this.getToValue()))
-                    return;
-                this._fromPreviousValue = this.getFromValue();
-                this._toPreviousValue = this.getToValue();
-                if (this.Configuration.InputDelay > 0) {
-                    clearTimeout(this._inpTimeout);
-                    this._inpTimeout = setTimeout(function () {
-                        _this._filteringIsBeingExecuted = true;
-                        _this.MasterTable.Controller.reload();
-                        _this._filteringIsBeingExecuted = false;
-                    }, this.Configuration.InputDelay);
-                }
-                else {
-                    this._filteringIsBeingExecuted = true;
-                    this.MasterTable.Controller.reload();
-                    this._filteringIsBeingExecuted = false;
-                }
-            };
-            RangeFilterPlugin.prototype.getFilterArgument = function () {
-                var args = [];
-                var frm = this.getFromValue();
-                var to = this.getToValue();
-                args.push(frm);
-                args.push(to);
-                var result = args.join('|');
-                return result;
-            };
-            RangeFilterPlugin.prototype.modifyQuery = function (query, scope) {
-                if (this.Configuration.Hidden)
-                    return;
-                var val = this.getFilterArgument();
-                if (!val || val.length === 0)
-                    return;
-                if (this.Configuration.ClientFiltering && scope === PowerTables.QueryScope.Client || scope === PowerTables.QueryScope.Transboundary) {
-                    query.Filterings[this.AssociatedColumn.RawName] = val;
-                }
-                if ((!this.Configuration.ClientFiltering) && scope === PowerTables.QueryScope.Server || scope === PowerTables.QueryScope.Transboundary) {
-                    query.Filterings[this.AssociatedColumn.RawName] = val;
-                }
-            };
-            RangeFilterPlugin.prototype.init = function (masterTable) {
-                _super.prototype.init.call(this, masterTable);
-                if (this.Configuration.ClientFiltering) {
-                    this.itIsClientFilter();
-                }
-                this.AssociatedColumn = this.MasterTable.InstanceManager.Columns[this.Configuration.ColumnName];
-            };
-            RangeFilterPlugin.prototype.renderContent = function (templatesProvider) {
-                if (this.Configuration.Hidden)
-                    return '';
-                return this.defaultRender(templatesProvider);
-            };
-            RangeFilterPlugin.prototype.filterPredicate = function (rowObject, query) {
-                var fval = query.Filterings[this.AssociatedColumn.RawName];
-                if (!fval)
-                    return true;
-                var args = fval.split('|');
-                var fromValue = args[0];
-                var toValue = args[1];
-                if (this.Configuration.ClientFilteringFunction) {
-                    return this.Configuration.ClientFilteringFunction(rowObject, fromValue, toValue, query);
-                }
-                var frmEmpty = fromValue.trim().length === 0;
-                var toEmpty = toValue.trim().length === 0;
-                if (frmEmpty && toEmpty)
-                    return true;
-                if (!query.Filterings.hasOwnProperty(this.AssociatedColumn.RawName))
-                    return true;
-                var objVal = rowObject[this.AssociatedColumn.RawName];
-                if (objVal == null)
-                    return false;
-                if (this.AssociatedColumn.IsString) {
-                    var str = objVal.toString();
-                    return ((frmEmpty) || str.localeCompare(fromValue) >= 0) && ((toEmpty) || str.localeCompare(toValue) <= 0);
-                }
-                if (this.AssociatedColumn.IsFloat) {
-                    return ((frmEmpty) || objVal >= parseFloat(fromValue)) && ((toEmpty) || objVal <= parseFloat(toValue));
-                }
-                if (this.AssociatedColumn.IsInteger || this.AssociatedColumn.IsEnum) {
-                    return ((frmEmpty) || objVal >= parseInt(fromValue)) && ((toEmpty) || objVal <= parseInt(toValue));
-                }
-                if (this.AssociatedColumn.IsDateTime) {
-                    var toVal;
-                    if (!toEmpty) {
-                        toVal = this.MasterTable.Date.parse(toValue);
-                        if (this.Configuration.TreatEqualDateAsWholeDay) {
-                            toVal.setHours(23);
-                            toVal.setMinutes(59);
-                            toVal.setSeconds(59);
-                        }
-                    }
-                    return ((frmEmpty) || objVal >= this.MasterTable.Date.parse(fromValue)) && ((toEmpty) || objVal <= toVal);
-                }
-                return true;
-            };
-            return RangeFilterPlugin;
-        }(Plugins.FilterBase));
-        Plugins.RangeFilterPlugin = RangeFilterPlugin;
-        PowerTables.ComponentsContainer.registerComponent('RangeFilter', RangeFilterPlugin);
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        var SelectFilterPlugin = (function (_super) {
-            __extends(SelectFilterPlugin, _super);
-            function SelectFilterPlugin() {
-                _super.apply(this, arguments);
-            }
-            SelectFilterPlugin.prototype.getArgument = function () {
-                return this.getSelectionArray().join('|');
-            };
-            SelectFilterPlugin.prototype.getSelectionArray = function () {
-                if (!this.FilterValueProvider)
-                    return [];
-                if (!this.Configuration.IsMultiple) {
-                    var selected = this.FilterValueProvider.options[this.FilterValueProvider.selectedIndex];
-                    return [selected.value];
-                }
-                else {
-                    var elemValues = [];
-                    for (var i = 0, iLen = this.FilterValueProvider.options.length; i < iLen; i++) {
-                        var opt = this.FilterValueProvider.options[i];
-                        if (opt.selected) {
-                            elemValues.push(opt.value);
-                        }
-                    }
-                    return elemValues;
-                }
-            };
-            SelectFilterPlugin.prototype.modifyQuery = function (query, scope) {
-                if (this.Configuration.Hidden)
-                    return;
-                var val = this.getArgument();
-                if (!val || val.length === 0)
-                    return;
-                if (this.Configuration.ClientFiltering && scope === PowerTables.QueryScope.Client || scope === PowerTables.QueryScope.Transboundary) {
-                    query.Filterings[this.AssociatedColumn.RawName] = val;
-                }
-                if ((!this.Configuration.ClientFiltering) && scope === PowerTables.QueryScope.Server || scope === PowerTables.QueryScope.Transboundary) {
-                    query.Filterings[this.AssociatedColumn.RawName] = val;
-                }
-            };
-            SelectFilterPlugin.prototype.renderContent = function (templatesProvider) {
-                if (this.Configuration.Hidden)
-                    return '';
-                return this.defaultRender(templatesProvider);
-            };
-            SelectFilterPlugin.prototype.handleValueChanged = function () {
-                this.MasterTable.Controller.reload();
-            };
-            SelectFilterPlugin.prototype.init = function (masterTable) {
-                _super.prototype.init.call(this, masterTable);
-                this.AssociatedColumn = this.MasterTable.InstanceManager.Columns[this.Configuration.ColumnName];
-                var sv = this.Configuration.SelectedValue;
-                if (sv !== undefined && sv !== null) {
-                    for (var i = 0; i < this.Configuration.Items.length; i++) {
-                        if (this.Configuration.Items[i].Value !== sv) {
-                            this.Configuration.Items[i].Selected = false;
-                        }
-                        else {
-                            this.Configuration.Items[i].Selected = true;
-                        }
-                    }
-                }
-                if (this.Configuration.ClientFiltering) {
-                    this.itIsClientFilter();
-                }
-            };
-            SelectFilterPlugin.prototype.filterPredicate = function (rowObject, query) {
-                var fval = query.Filterings[this.AssociatedColumn.RawName];
-                if (fval == null || fval == undefined)
-                    return true;
-                if (fval === '$$lattice_not_present$$' && this.AssociatedColumn.Configuration.IsNullable)
-                    fval = null;
-                var arr = null;
-                if (this.Configuration.IsMultiple) {
-                    arr = fval != null ? fval.split('|') : [null];
-                }
-                else {
-                    arr = [fval];
-                }
-                if (this.Configuration.ClientFilteringFunction) {
-                    return this.Configuration.ClientFilteringFunction(rowObject, arr, query);
-                }
-                if (!query.Filterings.hasOwnProperty(this.AssociatedColumn.RawName))
-                    return true;
-                var objVal = rowObject[this.AssociatedColumn.RawName];
-                if (objVal == null)
-                    return arr.indexOf(null) > -1;
-                if (this.AssociatedColumn.IsString) {
-                    return arr.indexOf(objVal) >= 0;
-                }
-                var single = false;
-                if (this.AssociatedColumn.IsFloat) {
-                    arr.map(function (v) {
-                        if (parseFloat(v) === objVal)
-                            single = true;
-                    });
-                    return single;
-                }
-                if (this.AssociatedColumn.IsInteger || this.AssociatedColumn.IsEnum) {
-                    single = false;
-                    arr.map(function (v) {
-                        if (parseInt(v) === objVal)
-                            single = true;
-                    });
-                    return single;
-                }
-                if (this.AssociatedColumn.IsBoolean) {
-                    single = false;
-                    arr.map(function (v) {
-                        var bv = v.toLocaleUpperCase() === 'TRUE' ? true :
-                            v.toLocaleUpperCase() === 'FALSE' ? false : null;
-                        if (bv == null) {
-                            bv = parseInt(fval) > 0;
-                        }
-                        if (bv === objVal) {
-                            single = true;
-                        }
-                    });
-                    return single;
-                }
-                return true;
-            };
-            return SelectFilterPlugin;
-        }(Plugins.FilterBase));
-        Plugins.SelectFilterPlugin = SelectFilterPlugin;
-        PowerTables.ComponentsContainer.registerComponent('SelectFilter', SelectFilterPlugin);
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        var HideoutPlugin = (function (_super) {
-            __extends(HideoutPlugin, _super);
-            function HideoutPlugin() {
-                _super.apply(this, arguments);
-                this.ColumnStates = [];
-                this._columnStates = {};
-                this._isInitializing = true;
-            }
-            HideoutPlugin.prototype.isColumnVisible = function (columnName) {
-                return this.isColumnInstanceVisible(this.MasterTable.InstanceManager.Columns[columnName]);
-            };
-            HideoutPlugin.prototype.isColumnInstanceVisible = function (col) {
-                if (!col)
-                    return true;
-                return this._columnStates[col.RawName].Visible;
-            };
-            HideoutPlugin.prototype.hideColumnByName = function (rawColname) {
-                this.hideColumnInstance(this.MasterTable.InstanceManager.Columns[rawColname]);
-            };
-            HideoutPlugin.prototype.showColumnByName = function (rawColname) {
-                this.showColumnInstance(this.MasterTable.InstanceManager.Columns[rawColname]);
-            };
-            //#region Events handling
-            HideoutPlugin.prototype.toggleColumn = function (e) {
-                this.toggleColumnByName(e.EventArguments[0]);
-            };
-            HideoutPlugin.prototype.showColumn = function (e) {
-                this.showColumnByName(e.EventArguments[0]);
-            };
-            HideoutPlugin.prototype.hideColumn = function (e) {
-                this.hideColumnByName(e.EventArguments[0]);
-            };
-            //#endregion
-            //#region Correct showing/hiding
-            //#endregion
-            HideoutPlugin.prototype.toggleColumnByName = function (columnName) {
-                if (this.isColumnVisible(columnName)) {
-                    this.hideColumnByName(columnName);
-                    return false;
-                }
-                else {
-                    this.showColumnByName(columnName);
-                    return true;
-                }
-            };
-            HideoutPlugin.prototype.modifyQuery = function (query, scope) {
-                var hidden = [];
-                var shown = [];
-                for (var i = 0; i < this.ColumnStates.length; i++) {
-                    if (this.Configuration.ColumnInitiatingReload.indexOf(this.ColumnStates[i].RawName) < 0)
-                        continue;
-                    if (!this.ColumnStates[i].Visible) {
-                        hidden.push(this.ColumnStates[i].RawName);
-                    }
-                    else {
-                        shown.push(this.ColumnStates[i].RawName);
-                    }
-                }
-                query.AdditionalData['HideoutHidden'] = hidden.join(',');
-                query.AdditionalData['HideoutShown'] = shown.join(',');
-            };
-            HideoutPlugin.prototype.hideColumnInstance = function (c) {
-                if (!c)
-                    return;
-                this._columnStates[c.RawName].Visible = false;
-                this._columnStates[c.RawName].DoesNotExists = false;
-                this.MasterTable.Renderer.Modifier.hideHeader(c);
-                this.MasterTable.Renderer.Modifier.hidePluginsByPosition("filter-" + c.RawName);
-                if (this._isInitializing)
-                    return;
-                this.MasterTable.Renderer.Modifier.hideCellsByColumn(c);
-                if (this.Configuration.ColumnInitiatingReload.indexOf(c.RawName) > -1)
-                    this.MasterTable.Controller.reload();
-                this.MasterTable.Renderer.Modifier.redrawPlugin(this);
-            };
-            HideoutPlugin.prototype.showColumnInstance = function (c) {
-                if (!c)
-                    return;
-                this._columnStates[c.RawName].Visible = true;
-                var wasNotExist = this._columnStates[c.RawName].DoesNotExists;
-                this._columnStates[c.RawName].DoesNotExists = false;
-                this.MasterTable.Renderer.Modifier.showHeader(c);
-                this.MasterTable.Renderer.Modifier.showPluginsByPosition("filter-" + c.RawName);
-                if (this._isInitializing)
-                    return;
-                if (wasNotExist) {
-                    if (this.Configuration.ColumnInitiatingReload.indexOf(c.RawName) > -1) {
-                        this.MasterTable.Controller.redrawVisibleData();
-                        this.MasterTable.Controller.reload();
-                    }
-                    else {
-                        this.MasterTable.Controller.redrawVisibleData();
-                    }
-                }
-                else {
-                    this.MasterTable.Renderer.Modifier.showCellsByColumn(c);
-                    if (this.Configuration.ColumnInitiatingReload.indexOf(c.RawName) > -1) {
-                        this.MasterTable.Controller.reload();
-                    }
-                }
-                this.MasterTable.Renderer.Modifier.redrawPlugin(this);
-            };
-            HideoutPlugin.prototype.onBeforeDataRendered = function () {
-                for (var i = 0; i < this.ColumnStates.length; i++) {
-                    var col = this.MasterTable.InstanceManager.Columns[this.ColumnStates[i].RawName];
-                    if (!this.ColumnStates[i].Visible) {
-                        col.Configuration.IsDataOnly = true;
-                    }
-                    else {
-                        col.Configuration.IsDataOnly = false;
-                    }
-                }
-            };
-            HideoutPlugin.prototype.onDataRendered = function () {
-                for (var i = 0; i < this.ColumnStates.length; i++) {
-                    if (!this.ColumnStates[i].Visible)
-                        this.ColumnStates[i].DoesNotExists = true;
-                }
-                this.MasterTable.Renderer.Modifier.redrawPlugin(this);
-            };
-            HideoutPlugin.prototype.onLayourRendered = function () {
-                for (var j = 0; j < this.ColumnStates.length; j++) {
-                    if (this.Configuration.HiddenColumns[this.ColumnStates[j].RawName]) {
-                        this.hideColumnByName(this.ColumnStates[j].RawName);
-                    }
-                }
-                this._isInitializing = false;
-            };
-            HideoutPlugin.prototype.init = function (masterTable) {
-                _super.prototype.init.call(this, masterTable);
-                this.MasterTable.Loader.registerQueryPartProvider(this);
-                for (var i = 0; i < this.Configuration.HideableColumnsNames.length; i++) {
-                    var hideable = this.Configuration.HideableColumnsNames[i];
-                    var col = this.MasterTable.InstanceManager.Columns[hideable];
-                    var instanceInfo = {
-                        DoesNotExists: this.Configuration.HiddenColumns.hasOwnProperty(hideable),
-                        Visible: true,
-                        RawName: hideable,
-                        Name: col.Configuration.Title
-                    };
-                    if (col.Configuration.IsDataOnly) {
-                        throw new Error("Column " + col.RawName + " is .DataOnly but\nincluded into hideable columns list.\n.DataOnly columns are invalid for Hideout plugin. Please remove it from selectable columns list");
-                    }
-                    this._columnStates[hideable] = instanceInfo;
-                    this.ColumnStates.push(instanceInfo);
-                }
-            };
-            HideoutPlugin.prototype.renderContent = function (templatesProvider) {
-                return this.defaultRender(templatesProvider);
-            };
-            HideoutPlugin.prototype.subscribe = function (e) {
-                e.AfterDataRendered.subscribe(this.onDataRendered.bind(this), 'hideout');
-                e.BeforeDataRendered.subscribe(this.onBeforeDataRendered.bind(this), 'hideout');
-                e.AfterLayoutRendered.subscribe(this.onLayourRendered.bind(this), 'hideout');
-            };
-            HideoutPlugin.prototype.ifColVisibleHelper = function (columnName, opts) {
-                var visible = false;
-                if (this._isInitializing) {
-                    visible = !this.Configuration.HiddenColumns.hasOwnProperty(columnName);
-                }
-                else {
-                    for (var i = 0; i < this.ColumnStates.length; i++) {
-                        if (this.ColumnStates[i].RawName === columnName) {
-                            visible = this.ColumnStates[i].Visible;
+                LimitPlugin.prototype.changeLimit = function (limit) {
+                    var changed = this._limitSize !== limit;
+                    if (!changed)
+                        return;
+                    this._limitSize = limit;
+                    var labelPair = null;
+                    for (var i = 0; i < this.Sizes.length; i++) {
+                        labelPair = this.Sizes[i];
+                        if (labelPair.Value === limit) {
                             break;
                         }
                     }
-                }
-                if (visible)
-                    return opts.fn(this);
-                else
-                    return opts.inverse(this);
-            };
-            HideoutPlugin.prototype.registerAdditionalHelpers = function (hb) {
-                hb.registerHelper('ifColVisible', this.ifColVisibleHelper.bind(this));
-            };
-            return HideoutPlugin;
-        }(Plugins.PluginBase));
-        Plugins.HideoutPlugin = HideoutPlugin;
-        PowerTables.ComponentsContainer.registerComponent('Hideout', HideoutPlugin);
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        var ResponseInfoPlugin = (function (_super) {
-            __extends(ResponseInfoPlugin, _super);
-            function ResponseInfoPlugin() {
-                _super.apply(this, arguments);
-                this._recentData = {};
-                this._isReadyForRendering = false;
-            }
-            ResponseInfoPlugin.prototype.onResponse = function (e) {
-                this._isServerRequest = true;
-                if (this.Configuration.ResponseObjectOverriden) {
-                    if (!e.EventArgs.Data.AdditionalData)
-                        return;
-                    if (!e.EventArgs.Data.AdditionalData['ResponseInfo'])
-                        return;
-                    this._recentData = e.EventArgs.Data.AdditionalData['ResponseInfo'];
-                    this._isReadyForRendering = true;
+                    if (labelPair != null)
+                        this.SelectedValue = labelPair;
                     this.MasterTable.Renderer.Modifier.redrawPlugin(this);
-                }
-                else {
-                    this._recentServerData = {
-                        TotalCount: e.EventArgs.Data.ResultsCount,
-                        IsLocalRequest: false,
-                        CurrentPage: e.EventArgs.Data.PageIndex,
-                        PagingEnabled: this._pagingEnabled
-                    };
-                }
-            };
-            ResponseInfoPlugin.prototype.addClientData = function (e) {
-                for (var k in this.Configuration.ClientCalculators) {
-                    if (this.Configuration.ClientCalculators.hasOwnProperty(k)) {
-                        this._recentData[k] = this.Configuration.ClientCalculators[k](e);
-                    }
-                }
-            };
-            ResponseInfoPlugin.prototype.onClientDataProcessed = function (e) {
-                if (this.Configuration.ResponseObjectOverriden) {
-                    this.addClientData(e.EventArgs);
-                    this.MasterTable.Renderer.Modifier.redrawPlugin(this);
-                    return;
-                }
-                this._recentData = {
-                    TotalCount: this._recentServerData.TotalCount || this.MasterTable.DataHolder.StoredData.length,
-                    IsLocalRequest: !this._isServerRequest,
-                    CurrentPage: this._recentServerData.CurrentPage || ((!this._pagingPlugin) ? 0 : this._pagingPlugin.getCurrentPage() + 1),
-                    TotalPages: ((!this._pagingPlugin) ? 0 : this._pagingPlugin.getTotalPages()),
-                    PagingEnabled: this._pagingEnabled
+                    if (this.Configuration.ReloadTableOnLimitChange)
+                        this.MasterTable.Controller.reload();
                 };
-                this.addClientData(e.EventArgs);
-                this._isServerRequest = false;
-                this._isReadyForRendering = true;
-                this.MasterTable.Renderer.Modifier.redrawPlugin(this);
-            };
-            ResponseInfoPlugin.prototype.renderContent = function (templatesProvider) {
-                if (!this._isReadyForRendering)
-                    return '';
-                if (this.Configuration.ClientTemplateFunction) {
-                    return this.Configuration.ClientTemplateFunction(this._recentData);
-                }
-                else {
-                    return this._recentTemplate(this._recentData);
-                }
-            };
-            ResponseInfoPlugin.prototype.init = function (masterTable) {
-                _super.prototype.init.call(this, masterTable);
-                this._recentTemplate = this.MasterTable.Renderer.getCachedTemplate(this.RawConfig.TemplateId);
-                this.MasterTable.Events.AfterClientDataProcessing.subscribe(this.onClientDataProcessed.bind(this), 'responseInfo');
-                this.MasterTable.Events.DataReceived.subscribe(this.onResponse.bind(this), 'responseInfo');
-                try {
-                    this._pagingPlugin = this.MasterTable.InstanceManager.getPlugin('Paging');
-                    this._pagingEnabled = true;
-                }
-                catch (v) {
-                    this._pagingEnabled = false;
-                }
-            };
-            return ResponseInfoPlugin;
-        }(Plugins.PluginBase));
-        Plugins.ResponseInfoPlugin = ResponseInfoPlugin;
-        PowerTables.ComponentsContainer.registerComponent('ResponseInfo', ResponseInfoPlugin);
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        var TotalsPlugin = (function (_super) {
-            __extends(TotalsPlugin, _super);
-            function TotalsPlugin() {
-                _super.apply(this, arguments);
-            }
-            TotalsPlugin.prototype.makeTotalsRow = function () {
-                var cols = this.MasterTable.InstanceManager.getUiColumns();
-                var dataObject = {};
-                for (var j = 0; j < cols.length; j++) {
-                    var v = null;
-                    var cl = cols[j];
-                    if (this._totalsForColumns.hasOwnProperty(cl.RawName)) {
-                        v = this._totalsForColumns[cl.RawName];
-                        if (this.Configuration.ColumnsValueFunctions[cl.RawName]) {
-                            v = this.Configuration.ColumnsValueFunctions[cl.RawName](v);
+                LimitPlugin.prototype.modifyQuery = function (query, scope) {
+                    var client = this.Configuration.EnableClientLimiting;
+                    if (client && (scope === PowerTables.QueryScope.Client || scope === PowerTables.QueryScope.Transboundary)) {
+                        query.Paging.PageSize = this._limitSize;
+                    }
+                    if (!client && (scope === PowerTables.QueryScope.Server || scope === PowerTables.QueryScope.Transboundary)) {
+                        query.Paging.PageSize = this._limitSize;
+                    }
+                };
+                LimitPlugin.prototype.init = function (masterTable) {
+                    _super.prototype.init.call(this, masterTable);
+                    var def = null;
+                    for (var i = 0; i < this.Configuration.LimitValues.length; i++) {
+                        var a = {
+                            Value: this.Configuration.LimitValues[i],
+                            Label: this.Configuration.LimitLabels[i],
+                            IsSeparator: this.Configuration.LimitLabels[i] === '-'
+                        };
+                        this.Sizes.push(a);
+                        if (a.Label === this.Configuration.DefaultValue) {
+                            def = a;
                         }
                     }
-                    dataObject[cols[j].RawName] = v;
-                }
-                var result = {
-                    Index: -1,
-                    MasterTable: this.MasterTable,
-                    DataObject: dataObject,
-                    Cells: {},
-                    renderContent: null,
-                    renderElement: null,
-                    IsSpecial: true
-                };
-                for (var i = 0; i < cols.length; i++) {
-                    var col = cols[i];
-                    var cell = {
-                        DataObject: dataObject,
-                        renderElement: null,
-                        renderContent: function (v) { return this.Data; },
-                        Column: cols[i],
-                        Row: result,
-                        Data: dataObject[col.RawName]
-                    };
-                    result.Cells[col.RawName] = cell;
-                }
-                return result;
-            };
-            TotalsPlugin.prototype.onResponse = function (e) {
-                if (!e.EventArgs.Data.AdditionalData)
-                    return;
-                if (!e.EventArgs.Data.AdditionalData.hasOwnProperty('Total'))
-                    return;
-                var response = e.EventArgs.Data;
-                var total = response.AdditionalData['Total'];
-                this._totalsForColumns = total.TotalsForColumns;
-            };
-            TotalsPlugin.prototype.onClientRowsRendering = function (e) {
-                if (this._totalsForColumns) {
-                    if (this.Configuration.ShowOnTop) {
-                        e.EventArgs.splice(0, 0, this.makeTotalsRow());
+                    if (def) {
+                        this.SelectedValue = def;
+                        this._limitSize = def.Value;
                     }
                     else {
-                        e.EventArgs.push(this.makeTotalsRow());
+                        this._limitSize = 0;
                     }
-                }
-            };
-            TotalsPlugin.prototype.onAdjustments = function (e) {
-                var adjustments = e.EventArgs;
-                if (adjustments.NeedRedrawAllVisible)
-                    return;
-                var row = this.makeTotalsRow(); //todo recalculate totals in more intelligent way
-                this.MasterTable.Renderer.Modifier.redrawRow(row);
-            };
-            TotalsPlugin.prototype.onClientDataProcessed = function (e) {
-                if (!this._totalsForColumns)
-                    this._totalsForColumns = {};
-                for (var k in this.Configuration.ColumnsCalculatorFunctions) {
-                    if (this.Configuration.ColumnsCalculatorFunctions.hasOwnProperty(k)) {
-                        this._totalsForColumns[k] = this.Configuration.ColumnsCalculatorFunctions[k](e.EventArgs);
+                    if (this.Configuration.EnableClientLimiting) {
+                        this.MasterTable.DataHolder.EnableClientTake = true;
                     }
-                }
-            };
-            TotalsPlugin.prototype.subscribe = function (e) {
-                e.DataReceived.subscribe(this.onResponse.bind(this), 'totals');
-                e.BeforeClientRowsRendering.subscribe(this.onClientRowsRendering.bind(this), 'totals');
-                e.AfterClientDataProcessing.subscribe(this.onClientDataProcessed.bind(this), 'totals');
-                e.AdjustmentResult.subscribe(this.onAdjustments.bind(this), 'totals');
-            };
-            return TotalsPlugin;
-        }(Plugins.PluginBase));
-        Plugins.TotalsPlugin = TotalsPlugin;
-        PowerTables.ComponentsContainer.registerComponent('Total', TotalsPlugin);
+                    this.MasterTable.Events.ColumnsCreation.subscribe(this.onColumnsCreation.bind(this), 'paging');
+                };
+                LimitPlugin.prototype.onColumnsCreation = function () {
+                    if (this.Configuration.EnableClientLimiting && !this.MasterTable.DataHolder.EnableClientSkip) {
+                        var paging = null;
+                        try {
+                            paging = this.MasterTable.InstanceManager.getPlugin('Paging');
+                        }
+                        catch (a) {
+                        }
+                        if (paging != null)
+                            throw new Error('Limit ang paging plugin must both work locally or both remote. Please enable client paging');
+                    }
+                };
+                return LimitPlugin;
+            }(PowerTables.Filters.FilterBase));
+            Limit.LimitPlugin = LimitPlugin;
+            PowerTables.ComponentsContainer.registerComponent('Limit', LimitPlugin);
+        })(Limit = Plugins.Limit || (Plugins.Limit = {}));
     })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
     var Plugins;
     (function (Plugins) {
-        var CheckboxifyPlugin = (function (_super) {
-            __extends(CheckboxifyPlugin, _super);
-            function CheckboxifyPlugin() {
-                _super.apply(this, arguments);
-                this._selectedItems = [];
-                this._visibleAll = false;
-                this._allSelected = false;
-                this._pagingPlugin = null;
-                this._selectables = [];
-            }
-            CheckboxifyPlugin.prototype.selectAll = function (selected) {
-                var _this = this;
-                if (!this._canSelectAll)
-                    return;
-                this._allSelected = selected == null ? !this._allSelected : selected;
-                this.redrawHeader();
-                this._selectedItems.splice(0, this._selectedItems.length);
-                if (this._allSelected) {
-                    if (this.Configuration.SelectAllSelectsClientUndisplayedData) {
-                        for (var i = 0; i < this.MasterTable.DataHolder.StoredData.length; i++) {
-                            if (this._selectables.indexOf(this.MasterTable.DataHolder.StoredData[i]) > -1) {
-                                this._selectedItems.push(this.MasterTable.DataHolder.StoredData[i][this.ValueColumnName].toString());
-                            }
-                        }
-                        this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
-                        this.MasterTable.Controller.redrawVisibleData();
-                    }
-                    else if (this.Configuration.SelectAllSelectsServerUndisplayedData) {
-                        this.MasterTable.Loader.requestServer('checkboxify_all', function (data) {
-                            _this._selectedItems = data;
-                            _this.MasterTable.Events.SelectionChanged.invoke(_this, _this._selectedItems);
-                            _this.MasterTable.Controller.redrawVisibleData();
-                        });
-                    }
-                    else {
-                        for (var j = 0; j < this.MasterTable.DataHolder.DisplayedData.length; j++) {
-                            if (this._selectables.indexOf(this.MasterTable.DataHolder.DisplayedData[j]) > -1) {
-                                this._selectedItems.push(this.MasterTable.DataHolder.DisplayedData[j][this.ValueColumnName].toString());
-                            }
-                        }
-                        this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
-                        this.MasterTable.Controller.redrawVisibleData();
-                    }
+        var Paging;
+        (function (Paging) {
+            var PagingPlugin = (function (_super) {
+                __extends(PagingPlugin, _super);
+                function PagingPlugin() {
+                    _super.apply(this, arguments);
+                    this._selectedPage = 0;
                 }
-                else {
-                    this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
-                    this.MasterTable.Controller.redrawVisibleData();
-                }
-            };
-            CheckboxifyPlugin.prototype.redrawHeader = function () {
-                this.MasterTable.Renderer.Modifier.redrawHeader(this._ourColumn);
-            };
-            CheckboxifyPlugin.prototype.createColumn = function () {
-                var _this = this;
-                var conf = {
-                    IsDataOnly: false,
-                    IsEnum: false,
-                    IsNullable: false,
-                    RawColumnName: '_checkboxify',
-                    CellRenderingTemplateId: null,
-                    CellRenderingValueFunction: null,
-                    Title: 'Checkboxify',
-                    ColumnType: 'Int32',
-                    ClientValueFunction: null
+                PagingPlugin.prototype.CurrentPage = function () { return this._selectedPage + 1; };
+                PagingPlugin.prototype.TotalPages = function () { return this._totalPages; };
+                PagingPlugin.prototype.PageSize = function () { return this._pageSize; };
+                PagingPlugin.prototype.getCurrentPage = function () {
+                    return this._selectedPage;
                 };
-                var col = {
-                    Configuration: conf,
-                    Header: null,
-                    IsBoolean: false,
-                    IsDateTime: false,
-                    IsEnum: false,
-                    IsFloat: false,
-                    IsInteger: false,
-                    IsString: false,
-                    MasterTable: this.MasterTable,
-                    Order: -1,
-                    RawName: '_checkboxify',
-                    IsSpecial: true
+                PagingPlugin.prototype.getTotalPages = function () {
+                    return this._totalPages;
                 };
-                var header = {
-                    Column: col,
-                    renderContent: null,
-                    renderElement: function (tp) { return tp.getCachedTemplate(_this.Configuration.SelectAllTemplateId)({ IsAllSelected: _this._allSelected, CanSelectAll: _this._canSelectAll }); },
-                    selectAllEvent: function (e) { return _this.selectAll(); }
+                PagingPlugin.prototype.getPageSize = function () {
+                    return this._pageSize;
                 };
-                col.Header = header;
-                this.MasterTable.Renderer.ContentRenderer.cacheColumnRenderingFunction(col, function (x) {
-                    if (x.Row.IsSpecial)
-                        return '';
-                    if (_this.Configuration.CanSelectFunction && !_this.Configuration.CanSelectFunction(x.Row))
-                        return '';
-                    var value = x.DataObject[_this.ValueColumnName].toString();
-                    _this._selectables.push(x.DataObject);
-                    var selected = _this._selectedItems.indexOf(value) > -1;
-                    var canCheck = _this.canCheck(x.DataObject, x.Row);
-                    return _this.MasterTable.Renderer.getCachedTemplate(_this.Configuration.CellTemplateId)({ Value: value, IsChecked: selected, CanCheck: canCheck });
-                });
-                return col;
-            };
-            CheckboxifyPlugin.prototype.canCheck = function (dataObject, row) {
-                return dataObject != null && !row.IsSpecial;
-            };
-            CheckboxifyPlugin.prototype.getSelection = function () {
-                return this._selectedItems;
-            };
-            CheckboxifyPlugin.prototype.resetSelection = function () {
-                this.selectAll(false);
-            };
-            CheckboxifyPlugin.prototype.selectByRowIndex = function (rowIndex, select) {
-                if (select === void 0) { select = null; }
-                var displayedLookup = this.MasterTable.DataHolder.localLookupDisplayedData(rowIndex);
-                if (displayedLookup == null)
-                    return false;
-                this.toggleInternal(displayedLookup.DataObject, displayedLookup.DisplayedIndex, select);
-                return true;
-            };
-            CheckboxifyPlugin.prototype.selectByDataObject = function (dataObject, select) {
-                if (select === void 0) { select = null; }
-                var displayedLookup = this.MasterTable.DataHolder.localLookupStoredDataObject(dataObject);
-                if (displayedLookup == null)
-                    return false;
-                this.toggleInternal(displayedLookup.DataObject, displayedLookup.DisplayedIndex, select);
-                return true;
-            };
-            CheckboxifyPlugin.prototype.selectByPredicate = function (predicate, select) {
-                if (select === void 0) { select = null; }
-                var displayedLookup = this.MasterTable.DataHolder.localLookup(predicate);
-                var result = false;
-                for (var i = 0; i < displayedLookup.length; i++) {
-                    if (!displayedLookup[i].IsCurrentlyDisplaying)
-                        continue;
-                    this.toggleInternal(displayedLookup[i].DataObject, displayedLookup[i].DisplayedIndex, select);
-                    result = true;
-                }
-                return result;
-            };
-            CheckboxifyPlugin.prototype.toggleInternal = function (dataObject, displayedIndex, select) {
-                var _this = this;
-                if (select === void 0) { select = null; }
-                var v = dataObject[this.ValueColumnName].toString();
-                var idx = this._selectedItems.indexOf(v);
-                var overrideRow = false;
-                var toggle = select == null;
-                var check = ((select != null) && (select));
-                if (idx > -1) {
-                    if (toggle || (!check)) {
-                        this._selectedItems.splice(idx, 1);
-                        this._allSelected = false;
-                    }
-                }
-                else {
-                    if (toggle || (check)) {
-                        this._selectedItems.push(v);
-                        overrideRow = true;
-                        this._allSelected = this.MasterTable.DataHolder.DisplayedData.length === this._selectedItems.length;
-                    }
-                }
-                if (displayedIndex >= 0) {
-                    this.redrawHeader();
-                    var row = this.MasterTable.Controller.produceRow(dataObject, displayedIndex);
-                    if (overrideRow) {
-                        row.renderElement = function (e) { return e.getCachedTemplate(_this.Configuration.RowTemplateId)(row); };
-                    }
-                    this.MasterTable.Renderer.Modifier.redrawRow(row);
-                }
-                this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
-            };
-            CheckboxifyPlugin.prototype.afterLayoutRender = function () {
-                var _this = this;
-                this.MasterTable.Renderer.Delegator.subscribeCellEvent({
-                    EventId: 'click',
-                    Selector: '[data-checkboxify]',
-                    SubscriptionId: 'checkboxify',
-                    Handler: function (e) {
-                        _this.selectByRowIndex(e.DisplayingRowIndex);
-                    }
-                });
-                this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
-            };
-            CheckboxifyPlugin.prototype.beforeRowsRendering = function (e) {
-                this._selectables = [];
-                var selectedRows = 0;
-                for (var i = 0; i < e.EventArgs.length; i++) {
-                    var row = e.EventArgs[i];
-                    if (row.IsSpecial)
-                        continue;
-                    if (this._selectedItems.indexOf(row.DataObject[this.ValueColumnName].toString()) > -1) {
-                        row.renderElement = function (a) { return a.getCachedTemplate('checkboxifyRow')(row); };
-                        selectedRows++;
-                    }
-                }
-                if (selectedRows < this._selectedItems.length) {
-                    this._allSelected = false;
-                    this.redrawHeader();
-                }
-            };
-            CheckboxifyPlugin.prototype.enableSelectAll = function (enabled) {
-                var prev = this._canSelectAll;
-                if (!this.Configuration.EnableSelectAll)
-                    this._canSelectAll = false;
-                else
-                    this._canSelectAll = enabled;
-                if (prev !== this._canSelectAll) {
-                    this.redrawHeader();
-                }
-            };
-            CheckboxifyPlugin.prototype.onClientReload = function (e) {
-                if (this.Configuration.ResetOnClientReload) {
-                    this.selectAll(false);
-                }
-                if (this.Configuration.SelectAllOnlyIfAllData) {
-                    if (this._pagingPlugin !== null && this._pagingPlugin.getTotalPages() === 1)
-                        this.enableSelectAll(true);
-                    else if (e.EventArgs.Displaying.length === e.EventArgs.Source.length)
-                        this.enableSelectAll(true);
-                    else
-                        this.enableSelectAll(false);
-                }
-                else {
-                    this.enableSelectAll(true);
-                }
-            };
-            CheckboxifyPlugin.prototype.onServerReload = function (e) {
-                if (this.Configuration.ResetOnReload) {
-                    this.selectAll(false);
-                }
-                if (e.EventArgs.Data.AdditionalData) {
-                    if (e.EventArgs.Data.AdditionalData['Selection'])
-                        this.applySelection(e.EventArgs.Data.AdditionalData['Selection']);
-                }
-            };
-            CheckboxifyPlugin.prototype.applySelection = function (a) {
-                if (!a)
-                    return;
-                if (a.ReplaceSelection) {
-                    this._selectedItems = a.SelectionToReplace;
-                    this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
-                    this.MasterTable.Controller.redrawVisibleData();
-                }
-                else if (a.ModifySelection) {
-                    for (var i = 0; i < a.AddToSelection.length; i++) {
-                        if (this._selectedItems.indexOf(a.AddToSelection[i]) < 0) {
-                            this._selectedItems.push(a.AddToSelection[i]);
+                PagingPlugin.prototype.onFilterGathered = function (e) {
+                    this._pageSize = e.EventArgs.Query.Paging.PageSize;
+                };
+                PagingPlugin.prototype.onColumnsCreation = function () {
+                    if (this.Configuration.EnableClientPaging && !this.MasterTable.DataHolder.EnableClientTake) {
+                        var limit = null;
+                        try {
+                            limit = this.MasterTable.InstanceManager.getPlugin('Limit');
                         }
+                        catch (a) { }
+                        if (limit != null)
+                            throw new Error('Paging ang Limit plugins must both work locally or both remote. Please enable client limiting');
                     }
-                    for (var i = 0; i < a.RemoveFromSelection.length; i++) {
-                        if (this._selectedItems.indexOf(a.RemoveFromSelection[i]) > -1) {
-                            this._selectedItems.splice(this._selectedItems.indexOf(a.RemoveFromSelection[i]), 1);
-                        }
+                };
+                PagingPlugin.prototype.onResponse = function (e) {
+                    this._selectedPage = e.EventArgs.Data.PageIndex;
+                    var tp = e.EventArgs.Data.ResultsCount / this._pageSize;
+                    if (tp !== parseInt(tp)) {
+                        tp = parseInt(tp) + 1;
                     }
-                    this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
-                    this.MasterTable.Controller.redrawVisibleData();
-                }
-            };
-            CheckboxifyPlugin.prototype.onBeforeAdjustments = function (e) {
-                if (e.EventArgs.AdditionalData['Selection'])
-                    this.applySelection(e.EventArgs.AdditionalData['Selection']);
-            };
-            CheckboxifyPlugin.prototype.onAfterAdjustments = function (e) {
-                if (e.EventArgs.Removals.length > 0) {
-                    for (var i = 0; i < e.EventArgs.Removals.length; i++) {
-                        var removal = e.EventArgs.Removals[i];
-                        var removalSelected = removal[this.ValueColumnName].toString();
-                        var idx = this._selectedItems.indexOf(removalSelected);
-                        if (idx > -1)
-                            this._selectedItems.splice(idx, 1);
+                    this._totalPages = tp;
+                    this.MasterTable.Renderer.Modifier.redrawPlugin(this);
+                };
+                PagingPlugin.prototype.onClientDataProcessing = function (e) {
+                    var tp = e.EventArgs.Filtered.length / this._pageSize;
+                    if (tp !== parseInt(tp)) {
+                        tp = parseInt(tp) + 1;
                     }
-                }
-            };
-            CheckboxifyPlugin.prototype.init = function (masterTable) {
-                _super.prototype.init.call(this, masterTable);
-                var col = this.createColumn();
-                this.MasterTable.InstanceManager.Columns['_checkboxify'] = col;
-                this._ourColumn = col;
-                this.ValueColumnName = this.Configuration.SelectionColumnName;
-                this._canSelectAll = this.Configuration.EnableSelectAll;
-                this.MasterTable.Loader.registerQueryPartProvider(this);
-                try {
-                    this._pagingPlugin = this.MasterTable.InstanceManager.getPlugin('Paging');
-                }
-                catch (e) { }
-            };
-            CheckboxifyPlugin.prototype.modifyQuery = function (query, scope) {
-                if (scope === PowerTables.QueryScope.Transboundary) {
-                    query.AdditionalData['Selection'] = this._selectedItems.join('|');
-                    query.AdditionalData['SelectionColumn'] = this.ValueColumnName;
-                }
-            };
-            CheckboxifyPlugin.registerEvents = function (e, masterTable) {
-                e['SelectionChanged'] = new PowerTables.TableEvent(masterTable);
-            };
-            CheckboxifyPlugin.prototype.subscribe = function (e) {
-                e.AfterLayoutRendered.subscribe(this.afterLayoutRender.bind(this), 'checkboxify');
-                e.BeforeClientRowsRendering.subscribe(this.beforeRowsRendering.bind(this), 'checkboxify');
-                e.AfterClientDataProcessing.subscribe(this.onClientReload.bind(this), 'checkboxify');
-                e.DataReceived.subscribe(this.onServerReload.bind(this), 'checkboxify');
-                e.BeforeAdjustment.subscribe(this.onBeforeAdjustments.bind(this), 'checkboxify');
-                e.BeforeAdjustment.subscribe(this.onAfterAdjustments.bind(this), 'checkboxify');
-            };
-            return CheckboxifyPlugin;
-        }(Plugins.PluginBase));
-        Plugins.CheckboxifyPlugin = CheckboxifyPlugin;
-        PowerTables.ComponentsContainer.registerComponent('Checkboxify', CheckboxifyPlugin);
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        var ToolbarPlugin = (function (_super) {
-            __extends(ToolbarPlugin, _super);
-            function ToolbarPlugin() {
-                _super.apply(this, arguments);
-                this.AllButtons = {};
-                this._buttonsConfig = {};
-            }
-            ToolbarPlugin.prototype.buttonHandleEvent = function (e) {
-                var btnId = e.EventArguments[0];
-                this.handleButtonAction(this._buttonsConfig[btnId]);
-            };
-            ToolbarPlugin.prototype.redrawMe = function () {
-                this.MasterTable.Renderer.Modifier.redrawPlugin(this);
-            };
-            ToolbarPlugin.prototype.handleButtonAction = function (btn) {
-                var _this = this;
-                if (btn.OnClick) {
-                    btn.OnClick.call(this.MasterTable, this.MasterTable, this.AllButtons[btn.InternalId]);
-                }
-                if (btn.Command) {
-                    var _self = this;
-                    // ReSharper disable Lambda
-                    var f = function (queryModifier, success, error) {
-                        if (btn.BlackoutWhileCommand) {
-                            btn.IsDisabled = true;
-                            _self.redrawMe();
-                        }
-                        _self.MasterTable.Loader.requestServer(btn.Command, function (response) {
-                            if (btn.CommandCallbackFunction) {
-                                btn.CommandCallbackFunction.apply(_self.MasterTable, [_self.MasterTable, response]);
+                    if (tp < this._selectedPage) {
+                        this._selectedPage = 0;
+                    }
+                    this._totalPages = tp;
+                    this.MasterTable.Renderer.Modifier.redrawPlugin(this);
+                };
+                PagingPlugin.prototype.goToPage = function (page) {
+                    this._selectedPage = parseInt(page);
+                    this.MasterTable.Controller.reload();
+                };
+                PagingPlugin.prototype.gotoPageClick = function (e) {
+                    if (this.GotoInput) {
+                        var v = this.GotoInput.value;
+                        v = (parseInt(v) - 1).toString();
+                        this.goToPage(v);
+                    }
+                };
+                PagingPlugin.prototype.navigateToPage = function (e) {
+                    this.goToPage(e.EventArguments[0]);
+                };
+                PagingPlugin.prototype.nextClick = function (e) {
+                    if (this._selectedPage < this._totalPages)
+                        this.goToPage((this._selectedPage + 1).toString());
+                };
+                PagingPlugin.prototype.previousClick = function (e) {
+                    if (this._selectedPage > 0)
+                        this.goToPage((this._selectedPage - 1).toString());
+                };
+                PagingPlugin.prototype.constructPagesElements = function () {
+                    var a = [];
+                    var total = this._totalPages;
+                    var cur = this._selectedPage;
+                    var pdiff = this.Configuration.PagesToHideUnderPeriod;
+                    if (total > 1) {
+                        this.Shown = true;
+                        if (!this.Configuration.ArrowsMode) {
+                            if (this.Configuration.UseFirstLastPage)
+                                a.push({ Page: 0, First: true });
+                            if (cur > 0)
+                                a.push({ Page: 0, Prev: true });
+                            if (this.Configuration.UsePeriods) {
+                                if (cur - 1 >= pdiff)
+                                    a.push({ Page: 0, Period: true });
+                                if (cur - 1 > 0)
+                                    a.push({ Page: cur - 1, InActivePage: true });
+                                a.push({ Page: cur, ActivePage: true });
+                                if (cur + 1 < total)
+                                    a.push({ Page: cur + 1, InActivePage: true });
+                                if (total - (cur + 1) >= pdiff)
+                                    a.push({ Page: 0, Period: true });
                             }
                             else {
-                                if (response.$isDeferred && response.$url) {
-                                    window.location.href = response.$url;
-                                }
-                            }
-                            if (btn.BlackoutWhileCommand) {
-                                btn.IsDisabled = false;
-                                _self.redrawMe();
-                            }
-                            if (success)
-                                success();
-                        }, queryModifier, function () {
-                            if (btn.BlackoutWhileCommand) {
-                                btn.IsDisabled = false;
-                                _self.redrawMe();
-                            }
-                            if (error)
-                                error();
-                        });
-                    };
-                    // ReSharper restore Lambda
-                    if (btn.ConfirmationFunction)
-                        btn.ConfirmationFunction.apply(this.MasterTable, [f]);
-                    else if (btn.ConfirmationTemplateId) {
-                        var tc = new Plugins.ToolbarConfirmation(function (data) {
-                            f(function (q) {
-                                q.AdditionalData['Confirmation'] = JSON.stringify(data);
-                                return q;
-                            }, function () {
-                                tc.fireEvents(tc.Form, tc.AfterConfirmationResponse);
-                            }, function () {
-                                tc.fireEvents(tc.Form, tc.ConfirmationResponseError);
-                            });
-                            _this.MasterTable.Renderer.destroyObject(btn.ConfirmationTargetSelector);
-                        }, function () {
-                            _this.MasterTable.Renderer.destroyObject(btn.ConfirmationTargetSelector);
-                        }, this.MasterTable.Date, btn.ConfirmationFormConfiguration);
-                        try {
-                            var chb = this.MasterTable.InstanceManager.getPlugin('Checkboxify');
-                            var selection = chb.getSelection();
-                            tc.SelectedItems = selection;
-                            var objects = [];
-                            if (selection.length > 0) {
-                                var foundCount = 0;
-                                for (var i = 0; i < this.MasterTable.DataHolder.StoredData.length; i++) {
-                                    var obj = this.MasterTable.DataHolder.StoredData[i];
-                                    if (selection.indexOf(obj[chb.ValueColumnName].toString()) > -1) {
-                                        objects.push(obj);
-                                        foundCount++;
-                                        if (foundCount === selection.length)
-                                            break;
+                                for (var i = 0; i < total; i++) {
+                                    if (cur === i) {
+                                        a.push({ Page: i, ActivePage: true });
+                                    }
+                                    else {
+                                        a.push({ Page: i, InActivePage: true });
                                     }
                                 }
                             }
-                            tc.SelectedObjects = objects;
+                            if (cur < total - 1)
+                                a.push({ Page: 0, Next: true });
+                            if (this.Configuration.UseFirstLastPage)
+                                a.push({ Page: total - 1, Last: true });
+                            var disFunction = function () { return this.Page + 1; };
+                            for (var j = 0; j < a.length; j++) {
+                                a[j].DisPage = disFunction;
+                            }
+                            this.Pages = a;
                         }
-                        catch (e) { }
-                        var r = this.MasterTable.Renderer.renderObject(btn.ConfirmationTemplateId, tc, btn.ConfirmationTargetSelector);
-                        tc.RootElement = r;
+                        else {
+                            this.NextArrow = cur < total - 1;
+                            this.PrevArrow = cur > 0;
+                        }
                     }
-                    else
-                        f();
-                }
-            };
-            ToolbarPlugin.prototype.renderContent = function (templatesProvider) {
-                return this.defaultRender(templatesProvider);
-            };
-            ToolbarPlugin.prototype.traverseButtons = function (arr) {
-                for (var i = 0; i < arr.length; i++) {
-                    this._buttonsConfig[arr[i].InternalId] = arr[i];
-                    if (arr[i].HasSubmenu) {
-                        this.traverseButtons(arr[i].Submenu);
+                    else {
+                        this.Shown = false;
                     }
+                };
+                PagingPlugin.prototype.renderContent = function (templatesProvider) {
+                    this.constructPagesElements();
+                    return templatesProvider.getCachedTemplate('paging')(this);
+                };
+                PagingPlugin.prototype.validateGotopage = function () {
+                    var v = this.GotoInput.value;
+                    var i = parseInt(v);
+                    var valid = !isNaN(i) && (i > 0) && (i <= this._totalPages);
+                    if (valid) {
+                        this.VisualStates.normalState();
+                    }
+                    else {
+                        this.VisualStates.changeState('invalid');
+                    }
+                };
+                PagingPlugin.prototype.modifyQuery = function (query, scope) {
+                    if (this.Configuration.EnableClientPaging && scope === PowerTables.QueryScope.Client) {
+                        query.Paging.PageIndex = this._selectedPage;
+                    }
+                    if ((!this.Configuration.EnableClientPaging) && scope !== PowerTables.QueryScope.Client) {
+                        query.Paging.PageIndex = this._selectedPage;
+                    }
+                };
+                PagingPlugin.prototype.init = function (masterTable) {
+                    _super.prototype.init.call(this, masterTable);
+                    if (!this.Configuration.EnableClientPaging) {
+                        this.MasterTable.Events.AfterQueryGathering.subscribe(this.onFilterGathered.bind(this), 'paging');
+                    }
+                    else {
+                        this.MasterTable.Events.AfterClientQueryGathering.subscribe(this.onFilterGathered.bind(this), 'paging');
+                    }
+                    if (!this.Configuration.EnableClientPaging) {
+                        this.MasterTable.Events.DataReceived.subscribe(this.onResponse.bind(this), 'paging');
+                    }
+                    else {
+                        this.MasterTable.Events.AfterClientDataProcessing.subscribe(this.onClientDataProcessing.bind(this), 'paging');
+                    }
+                    this.MasterTable.Events.ColumnsCreation.subscribe(this.onColumnsCreation.bind(this), 'paging');
+                    if (this.Configuration.EnableClientPaging) {
+                        this.MasterTable.DataHolder.EnableClientSkip = true;
+                    }
+                };
+                return PagingPlugin;
+            }(PowerTables.Filters.FilterBase));
+            Paging.PagingPlugin = PagingPlugin;
+            PowerTables.ComponentsContainer.registerComponent('Paging', PagingPlugin);
+        })(Paging = Plugins.Paging || (Plugins.Paging = {}));
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Filters;
+    (function (Filters) {
+        var Value;
+        (function (Value) {
+            /**
+             * Client-side part of value filter
+             */
+            var ValueFilterPlugin = (function (_super) {
+                __extends(ValueFilterPlugin, _super);
+                function ValueFilterPlugin() {
+                    var _this = this;
+                    _super.apply(this, arguments);
+                    this._filteringIsBeingExecuted = false;
+                    this._isInitializing = true;
+                    /**
+                    * @internal
+                    */
+                    this.afterDrawn = function (e) {
+                        if (_this.Configuration.Hidden)
+                            return;
+                        if (_this.AssociatedColumn.IsDateTime) {
+                            var date = _this.MasterTable.Date.parse(_this.Configuration.DefaultValue);
+                            _this.MasterTable.Date.putDateToDatePicker(_this.FilterValueProvider, date);
+                        }
+                        _this._isInitializing = false;
+                    };
                 }
-            };
-            ToolbarPlugin.prototype.onSelectionChanged = function (e) {
-                var atleastOne = false;
-                var disabled = e.EventArgs.length === 0;
-                for (var bc in this._buttonsConfig) {
-                    if (this._buttonsConfig.hasOwnProperty(bc)) {
-                        if (this._buttonsConfig[bc].DisableIfNothingChecked) {
-                            if (this._buttonsConfig[bc].IsDisabled !== disabled) {
-                                atleastOne = true;
-                                this._buttonsConfig[bc].IsDisabled = disabled;
+                /**
+                 * Retrieves entered value. Could be either string or Date object depending on
+                 * column associated within filter
+                 */
+                ValueFilterPlugin.prototype.getValue = function () {
+                    if (this.AssociatedColumn.Configuration.IsDataOnly && this.Configuration.DefaultValue) {
+                        return this.Configuration.DefaultValue;
+                    }
+                    if (!this.FilterValueProvider)
+                        return '';
+                    if (this.AssociatedColumn.IsDateTime) {
+                        return this.MasterTable.Date.serialize(this.MasterTable.Date.getDateFromDatePicker(this.FilterValueProvider));
+                    }
+                    return this.FilterValueProvider.value;
+                };
+                /**
+                * @internal
+                */
+                ValueFilterPlugin.prototype.handleValueChanged = function () {
+                    var _this = this;
+                    if (this._isInitializing)
+                        return;
+                    if (this._filteringIsBeingExecuted)
+                        return;
+                    if (this.getValue() === this._previousValue) {
+                        return;
+                    }
+                    this._previousValue = this.getValue();
+                    if (this.Configuration.InputDelay > 0) {
+                        clearTimeout(this._inpTimeout);
+                        this._inpTimeout = setTimeout(function () {
+                            _this._filteringIsBeingExecuted = true;
+                            _this.MasterTable.Controller.reload();
+                            _this._filteringIsBeingExecuted = false;
+                        }, this.Configuration.InputDelay);
+                    }
+                    else {
+                        this._filteringIsBeingExecuted = true;
+                        this.MasterTable.Controller.reload();
+                        this._filteringIsBeingExecuted = false;
+                    }
+                };
+                /**
+                * @internal
+                */
+                ValueFilterPlugin.prototype.renderContent = function (templatesProvider) {
+                    if (this.Configuration.Hidden)
+                        return '';
+                    return this.defaultRender(templatesProvider);
+                };
+                /**
+                * @internal
+                */
+                ValueFilterPlugin.prototype.init = function (masterTable) {
+                    _super.prototype.init.call(this, masterTable);
+                    if (this.Configuration.ClientFiltering) {
+                        this.itIsClientFilter();
+                    }
+                    this.AssociatedColumn = this.MasterTable.InstanceManager.Columns[this.Configuration.ColumnName];
+                };
+                /**
+                * @internal
+                */
+                ValueFilterPlugin.prototype.filterPredicate = function (rowObject, query) {
+                    var fval = query.Filterings[this.AssociatedColumn.RawName];
+                    if (fval == null || fval == undefined)
+                        return true;
+                    if (fval === '$$lattice_not_present$$' && this.AssociatedColumn.Configuration.IsNullable)
+                        fval = null;
+                    if (this.Configuration.ClientFilteringFunction) {
+                        return this.Configuration.ClientFilteringFunction(rowObject, fval, query);
+                    }
+                    if (!query.Filterings.hasOwnProperty(this.AssociatedColumn.RawName))
+                        return true;
+                    var objVal = rowObject[this.AssociatedColumn.RawName];
+                    if (objVal == null)
+                        return fval == null;
+                    if (this.AssociatedColumn.IsString) {
+                        objVal = objVal.toString();
+                        var entries = fval.split(/\s/);
+                        for (var i = 0; i < entries.length; i++) {
+                            var e = entries[i].trim();
+                            if (e.length > 0) {
+                                if (objVal.toLocaleLowerCase().indexOf(e.toLocaleLowerCase()) < 0)
+                                    return false;
+                            }
+                        }
+                        return true;
+                    }
+                    if (this.AssociatedColumn.IsFloat) {
+                        var f = parseFloat(fval);
+                        return objVal === f;
+                    }
+                    if (this.AssociatedColumn.IsInteger || this.AssociatedColumn.IsEnum) {
+                        var int = parseInt(fval);
+                        return objVal === int;
+                    }
+                    if (this.AssociatedColumn.IsBoolean) {
+                        var bv = fval.toLocaleUpperCase() === 'TRUE' ? true :
+                            fval.toLocaleUpperCase() === 'FALSE' ? false : null;
+                        if (bv == null) {
+                            bv = parseInt(fval) > 0;
+                        }
+                        return objVal === bv;
+                    }
+                    if (this.AssociatedColumn.IsDateTime) {
+                        var date = this.MasterTable.Date.parse(fval);
+                        if (this.Configuration.CompareOnlyDates) {
+                            return date.getFullYear() === objVal.getFullYear()
+                                && date.getDate() === objVal.getDate()
+                                && date.getMonth() === objVal.getMonth();
+                        }
+                        return date === objVal;
+                    }
+                    return true;
+                };
+                /**
+                * @internal
+                */
+                ValueFilterPlugin.prototype.modifyQuery = function (query, scope) {
+                    if (this.Configuration.Hidden)
+                        return;
+                    var val = this.getValue();
+                    if (!val || val.length === 0)
+                        return;
+                    if (this.Configuration.ClientFiltering && scope === PowerTables.QueryScope.Client || scope === PowerTables.QueryScope.Transboundary) {
+                        query.Filterings[this.AssociatedColumn.RawName] = val;
+                    }
+                    if ((!this.Configuration.ClientFiltering) && scope === PowerTables.QueryScope.Server || scope === PowerTables.QueryScope.Transboundary) {
+                        query.Filterings[this.AssociatedColumn.RawName] = val;
+                    }
+                };
+                return ValueFilterPlugin;
+            }(PowerTables.Filters.FilterBase));
+            Value.ValueFilterPlugin = ValueFilterPlugin;
+            PowerTables.ComponentsContainer.registerComponent('ValueFilter', ValueFilterPlugin);
+        })(Value = Filters.Value || (Filters.Value = {}));
+    })(Filters = PowerTables.Filters || (PowerTables.Filters = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Filters;
+    (function (Filters) {
+        var Range;
+        (function (Range) {
+            var RangeFilterPlugin = (function (_super) {
+                __extends(RangeFilterPlugin, _super);
+                function RangeFilterPlugin() {
+                    var _this = this;
+                    _super.apply(this, arguments);
+                    this._filteringIsBeingExecuted = false;
+                    this._isInitializing = true;
+                    this.afterDrawn = function (e) {
+                        if (_this.Configuration.Hidden)
+                            return;
+                        if (_this.AssociatedColumn.IsDateTime) {
+                            var fromDate = _this.MasterTable.Date.parse(_this.Configuration.FromValue);
+                            var toDate = _this.MasterTable.Date.parse(_this.Configuration.ToValue);
+                            _this.MasterTable.Date.putDateToDatePicker(_this.FromValueProvider, fromDate);
+                            _this.MasterTable.Date.putDateToDatePicker(_this.ToValueProvider, toDate);
+                        }
+                        _this._isInitializing = false;
+                    };
+                }
+                RangeFilterPlugin.prototype.getFromValue = function () {
+                    if (this.AssociatedColumn.Configuration.IsDataOnly) {
+                        return this.Configuration.FromValue;
+                    }
+                    if (!this.FromValueProvider)
+                        return '';
+                    if (this.AssociatedColumn.IsDateTime) {
+                        var date = this.MasterTable.Date.getDateFromDatePicker(this.FromValueProvider);
+                        return this.MasterTable.Date.serialize(date);
+                    }
+                    return this.FromValueProvider.value;
+                };
+                RangeFilterPlugin.prototype.getToValue = function () {
+                    if (this.AssociatedColumn.Configuration.IsDataOnly) {
+                        return this.Configuration.ToValue;
+                    }
+                    if (!this.ToValueProvider)
+                        return '';
+                    if (this.AssociatedColumn.IsDateTime) {
+                        var date = this.MasterTable.Date.getDateFromDatePicker(this.ToValueProvider);
+                        return this.MasterTable.Date.serialize(date);
+                    }
+                    return this.ToValueProvider.value;
+                };
+                RangeFilterPlugin.prototype.handleValueChanged = function () {
+                    var _this = this;
+                    if (this._isInitializing)
+                        return;
+                    if (this._filteringIsBeingExecuted)
+                        return;
+                    if ((this._fromPreviousValue === this.getFromValue())
+                        && (this._toPreviousValue === this.getToValue()))
+                        return;
+                    this._fromPreviousValue = this.getFromValue();
+                    this._toPreviousValue = this.getToValue();
+                    if (this.Configuration.InputDelay > 0) {
+                        clearTimeout(this._inpTimeout);
+                        this._inpTimeout = setTimeout(function () {
+                            _this._filteringIsBeingExecuted = true;
+                            _this.MasterTable.Controller.reload();
+                            _this._filteringIsBeingExecuted = false;
+                        }, this.Configuration.InputDelay);
+                    }
+                    else {
+                        this._filteringIsBeingExecuted = true;
+                        this.MasterTable.Controller.reload();
+                        this._filteringIsBeingExecuted = false;
+                    }
+                };
+                RangeFilterPlugin.prototype.getFilterArgument = function () {
+                    var args = [];
+                    var frm = this.getFromValue();
+                    var to = this.getToValue();
+                    args.push(frm);
+                    args.push(to);
+                    var result = args.join('|');
+                    return result;
+                };
+                RangeFilterPlugin.prototype.modifyQuery = function (query, scope) {
+                    if (this.Configuration.Hidden)
+                        return;
+                    var val = this.getFilterArgument();
+                    if (!val || val.length === 0)
+                        return;
+                    if (this.Configuration.ClientFiltering && scope === PowerTables.QueryScope.Client || scope === PowerTables.QueryScope.Transboundary) {
+                        query.Filterings[this.AssociatedColumn.RawName] = val;
+                    }
+                    if ((!this.Configuration.ClientFiltering) && scope === PowerTables.QueryScope.Server || scope === PowerTables.QueryScope.Transboundary) {
+                        query.Filterings[this.AssociatedColumn.RawName] = val;
+                    }
+                };
+                RangeFilterPlugin.prototype.init = function (masterTable) {
+                    _super.prototype.init.call(this, masterTable);
+                    if (this.Configuration.ClientFiltering) {
+                        this.itIsClientFilter();
+                    }
+                    this.AssociatedColumn = this.MasterTable.InstanceManager.Columns[this.Configuration.ColumnName];
+                };
+                RangeFilterPlugin.prototype.renderContent = function (templatesProvider) {
+                    if (this.Configuration.Hidden)
+                        return '';
+                    return this.defaultRender(templatesProvider);
+                };
+                RangeFilterPlugin.prototype.filterPredicate = function (rowObject, query) {
+                    var fval = query.Filterings[this.AssociatedColumn.RawName];
+                    if (!fval)
+                        return true;
+                    var args = fval.split('|');
+                    var fromValue = args[0];
+                    var toValue = args[1];
+                    if (this.Configuration.ClientFilteringFunction) {
+                        return this.Configuration.ClientFilteringFunction(rowObject, fromValue, toValue, query);
+                    }
+                    var frmEmpty = fromValue.trim().length === 0;
+                    var toEmpty = toValue.trim().length === 0;
+                    if (frmEmpty && toEmpty)
+                        return true;
+                    if (!query.Filterings.hasOwnProperty(this.AssociatedColumn.RawName))
+                        return true;
+                    var objVal = rowObject[this.AssociatedColumn.RawName];
+                    if (objVal == null)
+                        return false;
+                    if (this.AssociatedColumn.IsString) {
+                        var str = objVal.toString();
+                        return ((frmEmpty) || str.localeCompare(fromValue) >= 0) && ((toEmpty) || str.localeCompare(toValue) <= 0);
+                    }
+                    if (this.AssociatedColumn.IsFloat) {
+                        return ((frmEmpty) || objVal >= parseFloat(fromValue)) && ((toEmpty) || objVal <= parseFloat(toValue));
+                    }
+                    if (this.AssociatedColumn.IsInteger || this.AssociatedColumn.IsEnum) {
+                        return ((frmEmpty) || objVal >= parseInt(fromValue)) && ((toEmpty) || objVal <= parseInt(toValue));
+                    }
+                    if (this.AssociatedColumn.IsDateTime) {
+                        var toVal;
+                        if (!toEmpty) {
+                            toVal = this.MasterTable.Date.parse(toValue);
+                            if (this.Configuration.TreatEqualDateAsWholeDay) {
+                                toVal.setHours(23);
+                                toVal.setMinutes(59);
+                                toVal.setSeconds(59);
+                            }
+                        }
+                        return ((frmEmpty) || objVal >= this.MasterTable.Date.parse(fromValue)) && ((toEmpty) || objVal <= toVal);
+                    }
+                    return true;
+                };
+                return RangeFilterPlugin;
+            }(PowerTables.Filters.FilterBase));
+            Range.RangeFilterPlugin = RangeFilterPlugin;
+            PowerTables.ComponentsContainer.registerComponent('RangeFilter', RangeFilterPlugin);
+        })(Range = Filters.Range || (Filters.Range = {}));
+    })(Filters = PowerTables.Filters || (PowerTables.Filters = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Filters;
+    (function (Filters) {
+        var Select;
+        (function (Select) {
+            /**
+             * Client-side implementation of Select filter
+             */
+            var SelectFilterPlugin = (function (_super) {
+                __extends(SelectFilterPlugin, _super);
+                function SelectFilterPlugin() {
+                    _super.apply(this, arguments);
+                }
+                /**
+                 * Retrieves selected values serialized with |-delimiter
+                 */
+                SelectFilterPlugin.prototype.getSerializedValue = function () {
+                    if (this.AssociatedColumn.Configuration.IsDataOnly && this.Configuration.SelectedValue) {
+                        return this.Configuration.SelectedValue;
+                    }
+                    return this.getArrayValue().join('|');
+                };
+                /**
+                 * Retrieves array of stringified selected values
+                 */
+                SelectFilterPlugin.prototype.getArrayValue = function () {
+                    if (!this.FilterValueProvider)
+                        return [];
+                    if (!this.Configuration.IsMultiple) {
+                        var selected = this.FilterValueProvider.options[this.FilterValueProvider.selectedIndex];
+                        return [selected.value];
+                    }
+                    else {
+                        var elemValues = [];
+                        for (var i = 0, iLen = this.FilterValueProvider.options.length; i < iLen; i++) {
+                            var opt = this.FilterValueProvider.options[i];
+                            if (opt.selected) {
+                                elemValues.push(opt.value);
+                            }
+                        }
+                        return elemValues;
+                    }
+                };
+                /**
+                 * @internal
+                 */
+                SelectFilterPlugin.prototype.modifyQuery = function (query, scope) {
+                    if (this.Configuration.Hidden)
+                        return;
+                    var val = this.getSerializedValue();
+                    if (!val || val.length === 0)
+                        return;
+                    if (this.Configuration.ClientFiltering && scope === PowerTables.QueryScope.Client || scope === PowerTables.QueryScope.Transboundary) {
+                        query.Filterings[this.AssociatedColumn.RawName] = val;
+                    }
+                    if ((!this.Configuration.ClientFiltering) && scope === PowerTables.QueryScope.Server || scope === PowerTables.QueryScope.Transboundary) {
+                        query.Filterings[this.AssociatedColumn.RawName] = val;
+                    }
+                };
+                /**
+                 * @internal
+                 */
+                SelectFilterPlugin.prototype.renderContent = function (templatesProvider) {
+                    if (this.Configuration.Hidden)
+                        return '';
+                    return this.defaultRender(templatesProvider);
+                };
+                /**
+                 * @internal
+                 */
+                SelectFilterPlugin.prototype.handleValueChanged = function () {
+                    this.MasterTable.Controller.reload();
+                };
+                /**
+                 * @internal
+                 */
+                SelectFilterPlugin.prototype.init = function (masterTable) {
+                    _super.prototype.init.call(this, masterTable);
+                    this.AssociatedColumn = this.MasterTable.InstanceManager.Columns[this.Configuration.ColumnName];
+                    var sv = this.Configuration.SelectedValue;
+                    if (sv !== undefined && sv !== null) {
+                        for (var i = 0; i < this.Configuration.Items.length; i++) {
+                            if (this.Configuration.Items[i].Value !== sv) {
+                                this.Configuration.Items[i].Selected = false;
+                            }
+                            else {
+                                this.Configuration.Items[i].Selected = true;
                             }
                         }
                     }
-                }
-                if (atleastOne)
-                    this.MasterTable.Renderer.Modifier.redrawPlugin(this);
-            };
-            ToolbarPlugin.prototype.init = function (masterTable) {
-                _super.prototype.init.call(this, masterTable);
-                try {
-                    var p = this.MasterTable.InstanceManager.getPlugin('Checkboxify');
-                    var nothingSelected = p.getSelection().length === 0;
-                    for (var i = 0; i < this.Configuration.Buttons.length; i++) {
-                        if (this.Configuration.Buttons[i].DisableIfNothingChecked) {
-                            this.Configuration.Buttons[i].IsDisabled = nothingSelected;
-                        }
+                    if (this.Configuration.ClientFiltering) {
+                        this.itIsClientFilter();
                     }
-                }
-                catch (e) {
-                }
-                this.traverseButtons(this.Configuration.Buttons);
-                this.MasterTable.Events.SelectionChanged.subscribe(this.onSelectionChanged.bind(this), 'toolbar');
-            };
-            return ToolbarPlugin;
-        }(Plugins.PluginBase));
-        Plugins.ToolbarPlugin = ToolbarPlugin;
-        PowerTables.ComponentsContainer.registerComponent('Toolbar', ToolbarPlugin);
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+                };
+                /**
+                 * @internal
+                 */
+                SelectFilterPlugin.prototype.filterPredicate = function (rowObject, query) {
+                    var fval = query.Filterings[this.AssociatedColumn.RawName];
+                    if (fval == null || fval == undefined)
+                        return true;
+                    if (fval === '$$lattice_not_present$$' && this.AssociatedColumn.Configuration.IsNullable)
+                        fval = null;
+                    var arr = null;
+                    if (this.Configuration.IsMultiple) {
+                        arr = fval != null ? fval.split('|') : [null];
+                    }
+                    else {
+                        arr = [fval];
+                    }
+                    if (this.Configuration.ClientFilteringFunction) {
+                        return this.Configuration.ClientFilteringFunction(rowObject, arr, query);
+                    }
+                    if (!query.Filterings.hasOwnProperty(this.AssociatedColumn.RawName))
+                        return true;
+                    var objVal = rowObject[this.AssociatedColumn.RawName];
+                    if (objVal == null)
+                        return arr.indexOf(null) > -1;
+                    if (this.AssociatedColumn.IsString) {
+                        return arr.indexOf(objVal) >= 0;
+                    }
+                    var single = false;
+                    if (this.AssociatedColumn.IsFloat) {
+                        arr.map(function (v) {
+                            if (parseFloat(v) === objVal)
+                                single = true;
+                        });
+                        return single;
+                    }
+                    if (this.AssociatedColumn.IsInteger || this.AssociatedColumn.IsEnum) {
+                        single = false;
+                        arr.map(function (v) {
+                            if (parseInt(v) === objVal)
+                                single = true;
+                        });
+                        return single;
+                    }
+                    if (this.AssociatedColumn.IsBoolean) {
+                        single = false;
+                        arr.map(function (v) {
+                            var bv = v.toLocaleUpperCase() === 'TRUE' ? true :
+                                v.toLocaleUpperCase() === 'FALSE' ? false : null;
+                            if (bv == null) {
+                                bv = parseInt(fval) > 0;
+                            }
+                            if (bv === objVal) {
+                                single = true;
+                            }
+                        });
+                        return single;
+                    }
+                    return true;
+                };
+                return SelectFilterPlugin;
+            }(PowerTables.Filters.FilterBase));
+            Select.SelectFilterPlugin = SelectFilterPlugin;
+            PowerTables.ComponentsContainer.registerComponent('SelectFilter', SelectFilterPlugin);
+        })(Select = Filters.Select || (Filters.Select = {}));
+    })(Filters = PowerTables.Filters || (PowerTables.Filters = {}));
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
     var Plugins;
     (function (Plugins) {
-        var FormwatchPlugin = (function (_super) {
-            __extends(FormwatchPlugin, _super);
-            function FormwatchPlugin() {
-                _super.apply(this, arguments);
-                this._existingValues = {};
-                this._filteringExecuted = {};
-                this._timeouts = {};
-            }
-            FormwatchPlugin.extractValueFromMultiSelect = function (o) {
-                var value = [];
-                for (var k = 0; k < o.options.length; k++) {
-                    if (o.options[k].selected)
-                        value.push(o.options[k].value);
+        var Hideout;
+        (function (Hideout) {
+            var HideoutPlugin = (function (_super) {
+                __extends(HideoutPlugin, _super);
+                function HideoutPlugin() {
+                    _super.apply(this, arguments);
+                    this.ColumnStates = [];
+                    this._columnStates = {};
+                    this._isInitializing = true;
                 }
-                return value;
-            };
-            FormwatchPlugin.extractInputValue = function (element, fieldConf, dateService) {
-                var value = null;
-                if (element.type === 'select-multiple') {
-                    value = FormwatchPlugin.extractValueFromMultiSelect((element));
-                }
-                else if (element.type === 'checkbox') {
-                    value = element.checked;
-                }
-                else if (element.type === 'radio') {
-                    if (element.checked)
-                        value = element.value;
-                }
-                else {
-                    if (fieldConf.IsDateTime) {
-                        value = dateService.getDateFromDatePicker(element);
-                        if (!dateService.isValidDate(value)) {
-                            value = dateService.parse(element.value);
-                            if (!dateService.isValidDate(value)) {
-                                value = null;
-                            }
-                        }
-                        if (value != null)
-                            value = dateService.serialize(value);
+                HideoutPlugin.prototype.isColumnVisible = function (columnName) {
+                    return this.isColumnInstanceVisible(this.MasterTable.InstanceManager.Columns[columnName]);
+                };
+                HideoutPlugin.prototype.isColumnInstanceVisible = function (col) {
+                    if (!col)
+                        return true;
+                    return this._columnStates[col.RawName].Visible;
+                };
+                HideoutPlugin.prototype.hideColumnByName = function (rawColname) {
+                    this.hideColumnInstance(this.MasterTable.InstanceManager.Columns[rawColname]);
+                };
+                HideoutPlugin.prototype.showColumnByName = function (rawColname) {
+                    this.showColumnInstance(this.MasterTable.InstanceManager.Columns[rawColname]);
+                };
+                //#region Events handling
+                HideoutPlugin.prototype.toggleColumn = function (e) {
+                    this.toggleColumnByName(e.EventArguments[0]);
+                };
+                HideoutPlugin.prototype.showColumn = function (e) {
+                    this.showColumnByName(e.EventArguments[0]);
+                };
+                HideoutPlugin.prototype.hideColumn = function (e) {
+                    this.hideColumnByName(e.EventArguments[0]);
+                };
+                //#endregion
+                //#region Correct showing/hiding
+                //#endregion
+                HideoutPlugin.prototype.toggleColumnByName = function (columnName) {
+                    if (this.isColumnVisible(columnName)) {
+                        this.hideColumnByName(columnName);
+                        return false;
                     }
                     else {
-                        value = element.value;
+                        this.showColumnByName(columnName);
+                        return true;
                     }
-                }
-                return value;
-            };
-            FormwatchPlugin.extractData = function (elements, fieldConf, dateService) {
-                var value = null;
-                var element = (elements.length > 0 ? elements.item(0) : null);
-                if (element) {
-                    if (fieldConf.IsArray) {
-                        if (fieldConf.ArrayDelimiter) {
-                            if (element.value == null || element.value.length === 0)
-                                value = [];
-                            else
-                                value = element.value.split(fieldConf.ArrayDelimiter);
+                };
+                HideoutPlugin.prototype.modifyQuery = function (query, scope) {
+                    var hidden = [];
+                    var shown = [];
+                    for (var i = 0; i < this.ColumnStates.length; i++) {
+                        if (this.Configuration.ColumnInitiatingReload.indexOf(this.ColumnStates[i].RawName) < 0)
+                            continue;
+                        if (!this.ColumnStates[i].Visible) {
+                            hidden.push(this.ColumnStates[i].RawName);
                         }
                         else {
-                            if (elements.length === 1 && element.type === 'select-multiple') {
-                                value = FormwatchPlugin.extractValueFromMultiSelect(element);
-                            }
-                            else {
-                                value = [];
-                                for (var i = 0; i < elements.length; i++) {
-                                    value.push(FormwatchPlugin.extractInputValue(elements.item(i), fieldConf, dateService));
-                                }
-                            }
+                            shown.push(this.ColumnStates[i].RawName);
+                        }
+                    }
+                    query.AdditionalData['HideoutHidden'] = hidden.join(',');
+                    query.AdditionalData['HideoutShown'] = shown.join(',');
+                };
+                HideoutPlugin.prototype.hideColumnInstance = function (c) {
+                    if (!c)
+                        return;
+                    this._columnStates[c.RawName].Visible = false;
+                    this._columnStates[c.RawName].DoesNotExists = false;
+                    this.MasterTable.Renderer.Modifier.hideHeader(c);
+                    this.MasterTable.Renderer.Modifier.hidePluginsByPosition("filter-" + c.RawName);
+                    if (this._isInitializing)
+                        return;
+                    this.MasterTable.Renderer.Modifier.hideCellsByColumn(c);
+                    if (this.Configuration.ColumnInitiatingReload.indexOf(c.RawName) > -1)
+                        this.MasterTable.Controller.reload();
+                    this.MasterTable.Renderer.Modifier.redrawPlugin(this);
+                };
+                HideoutPlugin.prototype.showColumnInstance = function (c) {
+                    if (!c)
+                        return;
+                    this._columnStates[c.RawName].Visible = true;
+                    var wasNotExist = this._columnStates[c.RawName].DoesNotExists;
+                    this._columnStates[c.RawName].DoesNotExists = false;
+                    this.MasterTable.Renderer.Modifier.showHeader(c);
+                    this.MasterTable.Renderer.Modifier.showPluginsByPosition("filter-" + c.RawName);
+                    if (this._isInitializing)
+                        return;
+                    if (wasNotExist) {
+                        if (this.Configuration.ColumnInitiatingReload.indexOf(c.RawName) > -1) {
+                            this.MasterTable.Controller.redrawVisibleData();
+                            this.MasterTable.Controller.reload();
+                        }
+                        else {
+                            this.MasterTable.Controller.redrawVisibleData();
                         }
                     }
                     else {
-                        for (var j = 0; j < elements.length; j++) {
-                            var v = FormwatchPlugin.extractInputValue(elements.item(j), fieldConf, dateService);
-                            if (v != null && v != undefined) {
-                                value = v;
+                        this.MasterTable.Renderer.Modifier.showCellsByColumn(c);
+                        if (this.Configuration.ColumnInitiatingReload.indexOf(c.RawName) > -1) {
+                            this.MasterTable.Controller.reload();
+                        }
+                    }
+                    this.MasterTable.Renderer.Modifier.redrawPlugin(this);
+                };
+                HideoutPlugin.prototype.onBeforeDataRendered = function () {
+                    for (var i = 0; i < this.ColumnStates.length; i++) {
+                        var col = this.MasterTable.InstanceManager.Columns[this.ColumnStates[i].RawName];
+                        if (!this.ColumnStates[i].Visible) {
+                            col.Configuration.IsDataOnly = true;
+                        }
+                        else {
+                            col.Configuration.IsDataOnly = false;
+                        }
+                    }
+                };
+                HideoutPlugin.prototype.onDataRendered = function () {
+                    for (var i = 0; i < this.ColumnStates.length; i++) {
+                        if (!this.ColumnStates[i].Visible)
+                            this.ColumnStates[i].DoesNotExists = true;
+                    }
+                    this.MasterTable.Renderer.Modifier.redrawPlugin(this);
+                };
+                HideoutPlugin.prototype.onLayourRendered = function () {
+                    for (var j = 0; j < this.ColumnStates.length; j++) {
+                        if (this.Configuration.HiddenColumns[this.ColumnStates[j].RawName]) {
+                            this.hideColumnByName(this.ColumnStates[j].RawName);
+                        }
+                    }
+                    this._isInitializing = false;
+                };
+                HideoutPlugin.prototype.init = function (masterTable) {
+                    _super.prototype.init.call(this, masterTable);
+                    this.MasterTable.Loader.registerQueryPartProvider(this);
+                    for (var i = 0; i < this.Configuration.HideableColumnsNames.length; i++) {
+                        var hideable = this.Configuration.HideableColumnsNames[i];
+                        var col = this.MasterTable.InstanceManager.Columns[hideable];
+                        var instanceInfo = {
+                            DoesNotExists: this.Configuration.HiddenColumns.hasOwnProperty(hideable),
+                            Visible: true,
+                            RawName: hideable,
+                            Name: col.Configuration.Title
+                        };
+                        if (col.Configuration.IsDataOnly) {
+                            throw new Error("Column " + col.RawName + " is .DataOnly but\nincluded into hideable columns list.\n.DataOnly columns are invalid for Hideout plugin. Please remove it from selectable columns list");
+                        }
+                        this._columnStates[hideable] = instanceInfo;
+                        this.ColumnStates.push(instanceInfo);
+                    }
+                };
+                HideoutPlugin.prototype.renderContent = function (templatesProvider) {
+                    return this.defaultRender(templatesProvider);
+                };
+                HideoutPlugin.prototype.subscribe = function (e) {
+                    e.AfterDataRendered.subscribe(this.onDataRendered.bind(this), 'hideout');
+                    e.BeforeDataRendered.subscribe(this.onBeforeDataRendered.bind(this), 'hideout');
+                    e.AfterLayoutRendered.subscribe(this.onLayourRendered.bind(this), 'hideout');
+                };
+                HideoutPlugin.prototype.ifColVisibleHelper = function (columnName, opts) {
+                    var visible = false;
+                    if (this._isInitializing) {
+                        visible = !this.Configuration.HiddenColumns.hasOwnProperty(columnName);
+                    }
+                    else {
+                        for (var i = 0; i < this.ColumnStates.length; i++) {
+                            if (this.ColumnStates[i].RawName === columnName) {
+                                visible = this.ColumnStates[i].Visible;
                                 break;
                             }
                         }
                     }
-                }
-                return value;
-            };
-            FormwatchPlugin.extractFormData = function (configuration, rootElement, dateService) {
-                var result = {};
-                for (var i = 0; i < configuration.length; i++) {
-                    var fieldConf = configuration[i];
-                    var value = null;
-                    var name = fieldConf.FieldJsonName;
-                    if (fieldConf.ConstantValue) {
-                        value = fieldConf.ConstantValue;
-                    }
-                    else {
-                        if (fieldConf.FieldValueFunction) {
-                            value = fieldConf.FieldValueFunction();
-                        }
-                        else {
-                            var elements = rootElement.querySelectorAll(fieldConf.FieldSelector);
-                            value = FormwatchPlugin.extractData(elements, fieldConf, dateService);
-                        }
-                        if (fieldConf.SetConstantIfNotSupplied && (value == null)) {
-                            value = fieldConf.ConstantValue;
-                        }
-                    }
-                    if (value != null || result[name] == null || result[name] == undefined) {
-                        result[name] = value;
-                    }
-                }
-                return result;
-            };
-            FormwatchPlugin.prototype.modifyQuery = function (query, scope) {
-                var result = FormwatchPlugin.extractFormData(this.Configuration.FieldsConfiguration, document, this.MasterTable.Date);
-                for (var fm in this.Configuration.FiltersMappings) {
-                    if (this.Configuration.FiltersMappings.hasOwnProperty(fm)) {
-                        var mappingConf = this.Configuration.FiltersMappings[fm];
-                        var needToApply = (mappingConf.ForClient && mappingConf.ForServer)
-                            || (mappingConf.ForClient && scope === PowerTables.QueryScope.Client)
-                            || (mappingConf.ForServer && scope === PowerTables.QueryScope.Server)
-                            || (scope === PowerTables.QueryScope.Transboundary);
-                        if (needToApply) {
-                            switch (mappingConf.FilterType) {
-                                case 0:
-                                    var val = result[mappingConf.FieldKeys[0]];
-                                    if (!val || val.length === 0)
-                                        break;
-                                    query.Filterings[fm] = val;
-                                    break;
-                                case 1:
-                                    if (mappingConf.FieldKeys.length === 1 && (Object.prototype.toString.call(result[mappingConf[0]]) === '[object Array]')) {
-                                        query.Filterings[fm] = result[mappingConf[0]][0] + "|" + result[mappingConf[0]][1];
-                                    }
-                                    else {
-                                        query.Filterings[fm] = result[mappingConf.FieldKeys[0]] + "|" + result[mappingConf.FieldKeys[1]];
-                                    }
-                                    break;
-                                case 2:
-                                    if (mappingConf.FieldKeys.length === 1 && (Object.prototype.toString.call(result[mappingConf[0]]) === '[object Array]')) {
-                                        query.Filterings[fm] = result[mappingConf[0]].join('|');
-                                    }
-                                    else {
-                                        var values = [];
-                                        for (var m = 0; m < mappingConf.FieldKeys.length; m++) {
-                                            values.push(result[mappingConf.FieldKeys[m]]);
-                                        }
-                                        query.Filterings[fm] = values.join('|');
-                                    }
-                                    break;
-                            }
-                        }
-                    }
-                }
-                if (this.Configuration.DoNotEmbed)
-                    return;
-                var str = JSON.stringify(result);
-                query.AdditionalData['Formwatch'] = str;
-            };
-            FormwatchPlugin.prototype.subscribe = function (e) {
-                var _this = this;
-                for (var i = 0; i < this.Configuration.FieldsConfiguration.length; i++) {
-                    var conf = this.Configuration.FieldsConfiguration[i];
-                    var element = document.querySelector(conf.FieldSelector);
-                    if (conf.AutomaticallyAttachDatepicker) {
-                        this.MasterTable.Date.createDatePicker(element);
-                    }
-                    if (conf.TriggerSearchOnEvents && conf.TriggerSearchOnEvents.length > 0) {
-                        for (var j = 0; j < conf.TriggerSearchOnEvents.length; j++) {
-                            var evtToTrigger = conf.TriggerSearchOnEvents[j];
-                            element.addEventListener(evtToTrigger, (function (c, el) { return function (evt) {
-                                _this.fieldChange(c.FieldSelector, c.SearchTriggerDelay, el, evt);
-                            }; })(conf, element));
-                        }
-                        this._existingValues[conf.FieldSelector] = element.value;
-                    }
-                }
-            };
-            FormwatchPlugin.prototype.fieldChange = function (fieldSelector, delay, element, e) {
-                var _this = this;
-                if (this._filteringExecuted[fieldSelector])
-                    return;
-                if (element.value === this._existingValues[fieldSelector]) {
-                    return;
-                }
-                this._existingValues[fieldSelector] = element.value;
-                if (delay > 0) {
-                    if (this._timeouts[fieldSelector])
-                        clearTimeout(this._timeouts[fieldSelector]);
-                    this._timeouts[fieldSelector] = setTimeout(function () {
-                        _this._filteringExecuted[fieldSelector] = true;
-                        _this.MasterTable.Controller.reload();
-                        _this._filteringExecuted[fieldSelector] = false;
-                    }, delay);
-                }
-                else {
-                    this._filteringExecuted[fieldSelector] = true;
-                    this.MasterTable.Controller.reload();
-                    this._filteringExecuted[fieldSelector] = false;
-                }
-            };
-            FormwatchPlugin.prototype.init = function (masterTable) {
-                _super.prototype.init.call(this, masterTable);
-                this.MasterTable.Loader.registerQueryPartProvider(this);
-            };
-            return FormwatchPlugin;
-        }(Plugins.PluginBase));
-        Plugins.FormwatchPlugin = FormwatchPlugin;
-        PowerTables.ComponentsContainer.registerComponent('Formwatch', FormwatchPlugin);
+                    if (visible)
+                        return opts.fn(this);
+                    else
+                        return opts.inverse(this);
+                };
+                HideoutPlugin.prototype.registerAdditionalHelpers = function (hb) {
+                    hb.registerHelper('ifColVisible', this.ifColVisibleHelper.bind(this));
+                };
+                return HideoutPlugin;
+            }(Plugins.PluginBase));
+            Hideout.HideoutPlugin = HideoutPlugin;
+            PowerTables.ComponentsContainer.registerComponent('Hideout', HideoutPlugin);
+        })(Hideout = Plugins.Hideout || (Plugins.Hideout = {}));
     })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
     var Plugins;
     (function (Plugins) {
+        var ResponseInfo;
+        (function (ResponseInfo) {
+            var ResponseInfoPlugin = (function (_super) {
+                __extends(ResponseInfoPlugin, _super);
+                function ResponseInfoPlugin() {
+                    _super.apply(this, arguments);
+                    this._recentData = {};
+                    this._isReadyForRendering = false;
+                }
+                ResponseInfoPlugin.prototype.onResponse = function (e) {
+                    this._isServerRequest = true;
+                    if (this.Configuration.ResponseObjectOverriden) {
+                        if (!e.EventArgs.Data.AdditionalData)
+                            return;
+                        if (!e.EventArgs.Data.AdditionalData['ResponseInfo'])
+                            return;
+                        this._recentData = e.EventArgs.Data.AdditionalData['ResponseInfo'];
+                        this._isReadyForRendering = true;
+                        this.MasterTable.Renderer.Modifier.redrawPlugin(this);
+                    }
+                    else {
+                        this._recentServerData = {
+                            TotalCount: e.EventArgs.Data.ResultsCount,
+                            IsLocalRequest: false,
+                            CurrentPage: e.EventArgs.Data.PageIndex,
+                            PagingEnabled: this._pagingEnabled
+                        };
+                    }
+                };
+                ResponseInfoPlugin.prototype.addClientData = function (e) {
+                    for (var k in this.Configuration.ClientCalculators) {
+                        if (this.Configuration.ClientCalculators.hasOwnProperty(k)) {
+                            this._recentData[k] = this.Configuration.ClientCalculators[k](e);
+                        }
+                    }
+                };
+                ResponseInfoPlugin.prototype.onClientDataProcessed = function (e) {
+                    if (this.Configuration.ResponseObjectOverriden) {
+                        this.addClientData(e.EventArgs);
+                        this.MasterTable.Renderer.Modifier.redrawPlugin(this);
+                        return;
+                    }
+                    this._recentData = {
+                        TotalCount: this._recentServerData.TotalCount || this.MasterTable.DataHolder.StoredData.length,
+                        IsLocalRequest: !this._isServerRequest,
+                        CurrentPage: this._recentServerData.CurrentPage || ((!this._pagingPlugin) ? 0 : this._pagingPlugin.getCurrentPage() + 1),
+                        TotalPages: ((!this._pagingPlugin) ? 0 : this._pagingPlugin.getTotalPages()),
+                        PagingEnabled: this._pagingEnabled
+                    };
+                    this.addClientData(e.EventArgs);
+                    this._isServerRequest = false;
+                    this._isReadyForRendering = true;
+                    this.MasterTable.Renderer.Modifier.redrawPlugin(this);
+                };
+                ResponseInfoPlugin.prototype.renderContent = function (templatesProvider) {
+                    if (!this._isReadyForRendering)
+                        return '';
+                    if (this.Configuration.ClientTemplateFunction) {
+                        return this.Configuration.ClientTemplateFunction(this._recentData);
+                    }
+                    else {
+                        return this._recentTemplate(this._recentData);
+                    }
+                };
+                ResponseInfoPlugin.prototype.init = function (masterTable) {
+                    _super.prototype.init.call(this, masterTable);
+                    this._recentTemplate = this.MasterTable.Renderer.getCachedTemplate(this.RawConfig.TemplateId);
+                    this.MasterTable.Events.AfterClientDataProcessing.subscribe(this.onClientDataProcessed.bind(this), 'responseInfo');
+                    this.MasterTable.Events.DataReceived.subscribe(this.onResponse.bind(this), 'responseInfo');
+                    try {
+                        this._pagingPlugin = this.MasterTable.InstanceManager.getPlugin('Paging');
+                        this._pagingEnabled = true;
+                    }
+                    catch (v) {
+                        this._pagingEnabled = false;
+                    }
+                };
+                return ResponseInfoPlugin;
+            }(Plugins.PluginBase));
+            ResponseInfo.ResponseInfoPlugin = ResponseInfoPlugin;
+            PowerTables.ComponentsContainer.registerComponent('ResponseInfo', ResponseInfoPlugin);
+        })(ResponseInfo = Plugins.ResponseInfo || (Plugins.ResponseInfo = {}));
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var Total;
+        (function (Total) {
+            /**
+             * Client-side implementation of totals plugin
+             */
+            var TotalsPlugin = (function (_super) {
+                __extends(TotalsPlugin, _super);
+                function TotalsPlugin() {
+                    _super.apply(this, arguments);
+                }
+                TotalsPlugin.prototype.makeTotalsRow = function () {
+                    var cols = this.MasterTable.InstanceManager.getUiColumns();
+                    var dataObject = {};
+                    for (var j = 0; j < cols.length; j++) {
+                        var v = null;
+                        var cl = cols[j];
+                        if (this._totalsForColumns.hasOwnProperty(cl.RawName)) {
+                            v = this._totalsForColumns[cl.RawName];
+                            if (this.Configuration.ColumnsValueFunctions[cl.RawName]) {
+                                v = this.Configuration.ColumnsValueFunctions[cl.RawName](v);
+                            }
+                        }
+                        dataObject[cols[j].RawName] = v;
+                    }
+                    var result = {
+                        Index: -1,
+                        MasterTable: this.MasterTable,
+                        DataObject: dataObject,
+                        Cells: {},
+                        renderContent: null,
+                        renderElement: null,
+                        IsSpecial: true
+                    };
+                    for (var i = 0; i < cols.length; i++) {
+                        var col = cols[i];
+                        var cell = {
+                            DataObject: dataObject,
+                            renderElement: null,
+                            renderContent: function (v) { return this.Data; },
+                            Column: cols[i],
+                            Row: result,
+                            Data: dataObject[col.RawName]
+                        };
+                        result.Cells[col.RawName] = cell;
+                    }
+                    return result;
+                };
+                /**
+                * @internal
+                */
+                TotalsPlugin.prototype.onResponse = function (e) {
+                    if (!e.EventArgs.Data.AdditionalData)
+                        return;
+                    if (!e.EventArgs.Data.AdditionalData.hasOwnProperty('Total'))
+                        return;
+                    var response = e.EventArgs.Data;
+                    var total = response.AdditionalData['Total'];
+                    this._totalsForColumns = total.TotalsForColumns;
+                };
+                /**
+                * @internal
+                */
+                TotalsPlugin.prototype.onClientRowsRendering = function (e) {
+                    if (this._totalsForColumns) {
+                        if (this.Configuration.ShowOnTop) {
+                            e.EventArgs.splice(0, 0, this.makeTotalsRow());
+                        }
+                        else {
+                            e.EventArgs.push(this.makeTotalsRow());
+                        }
+                    }
+                };
+                /**
+                * @internal
+                */
+                TotalsPlugin.prototype.onAdjustments = function (e) {
+                    var adjustments = e.EventArgs;
+                    if (adjustments.NeedRedrawAllVisible)
+                        return;
+                    var row = this.makeTotalsRow(); //todo recalculate totals in more intelligent way
+                    this.MasterTable.Renderer.Modifier.redrawRow(row);
+                };
+                /**
+                * @internal
+                */
+                TotalsPlugin.prototype.onClientDataProcessed = function (e) {
+                    if (!this._totalsForColumns)
+                        this._totalsForColumns = {};
+                    for (var k in this.Configuration.ColumnsCalculatorFunctions) {
+                        if (this.Configuration.ColumnsCalculatorFunctions.hasOwnProperty(k)) {
+                            this._totalsForColumns[k] = this.Configuration.ColumnsCalculatorFunctions[k](e.EventArgs);
+                        }
+                    }
+                };
+                /**
+                * @internal
+                */
+                TotalsPlugin.prototype.subscribe = function (e) {
+                    e.DataReceived.subscribe(this.onResponse.bind(this), 'totals');
+                    e.BeforeClientRowsRendering.subscribe(this.onClientRowsRendering.bind(this), 'totals');
+                    e.AfterClientDataProcessing.subscribe(this.onClientDataProcessed.bind(this), 'totals');
+                    e.AdjustmentResult.subscribe(this.onAdjustments.bind(this), 'totals');
+                };
+                return TotalsPlugin;
+            }(Plugins.PluginBase));
+            Total.TotalsPlugin = TotalsPlugin;
+            PowerTables.ComponentsContainer.registerComponent('Total', TotalsPlugin);
+        })(Total = Plugins.Total || (Plugins.Total = {}));
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var Checkboxify;
+        (function (Checkboxify) {
+            var CheckboxifyPlugin = (function (_super) {
+                __extends(CheckboxifyPlugin, _super);
+                function CheckboxifyPlugin() {
+                    _super.apply(this, arguments);
+                    this._selectedItems = [];
+                    this._visibleAll = false;
+                    this._allSelected = false;
+                    this._pagingPlugin = null;
+                    this._selectables = [];
+                }
+                CheckboxifyPlugin.prototype.selectAll = function (selected) {
+                    var _this = this;
+                    if (!this._canSelectAll)
+                        return;
+                    this._allSelected = selected == null ? !this._allSelected : selected;
+                    this.redrawHeader();
+                    this._selectedItems.splice(0, this._selectedItems.length);
+                    if (this._allSelected) {
+                        if (this.Configuration.SelectAllSelectsClientUndisplayedData) {
+                            for (var i = 0; i < this.MasterTable.DataHolder.StoredData.length; i++) {
+                                if (this._selectables.indexOf(this.MasterTable.DataHolder.StoredData[i]) > -1) {
+                                    this._selectedItems.push(this.MasterTable.DataHolder.StoredData[i][this.ValueColumnName].toString());
+                                }
+                            }
+                            this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
+                            this.MasterTable.Controller.redrawVisibleData();
+                        }
+                        else if (this.Configuration.SelectAllSelectsServerUndisplayedData) {
+                            this.MasterTable.Loader.requestServer('checkboxify_all', function (data) {
+                                _this._selectedItems = data;
+                                _this.MasterTable.Events.SelectionChanged.invoke(_this, _this._selectedItems);
+                                _this.MasterTable.Controller.redrawVisibleData();
+                            });
+                        }
+                        else {
+                            for (var j = 0; j < this.MasterTable.DataHolder.DisplayedData.length; j++) {
+                                if (this._selectables.indexOf(this.MasterTable.DataHolder.DisplayedData[j]) > -1) {
+                                    this._selectedItems.push(this.MasterTable.DataHolder.DisplayedData[j][this.ValueColumnName].toString());
+                                }
+                            }
+                            this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
+                            this.MasterTable.Controller.redrawVisibleData();
+                        }
+                    }
+                    else {
+                        this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
+                        this.MasterTable.Controller.redrawVisibleData();
+                    }
+                };
+                CheckboxifyPlugin.prototype.redrawHeader = function () {
+                    this.MasterTable.Renderer.Modifier.redrawHeader(this._ourColumn);
+                };
+                CheckboxifyPlugin.prototype.createColumn = function () {
+                    var _this = this;
+                    var conf = {
+                        IsDataOnly: false,
+                        IsEnum: false,
+                        IsNullable: false,
+                        RawColumnName: '_checkboxify',
+                        CellRenderingTemplateId: null,
+                        CellRenderingValueFunction: null,
+                        Title: 'Checkboxify',
+                        ColumnType: 'Int32',
+                        ClientValueFunction: null,
+                        Description: null,
+                        TemplateSelector: null
+                    };
+                    var col = {
+                        Configuration: conf,
+                        Header: null,
+                        IsBoolean: false,
+                        IsDateTime: false,
+                        IsEnum: false,
+                        IsFloat: false,
+                        IsInteger: false,
+                        IsString: false,
+                        MasterTable: this.MasterTable,
+                        Order: -1,
+                        RawName: '_checkboxify',
+                        IsSpecial: true
+                    };
+                    var header = {
+                        Column: col,
+                        renderContent: null,
+                        renderElement: function (tp) { return tp.getCachedTemplate(_this.Configuration.SelectAllTemplateId)({ IsAllSelected: _this._allSelected, CanSelectAll: _this._canSelectAll }); },
+                        selectAllEvent: function (e) { return _this.selectAll(); }
+                    };
+                    col.Header = header;
+                    this.MasterTable.Renderer.ContentRenderer.cacheColumnRenderingFunction(col, function (x) {
+                        if (x.Row.IsSpecial)
+                            return '';
+                        if (_this.Configuration.CanSelectFunction && !_this.Configuration.CanSelectFunction(x.Row))
+                            return '';
+                        var value = x.DataObject[_this.ValueColumnName].toString();
+                        _this._selectables.push(x.DataObject);
+                        var selected = _this._selectedItems.indexOf(value) > -1;
+                        var canCheck = _this.canCheck(x.DataObject, x.Row);
+                        return _this.MasterTable.Renderer.getCachedTemplate(_this.Configuration.CellTemplateId)({ Value: value, IsChecked: selected, CanCheck: canCheck });
+                    });
+                    return col;
+                };
+                CheckboxifyPlugin.prototype.canCheck = function (dataObject, row) {
+                    return dataObject != null && !row.IsSpecial;
+                };
+                CheckboxifyPlugin.prototype.getSelection = function () {
+                    return this._selectedItems;
+                };
+                CheckboxifyPlugin.prototype.resetSelection = function () {
+                    this.selectAll(false);
+                };
+                CheckboxifyPlugin.prototype.selectByRowIndex = function (rowIndex, select) {
+                    if (select === void 0) { select = null; }
+                    var displayedLookup = this.MasterTable.DataHolder.localLookupDisplayedData(rowIndex);
+                    if (displayedLookup == null)
+                        return false;
+                    this.toggleInternal(displayedLookup.DataObject, displayedLookup.DisplayedIndex, select);
+                    return true;
+                };
+                CheckboxifyPlugin.prototype.selectByDataObject = function (dataObject, select) {
+                    if (select === void 0) { select = null; }
+                    var displayedLookup = this.MasterTable.DataHolder.localLookupStoredDataObject(dataObject);
+                    if (displayedLookup == null)
+                        return false;
+                    this.toggleInternal(displayedLookup.DataObject, displayedLookup.DisplayedIndex, select);
+                    return true;
+                };
+                CheckboxifyPlugin.prototype.selectByPredicate = function (predicate, select) {
+                    if (select === void 0) { select = null; }
+                    var displayedLookup = this.MasterTable.DataHolder.localLookup(predicate);
+                    var result = false;
+                    for (var i = 0; i < displayedLookup.length; i++) {
+                        if (!displayedLookup[i].IsCurrentlyDisplaying)
+                            continue;
+                        this.toggleInternal(displayedLookup[i].DataObject, displayedLookup[i].DisplayedIndex, select);
+                        result = true;
+                    }
+                    return result;
+                };
+                CheckboxifyPlugin.prototype.toggleInternal = function (dataObject, displayedIndex, select) {
+                    var _this = this;
+                    if (select === void 0) { select = null; }
+                    var v = dataObject[this.ValueColumnName].toString();
+                    var idx = this._selectedItems.indexOf(v);
+                    var overrideRow = false;
+                    var toggle = select == null;
+                    var check = ((select != null) && (select));
+                    if (idx > -1) {
+                        if (toggle || (!check)) {
+                            this._selectedItems.splice(idx, 1);
+                            this._allSelected = false;
+                        }
+                    }
+                    else {
+                        if (toggle || (check)) {
+                            this._selectedItems.push(v);
+                            overrideRow = true;
+                            this._allSelected = this.MasterTable.DataHolder.DisplayedData.length === this._selectedItems.length;
+                        }
+                    }
+                    if (displayedIndex >= 0) {
+                        this.redrawHeader();
+                        var row = this.MasterTable.Controller.produceRow(dataObject, displayedIndex);
+                        if (overrideRow) {
+                            row.renderElement = function (e) { return e.getCachedTemplate(_this.Configuration.RowTemplateId)(row); };
+                        }
+                        this.MasterTable.Renderer.Modifier.redrawRow(row);
+                    }
+                    this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
+                };
+                CheckboxifyPlugin.prototype.afterLayoutRender = function () {
+                    var _this = this;
+                    this.MasterTable.Renderer.Delegator.subscribeCellEvent({
+                        EventId: 'click',
+                        Selector: '[data-checkboxify]',
+                        SubscriptionId: 'checkboxify',
+                        Handler: function (e) {
+                            _this.selectByRowIndex(e.DisplayingRowIndex);
+                        }
+                    });
+                    this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
+                };
+                CheckboxifyPlugin.prototype.beforeRowsRendering = function (e) {
+                    this._selectables = [];
+                    var selectedRows = 0;
+                    for (var i = 0; i < e.EventArgs.length; i++) {
+                        var row = e.EventArgs[i];
+                        if (row.IsSpecial)
+                            continue;
+                        if (this._selectedItems.indexOf(row.DataObject[this.ValueColumnName].toString()) > -1) {
+                            row.renderElement = function (a) { return a.getCachedTemplate('checkboxifyRow')(row); };
+                            selectedRows++;
+                        }
+                    }
+                    if (selectedRows < this._selectedItems.length) {
+                        this._allSelected = false;
+                        this.redrawHeader();
+                    }
+                };
+                CheckboxifyPlugin.prototype.enableSelectAll = function (enabled) {
+                    var prev = this._canSelectAll;
+                    if (!this.Configuration.EnableSelectAll)
+                        this._canSelectAll = false;
+                    else
+                        this._canSelectAll = enabled;
+                    if (prev !== this._canSelectAll) {
+                        this.redrawHeader();
+                    }
+                };
+                CheckboxifyPlugin.prototype.onClientReload = function (e) {
+                    if (this.Configuration.ResetOnClientReload) {
+                        this.selectAll(false);
+                    }
+                    if (this.Configuration.SelectAllOnlyIfAllData) {
+                        if (this._pagingPlugin !== null && this._pagingPlugin.getTotalPages() === 1)
+                            this.enableSelectAll(true);
+                        else if (e.EventArgs.Displaying.length === e.EventArgs.Source.length)
+                            this.enableSelectAll(true);
+                        else
+                            this.enableSelectAll(false);
+                    }
+                    else {
+                        this.enableSelectAll(true);
+                    }
+                };
+                CheckboxifyPlugin.prototype.onServerReload = function (e) {
+                    if (this.Configuration.ResetOnReload) {
+                        this.selectAll(false);
+                    }
+                    if (e.EventArgs.Data.AdditionalData) {
+                        if (e.EventArgs.Data.AdditionalData['Selection'])
+                            this.applySelection(e.EventArgs.Data.AdditionalData['Selection']);
+                    }
+                };
+                CheckboxifyPlugin.prototype.applySelection = function (a) {
+                    if (!a)
+                        return;
+                    if (a.ReplaceSelection) {
+                        this._selectedItems = a.SelectionToReplace;
+                        this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
+                        this.MasterTable.Controller.redrawVisibleData();
+                    }
+                    else if (a.ModifySelection) {
+                        for (var i = 0; i < a.AddToSelection.length; i++) {
+                            if (this._selectedItems.indexOf(a.AddToSelection[i]) < 0) {
+                                this._selectedItems.push(a.AddToSelection[i]);
+                            }
+                        }
+                        for (var i = 0; i < a.RemoveFromSelection.length; i++) {
+                            if (this._selectedItems.indexOf(a.RemoveFromSelection[i]) > -1) {
+                                this._selectedItems.splice(this._selectedItems.indexOf(a.RemoveFromSelection[i]), 1);
+                            }
+                        }
+                        this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
+                        this.MasterTable.Controller.redrawVisibleData();
+                    }
+                };
+                CheckboxifyPlugin.prototype.onBeforeAdjustments = function (e) {
+                    if (e.EventArgs.AdditionalData['Selection'])
+                        this.applySelection(e.EventArgs.AdditionalData['Selection']);
+                };
+                CheckboxifyPlugin.prototype.onAfterAdjustments = function (e) {
+                    if (e.EventArgs.Removals.length > 0) {
+                        for (var i = 0; i < e.EventArgs.Removals.length; i++) {
+                            var removal = e.EventArgs.Removals[i];
+                            var removalSelected = removal[this.ValueColumnName].toString();
+                            var idx = this._selectedItems.indexOf(removalSelected);
+                            if (idx > -1)
+                                this._selectedItems.splice(idx, 1);
+                        }
+                    }
+                };
+                CheckboxifyPlugin.prototype.init = function (masterTable) {
+                    _super.prototype.init.call(this, masterTable);
+                    var col = this.createColumn();
+                    this.MasterTable.InstanceManager.Columns['_checkboxify'] = col;
+                    this._ourColumn = col;
+                    this.ValueColumnName = this.Configuration.SelectionColumnName;
+                    this._canSelectAll = this.Configuration.EnableSelectAll;
+                    this.MasterTable.Loader.registerQueryPartProvider(this);
+                    try {
+                        this._pagingPlugin = this.MasterTable.InstanceManager.getPlugin('Paging');
+                    }
+                    catch (e) { }
+                };
+                CheckboxifyPlugin.prototype.modifyQuery = function (query, scope) {
+                    if (scope === PowerTables.QueryScope.Transboundary) {
+                        query.AdditionalData['Selection'] = this._selectedItems.join('|');
+                        query.AdditionalData['SelectionColumn'] = this.ValueColumnName;
+                    }
+                };
+                CheckboxifyPlugin.registerEvents = function (e, masterTable) {
+                    e['SelectionChanged'] = new PowerTables.TableEvent(masterTable);
+                };
+                CheckboxifyPlugin.prototype.subscribe = function (e) {
+                    e.AfterLayoutRendered.subscribe(this.afterLayoutRender.bind(this), 'checkboxify');
+                    e.BeforeClientRowsRendering.subscribe(this.beforeRowsRendering.bind(this), 'checkboxify');
+                    e.AfterClientDataProcessing.subscribe(this.onClientReload.bind(this), 'checkboxify');
+                    e.DataReceived.subscribe(this.onServerReload.bind(this), 'checkboxify');
+                    e.BeforeAdjustment.subscribe(this.onBeforeAdjustments.bind(this), 'checkboxify');
+                    e.BeforeAdjustment.subscribe(this.onAfterAdjustments.bind(this), 'checkboxify');
+                };
+                return CheckboxifyPlugin;
+            }(Plugins.PluginBase));
+            Checkboxify.CheckboxifyPlugin = CheckboxifyPlugin;
+            PowerTables.ComponentsContainer.registerComponent('Checkboxify', CheckboxifyPlugin);
+        })(Checkboxify = Plugins.Checkboxify || (Plugins.Checkboxify = {}));
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var Toolbar;
+        (function (Toolbar) {
+            /**
+             * Client-side supply for Toolbar plugin
+             */
+            var ToolbarPlugin = (function (_super) {
+                __extends(ToolbarPlugin, _super);
+                function ToolbarPlugin() {
+                    _super.apply(this, arguments);
+                    /**
+                     * HTML elements of all buttons that are registered for usage within toolbar plugin. Key= internal button id, Value = HTML element corresponding to button
+                     */
+                    this.AllButtons = {};
+                    this._buttonsConfig = {};
+                }
+                /**
+                 * Simulates event happened on particular button. Internal button id must be supplied as first member of @memberref PowerTables.Rendering.ITemplateBoundEvent.EventArguments
+                 *
+                 * @param e Template bound event for triggering button action
+                 */
+                ToolbarPlugin.prototype.buttonHandleEvent = function (e) {
+                    var btnId = e.EventArguments[0];
+                    this.handleButtonAction(this._buttonsConfig[btnId]);
+                };
+                ToolbarPlugin.prototype.redrawMe = function () {
+                    this.MasterTable.Renderer.Modifier.redrawPlugin(this);
+                };
+                ToolbarPlugin.prototype.handleButtonAction = function (btn) {
+                    var _this = this;
+                    if (btn.OnClick) {
+                        btn.OnClick.call(this.MasterTable, this.MasterTable, this.AllButtons[btn.InternalId]);
+                    }
+                    if (btn.Command) {
+                        var _self = this;
+                        // ReSharper disable Lambda
+                        var f = function (queryModifier, success, error) {
+                            if (btn.BlackoutWhileCommand) {
+                                btn.IsDisabled = true;
+                                _self.redrawMe();
+                            }
+                            _self.MasterTable.Loader.requestServer(btn.Command, function (response) {
+                                if (btn.CommandCallbackFunction) {
+                                    btn.CommandCallbackFunction.apply(_self.MasterTable, [_self.MasterTable, response]);
+                                }
+                                else {
+                                    if (response.$isDeferred && response.$url) {
+                                        window.location.href = response.$url;
+                                    }
+                                }
+                                if (btn.BlackoutWhileCommand) {
+                                    btn.IsDisabled = false;
+                                    _self.redrawMe();
+                                }
+                                if (success)
+                                    success();
+                            }, queryModifier, function () {
+                                if (btn.BlackoutWhileCommand) {
+                                    btn.IsDisabled = false;
+                                    _self.redrawMe();
+                                }
+                                if (error)
+                                    error();
+                            });
+                        };
+                        // ReSharper restore Lambda
+                        if (btn.ConfirmationFunction)
+                            btn.ConfirmationFunction.apply(this.MasterTable, [f, this.MasterTable]);
+                        else if (btn.ConfirmationTemplateId) {
+                            var tc = new PowerTables.Plugins.Toolbar.CommandConfirmation(function (data) {
+                                f(function (q) {
+                                    q.AdditionalData['Confirmation'] = JSON.stringify(data);
+                                    return q;
+                                }, function () {
+                                    tc.fireEvents(tc.Form, tc.AfterConfirmationResponse);
+                                }, function () {
+                                    tc.fireEvents(tc.Form, tc.ConfirmationResponseError);
+                                });
+                                _this.MasterTable.Renderer.destroyObject(btn.ConfirmationTargetSelector);
+                            }, function () {
+                                _this.MasterTable.Renderer.destroyObject(btn.ConfirmationTargetSelector);
+                            }, this.MasterTable.Date, btn.ConfirmationFormConfiguration);
+                            try {
+                                var chb = this.MasterTable.InstanceManager.getPlugin('Checkboxify');
+                                var selection = chb.getSelection();
+                                tc.SelectedItems = selection;
+                                var objects = [];
+                                if (selection.length > 0) {
+                                    var foundCount = 0;
+                                    for (var i = 0; i < this.MasterTable.DataHolder.StoredData.length; i++) {
+                                        var obj = this.MasterTable.DataHolder.StoredData[i];
+                                        if (selection.indexOf(obj[chb.ValueColumnName].toString()) > -1) {
+                                            objects.push(obj);
+                                            foundCount++;
+                                            if (foundCount === selection.length)
+                                                break;
+                                        }
+                                    }
+                                }
+                                tc.SelectedObjects = objects;
+                            }
+                            catch (e) { }
+                            var r = this.MasterTable.Renderer.renderObject(btn.ConfirmationTemplateId, tc, btn.ConfirmationTargetSelector);
+                            tc.RootElement = r;
+                        }
+                        else
+                            f();
+                    }
+                };
+                /*
+                 * @internal
+                 */
+                ToolbarPlugin.prototype.renderContent = function (templatesProvider) {
+                    return this.defaultRender(templatesProvider);
+                };
+                ToolbarPlugin.prototype.traverseButtons = function (arr) {
+                    for (var i = 0; i < arr.length; i++) {
+                        this._buttonsConfig[arr[i].InternalId] = arr[i];
+                        if (arr[i].HasSubmenu) {
+                            this.traverseButtons(arr[i].Submenu);
+                        }
+                    }
+                };
+                ToolbarPlugin.prototype.onSelectionChanged = function (e) {
+                    var atleastOne = false;
+                    var disabled = e.EventArgs.length === 0;
+                    for (var bc in this._buttonsConfig) {
+                        if (this._buttonsConfig.hasOwnProperty(bc)) {
+                            if (this._buttonsConfig[bc].DisableIfNothingChecked) {
+                                if (this._buttonsConfig[bc].IsDisabled !== disabled) {
+                                    atleastOne = true;
+                                    this._buttonsConfig[bc].IsDisabled = disabled;
+                                }
+                            }
+                        }
+                    }
+                    if (atleastOne)
+                        this.MasterTable.Renderer.Modifier.redrawPlugin(this);
+                };
+                /*
+                 * @internal
+                 */
+                ToolbarPlugin.prototype.init = function (masterTable) {
+                    _super.prototype.init.call(this, masterTable);
+                    try {
+                        var p = this.MasterTable.InstanceManager.getPlugin('Checkboxify');
+                        var nothingSelected = p.getSelection().length === 0;
+                        for (var i = 0; i < this.Configuration.Buttons.length; i++) {
+                            if (this.Configuration.Buttons[i].DisableIfNothingChecked) {
+                                this.Configuration.Buttons[i].IsDisabled = nothingSelected;
+                            }
+                        }
+                    }
+                    catch (e) {
+                    }
+                    this.traverseButtons(this.Configuration.Buttons);
+                    this.MasterTable.Events.SelectionChanged.subscribe(this.onSelectionChanged.bind(this), 'toolbar');
+                };
+                return ToolbarPlugin;
+            }(Plugins.PluginBase));
+            Toolbar.ToolbarPlugin = ToolbarPlugin;
+            PowerTables.ComponentsContainer.registerComponent('Toolbar', ToolbarPlugin);
+        })(Toolbar = Plugins.Toolbar || (Plugins.Toolbar = {}));
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var Formwatch;
+        (function (Formwatch) {
+            var FormwatchPlugin = (function (_super) {
+                __extends(FormwatchPlugin, _super);
+                function FormwatchPlugin() {
+                    _super.apply(this, arguments);
+                    this._existingValues = {};
+                    this._filteringExecuted = {};
+                    this._timeouts = {};
+                }
+                FormwatchPlugin.extractValueFromMultiSelect = function (o) {
+                    var value = [];
+                    for (var k = 0; k < o.options.length; k++) {
+                        if (o.options[k].selected)
+                            value.push(o.options[k].value);
+                    }
+                    return value;
+                };
+                FormwatchPlugin.extractInputValue = function (element, fieldConf, dateService) {
+                    var value = null;
+                    if (element.type === 'select-multiple') {
+                        value = FormwatchPlugin.extractValueFromMultiSelect((element));
+                    }
+                    else if (element.type === 'checkbox') {
+                        value = element.checked;
+                    }
+                    else if (element.type === 'radio') {
+                        if (element.checked)
+                            value = element.value;
+                    }
+                    else {
+                        if (fieldConf.IsDateTime) {
+                            value = dateService.getDateFromDatePicker(element);
+                            if (!dateService.isValidDate(value)) {
+                                value = dateService.parse(element.value);
+                                if (!dateService.isValidDate(value)) {
+                                    value = null;
+                                }
+                            }
+                            if (value != null)
+                                value = dateService.serialize(value);
+                        }
+                        else {
+                            value = element.value;
+                        }
+                    }
+                    return value;
+                };
+                FormwatchPlugin.extractData = function (elements, fieldConf, dateService) {
+                    var value = null;
+                    var element = (elements.length > 0 ? elements.item(0) : null);
+                    if (element) {
+                        if (fieldConf.IsArray) {
+                            if (fieldConf.ArrayDelimiter) {
+                                if (element.value == null || element.value.length === 0)
+                                    value = [];
+                                else
+                                    value = element.value.split(fieldConf.ArrayDelimiter);
+                            }
+                            else {
+                                if (elements.length === 1 && element.type === 'select-multiple') {
+                                    value = FormwatchPlugin.extractValueFromMultiSelect(element);
+                                }
+                                else {
+                                    value = [];
+                                    for (var i = 0; i < elements.length; i++) {
+                                        value.push(FormwatchPlugin.extractInputValue(elements.item(i), fieldConf, dateService));
+                                    }
+                                }
+                            }
+                        }
+                        else {
+                            for (var j = 0; j < elements.length; j++) {
+                                var v = FormwatchPlugin.extractInputValue(elements.item(j), fieldConf, dateService);
+                                if (v != null && v != undefined) {
+                                    value = v;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    return value;
+                };
+                FormwatchPlugin.extractFormData = function (configuration, rootElement, dateService) {
+                    var result = {};
+                    for (var i = 0; i < configuration.length; i++) {
+                        var fieldConf = configuration[i];
+                        var value = null;
+                        var name = fieldConf.FieldJsonName;
+                        if (fieldConf.ConstantValue) {
+                            value = fieldConf.ConstantValue;
+                        }
+                        else {
+                            if (fieldConf.FieldValueFunction) {
+                                value = fieldConf.FieldValueFunction();
+                            }
+                            else {
+                                var elements = rootElement.querySelectorAll(fieldConf.FieldSelector);
+                                value = FormwatchPlugin.extractData(elements, fieldConf, dateService);
+                            }
+                            if (fieldConf.SetConstantIfNotSupplied && (value == null)) {
+                                value = fieldConf.ConstantValue;
+                            }
+                        }
+                        if (value != null || result[name] == null || result[name] == undefined) {
+                            result[name] = value;
+                        }
+                    }
+                    return result;
+                };
+                FormwatchPlugin.prototype.modifyQuery = function (query, scope) {
+                    var result = FormwatchPlugin.extractFormData(this.Configuration.FieldsConfiguration, document, this.MasterTable.Date);
+                    for (var fm in this.Configuration.FiltersMappings) {
+                        if (this.Configuration.FiltersMappings.hasOwnProperty(fm)) {
+                            var mappingConf = this.Configuration.FiltersMappings[fm];
+                            var needToApply = (mappingConf.ForClient && mappingConf.ForServer)
+                                || (mappingConf.ForClient && scope === PowerTables.QueryScope.Client)
+                                || (mappingConf.ForServer && scope === PowerTables.QueryScope.Server)
+                                || (scope === PowerTables.QueryScope.Transboundary);
+                            if (needToApply) {
+                                switch (mappingConf.FilterType) {
+                                    case 0:
+                                        var val = result[mappingConf.FieldKeys[0]];
+                                        if (!val || val.length === 0)
+                                            break;
+                                        query.Filterings[fm] = val;
+                                        break;
+                                    case 1:
+                                        if (mappingConf.FieldKeys.length === 1 && (Object.prototype.toString.call(result[mappingConf[0]]) === '[object Array]')) {
+                                            query.Filterings[fm] = result[mappingConf[0]][0] + "|" + result[mappingConf[0]][1];
+                                        }
+                                        else {
+                                            query.Filterings[fm] = result[mappingConf.FieldKeys[0]] + "|" + result[mappingConf.FieldKeys[1]];
+                                        }
+                                        break;
+                                    case 2:
+                                        if (mappingConf.FieldKeys.length === 1 && (Object.prototype.toString.call(result[mappingConf[0]]) === '[object Array]')) {
+                                            query.Filterings[fm] = result[mappingConf[0]].join('|');
+                                        }
+                                        else {
+                                            var values = [];
+                                            for (var m = 0; m < mappingConf.FieldKeys.length; m++) {
+                                                values.push(result[mappingConf.FieldKeys[m]]);
+                                            }
+                                            query.Filterings[fm] = values.join('|');
+                                        }
+                                        break;
+                                }
+                            }
+                        }
+                    }
+                    if (this.Configuration.DoNotEmbed)
+                        return;
+                    var str = JSON.stringify(result);
+                    query.AdditionalData['Formwatch'] = str;
+                };
+                FormwatchPlugin.prototype.subscribe = function (e) {
+                    var _this = this;
+                    for (var i = 0; i < this.Configuration.FieldsConfiguration.length; i++) {
+                        var conf = this.Configuration.FieldsConfiguration[i];
+                        var element = document.querySelector(conf.FieldSelector);
+                        if (conf.AutomaticallyAttachDatepicker) {
+                            this.MasterTable.Date.createDatePicker(element);
+                        }
+                        if (conf.TriggerSearchOnEvents && conf.TriggerSearchOnEvents.length > 0) {
+                            for (var j = 0; j < conf.TriggerSearchOnEvents.length; j++) {
+                                var evtToTrigger = conf.TriggerSearchOnEvents[j];
+                                element.addEventListener(evtToTrigger, (function (c, el) { return function (evt) {
+                                    _this.fieldChange(c.FieldSelector, c.SearchTriggerDelay, el, evt);
+                                }; })(conf, element));
+                            }
+                            this._existingValues[conf.FieldSelector] = element.value;
+                        }
+                    }
+                };
+                FormwatchPlugin.prototype.fieldChange = function (fieldSelector, delay, element, e) {
+                    var _this = this;
+                    if (this._filteringExecuted[fieldSelector])
+                        return;
+                    if (element.value === this._existingValues[fieldSelector]) {
+                        return;
+                    }
+                    this._existingValues[fieldSelector] = element.value;
+                    if (delay > 0) {
+                        if (this._timeouts[fieldSelector])
+                            clearTimeout(this._timeouts[fieldSelector]);
+                        this._timeouts[fieldSelector] = setTimeout(function () {
+                            _this._filteringExecuted[fieldSelector] = true;
+                            _this.MasterTable.Controller.reload();
+                            _this._filteringExecuted[fieldSelector] = false;
+                        }, delay);
+                    }
+                    else {
+                        this._filteringExecuted[fieldSelector] = true;
+                        this.MasterTable.Controller.reload();
+                        this._filteringExecuted[fieldSelector] = false;
+                    }
+                };
+                FormwatchPlugin.prototype.init = function (masterTable) {
+                    _super.prototype.init.call(this, masterTable);
+                    this.MasterTable.Loader.registerQueryPartProvider(this);
+                };
+                return FormwatchPlugin;
+            }(Plugins.PluginBase));
+            Formwatch.FormwatchPlugin = FormwatchPlugin;
+            PowerTables.ComponentsContainer.registerComponent('Formwatch', FormwatchPlugin);
+        })(Formwatch = Plugins.Formwatch || (Plugins.Formwatch = {}));
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Editors;
+    (function (Editors) {
         var Editor = (function (_super) {
             __extends(Editor, _super);
             function Editor() {
@@ -6138,22 +6393,45 @@ var PowerTables;
                 editor.CanComplete = canComplete;
                 editor.IsFormEdit = isForm;
                 editor.IsRowEdit = isRow;
+                editor.IsCellEdit = !(isForm || isRow);
                 editor.Row = this;
                 editor.RawConfig = { Configuration: editorConf, Order: 0, PluginId: editorConf.PluginId, Placement: '', TemplateId: editorConf.TemplateId };
                 editor.init(this.MasterTable);
                 return editor;
             };
-            Editor.prototype.beginCellEdit = function (column, canComplete, isForm, isRow, rowIndex) {
+            Editor.prototype.beginCellEdit = function (column, rowIndex) {
                 if (!this.isEditable(column))
                     return;
                 this.ensureEditing(rowIndex);
-                var editor = this.createEditor(column, canComplete, isForm, isRow);
+                var editor = this.createEditor(column, true, false, false);
                 this.Cells[column.RawName] = editor;
                 this._activeEditors.push(editor);
                 var e = this.MasterTable.Renderer.Modifier.redrawCell(editor);
                 editor.onAfterRender(e);
                 this.setEditorValue(editor);
                 editor.focus();
+                return editor;
+            };
+            Editor.prototype.beginRowEdit = function (rowIndex) {
+                this.ensureEditing(rowIndex);
+                for (var k in this.Cells) {
+                    if (this.Cells.hasOwnProperty(k)) {
+                        if (!this.isEditable(this.Cells[k].Column)) {
+                            this.Cells[k]['IsEditing'] = true;
+                            continue;
+                        }
+                        var columnName = this.Cells[k].Column.RawName;
+                        var editor = this.createEditor(this.Cells[k].Column, false, false, true);
+                        this.Cells[columnName] = editor;
+                        this._activeEditors.push(editor);
+                    }
+                }
+                this.MasterTable.Renderer.Modifier.redrawRow(this);
+                for (var i = 0; i < this._activeEditors.length; i++) {
+                    this.setEditorValue(this._activeEditors[i]);
+                }
+                if (this._activeEditors.length > 0)
+                    this._activeEditors[0].focus();
             };
             Editor.prototype.setEditorValue = function (editor) {
                 editor.IsInitialValueSetting = true;
@@ -6185,23 +6463,27 @@ var PowerTables;
                     return;
                 this._mode = Mode.Cell;
                 var col = this.MasterTable.InstanceManager.getUiColumns()[e.ColumnIndex];
-                this.beginCellEdit(col, true, false, false, e.DisplayingRowIndex);
+                this.beginCellEdit(col, e.DisplayingRowIndex);
             };
             Editor.prototype.beginRowEditHandle = function (e) {
-            };
-            Editor.prototype.beginFormEditHandle = function (e) {
+                if (this._isEditing)
+                    return;
+                this._mode = Mode.Row;
+                this.beginRowEdit(e.DisplayingRowIndex);
             };
             Editor.prototype.commitRowEditHandle = function (e) {
             };
-            Editor.prototype.commitFormEditHandle = function (e) {
-            };
             Editor.prototype.rejectRowEditHandle = function (e) {
+            };
+            Editor.prototype.beginFormEditHandle = function (e) {
+            };
+            Editor.prototype.commitFormEditHandle = function (e) {
             };
             Editor.prototype.rejectFormEditHandle = function (e) {
             };
             return Editor;
-        }(Plugins.PluginBase));
-        Plugins.Editor = Editor;
+        }(PowerTables.Plugins.PluginBase));
+        Editors.Editor = Editor;
         var Mode;
         (function (Mode) {
             Mode[Mode["Cell"] = 0] = "Cell";
@@ -6209,100 +6491,97 @@ var PowerTables;
             Mode[Mode["Form"] = 2] = "Form";
         })(Mode || (Mode = {}));
         PowerTables.ComponentsContainer.registerComponent('Editor', Editor);
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+    })(Editors = PowerTables.Editors || (PowerTables.Editors = {}));
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        var Editors;
-        (function (Editors) {
-            var CellEditorBase = (function (_super) {
-                __extends(CellEditorBase, _super);
-                function CellEditorBase() {
-                    _super.apply(this, arguments);
-                }
-                CellEditorBase.prototype.renderedValidationMessages = function () {
-                    return this.MasterTable.Renderer.getCachedTemplate(this.Configuration.ValidationMessagesTemplateId)({
-                        Messages: this.ValidationMessages,
-                        IsRowEdit: this.IsRowEdit,
-                        IsFormEdit: this.IsFormEdit
-                    });
-                };
-                /**
-                 * Retrieves original value for this particular cell editor
-                 *
-                 * @returns {Any} Original, unchanged value
-                 */
-                CellEditorBase.prototype.getThisOriginalValue = function () {
-                    return this.DataObject[this.Column.RawName];
-                };
-                /**
-                 * Resets editor value to initial settings
-                 */
-                CellEditorBase.prototype.reset = function () {
-                    this.setValue(this.getThisOriginalValue());
-                };
-                /**
-                 * Returns entered editor value
-                 *
-                 * @returns {}
-                 */
-                CellEditorBase.prototype.getValue = function (errors) { throw new Error("Not implemented"); };
-                /**
-                 * Sets editor value from the outside
-                 */
-                CellEditorBase.prototype.setValue = function (value) { throw new Error("Not implemented"); };
-                /**
-                 * Template-bound event raising on changing this editor's value
-                 */
-                CellEditorBase.prototype.changedHandler = function (e) {
-                    if (this.IsInitialValueSetting)
-                        return;
-                    this.Row.notifyChanged(this);
-                };
-                /**
-                 * Event handler for commit (save edited, ok, submit etc) event raised from inside of CellEditor
-                 * Commit leads to validation. Cell editor should be notified
-                 */
-                CellEditorBase.prototype.commitHandler = function (e) {
-                    this.Row.commit(this);
-                };
-                /**
-                 * Event handler for reject (cancel editing) event raised from inside of CellEditor
-                 * Cell editor should be notified
-                 */
-                CellEditorBase.prototype.rejectHandler = function (e) {
-                    this.Row.reject(this);
-                };
-                /**
-                 * Called when cell editor has been drawn
-                 *
-                 * @param e HTML element where editor is rendered
-                 * @returns {}
-                 */
-                CellEditorBase.prototype.onAfterRender = function (e) { };
-                /**
-                 * Needed by editor in some cases
-                 *
-                 * @returns {}
-                 */
-                CellEditorBase.prototype.focus = function () { };
-                CellEditorBase.prototype.OriginalContent = function () {
-                    return this.MasterTable.Renderer.ContentRenderer.renderCell(this);
-                };
-                return CellEditorBase;
-            }(Plugins.PluginBase));
-            Editors.CellEditorBase = CellEditorBase;
-        })(Editors = Plugins.Editors || (Plugins.Editors = {}));
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+    var Editors;
+    (function (Editors) {
+        var CellEditorBase = (function (_super) {
+            __extends(CellEditorBase, _super);
+            function CellEditorBase() {
+                _super.apply(this, arguments);
+            }
+            CellEditorBase.prototype.renderedValidationMessages = function () {
+                return this.MasterTable.Renderer.getCachedTemplate(this.Configuration.ValidationMessagesTemplateId)({
+                    Messages: this.ValidationMessages,
+                    IsRowEdit: this.IsRowEdit,
+                    IsFormEdit: this.IsFormEdit
+                });
+            };
+            /**
+             * Retrieves original value for this particular cell editor
+             *
+             * @returns {Any} Original, unchanged value
+             */
+            CellEditorBase.prototype.getThisOriginalValue = function () {
+                return this.DataObject[this.Column.RawName];
+            };
+            /**
+             * Resets editor value to initial settings
+             */
+            CellEditorBase.prototype.reset = function () {
+                this.setValue(this.getThisOriginalValue());
+            };
+            /**
+             * Returns entered editor value
+             *
+             * @returns {}
+             */
+            CellEditorBase.prototype.getValue = function (errors) { throw new Error("Not implemented"); };
+            /**
+             * Sets editor value from the outside
+             */
+            CellEditorBase.prototype.setValue = function (value) { throw new Error("Not implemented"); };
+            /**
+             * Template-bound event raising on changing this editor's value
+             */
+            CellEditorBase.prototype.changedHandler = function (e) {
+                if (this.IsInitialValueSetting)
+                    return;
+                this.Row.notifyChanged(this);
+            };
+            /**
+             * Event handler for commit (save edited, ok, submit etc) event raised from inside of CellEditor
+             * Commit leads to validation. Cell editor should be notified
+             */
+            CellEditorBase.prototype.commitHandler = function (e) {
+                this.Row.commit(this);
+            };
+            /**
+             * Event handler for reject (cancel editing) event raised from inside of CellEditor
+             * Cell editor should be notified
+             */
+            CellEditorBase.prototype.rejectHandler = function (e) {
+                this.Row.reject(this);
+            };
+            /**
+             * Called when cell editor has been drawn
+             *
+             * @param e HTML element where editor is rendered
+             * @returns {}
+             */
+            CellEditorBase.prototype.onAfterRender = function (e) { };
+            /**
+             * Needed by editor in some cases
+             *
+             * @returns {}
+             */
+            CellEditorBase.prototype.focus = function () { };
+            CellEditorBase.prototype.OriginalContent = function () {
+                return this.MasterTable.Renderer.ContentRenderer.renderCell(this);
+            };
+            return CellEditorBase;
+        }(PowerTables.Plugins.PluginBase));
+        Editors.CellEditorBase = CellEditorBase;
+    })(Editors = PowerTables.Editors || (PowerTables.Editors = {}));
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        var Editors;
-        (function (Editors) {
+    var Editors;
+    (function (Editors) {
+        var PlainText;
+        (function (PlainText) {
             var PlainTextEditor = (function (_super) {
                 __extends(PlainTextEditor, _super);
                 function PlainTextEditor() {
@@ -6415,18 +6694,18 @@ var PowerTables;
                     this.Input.setSelectionRange(0, this.Input.value.length);
                 };
                 return PlainTextEditor;
-            }(Editors.CellEditorBase));
-            Editors.PlainTextEditor = PlainTextEditor;
+            }(PowerTables.Editors.CellEditorBase));
+            PlainText.PlainTextEditor = PlainTextEditor;
             PowerTables.ComponentsContainer.registerComponent('PlainTextEditor', PlainTextEditor);
-        })(Editors = Plugins.Editors || (Plugins.Editors = {}));
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+        })(PlainText = Editors.PlainText || (Editors.PlainText = {}));
+    })(Editors = PowerTables.Editors || (PowerTables.Editors = {}));
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        var Editors;
-        (function (Editors) {
+    var Editors;
+    (function (Editors) {
+        var SelectList;
+        (function (SelectList) {
             var SelectListEditor = (function (_super) {
                 __extends(SelectListEditor, _super);
                 function SelectListEditor() {
@@ -6515,118 +6794,121 @@ var PowerTables;
                     this.List.focus();
                 };
                 return SelectListEditor;
-            }(Editors.CellEditorBase));
-            Editors.SelectListEditor = SelectListEditor;
+            }(PowerTables.Editors.CellEditorBase));
+            SelectList.SelectListEditor = SelectListEditor;
             PowerTables.ComponentsContainer.registerComponent('SelectListEditor', SelectListEditor);
-        })(Editors = Plugins.Editors || (Plugins.Editors = {}));
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+        })(SelectList = Editors.SelectList || (Editors.SelectList = {}));
+    })(Editors = PowerTables.Editors || (PowerTables.Editors = {}));
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
     var Plugins;
     (function (Plugins) {
-        var LoadingOverlapPlugin = (function (_super) {
-            __extends(LoadingOverlapPlugin, _super);
-            function LoadingOverlapPlugin() {
-                var _this = this;
-                _super.apply(this, arguments);
-                this._overlappingElement = [];
-                this._overlapLayer = [];
-                this._isOverlapped = false;
-                this.afterDrawn = function (e) {
-                    _this.MasterTable.Events.BeforeLoading.subscribe(function (e) { return _this.onBeforeLoading(e); }, 'overlapLoading');
-                    _this.MasterTable.Events.AfterDataRendered.subscribe(function () { return _this.deoverlap(); }, 'overlapLoading');
-                    _this.MasterTable.Events.AfterLoading.subscribe(function () { return _this.deoverlap(); }, 'overlapLoading');
-                    window.addEventListener('resize', _this.updateCoordsAll.bind(_this));
-                };
-            }
-            LoadingOverlapPlugin.prototype.overlapAll = function () {
-                if (this._isOverlapped)
-                    return;
-                this._overlapLayer = [];
-                this._overlappingElement = [];
-                for (var k in this.Configuration.Overlaps) {
-                    if (this.Configuration.Overlaps.hasOwnProperty(k)) {
-                        if (k === '$All')
-                            this._overlappingElement.push([this.MasterTable.Renderer.RootElement]);
-                        else if (k === '$BodyOnly')
-                            this._overlappingElement.push([this.MasterTable.Renderer.BodyElement]);
-                        else {
-                            var elements = document.querySelectorAll(k);
-                            var elems = [];
-                            var overlappers = [];
-                            for (var i = 0; i < elements.length; i++) {
-                                elems.push(elements.item(i));
-                                overlappers.push(this.createOverlap(elements.item(i), this.Configuration.Overlaps[k]));
+        var LoadingOverlap;
+        (function (LoadingOverlap) {
+            var LoadingOverlapPlugin = (function (_super) {
+                __extends(LoadingOverlapPlugin, _super);
+                function LoadingOverlapPlugin() {
+                    var _this = this;
+                    _super.apply(this, arguments);
+                    this._overlappingElement = [];
+                    this._overlapLayer = [];
+                    this._isOverlapped = false;
+                    this.afterDrawn = function (e) {
+                        _this.MasterTable.Events.BeforeLoading.subscribe(function (e) { return _this.onBeforeLoading(e); }, 'overlapLoading');
+                        _this.MasterTable.Events.AfterDataRendered.subscribe(function () { return _this.deoverlap(); }, 'overlapLoading');
+                        _this.MasterTable.Events.AfterLoading.subscribe(function () { return _this.deoverlap(); }, 'overlapLoading');
+                        window.addEventListener('resize', _this.updateCoordsAll.bind(_this));
+                    };
+                }
+                LoadingOverlapPlugin.prototype.overlapAll = function () {
+                    if (this._isOverlapped)
+                        return;
+                    this._overlapLayer = [];
+                    this._overlappingElement = [];
+                    for (var k in this.Configuration.Overlaps) {
+                        if (this.Configuration.Overlaps.hasOwnProperty(k)) {
+                            if (k === '$All')
+                                this._overlappingElement.push([this.MasterTable.Renderer.RootElement]);
+                            else if (k === '$BodyOnly')
+                                this._overlappingElement.push([this.MasterTable.Renderer.BodyElement]);
+                            else {
+                                var elements = document.querySelectorAll(k);
+                                var elems = [];
+                                var overlappers = [];
+                                for (var i = 0; i < elements.length; i++) {
+                                    elems.push(elements.item(i));
+                                    overlappers.push(this.createOverlap(elements.item(i), this.Configuration.Overlaps[k]));
+                                }
+                                this._overlappingElement.push(elems);
+                                this._overlapLayer.push(overlappers);
                             }
-                            this._overlappingElement.push(elems);
-                            this._overlapLayer.push(overlappers);
                         }
                     }
-                }
-                this._isOverlapped = true;
-            };
-            LoadingOverlapPlugin.prototype.createOverlap = function (efor, templateId) {
-                var element = this.MasterTable.Renderer.Modifier.createElement(this.MasterTable.Renderer.getCachedTemplate(templateId)(null));
-                var mezx = null;
-                if (this._overlappingElement.currentStyle)
-                    mezx = this._overlappingElement.currentStyle.zIndex;
-                else if (window.getComputedStyle) {
-                    mezx = window.getComputedStyle(element, null).zIndex;
-                }
-                element.style.position = "relative";
-                element.style.display = "block";
-                element.style.zIndex = (parseInt(mezx) + 1).toString();
-                //document.body.appendChild(element); //todo switch
-                efor.appendChild(element);
-                this.updateCoords(element, efor);
-                return element;
-            };
-            LoadingOverlapPlugin.prototype.updateCoords = function (overlapLayer, overlapElement) {
-                overlapLayer.style.display = "none";
-                var eo = overlapElement.getBoundingClientRect();
-                //overlapLayer.style.left = eo.left + 'px';
-                //overlapLayer.style.top = overlapElement.offsetTop + 'px';
-                overlapLayer.style.left = '0px';
-                overlapLayer.style.top = '0px';
-                overlapLayer.style.width = eo.width + 'px';
-                overlapLayer.style.height = eo.height + 'px';
-                overlapLayer.style.display = "block";
-            };
-            LoadingOverlapPlugin.prototype.updateCoordsAll = function () {
-                for (var j = 0; j < this._overlapLayer.length; j++) {
-                    for (var l = 0; l < this._overlapLayer[j].length; l++) {
-                        this.updateCoords(this._overlapLayer[j][l], this._overlappingElement[j][l]);
+                    this._isOverlapped = true;
+                };
+                LoadingOverlapPlugin.prototype.createOverlap = function (efor, templateId) {
+                    var element = this.MasterTable.Renderer.Modifier.createElement(this.MasterTable.Renderer.getCachedTemplate(templateId)(null));
+                    var mezx = null;
+                    if (this._overlappingElement.currentStyle)
+                        mezx = this._overlappingElement.currentStyle.zIndex;
+                    else if (window.getComputedStyle) {
+                        mezx = window.getComputedStyle(element, null).zIndex;
                     }
-                }
-            };
-            LoadingOverlapPlugin.prototype.deoverlap = function () {
-                if (!this._isOverlapped)
-                    return;
-                for (var j = 0; j < this._overlapLayer.length; j++) {
-                    for (var l = 0; l < this._overlapLayer[j].length; l++) {
-                        this._overlappingElement[j][l].removeChild(this._overlapLayer[j][l]);
+                    element.style.position = "relative";
+                    element.style.display = "block";
+                    element.style.zIndex = (parseInt(mezx) + 1).toString();
+                    //document.body.appendChild(element); //todo switch
+                    efor.appendChild(element);
+                    this.updateCoords(element, efor);
+                    return element;
+                };
+                LoadingOverlapPlugin.prototype.updateCoords = function (overlapLayer, overlapElement) {
+                    overlapLayer.style.display = "none";
+                    var eo = overlapElement.getBoundingClientRect();
+                    //overlapLayer.style.left = eo.left + 'px';
+                    //overlapLayer.style.top = overlapElement.offsetTop + 'px';
+                    overlapLayer.style.left = '0px';
+                    overlapLayer.style.top = '0px';
+                    overlapLayer.style.width = eo.width + 'px';
+                    overlapLayer.style.height = eo.height + 'px';
+                    overlapLayer.style.display = "block";
+                };
+                LoadingOverlapPlugin.prototype.updateCoordsAll = function () {
+                    for (var j = 0; j < this._overlapLayer.length; j++) {
+                        for (var l = 0; l < this._overlapLayer[j].length; l++) {
+                            this.updateCoords(this._overlapLayer[j][l], this._overlappingElement[j][l]);
+                        }
                     }
-                }
-                this._overlapLayer = [];
-                this._overlappingElement = [];
-                this._isOverlapped = false;
-            };
-            LoadingOverlapPlugin.prototype.onBeforeLoading = function (e) {
-                this.overlapAll();
-            };
-            return LoadingOverlapPlugin;
-        }(Plugins.PluginBase));
-        Plugins.LoadingOverlapPlugin = LoadingOverlapPlugin;
-        PowerTables.ComponentsContainer.registerComponent('LoadingOverlap', LoadingOverlapPlugin);
+                };
+                LoadingOverlapPlugin.prototype.deoverlap = function () {
+                    if (!this._isOverlapped)
+                        return;
+                    for (var j = 0; j < this._overlapLayer.length; j++) {
+                        for (var l = 0; l < this._overlapLayer[j].length; l++) {
+                            this._overlappingElement[j][l].removeChild(this._overlapLayer[j][l]);
+                        }
+                    }
+                    this._overlapLayer = [];
+                    this._overlappingElement = [];
+                    this._isOverlapped = false;
+                };
+                LoadingOverlapPlugin.prototype.onBeforeLoading = function (e) {
+                    this.overlapAll();
+                };
+                return LoadingOverlapPlugin;
+            }(Plugins.PluginBase));
+            LoadingOverlap.LoadingOverlapPlugin = LoadingOverlapPlugin;
+            PowerTables.ComponentsContainer.registerComponent('LoadingOverlap', LoadingOverlapPlugin);
+        })(LoadingOverlap = Plugins.LoadingOverlap || (Plugins.LoadingOverlap = {}));
     })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        var Editors;
-        (function (Editors) {
+    var Editors;
+    (function (Editors) {
+        var Check;
+        (function (Check) {
             var CheckEditor = (function (_super) {
                 __extends(CheckEditor, _super);
                 function CheckEditor() {
@@ -6664,18 +6946,18 @@ var PowerTables;
                         this.FocusElement.focus();
                 };
                 return CheckEditor;
-            }(Editors.CellEditorBase));
-            Editors.CheckEditor = CheckEditor;
+            }(PowerTables.Editors.CellEditorBase));
+            Check.CheckEditor = CheckEditor;
             PowerTables.ComponentsContainer.registerComponent('CheckEditor', CheckEditor);
-        })(Editors = Plugins.Editors || (Plugins.Editors = {}));
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+        })(Check = Editors.Check || (Editors.Check = {}));
+    })(Editors = PowerTables.Editors || (PowerTables.Editors = {}));
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        var Editors;
-        (function (Editors) {
+    var Editors;
+    (function (Editors) {
+        var Memo;
+        (function (Memo) {
             var MemoEditor = (function (_super) {
                 __extends(MemoEditor, _super);
                 function MemoEditor() {
@@ -6718,89 +7000,150 @@ var PowerTables;
                     this.TextArea.setSelectionRange(0, this.TextArea.value.length);
                 };
                 return MemoEditor;
-            }(Editors.CellEditorBase));
-            Editors.MemoEditor = MemoEditor;
+            }(PowerTables.Editors.CellEditorBase));
+            Memo.MemoEditor = MemoEditor;
             PowerTables.ComponentsContainer.registerComponent('MemoEditor', MemoEditor);
-        })(Editors = Plugins.Editors || (Plugins.Editors = {}));
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+        })(Memo = Editors.Memo || (Editors.Memo = {}));
+    })(Editors = PowerTables.Editors || (PowerTables.Editors = {}));
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
     var Plugins;
     (function (Plugins) {
-        var ToolbarConfirmation = (function () {
-            function ToolbarConfirmation(confirm, reject, date, autoform) {
-                this._beforeConfirm = [];
-                this.AfterConfirm = [];
-                this._beforeReject = [];
-                this.AfterReject = [];
-                this.AfterConfirmationResponse = [];
-                this.ConfirmationResponseError = [];
-                this.Form = null;
-                this._confirm = confirm;
-                this._reject = reject;
-                this._date = date;
-                this._autoform = autoform;
-            }
-            ToolbarConfirmation.prototype.onRender = function (parent) {
-                this.RootElement = parent;
-                if (this._autoform != null) {
-                    for (var i = 0; i < this._autoform.length; i++) {
-                        var conf = this._autoform[i];
-                        if (conf.TriggerSearchOnEvents && conf.TriggerSearchOnEvents.length > 0) {
-                            var element = document.querySelector(conf.FieldSelector);
-                            if (conf.AutomaticallyAttachDatepicker) {
-                                this._date.createDatePicker(element);
+        var Toolbar;
+        (function (Toolbar) {
+            /**
+             * Backing class for confirmation panel created as part of button action
+             */
+            var CommandConfirmation = (function () {
+                /**
+                 * @internal
+                 */
+                function CommandConfirmation(confirm, reject, date, autoform) {
+                    this._beforeConfirm = [];
+                    /**
+                     * @internal
+                     */
+                    this.AfterConfirm = [];
+                    this._beforeReject = [];
+                    /**
+                     * @internal
+                     */
+                    this.AfterReject = [];
+                    /**
+                     * @internal
+                     */
+                    this.AfterConfirmationResponse = [];
+                    /**
+                     * @internal
+                     */
+                    this.ConfirmationResponseError = [];
+                    /**
+                     * Set of form values (available only after window is commited or dismissed)
+                     */
+                    this.Form = null;
+                    this._confirm = confirm;
+                    this._reject = reject;
+                    this._date = date;
+                    this._autoform = autoform;
+                }
+                /**
+                 * @internal
+                 */
+                CommandConfirmation.prototype.onRender = function (parent) {
+                    this.RootElement = parent;
+                    if (this._autoform != null) {
+                        for (var i = 0; i < this._autoform.length; i++) {
+                            var conf = this._autoform[i];
+                            if (conf.TriggerSearchOnEvents && conf.TriggerSearchOnEvents.length > 0) {
+                                var element = document.querySelector(conf.FieldSelector);
+                                if (conf.AutomaticallyAttachDatepicker) {
+                                    this._date.createDatePicker(element);
+                                }
                             }
                         }
                     }
-                }
-            };
-            ToolbarConfirmation.prototype.fireEvents = function (form, array) {
-                for (var i = 0; i < array.length; i++) {
-                    array[i](form);
-                }
-            };
-            ToolbarConfirmation.prototype.collectFormData = function () {
-                if (this.Form != null)
-                    return;
-                var form = {};
-                if (this._autoform != null) {
-                    form = Plugins.FormwatchPlugin.extractFormData(this._autoform, this.RootElement, this._date);
-                }
-                this.Form = form;
-            };
-            ToolbarConfirmation.prototype.confirmHandle = function () {
-                this.collectFormData();
-                this.fireEvents(this.Form, this._beforeConfirm);
-                this._confirm(this.Form);
-                this.fireEvents(this.Form, this.AfterConfirm);
-            };
-            ToolbarConfirmation.prototype.dismissHandle = function () {
-                this.collectFormData();
-                this.fireEvents(this.Form, this._beforeReject);
-                this._reject();
-                this.fireEvents(this.Form, this.AfterReject);
-            };
-            ToolbarConfirmation.prototype.onBeforeConfirm = function (fn) { this._beforeConfirm.push(fn); };
-            ToolbarConfirmation.prototype.onAfterConfirm = function (fn) { this.AfterConfirm.push(fn); };
-            ToolbarConfirmation.prototype.onBeforeReject = function (fn) { this._beforeReject.push(fn); };
-            ToolbarConfirmation.prototype.onAfterReject = function (fn) { this.AfterReject.push(fn); };
-            ToolbarConfirmation.prototype.onAfterConfirmationResponse = function (fn) { this.AfterConfirmationResponse.push(fn); };
-            ToolbarConfirmation.prototype.onConfirmationResponseError = function (fn) { this.ConfirmationResponseError.push(fn); };
-            return ToolbarConfirmation;
-        }());
-        Plugins.ToolbarConfirmation = ToolbarConfirmation;
+                };
+                /**
+                 * @internal
+                 */
+                CommandConfirmation.prototype.fireEvents = function (form, array) {
+                    for (var i = 0; i < array.length; i++) {
+                        array[i](form);
+                    }
+                };
+                CommandConfirmation.prototype.collectFormData = function () {
+                    if (this.Form != null)
+                        return;
+                    var form = {};
+                    if (this._autoform != null) {
+                        form = PowerTables.Plugins.Formwatch.FormwatchPlugin.extractFormData(this._autoform, this.RootElement, this._date);
+                    }
+                    this.Form = form;
+                };
+                /**
+                 * Commits confirmation form, collects form, destroys confirmation panel element and proceeds server command, fires corresponding events
+                 */
+                CommandConfirmation.prototype.confirm = function () {
+                    this.collectFormData();
+                    this.fireEvents(this.Form, this._beforeConfirm);
+                    this._confirm(this.Form);
+                    this.fireEvents(this.Form, this.AfterConfirm);
+                };
+                /**
+                 * Destroys confirmation panel element, collects form, does not send anything to server, fires corresponding events
+                 */
+                CommandConfirmation.prototype.dismiss = function () {
+                    this.collectFormData();
+                    this.fireEvents(this.Form, this._beforeReject);
+                    this._reject();
+                    this.fireEvents(this.Form, this.AfterReject);
+                };
+                /**
+                 * Subscribes specified function to be invoked after pressing confirm button (or calling confirm method) but before processing
+                 * @param fn Function that consumes form data
+                 */
+                CommandConfirmation.prototype.onBeforeConfirm = function (fn) { this._beforeConfirm.push(fn); };
+                /**
+                 * Subscribes specified function to be invoked after pressing confirm button and client-side form processing (it is possible to add something to form)
+                 * but before sending data to server
+                 * @param fn Function that consumes form data
+                 */
+                CommandConfirmation.prototype.onAfterConfirm = function (fn) { this.AfterConfirm.push(fn); };
+                /**
+                 * Subscribes specified function to be invoked after pressing reject button (or calling reject method) but before processing
+                 * @param fn Function that consumes form data
+                 */
+                CommandConfirmation.prototype.onBeforeReject = function (fn) { this._beforeReject.push(fn); };
+                /**
+                 * Subscribes specified function to be invoked after pressing reject button (or calling reject method) but before processing
+                 * @param fn Function that consumes form data
+                 */
+                CommandConfirmation.prototype.onAfterReject = function (fn) { this.AfterReject.push(fn); };
+                CommandConfirmation.prototype.onAfterConfirmationResponse = function (fn) { this.AfterConfirmationResponse.push(fn); };
+                CommandConfirmation.prototype.onConfirmationResponseError = function (fn) { this.ConfirmationResponseError.push(fn); };
+                return CommandConfirmation;
+            }());
+            Toolbar.CommandConfirmation = CommandConfirmation;
+        })(Toolbar = Plugins.Toolbar || (Plugins.Toolbar = {}));
     })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
+    /**
+     * Class responsible for handling of table messages. It handles internally thrown messages as well as
+     * user's ones
+     */
     var MessagesService = (function () {
-        function MessagesService(usersMessageFn, instances, dataHolder, controller) {
+        /*
+         * @internal
+         */
+        function MessagesService(usersMessageFn, instances, dataHolder, controller, templatesProvider) {
             this._usersMessageFn = usersMessageFn;
             this._instances = instances;
             this._dataHolder = dataHolder;
             this._controller = controller;
+            this._templatesProvider = templatesProvider;
             if (!usersMessageFn) {
                 this._usersMessageFn = function (m) { alert(m.Title + '\r\n' + m.Details); };
             }
@@ -6819,10 +7162,21 @@ var PowerTables;
             }
         };
         MessagesService.prototype.showTableMessage = function (tableMessage) {
+            if (!this._templatesProvider.hasCachedTemplate("ltmsg-" + tableMessage.Class)) {
+                this._controller.replaceVisibleData([]);
+                return;
+            }
+            var msgRow = {
+                DataObject: tableMessage,
+                IsSpecial: true,
+                TemplateIdOverride: "ltmsg-" + tableMessage.Class,
+                MasterTable: null,
+                Index: 0,
+                Cells: {}
+            };
             tableMessage.UiColumnsCount = this._instances.getUiColumns().length;
             tableMessage.IsMessageObject = true;
-            this._dataHolder.DisplayedData = [tableMessage];
-            this._controller.redrawVisibleData();
+            this._controller.replaceVisibleData([msgRow]);
         };
         return MessagesService;
     }());
@@ -6830,106 +7184,390 @@ var PowerTables;
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
-    var ReloadPlugin = (function (_super) {
-        __extends(ReloadPlugin, _super);
-        function ReloadPlugin() {
-            var _this = this;
-            _super.apply(this, arguments);
-            this.afterDrawn = function (e) {
-                if (_this._renderedExternally) {
-                    _this._externalReloadBtn = new ReloadButton(_this.MasterTable.Controller, _this.Configuration.ForceReload);
-                    _this.MasterTable.Renderer.renderObject(_this.RawConfig.TemplateId, _this._externalReloadBtn, _this.Configuration.RenderTo);
-                    _this._ready = true;
+    var Plugins;
+    (function (Plugins) {
+        var Reload;
+        (function (Reload) {
+            var ReloadPlugin = (function (_super) {
+                __extends(ReloadPlugin, _super);
+                function ReloadPlugin() {
+                    var _this = this;
+                    _super.apply(this, arguments);
+                    this.afterDrawn = function (e) {
+                        if (_this._renderedExternally) {
+                            _this._externalReloadBtn = new ReloadButton(_this.MasterTable.Controller, _this.Configuration.ForceReload);
+                            _this.MasterTable.Renderer.renderObject(_this.RawConfig.TemplateId, _this._externalReloadBtn, _this.Configuration.RenderTo);
+                            _this._ready = true;
+                        }
+                    };
                 }
-            };
-        }
-        ReloadPlugin.prototype.triggerReload = function () {
-            this.MasterTable.Controller.reload(this.Configuration.ForceReload);
-        };
-        ReloadPlugin.prototype.renderContent = function (templatesProvider) {
-            if (this._renderedExternally)
-                return '';
-            return this.defaultRender(templatesProvider);
-        };
-        ReloadPlugin.prototype.startLoading = function () {
-            if (this._renderedExternally) {
-                if (!this._ready)
-                    return;
-                this._externalReloadBtn.VisualStates.mixinState('loading');
-            }
-            else {
-                this.VisualStates.mixinState('loading');
-            }
-        };
-        ReloadPlugin.prototype.stopLoading = function () {
-            if (this._renderedExternally) {
-                if (!this._ready)
-                    return;
-                this._externalReloadBtn.VisualStates.unmixinState('loading');
-            }
-            else {
-                this.VisualStates.unmixinState('loading');
-            }
-        };
-        ReloadPlugin.prototype.subscribe = function (e) {
-            var _this = this;
-            _super.prototype.subscribe.call(this, e);
-            e.BeforeLoading.subscribe(function () { return _this.startLoading(); }, 'reload');
-            e.AfterLoading.subscribe(function () { return _this.stopLoading(); }, 'reload');
-            e.AfterLayoutRendered.subscribe(function () {
-                _this.stopLoading();
-            }, 'reload');
-        };
-        ReloadPlugin.prototype.init = function (masterTable) {
-            _super.prototype.init.call(this, masterTable);
-            this._renderedExternally = this.Configuration.RenderTo != null && this.Configuration.RenderTo != undefined && this.Configuration.RenderTo.length > 0;
-        };
-        return ReloadPlugin;
-    }(PowerTables.Plugins.PluginBase));
-    PowerTables.ReloadPlugin = ReloadPlugin;
-    var ReloadButton = (function () {
-        function ReloadButton(controller, forceReload) {
-            this._controller = controller;
-            this._forceReload = forceReload;
-        }
-        ReloadButton.prototype.triggerReload = function () {
-            this._controller.reload(this._forceReload);
-        };
-        return ReloadButton;
-    }());
-    PowerTables.ComponentsContainer.registerComponent('Reload', ReloadPlugin);
+                ReloadPlugin.prototype.triggerReload = function () {
+                    this.MasterTable.Controller.reload(this.Configuration.ForceReload);
+                };
+                ReloadPlugin.prototype.renderContent = function (templatesProvider) {
+                    if (this._renderedExternally)
+                        return '';
+                    return this.defaultRender(templatesProvider);
+                };
+                ReloadPlugin.prototype.startLoading = function () {
+                    if (this._renderedExternally) {
+                        if (!this._ready)
+                            return;
+                        this._externalReloadBtn.VisualStates.mixinState('loading');
+                    }
+                    else {
+                        this.VisualStates.mixinState('loading');
+                    }
+                };
+                ReloadPlugin.prototype.stopLoading = function () {
+                    if (this._renderedExternally) {
+                        if (!this._ready)
+                            return;
+                        this._externalReloadBtn.VisualStates.unmixinState('loading');
+                    }
+                    else {
+                        this.VisualStates.unmixinState('loading');
+                    }
+                };
+                ReloadPlugin.prototype.subscribe = function (e) {
+                    var _this = this;
+                    _super.prototype.subscribe.call(this, e);
+                    e.BeforeLoading.subscribe(function () { return _this.startLoading(); }, 'reload');
+                    e.AfterLoading.subscribe(function () { return _this.stopLoading(); }, 'reload');
+                    e.AfterLayoutRendered.subscribe(function () {
+                        _this.stopLoading();
+                    }, 'reload');
+                };
+                ReloadPlugin.prototype.init = function (masterTable) {
+                    _super.prototype.init.call(this, masterTable);
+                    this._renderedExternally = this.Configuration.RenderTo != null && this.Configuration.RenderTo != undefined && this.Configuration.RenderTo.length > 0;
+                };
+                return ReloadPlugin;
+            }(PowerTables.Plugins.PluginBase));
+            Reload.ReloadPlugin = ReloadPlugin;
+            var ReloadButton = (function () {
+                function ReloadButton(controller, forceReload) {
+                    this._controller = controller;
+                    this._forceReload = forceReload;
+                }
+                ReloadButton.prototype.triggerReload = function () {
+                    this._controller.reload(this._forceReload);
+                };
+                return ReloadButton;
+            }());
+            PowerTables.ComponentsContainer.registerComponent('Reload', ReloadPlugin);
+        })(Reload = Plugins.Reload || (Plugins.Reload = {}));
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
     var Plugins;
     (function (Plugins) {
-        var LoadingPlugin = (function (_super) {
-            __extends(LoadingPlugin, _super);
-            function LoadingPlugin() {
-                _super.apply(this, arguments);
-            }
-            LoadingPlugin.prototype.subscribe = function (e) {
-                var _this = this;
-                e.BeforeLoading.subscribe(function () { return _this.showLoadingIndicator(); }, 'loading');
-                e.AfterLoading.subscribe(function () { return _this.hideLoadingIndicator(); }, 'loading');
-                e.AfterLayoutRendered.subscribe(function () {
-                    _this.hideLoadingIndicator();
-                }, 'loading');
-            };
-            LoadingPlugin.prototype.showLoadingIndicator = function () {
-                this.MasterTable.Renderer.Modifier.showElement(this.BlinkElement);
-            };
-            LoadingPlugin.prototype.hideLoadingIndicator = function () {
-                this.MasterTable.Renderer.Modifier.hideElement(this.BlinkElement);
-            };
-            LoadingPlugin.prototype.renderContent = function (templatesProvider) {
-                return this.defaultRender(templatesProvider);
-            };
-            LoadingPlugin.Id = 'Loading';
-            return LoadingPlugin;
-        }(Plugins.PluginBase));
-        Plugins.LoadingPlugin = LoadingPlugin;
-        PowerTables.ComponentsContainer.registerComponent('Loading', LoadingPlugin);
+        var Loading;
+        (function (Loading) {
+            var LoadingPlugin = (function (_super) {
+                __extends(LoadingPlugin, _super);
+                function LoadingPlugin() {
+                    _super.apply(this, arguments);
+                }
+                LoadingPlugin.prototype.subscribe = function (e) {
+                    var _this = this;
+                    e.BeforeLoading.subscribe(function () { return _this.showLoadingIndicator(); }, 'loading');
+                    e.AfterLoading.subscribe(function () { return _this.hideLoadingIndicator(); }, 'loading');
+                    e.AfterLayoutRendered.subscribe(function () {
+                        _this.hideLoadingIndicator();
+                    }, 'loading');
+                };
+                LoadingPlugin.prototype.showLoadingIndicator = function () {
+                    this.MasterTable.Renderer.Modifier.showElement(this.BlinkElement);
+                };
+                LoadingPlugin.prototype.hideLoadingIndicator = function () {
+                    this.MasterTable.Renderer.Modifier.hideElement(this.BlinkElement);
+                };
+                LoadingPlugin.prototype.renderContent = function (templatesProvider) {
+                    return this.defaultRender(templatesProvider);
+                };
+                LoadingPlugin.Id = 'Loading';
+                return LoadingPlugin;
+            }(Plugins.PluginBase));
+            Loading.LoadingPlugin = LoadingPlugin;
+            PowerTables.ComponentsContainer.registerComponent('Loading', LoadingPlugin);
+        })(Loading = Plugins.Loading || (Plugins.Loading = {}));
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var RowAction;
+        (function (RowAction_1) {
+            var RowAction = (function (_super) {
+                __extends(RowAction, _super);
+                function RowAction() {
+                    _super.apply(this, arguments);
+                }
+                RowAction.prototype.init = function (masterTable) {
+                    _super.prototype.init.call(this, masterTable);
+                };
+                return RowAction;
+            }(PowerTables.Plugins.PluginBase));
+            RowAction_1.RowAction = RowAction;
+            PowerTables.ComponentsContainer.registerComponent('RowActon', RowAction);
+        })(RowAction = Plugins.RowAction || (Plugins.RowAction = {}));
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var Hierarchy;
+        (function (Hierarchy) {
+            var HierarchyPlugin = (function (_super) {
+                __extends(HierarchyPlugin, _super);
+                function HierarchyPlugin() {
+                    _super.apply(this, arguments);
+                    this._hierarchyFiltered = false;
+                    this._isFunctionsStolen = false;
+                    this._stolenFilterFunctions = [];
+                }
+                HierarchyPlugin.prototype.expandSubtree = function (args) {
+                    this.toggleSubtreeByObject(this.MasterTable.DataHolder.localLookupDisplayedData(args.DisplayingRowIndex).DataObject, true, args.DisplayingRowIndex);
+                };
+                HierarchyPlugin.prototype.collapseSubtree = function (args) {
+                    this.toggleSubtreeByObject(this.MasterTable.DataHolder.localLookupDisplayedData(args.DisplayingRowIndex).DataObject, false, args.DisplayingRowIndex);
+                };
+                HierarchyPlugin.prototype.toggleSubtree = function (args) {
+                    this.toggleSubtreeByObject(this.MasterTable.DataHolder.localLookupDisplayedData(args.DisplayingRowIndex).DataObject, null, args.DisplayingRowIndex);
+                };
+                HierarchyPlugin.prototype.toggleSubtreeByObject = function (dataObject, turnOpen, index) {
+                    if (dataObject == null || dataObject == undefined)
+                        return;
+                    if (index == null || index == undefined) {
+                        var lookup = this.MasterTable.DataHolder.localLookupDisplayedDataObject(dataObject);
+                        index = lookup.DisplayedIndex;
+                    }
+                    if (turnOpen == null || turnOpen == undefined)
+                        turnOpen = !dataObject.IsVisible;
+                    if (dataObject.IsExpanded === turnOpen)
+                        return;
+                    if (turnOpen)
+                        this.expand(dataObject, index);
+                    else
+                        this.collapse(dataObject, index);
+                };
+                HierarchyPlugin.prototype.expand = function (dataObject, index) {
+                    var _this = this;
+                    dataObject.IsExpanded = true;
+                    if (this.Configuration.ExpandBehavior === Hierarchy.NodeExpandBehavior.AlwaysLoadRemotely ||
+                        ((dataObject.ChildrenCount > 0) && (!dataObject._subtree) || (dataObject._subtree.length === 0))) {
+                        dataObject.IsLoading = true;
+                        if (index >= 0)
+                            this.MasterTable.Controller.redrawVisibleDataObject(dataObject, index);
+                        this.MasterTable.Loader.requestServer('GetHierarchyChildren', function (d) {
+                            var children = d.HierarchyItems;
+                            for (var i = 0; i < children.length; i++) {
+                                children[i].IsVisible = true;
+                                children[i]._parent = dataObject;
+                                children[i]._subtree = [];
+                            }
+                            var ar = {
+                                Updates: children,
+                                AdditionalData: {},
+                                Removals: []
+                            };
+                            dataObject.IsLoading = false;
+                            _this.MasterTable.DataHolder.proceedAdjustments(ar);
+                            _this.refilterStoredData();
+                            _this.MasterTable.Controller.redrawVisibleData();
+                        }, function (q) {
+                            q.AdditionalData['HierarchyParent'] = dataObject.RootKey;
+                            return q;
+                        });
+                        return;
+                    }
+                    this.toggleVisibleRec(dataObject);
+                    this.refilterStoredData();
+                    this.MasterTable.Controller.redrawVisibleData();
+                };
+                HierarchyPlugin.prototype.toggleVisibleRec = function (dataObject) {
+                    for (var j = 0; j < dataObject._subtree.length; j++) {
+                        dataObject._subtree[j].IsVisible = true;
+                        if (dataObject._subtree[j].IsExpanded) {
+                            this.toggleVisibleRec(dataObject._subtree[j]);
+                        }
+                    }
+                };
+                HierarchyPlugin.prototype.collapse = function (dataObject, index) {
+                    this.collapseChildren(dataObject);
+                    dataObject.IsExpanded = false;
+                    if (index >= 0) {
+                        this.MasterTable.Controller.redrawVisibleDataObject(dataObject, index);
+                    }
+                };
+                HierarchyPlugin.prototype.collapseChildren = function (dataObject) {
+                    if (!dataObject._subtree || dataObject._subtree.length === 0)
+                        return;
+                    for (var i = 0; i < dataObject._subtree.length; i++) {
+                        var obj = dataObject._subtree[i];
+                        if (!obj.IsVisible)
+                            continue;
+                        this.collapseChildren(obj);
+                        obj.IsVisible = false;
+                        var displayingIdx = this.MasterTable.DataHolder.localLookupDisplayedDataObject(obj);
+                        if (!displayingIdx.IsCurrentlyDisplaying)
+                            continue;
+                        this.MasterTable.Renderer.Modifier.destroyRowByIndex(displayingIdx.DisplayedIndex);
+                    }
+                };
+                HierarchyPlugin.prototype.init = function (masterTable) {
+                    _super.prototype.init.call(this, masterTable);
+                    this.MasterTable.DataHolder.registerClientOrdering("TreeOrder", this.hierarchicalOrder.bind(this));
+                };
+                HierarchyPlugin.prototype.hierarchicalOrder = function (a, b) {
+                    if (!this._hierarchyFiltered)
+                        return 0;
+                    return a._order - b._order;
+                };
+                HierarchyPlugin.prototype.refilterStoredData = function () {
+                    this._hierarchyFiltered = true;
+                    this.MasterTable.DataHolder.RecentClientQuery.Orderings['TreeOrder'] = PowerTables.Ordering.Ascending;
+                    this.MasterTable.DataHolder.filterStoredDataWithPreviousQuery();
+                    delete this.MasterTable.DataHolder.RecentClientQuery.Orderings['TreeOrder'];
+                    this._hierarchyFiltered = false;
+                };
+                HierarchyPlugin.prototype.stackOrder = function (data) {
+                    var stack = [];
+                    for (var k = 0; k < data.length; k++) {
+                        var deep = 0;
+                        var cNode = data[k];
+                        while (cNode._parent) {
+                            deep++;
+                            cNode = cNode._parent;
+                        }
+                        if (deep === 0) {
+                            stack.push(data[k]);
+                        }
+                        data[k].Deepness = deep;
+                    }
+                    var stackIdx = 0;
+                    while (stack.length > 0) {
+                        var stackCur = stack.pop();
+                        stackCur._order = stackIdx++;
+                        if (stackCur._subtree) {
+                            for (var l = 1; l <= stackCur._subtree.length; l++) {
+                                stack.push(stackCur._subtree[stackCur._subtree.length - l]);
+                            }
+                        }
+                    }
+                    this.refilterStoredData();
+                };
+                HierarchyPlugin.prototype.recalculateSubtreeReferences = function (e) {
+                    if (this._hierarchyFiltered)
+                        return;
+                    if (this.MasterTable.DataHolder.Ordered == null || this.MasterTable.DataHolder.Ordered.length == 1 || this.MasterTable.DataHolder.Ordered.length == 0) {
+                        return;
+                    }
+                    var data = e.Ordered;
+                    for (var i = 0; i < data.length; i++) {
+                        var obj = data[i];
+                        obj._subtree = [];
+                        for (var j = 0; j < data.length; j++) {
+                            if (data[j].ParentKey === obj.RootKey) {
+                                obj._subtree.push(data[j]);
+                                data[j]._parent = obj;
+                                if (!obj.IsExpanded)
+                                    data[j].IsVisible = false;
+                                else
+                                    data[j].IsVisible = true;
+                            }
+                        }
+                    }
+                    this.stackOrder(data);
+                };
+                HierarchyPlugin.prototype.stealFilterFunctions = function () {
+                    if (this._isFunctionsStolen)
+                        return;
+                    var filters = this.MasterTable.DataHolder.getClientFilters();
+                    var idPredicate = function (a, b) { return true; };
+                    for (var i = 0; i < filters.length; i++) {
+                        this._stolenFilterFunctions.push({
+                            filterFun: filters[i].filterPredicate,
+                            Filter: filters[i]
+                        });
+                        filters[i].filterPredicate = idPredicate;
+                    }
+                    this.MasterTable.DataHolder.registerClientFilter(this);
+                    this._isFunctionsStolen = true;
+                };
+                HierarchyPlugin.prototype.onAfterClientDataProcessing = function (e) {
+                    this.recalculateSubtreeReferences(e.EventArgs);
+                };
+                HierarchyPlugin.prototype.subscribe = function (e) {
+                    e.AfterClientDataProcessing.subscribe(this.onAfterClientDataProcessing.bind(this), 'Hierarchy');
+                    e.BeforeClientDataProcessing.subscribe(this.onBeforeClientDataProcessing.bind(this), 'Hierarchy');
+                    e.AfterLayoutRendered.subscribe(this.onAfterLayoutRendered.bind(this), 'Hierarchy');
+                };
+                HierarchyPlugin.prototype.onAfterLayoutRendered = function () {
+                    this.stealFilterFunctions();
+                };
+                HierarchyPlugin.prototype.filterPredicate = function (rowObject, query) {
+                    if (rowObject._filtered)
+                        return rowObject._acceptable;
+                    var searchAlsoCollapsed = this.Configuration.CollapsedNodeFilterBehavior === Hierarchy.TreeCollapsedNodeFilterBehavior.IncludeCollapsed;
+                    if ((!searchAlsoCollapsed) && !rowObject.IsVisible)
+                        return false;
+                    var acceptableFilter = true;
+                    for (var i = 0; i < this._stolenFilterFunctions.length; i++) {
+                        var fn = this._stolenFilterFunctions[i];
+                        var v = fn.filterFun.apply(fn.Filter, [rowObject, query]);
+                        if (!v) {
+                            acceptableFilter = false;
+                            break;
+                        }
+                    }
+                    var acceptableChild = false;
+                    if (rowObject._subtree) {
+                        if (searchAlsoCollapsed || rowObject.IsExpanded) {
+                            for (var j = 0; j < rowObject._subtree.length; j++) {
+                                var childAcceptable = this.filterPredicate(rowObject._subtree[j], query);
+                                if (childAcceptable) {
+                                    acceptableChild = true;
+                                    if (searchAlsoCollapsed) {
+                                        rowObject._subtree[j].IsVisible = true;
+                                        rowObject.IsExpanded = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    var acceptableParent = false;
+                    //var cNode = rowObject;
+                    //while (cNode._parent) {
+                    //    var parentAcceptable = this.filterPredicate(cNode._parent, query);
+                    //    if (parentAcceptable) {
+                    //        acceptableParent = true;
+                    //        break;
+                    //    }
+                    //    cNode = cNode._parent;
+                    //}
+                    rowObject._filtered = true;
+                    rowObject._acceptable = acceptableChild || acceptableFilter;
+                    if (rowObject._acceptable && rowObject._parent) {
+                        rowObject._parent.filtered = true;
+                        rowObject._acceptable = true;
+                    }
+                    return rowObject._acceptable;
+                };
+                HierarchyPlugin.prototype.onBeforeClientDataProcessing = function () {
+                    for (var i = 0; i < this.MasterTable.DataHolder.StoredData.length; i++) {
+                        delete this.MasterTable.DataHolder.StoredData[i]['_filtered'];
+                    }
+                };
+                return HierarchyPlugin;
+            }(Plugins.PluginBase));
+            Hierarchy.HierarchyPlugin = HierarchyPlugin;
+            PowerTables.ComponentsContainer.registerComponent('Hierarchy', HierarchyPlugin);
+        })(Hierarchy = Plugins.Hierarchy || (Plugins.Hierarchy = {}));
     })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
 })(PowerTables || (PowerTables = {}));
 //# sourceMappingURL=../../../PowerTables.Mvc/Scripts/powertables.js.map

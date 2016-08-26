@@ -32,7 +32,6 @@
     <TypeScriptCompile Include="..\PowerTables.Typings\Scripts\Interfaces.ts">
       <Link>Scripts\Interfaces.ts</Link>
     </TypeScriptCompile>
-    
     <TypeScriptCompile Include="Scripts\PowerTables\TrackHelper.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\ComponentsContainer.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\CoreInterfaces.ts" />
@@ -85,8 +84,6 @@
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\LoadingPlugin.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\RowActionPlugin.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\HierarchyPlugin.ts" />
-	<TypeScriptCompile Include="Scripts\PowerTables\Commands\CommandConfirmationWindowViewModel.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Commands\CommandsService.ts" />
   </ItemGroup>
   <ItemGroup />
   <PropertyGroup>
