@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PowerTables.Filters
+﻿namespace PowerTables.Filters
 {
     /// <summary>
     /// Filter that is attached to specified column

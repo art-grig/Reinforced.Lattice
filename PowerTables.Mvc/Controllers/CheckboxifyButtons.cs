@@ -5,6 +5,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using PowerTables.Defaults;
+using PowerTables.Editing;
 using PowerTables.Editors;
 using PowerTables.Mvc.Models;
 using PowerTables.Mvc.Models.Tutorial;

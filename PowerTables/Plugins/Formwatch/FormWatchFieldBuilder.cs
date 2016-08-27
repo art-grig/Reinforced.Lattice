@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json.Linq;
-using PowerTables.Filters;
 
 namespace PowerTables.Plugins.Formwatch
 {

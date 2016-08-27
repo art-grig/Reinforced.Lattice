@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Mvc;
-using Newtonsoft.Json.Linq;
 using PowerTables.Plugins;
 
 namespace PowerTables.Filters.Select

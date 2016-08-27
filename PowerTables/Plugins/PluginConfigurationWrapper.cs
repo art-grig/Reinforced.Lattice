@@ -1,4 +1,3 @@
-using PowerTables.Configuration;
 using PowerTables.Configuration.Json;
 
 namespace PowerTables.Plugins

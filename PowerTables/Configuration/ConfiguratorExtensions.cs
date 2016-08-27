@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Newtonsoft.Json.Linq;
 using PowerTables.CellTemplating;
-using PowerTables.Configuration.Json;
 using PowerTables.Plugins;
 
 namespace PowerTables.Configuration

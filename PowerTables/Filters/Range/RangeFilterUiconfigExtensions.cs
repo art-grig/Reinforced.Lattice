@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using PowerTables.Plugins;
+﻿using PowerTables.Plugins;
 
 namespace PowerTables.Filters.Range
 {

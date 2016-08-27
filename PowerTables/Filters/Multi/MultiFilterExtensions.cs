@@ -2,14 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.Mvc;
 using PowerTables.Configuration;
 using PowerTables.Configuration.Json;
-using PowerTables.Filters.Range;
 using PowerTables.Filters.Select;
-using PowerTables.Filters.Value;
 using PowerTables.Plugins;
 
 namespace PowerTables.Filters.Multi

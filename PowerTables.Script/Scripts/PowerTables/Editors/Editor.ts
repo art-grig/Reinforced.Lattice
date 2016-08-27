@@ -1,6 +1,6 @@
 ﻿module PowerTables.Editors {
 
-    export class Editor extends PowerTables.Plugins.PluginBase<PowerTables.Editors.IEditorUiConfig> implements IRow {
+    export class Editor extends PowerTables.Plugins.PluginBase<PowerTables.Editing.IEditorUiConfig> implements IRow {
 
         //#region IRow members
         public Cells: { [key: string]: ICell } = {};
@@ -36,7 +36,7 @@
             });
         }
 
-        private dispatchEditResponse(editResponse: PowerTables.Editors.IEditionResult, then: () => void) {
+        private dispatchEditResponse(editResponse: PowerTables.Editing.IEditionResult, then: () => void) {
             if (then) then();
         }
 
@@ -221,11 +221,7 @@
             if (this._activeEditors.length > 0) this._activeEditors[0].focus();
         }
 
-        private setEditorValue(editor: PowerTables.Editors.ICellEditor) {
-            editor.IsInitialValueSetting = true;
-            editor.setValue(this._currentDataObjectModified[editor.Column.RawName]);
-            editor.IsInitialValueSetting = false;
-        }
+        
         //#endregion
 
         //#region Event handlers
@@ -256,11 +252,7 @@
             this.beginCellEdit(col, e.DisplayingRowIndex);
         }
 
-        public beginRowEditHandle(e: IRowEventArgs) {
-            if (this._isEditing) return;
-            this._mode = Mode.Row;
-            this.beginRowEdit(e.DisplayingRowIndex);
-        }
+        
 
         public commitRowEditHandle(e: IRowEventArgs) {
 
@@ -293,26 +285,7 @@
                 SubscriptionId: 'editor'
             });
 
-            this.MasterTable.Renderer.Delegator.subscribeRowEvent({
-                EventId: this.Configuration.BeginEditEventId,
-                Handler: this.beginRowEditHandle.bind(this),
-                Selector: '[data-editrow]',
-                SubscriptionId: 'editor'
-            });
-
-            this.MasterTable.Renderer.Delegator.subscribeRowEvent({
-                EventId: this.Configuration.CommitEventId,
-                Handler: this.commitRowEditHandle.bind(this),
-                Selector: '[data-rowcommit]',
-                SubscriptionId: 'editor'
-            });
-
-            this.MasterTable.Renderer.Delegator.subscribeRowEvent({
-                EventId: this.Configuration.RejectEventId,
-                Handler: this.rejectRowEditHandle.bind(this),
-                Selector: '[data-rowreject]',
-                SubscriptionId: 'editor'
-            });
+           
 
             this.MasterTable.Renderer.Delegator.subscribeRowEvent({
                 EventId: this.Configuration.CommitEventId,

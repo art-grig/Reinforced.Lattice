@@ -95,7 +95,7 @@
          * 
          * @param adjustments Table adjustmetns object         
          */
-        proceedAdjustments(adjustments: PowerTables.Editors.IAdjustmentData): void;
+        proceedAdjustments(adjustments: PowerTables.Editing.IAdjustmentData): void;
 
          /**
          * API for table messages

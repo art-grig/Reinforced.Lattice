@@ -4,11 +4,14 @@ using System.Reflection;
 using System.Web.Mvc;
 using PowerTables.Configuration;
 using PowerTables.Configuration.Json;
-using PowerTables.Editors;
-using PowerTables.Editors.Check;
-using PowerTables.Editors.Memo;
-using PowerTables.Editors.PlainText;
-using PowerTables.Editors.SelectList;
+using PowerTables.Editing;
+using PowerTables.Editing.Cells;
+using PowerTables.Editing.Editors.Check;
+using PowerTables.Editing.Editors.Memo;
+using PowerTables.Editing.Editors.PlainText;
+using PowerTables.Editing.Editors.SelectList;
+using PowerTables.Editing.Form;
+using PowerTables.Editing.Rows;
 using PowerTables.Filters.Range;
 using PowerTables.Filters.Select;
 using PowerTables.Filters.Value;
@@ -22,7 +25,6 @@ using PowerTables.Plugins.Ordering;
 using PowerTables.Plugins.Paging;
 using PowerTables.Plugins.Reload;
 using PowerTables.Plugins.ResponseInfo;
-using PowerTables.Plugins.RowAction;
 using PowerTables.Plugins.Toolbar;
 using PowerTables.Plugins.Total;
 using Reinforced.Typings.Fluent;
@@ -133,9 +135,13 @@ namespace PowerTables.Typings
                 .WithProperty(c => c.ColumnsValueFunctions, c => c.Type("{ [key:string] : (a:any)=>string }"))
                 .WithProperty(c => c.ColumnsCalculatorFunctions, c => c.Type("{ [key:string] : (data:IClientDataResults) => any }"));
 
-            builder.ExportAsInterface<CellEditorUiConfigBase>().WithPublicProperties();
-            builder.ExportAsInterface<EditorUiConfig>().WithPublicProperties().WithProperty(c => c.IntegrityCheckFunction, c => c.Type("(dataObject:any)=>boolean"));
-            builder.ExportAsEnum<EditorType>();
+            builder.ExportAsInterface<EditFieldUiConfigBase>().WithPublicProperties();
+            builder.ExportAsInterface<EditFormUiConfigBase>().WithPublicProperties();
+            builder.ExportAsInterface<CellsEditUiConfig>().WithPublicProperties();
+            builder.ExportAsInterface<FormEditUiConfig>().WithPublicProperties();
+            builder.ExportAsInterface<RowsEditUiConfig>().WithPublicProperties();
+
+
 
             builder.ExportAsInterface<SelectListEditorUiConfig>().WithPublicProperties();
             builder.ExportAsInterface<MemoEditorUiConfig>().WithPublicProperties();
@@ -145,12 +151,11 @@ namespace PowerTables.Typings
             builder.ExportAsInterface<PlainTextEditorUiConfig>()
                 .WithPublicProperties()
                 .WithProperty(c => c.FormatFunction, c => c.Type("(value:any,column:IColumn) => string"))
-                .WithProperty(c => c.ParseFunction, c => c.Type("(value:string,column:IColumn,errors:PowerTables.Editors.IValidationMessage[]) => any"))
+                .WithProperty(c => c.ParseFunction, c => c.Type("(value:string,column:IColumn,errors:PowerTables.Editing.IValidationMessage[]) => any"))
                 ;
 
             builder.ExportAsInterface<LoadingOverlapUiConfig>().WithPublicProperties();
             builder.ExportAsEnums(new[] { typeof(OverlapMode) });
-            builder.ExportAsEnums(new[] { typeof(EditorType) });
 
             builder.ExportAsInterface<ReloadUiConfiguration>().WithPublicProperties();
             builder.ExportAsInterface<ConfiguredSubscriptionInfo>()
@@ -159,15 +164,7 @@ namespace PowerTables.Typings
 
             builder.ExportAsInterface<HierarchyUiConfiguration>().WithPublicProperties();
             builder.ExportAsEnums(new[] { typeof(NodeExpandBehavior), typeof(TreeCollapsedNodeFilterBehavior) });
-
-            builder.ExportAsInterface<RowActionUiConfiguration>().WithPublicProperties();
-            builder.ExportAsInterface<ClientRowActionDescription>()
-                .WithPublicProperties()
-                .WithProperty(c => c.CommandCallbackFunction,
-                    c => c.Type("(table:any /*PowerTables.PowerTable*/,response:IPowerTablesResponse)=>void"))
-                .WithProperty(c => c.OnTrigger, c => c.Type("(e:any)=>void"))
-                .WithProperty(c => c.ConfirmationFunction,
-                    c => c.Type("(continuation:(queryModifier?:(a:IQuery)=>void)=>void)=>void"));
+            
         }
 
     }

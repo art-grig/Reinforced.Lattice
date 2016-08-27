@@ -1,7 +1,4 @@
-﻿using System.Linq;
-using System.Web.Mvc;
-using System.Web.WebPages;
-using PowerTables.Templating.BuiltIn;
+﻿using System.Web.Mvc;
 
 namespace PowerTables.Templating
 {

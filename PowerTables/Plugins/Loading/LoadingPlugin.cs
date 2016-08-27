@@ -1,6 +1,5 @@
 ﻿using PowerTables.Configuration;
 using PowerTables.Configuration.Json;
-using PowerTables.Templating;
 
 namespace PowerTables.Plugins.Loading
 {

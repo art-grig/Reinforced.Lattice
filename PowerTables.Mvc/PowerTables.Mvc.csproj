@@ -139,6 +139,7 @@
     <Compile Include="Models\TargetData.cs" />
     <Compile Include="Models\TestTable.cs" />
     <Compile Include="Models\Tutorial\HierarchyTable.cs" />
+    <Compile Include="Models\Tutorial\NewEditing.cs" />
     <Compile Include="Models\Tutorial\PermanentQueryPartProvider.cs" />
     <Compile Include="Models\Tutorial\ClientReloadingWithQueryPartProvider.cs" />
     <Compile Include="Models\Tutorial\SubscribingCellAndRowEvents.cs" />

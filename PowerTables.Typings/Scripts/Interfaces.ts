@@ -589,31 +589,16 @@ module PowerTables.Plugins.Total {
 		ColumnsCalculatorFunctions: { [key:string] : (data:IClientDataResults) => any };
 	}
 }
-module PowerTables.Editors {
-	export interface ICellEditorUiConfigBase
+module PowerTables.Editing {
+	export interface IEditFieldUiConfigBase
 	{
-		PluginId: string;
 		TemplateId: string;
-		ValidationMessagesTemplateId: string;
+		FieldName: string;
+		PluginId: string;
 	}
-	/** Client plugin configuration for editor plugin */
-	export interface IEditorUiConfig
+	export interface IEditFormUiConfigBase
 	{
-		/** Event that should trigger editing event. DOMEvent class can be used here */
-		BeginEditEventId: string;
-		/** DOM event on corresponding element that should trigger committing of edition */
-		CommitEventId: string;
-		/** DOM event on corresponding element that should trigger rejecting of edition */
-		RejectEventId: string;
-		/** Internal collection of editor's configuration for each column. Key = column ID, Value = per-column configuration object */
-		EditorsForColumns: { [key:string]: PowerTables.Editors.ICellEditorUiConfigBase };
-		/**
-		* Functon that will be called before saving data to server to check integrity of saving object against 
-		*             client loaded data
-		*/
-		IntegrityCheckFunction: (dataObject:any)=>boolean;
-		DeferChanges: boolean;
-		EditorType: PowerTables.Editors.EditorType;
+		Fields: PowerTables.Editing.IEditFieldUiConfigBase[];
 	}
 	/** Result of table edition or other action */
 	export interface IEditionResult
@@ -628,13 +613,13 @@ module PowerTables.Editors {
 		*/
 		ConfirmedObject: any;
 		/** Adjustments set for table that has initiated request */
-		TableAdjustments: PowerTables.Editors.IAdjustmentData;
+		TableAdjustments: PowerTables.Editing.IAdjustmentData;
 		/**
 		* Adjustments for other tables located on same page. 
 		*             Here: key is other table id (the same that has passed to table initialization script)
 		*             value is adjustmetns set for mentioned table
 		*/
-		OtherTablesAdjustments: { [key:string]: PowerTables.Editors.IAdjustmentData };
+		OtherTablesAdjustments: { [key:string]: PowerTables.Editing.IAdjustmentData };
 	}
 	/** Adjustments set for particular table */
 	export interface IAdjustmentData
@@ -650,14 +635,28 @@ module PowerTables.Editors {
 		*/
 		AdditionalData: { [key:string]: any };
 	}
-	export enum EditorType { 
-		Cell = 0, 
-		Row = 1, 
-		Form = 2, 
+}
+module PowerTables.Editing.Cells {
+	export interface ICellsEditUiConfig extends PowerTables.Editing.IEditFormUiConfigBase
+	{
+		BeginEditEventId: string;
 	}
 }
-module PowerTables.Editors.SelectList {
-	export interface ISelectListEditorUiConfig extends PowerTables.Editors.ICellEditorUiConfigBase
+module PowerTables.Editing.Form {
+	export interface IFormEditUiConfig extends PowerTables.Editing.IEditFormUiConfigBase
+	{
+	}
+}
+module PowerTables.Editing.Rows {
+	export interface IRowsEditUiConfig extends PowerTables.Editing.IEditFormUiConfigBase
+	{
+		BeginEditEventId: string;
+		CommitEventId: string;
+		RejectEventId: string;
+	}
+}
+module PowerTables.Editing.Editors.SelectList {
+	export interface ISelectListEditorUiConfig extends PowerTables.Editing.IEditFieldUiConfigBase
 	{
 		PluginId: string;
 		SelectListItems: System.Web.Mvc.ISelectListItem[];
@@ -666,8 +665,8 @@ module PowerTables.Editors.SelectList {
 		AddEmptyElement: boolean;
 	}
 }
-module PowerTables.Editors.Memo {
-	export interface IMemoEditorUiConfig extends PowerTables.Editors.ICellEditorUiConfigBase
+module PowerTables.Editing.Editors.Memo {
+	export interface IMemoEditorUiConfig extends PowerTables.Editing.IEditFieldUiConfigBase
 	{
 		PluginId: string;
 		WarningChars: number;
@@ -677,24 +676,21 @@ module PowerTables.Editors.Memo {
 		AllowEmptyString: boolean;
 	}
 }
-module PowerTables.Editors.Check {
-	/** JSON configuration for Checkbox editor */
-	export interface ICheckEditorUiConfig extends PowerTables.Editors.ICellEditorUiConfigBase
+module PowerTables.Editing.Editors.Check {
+	export interface ICheckEditorUiConfig extends PowerTables.Editing.IEditFieldUiConfigBase
 	{
-		/** Plugin ID */
 		PluginId: string;
-		/** Is checkbox mandatory to be checked */
 		IsMandatory: boolean;
 	}
 }
-module PowerTables.Editors.PlainText {
-	export interface IPlainTextEditorUiConfig extends PowerTables.Editors.ICellEditorUiConfigBase
+module PowerTables.Editing.Editors.PlainText {
+	export interface IPlainTextEditorUiConfig extends PowerTables.Editing.IEditFieldUiConfigBase
 	{
 		PluginId: string;
 		ValidationRegex: string;
 		EnableBasicValidation: boolean;
 		FormatFunction: (value:any,column:IColumn) => string;
-		ParseFunction: (value:string,column:IColumn,errors:PowerTables.Editors.IValidationMessage[]) => any;
+		ParseFunction: (value:string,column:IColumn,errors:PowerTables.Editing.IValidationMessage[]) => any;
 		FloatRemoveSeparatorsRegex: string;
 		FloatDotReplaceSeparatorsRegex: string;
 		AllowEmptyString: boolean;
@@ -748,31 +744,5 @@ module PowerTables.Plugins.Hierarchy {
 		IncludeCollapsed = 0, 
 		/** In this case, even collapsed nodes will be excluded from filter results */
 		ExcludeCollapsed = 1, 
-	}
-}
-module PowerTables.Plugins.RowAction {
-	export interface IRowActionUiConfiguration
-	{
-		RowActionDescriptions: { [key:string]: PowerTables.Plugins.RowAction.IClientRowActionDescription };
-	}
-	/** JSON configuration for client row action */
-	export interface IClientRowActionDescription
-	{
-		/** Gets or sets command associated within client action */
-		Command: string;
-		/** Gets or sets template ID for confirmation button's action */
-		ConfirmationTemplateId: string;
-		/** Gets or sets element selector where confirmation panel will be placed to */
-		ConfirmationTargetSelector: string;
-		/** Gets or sets confirmation form fields configuration */
-		ConfirmationFormConfiguration: PowerTables.Plugins.Formwatch.IFormwatchFieldData[];
-		/** Gets or sets JS function to be executed after command execution. JS function is of type: (table:PowerTables.PowerTable, response:IPowerTablesResponse) =&gt; void */
-		CommandCallbackFunction: (table:any /*PowerTables.PowerTable*/,response:IPowerTablesResponse)=>void;
-		/** Gets or sets JS function to be executed before command execution with ability to confinue or reject action. JS function is of type: (continuation: ( queryModifier?:(a:IQuery) =&gt; IQuery ) =&gt; void ,table:any (PowerTables.PowerTable)) =&gt; void */
-		ConfirmationFunction: (continuation:(queryModifier?:(a:IQuery)=>void)=>void)=>void;
-		/** Gets or sets JS function to be executed when action happens. JS function is of type: (table:any (PowerTables.PowerTable), menuElement:any)=&gt;void */
-		OnTrigger: (e:any)=>void;
-		/** Gets or sets URL that HTML content will be loaded from for particular row. Row object will be passed as QueryString parameter */
-		UrlToLoad: string;
 	}
 }

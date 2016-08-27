@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PowerTables.Plugins.Reload
+﻿namespace PowerTables.Plugins.Reload
 {
     /// <summary>
     /// Client configuration for Reload plugin

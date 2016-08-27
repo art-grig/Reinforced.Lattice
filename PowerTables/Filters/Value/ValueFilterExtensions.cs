@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 using PowerTables.Configuration;
 using PowerTables.Configuration.Json;
-using PowerTables.Filters.Select;
 using PowerTables.Plugins;
 
 namespace PowerTables.Filters.Value
