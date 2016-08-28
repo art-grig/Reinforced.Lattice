@@ -3,7 +3,7 @@
 
         private _isEditing: boolean = false;
         private _activeEditors: IEditor[] = [];
-
+        
         public onBeforeClientRowsRendering(e: ITableEventArgs<IRow[]>) {
             if (!this._isEditing) return;
             for (var i = 0; i < e.EventArgs.length; i++) {
@@ -20,10 +20,6 @@
                 this._activeEditors[i].onAfterRender(null);
                 this.setEditorValue(this._activeEditors[i]);
             }
-        }
-
-        private isEditable(column: IColumn): boolean {
-            return this.Configuration.Fields.hasOwnProperty(column.RawName);
         }
 
         private ensureEditing(rowDisplayIndex: number) {
@@ -43,6 +39,12 @@
         }
 
         private beginRowEdit(rowIndex: number) {
+            if (this._isEditing) {
+                var lookup = this.MasterTable.DataHolder.localLookupDisplayedData(rowIndex);
+                if (this.DataObject !== lookup.DataObject) {
+                    this.rejectAll();
+                }
+            }
             this.ensureEditing(rowIndex);
             for (var k in this.Cells) {
                 if (this.Cells.hasOwnProperty(k)) {
@@ -62,36 +64,8 @@
             }
             if (this._activeEditors.length > 0) this._activeEditors[0].focus();
         }
-
-        public beginRowEditHandle(e: IRowEventArgs) {
-            if (this._isEditing) return;
-            this.beginRowEdit(e.DisplayingRowIndex);
-        }
-
-
-
+        
         public afterDrawn: (e: ITableEventArgs<any>) => void = (e) => {
-            this.MasterTable.Renderer.Delegator.subscribeRowEvent({
-                EventId: this.Configuration.BeginEditEventId,
-                Handler: this.beginRowEditHandle.bind(this),
-                Selector: '[data-editrow]',
-                SubscriptionId: 'roweditor'
-            });
-
-            this.MasterTable.Renderer.Delegator.subscribeRowEvent({
-                EventId: this.Configuration.CommitEventId,
-                Handler: this.commitRowEditHandle.bind(this),
-                Selector: '[data-rowcommit]',
-                SubscriptionId: 'roweditor'
-            });
-
-            this.MasterTable.Renderer.Delegator.subscribeRowEvent({
-                EventId: this.Configuration.RejectEventId,
-                Handler: this.rejectRowEditHandle.bind(this),
-                Selector: '[data-rowreject]',
-                SubscriptionId: 'roweditor'
-            });
-
             this.MasterTable.Events.BeforeClientRowsRendering.subscribe(this.onBeforeClientRowsRendering.bind(this), 'roweditor');
             this.MasterTable.Events.AfterDataRendered.subscribe(this.onAfterDataRendered.bind(this), 'roweditor');
         }
@@ -139,9 +113,41 @@
             this.retrieveEditorData(editor);
         }
 
+        public rejectAll() : void {
+            for (var i = 0; i < this._activeEditors.length; i++) {
+                this.reject(this._activeEditors[i]);
+            }
+            this._isEditing = false;
+            this.CurrentDataObjectModified = null;
+            this.Cells = {};
+            var di = this.MasterTable.DataHolder.localLookupDisplayedDataObject(this.DataObject);
+            if (di.IsCurrentlyDisplaying) {
+                //var row = this.MasterTable.Controller.produceRow(this.DataObject, di.DisplayedIndex);
+                this.MasterTable.Controller.redrawVisibleDataObject(this.DataObject);
+            }
+
+            //this.MasterTable.Renderer.Modifier.redrawRow(row);
+        }
+
         reject(editor: PowerTables.Editing.IEditor): void {
             this.CurrentDataObjectModified[editor.FieldName] = this.DataObject[editor.FieldName];
             this.setEditorValue(editor);
         }
+
+        public beginRowEditHandle(e: IRowEventArgs) {
+            //if (this._isEditing) return;
+            this.beginRowEdit(e.DisplayingRowIndex);
+        }
+
+        public commitRowEditHandle(e: IRowEventArgs) {
+            if (!this._isEditing) return;
+            this.commitAll();
+        }
+
+        public rejectRowEditHandle(e: IRowEventArgs) {
+            if (!this._isEditing) return;
+            this.rejectAll();
+        }
     }
+    ComponentsContainer.registerComponent('RowsEditHandler', RowsEditHandler);
 }

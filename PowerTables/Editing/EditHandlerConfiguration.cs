@@ -8,7 +8,7 @@ namespace PowerTables.Editing
         TClientConfig FormClientConfig { get; }
     }
     public sealed class EditHandlerConfiguration<TForm,TClientConfig> : IEditHandlerConfiguration<TClientConfig> 
-        where TClientConfig : EditFormUiConfigBase
+        where TClientConfig : EditFormUiConfigBase, new()
     {
         private readonly Dictionary<string, object> _cachedCliendConfigs = new Dictionary<string, object>();
         public TClientConfig FormClientConfig { get; private set; }
@@ -23,6 +23,11 @@ namespace PowerTables.Editing
             _cachedCliendConfigs[name.Name] = editor;
             FormClientConfig.Fields.Add(editor.UiConfig);
             return editor;
+        }
+
+        public EditHandlerConfiguration()
+        {
+            FormClientConfig = new TClientConfig();
         }
     }
 }

@@ -24,12 +24,22 @@ module PowerTables.Editing {
         protected dispatchEditResponse(editResponse: PowerTables.Editing.IEditionResult, then: () => void) {
             if (then) then();
         }
+        protected isEditable(column: IColumn): boolean {
+            return this.EditorConfigurations.hasOwnProperty(column.RawName);
+        }
 
         protected sendDataObjectToServer(then: () => void) {
             this.MasterTable.Loader.requestServer('Edit', (r) => this.dispatchEditResponse(r, then), (q) => {
                 q.AdditionalData['Edit'] = JSON.stringify(this.CurrentDataObjectModified);
                 return q;
             });
+        }
+
+        protected hasChanges(): boolean {
+            for (var k in this.DataObject) {
+                if (this.DataObject[k] !== this.CurrentDataObjectModified[k]) return true;
+            }
+            return false;
         }
 
         protected  setEditorValue(editor: PowerTables.Editing.IEditor) {

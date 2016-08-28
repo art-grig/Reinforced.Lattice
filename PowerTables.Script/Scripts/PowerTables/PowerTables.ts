@@ -153,7 +153,7 @@ module PowerTables {
                 element['fireEvent'](eventName);
         }
 
-        public proceedAdjustments(adjustments: PowerTables.Editors.IAdjustmentData): void {
+        public proceedAdjustments(adjustments: PowerTables.Editing.IAdjustmentData): void {
             this.Events.BeforeAdjustment.invoke(this, adjustments);
             var result = this.DataHolder.proceedAdjustments(adjustments);
             if (result != null) this.Controller.drawAdjustmentResult(result);

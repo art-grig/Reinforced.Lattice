@@ -1,10 +1,7 @@
 ﻿module PowerTables.Editing.Editors.Cells {
     export class CellsEditHandler extends EditHandlerBase<PowerTables.Editing.Cells.ICellsEditUiConfig> {
 
-        private isEditable(column: IColumn): boolean {
-            return this.Configuration.Fields.hasOwnProperty(column.RawName);
-        }
-
+        
         private _isEditing: boolean = false;
         private _activeEditor: IEditor;
 
@@ -59,13 +56,6 @@
         }
 
         public afterDrawn: (e: ITableEventArgs<any>) => void = (e) => {
-            this.MasterTable.Renderer.Delegator.subscribeCellEvent({
-                EventId: this.Configuration.BeginEditEventId,
-                Handler: this.beginCellEditHandle.bind(this),
-                Selector: '[data-editcell]',
-                SubscriptionId: 'editor'
-            });
-
             this.MasterTable.Events.BeforeClientRowsRendering.subscribe(this.onBeforeClientRowsRendering.bind(this), 'editor');
             this.MasterTable.Events.AfterDataRendered.subscribe(this.onAfterDataRendered.bind(this), 'editor');
         }

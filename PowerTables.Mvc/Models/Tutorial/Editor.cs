@@ -1,20 +1,14 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Web.Mvc;
-using System.Web.Mvc.Html;
+﻿using System.Web.Mvc.Html;
 using PowerTables.CellTemplating;
 using PowerTables.Configuration;
 using PowerTables.Editing;
+using PowerTables.Editing.Cells;
+using PowerTables.Editing.Editors.Check;
 using PowerTables.Editing.Editors.Memo;
+using PowerTables.Editing.Editors.PlainText;
 using PowerTables.Editing.Editors.SelectList;
-using PowerTables.Editors;
-using PowerTables.Editors.Check;
-using PowerTables.Editors.PlainText;
-using PowerTables.Filters;
-using PowerTables.Filters.Range;
-using PowerTables.Filters.Value;
+using PowerTables.Editing.Rows;
 using PowerTables.FrequentlyUsed;
-using PowerTables.Plugins.Formwatch;
 using PowerTables.Plugins.LoadingOverlap;
 using PowerTables.Plugins.Ordering;
 
@@ -50,39 +44,34 @@ namespace PowerTables.Mvc.Models.Tutorial
 
             conf.Column(c => c.Name)
                 .Template(t => t.Returns(v => v.Tag("span")
-                    .Attr("style", "background-color:aliceblue")
-                    .Data("editcell", "true").Content("{Name}")
-                    ))
-                .EditPlainText();
+                        .Attr("style", "background-color:aliceblue")
+                        .Data("editcell", "true").Content("{Name}")
+                ));
+
             conf.Column(c => c.CreatedDate)
                 .Template(t => t.Returns(
                     v => v.Tag("div").Content(
                         c => c.Tag("span").Content("`dateFormat({CreatedDate},'dd mmm yyyy',false)`").EditPencil())))
-                            .EditPlainText()
                             ;
             conf.Column(c => c.Price)
                 .Template(t => t.Returns(
                     v => v.Tag("div").Content(
                         c => c.Tag("span").Content("{Price}").EditPencil())))
-                            .EditPlainText(t => t.TemplateId("plainTextEditorAlternate"))
                             ;
             conf.Column(c => c.IsPaid)
                 .Template(t =>
                 {
                     t.Returns(v => v.Tag("div").Content(c => c.Tag("span").Content("`{IsPaid}.toString() + ({^IsUpdated}?'edited':'')`").EditPencil()));
                 })
-                            .EditCheck()
                             ;
             conf.Column(c => c.SupplierAddress)
                 .Template(t => t.Returns(
                     v => v.Tag("div").Content(
                         c => c.Tag("span").Content("{SupplierAddress}").EditPencil())))
-                            .EditMemo(c => c.Size(3, 10))
                             ;
 
             conf.Column(c => c.TypeOfToy)
                 .FormatEnumWithDisplayAttribute((tpl, v) => tpl.Content(v.Text).EditPencil())
-                .EditSelectList(c => c.Items(EnumHelper.GetSelectList(typeof(ToyType))).WithEmptyElement("---Select---", false))
                 ;
 
             conf.Column(c => c.Edit).Template(c =>
@@ -96,6 +85,25 @@ namespace PowerTables.Mvc.Models.Tutorial
                 {
                     v.Tag("button").Class("btn btn-default btn-sm").Content("Edit").RowEditTrigger();
                 });
+            });
+
+            conf.EditingCells(c =>
+            {
+                c.EditPlainText(x => x.Name);
+                c.EditPlainText(x => x.CreatedDate);
+                c.EditPlainText(x => x.Price).TemplateId("plainTextEditorAlternate");
+                c.EditCheck(x => x.IsPaid);
+                c.EditMemo(x => x.SupplierAddress).Size(3, 10);
+                c.EditSelectList(x => x.TypeOfToy).Items(EnumHelper.GetSelectList(typeof(ToyType))).WithEmptyElement("---Select---", false);
+            });
+
+            conf.EditingRow(c =>
+            {
+                c.EditPlainText(x => x.Name);
+                c.EditPlainText(x => x.CreatedDate);
+                c.EditPlainText(x => x.Price);
+                c.EditCheck(x => x.IsPaid);
+                c.EditSelectList(x => x.TypeOfToy).Items(EnumHelper.GetSelectList(typeof(ToyType))).WithEmptyElement("---Select---", false);
             });
             return conf;
         }

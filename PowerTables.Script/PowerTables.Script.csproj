@@ -32,10 +32,7 @@
     <TypeScriptCompile Include="..\PowerTables.Typings\Scripts\Interfaces.ts">
       <Link>Scripts\Interfaces.ts</Link>
     </TypeScriptCompile>
-    <TypeScriptCompile Include="Scripts\PowerTables\Editing\Cells\CellsEditHandler.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Editing\EditHandlerBase.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Editing\EditorBase.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Editing\Rows\RowsEditHandler.ts" />
+    
     <TypeScriptCompile Include="Scripts\PowerTables\TrackHelper.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\ComponentsContainer.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\CoreInterfaces.ts" />
@@ -75,18 +72,21 @@
     <TypeScriptCompile Include="Scripts\Typings\HideoutPlugin.d.ts" />
     <TypeScriptCompile Include="Scripts\Typings\Limit.d.ts" />
     <TypeScriptCompile Include="Scripts\Typings\PagingPlugin.d.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Editors\Editor.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Editing\Editors\PlainText\PlainTextEditor.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Editing\Editors\SelectList\SelectListEditor.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\LoadingOverlapPlugin.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Editing\Editors\Check\CheckEditor.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Editing\Editors\Memo\MemoEditor.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Toolbar\CommandConfirmation.ts" />
+	<TypeScriptCompile Include="Scripts\PowerTables\Plugins\Toolbar\CommandConfirmation.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\MessagesService.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\ReloadPlugin.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\LoadingPlugin.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\RowActionPlugin.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\HierarchyPlugin.ts" />
+	<TypeScriptCompile Include="Scripts\PowerTables\Editing\EditorBase.ts" />
+	<TypeScriptCompile Include="Scripts\PowerTables\Editing\EditHandlerBase.ts" />    
+	<TypeScriptCompile Include="Scripts\PowerTables\Editing\Cells\CellsEditHandler.ts" />    
+    <TypeScriptCompile Include="Scripts\PowerTables\Editing\Rows\RowsEditHandler.ts" />
+	<TypeScriptCompile Include="Scripts\PowerTables\Editing\Editors\PlainText\PlainTextEditor.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Editing\Editors\SelectList\SelectListEditor.ts" />
+	<TypeScriptCompile Include="Scripts\PowerTables\Editing\Editors\Check\CheckEditor.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Editing\Editors\Memo\MemoEditor.ts" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Scripts\PowerTables\Editing\Form\" />

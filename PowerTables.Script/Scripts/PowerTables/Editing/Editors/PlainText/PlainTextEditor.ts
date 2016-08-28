@@ -1,6 +1,6 @@
 ﻿module PowerTables.Editors.PlainText {
     
-    export class PlainTextEditor extends PowerTables.Editors.CellEditorBase<PowerTables.Editing.Editors.PlainText.IPlainTextEditorUiConfig> {
+    export class PlainTextEditor extends PowerTables.Editing.EditorBase<PowerTables.Editing.Editors.PlainText.IPlainTextEditorUiConfig> {
         Input: HTMLInputElement;
         ValidationRegex: RegExp;
         private _removeSeparators: RegExp;
@@ -8,9 +8,9 @@
         private _floatRegex: RegExp = new RegExp("^[0-9]+(\.[0-9]+)?$");
 
         private _formatFunction: (value: any, column: IColumn) => string;
-        private _parseFunction: (value: string, column: IColumn, errors: IValidationMessage[]) => any;
+        private _parseFunction: (value: string, column: IColumn, errors: PowerTables.Editing.IValidationMessage[]) => any;
 
-        public getValue(errors: IValidationMessage[]): any {
+        public getValue(errors: PowerTables.Editing.IValidationMessage[]): any {
             if (this.Column.IsDateTime) {
                 var d = this.MasterTable.Date.getDateFromDatePicker(this.Input);
                 if ((d == null) && !this.Column.Configuration.IsNullable) {
@@ -46,7 +46,7 @@
         }
 
 
-        private defaultParse(value: string, column: IColumn, errors: IValidationMessage[]): any {
+        private defaultParse(value: string, column: IColumn, errors: PowerTables.Editing.IValidationMessage[]): any {
             if (this.ValidationRegex) {
                 var mtch = this.ValidationRegex.test(value);
                 if (!mtch) {

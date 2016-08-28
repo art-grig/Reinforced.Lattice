@@ -11,7 +11,7 @@ namespace PowerTables.Editing.Editors.SelectList
         public static EditFieldUsage<TForm, TData, SelectListEditorUiConfig> EditSelectList<TForm, TData, TClientConfig>(
             this EditHandlerConfiguration<TForm, TClientConfig> t, 
             Expression<Func<TForm, TData>> field) 
-            where TClientConfig : EditFormUiConfigBase
+            where TClientConfig : EditFormUiConfigBase, new()
         {
             return t.GetFieldConfiguration<TData, SelectListEditorUiConfig>(LambdaHelpers.ParsePropertyLambda(field));
         }

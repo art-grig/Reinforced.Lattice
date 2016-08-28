@@ -139,6 +139,8 @@
         public OriginalContent(): string {
             return this.MasterTable.Renderer.ContentRenderer.renderCell(this);
         }
+
+        FieldName: string;
     }
 
     export interface IEditor extends IPlugin, ICell {

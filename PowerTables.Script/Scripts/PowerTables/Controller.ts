@@ -37,7 +37,7 @@
          */
         public redrawVisibleDataObject(dataObject: any, idx?: number): HTMLElement {
             if (idx == null || idx == undefined) {
-                var dispIndex: ILocalLookupResult = this._masterTable.DataHolder.localLookupDisplayedData(dataObject);
+                var dispIndex: ILocalLookupResult = this._masterTable.DataHolder.localLookupDisplayedDataObject(dataObject);
                 if (dispIndex == null) throw new Error('Cannot redraw object because it is not displaying currently');
                 idx = dispIndex.DisplayedIndex;
             }

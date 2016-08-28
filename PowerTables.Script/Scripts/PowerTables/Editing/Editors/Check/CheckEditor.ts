@@ -1,6 +1,6 @@
 ﻿module PowerTables.Editors.Check {
     
-    export class CheckEditor extends PowerTables.Editors.CellEditorBase<PowerTables.Editing.Editors.Check.ICheckEditorUiConfig> {
+    export class CheckEditor extends PowerTables.Editing.EditorBase<PowerTables.Editing.Editors.Check.ICheckEditorUiConfig> {
         FocusElement:HTMLElement;
         private _value: boolean;
 
@@ -22,7 +22,7 @@
             }
         }
 
-        public getValue(errors: PowerTables.Editors.IValidationMessage[]): any {
+        public getValue(errors: PowerTables.Editing.IValidationMessage[]): any {
             if (this.Configuration.IsMandatory && !this._value) {
                 errors.push({ Code: 'MANDATORY', Message: `${this.Column.Configuration.Title} is required` });
                 return null;

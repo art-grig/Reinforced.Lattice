@@ -8,5 +8,10 @@
         }
 
         public bool IsMandatory { get; set; }
+
+        public CheckEditorUiConfig()
+        {
+            TemplateId = "checkEditor";
+        }
     }
 }

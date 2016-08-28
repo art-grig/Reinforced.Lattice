@@ -249,12 +249,12 @@
             }
         }
 
-        private onBeforeAdjustments(e: ITableEventArgs<PowerTables.Editors.IAdjustmentData>) {
+        private onBeforeAdjustments(e: ITableEventArgs<PowerTables.Editing.IAdjustmentData>) {
             
             if (e.EventArgs.AdditionalData['Selection']) this.applySelection(e.EventArgs.AdditionalData['Selection']);
         }
 
-        private onAfterAdjustments(e: ITableEventArgs<PowerTables.Editors.IAdjustmentData>) {
+        private onAfterAdjustments(e: ITableEventArgs<PowerTables.Editing.IAdjustmentData>) {
             if (e.EventArgs.Removals.length > 0) {
                 for (var i = 0; i < e.EventArgs.Removals.length; i++) {
                     var removal = e.EventArgs.Removals[i];

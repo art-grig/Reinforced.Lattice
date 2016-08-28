@@ -40,7 +40,7 @@
                         children[i]._parent = dataObject;
                         children[i]._subtree = [];
                     }
-                    var ar: PowerTables.Editors.IAdjustmentData = {
+                    var ar: PowerTables.Editing.IAdjustmentData = {
                         Updates: children,
                         AdditionalData: {},
                         Removals: []

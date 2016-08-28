@@ -455,7 +455,7 @@
             }
         }
 
-        public proceedAdjustments(adjustments: PowerTables.Editors.IAdjustmentData): IAdjustmentResult {
+        public proceedAdjustments(adjustments: PowerTables.Editing.IAdjustmentData): IAdjustmentResult {
             if (this.RecentClientQuery == null || this.RecentClientQuery == undefined) return null;
             var needRefilter = false;
             var redrawVisibles = [];

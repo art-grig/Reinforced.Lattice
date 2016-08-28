@@ -12,7 +12,7 @@ namespace PowerTables.Editing.Editors.Check
         /// <param name="field">Field selector</param>
         /// <returns>Fluent</returns>
         public static EditFieldUsage<TForm, bool, CheckEditorUiConfig> EditCheck<TForm, TClientConfig>(this EditHandlerConfiguration<TForm, TClientConfig> t, Expression<Func<TForm, bool>> field) 
-            where TClientConfig : EditFormUiConfigBase
+            where TClientConfig : EditFormUiConfigBase, new()
         {
             return t.GetFieldConfiguration<bool, CheckEditorUiConfig>(LambdaHelpers.ParsePropertyLambda(field));
         }
@@ -24,7 +24,7 @@ namespace PowerTables.Editing.Editors.Check
         /// <param name="field">Field selector</param>
         /// <returns>Fluent</returns>
         public static EditFieldUsage<TForm, bool?, CheckEditorUiConfig> EditCheck<TForm, TClientConfig>(this EditHandlerConfiguration<TForm, TClientConfig> t, Expression<Func<TForm, bool?>> field)
-            where TClientConfig : EditFormUiConfigBase
+            where TClientConfig : EditFormUiConfigBase, new()
         {
             return t.GetFieldConfiguration<bool?, CheckEditorUiConfig>(LambdaHelpers.ParsePropertyLambda(field));
         }

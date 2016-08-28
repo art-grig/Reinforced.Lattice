@@ -415,6 +415,24 @@ namespace PowerTables.Configuration
         /// event via events delegator
         /// </summary>
         /// <param name="conf">Table configurator</param>
+        /// <param name="columnName">Name of column catching corresponding cell events</param>
+        /// <param name="subscription">Event subscription</param>
+        /// <returns></returns>
+        public static T SubscribeCellEvent<T> (this T conf, string columnName, TableEventSubscription subscription) where T:IConfigurator
+        {
+            subscription.SubscriptionInfo.ColumnName = columnName;
+            subscription.SubscriptionInfo.IsRowSubscription = false;
+            conf.TableConfiguration.Subscriptions.Add(subscription.SubscriptionInfo);
+            return conf;
+        }
+
+        /// <summary>
+        /// Subscribes event handler of DOM event occured on each cell of this column (without headers)
+        /// Please use this function to subscribe cell events instead of template bindings or onclick to 
+        /// improve event handling time and reduce RAM usage. This method actually makes table to subscribe cell 
+        /// event via events delegator
+        /// </summary>
+        /// <param name="conf">Table configurator</param>
         /// <param name="subscription">Event subscription</param>
         /// <returns></returns>
         public static ColumnUsage<TSourceData, TTableData, TColumn> SubscribeCellEvent<TSourceData, TTableData, TColumn>

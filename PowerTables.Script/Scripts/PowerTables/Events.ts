@@ -201,8 +201,8 @@
 
         public SelectionChanged: TableEvent<string[]>; //registered by Checkboxify
 
-        public BeforeAdjustment: TableEvent<PowerTables.Editors.IAdjustmentData>;
-        public AfterAdjustment: TableEvent<PowerTables.Editors.IAdjustmentData>;
+        public BeforeAdjustment: TableEvent<PowerTables.Editing.IAdjustmentData>;
+        public AfterAdjustment: TableEvent<PowerTables.Editing.IAdjustmentData>;
         public AdjustmentResult: TableEvent<IAdjustmentResult>;
 
     }
