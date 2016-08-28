@@ -1,4 +1,4 @@
-﻿module PowerTables.Editors.SelectList {
+﻿module PowerTables.Editing.Editors.SelectList {
     
     export class SelectListEditor extends PowerTables.Editing.EditorBase<PowerTables.Editing.Editors.SelectList.ISelectListEditorUiConfig> {
         List: HTMLSelectElement;

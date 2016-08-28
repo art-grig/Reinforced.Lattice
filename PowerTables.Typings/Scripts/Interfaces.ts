@@ -645,6 +645,8 @@ module PowerTables.Editing.Cells {
 module PowerTables.Editing.Form {
 	export interface IFormEditUiConfig extends PowerTables.Editing.IEditFormUiConfigBase
 	{
+		FormTargetSelector: string;
+		FormTemplateId: string;
 	}
 }
 module PowerTables.Editing.Rows {

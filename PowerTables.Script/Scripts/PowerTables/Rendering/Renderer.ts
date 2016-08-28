@@ -80,7 +80,7 @@
         private _rootId: string;
         private _events: EventsManager;
         private _templateIds: ICoreTemplateIds;
-        private _prefix : string;
+        private _prefix: string;
 
         //#region Templates caching
         private cacheTemplates(templatesPrefix: string): void {
@@ -146,6 +146,13 @@
             this._events.AfterDataRendered.invoke(this, null);
         }
 
+        public renderObjectContent(renderable: IRenderable): string {
+            this._stack.push(RenderingContextType.Custom, renderable);
+            var html = renderable.renderContent(this);
+            this._stack.popContext();
+            return html;
+        }
+
         public renderObject(templateId: string, viewModelBehind: any, targetSelector: string): HTMLElement {
             var parent = <HTMLElement>document.querySelector(targetSelector);
             this._stack.clear();
@@ -161,10 +168,14 @@
             return parent;
         }
 
-        public destroyObject(targetSelector: string) {
-            var parent = <HTMLElement>document.querySelector(targetSelector);
+        public destroyAtElement(parent: HTMLElement) {
             this.Delegator.handleElementDestroy(parent);
             parent.innerHTML = '';
+        }
+
+        public destroyObject(targetSelector: string) {
+            var parent = <HTMLElement>document.querySelector(targetSelector);
+            this.destroyAtElement(parent);
         }
 
         /**

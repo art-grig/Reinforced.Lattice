@@ -94,7 +94,7 @@
 
         commit(editor: PowerTables.Editing.IEditor): void {
             var idx = this._activeEditors.indexOf(editor);
-            if (this._activeEditors.length < idx + 1) {
+            if (this._activeEditors.length > idx + 1) {
                 idx = -1;
                 for (var i = 0; i < this._activeEditors.length; i++) {
                     if (!this._activeEditors[i].IsValid) {

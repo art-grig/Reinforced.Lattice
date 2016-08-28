@@ -1,4 +1,4 @@
-﻿module PowerTables.Editors.Memo {
+﻿module PowerTables.Editing.Editors.Memo {
     
     export class MemoEditor extends PowerTables.Editing.EditorBase<PowerTables.Editing.Editors.Memo.IMemoEditorUiConfig>{
         TextArea: HTMLInputElement;

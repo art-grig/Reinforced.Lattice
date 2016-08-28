@@ -30,31 +30,38 @@
             var wrapper: (arg: any) => string = this._templatesProvider.getCachedTemplate(this._templateIds.RowWrapper);
             for (var i: number = 0; i < rows.length; i++) {
                 var rw: IRow = rows[i];
-                this._stack.push(RenderingContextType.Row, rw);
-                if (rw.renderElement) {
-                    result += rw.renderElement(this._templatesProvider);
-                } else {
-                    if (this._instances.Configuration.TemplateSelector) {
-                        rw.TemplateIdOverride = this._instances.Configuration.TemplateSelector(rw);
-                    }
-                    if (rw.TemplateIdOverride) {
-                        result += this._templatesProvider.getCachedTemplate(rw.TemplateIdOverride)(rw);
-                    } else {
-                        result += wrapper(rw);
-                    }
-                }
-                this._stack.popContext();
+                result += this.renderRow(rw, wrapper);
             }
             return result;
         }
 
+        public renderRow(rw: IRow, wrapper?: (arg: any) => string): string {
+            this._stack.push(RenderingContextType.Row, rw);
+            if (!wrapper) {
+                wrapper = this._templatesProvider.getCachedTemplate(this._templateIds.RowWrapper);
+            }
+            var result = '';
+            if (rw.renderElement) {
+                result += rw.renderElement(this._templatesProvider);
+            } else {
+                if (this._instances.Configuration.TemplateSelector) {
+                    rw.TemplateIdOverride = this._instances.Configuration.TemplateSelector(rw);
+                }
+                if (rw.TemplateIdOverride) {
+                    result += this._templatesProvider.getCachedTemplate(rw.TemplateIdOverride)(rw);
+                } else {
+                    result += wrapper(rw);
+                }
+            }
+            this._stack.popContext();
+            return result;
+        }
         /*
         * @internal
         */
         public renderCell(cell: ICell): string {
             return this._columnsRenderFunctions[cell.Column.RawName](cell);
         }
-
 
         /*
         * @internal

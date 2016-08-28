@@ -98,6 +98,7 @@
     <Compile Include="Editing\Editors\Check\CheckEditorUiConfig.cs" />
     <Compile Include="Editing\Editors\PlainText\PlainTextEditorConfigurationExtensions.cs" />
     <Compile Include="Editing\Editors\PlainText\PlainTextEditorUiConfig.cs" />
+    <Compile Include="Editing\Form\EditFormTemplateRegion.cs" />
     <Compile Include="Editing\Form\FormEditingExtensions.cs" />
     <Compile Include="Editing\Form\FormEditUiConfig.cs" />
     <Compile Include="Editing\Rows\RowEditingExtensions.cs" />
@@ -107,7 +108,6 @@
     <Compile Include="Editing\Editors\Check\CheckEditorTemplateRegion.cs" />
     <Compile Include="Editing\EditionResult.cs" />
     <Compile Include="Editing\EditorCommandHandler.cs" />
-    <Compile Include="Editing\EditorExtensions.cs" />
     <Compile Include="Editing\Editors\Memo\MemoEditorConfigurationExtensions.cs" />
     <Compile Include="Editing\Editors\Memo\MemoEditorTemplateRegion.cs" />
     <Compile Include="Editing\Editors\Memo\MemoEditorUiConfig.cs" />

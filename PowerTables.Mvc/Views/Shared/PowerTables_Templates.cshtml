@@ -5,6 +5,7 @@
 @using PowerTables.Editing.Editors.Memo
 @using PowerTables.Editing.Editors.PlainText
 @using PowerTables.Editing.Editors.SelectList
+@using PowerTables.Editing.Form
 @using PowerTables.Filters.Range
 @using PowerTables.Filters.Select
 @using PowerTables.Filters.Value
@@ -481,10 +482,10 @@
                            @t.ThisIsInput()
                            @t.BindChanged("keyup")
                            @t.BindCommit(DOMEvent.Filter("keyup").Prop(13, "keyCode", "which"))
-                           @t.WhenInvalid(c => c.State.Color("red").Style("border-color", "red"))/>
+                           @t.WhenInvalid(c => c.State.Color("red").Style("border-color", "red")) />
                     <span class="text-center" style="display: none; min-width: 200px; min-height: 28px; margin-top: 5px;" @t.WhenSaving(c => c.Show())>
-                    <span class="badge"><span class="glyphicon glyphicon-refresh loader"></span> Saving...</span>
-                </span>
+                        <span class="badge"><span class="glyphicon glyphicon-refresh loader"></span> Saving...</span>
+                    </span>
                 </div>
             </div>
         </div>
@@ -494,7 +495,7 @@
         <div>
             <div @t.WhenInvalid(c => c.State.AddClass("has-error"))>
                 <input type="text" class="form-control input-sm"
-                       @t.WhenSaving(c => c.Attr("disabled","disabled"))
+                       @t.WhenSaving(c => c.Attr("disabled", "disabled"))
                        @t.ThisIsInput()
                        @t.BindChanged("keyup")
                        @t.BindCommit(DOMEvent.Filter("keyup").Prop(13, "keyCode", "which"))
@@ -504,6 +505,22 @@
                     <div class="tooltip-arrow" style="border-bottom-color: #E15C5C; left: 15%"></div>
                     <div class="tooltip-inner" style="max-width: 400px; background-color: #E15C5C;" @t.WhenInvalid(c => c.Content(v => v.ValidationMessages))></div>
                 </div>
+            </div>
+        </div>
+    }
+
+    using (t.If(c => c.IsFormEdit))
+    {
+        <div class="form-group">
+            <label for="edit-@t.Value(c=>c.Column.RawName)" class="col-sm-2 control-label">@t.Value(c => c.Column.Configuration.Title)</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" style="max-width: 100%" id="edit-@t.Value(c=>c.Column.RawName)" placeholder="@t.Value(c => c.Column.Configuration.Title)"
+                       @t.ThisIsInput()
+                       @t.BindChanged("keyup")
+                       @t.BindCommit(DOMEvent.Filter("keyup").Prop(13, "keyCode", "which"))
+                       @t.WhenInvalid(c => c.State.Color("red").Style("border-color", "red")) />
+                <span class="help-block text-danger" @t.WhenInvalid(c => { c.State.Show(); c.Content(d => d.ValidationMessages); }) style="display: none">
+                </span>
             </div>
         </div>
     }
@@ -521,11 +538,11 @@
 
 @using (var t = Plugin.Editor_PlainText("plainTextEditorAlternate"))
 {
-    using (t.If(c=>c.IsCellEdit))
+    using (t.If(c => c.IsCellEdit))
     {
         <div @t.BindReject(DOMEvent.Filter("click").Out().Prop(true, "ctrlKey"))>
             <div class="input-group" @t.WhenInvalid(c => c.State.AddClass("has-error")) style="max-width: 200px;" @t.WhenSaving(c => c.Hide())>
-                <input @t.ThisIsInput() @t.BindChanged("keyup") @t.BindCommit(DOMEvent.Filter("keyup").Prop(13, "keyCode", "which")) type="text" @t.WhenInvalid(c => c.State.Color("red")) class="form-control input-sm" aria-label="..." style="height: 28px; margin-top: -10px; margin-bottom: -10px"/>
+                <input @t.ThisIsInput() @t.BindChanged("keyup") @t.BindCommit(DOMEvent.Filter("keyup").Prop(13, "keyCode", "which")) type="text" @t.WhenInvalid(c => c.State.Color("red")) class="form-control input-sm" aria-label="..." style="height: 28px; margin-top: -10px; margin-bottom: -10px" />
                 <div class="tooltip bottom" role="tooltip" style="opacity: 1; top: 21px; display: none;"
                      @t.WhenInvalid(c => c.State.Show())>
                     <div class="tooltip-arrow" style="border-bottom-color: #E15C5C; left: 15%"></div>
@@ -545,12 +562,12 @@
             </div>
 
             <span class="text-center" style="display: none" @t.WhenSaving(c => c.Show())>
-            <span class="badge"><span class="glyphicon glyphicon-refresh"></span> Saving...</span>
-        </span>
+                <span class="badge"><span class="glyphicon glyphicon-refresh"></span> Saving...</span>
+            </span>
         </div>
     }
 
-    
+
 }
 
 @using (var t = Plugin.Editor_SelectList())
@@ -569,20 +586,20 @@
                 </h3>
                 <div class="popover-content">
                     <select @t.WhenSaving(c => c.Hide())
-                        @t.WhenInvalid(c => c.State.Style("background-color", "#FFF7F7"))
-                        class="form-control input-md"
-                        style="min-width: 150px;"
-                        @t.ThisIsList()
-                        @t.BindChanged("change")
-                        @t.BindCommit("change")>
+                            @t.WhenInvalid(c => c.State.Style("background-color", "#FFF7F7"))
+                            class="form-control input-md"
+                            style="min-width: 150px;"
+                            @t.ThisIsList()
+                            @t.BindChanged("change")
+                            @t.BindCommit("change")>
                         @using (var itm = t.Each(c => c.Items))
                         {
                             <option value="@itm.Value(c => c.Value)">@itm.Value(c => c.Text)</option>
                         }
                     </select>
                     <span class="text-center" style="display: none; min-width: 150px; min-height: 28px; margin-top: 5px;" @t.WhenSaving(c => c.Show())>
-                    <span class="badge"><span class="glyphicon glyphicon-refresh loader"></span> Saving...</span>
-                </span>
+                        <span class="badge"><span class="glyphicon glyphicon-refresh loader"></span> Saving...</span>
+                    </span>
                 </div>
             </div>
         </div>
@@ -592,7 +609,7 @@
     {
         <div>
             <div @t.WhenInvalid(c => c.State.AddClass("has-error"))>
-                <select @t.WhenSaving(c => c.Attr("disabled","disabled"))
+                <select @t.WhenSaving(c => c.Attr("disabled", "disabled"))
                         @t.WhenInvalid(c => c.State.Style("background-color", "#FFF7F7"))
                         class="form-control input-sm"
                         @t.ThisIsList()
@@ -609,6 +626,31 @@
                     <div class="tooltip-arrow" style="border-bottom-color: #E15C5C; left: 15%"></div>
                     <div class="tooltip-inner" style="max-width: 400px; background-color: #E15C5C;" @t.WhenInvalid(c => c.Content(v => v.ValidationMessages))></div>
                 </div>
+            </div>
+        </div>
+    }
+
+    using (t.If(c => c.IsFormEdit))
+    {
+        <div class="form-group">
+            <label for="edit-@t.Value(c=>c.Column.RawName)" class="col-sm-2 control-label">@t.Value(c => c.Column.Configuration.Title)</label>
+            <div class="col-sm-10">
+
+                <select id="edit-@t.Value(c => c.Column.RawName)"
+                        @t.WhenSaving(c => c.Attr("disabled", "disabled"))
+                        @t.WhenInvalid(c => c.State.Style("background-color", "#FFF7F7"))
+                        class="form-control" style="max-width:100%"
+                        @t.ThisIsList()
+                        @t.BindChanged("change")
+                        @t.BindCommit("change")>
+                    @using (var itm = t.Each(c => c.Items))
+                    {
+                        <option value="@itm.Value(c => c.Value)">@itm.Value(c => c.Text)</option>
+                    }
+                </select>
+
+                <span class="help-block text-danger" @t.WhenInvalid(c => { c.State.Show(); c.Content(d => d.ValidationMessages); }) style="display: none">
+                </span>
             </div>
         </div>
     }
@@ -641,13 +683,13 @@
                                   rows="@t.Value(c => c.Rows)"
                                   cols="@t.Value(c => c.Columns)"></textarea>
                     </div>
-                    <br/>
+                    <br />
                     <div class="col-md-12" @t.WhenSaving(c => c.Hide())>
                         <button class="btn btn-default btn-xs btn-block" @t.BindCommit("click") @t.WhenInvalid(c => c.State.Disabled())>Save</button>
                     </div>
                     <span class="text-center" style="display: none; min-width: 150px; min-height: 28px; margin-top: -15px;" @t.WhenSaving(c => c.Show())>
-                    <span class="badge"><span class="glyphicon glyphicon-refresh loader"></span> Saving...</span>
-                </span>
+                        <span class="badge"><span class="glyphicon glyphicon-refresh loader"></span> Saving...</span>
+                    </span>
                 </div>
             </div>
         </div>
@@ -670,6 +712,22 @@
                     <div class="tooltip-arrow" style="border-bottom-color: #E15C5C; left: 15%"></div>
                     <div class="tooltip-inner" style="max-width: 400px; background-color: #E15C5C;" @t.WhenInvalid(c => c.Content(v => v.ValidationMessages))></div>
                 </div>
+            </div>
+        </div>
+    }
+
+    using (t.If(c => c.IsFormEdit))
+    {
+        <div class="form-group">
+            <label for="edit-@t.Value(c=>c.Column.RawName)" class="col-sm-2 control-label">@t.Value(c => c.Column.Configuration.Title)</label>
+            <div class="col-sm-10">
+                <textarea type="text" class="form-control" style="max-width: 100%" id="edit-@t.Value(c=>c.Column.RawName)" placeholder="@t.Value(c => c.Column.Configuration.Title)"
+                          @t.ThisIsInput()
+                          @t.BindChanged("keyup")
+                          @t.BindCommit(DOMEvent.Filter("keyup").Prop(13, "keyCode", "which"))
+                          @t.WhenInvalid(c => c.State.Color("red").Style("border-color", "red"))></textarea>
+                <span class="help-block text-danger" @t.WhenInvalid(c => { c.State.Show(); c.Content(d => d.ValidationMessages); }) style="display: none">
+                </span>
             </div>
         </div>
     }
@@ -696,15 +754,15 @@
                         <div class="checkbox">
                             <label style="padding-left: 10px; line-height: 2; font-size: 16px;">
                                 <input type="checkbox" @t.BindChanged("change") @t.BindCommit("change") style="width: 20px; height: 20px; cursor: pointer"
-                                       @t.WhenChecked(c => c.Attr("checked", "checked"))/>
-                                @t.Value(c => c.Column.Configuration.Title) 
+                                       @t.WhenChecked(c => c.Attr("checked", "checked")) />
+                                @t.Value(c => c.Column.Configuration.Title)
                             </label>
                         </div>
 
                     </div>
                     <span class="text-center" style="display: none; min-width: 150px; min-height: 48px; margin-top: -15px;" @t.WhenSaving(c => c.Show())>
-                    <span class="badge" style="margin-top: 20px"><span class="glyphicon glyphicon-refresh loader"></span> Saving...</span>
-                </span>
+                        <span class="badge" style="margin-top: 20px"><span class="glyphicon glyphicon-refresh loader"></span> Saving...</span>
+                    </span>
                 </div>
             </div>
         </div>
@@ -721,6 +779,20 @@
                      @t.WhenInvalid(c => c.State.Show())>
                     <div class="tooltip-arrow" style="border-bottom-color: #E15C5C; left: 15%"></div>
                     <div class="tooltip-inner" style="max-width: 400px; background-color: #E15C5C;" @t.WhenInvalid(c => c.Content(v => v.ValidationMessages))></div>
+                </div>
+            </div>
+        </div>
+    }
+
+    using (t.If(c => c.IsFormEdit))
+    {
+        <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" @t.BindChanged("change") @t.BindCommit("change")
+                           @t.WhenChecked(c => c.Attr("checked", "checked"))> @t.Value(c => c.Column.Configuration.Title)
+                    </label>
                 </div>
             </div>
         </div>

@@ -7,6 +7,7 @@ using PowerTables.Editing.Editors.Check;
 using PowerTables.Editing.Editors.Memo;
 using PowerTables.Editing.Editors.PlainText;
 using PowerTables.Editing.Editors.SelectList;
+using PowerTables.Editing.Form;
 using PowerTables.Editing.Rows;
 using PowerTables.FrequentlyUsed;
 using PowerTables.Plugins.LoadingOverlap;
@@ -83,7 +84,7 @@ namespace PowerTables.Mvc.Models.Tutorial
                 });
                 c.Returns(v =>
                 {
-                    v.Tag("button").Class("btn btn-default btn-sm").Content("Edit").RowEditTrigger();
+                    v.Tag("button").Class("btn btn-default btn-sm").Content("Edit").RowEditTrigger().After(d=>d.Tag("button").Content("Edit form").FormEditTrigger());
                 });
             });
 
@@ -104,6 +105,17 @@ namespace PowerTables.Mvc.Models.Tutorial
                 c.EditPlainText(x => x.Price);
                 c.EditCheck(x => x.IsPaid);
                 c.EditSelectList(x => x.TypeOfToy).Items(EnumHelper.GetSelectList(typeof(ToyType))).WithEmptyElement("---Select---", false);
+            });
+
+            conf.EditingForm(c =>
+            {
+                c.EditPlainText(x => x.Name);
+                c.EditPlainText(x => x.CreatedDate);
+                c.EditPlainText(x => x.Price);
+                c.EditCheck(x => x.IsPaid);
+                c.EditMemo(x => x.SupplierAddress).Size(3, 10);
+                c.EditSelectList(x => x.TypeOfToy).Items(EnumHelper.GetSelectList(typeof(ToyType))).WithEmptyElement("---Select---", false);
+                c.RenderTo("#confirmationContent", "simpleEditForm");
             });
             return conf;
         }

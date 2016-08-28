@@ -12,9 +12,6 @@ namespace PowerTables.Editing
 
         public const string PluginId = "Editor";
         
-        public static Template FormEditTrigger(this Template t)
-        {
-            return t.Data("editform", "true");
-        }
+        
     }
 }

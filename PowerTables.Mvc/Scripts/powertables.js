@@ -2541,23 +2541,31 @@ var PowerTables;
                 var wrapper = this._templatesProvider.getCachedTemplate(this._templateIds.RowWrapper);
                 for (var i = 0; i < rows.length; i++) {
                     var rw = rows[i];
-                    this._stack.push(Rendering.RenderingContextType.Row, rw);
-                    if (rw.renderElement) {
-                        result += rw.renderElement(this._templatesProvider);
+                    result += this.renderRow(rw, wrapper);
+                }
+                return result;
+            };
+            ContentRenderer.prototype.renderRow = function (rw, wrapper) {
+                this._stack.push(Rendering.RenderingContextType.Row, rw);
+                if (!wrapper) {
+                    wrapper = this._templatesProvider.getCachedTemplate(this._templateIds.RowWrapper);
+                }
+                var result = '';
+                if (rw.renderElement) {
+                    result += rw.renderElement(this._templatesProvider);
+                }
+                else {
+                    if (this._instances.Configuration.TemplateSelector) {
+                        rw.TemplateIdOverride = this._instances.Configuration.TemplateSelector(rw);
+                    }
+                    if (rw.TemplateIdOverride) {
+                        result += this._templatesProvider.getCachedTemplate(rw.TemplateIdOverride)(rw);
                     }
                     else {
-                        if (this._instances.Configuration.TemplateSelector) {
-                            rw.TemplateIdOverride = this._instances.Configuration.TemplateSelector(rw);
-                        }
-                        if (rw.TemplateIdOverride) {
-                            result += this._templatesProvider.getCachedTemplate(rw.TemplateIdOverride)(rw);
-                        }
-                        else {
-                            result += wrapper(rw);
-                        }
+                        result += wrapper(rw);
                     }
-                    this._stack.popContext();
                 }
+                this._stack.popContext();
                 return result;
             };
             /*
@@ -3678,6 +3686,12 @@ var PowerTables;
                 this.BackBinder.backBind(this.BodyElement);
                 this._events.AfterDataRendered.invoke(this, null);
             };
+            Renderer.prototype.renderObjectContent = function (renderable) {
+                this._stack.push(Rendering.RenderingContextType.Custom, renderable);
+                var html = renderable.renderContent(this);
+                this._stack.popContext();
+                return html;
+            };
             Renderer.prototype.renderObject = function (templateId, viewModelBehind, targetSelector) {
                 var parent = document.querySelector(targetSelector);
                 this._stack.clear();
@@ -3692,10 +3706,13 @@ var PowerTables;
                 this.BackBinder.backBind(parent);
                 return parent;
             };
-            Renderer.prototype.destroyObject = function (targetSelector) {
-                var parent = document.querySelector(targetSelector);
+            Renderer.prototype.destroyAtElement = function (parent) {
                 this.Delegator.handleElementDestroy(parent);
                 parent.innerHTML = '';
+            };
+            Renderer.prototype.destroyObject = function (targetSelector) {
+                var parent = document.querySelector(targetSelector);
+                this.destroyAtElement(parent);
             };
             /**
              * Removes all dynamically loaded content in table
@@ -7214,7 +7231,7 @@ var PowerTables;
                     };
                     RowsEditHandler.prototype.commit = function (editor) {
                         var idx = this._activeEditors.indexOf(editor);
-                        if (this._activeEditors.length < idx + 1) {
+                        if (this._activeEditors.length > idx + 1) {
                             idx = -1;
                             for (var i = 0; i < this._activeEditors.length; i++) {
                                 if (!this._activeEditors[i].IsValid) {
@@ -7274,329 +7291,490 @@ var PowerTables;
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
-    var Editors;
-    (function (Editors) {
-        var PlainText;
-        (function (PlainText) {
-            var PlainTextEditor = (function (_super) {
-                __extends(PlainTextEditor, _super);
-                function PlainTextEditor() {
+    var Editing;
+    (function (Editing) {
+        var Form;
+        (function (Form) {
+            var FormEditHandler = (function (_super) {
+                __extends(FormEditHandler, _super);
+                function FormEditHandler() {
                     _super.apply(this, arguments);
-                    this._floatRegex = new RegExp("^[0-9]+(\.[0-9]+)?$");
+                    this._activeEditors = [];
                 }
-                PlainTextEditor.prototype.getValue = function (errors) {
-                    if (this.Column.IsDateTime) {
-                        var d = this.MasterTable.Date.getDateFromDatePicker(this.Input);
-                        if ((d == null) && !this.Column.Configuration.IsNullable) {
-                            errors.push({ Code: 'NULL', Message: this.Column.Configuration.Title + " value is mandatory" });
-                            return null;
+                FormEditHandler.prototype.ensureEditing = function (rowDisplayIndex) {
+                    if (this._isEditing)
+                        return;
+                    var lookup = this.MasterTable.DataHolder.localLookupDisplayedData(rowDisplayIndex);
+                    this.DataObject = lookup.DataObject;
+                    this.CurrentDataObjectModified = {};
+                    for (var cd in this.DataObject) {
+                        if (this.DataObject.hasOwnProperty(cd)) {
+                            this.CurrentDataObjectModified[cd] = this.DataObject[cd];
                         }
-                        return d;
                     }
-                    else {
-                        return this._parseFunction(this.Input.value, this.Column, errors);
+                    this._isEditing = true;
+                };
+                FormEditHandler.prototype.add = function () {
+                    if (this._isEditing) {
+                        this.rejectAll();
+                    }
+                    this.DataObject = {};
+                    this.CurrentDataObjectModified = {};
+                    this.startupForm();
+                };
+                FormEditHandler.prototype.beginFormEditHandler = function (e) {
+                    if (this._isEditing) {
+                        var lookup = this.MasterTable.DataHolder.localLookupDisplayedData(e.DisplayingRowIndex);
+                        if (this.DataObject !== lookup.DataObject) {
+                            this.rejectAll();
+                        }
+                    }
+                    this.ensureEditing(e.DisplayingRowIndex);
+                    this.startupForm();
+                };
+                FormEditHandler.prototype.startupForm = function () {
+                    var vm = new FormEditFormModel();
+                    for (var i = 0; i < this.Configuration.Fields.length; i++) {
+                        var editorConf = this.Configuration.Fields[i];
+                        var editor = this.createEditor(editorConf.FieldName, this.MasterTable.InstanceManager.Columns[editorConf.FieldName], false, Editing.EditorMode.Form);
+                        this._activeEditors.push(editor);
+                        vm.EditorsSet[editorConf.FieldName] = editor;
+                    }
+                    vm.DataObject = this.DataObject;
+                    vm.Handler = this;
+                    this._currentForm = vm;
+                    this._currentFormElement = this.MasterTable.Renderer.renderObject(this.Configuration.FormTemplateId, vm, this.Configuration.FormTargetSelector);
+                    vm.RootElement = this._currentFormElement;
+                    for (var j = 0; j < this._activeEditors.length; j++) {
+                        this.setEditorValue(this._activeEditors[j]);
                     }
                 };
-                PlainTextEditor.prototype.setValue = function (value) {
-                    if (this.Column.IsDateTime) {
-                        this.MasterTable.Date.putDateToDatePicker(this.Input, value);
+                FormEditHandler.prototype.commitAll = function () {
+                    var _this = this;
+                    var errors = [];
+                    for (var i = 0; i < this._activeEditors.length; i++) {
+                        this.retrieveEditorData(this._activeEditors[i], errors);
                     }
-                    else {
-                        this.Input.value = this._formatFunction(value, this.Column);
+                    this.ValidationMessages = errors; //todo draw validation errors
+                    if (this.ValidationMessages.length > 0)
+                        return;
+                    this._isEditing = false;
+                    for (var i = 0; i < this._activeEditors.length; i++) {
+                        this._activeEditors[i].VisualStates.changeState('saving');
+                    }
+                    this._isEditing = false;
+                    this._activeEditors = [];
+                    this.sendDataObjectToServer(function () {
+                        if (!_this._isEditing) {
+                            _this.CurrentDataObjectModified = null;
+                            _this.MasterTable.Renderer.destroyObject(_this.Configuration.FormTargetSelector);
+                            _this._currentFormElement = null;
+                            _this._currentForm = null;
+                        }
+                    });
+                };
+                FormEditHandler.prototype.rejectAll = function () {
+                    for (var i = 0; i < this._activeEditors.length; i++) {
+                        this.reject(this._activeEditors[i]);
+                    }
+                    this._isEditing = false;
+                    this.CurrentDataObjectModified = null;
+                    this.MasterTable.Renderer.destroyObject(this.Configuration.FormTargetSelector);
+                    this._currentFormElement = null;
+                    this._currentForm = null;
+                };
+                FormEditHandler.prototype.notifyChanged = function (editor) {
+                    this.retrieveEditorData(editor);
+                };
+                FormEditHandler.prototype.commit = function (editor) {
+                    var idx = this._activeEditors.indexOf(editor);
+                    if (this._activeEditors.length > idx + 1) {
+                        idx = -1;
+                        for (var i = 0; i < this._activeEditors.length; i++) {
+                            if (!this._activeEditors[i].IsValid) {
+                                idx = i;
+                                break;
+                            }
+                        }
+                        if (idx !== -1)
+                            this._activeEditors[idx].focus();
+                        else {
+                            this.commitAll();
+                        }
                     }
                 };
-                PlainTextEditor.prototype.init = function (masterTable) {
-                    _super.prototype.init.call(this, masterTable);
-                    if (this.Configuration.ValidationRegex) {
-                        this.ValidationRegex = new RegExp(this.Configuration.ValidationRegex);
-                    }
-                    this._dotSeparators = new RegExp(this.Configuration.FloatDotReplaceSeparatorsRegex);
-                    this._removeSeparators = new RegExp(this.Configuration.FloatRemoveSeparatorsRegex);
-                    this._parseFunction = this.Configuration.ParseFunction || this.defaultParse;
-                    this._formatFunction = this.Configuration.FormatFunction || this.defaultFormat;
+                FormEditHandler.prototype.reject = function (editor) {
+                    this.CurrentDataObjectModified[editor.FieldName] = this.DataObject[editor.FieldName];
+                    this.setEditorValue(editor);
                 };
-                PlainTextEditor.prototype.defaultParse = function (value, column, errors) {
-                    if (this.ValidationRegex) {
-                        var mtch = this.ValidationRegex.test(value);
-                        if (!mtch) {
-                            errors.push({ Code: 'REGEX', Message: "Validation failed for " + column.Configuration.Title });
+                return FormEditHandler;
+            }(PowerTables.Editing.EditHandlerBase));
+            Form.FormEditHandler = FormEditHandler;
+            var FormEditFormModel = (function () {
+                function FormEditFormModel() {
+                    this.EditorsSet = {};
+                }
+                FormEditFormModel.prototype.Editors = function () {
+                    var s = '';
+                    for (var k in this.EditorsSet) {
+                        s += this.Editor(this.EditorsSet[k].FieldName);
+                    }
+                    return s;
+                };
+                FormEditFormModel.prototype.Editor = function (fieldName) {
+                    var editor = this.EditorsSet[fieldName];
+                    return this.Handler.MasterTable.Renderer.renderObjectContent(editor);
+                };
+                FormEditFormModel.prototype.commit = function () {
+                    this.Handler.commitAll();
+                };
+                FormEditFormModel.prototype.reject = function () {
+                    this.Handler.rejectAll();
+                };
+                return FormEditFormModel;
+            }());
+            Form.FormEditFormModel = FormEditFormModel;
+            PowerTables.ComponentsContainer.registerComponent('FormEditHandler', FormEditHandler);
+        })(Form = Editing.Form || (Editing.Form = {}));
+    })(Editing = PowerTables.Editing || (PowerTables.Editing = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Editing;
+    (function (Editing) {
+        var Editors;
+        (function (Editors) {
+            var PlainText;
+            (function (PlainText) {
+                var PlainTextEditor = (function (_super) {
+                    __extends(PlainTextEditor, _super);
+                    function PlainTextEditor() {
+                        _super.apply(this, arguments);
+                        this._floatRegex = new RegExp("^[0-9]+(\.[0-9]+)?$");
+                    }
+                    PlainTextEditor.prototype.getValue = function (errors) {
+                        if (this.Column.IsDateTime) {
+                            var d = this.MasterTable.Date.getDateFromDatePicker(this.Input);
+                            if ((d == null) && !this.Column.Configuration.IsNullable) {
+                                errors.push({ Code: 'NULL', Message: this.Column.Configuration.Title + " value is mandatory" });
+                                return null;
+                            }
+                            return d;
+                        }
+                        else {
+                            return this._parseFunction(this.Input.value, this.Column, errors);
+                        }
+                    };
+                    PlainTextEditor.prototype.setValue = function (value) {
+                        if (this.Column.IsDateTime) {
+                            this.MasterTable.Date.putDateToDatePicker(this.Input, value);
+                        }
+                        else {
+                            this.Input.value = this._formatFunction(value, this.Column);
+                        }
+                    };
+                    PlainTextEditor.prototype.init = function (masterTable) {
+                        _super.prototype.init.call(this, masterTable);
+                        if (this.Configuration.ValidationRegex) {
+                            this.ValidationRegex = new RegExp(this.Configuration.ValidationRegex);
+                        }
+                        this._dotSeparators = new RegExp(this.Configuration.FloatDotReplaceSeparatorsRegex);
+                        this._removeSeparators = new RegExp(this.Configuration.FloatRemoveSeparatorsRegex);
+                        this._parseFunction = this.Configuration.ParseFunction || this.defaultParse;
+                        this._formatFunction = this.Configuration.FormatFunction || this.defaultFormat;
+                    };
+                    PlainTextEditor.prototype.defaultParse = function (value, column, errors) {
+                        if (this.ValidationRegex) {
+                            var mtch = this.ValidationRegex.test(value);
+                            if (!mtch) {
+                                errors.push({ Code: 'REGEX', Message: "Validation failed for " + column.Configuration.Title });
+                                return null;
+                            }
+                            return value;
+                        }
+                        if (value == null || value == undefined || value.length === 0) {
+                            if (!column.Configuration.IsNullable && (!column.IsString)) {
+                                errors.push({ Code: 'NULL', Message: column.Configuration.Title + " value is mandatory" });
+                                return null;
+                            }
+                            if (column.IsString && !this.Configuration.AllowEmptyString) {
+                                errors.push({ Code: 'EMPTYSTRING', Message: column.Configuration.Title + " must not be an empty string" });
+                                return null;
+                            }
+                            return '';
+                        }
+                        if (this.Configuration.MaxAllowedLength > 0) {
+                            if (value.length > this.Configuration.MaxAllowedLength) {
+                                errors.push({ Code: 'MAXCHARS', Message: "Maximum " + column.Configuration.Title + " length exceeded" });
+                                return null;
+                            }
+                        }
+                        var i;
+                        if (column.IsInteger || column.IsEnum) {
+                            value = value.replace(this._removeSeparators, '');
+                            i = parseInt(value);
+                            if (isNaN(i)) {
+                                errors.push({ Code: 'NONINT', Message: "Invalid number provided for " + column.Configuration.Title });
+                                return null;
+                            }
+                            return i;
+                        }
+                        if (column.IsFloat) {
+                            var negative = (value.length > 0 && value.charAt(0) === '-');
+                            value = negative ? value.substring(1) : value;
+                            value = value.replace(this._removeSeparators, '');
+                            value = value.replace(this._dotSeparators, '.');
+                            i = parseFloat(negative ? ('-' + value) : value);
+                            if (isNaN(i) || (!this._floatRegex.test(value))) {
+                                errors.push({ Code: 'NONFLOAT', Message: "Invalid number provided for " + column.Configuration.Title });
+                                return null;
+                            }
+                            return i;
+                        }
+                        if (column.IsBoolean) {
+                            var bs = value.toUpperCase().trim();
+                            if (bs === 'TRUE')
+                                return true;
+                            if (bs === 'FALSE')
+                                return false;
+                            errors.push({ Code: 'NONBOOL', Message: "Invalid boolean value provided for " + column.Configuration.Title });
                             return null;
                         }
                         return value;
-                    }
-                    if (value == null || value == undefined || value.length === 0) {
-                        if (!column.Configuration.IsNullable && (!column.IsString)) {
-                            errors.push({ Code: 'NULL', Message: column.Configuration.Title + " value is mandatory" });
-                            return null;
-                        }
-                        if (column.IsString && !this.Configuration.AllowEmptyString) {
-                            errors.push({ Code: 'EMPTYSTRING', Message: column.Configuration.Title + " must not be an empty string" });
-                            return null;
-                        }
-                        return '';
-                    }
-                    if (this.Configuration.MaxAllowedLength > 0) {
-                        if (value.length > this.Configuration.MaxAllowedLength) {
-                            errors.push({ Code: 'MAXCHARS', Message: "Maximum " + column.Configuration.Title + " length exceeded" });
-                            return null;
-                        }
-                    }
-                    var i;
-                    if (column.IsInteger || column.IsEnum) {
-                        value = value.replace(this._removeSeparators, '');
-                        i = parseInt(value);
-                        if (isNaN(i)) {
-                            errors.push({ Code: 'NONINT', Message: "Invalid number provided for " + column.Configuration.Title });
-                            return null;
-                        }
-                        return i;
-                    }
-                    if (column.IsFloat) {
-                        var negative = (value.length > 0 && value.charAt(0) === '-');
-                        value = negative ? value.substring(1) : value;
-                        value = value.replace(this._removeSeparators, '');
-                        value = value.replace(this._dotSeparators, '.');
-                        i = parseFloat(negative ? ('-' + value) : value);
-                        if (isNaN(i) || (!this._floatRegex.test(value))) {
-                            errors.push({ Code: 'NONFLOAT', Message: "Invalid number provided for " + column.Configuration.Title });
-                            return null;
-                        }
-                        return i;
-                    }
-                    if (column.IsBoolean) {
-                        var bs = value.toUpperCase().trim();
-                        if (bs === 'TRUE')
-                            return true;
-                        if (bs === 'FALSE')
-                            return false;
-                        errors.push({ Code: 'NONBOOL', Message: "Invalid boolean value provided for " + column.Configuration.Title });
-                        return null;
-                    }
-                    return value;
-                };
-                PlainTextEditor.prototype.defaultFormat = function (value, column) {
-                    if (value == null || value == undefined)
-                        return '';
-                    return value.toString();
-                };
-                PlainTextEditor.prototype.changedHandler = function (e) {
-                    _super.prototype.changedHandler.call(this, e);
-                };
-                PlainTextEditor.prototype.renderContent = function (templatesProvider) {
-                    return this.defaultRender(templatesProvider);
-                };
-                PlainTextEditor.prototype.focus = function () {
-                    this.Input.focus();
-                    this.Input.setSelectionRange(0, this.Input.value.length);
-                };
-                return PlainTextEditor;
-            }(PowerTables.Editing.EditorBase));
-            PlainText.PlainTextEditor = PlainTextEditor;
-            PowerTables.ComponentsContainer.registerComponent('PlainTextEditor', PlainTextEditor);
-        })(PlainText = Editors.PlainText || (Editors.PlainText = {}));
-    })(Editors = PowerTables.Editors || (PowerTables.Editors = {}));
+                    };
+                    PlainTextEditor.prototype.defaultFormat = function (value, column) {
+                        if (value == null || value == undefined)
+                            return '';
+                        return value.toString();
+                    };
+                    PlainTextEditor.prototype.changedHandler = function (e) {
+                        _super.prototype.changedHandler.call(this, e);
+                    };
+                    PlainTextEditor.prototype.renderContent = function (templatesProvider) {
+                        return this.defaultRender(templatesProvider);
+                    };
+                    PlainTextEditor.prototype.focus = function () {
+                        this.Input.focus();
+                        this.Input.setSelectionRange(0, this.Input.value.length);
+                    };
+                    return PlainTextEditor;
+                }(PowerTables.Editing.EditorBase));
+                PlainText.PlainTextEditor = PlainTextEditor;
+                PowerTables.ComponentsContainer.registerComponent('PlainTextEditor', PlainTextEditor);
+            })(PlainText = Editors.PlainText || (Editors.PlainText = {}));
+        })(Editors = Editing.Editors || (Editing.Editors = {}));
+    })(Editing = PowerTables.Editing || (PowerTables.Editing = {}));
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
-    var Editors;
-    (function (Editors) {
-        var SelectList;
-        (function (SelectList) {
-            var SelectListEditor = (function (_super) {
-                __extends(SelectListEditor, _super);
-                function SelectListEditor() {
-                    _super.apply(this, arguments);
-                }
-                SelectListEditor.prototype.getValue = function (errors) {
-                    var selectedOption = this.List.options.item(this.List.selectedIndex);
-                    var item = selectedOption.value.toString();
-                    var value = null;
-                    if (item.length === 0) {
-                        if (this.Column.IsString && this.Configuration.AllowEmptyString)
-                            value = item;
-                        if (this.Column.Configuration.IsNullable)
-                            value = null;
+    var Editing;
+    (function (Editing) {
+        var Editors;
+        (function (Editors) {
+            var SelectList;
+            (function (SelectList) {
+                var SelectListEditor = (function (_super) {
+                    __extends(SelectListEditor, _super);
+                    function SelectListEditor() {
+                        _super.apply(this, arguments);
+                    }
+                    SelectListEditor.prototype.getValue = function (errors) {
+                        var selectedOption = this.List.options.item(this.List.selectedIndex);
+                        var item = selectedOption.value.toString();
+                        var value = null;
+                        if (item.length === 0) {
+                            if (this.Column.IsString && this.Configuration.AllowEmptyString)
+                                value = item;
+                            if (this.Column.Configuration.IsNullable)
+                                value = null;
+                            else {
+                                errors.push({ Code: 'NULLVALUE', Message: "Value must be provided for " + this.Column.Configuration.Title });
+                            }
+                        }
                         else {
-                            errors.push({ Code: 'NULLVALUE', Message: "Value must be provided for " + this.Column.Configuration.Title });
+                            if (this.Column.IsEnum || this.Column.IsInteger)
+                                value = parseInt(item);
+                            else if (this.Column.IsFloat)
+                                value = parseFloat(item);
+                            else if (this.Column.IsBoolean)
+                                value = item.toUpperCase() === 'TRUE';
+                            else if (this.Column.IsDateTime)
+                                value = this.MasterTable.Date.parse(item);
+                            else
+                                errors.push({ Code: 'UNKNOWN', Message: "Unknown value for " + this.Column.Configuration.Title });
                         }
-                    }
-                    else {
-                        if (this.Column.IsEnum || this.Column.IsInteger)
-                            value = parseInt(item);
-                        else if (this.Column.IsFloat)
-                            value = parseFloat(item);
-                        else if (this.Column.IsBoolean)
-                            value = item.toUpperCase() === 'TRUE';
-                        else if (this.Column.IsDateTime)
-                            value = this.MasterTable.Date.parse(item);
-                        else
-                            errors.push({ Code: 'UNKNOWN', Message: "Unknown value for " + this.Column.Configuration.Title });
-                    }
-                    return value;
-                };
-                SelectListEditor.prototype.setValue = function (value) {
-                    var strvalue = this.Column.IsDateTime ? this.MasterTable.Date.serialize(value) : value.toString();
-                    for (var i = 0; i < this.List.options.length; i++) {
-                        if (this.List.options.item(i).value === strvalue) {
-                            this.List.options.item(i).selected = true;
+                        return value;
+                    };
+                    SelectListEditor.prototype.setValue = function (value) {
+                        var strvalue = this.Column.IsDateTime ? this.MasterTable.Date.serialize(value) : value.toString();
+                        for (var i = 0; i < this.List.options.length; i++) {
+                            if (this.List.options.item(i).value === strvalue) {
+                                this.List.options.item(i).selected = true;
+                            }
                         }
-                    }
-                    for (var i = 0; i < this.Items.length; i++) {
-                        if (this.Items[i].Value == strvalue) {
-                            this.SelectedItem = this.Items[i];
-                            break;
+                        for (var i = 0; i < this.Items.length; i++) {
+                            if (this.Items[i].Value == strvalue) {
+                                this.SelectedItem = this.Items[i];
+                                break;
+                            }
                         }
-                    }
-                    this.VisualStates.mixinState('selected');
-                };
-                SelectListEditor.prototype.onStateChange = function (e) {
-                    if (e.State !== 'selected' && e.State !== 'saving') {
                         this.VisualStates.mixinState('selected');
-                    }
-                };
-                SelectListEditor.prototype.init = function (masterTable) {
-                    _super.prototype.init.call(this, masterTable);
-                    this.Items = this.Configuration.SelectListItems;
-                    if (this.Configuration.AddEmptyElement) {
-                        var empty = {
-                            Text: this.Configuration.EmptyElementText,
-                            Value: '',
-                            Disabled: false,
-                            Selected: false
-                        };
-                        this.Items = [empty].concat(this.Items);
-                    }
-                };
-                SelectListEditor.prototype.renderContent = function (templatesProvider) {
-                    return this.defaultRender(templatesProvider);
-                };
-                SelectListEditor.prototype.onAfterRender = function (e) {
-                    if (this.VisualStates) {
-                        this.VisualStates.subscribeStateChange(this.onStateChange.bind(this));
-                    }
-                };
-                SelectListEditor.prototype.changedHandler = function (e) {
-                    _super.prototype.changedHandler.call(this, e);
-                    var item = this.List.options.item(this.List.selectedIndex).value;
-                    for (var i = 0; i < this.Items.length; i++) {
-                        if (this.Items[i].Value == item) {
-                            this.SelectedItem = this.Items[i];
-                            break;
+                    };
+                    SelectListEditor.prototype.onStateChange = function (e) {
+                        if (e.State !== 'selected' && e.State !== 'saving') {
+                            this.VisualStates.mixinState('selected');
                         }
-                    }
-                    this.VisualStates.mixinState('selected');
-                };
-                SelectListEditor.prototype.focus = function () {
-                    this.List.focus();
-                };
-                return SelectListEditor;
-            }(PowerTables.Editing.EditorBase));
-            SelectList.SelectListEditor = SelectListEditor;
-            PowerTables.ComponentsContainer.registerComponent('SelectListEditor', SelectListEditor);
-        })(SelectList = Editors.SelectList || (Editors.SelectList = {}));
-    })(Editors = PowerTables.Editors || (PowerTables.Editors = {}));
+                    };
+                    SelectListEditor.prototype.init = function (masterTable) {
+                        _super.prototype.init.call(this, masterTable);
+                        this.Items = this.Configuration.SelectListItems;
+                        if (this.Configuration.AddEmptyElement) {
+                            var empty = {
+                                Text: this.Configuration.EmptyElementText,
+                                Value: '',
+                                Disabled: false,
+                                Selected: false
+                            };
+                            this.Items = [empty].concat(this.Items);
+                        }
+                    };
+                    SelectListEditor.prototype.renderContent = function (templatesProvider) {
+                        return this.defaultRender(templatesProvider);
+                    };
+                    SelectListEditor.prototype.onAfterRender = function (e) {
+                        if (this.VisualStates) {
+                            this.VisualStates.subscribeStateChange(this.onStateChange.bind(this));
+                        }
+                    };
+                    SelectListEditor.prototype.changedHandler = function (e) {
+                        _super.prototype.changedHandler.call(this, e);
+                        var item = this.List.options.item(this.List.selectedIndex).value;
+                        for (var i = 0; i < this.Items.length; i++) {
+                            if (this.Items[i].Value == item) {
+                                this.SelectedItem = this.Items[i];
+                                break;
+                            }
+                        }
+                        this.VisualStates.mixinState('selected');
+                    };
+                    SelectListEditor.prototype.focus = function () {
+                        this.List.focus();
+                    };
+                    return SelectListEditor;
+                }(PowerTables.Editing.EditorBase));
+                SelectList.SelectListEditor = SelectListEditor;
+                PowerTables.ComponentsContainer.registerComponent('SelectListEditor', SelectListEditor);
+            })(SelectList = Editors.SelectList || (Editors.SelectList = {}));
+        })(Editors = Editing.Editors || (Editing.Editors = {}));
+    })(Editing = PowerTables.Editing || (PowerTables.Editing = {}));
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
-    var Editors;
-    (function (Editors) {
-        var Check;
-        (function (Check) {
-            var CheckEditor = (function (_super) {
-                __extends(CheckEditor, _super);
-                function CheckEditor() {
-                    _super.apply(this, arguments);
-                }
-                CheckEditor.prototype.renderContent = function (templatesProvider) {
-                    return this.defaultRender(templatesProvider);
-                };
-                CheckEditor.prototype.changedHandler = function (e) {
-                    this._value = !this._value;
-                    this.updateState();
-                    _super.prototype.changedHandler.call(this, e);
-                };
-                CheckEditor.prototype.updateState = function () {
-                    if (!this._value) {
-                        this.VisualStates.unmixinState('checked');
+    var Editing;
+    (function (Editing) {
+        var Editors;
+        (function (Editors) {
+            var Check;
+            (function (Check) {
+                var CheckEditor = (function (_super) {
+                    __extends(CheckEditor, _super);
+                    function CheckEditor() {
+                        _super.apply(this, arguments);
                     }
-                    else {
-                        this.VisualStates.mixinState('checked');
-                    }
-                };
-                CheckEditor.prototype.getValue = function (errors) {
-                    if (this.Configuration.IsMandatory && !this._value) {
-                        errors.push({ Code: 'MANDATORY', Message: this.Column.Configuration.Title + " is required" });
-                        return null;
-                    }
-                    return this._value;
-                };
-                CheckEditor.prototype.setValue = function (value) {
-                    this._value = (!(!value));
-                    this.updateState();
-                };
-                CheckEditor.prototype.focus = function () {
-                    if (this.FocusElement)
-                        this.FocusElement.focus();
-                };
-                return CheckEditor;
-            }(PowerTables.Editing.EditorBase));
-            Check.CheckEditor = CheckEditor;
-            PowerTables.ComponentsContainer.registerComponent('CheckEditor', CheckEditor);
-        })(Check = Editors.Check || (Editors.Check = {}));
-    })(Editors = PowerTables.Editors || (PowerTables.Editors = {}));
+                    CheckEditor.prototype.renderContent = function (templatesProvider) {
+                        return this.defaultRender(templatesProvider);
+                    };
+                    CheckEditor.prototype.changedHandler = function (e) {
+                        this._value = !this._value;
+                        this.updateState();
+                        _super.prototype.changedHandler.call(this, e);
+                    };
+                    CheckEditor.prototype.updateState = function () {
+                        if (!this._value) {
+                            this.VisualStates.unmixinState('checked');
+                        }
+                        else {
+                            this.VisualStates.mixinState('checked');
+                        }
+                    };
+                    CheckEditor.prototype.getValue = function (errors) {
+                        if (this.Configuration.IsMandatory && !this._value) {
+                            errors.push({ Code: 'MANDATORY', Message: this.Column.Configuration.Title + " is required" });
+                            return null;
+                        }
+                        return this._value;
+                    };
+                    CheckEditor.prototype.setValue = function (value) {
+                        this._value = (!(!value));
+                        this.updateState();
+                    };
+                    CheckEditor.prototype.focus = function () {
+                        if (this.FocusElement)
+                            this.FocusElement.focus();
+                    };
+                    return CheckEditor;
+                }(PowerTables.Editing.EditorBase));
+                Check.CheckEditor = CheckEditor;
+                PowerTables.ComponentsContainer.registerComponent('CheckEditor', CheckEditor);
+            })(Check = Editors.Check || (Editors.Check = {}));
+        })(Editors = Editing.Editors || (Editing.Editors = {}));
+    })(Editing = PowerTables.Editing || (PowerTables.Editing = {}));
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
-    var Editors;
-    (function (Editors) {
-        var Memo;
-        (function (Memo) {
-            var MemoEditor = (function (_super) {
-                __extends(MemoEditor, _super);
-                function MemoEditor() {
-                    _super.apply(this, arguments);
-                }
-                MemoEditor.prototype.init = function (masterTable) {
-                    _super.prototype.init.call(this, masterTable);
-                    this.MaxChars = this.Configuration.MaxChars;
-                    this.WarningChars = this.Configuration.WarningChars;
-                    this.Rows = this.Configuration.Rows;
-                    this.Columns = this.Configuration.Columns;
-                    this.CurrentChars = 0;
-                };
-                MemoEditor.prototype.changedHandler = function (e) {
-                    this.CurrentChars = this.TextArea.value.length;
-                    if (this.WarningChars !== 0 && this.CurrentChars >= this.WarningChars && this.CurrentChars <= this.MaxChars) {
-                        this.VisualStates.mixinState('warning');
+    var Editing;
+    (function (Editing) {
+        var Editors;
+        (function (Editors) {
+            var Memo;
+            (function (Memo) {
+                var MemoEditor = (function (_super) {
+                    __extends(MemoEditor, _super);
+                    function MemoEditor() {
+                        _super.apply(this, arguments);
                     }
-                    else {
-                        this.VisualStates.unmixinState('warning');
-                    }
-                    _super.prototype.changedHandler.call(this, e);
-                };
-                MemoEditor.prototype.setValue = function (value) {
-                    this.TextArea.value = value;
-                };
-                MemoEditor.prototype.getValue = function (errors) {
-                    var value = this.TextArea.value;
-                    if (this.MaxChars > 0 && value.length > this.MaxChars) {
-                        errors.push({ Code: 'MAXCHARS', Message: "Maximum " + this.Column.Configuration.Title + " length exceeded" });
-                        return null;
-                    }
-                    return value;
-                };
-                MemoEditor.prototype.renderContent = function (templatesProvider) {
-                    return this.defaultRender(templatesProvider);
-                };
-                MemoEditor.prototype.focus = function () {
-                    this.TextArea.focus();
-                    this.TextArea.setSelectionRange(0, this.TextArea.value.length);
-                };
-                return MemoEditor;
-            }(PowerTables.Editing.EditorBase));
-            Memo.MemoEditor = MemoEditor;
-            PowerTables.ComponentsContainer.registerComponent('MemoEditor', MemoEditor);
-        })(Memo = Editors.Memo || (Editors.Memo = {}));
-    })(Editors = PowerTables.Editors || (PowerTables.Editors = {}));
+                    MemoEditor.prototype.init = function (masterTable) {
+                        _super.prototype.init.call(this, masterTable);
+                        this.MaxChars = this.Configuration.MaxChars;
+                        this.WarningChars = this.Configuration.WarningChars;
+                        this.Rows = this.Configuration.Rows;
+                        this.Columns = this.Configuration.Columns;
+                        this.CurrentChars = 0;
+                    };
+                    MemoEditor.prototype.changedHandler = function (e) {
+                        this.CurrentChars = this.TextArea.value.length;
+                        if (this.WarningChars !== 0 && this.CurrentChars >= this.WarningChars && this.CurrentChars <= this.MaxChars) {
+                            this.VisualStates.mixinState('warning');
+                        }
+                        else {
+                            this.VisualStates.unmixinState('warning');
+                        }
+                        _super.prototype.changedHandler.call(this, e);
+                    };
+                    MemoEditor.prototype.setValue = function (value) {
+                        this.TextArea.value = value;
+                    };
+                    MemoEditor.prototype.getValue = function (errors) {
+                        var value = this.TextArea.value;
+                        if (this.MaxChars > 0 && value.length > this.MaxChars) {
+                            errors.push({ Code: 'MAXCHARS', Message: "Maximum " + this.Column.Configuration.Title + " length exceeded" });
+                            return null;
+                        }
+                        return value;
+                    };
+                    MemoEditor.prototype.renderContent = function (templatesProvider) {
+                        return this.defaultRender(templatesProvider);
+                    };
+                    MemoEditor.prototype.focus = function () {
+                        this.TextArea.focus();
+                        this.TextArea.setSelectionRange(0, this.TextArea.value.length);
+                    };
+                    return MemoEditor;
+                }(PowerTables.Editing.EditorBase));
+                Memo.MemoEditor = MemoEditor;
+                PowerTables.ComponentsContainer.registerComponent('MemoEditor', MemoEditor);
+            })(Memo = Editors.Memo || (Editors.Memo = {}));
+        })(Editors = Editing.Editors || (Editing.Editors = {}));
+    })(Editing = PowerTables.Editing || (PowerTables.Editing = {}));
 })(PowerTables || (PowerTables = {}));
 //# sourceMappingURL=../../../PowerTables.Mvc/Scripts/powertables.js.map

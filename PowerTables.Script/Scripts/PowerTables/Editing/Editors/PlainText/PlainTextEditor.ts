@@ -1,4 +1,4 @@
-﻿module PowerTables.Editors.PlainText {
+﻿module PowerTables.Editing.Editors.PlainText {
     
     export class PlainTextEditor extends PowerTables.Editing.EditorBase<PowerTables.Editing.Editors.PlainText.IPlainTextEditorUiConfig> {
         Input: HTMLInputElement;

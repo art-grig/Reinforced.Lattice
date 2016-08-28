@@ -7,6 +7,8 @@ namespace PowerTables.Editing
 {
     class EditorCommandHandler<TSourceData, TTargetData> : ICommandHandler where TTargetData : new()
     {
+        public const string EditAdditionalDataKey = "Edit";
+
         private readonly Action<PowerTablesData<TSourceData, TTargetData>, EditionResultWrapper<TTargetData>> _handlerMethod;
         private readonly Func<PowerTablesData<TSourceData, TTargetData>, EditionResultWrapper<TTargetData>, Task> _asynchandlerMethod;
 
@@ -36,7 +38,7 @@ namespace PowerTables.Editing
             PowerTablesData<TSourceData, TTargetData> typedData = new PowerTablesData<TSourceData, TTargetData>(data);
             var editionResult = new EditionResult();
             var wrapper = new EditionResultWrapper<TTargetData>(editionResult);
-            wrapper.Confirm(data.Request.RetrieveAdditionalObject<TTargetData>(EditorExtensions.EditAdditionalDataKey));
+            wrapper.Confirm(data.Request.RetrieveAdditionalObject<TTargetData>(EditAdditionalDataKey));
             _handlerMethod(typedData, wrapper);
             return new JsonNetResult() { Data = editionResult, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
         }
@@ -46,7 +48,7 @@ namespace PowerTables.Editing
             PowerTablesData<TSourceData, TTargetData> typedData = new PowerTablesData<TSourceData, TTargetData>(data);
              var editionResult = new EditionResult();
             var wrapper = new EditionResultWrapper<TTargetData>(editionResult);
-            wrapper.Confirm(data.Request.RetrieveAdditionalObject<TTargetData>(EditorExtensions.EditAdditionalDataKey));
+            wrapper.Confirm(data.Request.RetrieveAdditionalObject<TTargetData>(EditAdditionalDataKey));
             if (_asynchandlerMethod != null) await _asynchandlerMethod(typedData,wrapper).ConfigureAwait(false);
             else _handlerMethod(typedData,wrapper);
             return new JsonNetResult() { Data = editionResult, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
@@ -57,13 +59,15 @@ namespace PowerTables.Editing
 
     public static class EditCommandHandlerExtensions
     {
+        public const string EditCommand = "Edit";
+
         public static void AddEditHandler<TSourceData, TTargetData>(
             this PowerTablesHandler<TSourceData, TTargetData> handler,
             Action<PowerTablesData<TSourceData, TTargetData>, EditionResultWrapper<TTargetData>> method)
             where TTargetData : new()
         {
             var del = new EditorCommandHandler<TSourceData, TTargetData>(method);
-            handler.RegisterCommandHandler(EditorExtensions.EditCommand, del);
+            handler.RegisterCommandHandler(EditCommand, del);
         }
 
         public static void AddAsyncEditHandler<TSourceData, TTargetData>(
@@ -72,7 +76,7 @@ namespace PowerTables.Editing
             where TTargetData : new()
         {
             var del = new EditorCommandHandler<TSourceData, TTargetData>(method);
-            handler.RegisterCommandHandler(EditorExtensions.EditCommand, del);
+            handler.RegisterCommandHandler(EditCommand, del);
         }
 
         public static void AddEditHandler<TSourceData, TTargetData>(
@@ -82,7 +86,7 @@ namespace PowerTables.Editing
             where TTargetData : new()
         {
             var del = new EditorCommandHandler<TSourceData, TTargetData>(syncmethod, asyncMethod);
-            handler.RegisterCommandHandler(EditorExtensions.EditCommand, del);
+            handler.RegisterCommandHandler(EditCommand, del);
         }
 
     }

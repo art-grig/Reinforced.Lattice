@@ -634,6 +634,8 @@ declare module PowerTables.Editing.Cells {
 }
 declare module PowerTables.Editing.Form {
     interface IFormEditUiConfig extends PowerTables.Editing.IEditFormUiConfigBase {
+        FormTargetSelector: string;
+        FormTemplateId: string;
     }
 }
 declare module PowerTables.Editing.Rows {
@@ -2051,6 +2053,7 @@ declare module PowerTables.Rendering {
          * @param rows Table rows
          */
         renderBody(rows: IRow[]): string;
+        renderRow(rw: IRow, wrapper?: (arg: any) => string): string;
         renderCell(cell: ICell): string;
         renderContent(columnName?: string): string;
         private renderCellAsPartOfRow(cell, cellWrapper);
@@ -2508,7 +2511,9 @@ declare module PowerTables.Rendering {
          * @param rows Set of table rows
          */
         body(rows: IRow[]): void;
+        renderObjectContent(renderable: IRenderable): string;
         renderObject(templateId: string, viewModelBehind: any, targetSelector: string): HTMLElement;
+        destroyAtElement(parent: HTMLElement): void;
         destroyObject(targetSelector: string): void;
         /**
          * Removes all dynamically loaded content in table
@@ -3518,7 +3523,36 @@ declare module PowerTables.Editing.Editors.Cells {
         rejectRowEditHandle(e: IRowEventArgs): void;
     }
 }
-declare module PowerTables.Editors.PlainText {
+declare module PowerTables.Editing.Form {
+    class FormEditHandler extends PowerTables.Editing.EditHandlerBase<PowerTables.Editing.Form.IFormEditUiConfig> {
+        private _currentForm;
+        private _currentFormElement;
+        private _activeEditors;
+        private _isEditing;
+        private ensureEditing(rowDisplayIndex);
+        add(): void;
+        beginFormEditHandler(e: IRowEventArgs): void;
+        private startupForm();
+        commitAll(): void;
+        rejectAll(): void;
+        notifyChanged(editor: PowerTables.Editing.IEditor): void;
+        commit(editor: PowerTables.Editing.IEditor): void;
+        reject(editor: PowerTables.Editing.IEditor): void;
+    }
+    class FormEditFormModel {
+        EditorsSet: {
+            [key: string]: IEditor;
+        };
+        Handler: FormEditHandler;
+        RootElement: HTMLElement;
+        DataObject: any;
+        Editors(): string;
+        Editor(fieldName: string): string;
+        commit(): void;
+        reject(): void;
+    }
+}
+declare module PowerTables.Editing.Editors.PlainText {
     class PlainTextEditor extends PowerTables.Editing.EditorBase<PowerTables.Editing.Editors.PlainText.IPlainTextEditorUiConfig> {
         Input: HTMLInputElement;
         ValidationRegex: RegExp;
@@ -3537,7 +3571,7 @@ declare module PowerTables.Editors.PlainText {
         focus(): void;
     }
 }
-declare module PowerTables.Editors.SelectList {
+declare module PowerTables.Editing.Editors.SelectList {
     class SelectListEditor extends PowerTables.Editing.EditorBase<PowerTables.Editing.Editors.SelectList.ISelectListEditorUiConfig> {
         List: HTMLSelectElement;
         Items: System.Web.Mvc.ISelectListItem[];
@@ -3552,7 +3586,7 @@ declare module PowerTables.Editors.SelectList {
         focus(): void;
     }
 }
-declare module PowerTables.Editors.Check {
+declare module PowerTables.Editing.Editors.Check {
     class CheckEditor extends PowerTables.Editing.EditorBase<PowerTables.Editing.Editors.Check.ICheckEditorUiConfig> {
         FocusElement: HTMLElement;
         private _value;
@@ -3564,7 +3598,7 @@ declare module PowerTables.Editors.Check {
         focus(): void;
     }
 }
-declare module PowerTables.Editors.Memo {
+declare module PowerTables.Editing.Editors.Memo {
     class MemoEditor extends PowerTables.Editing.EditorBase<PowerTables.Editing.Editors.Memo.IMemoEditorUiConfig> {
         TextArea: HTMLInputElement;
         MaxChars: number;

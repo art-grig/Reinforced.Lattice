@@ -1,4 +1,4 @@
-﻿module PowerTables.Editors.Check {
+﻿module PowerTables.Editing.Editors.Check {
     
     export class CheckEditor extends PowerTables.Editing.EditorBase<PowerTables.Editing.Editors.Check.ICheckEditorUiConfig> {
         FocusElement:HTMLElement;
