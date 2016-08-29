@@ -177,7 +177,7 @@
         private handleDeferredResponse(req: any, data: any, callback: any) {
             if (req.responseText.indexOf('$Token=') === 0) {
                 var token: string = req.responseText.substr(7, req.responseText.length - 7);
-                var deferredUrl = (this._operationalAjaxUrl.indexOf('?') > -1 ? '&' : '?') + 'q=' + token;
+                var deferredUrl = this._operationalAjaxUrl + (this._operationalAjaxUrl.indexOf('?') > -1 ? '&' : '?') + 'q=' + token;
                 this._events.DeferredDataReceived.invoke(this, {
                     Request: data,
                     XMLHttp: req,
