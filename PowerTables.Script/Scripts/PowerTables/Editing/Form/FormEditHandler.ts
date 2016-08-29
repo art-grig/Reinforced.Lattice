@@ -99,6 +99,9 @@
 
         notifyChanged(editor: PowerTables.Editing.IEditor): void {
             this.retrieveEditorData(editor);
+            for (var i = 0; i < this._activeEditors.length; i++) {
+                this._activeEditors[i].notifyObjectChanged();
+            }
         }
 
         commit(editor: PowerTables.Editing.IEditor): void {

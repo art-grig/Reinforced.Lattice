@@ -4,6 +4,7 @@ using PowerTables.Configuration;
 using PowerTables.Editing;
 using PowerTables.Editing.Cells;
 using PowerTables.Editing.Editors.Check;
+using PowerTables.Editing.Editors.Display;
 using PowerTables.Editing.Editors.Memo;
 using PowerTables.Editing.Editors.PlainText;
 using PowerTables.Editing.Editors.SelectList;
@@ -116,6 +117,7 @@ namespace PowerTables.Mvc.Models.Tutorial
                 c.EditCheck(x => x.IsPaid);
                 c.EditMemo(x => x.SupplierAddress).Size(3, 10);
                 c.EditSelectList(x => x.TypeOfToy).Items(EnumHelper.GetSelectList(typeof(ToyType))).WithEmptyElement("---Select---", false);
+                c.Display(x => x.Preorders).Template(v => v.ReturnsIf("{Price}>100", "<span style='color:red'>Price is too high</span>", "<span style='color:green'>Price is okay</span>"));
                 c.RenderTo("#confirmationContent", "simpleEditForm");
             });
 

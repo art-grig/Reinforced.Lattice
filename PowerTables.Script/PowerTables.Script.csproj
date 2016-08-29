@@ -83,11 +83,12 @@
     <TypeScriptCompile Include="Scripts\PowerTables\Editing\EditHandlerBase.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Editing\Cells\CellsEditHandler.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Editing\Rows\RowsEditHandler.ts" />
-	<TypeScriptCompile Include="Scripts\PowerTables\Editing\Form\FormEditHandler.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Editing\Form\FormEditHandler.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Editing\Editors\PlainText\PlainTextEditor.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Editing\Editors\SelectList\SelectListEditor.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Editing\Editors\Check\CheckEditor.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Editing\Editors\Memo\MemoEditor.ts" />
+	<TypeScriptCompile Include="Scripts\PowerTables\Editing\Editors\Display\DisplayEditor.ts" />
   </ItemGroup>
   <ItemGroup />
   <PropertyGroup>

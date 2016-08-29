@@ -71,6 +71,7 @@ module PowerTables.Editing {
             errors = errors || [];
             var thisErrors = [];
             this.CurrentDataObjectModified[editor.FieldName] = editor.getValue(thisErrors);
+            editor.Data = this.CurrentDataObjectModified[editor.FieldName];
             editor.ValidationMessages = thisErrors;
             for (var i = 0; i < thisErrors.length; i++) {
                 errors.push(thisErrors[i]);   

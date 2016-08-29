@@ -9,7 +9,7 @@ namespace PowerTables.Editing
     public class CellEditorTemplateRegionBase<T> : PluginTemplateRegion, 
         IProvidesVisualState, 
         IProvidesDatepicker,
-        IModelProvider<T> where T:ICellEditorViewModel
+        IModelProvider<T>
     {
         public CellEditorTemplateRegionBase(IViewPlugins page, string id) : base(page, id)
         {
@@ -24,6 +24,19 @@ namespace PowerTables.Editing
 
         bool IsFormEdit { get; }
         
+        bool IsCellEdit { get; }
+
+        bool CanComplete { get; }
+
+        object OriginalContent { get; }
+    }
+
+    public interface ICellEditorViewModel<T> : ICellModel<T>
+    {
+        bool IsRowEdit { get; }
+
+        bool IsFormEdit { get; }
+
         bool IsCellEdit { get; }
 
         bool CanComplete { get; }

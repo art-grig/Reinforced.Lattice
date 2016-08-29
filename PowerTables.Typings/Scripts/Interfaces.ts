@@ -595,6 +595,7 @@ module PowerTables.Editing {
 		TemplateId: string;
 		FieldName: string;
 		PluginId: string;
+		ValidationMessagesTemplateId: string;
 	}
 	export interface IEditFormUiConfigBase
 	{
@@ -655,6 +656,13 @@ module PowerTables.Editing.Rows {
 		BeginEditEventId: string;
 		CommitEventId: string;
 		RejectEventId: string;
+	}
+}
+module PowerTables.Editing.Editors.Display {
+	export interface IDisplayingEditorUiConfig extends PowerTables.Editing.IEditFieldUiConfigBase
+	{
+		PluginId: string;
+		Template: (cell:ICell) => string;
 	}
 }
 module PowerTables.Editing.Editors.SelectList {

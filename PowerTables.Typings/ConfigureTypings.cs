@@ -7,6 +7,7 @@ using PowerTables.Configuration.Json;
 using PowerTables.Editing;
 using PowerTables.Editing.Cells;
 using PowerTables.Editing.Editors.Check;
+using PowerTables.Editing.Editors.Display;
 using PowerTables.Editing.Editors.Memo;
 using PowerTables.Editing.Editors.PlainText;
 using PowerTables.Editing.Editors.SelectList;
@@ -140,6 +141,8 @@ namespace PowerTables.Typings
             builder.ExportAsInterface<CellsEditUiConfig>().WithPublicProperties();
             builder.ExportAsInterface<FormEditUiConfig>().WithPublicProperties();
             builder.ExportAsInterface<RowsEditUiConfig>().WithPublicProperties();
+            builder.ExportAsInterface<DisplayingEditorUiConfig>().WithPublicProperties()
+                .WithProperty(c=>c.Template,c => c.Type("(cell:ICell) => string"));
 
 
 

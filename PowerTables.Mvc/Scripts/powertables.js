@@ -6938,6 +6938,7 @@ var PowerTables;
             EditorBase.prototype.OriginalContent = function () {
                 return this.MasterTable.Renderer.ContentRenderer.renderCell(this);
             };
+            EditorBase.prototype.notifyObjectChanged = function () { };
             return EditorBase;
         }(PowerTables.Plugins.PluginBase));
         Editing.EditorBase = EditorBase;
@@ -7013,6 +7014,7 @@ var PowerTables;
                 errors = errors || [];
                 var thisErrors = [];
                 this.CurrentDataObjectModified[editor.FieldName] = editor.getValue(thisErrors);
+                editor.Data = this.CurrentDataObjectModified[editor.FieldName];
                 editor.ValidationMessages = thisErrors;
                 for (var i = 0; i < thisErrors.length; i++) {
                     errors.push(thisErrors[i]);
@@ -7293,6 +7295,9 @@ var PowerTables;
                     };
                     RowsEditHandler.prototype.notifyChanged = function (editor) {
                         this.retrieveEditorData(editor);
+                        for (var i = 0; i < this._activeEditors.length; i++) {
+                            this._activeEditors[i].notifyObjectChanged();
+                        }
                     };
                     RowsEditHandler.prototype.rejectAll = function () {
                         for (var i = 0; i < this._activeEditors.length; i++) {
@@ -7439,6 +7444,9 @@ var PowerTables;
                 };
                 FormEditHandler.prototype.notifyChanged = function (editor) {
                     this.retrieveEditorData(editor);
+                    for (var i = 0; i < this._activeEditors.length; i++) {
+                        this._activeEditors[i].notifyObjectChanged();
+                    }
                 };
                 FormEditHandler.prototype.commit = function (editor) {
                     var idx = this._activeEditors.indexOf(editor);
@@ -7828,6 +7836,45 @@ var PowerTables;
                 Memo.MemoEditor = MemoEditor;
                 PowerTables.ComponentsContainer.registerComponent('MemoEditor', MemoEditor);
             })(Memo = Editors.Memo || (Editors.Memo = {}));
+        })(Editors = Editing.Editors || (Editing.Editors = {}));
+    })(Editing = PowerTables.Editing || (PowerTables.Editing = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Editing;
+    (function (Editing) {
+        var Editors;
+        (function (Editors) {
+            var Display;
+            (function (Display) {
+                var DisplayEditor = (function (_super) {
+                    __extends(DisplayEditor, _super);
+                    function DisplayEditor() {
+                        _super.apply(this, arguments);
+                    }
+                    DisplayEditor.prototype.renderContent = function (templatesProvider) {
+                        return this.defaultRender(templatesProvider);
+                    };
+                    DisplayEditor.prototype.Render = function () {
+                        this._previousContent = this.Configuration.Template(this);
+                        return this._previousContent;
+                    };
+                    DisplayEditor.prototype.notifyObjectChanged = function () {
+                        var cont = this.Configuration.Template(this);
+                        if (cont !== this._previousContent) {
+                            this.ContentElement.innerHTML = cont;
+                            this._previousContent = cont;
+                        }
+                    };
+                    DisplayEditor.prototype.getValue = function (errors) {
+                        return this.DataObject[this.Column.RawName];
+                    };
+                    DisplayEditor.prototype.setValue = function (value) { };
+                    return DisplayEditor;
+                }(PowerTables.Editing.EditorBase));
+                Display.DisplayEditor = DisplayEditor;
+                PowerTables.ComponentsContainer.registerComponent('DisplayEditor', DisplayEditor);
+            })(Display = Editors.Display || (Editors.Display = {}));
         })(Editors = Editing.Editors || (Editing.Editors = {}));
     })(Editing = PowerTables.Editing || (PowerTables.Editing = {}));
 })(PowerTables || (PowerTables = {}));

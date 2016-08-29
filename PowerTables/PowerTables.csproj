@@ -91,6 +91,9 @@
     <Compile Include="Defaults\DelegateCommandHandler.cs" />
     <Compile Include="Editing\Cells\CellsEditingExtensions.cs" />
     <Compile Include="Editing\Cells\CellsEditUiConfig.cs" />
+    <Compile Include="Editing\Editors\Display\DisplayEditorTemplateRegion.cs" />
+    <Compile Include="Editing\Editors\Display\DisplayingEditorConfigurationExtensions.cs" />
+    <Compile Include="Editing\Editors\Display\DisplayingEditorUiConfig.cs" />
     <Compile Include="Editing\EditHandlerConfiguration.cs" />
     <Compile Include="Editing\EditFieldUsage.cs" />
     <Compile Include="Editing\EditFormJsonConfiguration.cs" />

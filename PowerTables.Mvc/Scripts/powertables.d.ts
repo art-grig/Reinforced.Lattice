@@ -585,6 +585,7 @@ declare module PowerTables.Editing {
         TemplateId: string;
         FieldName: string;
         PluginId: string;
+        ValidationMessagesTemplateId: string;
     }
     interface IEditFormUiConfigBase {
         Fields: PowerTables.Editing.IEditFieldUiConfigBase[];
@@ -643,6 +644,12 @@ declare module PowerTables.Editing.Rows {
         BeginEditEventId: string;
         CommitEventId: string;
         RejectEventId: string;
+    }
+}
+declare module PowerTables.Editing.Editors.Display {
+    interface IDisplayingEditorUiConfig extends PowerTables.Editing.IEditFieldUiConfigBase {
+        PluginId: string;
+        Template: (cell: ICell) => string;
     }
 }
 declare module PowerTables.Editing.Editors.SelectList {
@@ -3370,6 +3377,7 @@ declare module PowerTables.Editing {
         focus(): void;
         OriginalContent(): string;
         FieldName: string;
+        notifyObjectChanged(): void;
     }
     interface IEditor extends IPlugin, ICell {
         /**
@@ -3446,6 +3454,7 @@ declare module PowerTables.Editing {
          * Collection with editor's recent validation messages
          */
         ValidationMessages: IValidationMessage[];
+        notifyObjectChanged(): void;
     }
     interface IValidationMessage {
         Message: string;
@@ -3615,5 +3624,16 @@ declare module PowerTables.Editing.Editors.Memo {
         getValue(errors: PowerTables.Editing.IValidationMessage[]): any;
         renderContent(templatesProvider: ITemplatesProvider): string;
         focus(): void;
+    }
+}
+declare module PowerTables.Editing.Editors.Display {
+    class DisplayEditor extends PowerTables.Editing.EditorBase<PowerTables.Editing.Editors.Display.IDisplayingEditorUiConfig> {
+        ContentElement: HTMLElement;
+        private _previousContent;
+        renderContent(templatesProvider: ITemplatesProvider): string;
+        Render(): string;
+        notifyObjectChanged(): void;
+        getValue(errors: PowerTables.Editing.IValidationMessage[]): any;
+        setValue(value: any): void;
     }
 }

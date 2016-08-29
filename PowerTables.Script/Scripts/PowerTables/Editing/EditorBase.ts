@@ -141,6 +141,8 @@
         }
 
         FieldName: string;
+
+        notifyObjectChanged(): void {}
     }
 
     export interface IEditor extends IPlugin, ICell {
@@ -234,6 +236,8 @@
          * Collection with editor's recent validation messages
          */
         ValidationMessages: IValidationMessage[];
+
+        notifyObjectChanged():void;
     }
     export interface IValidationMessage {
         Message: string;

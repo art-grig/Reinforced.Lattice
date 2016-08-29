@@ -2,6 +2,7 @@
 @using PowerTables
 @using PowerTables.Editing
 @using PowerTables.Editing.Editors.Check
+@using PowerTables.Editing.Editors.Display
 @using PowerTables.Editing.Editors.Memo
 @using PowerTables.Editing.Editors.PlainText
 @using PowerTables.Editing.Editors.SelectList
@@ -800,4 +801,16 @@
             
         </div>
     }
+}
+
+
+@using (var t = Plugin.Editor_Display())
+{
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label">@t.Value(c => c.Column.Configuration.Title)</label>
+        <div class="col-sm-10">
+            <p class="form-control-static" @t.ThisIsContentParent()>@t.Render()</p>
+        </div>
+    </div>
 }
