@@ -1,7 +1,7 @@
 ﻿module PowerTables.Editing.Editors.Cells {
     export class CellsEditHandler extends EditHandlerBase<PowerTables.Editing.Cells.ICellsEditUiConfig> {
 
-        
+
         private _isEditing: boolean = false;
         private _activeEditor: IEditor;
 
@@ -64,7 +64,7 @@
             var msgs = [];
             this.retrieveEditorData(editor, msgs);
             if (msgs.length !== 0) return;
-            editor.VisualStates.changeState('saving');
+            if (editor.VisualStates != null) editor.VisualStates.changeState('saving');
             this.finishEditing(editor, false);
             this.sendDataObjectToServer(() => {
                 if (!this._isEditing) this.CurrentDataObjectModified = null;
@@ -73,7 +73,7 @@
         }
 
         private finishEditing(editor: PowerTables.Editing.IEditor, redraw: boolean) {
-            if (redraw) editor.VisualStates.normalState();
+            if (redraw && editor.VisualStates != null) editor.VisualStates.normalState();
             this._activeEditor = null;
             this.Cells[editor.Column.RawName] = this.MasterTable.Controller.produceCell(this.DataObject, editor.Column, this);
             if (redraw) {

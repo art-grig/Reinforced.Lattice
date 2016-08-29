@@ -25,6 +25,12 @@
             }
             this.DataObject = this.MasterTable.InstanceManager.defaultObject();
             this.CurrentDataObjectModified = this.MasterTable.InstanceManager.defaultObject();
+            for (var i = 0; i < this.Configuration.Fields.length; i++) {
+                if (this.Configuration.Fields[i].PluginId !== 'DisplayEditor') {
+                    this.DataObject[this.Configuration.Fields[i].FieldName] = null;
+                    this.CurrentDataObjectModified[this.Configuration.Fields[i].FieldName] = null;
+                }
+            }
             this.startupForm();
 
         }
@@ -115,9 +121,9 @@
                     }
                 }
                 if (idx !== -1) this._activeEditors[idx].focus();
-                else {
-                    this.commitAll();
-                }
+                //else {
+                //    this.commitAll(); not sure that majority of users will value such kind of solution
+                //}
             }
         }
 

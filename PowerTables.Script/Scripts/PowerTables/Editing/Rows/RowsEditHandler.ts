@@ -39,6 +39,12 @@
                 this._isAddingNewRow = true;
                 this.DataObject = this.MasterTable.InstanceManager.defaultObject();
                 this.CurrentDataObjectModified = this.MasterTable.InstanceManager.defaultObject();
+                for (var i = 0; i < this.Configuration.Fields.length; i++) {
+                    if (this.Configuration.Fields[i].PluginId !== 'DisplayEditor') {
+                        this.DataObject[this.Configuration.Fields[i].FieldName] = null;
+                        this.CurrentDataObjectModified[this.Configuration.Fields[i].FieldName] = null;
+                    }
+                }
             }
             var row = this.MasterTable.Controller.produceRow(this.DataObject, rowDisplayIndex < 0 ? -1 : rowDisplayIndex);
             this.Cells = row.Cells;
@@ -116,9 +122,9 @@
                     }
                 }
                 if (idx !== -1) this._activeEditors[idx].focus();
-                else {
-                    this.commitAll();
-                }
+                //else {
+                //    this.commitAll(); ...you. And it is too small to provide it to settings
+                //}
             }
         }
 

@@ -1,10 +1,10 @@
 ﻿module PowerTables.Editing.Editors.SelectList {
-    
+
     export class SelectListEditor extends PowerTables.Editing.EditorBase<PowerTables.Editing.Editors.SelectList.ISelectListEditorUiConfig> {
         List: HTMLSelectElement;
         Items: System.Web.Mvc.ISelectListItem[];
         SelectedItem: System.Web.Mvc.ISelectListItem;
-        
+
         public getValue(errors: PowerTables.Editing.IValidationMessage[]): any {
             var selectedOption = this.List.options.item(this.List.selectedIndex);
             var item = <string>(<any>selectedOption).value.toString();
@@ -23,12 +23,12 @@
                 else if (this.Column.IsDateTime) value = this.MasterTable.Date.parse(item);
                 else errors.push({ Code: 'UNKNOWN', Message: `Unknown value for ${this.Column.Configuration.Title}` });
             }
-            
+
             return value;
         }
 
         public setValue(value: any): void {
-            var strvalue = this.Column.IsDateTime ? this.MasterTable.Date.serialize(value) : value.toString();
+            var strvalue = this.Column.IsDateTime ? this.MasterTable.Date.serialize(value) : (value == null ? null : value.toString());
             for (var i = 0; i < this.List.options.length; i++) {
                 if ((<any>this.List.options.item(i)).value === strvalue) {
                     (<any>this.List.options.item(i)).selected = true;
@@ -83,7 +83,7 @@
                 }
             }
             this.VisualStates.mixinState('selected');
-            
+
         }
 
         public focus(): void {
