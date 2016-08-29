@@ -21,6 +21,7 @@
                 else if (this.Column.IsFloat) value = parseFloat(item);
                 else if (this.Column.IsBoolean) value = item.toUpperCase() === 'TRUE';
                 else if (this.Column.IsDateTime) value = this.MasterTable.Date.parse(item);
+                else if (this.Column.IsString) value = item.toString();
                 else errors.push({ Code: 'UNKNOWN', Message: `Unknown value for ${this.Column.Configuration.Title}` });
             }
 
