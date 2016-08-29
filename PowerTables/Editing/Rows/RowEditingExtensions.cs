@@ -2,6 +2,7 @@
 using PowerTables.CellTemplating;
 using PowerTables.Configuration;
 using PowerTables.Configuration.Json;
+using PowerTables.Plugins.Toolbar;
 
 namespace PowerTables.Editing.Rows
 {
@@ -67,6 +68,10 @@ namespace PowerTables.Editing.Rows
             return t.Data(RejectDataSelector, "true");
         }
 
-
+        public static ToolbarItemBuilder AddNewByRow(this ToolbarItemBuilder tib)
+        {
+            tib.OnClick(string.Format("function (a) {{ a.InstanceManager.getPlugin('{0}').add(); }}", PluginId));
+            return tib;
+        }
     }
 }

@@ -121,7 +121,8 @@ namespace PowerTables.Mvc.Models.Tutorial
 
             conf.Toolbar("toolbar-rt", c =>
             {
-                c.AddSimpleButton("Add new...").AddNewButton();
+                c.AddSimpleButton("Add new...").AddNewByForm();
+                c.AddSimpleButton("Add new by row...").AddNewByRow();
             });
             return conf;
         }

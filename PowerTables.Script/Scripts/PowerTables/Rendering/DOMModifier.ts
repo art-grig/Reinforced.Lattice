@@ -215,8 +215,9 @@
          * @param row 
          * @returns {} 
          */
-        public appendRow(row: IRow, afterRowAtIndex: number): HTMLElement {
+        public appendRow(row: IRow, beforeRowAtIndex: number): HTMLElement {
             this._stack.clear();
+            this._stack.push(RenderingContextType.Row, row);
             var wrapper: (arg: any) => string = this._templatesProvider.getCachedTemplate('rowWrapper');
             var html: string;
             if (row.renderElement) {
@@ -224,10 +225,12 @@
             } else {
                 html = wrapper(row);
             }
-            var referenceNode: HTMLElement = this._locator.getRowElementByIndex(afterRowAtIndex);
+            var referenceNode: HTMLElement = this._locator.getRowElementByIndex(beforeRowAtIndex);
             var newRowElement: HTMLElement = this.createElement(html);
-            referenceNode.parentNode.insertBefore(newRowElement, referenceNode.nextSibling);
+            referenceNode.parentNode.insertBefore(newRowElement, referenceNode);
             this._backBinder.backBind(newRowElement);
+            this._stack.popContext();
+            this._stack.clear();
             return newRowElement;
         }
 

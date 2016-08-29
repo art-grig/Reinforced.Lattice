@@ -3,7 +3,8 @@
 
         private _isEditing: boolean = false;
         private _activeEditors: IEditor[] = [];
-        
+        private _isAddingNewRow: boolean = false;
+
         public onBeforeClientRowsRendering(e: ITableEventArgs<IRow[]>) {
             if (!this._isEditing) return;
             for (var i = 0; i < e.EventArgs.length; i++) {
@@ -24,17 +25,24 @@
 
         private ensureEditing(rowDisplayIndex: number) {
             if (this._isEditing) return;
-            var lookup = this.MasterTable.DataHolder.localLookupDisplayedData(rowDisplayIndex);
-            this.DataObject = lookup.DataObject;
-            this.CurrentDataObjectModified = {};
-            for (var cd in this.DataObject) {
-                if (this.DataObject.hasOwnProperty(cd)) {
-                    this.CurrentDataObjectModified[cd] = this.DataObject[cd];
+            if (rowDisplayIndex >= 0) {
+                this._isAddingNewRow = false;
+                var lookup = this.MasterTable.DataHolder.localLookupDisplayedData(rowDisplayIndex);
+                this.DataObject = lookup.DataObject;
+                this.CurrentDataObjectModified = {};
+                for (var cd in this.DataObject) {
+                    if (this.DataObject.hasOwnProperty(cd)) {
+                        this.CurrentDataObjectModified[cd] = this.DataObject[cd];
+                    }
                 }
+            } else {
+                this._isAddingNewRow = true;
+                this.DataObject = this.MasterTable.InstanceManager.defaultObject();
+                this.CurrentDataObjectModified = this.MasterTable.InstanceManager.defaultObject();
             }
-            var row = this.MasterTable.Controller.produceRow(lookup.DataObject, lookup.DisplayedIndex);
+            var row = this.MasterTable.Controller.produceRow(this.DataObject, rowDisplayIndex < 0 ? -1 : rowDisplayIndex);
             this.Cells = row.Cells;
-            this.Index = lookup.DisplayedIndex;
+            this.Index = rowDisplayIndex < 0 ? -1 : rowDisplayIndex;
             this._isEditing = true;
         }
 
@@ -58,19 +66,24 @@
                     this._activeEditors.push(editor);
                 }
             }
-            this.MasterTable.Renderer.Modifier.redrawRow(this);
+            if (rowIndex < 0) {
+                this.MasterTable.Renderer.Modifier.appendRow(this, 0);
+            } else {
+                this.MasterTable.Renderer.Modifier.redrawRow(this);
+            }
             for (var i = 0; i < this._activeEditors.length; i++) {
                 this.setEditorValue(this._activeEditors[i]);
             }
             if (this._activeEditors.length > 0) this._activeEditors[0].focus();
         }
-        
+
         public afterDrawn: (e: ITableEventArgs<any>) => void = (e) => {
             this.MasterTable.Events.BeforeClientRowsRendering.subscribe(this.onBeforeClientRowsRendering.bind(this), 'roweditor');
             this.MasterTable.Events.AfterDataRendered.subscribe(this.onAfterDataRendered.bind(this), 'roweditor');
         }
 
         public commitAll() {
+            this.ValidationMessages = [];
             var errors = [];
             for (var i = 0; i < this._activeEditors.length; i++) {
                 this.retrieveEditorData(this._activeEditors[i], errors);
@@ -113,17 +126,21 @@
             this.retrieveEditorData(editor);
         }
 
-        public rejectAll() : void {
+        public rejectAll(): void {
             for (var i = 0; i < this._activeEditors.length; i++) {
                 this.reject(this._activeEditors[i]);
             }
             this._isEditing = false;
             this.CurrentDataObjectModified = null;
             this.Cells = {};
-            var di = this.MasterTable.DataHolder.localLookupDisplayedDataObject(this.DataObject);
-            if (di.IsCurrentlyDisplaying) {
-                //var row = this.MasterTable.Controller.produceRow(this.DataObject, di.DisplayedIndex);
-                this.MasterTable.Controller.redrawVisibleDataObject(this.DataObject);
+            if (!this._isAddingNewRow) {
+                var di = this.MasterTable.DataHolder.localLookupDisplayedDataObject(this.DataObject);
+                if (di.IsCurrentlyDisplaying) {
+                    //var row = this.MasterTable.Controller.produceRow(this.DataObject, di.DisplayedIndex);
+                    this.MasterTable.Controller.redrawVisibleDataObject(this.DataObject);
+                }
+            } else {
+                this.MasterTable.Renderer.Modifier.destroyRow(this);
             }
 
             //this.MasterTable.Renderer.Modifier.redrawRow(row);
@@ -132,6 +149,10 @@
         reject(editor: PowerTables.Editing.IEditor): void {
             this.CurrentDataObjectModified[editor.FieldName] = this.DataObject[editor.FieldName];
             this.setEditorValue(editor);
+        }
+
+        public add() {
+            this.beginRowEdit(-1);
         }
 
         public beginRowEditHandle(e: IRowEventArgs) {

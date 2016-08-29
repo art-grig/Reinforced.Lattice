@@ -59,6 +59,7 @@
         }
 
         public commitAll() {
+            this.ValidationMessages = [];
             var errors = [];
             for (var i = 0; i < this._activeEditors.length; i++) {
                 this.retrieveEditorData(this._activeEditors[i], errors);

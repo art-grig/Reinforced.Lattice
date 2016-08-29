@@ -2126,7 +2126,7 @@ declare module PowerTables.Rendering {
          * @param row
          * @returns {}
          */
-        appendRow(row: IRow, afterRowAtIndex: number): HTMLElement;
+        appendRow(row: IRow, beforeRowAtIndex: number): HTMLElement;
         /**
          * Removes referenced row by its index
          *
@@ -3509,6 +3509,7 @@ declare module PowerTables.Editing.Editors.Cells {
     class RowsEditHandler extends EditHandlerBase<PowerTables.Editing.Rows.IRowsEditUiConfig> {
         private _isEditing;
         private _activeEditors;
+        private _isAddingNewRow;
         onBeforeClientRowsRendering(e: ITableEventArgs<IRow[]>): void;
         onAfterDataRendered(e: any): void;
         private ensureEditing(rowDisplayIndex);
@@ -3519,6 +3520,7 @@ declare module PowerTables.Editing.Editors.Cells {
         notifyChanged(editor: PowerTables.Editing.IEditor): void;
         rejectAll(): void;
         reject(editor: PowerTables.Editing.IEditor): void;
+        add(): void;
         beginRowEditHandle(e: IRowEventArgs): void;
         commitRowEditHandle(e: IRowEventArgs): void;
         rejectRowEditHandle(e: IRowEventArgs): void;

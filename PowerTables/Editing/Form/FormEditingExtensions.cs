@@ -57,7 +57,7 @@ namespace PowerTables.Editing.Form
             return t.Data(BeginDataSelector, "true");
         }
 
-        public static ToolbarItemBuilder AddNewButton(this ToolbarItemBuilder tib)
+        public static ToolbarItemBuilder AddNewByForm(this ToolbarItemBuilder tib)
         {
             tib.OnClick(string.Format("function (a) {{ a.InstanceManager.getPlugin('{0}').add(); }}", PluginId));
             return tib;
