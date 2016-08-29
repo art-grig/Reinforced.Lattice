@@ -6842,6 +6842,10 @@ var PowerTables;
             __extends(EditorBase, _super);
             function EditorBase() {
                 _super.apply(this, arguments);
+                /**
+                 * Collection with editor's recent validation messages
+                 */
+                this.ValidationMessages = [];
             }
             EditorBase.prototype.renderedValidationMessages = function () {
                 return this.MasterTable.Renderer.getCachedTemplate(this.Configuration.ValidationMessagesTemplateId)({
@@ -6985,9 +6989,13 @@ var PowerTables;
             EditHandlerBase.prototype.retrieveEditorData = function (editor, errors) {
                 var errorsArrayPresent = (!(!errors));
                 errors = errors || [];
-                this.CurrentDataObjectModified[editor.FieldName] = editor.getValue(errors);
-                editor.ValidationMessages = errors;
-                if (errors.length > 0) {
+                var thisErrors = [];
+                this.CurrentDataObjectModified[editor.FieldName] = editor.getValue(thisErrors);
+                editor.ValidationMessages = thisErrors;
+                for (var i = 0; i < thisErrors.length; i++) {
+                    errors.push(thisErrors[i]);
+                }
+                if (thisErrors.length > 0) {
                     editor.IsValid = false;
                     editor.VisualStates.changeState('invalid');
                 }

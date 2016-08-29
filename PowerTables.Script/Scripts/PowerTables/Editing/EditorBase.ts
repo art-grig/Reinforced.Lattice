@@ -39,7 +39,7 @@
         /**
          * Collection with editor's recent validation messages
          */
-        public ValidationMessages: IValidationMessage[];
+        public ValidationMessages: IValidationMessage[] = [];
 
         public renderedValidationMessages(): string {
             return this.MasterTable.Renderer.getCachedTemplate((<any>this.Configuration).ValidationMessagesTemplateId)({

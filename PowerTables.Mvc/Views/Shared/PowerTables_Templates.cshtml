@@ -519,8 +519,8 @@
                        @t.BindChanged("keyup")
                        @t.BindCommit(DOMEvent.Filter("keyup").Prop(13, "keyCode", "which"))
                        @t.WhenInvalid(c => c.State.Color("red").Style("border-color", "red")) />
-                <span class="help-block text-danger" @t.WhenInvalid(c => { c.State.Show(); c.Content(d => d.ValidationMessages); }) style="display: none">
-                </span>
+                <div class="help-block" @t.WhenInvalid(c => { c.State.Show(); c.Content(d => d.ValidationMessages); }) style="display: none; color: #E15C5C;">
+                </div>
             </div>
         </div>
     }
@@ -649,8 +649,8 @@
                     }
                 </select>
 
-                <span class="help-block text-danger" @t.WhenInvalid(c => { c.State.Show(); c.Content(d => d.ValidationMessages); }) style="display: none">
-                </span>
+                <div class="help-block" @t.WhenInvalid(c => { c.State.Show(); c.Content(d => d.ValidationMessages); }) style="display: none; color: #E15C5C;">
+                </div>
             </div>
         </div>
     }
@@ -726,8 +726,8 @@
                           @t.BindChanged("keyup")
                           @t.BindCommit(DOMEvent.Filter("keyup").Prop(13, "keyCode", "which"))
                           @t.WhenInvalid(c => c.State.Color("red").Style("border-color", "red"))></textarea>
-                <span class="help-block text-danger" @t.WhenInvalid(c => { c.State.Show(); c.Content(d => d.ValidationMessages); }) style="display: none">
-                </span>
+                <div class="help-block" @t.WhenInvalid(c => { c.State.Show(); c.Content(d => d.ValidationMessages); }) style="display: none; color: #E15C5C;">
+                </div>
             </div>
         </div>
     }
@@ -787,14 +787,17 @@
     using (t.If(c => c.IsFormEdit))
     {
         <div class="form-group">
-        <div class="col-sm-offset-2 col-sm-10">
-            <div class="checkbox">
-                <label>
-                    <input type="checkbox" @t.BindChanged("change") @t.BindCommit("change")
-                           @t.WhenChecked(c => c.Attr("checked", "checked"))> @t.Value(c => c.Column.Configuration.Title)
+            <div class="col-sm-offset-2 col-sm-10">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" @t.BindChanged("change") @t.BindCommit("change")
+                               @t.WhenChecked(c => c.Attr("checked", "checked"))> @t.Value(c => c.Column.Configuration.Title)
                     </label>
                 </div>
+                <div class="help-block" @t.WhenInvalid(c => { c.State.Show(); c.Content(d => d.ValidationMessages); }) style="display: none; color: #E15C5C;">
+                </div>
             </div>
+            
         </div>
     }
 }

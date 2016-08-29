@@ -69,15 +69,21 @@ module PowerTables.Editing {
         protected retrieveEditorData(editor: PowerTables.Editing.IEditor, errors?: IValidationMessage[]) {
             var errorsArrayPresent = (!(!errors));
             errors = errors || [];
-            this.CurrentDataObjectModified[editor.FieldName] = editor.getValue(errors);
-            editor.ValidationMessages = errors;
-            if (errors.length > 0) {
+            var thisErrors = [];
+            this.CurrentDataObjectModified[editor.FieldName] = editor.getValue(thisErrors);
+            editor.ValidationMessages = thisErrors;
+            for (var i = 0; i < thisErrors.length; i++) {
+                errors.push(thisErrors[i]);   
+            }
+
+            if (thisErrors.length > 0) {
                 editor.IsValid = false;
                 editor.VisualStates.changeState('invalid');
             } else {
                 editor.IsValid = true;
                 editor.VisualStates.normalState();
             }
+
             if (!errorsArrayPresent) {
                 this.ValidationMessages.concat(errors);
             }

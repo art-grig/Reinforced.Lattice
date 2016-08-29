@@ -19,5 +19,12 @@ namespace PowerTables.Editing
         public string FieldName { get; set; }
 
         public abstract string PluginId { get; }
+
+        public string ValidationMessagesTemplateId { get; set; }
+
+        protected EditFieldUiConfigBase()
+        {
+            ValidationMessagesTemplateId = "cellValidationMessages";
+        }
     }
 }
