@@ -42,7 +42,7 @@ module PowerTables.Editing {
             return false;
         }
 
-        protected  setEditorValue(editor: PowerTables.Editing.IEditor) {
+        protected setEditorValue(editor: PowerTables.Editing.IEditor) {
             editor.IsInitialValueSetting = true;
             editor.setValue(this.CurrentDataObjectModified[editor.FieldName]);
             editor.IsInitialValueSetting = false;
@@ -74,15 +74,15 @@ module PowerTables.Editing {
             editor.Data = this.CurrentDataObjectModified[editor.FieldName];
             editor.ValidationMessages = thisErrors;
             for (var i = 0; i < thisErrors.length; i++) {
-                errors.push(thisErrors[i]);   
+                errors.push(thisErrors[i]);
             }
 
             if (thisErrors.length > 0) {
                 editor.IsValid = false;
-                editor.VisualStates.changeState('invalid');
+                if (editor.VisualStates != null) editor.VisualStates.changeState('invalid');
             } else {
                 editor.IsValid = true;
-                editor.VisualStates.normalState();
+                if (editor.VisualStates != null) editor.VisualStates.normalState();
             }
 
             if (!errorsArrayPresent) {

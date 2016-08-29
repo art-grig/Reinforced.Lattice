@@ -71,7 +71,7 @@
             this._isEditing = false;
             
             for (var i = 0; i < this._activeEditors.length; i++) {
-                this._activeEditors[i].VisualStates.changeState('saving');
+                if (this._activeEditors[i].VisualStates != null) this._activeEditors[i].VisualStates.changeState('saving');
             }
             this._isEditing = false;
             this._activeEditors = [];

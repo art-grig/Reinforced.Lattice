@@ -7021,11 +7021,13 @@ var PowerTables;
                 }
                 if (thisErrors.length > 0) {
                     editor.IsValid = false;
-                    editor.VisualStates.changeState('invalid');
+                    if (editor.VisualStates != null)
+                        editor.VisualStates.changeState('invalid');
                 }
                 else {
                     editor.IsValid = true;
-                    editor.VisualStates.normalState();
+                    if (editor.VisualStates != null)
+                        editor.VisualStates.normalState();
                 }
                 if (!errorsArrayPresent) {
                     this.ValidationMessages.concat(errors);
@@ -7124,7 +7126,8 @@ var PowerTables;
                         this.retrieveEditorData(editor, msgs);
                         if (msgs.length !== 0)
                             return;
-                        editor.VisualStates.changeState('saving');
+                        if (editor.VisualStates != null)
+                            editor.VisualStates.changeState('saving');
                         this.finishEditing(editor, false);
                         this.sendDataObjectToServer(function () {
                             if (!_this._isEditing)
@@ -7132,7 +7135,7 @@ var PowerTables;
                         });
                     };
                     CellsEditHandler.prototype.finishEditing = function (editor, redraw) {
-                        if (redraw)
+                        if (redraw && editor.VisualStates != null)
                             editor.VisualStates.normalState();
                         this._activeEditor = null;
                         this.Cells[editor.Column.RawName] = this.MasterTable.Controller.produceCell(this.DataObject, editor.Column, this);
@@ -7267,7 +7270,8 @@ var PowerTables;
                             return;
                         this._isEditing = false;
                         for (var i = 0; i < this._activeEditors.length; i++) {
-                            this._activeEditors[i].VisualStates.changeState('saving');
+                            if (this._activeEditors[i].VisualStates != null)
+                                this._activeEditors[i].VisualStates.changeState('saving');
                         }
                         this._isEditing = false;
                         this._activeEditors = [];
@@ -7419,7 +7423,8 @@ var PowerTables;
                         return;
                     this._isEditing = false;
                     for (var i = 0; i < this._activeEditors.length; i++) {
-                        this._activeEditors[i].VisualStates.changeState('saving');
+                        if (this._activeEditors[i].VisualStates != null)
+                            this._activeEditors[i].VisualStates.changeState('saving');
                     }
                     this._isEditing = false;
                     this._activeEditors = [];
