@@ -11,7 +11,7 @@ namespace PowerTables.Mvc.Controllers
 {
     public partial class TutorialController
     {
-        [Tutorial("Editing data",2)]
+        [Tutorial("Editing data", 2)]
         public ActionResult Editor()
         {
             return TutPage(c => c.Editor());
@@ -28,6 +28,21 @@ namespace PowerTables.Mvc.Controllers
 
         private void EditData(PowerTablesData<Toy, Row> powerTablesData, EditionResultWrapper<Row> edit)
         {
+            if (edit.ConfirmedObject.Id == 0)
+            {
+                edit.ConfirmedObject.Id = Data.SourceData.Count + 1;
+                Data.SourceData.Add(new Toy()
+                {
+                    CreatedDate = edit.ConfirmedObject.CreatedDate,
+                    Id = edit.ConfirmedObject.Id,
+                    DeliveryDelay = edit.ConfirmedObject.DeliveryDelay,
+                    ToyName = edit.ConfirmedObject.Name + " Added"
+                });
+                edit.Message(TableMessage.User("info", "Object added", "Successfull"));
+                edit.Adjustments.AddOrUpdate(edit.ConfirmedObject);
+                return;
+
+            }
             edit.ConfirmedObject.Name = edit.ConfirmedObject.Name + " - Edited";
             edit.ConfirmedObject.TypeOfToy = ToyType.Dolls;
 
