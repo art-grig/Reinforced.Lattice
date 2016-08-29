@@ -1783,6 +1783,7 @@ declare module PowerTables {
     class InstanceManager {
         constructor(configuration: Configuration.Json.ITableConfiguration, masterTable: IMasterTable, events: EventsManager);
         private compileComparisonFunction();
+        defaultObject(): any;
         /**
          * Local objects comparison function based on key fields
          *

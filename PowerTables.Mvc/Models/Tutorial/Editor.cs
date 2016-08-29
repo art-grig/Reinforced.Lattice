@@ -12,6 +12,7 @@ using PowerTables.Editing.Rows;
 using PowerTables.FrequentlyUsed;
 using PowerTables.Plugins.LoadingOverlap;
 using PowerTables.Plugins.Ordering;
+using PowerTables.Plugins.Toolbar;
 
 namespace PowerTables.Mvc.Models.Tutorial
 {
@@ -116,6 +117,11 @@ namespace PowerTables.Mvc.Models.Tutorial
                 c.EditMemo(x => x.SupplierAddress).Size(3, 10);
                 c.EditSelectList(x => x.TypeOfToy).Items(EnumHelper.GetSelectList(typeof(ToyType))).WithEmptyElement("---Select---", false);
                 c.RenderTo("#confirmationContent", "simpleEditForm");
+            });
+
+            conf.Toolbar("toolbar-rt", c =>
+            {
+                c.AddSimpleButton("Add new...").AddNewButton();
             });
             return conf;
         }

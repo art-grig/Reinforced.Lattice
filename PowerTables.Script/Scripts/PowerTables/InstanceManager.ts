@@ -38,6 +38,20 @@
 
         }
 
+        public defaultObject(): any {
+            var def = {};
+            for (var i = 0; i < this._rawColumnNames.length; i++) {
+                var col = this.Columns[this._rawColumnNames[i]];
+                if (col.IsInteger || col.IsFloat) def[col.RawName] = 0;
+                if (col.IsBoolean) def[col.RawName] = false;
+                if (col.IsDateTime) def[col.RawName] = new Date();
+                if (col.IsString) def[col.RawName] = '';
+                if (col.IsEnum) def[col.RawName] = 0;
+                if (col.Configuration.IsNullable) def[col.RawName] = null;
+            }
+            return def;
+        }
+
         /**
          * Local objects comparison function based on key fields
          * 

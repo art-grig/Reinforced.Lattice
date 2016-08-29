@@ -23,8 +23,8 @@
             if (this._isEditing) {
                 this.rejectAll();
             }
-            this.DataObject = {};
-            this.CurrentDataObjectModified = {};
+            this.DataObject = this.MasterTable.InstanceManager.defaultObject();
+            this.CurrentDataObjectModified = this.MasterTable.InstanceManager.defaultObject();
             this.startupForm();
 
         }

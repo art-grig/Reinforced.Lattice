@@ -136,7 +136,14 @@
             <div class="modal-content" @t.Callback("showModal") @t.DestroyCallback("hideModal")>
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Edit object</h4>
+                    <h4 class="modal-title">
+                        @using (editForm.IfEquals("DataObject.Id", "0"))
+                        {
+                            <text>Create new object</text>
+                            @editForm.Else()
+                            <text>Edit object #@editForm.Value("DataObject.Id")</text>
+                        }
+                    </h4>
                 </div>
                 <div class="modal-body">
                     <fieldset class="form form-horizontal">

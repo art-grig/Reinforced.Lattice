@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using PowerTables.CellTemplating;
 using PowerTables.Configuration;
 using PowerTables.Configuration.Json;
+using PowerTables.Plugins.Toolbar;
 
 namespace PowerTables.Editing.Form
 {
@@ -54,6 +55,12 @@ namespace PowerTables.Editing.Form
         public static Template FormEditTrigger(this Template t)
         {
             return t.Data(BeginDataSelector, "true");
+        }
+
+        public static ToolbarItemBuilder AddNewButton(this ToolbarItemBuilder tib)
+        {
+            tib.OnClick(string.Format("function (a) {{ a.InstanceManager.getPlugin('{0}').add(); }}", PluginId));
+            return tib;
         }
     }
 }

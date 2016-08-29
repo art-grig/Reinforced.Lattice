@@ -1615,6 +1615,25 @@ var PowerTables;
             var fnText = "(function(x,y) { return (" + conditionsStr + "); })";
             this.DataObjectComparisonFunction = eval(fnText);
         };
+        InstanceManager.prototype.defaultObject = function () {
+            var def = {};
+            for (var i = 0; i < this._rawColumnNames.length; i++) {
+                var col = this.Columns[this._rawColumnNames[i]];
+                if (col.IsInteger || col.IsFloat)
+                    def[col.RawName] = 0;
+                if (col.IsBoolean)
+                    def[col.RawName] = false;
+                if (col.IsDateTime)
+                    def[col.RawName] = new Date();
+                if (col.IsString)
+                    def[col.RawName] = '';
+                if (col.IsEnum)
+                    def[col.RawName] = 0;
+                if (col.Configuration.IsNullable)
+                    def[col.RawName] = null;
+            }
+            return def;
+        };
         /*
          * @internal
          */
@@ -7326,8 +7345,8 @@ var PowerTables;
                     if (this._isEditing) {
                         this.rejectAll();
                     }
-                    this.DataObject = {};
-                    this.CurrentDataObjectModified = {};
+                    this.DataObject = this.MasterTable.InstanceManager.defaultObject();
+                    this.CurrentDataObjectModified = this.MasterTable.InstanceManager.defaultObject();
                     this.startupForm();
                 };
                 FormEditHandler.prototype.beginFormEditHandler = function (e) {
