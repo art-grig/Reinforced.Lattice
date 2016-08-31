@@ -8,12 +8,29 @@ namespace PowerTables.Editing.Editors.SelectList
 {
     public static class SelectListUiConfigurationExtensions
     {
+        /// <summary>
+        /// Obtains configurator for select list editor for specified field
+        /// </summary>
+        /// <param name="t">Column configurator</param>
+        /// <param name="field">Field selector</param>
+        /// <returns>Fluent</returns>
         public static EditFieldUsage<TForm, TData, SelectListEditorUiConfig> EditSelectList<TForm, TData, TClientConfig>(
             this EditHandlerConfiguration<TForm, TClientConfig> t, 
             Expression<Func<TForm, TData>> field) 
             where TClientConfig : EditFormUiConfigBase, new()
         {
             return t.GetFieldConfiguration<TData, SelectListEditorUiConfig>(LambdaHelpers.ParsePropertyLambda(field));
+        }
+
+        /// <summary>
+        /// Obtains configurator for select list editor for specified field
+        /// </summary>
+        /// <param name="t">Column configurator</param>
+        /// <param name="fieldName">Field name (may be not pesent in form object)</param>
+        /// <returns>Fluent</returns>
+        public static IEditFieldUsage<SelectListEditorUiConfig> EditSelectList<TData>(this INongenericHandlerConfiguration t, string fieldName)
+        {
+            return t.GetFieldNongenericConfiguration<TData, SelectListEditorUiConfig>(fieldName);
         }
 
         public static IEditFieldUsage<SelectListEditorUiConfig> CanSelectEmpty(

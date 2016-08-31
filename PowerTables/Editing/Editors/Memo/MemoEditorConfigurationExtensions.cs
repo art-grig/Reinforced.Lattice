@@ -6,7 +6,7 @@ namespace PowerTables.Editing.Editors.Memo
     public static class MemoUiConfigurationExtensions
     {
         /// <summary>
-        /// Obtains configurator for checkbox editor for specified field
+        /// Obtains configurator for memo editor for specified field
         /// </summary>
         /// <param name="t">Column configurator</param>
         /// <param name="field">Field selector</param>
@@ -16,6 +16,18 @@ namespace PowerTables.Editing.Editors.Memo
         {
             return t.GetFieldConfiguration<TData, MemoEditorUiConfig>(LambdaHelpers.ParsePropertyLambda(field));
         }
+
+        /// <summary>
+        /// Obtains configurator for memo editor for specified field
+        /// </summary>
+        /// <param name="t">Column configurator</param>
+        /// <param name="fieldName">Field name (may be not pesent in form object)</param>
+        /// <returns>Fluent</returns>
+        public static IEditFieldUsage<MemoEditorUiConfig> EditMemo<TData>(this INongenericHandlerConfiguration t, string fieldName)
+        {
+            return t.GetFieldNongenericConfiguration<TData, MemoEditorUiConfig>(fieldName);
+        }
+
         public static IEditFieldUsage<MemoEditorUiConfig> MaxChars(
             this IEditFieldUsage<MemoEditorUiConfig> t, int charsWarning = 0, int charsError = 0)
         {

@@ -8,7 +8,7 @@ namespace PowerTables.Editing.Editors.PlainText
     public static class PlainTextUiConfigurationExtensions
     {
         /// <summary>
-        /// Obtains configurator for checkbox editor for specified field
+        /// Obtains configurator for plain text editor for specified field
         /// </summary>
         /// <param name="t">Column configurator</param>
         /// <param name="field">Field selector</param>
@@ -19,30 +19,37 @@ namespace PowerTables.Editing.Editors.PlainText
             return t.GetFieldConfiguration<TData, PlainTextEditorUiConfig>(LambdaHelpers.ParsePropertyLambda(field));
         }
 
-        public static IEditFieldUsage<PlainTextEditorUiConfig> CanTypeEmpty(
-            this IEditFieldUsage<PlainTextEditorUiConfig> t, bool allow = true)
+        /// <summary>
+        /// Obtains configurator for plain text editor for specified field
+        /// </summary>
+        /// <param name="t">Column configurator</param>
+        /// <param name="fieldName">Field name (may be not pesent in form object)</param>
+        /// <returns>Fluent</returns>
+        public static IEditFieldUsage<PlainTextEditorUiConfig> EditPlainText<TData>(this INongenericHandlerConfiguration t, string fieldName)
+        {
+            return t.GetFieldNongenericConfiguration<TData, PlainTextEditorUiConfig>(fieldName);
+        }
+
+        public static IEditFieldUsage<PlainTextEditorUiConfig> CanTypeEmpty(this IEditFieldUsage<PlainTextEditorUiConfig> t, bool allow = true)
         {
             t.UiConfig.AllowEmptyString = allow;
             return t;
         }
 
-        public static IEditFieldUsage<PlainTextEditorUiConfig> FloatRegexes(
-            this IEditFieldUsage<PlainTextEditorUiConfig> t, string removeSeparator = null, string replaceDotSeparator = null)
+        public static IEditFieldUsage<PlainTextEditorUiConfig> FloatRegexes(this IEditFieldUsage<PlainTextEditorUiConfig> t, string removeSeparator = null, string replaceDotSeparator = null)
         {
             if (!string.IsNullOrEmpty(removeSeparator)) t.UiConfig.FloatRemoveSeparatorsRegex = removeSeparator;
             if (!string.IsNullOrEmpty(replaceDotSeparator)) t.UiConfig.FloatDotReplaceSeparatorsRegex = replaceDotSeparator;
             return t;
         }
 
-        public static IEditFieldUsage<PlainTextEditorUiConfig> ValidationRegex(
-            this IEditFieldUsage<PlainTextEditorUiConfig> t, string validationRegex)
+        public static IEditFieldUsage<PlainTextEditorUiConfig> ValidationRegex(this IEditFieldUsage<PlainTextEditorUiConfig> t, string validationRegex)
         {
             t.UiConfig.ValidationRegex = validationRegex;
             return t;
         }
 
-        public static IEditFieldUsage<PlainTextEditorUiConfig> DisableBasicValidation(
-            this IEditFieldUsage<PlainTextEditorUiConfig> t, bool disable = true)
+        public static IEditFieldUsage<PlainTextEditorUiConfig> DisableBasicValidation(this IEditFieldUsage<PlainTextEditorUiConfig> t, bool disable = true)
         {
             t.UiConfig.EnableBasicValidation = !disable;
             return t;

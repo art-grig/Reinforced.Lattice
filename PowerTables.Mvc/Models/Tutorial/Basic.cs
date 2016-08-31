@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using PowerTables.Configuration;
 using PowerTables.FrequentlyUsed;
 
@@ -72,6 +75,9 @@ namespace PowerTables.Mvc.Models.Tutorial
         public string ResponsibleUserName { get; set; }
         public string SupplierAddress { get; set; }
         public string Edit { get; set; }
+
+        [JsonExtensionData]
+        public IDictionary<string, JToken> AdditionalData;
     }
 
     public enum ToyType

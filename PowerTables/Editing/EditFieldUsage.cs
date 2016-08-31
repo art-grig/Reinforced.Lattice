@@ -1,22 +1,29 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
+using PowerTables.Configuration;
+using PowerTables.Configuration.Json;
 
 namespace PowerTables.Editing
 {
-    public interface IEditFieldUsage<TFieldClientConfig>
-        where TFieldClientConfig : EditFieldUiConfigBase
+    public interface INongenericEditFieldUsage
+    {
+        EditFieldUiConfigBase BaseUiConfig { get; }
+    }
+
+    public interface IEditFieldUsage<out TFieldClientConfig> : INongenericEditFieldUsage where TFieldClientConfig : EditFieldUiConfigBase, new()
     {
         TFieldClientConfig UiConfig { get; }
     }
 
-    public sealed class EditFieldUsage<TForm, TField,TFieldClientConfig> : IEditFieldUsage<TFieldClientConfig> where TFieldClientConfig : EditFieldUiConfigBase, new()
+    public sealed class EditFieldUsage<TForm, TField, TFieldClientConfig> : IEditFieldUsage<TFieldClientConfig> where TFieldClientConfig : EditFieldUiConfigBase, new()
     {
         public TFieldClientConfig UiConfig { get; private set; }
 
-        public EditFieldUsage(PropertyInfo propertyInfo)
+        public EditFieldUsage(string fieldName)
         {
             UiConfig = new TFieldClientConfig();
-            UiConfig.FieldName = propertyInfo.Name;
-            Property = propertyInfo;
+            UiConfig.FieldName = fieldName;
+            Property = fieldName;
         }
 
         public EditFieldUsage<TForm, TField, TFieldClientConfig> TemplateId(string templateId)
@@ -25,6 +32,7 @@ namespace PowerTables.Editing
             return this;
         }
 
-        public PropertyInfo Property { get; private set; }
+        public string Property { get; private set; }
+        public EditFieldUiConfigBase BaseUiConfig { get { return UiConfig; } }
     }
 }

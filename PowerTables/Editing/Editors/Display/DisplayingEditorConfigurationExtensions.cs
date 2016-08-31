@@ -19,7 +19,23 @@ namespace PowerTables.Editing.Editors.Display
             return t.GetFieldConfiguration<TData, DisplayingEditorUiConfig>(LambdaHelpers.ParsePropertyLambda(field));
         }
 
-        public static void Template<TForm, TData>(this EditFieldUsage<TForm, TData, DisplayingEditorUiConfig> conf, Action<CellTemplateBuilder> templateBuilder)
+        /// <summary>
+        /// Obtains configurator for checkbox editor for specified field
+        /// </summary>
+        /// <param name="t">Column configurator</param>
+        /// <param name="fieldName">Field name (may be not pesent in form object)</param>
+        /// <returns>Fluent</returns>
+        public static IEditFieldUsage<DisplayingEditorUiConfig> Display<TData>(this INongenericHandlerConfiguration t, string fieldName)
+        {
+            return t.GetFieldNongenericConfiguration<TData, DisplayingEditorUiConfig>(fieldName);
+        }
+
+        /// <summary>
+        /// Specifies template for editor
+        /// </summary>
+        /// <param name="conf"></param>
+        /// <param name="templateBuilder"></param>
+        public static void Template(this IEditFieldUsage<DisplayingEditorUiConfig> conf, Action<CellTemplateBuilder> templateBuilder)
         {
             var ctpl = new CellTemplateBuilder("ModifiedDataObject");
             templateBuilder(ctpl);

@@ -11,10 +11,21 @@ namespace PowerTables.Editing.Editors.Check
         /// <param name="t">Column configurator</param>
         /// <param name="field">Field selector</param>
         /// <returns>Fluent</returns>
-        public static EditFieldUsage<TForm, bool, CheckEditorUiConfig> EditCheck<TForm, TClientConfig>(this EditHandlerConfiguration<TForm, TClientConfig> t, Expression<Func<TForm, bool>> field) 
+        public static EditFieldUsage<TForm, bool, CheckEditorUiConfig> EditCheck<TForm, TClientConfig>(this EditHandlerConfiguration<TForm, TClientConfig> t, Expression<Func<TForm, bool>> field)
             where TClientConfig : EditFormUiConfigBase, new()
         {
             return t.GetFieldConfiguration<bool, CheckEditorUiConfig>(LambdaHelpers.ParsePropertyLambda(field));
+        }
+
+        /// <summary>
+        /// Obtains configurator for checkbox editor for specified field
+        /// </summary>
+        /// <param name="t">Column configurator</param>
+        /// <param name="fieldName">Field name (may be not pesent in form)</param>
+        /// <returns>Fluent</returns>
+        public static IEditFieldUsage<CheckEditorUiConfig> EditCheck(this INongenericHandlerConfiguration t, string fieldName)
+        {
+            return t.GetFieldNongenericConfiguration<bool, CheckEditorUiConfig>(fieldName);
         }
 
         /// <summary>
