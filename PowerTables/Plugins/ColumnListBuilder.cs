@@ -52,6 +52,18 @@ namespace PowerTables.Plugins
         }
 
         /// <summary>
+        /// Include specified column
+        /// </summary>
+        /// <param name="columnName">Column name to include</param>
+        /// <returns>Fluent</returns>
+        public ColumnListBuilder<TSourceData, TTableData> Include(string columnName)
+        {
+            if (_colNames.Contains(columnName)) return this;
+            _colNames.Add(columnName);
+            return this;
+        }
+
+        /// <summary>
         /// Include all columns
         /// </summary>
         /// <returns>Fluent</returns>
@@ -73,6 +85,18 @@ namespace PowerTables.Plugins
             var info = LambdaHelpers.ParsePropertyLambda(column);
             if (!_colNames.Contains(info.Name)) return this;
             _colNames.Remove(info.Name);
+            return this;
+        }
+
+        /// <summary>
+        /// Exclude specified column
+        /// </summary>
+        /// <param name="columnName">Column name to except</param>
+        /// <returns>Fluent</returns>
+        public ColumnListBuilder<TSourceData, TTableData> Except(string columnName)
+        {
+            if (!_colNames.Contains(columnName)) return this;
+            _colNames.Remove(columnName);
             return this;
         }
     }
