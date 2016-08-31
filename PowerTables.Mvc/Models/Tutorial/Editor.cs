@@ -117,7 +117,7 @@ namespace PowerTables.Mvc.Models.Tutorial
                 c.EditCheck(x => x.IsPaid);
                 c.EditMemo(x => x.SupplierAddress).Size(3, 10);
                 c.EditSelectList(x => x.TypeOfToy).Items(EnumHelper.GetSelectList(typeof(ToyType))).WithEmptyElement("---Select---", false);
-                c.Display(x => x.Preorders).Template(v => v.ReturnsIf("{Price}>100", "<span style='color:red'>Price is too high</span>", "<span style='color:green'>Price is okay</span>"));
+                c.Display(x => x.Preorders).DisplayTemplate(v => v.ReturnsIf("{Price}>100", "<span style='color:red'>Price is too high</span>", "<span style='color:green'>Price is okay</span>"));
                 c.RenderTo("#confirmationContent", "simpleEditForm");
                 c.EditCheck("NewColumn").FakeColumn<bool>(v => v.Title("This is fake column not in form"));
             });

@@ -35,7 +35,7 @@ namespace PowerTables.Editing.Editors.Display
         /// </summary>
         /// <param name="conf"></param>
         /// <param name="templateBuilder"></param>
-        public static void Template(this IEditFieldUsage<DisplayingEditorUiConfig> conf, Action<CellTemplateBuilder> templateBuilder)
+        public static void DisplayTemplate(this IEditFieldUsage<DisplayingEditorUiConfig> conf, Action<CellTemplateBuilder> templateBuilder)
         {
             var ctpl = new CellTemplateBuilder("ModifiedDataObject");
             templateBuilder(ctpl);

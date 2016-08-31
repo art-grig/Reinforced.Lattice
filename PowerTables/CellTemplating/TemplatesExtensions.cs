@@ -14,14 +14,10 @@ namespace PowerTables.CellTemplating
         /// Use `{field} + 10` to embed JS expression inside template. Code in `'s will 
         /// be included to template without chages
         /// </summary>
-        /// <typeparam name="TSourceData"></typeparam>
-        /// <typeparam name="TTableData"></typeparam>
-        /// <typeparam name="TTableColumn"></typeparam>
         /// <param name="col">Column</param>
         /// <param name="elementsConf">Cell template builder</param>
         /// <returns>Fluent</returns>
-        public static ColumnUsage<TSourceData, TTableData, TTableColumn> Template<TSourceData, TTableData, TTableColumn>(
-            this ColumnUsage<TSourceData, TTableData, TTableColumn> col, Action<CellTemplateBuilder> elementsConf) where TTableData : new()
+        public static T Template<T>(this T col, Action<CellTemplateBuilder> elementsConf) where T : IColumnConfigurator
         {
             CellTemplateBuilder ctb = new CellTemplateBuilder();
             elementsConf(ctb);
@@ -55,16 +51,12 @@ namespace PowerTables.CellTemplating
         /// <summary>
         /// Shortcut for formatting table cell as link for specified column
         /// </summary>
-        /// <typeparam name="TSourceData"></typeparam>
-        /// <typeparam name="TTableData"></typeparam>
-        /// <typeparam name="TTableColumn"></typeparam>
         /// <param name="col">Column</param>
         /// <param name="linkFormat">Link format. Use " + v.Something + " or "{Something}" to substitute table value</param>
         /// <param name="textFormat">Link text format. Use " + v.Something + " or "{Something}" to substitute table value</param>
         /// <param name="target">Link target. User "_blank" or something similar.</param>
         /// <returns>Fluent</returns>
-        public static ColumnUsage<TSourceData, TTableData, TTableColumn> Link<TSourceData, TTableData, TTableColumn>(
-            this ColumnUsage<TSourceData, TTableData, TTableColumn> col, string linkFormat, string textFormat, string target = null) where TTableData : new()
+        public static T Link<T>(this T col, string linkFormat, string textFormat, string target = null) where T : IColumnConfigurator
         {
             return col.Template(c =>
             {
