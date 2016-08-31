@@ -110,26 +110,11 @@
 
         private initColumns(): void {
             var columns: IColumn[] = [];
+            this.Configuration.Columns.sort((x, y) => x.DisplayOrder - y.DisplayOrder);
+
             for (var i: number = 0; i < this.Configuration.Columns.length; i++) {
                 var cnf: Configuration.Json.IColumnConfiguration = this.Configuration.Columns[i];
-                var c: IColumn = {
-                    Configuration: cnf,
-                    RawName: cnf.RawColumnName,
-                    MasterTable: this._masterTable,
-                    Header: null,
-                    Order: i,
-                    IsDateTime: InstanceManager._datetimeTypes.indexOf(cnf.ColumnType) > -1,
-                    IsString: InstanceManager._stringTypes.indexOf(cnf.ColumnType) > -1,
-                    IsFloat: InstanceManager._floatTypes.indexOf(cnf.ColumnType) > -1,
-                    IsInteger: InstanceManager._integerTypes.indexOf(cnf.ColumnType) > -1,
-                    IsBoolean: InstanceManager._booleanTypes.indexOf(cnf.ColumnType) > -1,
-                    IsEnum: cnf.IsEnum
-                };
-                c.Header = {
-                    Column: c,
-                    renderContent: <any>null,
-                    renderElement: <any>null
-                };
+                var c = this.createColumn(cnf, i);
                 this.Columns[c.RawName] = c;
                 columns.push(c);
             }
@@ -138,6 +123,28 @@
                 this._rawColumnNames.push(columns[j].RawName);
             }
 
+        }
+
+        public createColumn(cnf: Configuration.Json.IColumnConfiguration,order?:number): IColumn {
+            var c: IColumn = {
+                Configuration: cnf,
+                RawName: cnf.RawColumnName,
+                MasterTable: this._masterTable,
+                Header: null,
+                Order: order==null?0:order,
+                IsDateTime: InstanceManager._datetimeTypes.indexOf(cnf.ColumnType) > -1,
+                IsString: InstanceManager._stringTypes.indexOf(cnf.ColumnType) > -1,
+                IsFloat: InstanceManager._floatTypes.indexOf(cnf.ColumnType) > -1,
+                IsInteger: InstanceManager._integerTypes.indexOf(cnf.ColumnType) > -1,
+                IsBoolean: InstanceManager._booleanTypes.indexOf(cnf.ColumnType) > -1,
+                IsEnum: cnf.IsEnum
+            };
+            c.Header = {
+                Column: c,
+                renderContent: <any>null,
+                renderElement: <any>null
+            };
+            return c;
         }
 
         /*

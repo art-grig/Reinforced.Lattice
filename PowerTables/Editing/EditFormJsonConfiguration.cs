@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using PowerTables.Configuration.Json;
 
 namespace PowerTables.Editing
 {
@@ -21,6 +22,8 @@ namespace PowerTables.Editing
         public abstract string PluginId { get; }
 
         public string ValidationMessagesTemplateId { get; set; }
+
+        public ColumnConfiguration FakeColumn { get; set; }
 
         protected EditFieldUiConfigBase()
         {

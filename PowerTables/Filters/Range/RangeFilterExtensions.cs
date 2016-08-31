@@ -101,10 +101,7 @@ namespace PowerTables.Filters.Range
         /// <param name="column">Column</param>
         /// <param name="ui">Filter UI builder</param>
         /// <returns>Fluent</returns>
-        public static void FilterRangeUi<TSourceData, TTableData, TTableColumn>(
-            this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
-            Action<ColumnPluginConfigurationWrapper<RangeFilterUiConfig,TTableColumn>> ui = null
-            ) where TTableData : new()
+        public static void FilterRangeUi<TTableColumn>(this IColumnTargetProperty<TTableColumn> column,Action<ColumnPluginConfigurationWrapper<RangeFilterUiConfig,TTableColumn>> ui = null) 
         {
             column.UpdateFilterConfig(PluginId, ui);
         }

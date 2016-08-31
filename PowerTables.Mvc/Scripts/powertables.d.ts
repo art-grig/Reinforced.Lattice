@@ -59,6 +59,8 @@ declare module PowerTables.Configuration.Json {
     interface IColumnConfiguration {
         /** Column title */
         Title: string;
+        /** Column display order */
+        DisplayOrder: number;
         /** Column description */
         Description: string;
         /** Random metadata object that can be bound within column */
@@ -586,6 +588,7 @@ declare module PowerTables.Editing {
         FieldName: string;
         PluginId: string;
         ValidationMessagesTemplateId: string;
+        FakeColumn: PowerTables.Configuration.Json.IColumnConfiguration;
     }
     interface IEditFormUiConfigBase {
         Fields: PowerTables.Editing.IEditFieldUiConfigBase[];
@@ -1832,6 +1835,7 @@ declare module PowerTables {
         private static _booleanTypes;
         static classifyType(fieldType: string): IClassifiedType;
         private initColumns();
+        createColumn(cnf: Configuration.Json.IColumnConfiguration, order?: number): IColumn;
         initPlugins(): void;
         private static startsWith(s1, prefix);
         private static endsWith(s1, postfix);

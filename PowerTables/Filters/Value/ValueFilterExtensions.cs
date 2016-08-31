@@ -126,10 +126,10 @@ namespace PowerTables.Filters.Value
         /// <param name="column">Column</param>
         /// <param name="ui">Filter UI builder</param>
         /// <returns></returns>
-        public static void FilterValueUi<TSourceData, TTableData, TTableColumn>(
-            this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
+        public static void FilterValueUi<TTableColumn>(
+            this IColumnTargetProperty<TTableColumn> column,
             Action<ColumnPluginConfigurationWrapper<ValueFilterUiConfig, TTableColumn>> ui = null
-            ) where TTableData : new()
+            )
         {
             column.UpdateFilterConfig<ValueFilterUiConfig, TTableColumn>(PluginId, a =>
             {

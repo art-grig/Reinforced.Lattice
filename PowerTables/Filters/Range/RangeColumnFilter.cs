@@ -107,7 +107,7 @@ namespace PowerTables.Filters.Range
             return this;
         }
 
-        public static RangeColumnFilter<TSourceData, TVal> Create<TSourceColumn>(PropertyInfo columnProp, IConfigurator conf,
+        public static RangeColumnFilter<TSourceData, TVal> Create<TSourceColumn>(PropertyDescription columnProp, IConfigurator conf,
             Expression<Func<TSourceData, TSourceColumn>> column)
         {
             columnProp = conf.CheckTableColum(columnProp);
@@ -116,7 +116,7 @@ namespace PowerTables.Filters.Range
             return instance;
         }
 
-        public static RangeColumnFilter<TSourceData, TVal> Create(PropertyInfo columnProp, IConfigurator conf, Func<IQueryable<TSourceData>, RangeTuple<TVal>, IQueryable<TSourceData>> filterDelegate)
+        public static RangeColumnFilter<TSourceData, TVal> Create(PropertyDescription columnProp, IConfigurator conf, Func<IQueryable<TSourceData>, RangeTuple<TVal>, IQueryable<TSourceData>> filterDelegate)
         {
             columnProp = conf.CheckTableColum(columnProp);
             var instance = new RangeColumnFilter<TSourceData, TVal>(columnProp.Name, conf, filterDelegate);

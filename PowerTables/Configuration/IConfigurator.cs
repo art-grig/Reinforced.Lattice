@@ -23,7 +23,7 @@ namespace PowerTables.Configuration
         /// <summary>
         /// Table coumn properties indexed by names
         /// </summary>
-        IReadOnlyDictionary<string, PropertyInfo> TableColumnsDictionary { get; }
+        IReadOnlyDictionary<string, PropertyDescription> TableColumnsDictionary { get; }
 
         /// <summary>
         /// Wraps result object into existing array
@@ -42,7 +42,7 @@ namespace PowerTables.Configuration
         /// <summary>
         /// Complete set of table columns (TTableData properties)
         /// </summary>
-        PropertyInfo[] TableColumns { get; }
+        IEnumerable<PropertyDescription> TableColumns { get; }
 
         /// <summary>
         /// Wraps result object into existing array 
@@ -84,7 +84,7 @@ namespace PowerTables.Configuration
         /// </summary>
         /// <param name="property">Table column property</param>
         /// <returns>Column JSON configuration</returns>
-        ColumnConfiguration GetColumnConfiguration(PropertyInfo property);
+        ColumnConfiguration GetColumnConfiguration(PropertyDescription property);
 
         /// <summary>
         /// Type of source data
@@ -114,6 +114,18 @@ namespace PowerTables.Configuration
         /// <returns>String containing javascript initialization code</returns>
         string JsonConfig<TStaticData>(string rootId, TStaticData staticData = null, string prefix = "lt")
             where TStaticData : class;
+
+        /// <summary>
+        /// Creates new column and retrieves its configurator
+        /// </summary>
+        /// <param name="columnName">Column name</param>
+        /// <param name="getValue">Specifies function for obtaining column value from target object. First parameter = row object, returns column value</param>
+        /// <param name="setValue">Specifies function for setting column calue. 1st parameter = row object, 2nd parameter = column value</param>
+        /// <param name="title">Column title (optional)</param>
+        /// <param name="order">Column order</param>
+        /// <returns>Corresponding column configurator</returns>
+        IColumnTargetProperty<TColumn> AddColumn<TColumn>(string columnName, Func<object, TColumn> getValue,
+            Action<object, TColumn> setValue, string title = null, int? order = null);
 
     }
 }

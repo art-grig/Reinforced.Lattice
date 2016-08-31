@@ -12,6 +12,22 @@ namespace PowerTables.Plugins.Ordering
         private readonly string _columnName;
 
         /// <summary>
+        /// Ordering configuration for particular column
+        /// </summary>
+        public OrderingConfiguration Configuration
+        {
+            get { return _configuration; }
+        }
+
+        /// <summary>
+        /// Column name on which ordering is being configured
+        /// </summary>
+        public string ColumnName
+        {
+            get { return _columnName; }
+        }
+
+        /// <summary>
         /// Specifies default ordering direction for particular column
         /// </summary>
         /// <param name="ordering">Default ordering direction</param>

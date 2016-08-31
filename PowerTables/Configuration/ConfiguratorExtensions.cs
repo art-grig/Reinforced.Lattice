@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using Newtonsoft.Json.Linq;
 using PowerTables.CellTemplating;
 using PowerTables.Plugins;
@@ -19,7 +18,7 @@ namespace PowerTables.Configuration
         /// </summary>
         /// <param name="c">Table configurator</param>
         /// <param name="column">Column PropertyInfo</param>
-        public static PropertyInfo CheckTableColum(this IConfigurator c, PropertyInfo column)
+        public static PropertyDescription CheckTableColum(this IConfigurator c, PropertyDescription column)
         {
             CheckTableColum(c, column.Name);
 
@@ -151,10 +150,21 @@ namespace PowerTables.Configuration
         /// <param name="conf">Column</param>
         /// <param name="title">Title text</param>
         /// <returns>Fluent</returns>
-        public static ColumnUsage<TSourceData, TTableData, TTableColumn> Title<TSourceData, TTableData, TTableColumn>(this ColumnUsage<TSourceData, TTableData, TTableColumn> conf, string title)
-            where TTableData : new()
+        public static T Title<T>(this T conf, string title) where T : IColumnConfigurator
         {
             conf.ColumnConfiguration.Title = title;
+            return conf;
+        }
+
+        /// <summary>
+        /// Sets up column display order
+        /// </summary>
+        /// <param name="conf">Column</param>
+        /// <param name="displayOrder">Column display order</param>
+        /// <returns>Fluent</returns>
+        public static T DisplayOrder<T>(this T conf, double displayOrder) where T : IColumnConfigurator
+        {
+            conf.ColumnConfiguration.DisplayOrder = displayOrder;
             return conf;
         }
 
@@ -164,7 +174,7 @@ namespace PowerTables.Configuration
         /// <param name="conf">Column</param>
         /// <param name="descriptionHtml">Column description or HTML</param>
         /// <returns>Fluent</returns>
-        public static ColumnUsage<TSourceData, TTableData, TTableColumn> Description<TSourceData, TTableData, TTableColumn>(this ColumnUsage<TSourceData, TTableData, TTableColumn> conf, string descriptionHtml) where TTableData : new()
+        public static T Description<T>(this T conf, string descriptionHtml) where T : IColumnConfigurator
         {
             conf.ColumnConfiguration.Description = descriptionHtml;
             return conf;
@@ -177,7 +187,7 @@ namespace PowerTables.Configuration
         /// <param name="conf">Column</param>
         /// <param name="meta">Metadata object</param>
         /// <returns>Fluent</returns>
-        public static ColumnUsage<TSourceData, TTableData, TTableColumn> Meta<TSourceData, TTableData, TTableColumn>(this ColumnUsage<TSourceData, TTableData, TTableColumn> conf, object meta) where TTableData : new()
+        public static T Meta<T>(this T conf, object meta) where T : IColumnConfigurator
         {
             conf.ColumnConfiguration.Meta = meta;
             return conf;
@@ -192,7 +202,7 @@ namespace PowerTables.Configuration
         /// <param name="conf">Column</param>
         /// <param name="templateId">Template id (without "#" or other selectors)</param>
         /// <returns>Fluent</returns>
-        public static ColumnUsage<TSourceData, TTableData, TTableColumn> TemplateId<TSourceData, TTableData, TTableColumn>(this ColumnUsage<TSourceData, TTableData, TTableColumn> conf, string templateId) where TTableData : new()
+        public static T TemplateId<T>(this T conf, string templateId) where T : IColumnConfigurator
         {
             if ((conf.ColumnConfiguration.CellRenderingValueFunction != null))
             {
@@ -208,8 +218,7 @@ namespace PowerTables.Configuration
         /// <param name="conf">Column</param>
         /// <param name="function">JS function text. Like "function(v){ ... }"</param>
         /// <returns>Fluent</returns>
-        public static ColumnUsage<TSourceData, TTableData, TTableColumn> TemplateFunction<TSourceData, TTableData, TTableColumn>
-            (this ColumnUsage<TSourceData, TTableData, TTableColumn> conf, string function) where TTableData : new()
+        public static T TemplateFunction<T>(this T conf, string function) where T : IColumnConfigurator
         {
 
             if (!string.IsNullOrEmpty(conf.ColumnConfiguration.CellRenderingTemplateId))
@@ -247,10 +256,10 @@ namespace PowerTables.Configuration
         /// </summary>
         /// <param name="conf">Column configuration</param>
         /// <param name="isDataOnly">Enable or disable .DataOnly</param>
-        public static void DataOnly<TSourceData, TTableData, TTableColumn>
-            (this ColumnUsage<TSourceData, TTableData, TTableColumn> conf, bool isDataOnly = true) where TTableData : new()
+        public static T DataOnly<T>(this T conf, bool isDataOnly = true) where T : IColumnConfigurator
         {
             conf.ColumnConfiguration.IsDataOnly = isDataOnly;
+            return conf;
         }
 
 
@@ -297,6 +306,19 @@ namespace PowerTables.Configuration
             ColumnListBuilder<TSourceData, TTableData> clb = new ColumnListBuilder<TSourceData, TTableData>(conf);
             columns(clb);
             conf.TableConfiguration.KeyFields = clb.Names.ToArray();
+            return conf;
+        }
+
+        /// <summary>
+        /// Points object's key fields. This information is used to assemble 
+        /// local key comparison function and compare local objects in runtime. 
+        /// It is used to proform update of local objects set
+        /// </summary>
+        /// <param name="conf">Column configuration</param>
+        /// <param name="keyFields">Columns names representing primary key</param>
+        public static T PrimaryKey<T> (this T conf, params string[] keyFields) where T : IConfigurator
+        {
+            conf.TableConfiguration.KeyFields = keyFields;
             return conf;
         }
 
@@ -434,8 +456,7 @@ namespace PowerTables.Configuration
         /// <param name="conf">Table configurator</param>
         /// <param name="subscription">Event subscription</param>
         /// <returns></returns>
-        public static ColumnUsage<TSourceData, TTableData, TColumn> SubscribeCellEvent<TSourceData, TTableData, TColumn>
-            (this ColumnUsage<TSourceData, TTableData, TColumn> conf, TableEventSubscription subscription) where TTableData : new()
+        public static T SubscribeCellEvent<T>(this T conf, TableEventSubscription subscription) where T : IColumnConfigurator
         {
             subscription.SubscriptionInfo.IsRowSubscription = false;
             conf.TableConfigurator.TableConfiguration.Subscriptions.Add(subscription.SubscriptionInfo);
@@ -446,8 +467,7 @@ namespace PowerTables.Configuration
         /// Sets query confirmation function that is being called every time befor query is performed to bring 
         /// ability to handle heavy queries
         /// </summary>
-        public static Configurator<TSourceData, TTableData> QueryConfirmation<TSourceData, TTableData>
-            (this Configurator<TSourceData, TTableData> conf, string confirmationFunction) where TTableData : new()
+        public static T QueryConfirmation<T>(this T conf, string confirmationFunction) where T : IConfigurator
         {
             conf.TableConfiguration.QueryConfirmation = string.IsNullOrEmpty(confirmationFunction) ? null : new JRaw(confirmationFunction);
             return conf;
@@ -457,13 +477,10 @@ namespace PowerTables.Configuration
         /// <summary>
         /// Specifies JS function for client-side cell value evaluation for particular mentioned column
         /// </summary>
-        /// <typeparam name="TSourceData"></typeparam>
-        /// <typeparam name="TTableData"></typeparam>
-        /// <typeparam name="TTableColumn"></typeparam>
         /// <param name="conf">Column configurator</param>
         /// <param name="clientValueFunction">Client valuation function. Can be reference to existing JS function or inline one. Function signature is (dataObject:any) => any</param>
         /// <returns></returns>
-        public static ColumnUsage<TSourceData, TTableData, TTableColumn> ClientFunction<TSourceData, TTableData, TTableColumn>(this ColumnUsage<TSourceData, TTableData, TTableColumn> conf, string clientValueFunction) where TTableData : new()
+        public static T ClientFunction<T>(this T conf, string clientValueFunction) where T : IColumnConfigurator
         {
             conf.ColumnConfiguration.ClientValueFunction = string.IsNullOrEmpty(clientValueFunction) ? null : new JRaw(clientValueFunction);
             return conf;
@@ -472,13 +489,10 @@ namespace PowerTables.Configuration
         /// <summary>
         /// Specifies JS function for client-side cell value evaluation for particular mentioned column
         /// </summary>
-        /// <typeparam name="TSourceData"></typeparam>
-        /// <typeparam name="TTableData"></typeparam>
-        /// <typeparam name="TTableColumn"></typeparam>
         /// <param name="conf">Column configurator</param>
         /// <param name="clientValueFunction">Client valuation function. Can be reference to existing JS function or inline one. Function signature is (dataObject:any) => any</param>
         /// <returns></returns>
-        public static ColumnUsage<TSourceData, TTableData, TTableColumn> ClientExpression<TSourceData, TTableData, TTableColumn>(this ColumnUsage<TSourceData, TTableData, TTableColumn> conf, string clientValueFunction) where TTableData : new()
+        public static T ClientExpression<T>(this T conf, string clientValueFunction) where T : IColumnConfigurator
         {
             var expr = Template.CompileExpression(clientValueFunction, "v", null, conf.ColumnConfiguration.RawColumnName);
             clientValueFunction = string.Format("function(v) {{ return {0}; }}", expr);

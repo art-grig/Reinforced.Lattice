@@ -15,6 +15,6 @@ namespace PowerTables.Configuration
         /// <summary>
         /// Reference to main table configurator
         /// </summary>
-        IConfigurator TableConfigurator { get; }
+        NongenericConfigurator TableConfigurator { get; }
     }
 }

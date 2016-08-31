@@ -65,14 +65,13 @@ namespace PowerTables.Plugins.Ordering
         /// <param name="column">Column</param>
         /// <param name="ui">Client ordering configuration</param>
         /// <returns>Fluent</returns>
-        public static ColumnUsage<TSourceData, TTableData, TTableColumn>
-            OrderableUi<TSourceData, TTableData, TTableColumn>(
-            this ColumnUsage<TSourceData, TTableData, TTableColumn> column, Action<OrderingUiConfigurationBuilder> ui = null)
-            where TTableData : new()
+        public static IColumnTargetProperty<TTableColumn>
+            OrderableUi<TTableColumn>(
+            this IColumnTargetProperty<TTableColumn> column, Action<OrderingUiConfigurationBuilder> ui = null)
         {
             column.TableConfigurator.TableConfiguration.UpdatePluginConfig<OrderingConfiguration>(PluginId, c =>
             {
-                OrderingUiConfigurationBuilder cc = new OrderingUiConfigurationBuilder(c, column.ColumnProperty.Name);
+                OrderingUiConfigurationBuilder cc = new OrderingUiConfigurationBuilder(c, column.ColumnConfiguration.RawColumnName);
                 if (ui != null) ui(cc);
             });
             return column;

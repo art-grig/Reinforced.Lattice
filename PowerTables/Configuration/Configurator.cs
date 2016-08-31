@@ -1,16 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
-
-using Newtonsoft.Json;
 using PowerTables.Configuration.Json;
 using PowerTables.Defaults;
-using PowerTables.Filters;
-using PowerTables.ResponseProcessing;
 
 namespace PowerTables.Configuration
 {
@@ -29,48 +22,13 @@ namespace PowerTables.Configuration
     /// </summary>
     /// <typeparam name="TSourceData">Type of source raw data</typeparam>
     /// <typeparam name="TTableData">Type of target table data</typeparam>
-    public class Configurator<TSourceData, TTableData> : IConfigurator where TTableData : new()
+    public class Configurator<TSourceData, TTableData> : NongenericConfigurator where TTableData : new()
     {
         #region Private fields
-        private readonly TableConfiguration _tableConfiguration;
-        private readonly Dictionary<PropertyInfo, IColumnConfigurator> _configurators = new Dictionary<PropertyInfo, IColumnConfigurator>();
-        private readonly Dictionary<PropertyInfo, ColumnConfiguration> _columnsConfiguration = new Dictionary<PropertyInfo, ColumnConfiguration>();
-
-        private readonly PropertyInfo[] _tableColumns;
-        private readonly IReadOnlyDictionary<string, PropertyInfo> _tableColumnsDictionary;
-        private readonly IReadOnlyDictionary<string, PropertyInfo> _sourceColumnsDictionary;
-
-        private readonly Dictionary<string, Type> _commandHandlersTypes = new Dictionary<string, Type>();
-        private readonly HashSet<IResponseModifier> _responseModifiers = new HashSet<IResponseModifier>();
-        private readonly HashSet<IFilter> _filters = new HashSet<IFilter>();
-        private readonly Dictionary<string, IColumnFilter> _colFilters = new Dictionary<string, IColumnFilter>();
-
-        private readonly Dictionary<PropertyInfo, Delegate> _mappingDelegates = new Dictionary<PropertyInfo, Delegate>();
-
-        private readonly Dictionary<PropertyInfo, LambdaExpression> _orderingExpressions = new Dictionary<PropertyInfo, LambdaExpression>();
+        private readonly Dictionary<string, PropertyDescription> _sourceColumnsDictionary;
+        private readonly Dictionary<PropertyDescription, Delegate> _mappingDelegates = new Dictionary<PropertyDescription, Delegate>();
         private Func<IQueryable<TSourceData>, IQueryable<TTableData>> _projection;
-        private LambdaExpression _fallbackOrdering;
         #endregion
-
-        #region Properties
-
-        /// <summary>
-        /// Field containing expression for ordering fallback value. 
-        /// Use corresponding configuration method to set this property. 
-        /// See <see cref="ConfiguratorExtensions.OrderFallback{TSourceData,TTableData,T}"/>
-        /// </summary>
-        public LambdaExpression FallbackOrdering
-        {
-            get { return _fallbackOrdering; }
-            internal set
-            {
-                if (_fallbackOrdering != null)
-                {
-                    throw new Exception("Fallback ordering could be set only once. Probably there is configuration issue. To avoid this message please use Configurator.RegisterFallbackOrdering(...) method.");
-                }
-                _fallbackOrdering = value;
-            }
-        }
 
         /// <summary>
         /// Projection function used to map source IQueryable to target IQueryable
@@ -89,68 +47,40 @@ namespace PowerTables.Configuration
             }
         }
 
-        internal IReadOnlyDictionary<string, Type> CommandHandlerTypes { get { return _commandHandlersTypes; } }
-        internal HashSet<IResponseModifier> ResponseModifiers { get { return _responseModifiers; } }
-
-        public TableConfiguration TableConfiguration { get { return _tableConfiguration; } }
-        public Type SourceType { get { return typeof(TSourceData); } }
-        public Type TableType { get { return typeof(TTableData); } }
-        public PropertyInfo[] TableColumns { get { return _tableColumns; } }
-        public IReadOnlyDictionary<string, PropertyInfo> TableColumnsDictionary { get { return _tableColumnsDictionary; } }
-
-
-        #endregion
-
         /// <summary>
         /// Constructs new table configurator
         /// </summary>
         public Configurator()
         {
-            PropertyInfo[] sourceColumns;
+            List<PropertyDescription> sourceColumns;
             ReflectionCache.GetCachedProperties<TTableData>(out _tableColumns, out _tableColumnsDictionary);
             ReflectionCache.GetCachedProperties<TSourceData>(out sourceColumns, out _sourceColumnsDictionary);
+            SourceType = typeof(TSourceData);
+            TableType = typeof(TTableData);
 
             _tableConfiguration = new TableConfiguration();
             InitializeColumnsConfiguration();
             RegisterCommandHandler<DefaultCommandHandler>(DefaultCommandHandler.CommandId);
         }
 
-
-        private void InitializeColumnsConfiguration()
+        /// <summary>
+        /// Register delegate for evaluating specific colum from source data
+        /// </summary>
+        /// <param name="tableColumn">Table column</param>
+        /// <param name="mappingMethod">Function for evaluation</param>
+        public void RegisterMapping(PropertyDescription tableColumn, Delegate mappingMethod)
         {
-            foreach (var tableDataProperty in _tableColumns)
+            tableColumn = this.CheckTableColum(tableColumn);
+            if (_projection != null)
             {
-                var typeName = tableDataProperty.PropertyType.Name;
-                if (tableDataProperty.PropertyType.IsNullable())
-                {
-                    typeName = tableDataProperty.PropertyType.GetArg().Name + "?";
-                }
-                var columnConfiguration = new ColumnConfiguration
-                {
-                    ColumnType = typeName,
-                    RawColumnName = tableDataProperty.Name,
-                    Title = tableDataProperty.Name,
-                    IsNullable = tableDataProperty.PropertyType.IsNullable()
-                };
-                if (columnConfiguration.IsNullable)
-                {
-                    columnConfiguration.IsEnum = tableDataProperty.PropertyType.GetGenericArguments()[0].IsEnum;
-                }
-                else
-                {
-                    columnConfiguration.IsEnum = tableDataProperty.PropertyType.IsEnum;
-                }
-                var attr = tableDataProperty.GetCustomAttribute<DisplayAttribute>();
-                if (attr != null)
-                {
-                    if (!string.IsNullOrEmpty(attr.Name)) columnConfiguration.Title = attr.Name;
-                }
-                _columnsConfiguration[tableDataProperty] = columnConfiguration;
-                _tableConfiguration.Columns.Add(columnConfiguration);
+                throw new Exception(
+                        "Mapping delegates and projection could not be used at the same time. Please don't configure projection either remove all .MappedFrom(...) calls");
+
             }
+            _mappingDelegates[tableColumn] = mappingMethod;
         }
 
-        #region Configurator
+        
 
         /// <summary>
         /// Retrieves column configurator
@@ -160,87 +90,41 @@ namespace PowerTables.Configuration
         /// <returns>Corresponding column configurator</returns>
         public ColumnUsage<TSourceData, TTableData, TColType> Column<TColType>(Expression<Func<TTableData, TColType>> column)
         {
-            var targetProperty = LambdaHelpers.ParsePropertyLambda(column);
-            targetProperty = _tableColumnsDictionary[targetProperty.Name];
-            if (_configurators.ContainsKey(targetProperty)) return (ColumnUsage<TSourceData, TTableData, TColType>)_configurators[targetProperty];
-            ColumnUsage<TSourceData, TTableData, TColType> usage = new ColumnUsage<TSourceData, TTableData, TColType>(this, column, GetColumnConfiguration(targetProperty));
-            _configurators[targetProperty] = usage;
-            return usage;
+            var tp = LambdaHelpers.ParsePropertyLambda(column);
+            return (ColumnUsage<TSourceData, TTableData, TColType>) base.Column(tp.Name);
+        }
+
+        /// <summary>
+        /// Creates new column and retrieves its configurator
+        /// </summary>
+        /// <param name="columnName">Column name</param>
+        /// <param name="getValue">Specifies function for obtaining column value from target object. First parameter = row object, returns column value</param>
+        /// <param name="setValue">Specifies function for setting column calue. 1st parameter = row object, 2nd parameter = column value</param>
+        /// <param name="title">Column title (optional)</param>
+        /// <param name="order">Column order</param>
+        /// <returns>Corresponding column configurator</returns>
+        public ColumnUsage<TSourceData, TTableData, TColumn> AddColumn<TColumn>(string columnName, Func<TTableData, TColumn> getValue, Action<TTableData, TColumn> setValue, string title = null, int? order = null)
+        {
+            if (!order.HasValue) order = _tableColumns.Count;
+            if (string.IsNullOrEmpty(title)) title = columnName;
+
+            PropertyDescription pd = new PropertyDescription(columnName, typeof(TColumn), title,
+                (x) => getValue((TTableData) x),
+                (x, y) => setValue((TTableData) x, (TColumn)y));
+            _tableColumns.Add(pd);
+            CreateColumn(pd, order.Value);
+            return (ColumnUsage<TSourceData, TTableData, TColumn>) _configurators[pd];
         }
 
         /// <summary>
         /// Retrieves column configurator
         /// </summary>
-        /// <param name="column">Column</param>
+        /// <param name="columnName">Column name</param>
         /// <param name="throw">Throw error if no column configuration</param>
         /// <returns>Corresponding column configurator</returns>
-        public IColumnConfigurator Column(PropertyInfo column,bool @throw = true)
+        public new ColumnUsage<TSourceData, TTableData, TColumn> Column<TColumn>(string columnName, bool @throw = true)
         {
-            column = _tableColumnsDictionary[column.Name];
-            if (_configurators.ContainsKey(column)) return _configurators[column];
-            if (@throw) throw new Exception(string.Format("No configurator for column {0}", column));
-            return null;
-        }
-
-
-        public ColumnConfiguration GetColumnConfiguration(PropertyInfo property)
-        {
-            return _columnsConfiguration[property];
-        }
-
-        /// <summary>
-        /// Retrieves column ordering expression
-        /// </summary>
-        public LambdaExpression GetOrderingExpression(string columnName)
-        {
-            this.CheckTableColum(columnName);
-            if (!_orderingExpressions.ContainsKey(_tableColumnsDictionary[columnName])) return null;
-            return _orderingExpressions[_tableColumnsDictionary[columnName]];
-        }
-
-        #endregion
-
-        #region Result operations
-
-        /// <summary>
-        /// Wraps result object into existing array at specified index
-        /// </summary>
-        /// <param name="dataArray">Existing data array</param>
-        /// <param name="index">Index</param>
-        /// <param name="value">Result row</param>
-        public void EncodeResult(object[] dataArray, ref int index, object value)
-        {
-            foreach (var p in _tableColumns)
-            {
-                dataArray[index] = p.GetValue(value, null);
-                index++;
-            }
-        }
-
-        /// <summary>
-        /// Wraps result set into array understandable for client side
-        /// </summary>
-        /// <param name="resultRows">Result rows set</param>
-        public object[] EncodeResults(object[] resultRows)
-        {
-            object[] result = new object[resultRows.Length * TableColumns.Length];
-            int index = 0;
-            foreach (var resultRow in resultRows)
-            {
-                EncodeResult(result, ref index, resultRow);
-            }
-            return result;
-        }
-
-        public object[] EncodeResults(IEnumerable resultRows, int resultsCount)
-        {
-            object[] result = new object[resultsCount * TableColumns.Length];
-            int index = 0;
-            foreach (var resultRow in resultRows)
-            {
-                EncodeResult(result, ref index, resultRow);
-            }
-            return result;
+            return (ColumnUsage<TSourceData, TTableData, TColumn>) base.Column<TColumn>(columnName,@throw);
         }
 
         /// <summary>
@@ -253,115 +137,6 @@ namespace PowerTables.Configuration
             return EncodeResults(results, results.Length);
         }
 
-
-        public object[] EncodeResults<T>(IQueryable<T> resultRows)
-        {
-            var results = resultRows.ToArray();
-            return EncodeResults(results, results.Length);
-        }
-        #endregion
-
-
-        #region Registrations
-
-        public void RegisterCommandHandler<THandler>(string command)
-            where THandler : ICommandHandler
-        {
-            if (_commandHandlersTypes.ContainsKey(command))
-            {
-                var existingHandler = _commandHandlersTypes[command];
-
-                string error =
-                    String.Format(
-                        "Duplicate column handler specification for command '{0}'. This command is already handled by {1}"
-                        , command
-                        , existingHandler.FullName
-                        );
-
-                throw new Exception(error);
-            }
-            _commandHandlersTypes.Add(command, typeof(THandler));
-        }
-
-
-        public void RegisterResponseModifier(IResponseModifier modifier)
-        {
-
-            if (!_responseModifiers.Contains(modifier))
-            {
-                _responseModifiers.Add(modifier);
-            }
-        }
-
-        public void RegisterFilter(IFilter typedFilter)
-        {
-            if (_filters.Contains(typedFilter))
-            {
-                throw new Exception("This instance of filter is already exists on table");
-            }
-            _filters.Add(typedFilter);
-            var columnFilter = typedFilter as IColumnFilter;
-            if (columnFilter != null)
-            {
-                _colFilters[columnFilter.ColumnName] = columnFilter;
-            }
-        }
-
-        public IColumnFilter GetFilter(string columnName)
-        {
-            if (!_colFilters.ContainsKey(columnName)) return null;
-            return _colFilters[columnName];
-        }
-
-        internal IEnumerable<ITypedFilter<T>> GetFilters<T>()
-        {
-            return _filters.Cast<ITypedFilter<T>>();
-        }
-
-        /// <summary>
-        /// Register delegate for evaluating specific colum from source data
-        /// </summary>
-        /// <param name="tableColumn">Table column</param>
-        /// <param name="mappingMethod">Function for evaluation</param>
-        public void RegisterMapping(PropertyInfo tableColumn, Delegate mappingMethod)
-        {
-            tableColumn = this.CheckTableColum(tableColumn);
-            if (_projection != null)
-            {
-                throw new Exception(
-                        "Mapping delegates and projection could not be used at the same time. Please don't configure projection either remove all .MappedFrom(...) calls");
-
-            }
-            _mappingDelegates[tableColumn] = mappingMethod;
-        }
-
-        /// <summary>
-        /// Associates ordering expression with column
-        /// </summary>
-        /// <param name="column">Column</param>
-        /// <param name="expression">Ordering lambda expression</param>
-        public void RegisterOrderingExpression(PropertyInfo column, LambdaExpression expression)
-        {
-            column = this.CheckTableColum(column);
-            _orderingExpressions[column] = expression;
-        }
-        #endregion
-
-
-
-        public string JsonConfig<TStaticData>(string rootId, TStaticData staticData = null, string prefix = "lt") where TStaticData : class
-        {
-            TableConfiguration tc = TableConfiguration;
-            tc.TableRootId = rootId;
-            tc.Prefix = prefix;
-            if (staticData != null)
-            {
-                tc.StaticData = JsonConvert.SerializeObject(staticData);
-            }
-            string json = JsonConvert.SerializeObject(tc, SerializationSettings.ResponseSerializationSettings);
-            return json;
-        }
-
         /// <summary>
         /// Converts source data entry to table row according to mapping functions and property names
         /// </summary>
@@ -371,7 +146,7 @@ namespace PowerTables.Configuration
         {
             if (Projection != null)
             {
-                return Projection(new[] {src}.AsQueryable()).Single();
+                return Projection(new[] { src }.AsQueryable()).Single();
             }
             var tableData = new TTableData();
             foreach (var tableDataProperty in _tableColumns)
@@ -416,7 +191,5 @@ namespace PowerTables.Configuration
             if (Projection != null) return Projection(src.ToArray().AsQueryable()).ToArray();
             return src.ToArray().Select(Map).ToArray();
         }
-
-        internal Func<int> CustomTotalCountFunction { get; set; }
     }
 }

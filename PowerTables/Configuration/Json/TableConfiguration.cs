@@ -219,6 +219,11 @@ namespace PowerTables.Configuration.Json
         public string Title { get; set; }
 
         /// <summary>
+        /// Column display order
+        /// </summary>
+        public double DisplayOrder { get; set; }
+
+        /// <summary>
         /// Column description
         /// </summary>
         public string Description { get; set; }

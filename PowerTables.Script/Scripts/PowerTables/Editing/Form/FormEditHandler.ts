@@ -50,7 +50,13 @@
             var vm: FormEditFormModel = new FormEditFormModel();
             for (var i = 0; i < this.Configuration.Fields.length; i++) {
                 var editorConf = this.Configuration.Fields[i];
-                var editor = this.createEditor(editorConf.FieldName, this.MasterTable.InstanceManager.Columns[editorConf.FieldName], false, EditorMode.Form);
+                var column = null;
+                if (editorConf.FakeColumn != null) {
+                    column = this.MasterTable.InstanceManager.createColumn(editorConf.FakeColumn);
+                } else {
+                    column = this.MasterTable.InstanceManager.Columns[editorConf.FieldName];
+                }
+                var editor = this.createEditor(editorConf.FieldName, column, false, EditorMode.Form);
                 this._activeEditors.push(editor);
                 vm.EditorsSet[editorConf.FieldName] = editor;
             }

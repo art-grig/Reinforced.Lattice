@@ -86,6 +86,7 @@
     <Compile Include="Configuration\IColumnTargetProperty.cs" />
     <Compile Include="Configuration\IConfigurator.cs" />
     <Compile Include="Configuration\Json\JsonConfigurationExtensions.cs" />
+    <Compile Include="Configuration\NongenericConfigurator.cs" />
     <Compile Include="Defaults\DefaultCommandHandler.cs" />
     <Compile Include="Defaults\DefaultQueryHandler.cs" />
     <Compile Include="Defaults\DelegateCommandHandler.cs" />
@@ -210,6 +211,7 @@
     <Compile Include="Plugins\Total\TotalExtensions.cs" />
     <Compile Include="Plugins\Total\TotalResponse.cs" />
     <Compile Include="Plugins\Total\TotalResponseModifier.cs" />
+    <Compile Include="PropertyDescription.cs" />
     <Compile Include="RequestExtensions.cs" />
     <Compile Include="ResponseProcessing\ICommandHandler.cs" />
     <Compile Include="Configuration\ColumnUsage.cs" />

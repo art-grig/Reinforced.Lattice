@@ -65,6 +65,8 @@ module PowerTables.Configuration.Json {
 	{
 		/** Column title */
 		Title: string;
+		/** Column display order */
+		DisplayOrder: number;
 		/** Column description */
 		Description: string;
 		/** Random metadata object that can be bound within column */
@@ -596,6 +598,7 @@ module PowerTables.Editing {
 		FieldName: string;
 		PluginId: string;
 		ValidationMessagesTemplateId: string;
+		FakeColumn: PowerTables.Configuration.Json.IColumnConfiguration;
 	}
 	export interface IEditFormUiConfigBase
 	{

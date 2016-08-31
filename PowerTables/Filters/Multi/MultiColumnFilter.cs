@@ -54,7 +54,7 @@ namespace PowerTables.Filters.Multi
             return ReflectionCache.CallWhere(source, expr);
         }
 
-        public static MultiColumnFilter<TSourceData, TVal> Create<TSourceColumn>(PropertyInfo columnProp, IConfigurator conf,
+        public static MultiColumnFilter<TSourceData, TVal> Create<TSourceColumn>(PropertyDescription columnProp, IConfigurator conf,
             Expression<Func<TSourceData, TSourceColumn>> column)
         {
             columnProp = conf.CheckTableColum(columnProp);
@@ -63,7 +63,7 @@ namespace PowerTables.Filters.Multi
             return instance;
         }
 
-        public static MultiColumnFilter<TSourceData, TVal> Create(PropertyInfo columnProp, IConfigurator conf, Func<IQueryable<TSourceData>, IEnumerable<TVal>, IQueryable<TSourceData>> filterDelegate)
+        public static MultiColumnFilter<TSourceData, TVal> Create(PropertyDescription columnProp, IConfigurator conf, Func<IQueryable<TSourceData>, IEnumerable<TVal>, IQueryable<TSourceData>> filterDelegate)
         {
             columnProp = conf.CheckTableColum(columnProp);
             var instance = new MultiColumnFilter<TSourceData, TVal>(columnProp.Name, conf, filterDelegate);

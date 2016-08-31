@@ -86,7 +86,7 @@ namespace PowerTables.Mvc.Models.Tutorial
                 });
                 c.Returns(v =>
                 {
-                    v.Tag("button").Class("btn btn-default btn-sm").Content("Edit").RowEditTrigger().After(d=>d.Tag("button").Content("Edit form").FormEditTrigger());
+                    v.Tag("button").Class("btn btn-default btn-sm").Content("Edit").RowEditTrigger().After(d => d.Tag("button").Content("Edit form").FormEditTrigger());
                 });
             });
 
@@ -126,6 +126,10 @@ namespace PowerTables.Mvc.Models.Tutorial
                 c.AddSimpleButton("Add new...").AddNewByForm();
                 c.AddSimpleButton("Add new by row...").AddNewByRow();
             });
+
+
+            conf.AddColumn<bool>("NewColumn", c => !c.IsPaid, (c, v) => c.IsPaid = !v).Title("New column").ClientExpression("!{IsPaid}");
+
             return conf;
         }
 

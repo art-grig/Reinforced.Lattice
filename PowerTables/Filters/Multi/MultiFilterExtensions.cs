@@ -89,10 +89,8 @@ namespace PowerTables.Filters.Multi
         /// <param name="column">Column configuration</param>
         /// <param name="ui">Filter UI builder</param>
         /// <returns></returns>
-        public static void FilterMultiSelectUi<TSourceData, TTableData, TTableColumn>(
-            this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
-            Action<ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TTableColumn>> ui = null
-            ) where TTableData : new()
+        public static void FilterMultiSelectUi<TTableColumn>(this IColumnTargetProperty<TTableColumn> column,Action<ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TTableColumn>> ui = null
+            )
         {
             column.UpdateFilterConfig<SelectFilterUiConfig, TTableColumn>(SelectFilterExtensions.PluginId, c =>
             {

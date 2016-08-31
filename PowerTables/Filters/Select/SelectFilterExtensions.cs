@@ -53,8 +53,8 @@ namespace PowerTables.Filters.Select
         /// </summary>
         /// <param name="column">Column</param>
         /// <param name="ui">UI builder</param>
-        public static void FilterSelectUi<TSourceData, TTableData, TTableColumn>(this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
-           Action<ColumnPluginConfigurationWrapper<SelectFilterUiConfig,TTableColumn>> ui = null) where TTableData : new()
+        public static void FilterSelectUi<TTableColumn>(this IColumnTargetProperty<TTableColumn> column,
+           Action<ColumnPluginConfigurationWrapper<SelectFilterUiConfig,TTableColumn>> ui = null)
         {
 
             column.UpdateFilterConfig(PluginId, ui);

@@ -8,7 +8,7 @@
         public init(masterTable: IMasterTable): void {
             this.MasterTable = masterTable;
             this.Configuration = this.RawConfig.Configuration;
-            this.subscribe(masterTable.Events);
+            if (masterTable.Events != null) this.subscribe(masterTable.Events);
             this.registerAdditionalHelpers(masterTable.Renderer.HandlebarsInstance);
         }
 

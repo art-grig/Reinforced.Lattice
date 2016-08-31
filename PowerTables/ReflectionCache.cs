@@ -63,18 +63,18 @@ namespace PowerTables
             SelectMethod = QueryableType.GetMethods().Where(c => c.Name == "Select" && c.GetParameters().Length == 2).Single(c => c.GetParameters()[1].ParameterType.GetGenericArguments()[0].GetGenericArguments().Length == 2);
         }
         private static readonly Dictionary<string, MethodInfo> _genericMethodsCache = new Dictionary<string, MethodInfo>();
-        private static readonly Dictionary<Type,PropertyInfo[]> _propertiesCache = new Dictionary<Type, PropertyInfo[]>();
-        private static readonly Dictionary<Type,IReadOnlyDictionary<string,PropertyInfo>> _propertyDictionariesCache = new Dictionary<Type, IReadOnlyDictionary<string, PropertyInfo>>();
-        
-        private static PropertyInfo[] ExtractProperties(Type t)
+        private static readonly Dictionary<Type, PropertyDescription[]> _propertiesCache = new Dictionary<Type, PropertyDescription[]>();
+        private static readonly Dictionary<Type, Dictionary<string, PropertyDescription>> _propertyDictionariesCache = new Dictionary<Type, Dictionary<string, PropertyDescription>>();
+
+        private static List<PropertyDescription> ExtractProperties(Type t)
         {
             return (t.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty |
-                                            BindingFlags.SetProperty | BindingFlags.FlattenHierarchy).OrderByDescending(c=>c.DeclaringType!=t).ToArray());
+                                            BindingFlags.SetProperty | BindingFlags.FlattenHierarchy).OrderByDescending(c=>c.DeclaringType!=t).Select(c=>c.Description()).ToList());
         }
 
-       
-        public static void GetCachedProperties<T>(out PropertyInfo[] properties,
-            out IReadOnlyDictionary<string, PropertyInfo> propDictionary)
+
+        public static void GetCachedProperties<T>(out List<PropertyDescription> properties,
+            out Dictionary<string, PropertyDescription> propDictionary)
         {
             var t = typeof (T);
             if (!_propertiesCache.ContainsKey(t))
@@ -84,17 +84,17 @@ namespace PowerTables
                     if (!_propertiesCache.ContainsKey(t))
                     {
                         properties = ExtractProperties(t);
-                        _propertiesCache[t] = properties;
+                        _propertiesCache[t] = properties.ToArray();
                     }
                     else
                     {
-                        properties = _propertiesCache[t];
+                        properties = _propertiesCache[t].ToList();
                     }
                 }                
             }
             else
             {
-                properties = _propertiesCache[t];
+                properties = _propertiesCache[t].ToList();
             }
 
             if (!_propertyDictionariesCache.ContainsKey(t))

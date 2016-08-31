@@ -61,7 +61,8 @@
                 ColumnType: 'Int32',
                 ClientValueFunction: null,
                 Description: null,
-                TemplateSelector: null
+                TemplateSelector: null,
+                DisplayOrder: -1
             };
 
             var col: IColumn = {
@@ -118,14 +119,14 @@
             return true;
         }
 
-        public selectByDataObject(dataObject:any, select: boolean = null): boolean {
+        public selectByDataObject(dataObject: any, select: boolean = null): boolean {
             var displayedLookup: ILocalLookupResult = this.MasterTable.DataHolder.localLookupStoredDataObject(dataObject);
-            if (displayedLookup==null) return false;
+            if (displayedLookup == null) return false;
             this.toggleInternal(displayedLookup.DataObject, displayedLookup.DisplayedIndex, select);
             return true;
         }
 
-        public selectByPredicate(predicate:(dataObject: any)=>boolean, select: boolean = null): boolean {
+        public selectByPredicate(predicate: (dataObject: any) => boolean, select: boolean = null): boolean {
             var displayedLookup: ILocalLookupResult[] = this.MasterTable.DataHolder.localLookup(predicate);
             var result = false;
             for (var i = 0; i < displayedLookup.length; i++) {
@@ -241,7 +242,7 @@
 
                 for (var i = 0; i < a.RemoveFromSelection.length; i++) {
                     if (this._selectedItems.indexOf(a.RemoveFromSelection[i]) > -1) {
-                        this._selectedItems.splice(this._selectedItems.indexOf(a.RemoveFromSelection[i]),1);
+                        this._selectedItems.splice(this._selectedItems.indexOf(a.RemoveFromSelection[i]), 1);
                     }
                 }
                 this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
@@ -250,7 +251,7 @@
         }
 
         private onBeforeAdjustments(e: ITableEventArgs<PowerTables.Editing.IAdjustmentData>) {
-            
+
             if (e.EventArgs.AdditionalData['Selection']) this.applySelection(e.EventArgs.AdditionalData['Selection']);
         }
 

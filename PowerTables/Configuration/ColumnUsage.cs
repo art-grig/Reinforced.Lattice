@@ -15,7 +15,7 @@ namespace PowerTables.Configuration
         where TTableData : new()
     {
         private readonly ColumnConfiguration _columnConfiguration;
-        private readonly PropertyInfo _columnProperty;
+        private readonly PropertyDescription _columnProperty;
         private readonly Configurator<TSourceData, TTableData> _configurator;
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace PowerTables.Configuration
         /// <summary>
         /// PropertyInfo belonging to <typeparamref name="TTableData"/> containig data for this column
         /// </summary>
-        public PropertyInfo ColumnProperty
+        public PropertyDescription ColumnProperty
         {
             get { return _columnProperty; }
         }
@@ -37,15 +37,15 @@ namespace PowerTables.Configuration
         /// <summary>
         /// Reference to table configurator containing this column
         /// </summary>
-        public IConfigurator TableConfigurator
+        public NongenericConfigurator TableConfigurator
         {
             get { return _configurator; }
         }
 
 
-        internal ColumnUsage(Configurator<TSourceData, TTableData> configurator, Expression<Func<TTableData, TTableColumn>> tableColumnExpression, ColumnConfiguration columnConfiguration)
+        internal ColumnUsage(Configurator<TSourceData, TTableData> configurator, PropertyDescription tablePropDescription, ColumnConfiguration columnConfiguration)
         {
-            _columnProperty = LambdaHelpers.ParsePropertyLambda(tableColumnExpression);
+            _columnProperty = tablePropDescription;//configurator.CheckTableColum(tablePropDescription);
             _configurator = configurator;
             _columnConfiguration = columnConfiguration;
         }

@@ -52,7 +52,7 @@ namespace PowerTables.Filters.Value
             return ValueConverter.Convert<TFilteringKey>(filterArgument);
         }
 
-        public static ValueColumnFilter<TSourceData, TFilteringKey> Create<TSourceColumn>(PropertyInfo columnProp, IConfigurator conf,
+        public static ValueColumnFilter<TSourceData, TFilteringKey> Create<TSourceColumn>(PropertyDescription columnProp, IConfigurator conf,
             Expression<Func<TSourceData, TSourceColumn>> column)
         {
             columnProp = conf.CheckTableColum(columnProp);
@@ -61,7 +61,7 @@ namespace PowerTables.Filters.Value
             return instance;
         }
 
-        public static ValueColumnFilter<TSourceData, TFilteringKey> Create(PropertyInfo columnProp, IConfigurator conf, Func<IQueryable<TSourceData>, TFilteringKey, IQueryable<TSourceData>> filterDelegate)
+        public static ValueColumnFilter<TSourceData, TFilteringKey> Create(PropertyDescription columnProp, IConfigurator conf, Func<IQueryable<TSourceData>, TFilteringKey, IQueryable<TSourceData>> filterDelegate)
         {
             columnProp = conf.CheckTableColum(columnProp);
             var instance = new ValueColumnFilter<TSourceData, TFilteringKey>(columnProp.Name, conf, filterDelegate);

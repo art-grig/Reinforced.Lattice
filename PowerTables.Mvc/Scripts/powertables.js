@@ -1653,26 +1653,10 @@ var PowerTables;
         };
         InstanceManager.prototype.initColumns = function () {
             var columns = [];
+            this.Configuration.Columns.sort(function (x, y) { return x.DisplayOrder - y.DisplayOrder; });
             for (var i = 0; i < this.Configuration.Columns.length; i++) {
                 var cnf = this.Configuration.Columns[i];
-                var c = {
-                    Configuration: cnf,
-                    RawName: cnf.RawColumnName,
-                    MasterTable: this._masterTable,
-                    Header: null,
-                    Order: i,
-                    IsDateTime: InstanceManager._datetimeTypes.indexOf(cnf.ColumnType) > -1,
-                    IsString: InstanceManager._stringTypes.indexOf(cnf.ColumnType) > -1,
-                    IsFloat: InstanceManager._floatTypes.indexOf(cnf.ColumnType) > -1,
-                    IsInteger: InstanceManager._integerTypes.indexOf(cnf.ColumnType) > -1,
-                    IsBoolean: InstanceManager._booleanTypes.indexOf(cnf.ColumnType) > -1,
-                    IsEnum: cnf.IsEnum
-                };
-                c.Header = {
-                    Column: c,
-                    renderContent: null,
-                    renderElement: null
-                };
+                var c = this.createColumn(cnf, i);
                 this.Columns[c.RawName] = c;
                 columns.push(c);
             }
@@ -1680,6 +1664,27 @@ var PowerTables;
             for (var j = 0; j < columns.length; j++) {
                 this._rawColumnNames.push(columns[j].RawName);
             }
+        };
+        InstanceManager.prototype.createColumn = function (cnf, order) {
+            var c = {
+                Configuration: cnf,
+                RawName: cnf.RawColumnName,
+                MasterTable: this._masterTable,
+                Header: null,
+                Order: order == null ? 0 : order,
+                IsDateTime: InstanceManager._datetimeTypes.indexOf(cnf.ColumnType) > -1,
+                IsString: InstanceManager._stringTypes.indexOf(cnf.ColumnType) > -1,
+                IsFloat: InstanceManager._floatTypes.indexOf(cnf.ColumnType) > -1,
+                IsInteger: InstanceManager._integerTypes.indexOf(cnf.ColumnType) > -1,
+                IsBoolean: InstanceManager._booleanTypes.indexOf(cnf.ColumnType) > -1,
+                IsEnum: cnf.IsEnum
+            };
+            c.Header = {
+                Column: c,
+                renderContent: null,
+                renderElement: null
+            };
+            return c;
         };
         /*
          * @internal
@@ -4149,7 +4154,8 @@ var PowerTables;
             PluginBase.prototype.init = function (masterTable) {
                 this.MasterTable = masterTable;
                 this.Configuration = this.RawConfig.Configuration;
-                this.subscribe(masterTable.Events);
+                if (masterTable.Events != null)
+                    this.subscribe(masterTable.Events);
                 this.registerAdditionalHelpers(masterTable.Renderer.HandlebarsInstance);
             };
             /**
@@ -5590,7 +5596,8 @@ var PowerTables;
                         ColumnType: 'Int32',
                         ClientValueFunction: null,
                         Description: null,
-                        TemplateSelector: null
+                        TemplateSelector: null,
+                        DisplayOrder: -1
                     };
                     var col = {
                         Configuration: conf,
@@ -7411,7 +7418,14 @@ var PowerTables;
                     var vm = new FormEditFormModel();
                     for (var i = 0; i < this.Configuration.Fields.length; i++) {
                         var editorConf = this.Configuration.Fields[i];
-                        var editor = this.createEditor(editorConf.FieldName, this.MasterTable.InstanceManager.Columns[editorConf.FieldName], false, Editing.EditorMode.Form);
+                        var column = null;
+                        if (editorConf.FakeColumn != null) {
+                            column = this.MasterTable.InstanceManager.createColumn(editorConf.FakeColumn);
+                        }
+                        else {
+                            column = this.MasterTable.InstanceManager.Columns[editorConf.FieldName];
+                        }
+                        var editor = this.createEditor(editorConf.FieldName, column, false, Editing.EditorMode.Form);
                         this._activeEditors.push(editor);
                         vm.EditorsSet[editorConf.FieldName] = editor;
                     }

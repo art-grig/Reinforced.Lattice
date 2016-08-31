@@ -83,7 +83,7 @@ namespace PowerTables.Plugins.Hideout
         /// <param name="request">Request</param>
         /// <param name="conf">Table configurator</param>
         /// <returns>Array of PropertyInfos that are hidden</returns>
-        public static PropertyInfo[] GetHiddenColumns(this PowerTableRequest request, IConfigurator conf)
+        public static PropertyDescription[] GetHiddenColumns(this PowerTableRequest request, IConfigurator conf)
         {
             return GetHiddenColumns(request.Query, conf);
         }
@@ -104,7 +104,7 @@ namespace PowerTables.Plugins.Hideout
         /// <param name="request">Request</param>
         /// <param name="conf">Table configurator</param>
         /// <returns>Array of PropertyInfos that are hidden</returns>
-        public static PropertyInfo[] GetHiddenColumns(this Query request, IConfigurator conf)
+        public static PropertyDescription[] GetHiddenColumns(this Query request, IConfigurator conf)
         {
             var columns = GetHiddenColumns(request);
             return conf.TableColumnsDictionary.Where(c => columns.Contains(c.Key)).Select(c => c.Value).ToArray();
@@ -128,7 +128,7 @@ namespace PowerTables.Plugins.Hideout
         /// <param name="request">Request</param>
         /// <param name="conf">Table configurator</param>
         /// <returns>Array of PropertyInfos that are shown</returns>
-        public static PropertyInfo[] GetShownColumns(this PowerTableRequest request, IConfigurator conf)
+        public static PropertyDescription[] GetShownColumns(this PowerTableRequest request, IConfigurator conf)
         {
             return GetShownColumns(request.Query, conf);
         }
@@ -149,7 +149,7 @@ namespace PowerTables.Plugins.Hideout
         /// <param name="request">Request</param>
         /// <param name="conf">Table configurator</param>
         /// <returns>Array of PropertyInfos that are shown</returns>
-        public static PropertyInfo[] GetShownColumns(this Query request, IConfigurator conf)
+        public static PropertyDescription[] GetShownColumns(this Query request, IConfigurator conf)
         {
             var columns = GetHiddenColumns(request);
             return conf.TableColumnsDictionary.Where(c => columns.Contains(c.Key)).Select(c => c.Value).ToArray();
