@@ -17,7 +17,7 @@ namespace PowerTables.Editing.Form
 
         public const string BeginDataSelector = "editform";
 
-        public static void EditingForm<TSource, TTarget>(
+        public static Configurator<TSource, TTarget> EditingForm<TSource, TTarget>(
            this Configurator<TSource, TTarget> conf,
            Action<EditHandlerConfiguration<TTarget, FormEditUiConfig>> formConfig,
             Action<TableEventSubscription> beginFormEdit = null)
@@ -42,6 +42,7 @@ namespace PowerTables.Editing.Form
 
             begin.Handler(string.Format("function(e) {{ e.Master.InstanceManager.getPlugin('{0}').beginFormEditHandler(e); }}", PluginId));
             conf.SubscribeRowEvent(begin);
+            return conf;
         }
 
         public static EditHandlerConfiguration<TTarget, FormEditUiConfig> RenderTo<TTarget>(

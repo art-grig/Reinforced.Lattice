@@ -15,7 +15,7 @@ namespace PowerTables.Editing.Cells
 
         public const string DataSelector = "editcell";
 
-        public static void EditingCells<TSource, TTarget>(
+        public static Configurator<TSource, TTarget> EditingCells<TSource, TTarget>(
            this Configurator<TSource, TTarget> conf,
            Action<EditHandlerConfiguration<TTarget, CellsEditUiConfig>> celsEditorConfig,
             Action<TableEventSubscription> startCellEditingAction = null)
@@ -44,6 +44,7 @@ namespace PowerTables.Editing.Cells
             }
 
             conf.TableConfiguration.ReplacePluginConfig(PluginId, eh.FormClientConfig);
+            return conf;
         }
 
         public static Template CellEditTrigger(this Template t)

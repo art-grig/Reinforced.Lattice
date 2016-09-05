@@ -16,7 +16,7 @@ namespace PowerTables.Editing.Rows
         public const string RejectDataSelector = "rejectrow";
 
 
-        public static void EditingRow<TSource, TTarget>(
+        public static Configurator<TSource, TTarget> EditingRow<TSource, TTarget>(
             this Configurator<TSource, TTarget> conf,
             Action<EditHandlerConfiguration<TTarget, RowsEditUiConfig>> celsEditorConfig,
             Action<TableEventSubscription> beginRowEdit = null,
@@ -31,6 +31,7 @@ namespace PowerTables.Editing.Rows
             SubscribeRowEdit(conf, "beginRowEditHandle", beginRowEdit, BeginDataSelector);
             SubscribeRowEdit(conf, "commitRowEditHandle", commitRowEdit, CommitDataSelector);
             SubscribeRowEdit(conf, "rejectRowEditHandle", rejectRowEdit, RejectDataSelector);
+            return conf;
         }
 
         private static void SubscribeRowEdit(IConfigurator conf, string functionName, Action<TableEventSubscription> act, string defaultSelector)
