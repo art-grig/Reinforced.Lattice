@@ -1835,7 +1835,7 @@ declare module PowerTables {
         private static _booleanTypes;
         static classifyType(fieldType: string): IClassifiedType;
         private initColumns();
-        createColumn(cnf: Configuration.Json.IColumnConfiguration, order?: number): IColumn;
+        static createColumn(cnf: Configuration.Json.IColumnConfiguration, masterTable: IMasterTable, order?: number): IColumn;
         initPlugins(): void;
         private static startsWith(s1, prefix);
         private static endsWith(s1, postfix);

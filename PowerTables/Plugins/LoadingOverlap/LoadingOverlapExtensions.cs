@@ -6,8 +6,7 @@ namespace PowerTables.Plugins.LoadingOverlap
 {
     public static class LoadingOverlapExtensions
     {
-        public static Configurator<TSourceData, TTargetData> LoadingOverlap<TSourceData, TTargetData>(
-            this Configurator<TSourceData, TTargetData> conf, Action<PluginConfigurationWrapper<LoadingOverlapUiConfig>> ui) where TTargetData : new()
+        public static T LoadingOverlap<T>(this T conf, Action<PluginConfigurationWrapper<LoadingOverlapUiConfig>> ui) where T : IConfigurator
         {
             conf.TableConfiguration.UpdatePluginConfig("LoadingOverlap", ui);
             return conf;

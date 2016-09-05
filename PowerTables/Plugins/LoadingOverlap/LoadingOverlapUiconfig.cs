@@ -17,6 +17,7 @@ namespace PowerTables.Plugins.LoadingOverlap
     public enum OverlapMode
     {
         All,
-        BodyOnly
+        BodyOnly,
+        Parent
     }
 }

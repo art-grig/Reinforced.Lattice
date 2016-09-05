@@ -114,7 +114,7 @@
 
             for (var i: number = 0; i < this.Configuration.Columns.length; i++) {
                 var cnf: Configuration.Json.IColumnConfiguration = this.Configuration.Columns[i];
-                var c = this.createColumn(cnf, i);
+                var c = InstanceManager.createColumn(cnf, this._masterTable, i);
                 this.Columns[c.RawName] = c;
                 columns.push(c);
             }
@@ -125,11 +125,11 @@
 
         }
 
-        public createColumn(cnf: Configuration.Json.IColumnConfiguration,order?:number): IColumn {
+        public static createColumn(cnf: Configuration.Json.IColumnConfiguration, masterTable: IMasterTable,order?:number): IColumn {
             var c: IColumn = {
                 Configuration: cnf,
                 RawName: cnf.RawColumnName,
-                MasterTable: this._masterTable,
+                MasterTable: masterTable,
                 Header: null,
                 Order: order==null?0:order,
                 IsDateTime: InstanceManager._datetimeTypes.indexOf(cnf.ColumnType) > -1,

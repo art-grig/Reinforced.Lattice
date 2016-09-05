@@ -1,4 +1,5 @@
-﻿using PowerTables.Configuration.Json;
+﻿using System;
+using PowerTables.Configuration.Json;
 
 namespace PowerTables.Configuration
 {
@@ -16,5 +17,10 @@ namespace PowerTables.Configuration
         /// Reference to main table configurator
         /// </summary>
         NongenericConfigurator TableConfigurator { get; }
+
+        /// <summary>
+        /// Retrieves column type
+        /// </summary>
+        Type ColumnType { get; }
     }
 }

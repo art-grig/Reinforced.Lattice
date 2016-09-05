@@ -325,10 +325,15 @@
         }
         private datepickerHelper(columnName: string, forceNullable: boolean): string {
             var index: number = this._datepickersQueue.length;
-            if (this._instances.Columns[columnName].IsDateTime) {
+            //dirty hack. todo
+            var col = this._instances.Columns.hasOwnProperty(columnName)
+                ? this._instances.Columns[columnName]
+                : this._stack.Current.Object['Column'];
+
+            if (col.IsDateTime) {
                 var md: IDatepickerDescriptor = <IDatepickerDescriptor>{
                     ElementReceiver: this._stack.Current.Object,
-                    IsNullable: forceNullable || this._instances.Columns[columnName].Configuration.IsNullable
+                    IsNullable: forceNullable || col.Configuration.IsNullable
                 };
                 this._datepickersQueue.push(md);
                 return `data-dp="${index}"`;

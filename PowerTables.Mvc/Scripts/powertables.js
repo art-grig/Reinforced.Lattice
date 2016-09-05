@@ -1656,7 +1656,7 @@ var PowerTables;
             this.Configuration.Columns.sort(function (x, y) { return x.DisplayOrder - y.DisplayOrder; });
             for (var i = 0; i < this.Configuration.Columns.length; i++) {
                 var cnf = this.Configuration.Columns[i];
-                var c = this.createColumn(cnf, i);
+                var c = InstanceManager.createColumn(cnf, this._masterTable, i);
                 this.Columns[c.RawName] = c;
                 columns.push(c);
             }
@@ -1665,11 +1665,11 @@ var PowerTables;
                 this._rawColumnNames.push(columns[j].RawName);
             }
         };
-        InstanceManager.prototype.createColumn = function (cnf, order) {
+        InstanceManager.createColumn = function (cnf, masterTable, order) {
             var c = {
                 Configuration: cnf,
                 RawName: cnf.RawColumnName,
-                MasterTable: this._masterTable,
+                MasterTable: masterTable,
                 Header: null,
                 Order: order == null ? 0 : order,
                 IsDateTime: InstanceManager._datetimeTypes.indexOf(cnf.ColumnType) > -1,
@@ -2517,10 +2517,14 @@ var PowerTables;
             };
             BackBinder.prototype.datepickerHelper = function (columnName, forceNullable) {
                 var index = this._datepickersQueue.length;
-                if (this._instances.Columns[columnName].IsDateTime) {
+                //dirty hack. todo
+                var col = this._instances.Columns.hasOwnProperty(columnName)
+                    ? this._instances.Columns[columnName]
+                    : this._stack.Current.Object['Column'];
+                if (col.IsDateTime) {
                     var md = {
                         ElementReceiver: this._stack.Current.Object,
-                        IsNullable: forceNullable || this._instances.Columns[columnName].Configuration.IsNullable
+                        IsNullable: forceNullable || col.Configuration.IsNullable
                     };
                     this._datepickersQueue.push(md);
                     return "data-dp=\"" + index + "\"";
@@ -6249,21 +6253,24 @@ var PowerTables;
                     this._overlappingElement = [];
                     for (var k in this.Configuration.Overlaps) {
                         if (this.Configuration.Overlaps.hasOwnProperty(k)) {
+                            var elements = null;
                             if (k === '$All')
-                                this._overlappingElement.push([this.MasterTable.Renderer.RootElement]);
+                                elements = [this.MasterTable.Renderer.RootElement];
                             else if (k === '$BodyOnly')
-                                this._overlappingElement.push([this.MasterTable.Renderer.BodyElement]);
+                                elements = [this.MasterTable.Renderer.BodyElement];
+                            else if (k === '$Parent')
+                                elements = [this.MasterTable.Renderer.RootElement.parentElement];
                             else {
-                                var elements = document.querySelectorAll(k);
-                                var elems = [];
-                                var overlappers = [];
-                                for (var i = 0; i < elements.length; i++) {
-                                    elems.push(elements.item(i));
-                                    overlappers.push(this.createOverlap(elements.item(i), this.Configuration.Overlaps[k]));
-                                }
-                                this._overlappingElement.push(elems);
-                                this._overlapLayer.push(overlappers);
+                                elements = document.querySelectorAll(k);
                             }
+                            var elems = [];
+                            var overlappers = [];
+                            for (var i = 0; i < elements.length; i++) {
+                                elems.push(elements[i]);
+                                overlappers.push(this.createOverlap(elements[i], this.Configuration.Overlaps[k]));
+                            }
+                            this._overlappingElement.push(elems);
+                            this._overlapLayer.push(overlappers);
                         }
                     }
                     this._isOverlapped = true;
@@ -6276,11 +6283,11 @@ var PowerTables;
                     else if (window.getComputedStyle) {
                         mezx = window.getComputedStyle(element, null).zIndex;
                     }
-                    element.style.position = "relative";
+                    element.style.position = "absolute";
                     element.style.display = "block";
                     element.style.zIndex = (parseInt(mezx) + 1).toString();
                     //document.body.appendChild(element); //todo switch
-                    efor.appendChild(element);
+                    window.document.body.appendChild(element);
                     this.updateCoords(element, efor);
                     return element;
                 };
@@ -6289,8 +6296,8 @@ var PowerTables;
                     var eo = overlapElement.getBoundingClientRect();
                     //overlapLayer.style.left = eo.left + 'px';
                     //overlapLayer.style.top = overlapElement.offsetTop + 'px';
-                    overlapLayer.style.left = '0px';
-                    overlapLayer.style.top = '0px';
+                    overlapLayer.style.left = eo.left + 'px'; //'0px';
+                    overlapLayer.style.top = eo.top + 'px'; // '0px';
                     overlapLayer.style.width = eo.width + 'px';
                     overlapLayer.style.height = eo.height + 'px';
                     overlapLayer.style.display = "block";
@@ -6307,7 +6314,7 @@ var PowerTables;
                         return;
                     for (var j = 0; j < this._overlapLayer.length; j++) {
                         for (var l = 0; l < this._overlapLayer[j].length; l++) {
-                            this._overlappingElement[j][l].removeChild(this._overlapLayer[j][l]);
+                            window.document.body.removeChild(this._overlapLayer[j][l]);
                         }
                     }
                     this._overlapLayer = [];
@@ -7420,7 +7427,7 @@ var PowerTables;
                         var editorConf = this.Configuration.Fields[i];
                         var column = null;
                         if (editorConf.FakeColumn != null) {
-                            column = this.MasterTable.InstanceManager.createColumn(editorConf.FakeColumn);
+                            column = PowerTables.InstanceManager.createColumn(editorConf.FakeColumn, this.MasterTable);
                         }
                         else {
                             column = this.MasterTable.InstanceManager.Columns[editorConf.FieldName];

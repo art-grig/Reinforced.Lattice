@@ -59,7 +59,7 @@ namespace PowerTables.Mvc.Models.Tutorial
              * We didnt use .Basec here, so I have to repeat dates displaying configuration
              */
             conf.Column(c => c.CreatedDate).FormatDateWithDateformatJs("dd mmm yyyy");
-            conf.Column(c => c.LastSoldDate).FormatDateWithDateformatJs("dd mmm yyyy");
+            conf.Column(c => c.LastSoldDate).FormatNullableDateWithDateformatJs("dd mmm yyyy");
             return conf;
         }
     }

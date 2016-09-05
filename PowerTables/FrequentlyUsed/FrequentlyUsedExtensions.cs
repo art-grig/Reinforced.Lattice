@@ -18,12 +18,9 @@ namespace PowerTables.FrequentlyUsed
         /// </summary>
         /// <param name="column">Colum to apply formatting</param>
         /// <returns>Fluent</returns>
-        public static ColumnUsage<TSourceData, TTableData, TTableColumn> FormatEnumWithDisplayAttribute
-            <TSourceData, TTableData, TTableColumn>(
-            this ColumnUsage<TSourceData, TTableData, TTableColumn> column
-            ) where TTableData : new()
+        public static T FormatEnumWithDisplayAttribute<T>(this T column) where T: IColumnConfigurator
         {
-            var enumType = typeof(TTableColumn);
+            var enumType = column.ColumnType;
             if (enumType.IsNullable())
             {
                 enumType = enumType.GetGenericArguments()[0];
@@ -31,9 +28,8 @@ namespace PowerTables.FrequentlyUsed
             if (!typeof(Enum).IsAssignableFrom(enumType))
             {
                 throw new Exception(
-                    String.Format("This method is only applicable for enum columns. {0} column of table {1} is not of enum type",
-                    column.ColumnProperty.Name,
-                    typeof(TTableData).FullName
+                    String.Format("This method is only applicable for enum columns. {0} column is not of enum type",
+                    column.ColumnConfiguration.RawColumnName
                     ));
             }
             var items = EnumHelper.GetSelectList(enumType);
@@ -57,13 +53,9 @@ namespace PowerTables.FrequentlyUsed
         /// <param name="column">Colum to apply formatting</param>
         /// <param name="content">Content for particular select list item</param>
         /// <returns>Fluent</returns>
-        public static ColumnUsage<TSourceData, TTableData, TTableColumn> FormatEnumWithDisplayAttribute
-            <TSourceData, TTableData, TTableColumn>(
-            this ColumnUsage<TSourceData, TTableData, TTableColumn> column,
-            Action<Template, SelectListItem> content
-            ) where TTableData : new()
+        public static T FormatEnumWithDisplayAttribute<T>(this T column,Action<Template, SelectListItem> content) where T: IColumnConfigurator
         {
-            var enumType = typeof(TTableColumn);
+            var enumType = column.ColumnType;
             if (typeof(Nullable<>).IsAssignableFrom(enumType))
             {
                 enumType = enumType.GetGenericArguments()[0];
@@ -71,9 +63,8 @@ namespace PowerTables.FrequentlyUsed
             if (!typeof(Enum).IsAssignableFrom(enumType))
             {
                 throw new Exception(
-                    String.Format("This method is only applicable for enum columns. {0} column of table {1} is not of enum type",
-                    column.ColumnProperty.Name,
-                    typeof(TTableData).FullName
+                    String.Format("This method is only applicable for enum columns. {0} column is not of enum type",
+                    column.ColumnConfiguration.RawColumnName
                     ));
             }
             var items = EnumHelper.GetSelectList(enumType);
@@ -93,16 +84,11 @@ namespace PowerTables.FrequentlyUsed
         /// <summary>
         /// Shortcut for creating JS function that formats boolean column values to specified text
         /// </summary>
-        /// <typeparam name="TSourceData"></typeparam>
-        /// <typeparam name="TTableData"></typeparam>
         /// <param name="column">Column</param>
         /// <param name="trueText">Text when value is TRUE</param>
         /// <param name="falseText">Text when value is FALSE</param>
         /// <returns>Fluent</returns>
-        public static ColumnUsage<TSourceData, TTableData, bool> TextForBoolean
-            <TSourceData, TTableData>(
-            this ColumnUsage<TSourceData, TTableData, bool> column, string trueText, string falseText
-            ) where TTableData : new()
+        public static T TextForBoolean<T>(this T column, string trueText, string falseText) where T:IColumnTargetProperty<bool>
         {
             column.Template(
                 tpl =>
@@ -151,21 +137,16 @@ namespace PowerTables.FrequentlyUsed
         /// <summary>
         /// Shortcut for creating multi-select filter for boolean value
         /// </summary>
-        /// <typeparam name="TSourceData"></typeparam>
-        /// <typeparam name="TTableData"></typeparam>
         /// <param name="column">Column configuration</param>
         /// <param name="trueText">Text for true</param>
         /// <param name="falseText">Text for false</param>
         /// <param name="bothText">Text for both value (a.k.a. "not matter")</param>
         /// <param name="allowBoth">Allow "not matter" case or not</param>
         /// <returns>Value filter</returns>
-        public static void
-            FilterBooleanUi
-            <TSourceData, TTableData>(
-            this ColumnUsage<TSourceData, TTableData, bool> column,
+        public static void FilterBooleanUi(this IColumnTargetProperty<bool> column,
             string trueText, string falseText, string bothText = null, bool allowBoth = true,
             Action<ColumnPluginConfigurationWrapper<SelectFilterUiConfig, bool>> ui = null
-            ) where TTableData : new()
+            )
         {
             var items = new[]
             {
@@ -180,7 +161,7 @@ namespace PowerTables.FrequentlyUsed
             });
         }
 
-        private static void DoDateFormatColumnUsage<TSourceData, TTableData, TTableColumn>(ColumnUsage<TSourceData, TTableData, TTableColumn> col, string format = null, bool utc = false) where TTableData : new()
+        private static void DoDateFormatColumnUsage<TTableColumn>(IColumnTargetProperty<TTableColumn> col, string format = null, bool utc = false)
         {
             col.Template(
                 c =>
@@ -194,8 +175,7 @@ namespace PowerTables.FrequentlyUsed
         /// <param name="col">Column</param>
         /// <param name="format">dateformat.js-friendly format</param>
         /// <param name="utc">"utc" parameter to be supplied to dateformat.js</param>
-        public static ColumnUsage<TSourceData, TTableData, DateTime> FormatDateWithDateformatJs<TSourceData, TTableData>(
-            this ColumnUsage<TSourceData, TTableData, DateTime> col, string format = null, bool utc = false) where TTableData : new()
+        public static T FormatDateWithDateformatJs<T>(this T col, string format = null, bool utc = false) where T : IColumnTargetProperty<DateTime>
         {
             DoDateFormatColumnUsage(col, format, utc);
             return col;
@@ -207,10 +187,8 @@ namespace PowerTables.FrequentlyUsed
         /// <param name="col">Column</param>
         /// <param name="format">dateformat.js-friendly format</param>
         /// <param name="utc">"utc" parameter to be supplied to dateformat.js</param>
-        public static ColumnUsage<TSourceData, TTableData, DateTime?> FormatDateWithDateformatJs<TSourceData, TTableData>(
-            this ColumnUsage<TSourceData, TTableData, DateTime?> col, string format = null, bool utc = false) where TTableData : new()
+        public static T FormatNullableDateWithDateformatJs<T>(this T col, string format = null, bool utc = false) where T : IColumnTargetProperty<DateTime?>
         {
-
             DoDateFormatColumnUsage(col, format, utc);
             return col;
         }

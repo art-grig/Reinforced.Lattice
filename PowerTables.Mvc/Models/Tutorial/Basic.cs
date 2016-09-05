@@ -45,7 +45,7 @@ namespace PowerTables.Mvc.Models.Tutorial
              * Just make your eyes not bleed
              */
             conf.Column(c => c.CreatedDate).FormatDateWithDateformatJs("dd mmm yyyy");
-            conf.Column(c => c.LastSoldDate).FormatDateWithDateformatJs("dd mmm yyyy");
+            conf.Column(c => c.LastSoldDate).FormatNullableDateWithDateformatJs("dd mmm yyyy");
             return conf;
         }
     }

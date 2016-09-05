@@ -42,6 +42,8 @@ namespace PowerTables.Configuration
             get { return _configurator; }
         }
 
+        public Type ColumnType { get { return typeof(TTableColumn); } }
+
 
         internal ColumnUsage(Configurator<TSourceData, TTableData> configurator, PropertyDescription tablePropDescription, ColumnConfiguration columnConfiguration)
         {

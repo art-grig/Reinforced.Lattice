@@ -52,7 +52,7 @@
                 var editorConf = this.Configuration.Fields[i];
                 var column = null;
                 if (editorConf.FakeColumn != null) {
-                    column = this.MasterTable.InstanceManager.createColumn(editorConf.FakeColumn);
+                    column = PowerTables.InstanceManager.createColumn(editorConf.FakeColumn, this.MasterTable);
                 } else {
                     column = this.MasterTable.InstanceManager.Columns[editorConf.FieldName];
                 }
@@ -81,7 +81,7 @@
             if (this.ValidationMessages.length > 0) return;
 
             this._isEditing = false;
-            
+
             for (var i = 0; i < this._activeEditors.length; i++) {
                 if (this._activeEditors[i].VisualStates != null) this._activeEditors[i].VisualStates.changeState('saving');
             }
@@ -144,7 +144,7 @@
         public Handler: FormEditHandler;
         public RootElement: HTMLElement;
         public DataObject: any;
-        
+
         public Editors(): string {
             var s = '';
             for (var k in this.EditorsSet) {
