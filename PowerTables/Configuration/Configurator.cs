@@ -80,7 +80,17 @@ namespace PowerTables.Configuration
             _mappingDelegates[tableColumn] = mappingMethod;
         }
 
-        
+        /// <summary>
+        /// Excludes column from processing pipeline. Column value will not be passed to client-side nor 
+        /// processe by get/set column value. After calling of this method you wont be able to 
+        /// obtain configurator for this column, but property itself will remain in the columns object.
+        /// </summary>
+        /// <param name="column">Column to exclude</param>
+        public void NotAColumn<TColType>(Expression<Func<TTableData, TColType>> column)
+        {
+            var tp = LambdaHelpers.ParsePropertyLambda(column);
+            base.NotAColumn(tp.Name);
+        }
 
         /// <summary>
         /// Retrieves column configurator

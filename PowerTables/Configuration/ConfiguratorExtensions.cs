@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PowerTables.CellTemplating;
 using PowerTables.Plugins;
@@ -100,6 +101,22 @@ namespace PowerTables.Configuration
         public static T Url<T>(this T c, string url) where T : IConfigurator
         {
             c.TableConfiguration.OperationalAjaxUrl = url;
+            return c;
+        }
+
+
+        /// <summary>
+        /// Sets static data that will be sent with each request to server
+        /// </summary>
+        /// <param name="c">Table configurator</param>
+        /// <param name="staticData">Static data instance</param>
+        /// <returns></returns>
+        public static T Static<T>(this T c, object staticData) where T : IConfigurator
+        {
+            if (staticData != null)
+            {
+                c.TableConfiguration.StaticData = JsonConvert.SerializeObject(staticData);
+            }
             return c;
         }
 

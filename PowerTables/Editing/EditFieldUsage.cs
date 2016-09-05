@@ -26,12 +26,6 @@ namespace PowerTables.Editing
             Property = fieldName;
         }
 
-        public EditFieldUsage<TForm, TField, TFieldClientConfig> TemplateId(string templateId)
-        {
-            UiConfig.TemplateId = templateId;
-            return this;
-        }
-
         public string Property { get; private set; }
         public EditFieldUiConfigBase BaseUiConfig { get { return UiConfig; } }
     }

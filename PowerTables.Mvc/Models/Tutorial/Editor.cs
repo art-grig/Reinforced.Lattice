@@ -94,7 +94,7 @@ namespace PowerTables.Mvc.Models.Tutorial
             {
                 c.EditPlainText(x => x.Name);
                 c.EditPlainText(x => x.CreatedDate);
-                c.EditPlainText(x => x.Price).TemplateId("plainTextEditorAlternate");
+                c.EditPlainText(x => x.Price).EditorTemplateId("plainTextEditorAlternate");
                 c.EditCheck(x => x.IsPaid);
                 c.EditMemo(x => x.SupplierAddress).Size(3, 10);
                 c.EditSelectList(x => x.TypeOfToy).Items(EnumHelper.GetSelectList(typeof(ToyType))).WithEmptyElement("---Select---", false);

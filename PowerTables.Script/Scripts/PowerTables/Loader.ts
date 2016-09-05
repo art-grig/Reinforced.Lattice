@@ -99,6 +99,8 @@
 
         private checkError(json: any, data: any, req: any): boolean {
             if (json['__ZBnpwvibZm'] && json['Success'] != undefined && !json.Success) {
+                this._masterTable.MessageService.showMessage(json['Message']);
+
                 this._events.LoadingError.invoke(this, {
                     Request: data,
                     XMLHttp: req,

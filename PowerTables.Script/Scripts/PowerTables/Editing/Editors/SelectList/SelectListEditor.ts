@@ -7,7 +7,7 @@
 
         public getValue(errors: PowerTables.Editing.IValidationMessage[]): any {
             var selectedOption = this.List.options.item(this.List.selectedIndex);
-            var item = <string>(<any>selectedOption).value.toString();
+            var item = selectedOption == null? '': <string>(<any>selectedOption).value.toString();
             var value = null;
             if (item.length === 0) {
                 if (this.Column.IsString && this.Configuration.AllowEmptyString) value = item;

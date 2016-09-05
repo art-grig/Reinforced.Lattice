@@ -33,9 +33,36 @@ namespace PowerTables.Configuration
         public Type SourceType { get; protected set; }
         public Type TableType { get; protected set; }
 
+        public object GetColumnValue(object rowObject, string propertyName)
+        {
+            if (!TableColumnsDictionary.ContainsKey(propertyName))
+                throw new Exception(string.Format("Table row does not contain column {0}", propertyName));
+            return _tableColumnsDictionary[propertyName].GetValue(rowObject);
+        }
+
+        public void SetColumnValue(object rowObject, string propertyName, object value)
+        {
+            if (!TableColumnsDictionary.ContainsKey(propertyName))
+                throw new Exception(string.Format("Table row does not contain column {0}", propertyName));
+            _tableColumnsDictionary[propertyName].SetValue(rowObject, value);
+        }
+
         public ColumnConfiguration GetColumnConfiguration(PropertyDescription property)
         {
             return _columnsConfiguration[property];
+        }
+
+        public void NotAColumn(string columnName)
+        {
+            if (!TableColumnsDictionary.ContainsKey(columnName))
+                throw new Exception(string.Format("Table row does not contain column {0}", columnName));
+            var tcol = _tableColumnsDictionary[columnName];
+            _tableColumnsDictionary.Remove(columnName);
+            _tableColumns.Remove(tcol);
+            var conf = _columnsConfiguration[tcol];
+            _columnsConfiguration.Remove(tcol);
+            _configurators.Remove(tcol);
+            _tableConfiguration.Columns.Remove(conf);
         }
 
         /// <summary>

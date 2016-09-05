@@ -127,5 +127,29 @@ namespace PowerTables.Configuration
         IColumnTargetProperty<TColumn> AddColumn<TColumn>(string columnName, Func<object, TColumn> getValue,
             Action<object, TColumn> setValue, string title = null, int? order = null);
 
+        /// <summary>
+        /// Retrieves column value of specified row
+        /// </summary>
+        /// <param name="rowObject">Row object</param>
+        /// <param name="propertyName">Column name</param>
+        /// <returns>Column value</returns>
+        object GetColumnValue(object rowObject, string propertyName);
+
+        /// <summary>
+        /// Sets column value of specified row
+        /// </summary>
+        /// <param name="rowObject">Row object</param>
+        /// <param name="propertyName">Column name</param>
+        /// <param name="value">Row's column value</param>
+        void SetColumnValue(object rowObject, string propertyName, object value);
+
+
+        /// <summary>
+        /// Excludes column from processing pipeline. Column value will not be passed to client-side nor 
+        /// processe by get/set column value. After calling of this method you wont be able to 
+        /// obtain configurator for this column, but property itself will remain in the columns object.
+        /// </summary>
+        /// <param name="columnName">Column name to exclude</param>
+        void NotAColumn(string columnName);
     }
 }

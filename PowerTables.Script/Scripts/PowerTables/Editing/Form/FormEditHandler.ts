@@ -59,6 +59,7 @@
                 var editor = this.createEditor(editorConf.FieldName, column, false, EditorMode.Form);
                 this._activeEditors.push(editor);
                 vm.EditorsSet[editorConf.FieldName] = editor;
+                vm.ActiveEditors.push(editor);
             }
             vm.DataObject = this.DataObject;
             vm.Handler = this;
@@ -141,21 +142,27 @@
 
     export class FormEditFormModel {
         public EditorsSet: { [key: string]: IEditor } = {};
+        public  ActiveEditors: IEditor[] = [];
+
         public Handler: FormEditHandler;
         public RootElement: HTMLElement;
         public DataObject: any;
 
         public Editors(): string {
             var s = '';
-            for (var k in this.EditorsSet) {
-                s += this.Editor(this.EditorsSet[k].FieldName);
+            for (var i = 0; i < this.ActiveEditors.length; i++) {
+                s += this.editor(this.ActiveEditors[i]);
             }
             return s;
         }
 
+        private editor(editor: IEditor): string {
+            return this.Handler.MasterTable.Renderer.renderObjectContent(editor);
+        }
+
         public Editor(fieldName: string): string {
             var editor = this.EditorsSet[fieldName];
-            return this.Handler.MasterTable.Renderer.renderObjectContent(editor);
+            return this.editor(editor);
         }
 
         public commit() {

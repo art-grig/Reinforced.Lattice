@@ -26,6 +26,12 @@ namespace PowerTables.Editing
             return conf;
         }
 
+
+        public static T EditorTemplateId<T>(this T conf, string templateId) where T : INongenericEditFieldUsage
+        {
+            conf.BaseUiConfig.TemplateId = templateId;
+            return conf;
+        }
         
     }
 }
