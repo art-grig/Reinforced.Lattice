@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Web.Mvc;
+using Newtonsoft.Json.Linq;
+using PowerTables.CellTemplating;
 
 namespace PowerTables.Editing.Editors.SelectList
 {
@@ -15,8 +17,8 @@ namespace PowerTables.Editing.Editors.SelectList
         /// <param name="field">Field selector</param>
         /// <returns>Fluent</returns>
         public static EditFieldUsage<TForm, TData, SelectListEditorUiConfig> EditSelectList<TForm, TData, TClientConfig>(
-            this EditHandlerConfiguration<TForm, TClientConfig> t, 
-            Expression<Func<TForm, TData>> field) 
+            this EditHandlerConfiguration<TForm, TClientConfig> t,
+            Expression<Func<TForm, TData>> field)
             where TClientConfig : EditFormUiConfigBase, new()
         {
             return t.GetFieldConfiguration<TData, SelectListEditorUiConfig>(LambdaHelpers.ParsePropertyLambda(field));
@@ -62,6 +64,18 @@ namespace PowerTables.Editing.Editors.SelectList
             t.UiConfig.SelectListItems.Add(item);
             return t;
         }
-        
+
+
+        public static IEditFieldUsage<SelectListEditorUiConfig> MissingKeyValue(
+            this IEditFieldUsage<SelectListEditorUiConfig> t, string missingKeyExpression, string missingValueExpression)
+        {
+            var missingKey = string.Format("function(x){{ return {0}; }}",Template.CompileExpression(missingKeyExpression, "x", string.Empty,t.UiConfig.FieldName));
+            var missingValue = string.Format("function(x){{ return {0}; }}",Template.CompileExpression(missingValueExpression, "x", string.Empty,t.UiConfig.FieldName));
+
+            t.UiConfig.MissingKeyFunction = new JRaw(missingKey);
+            t.UiConfig.MissingValueFunction = new JRaw(missingValue);
+
+            return t;
+        }
     }
 }

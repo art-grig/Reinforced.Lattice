@@ -142,11 +142,14 @@ namespace PowerTables.Typings
             builder.ExportAsInterface<FormEditUiConfig>().WithPublicProperties();
             builder.ExportAsInterface<RowsEditUiConfig>().WithPublicProperties();
             builder.ExportAsInterface<DisplayingEditorUiConfig>().WithPublicProperties()
-                .WithProperty(c=>c.Template,c => c.Type("(cell:ICell) => string"));
+                .WithProperty(c => c.Template, c => c.Type("(cell:ICell) => string"));
 
 
 
-            builder.ExportAsInterface<SelectListEditorUiConfig>().WithPublicProperties();
+            builder.ExportAsInterface<SelectListEditorUiConfig>().WithPublicProperties()
+                .WithProperty(c => c.MissingValueFunction, a => a.Type("(a:any)=>any"))
+                .WithProperty(c => c.MissingKeyFunction, a => a.Type("(a:any)=>any"))
+                ;
             builder.ExportAsInterface<MemoEditorUiConfig>().WithPublicProperties();
             builder.ExportAsInterface<EditionResult>().WithPublicProperties();
             builder.ExportAsInterface<AdjustmentData>().WithPublicProperties();
@@ -167,7 +170,7 @@ namespace PowerTables.Typings
 
             builder.ExportAsInterface<HierarchyUiConfiguration>().WithPublicProperties();
             builder.ExportAsEnums(new[] { typeof(NodeExpandBehavior), typeof(TreeCollapsedNodeFilterBehavior) });
-            
+
         }
 
     }

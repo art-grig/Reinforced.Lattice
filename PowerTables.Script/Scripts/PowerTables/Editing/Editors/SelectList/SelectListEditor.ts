@@ -7,7 +7,7 @@
 
         public getValue(errors: PowerTables.Editing.IValidationMessage[]): any {
             var selectedOption = this.List.options.item(this.List.selectedIndex);
-            var item = selectedOption == null? '': <string>(<any>selectedOption).value.toString();
+            var item = selectedOption == null ? '' : <string>(<any>selectedOption).value.toString();
             var value = null;
             if (item.length === 0) {
                 if (this.Column.IsString && this.Configuration.AllowEmptyString) value = item;
@@ -30,9 +30,27 @@
 
         public setValue(value: any): void {
             var strvalue = this.Column.IsDateTime ? this.MasterTable.Date.serialize(value) : (value == null ? null : value.toString());
+            var isSet = false;
             for (var i = 0; i < this.List.options.length; i++) {
                 if ((<any>this.List.options.item(i)).value === strvalue) {
                     (<any>this.List.options.item(i)).selected = true;
+                    isSet = true;
+                }
+            }
+            if (this.IsInitialValueSetting) {
+                if ((!isSet) &&
+                    this.Configuration.MissingKeyFunction != null &&
+                    this.Configuration.MissingValueFunction != null) {
+                    strvalue = this.Configuration.MissingKeyFunction(this.DataObject);
+                    if (strvalue != null) {
+                        strvalue = strvalue.toString();
+                        var text = this.Configuration.MissingValueFunction(this.DataObject).toString();
+                        var e = document.createElement('option');
+                        e.value = strvalue;
+                        e.text = text;
+                        e.selected = true;
+                        this.List.add(e);
+                    }
                 }
             }
             for (var i = 0; i < this.Items.length; i++) {

@@ -110,8 +110,7 @@
 
         private initColumns(): void {
             var columns: IColumn[] = [];
-            this.Configuration.Columns.sort((x, y) => x.DisplayOrder - y.DisplayOrder);
-
+            
             for (var i: number = 0; i < this.Configuration.Columns.length; i++) {
                 var cnf: Configuration.Json.IColumnConfiguration = this.Configuration.Columns[i];
                 var c = InstanceManager.createColumn(cnf, this._masterTable, i);
@@ -356,7 +355,7 @@
                     result.push(col);
                 }
             }
-            result = result.sort((a, b) => a.Order - b.Order);
+            result = result.sort((a, b) => a.Configuration.DisplayOrder - b.Configuration.DisplayOrder);
             return result;
         }
 

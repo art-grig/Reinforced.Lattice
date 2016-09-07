@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Web.Mvc;
+using Newtonsoft.Json.Linq;
 
 namespace PowerTables.Editing.Editors.SelectList
 {
@@ -17,6 +18,9 @@ namespace PowerTables.Editing.Editors.SelectList
         public string EmptyElementText { get; set; }
 
         public bool AddEmptyElement { get; set; }
+
+        public JRaw MissingKeyFunction { get; set; }
+        public JRaw MissingValueFunction { get; set; }
 
         public SelectListEditorUiConfig()
         {

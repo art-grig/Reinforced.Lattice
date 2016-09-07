@@ -676,6 +676,8 @@ module PowerTables.Editing.Editors.SelectList {
 		AllowEmptyString: boolean;
 		EmptyElementText: string;
 		AddEmptyElement: boolean;
+		MissingKeyFunction: (a:any)=>any;
+		MissingValueFunction: (a:any)=>any;
 	}
 }
 module PowerTables.Editing.Editors.Memo {
@@ -719,6 +721,7 @@ module PowerTables.Plugins.LoadingOverlap {
 	export enum OverlapMode { 
 		All = 0, 
 		BodyOnly = 1, 
+		Parent = 2, 
 	}
 }
 module PowerTables.Plugins.Reload {

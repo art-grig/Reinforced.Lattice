@@ -129,8 +129,11 @@
 
             }
             if (adjustmentResult.NeedRedrawAllVisible) {
-                this._masterTable.Renderer.body(rows);
+                if (rows.length == 0) this.redrawVisibleData();
+                else this._masterTable.Renderer.body(rows);
             }
+            this._masterTable.Events.AfterAdjustment.invoke(this, adjustmentResult);
+
         }
        
         /**

@@ -64,6 +64,20 @@ namespace PowerTables.Plugins
         }
 
         /// <summary>
+        /// Include range of columns
+        /// </summary>
+        /// <param name="columnNames">Columns names to include</param>
+        /// <returns>Fluent</returns>
+        public ColumnListBuilder<TSourceData, TTableData> Include(string[] columnNames)
+        {
+            foreach (var columnName in columnNames)
+            {
+                Include(columnName);
+            }
+            return this;
+        }
+
+        /// <summary>
         /// Include all columns
         /// </summary>
         /// <returns>Fluent</returns>

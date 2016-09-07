@@ -456,6 +456,8 @@
         }
 
         public proceedAdjustments(adjustments: PowerTables.Editing.IAdjustmentData): IAdjustmentResult {
+            this._masterTable.Events.BeforeAdjustment.invoke(this, adjustments);
+
             if (this.RecentClientQuery == null || this.RecentClientQuery == undefined) return null;
             var needRefilter = false;
             var redrawVisibles = [];
@@ -514,6 +516,7 @@
                     if (this.DisplayedData.indexOf(touchedData[l]) > -1) redrawVisibles.push(touchedData[l]);
                 }
             }
+
             return {
                 NeedRedrawAllVisible: needRefilter,
                 VisiblesToRedraw: redrawVisibles,
