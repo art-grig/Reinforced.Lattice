@@ -9,7 +9,12 @@
         private ensureEditing(rowDisplayIndex: number) {
             if (this._isEditing) return;
             var lookup = this.MasterTable.DataHolder.localLookupDisplayedData(rowDisplayIndex);
-            this.DataObject = lookup.DataObject;
+            this.ensureEditingObject(lookup.DataObject);
+        }
+
+        private ensureEditingObject(dataObject:any) {
+           
+            this.DataObject = dataObject;
             this.CurrentDataObjectModified = {};
             for (var cd in this.DataObject) {
                 if (this.DataObject.hasOwnProperty(cd)) {
@@ -23,8 +28,8 @@
             if (this._isEditing) {
                 this.rejectAll();
             }
-            this.DataObject = this.MasterTable.InstanceManager.defaultObject();
-            this.CurrentDataObjectModified = this.MasterTable.InstanceManager.defaultObject();
+            this.DataObject = this.MasterTable.DataHolder.defaultObject();
+            this.CurrentDataObjectModified = this.MasterTable.DataHolder.defaultObject();
             for (var i = 0; i < this.Configuration.Fields.length; i++) {
                 if (this.Configuration.Fields[i].PluginId !== 'DisplayEditor') {
                     this.DataObject[this.Configuration.Fields[i].FieldName] = null;
@@ -33,6 +38,14 @@
             }
             this.startupForm();
 
+        }
+
+        public beginEdit(dataObject:any) {
+            if (this._isEditing) {
+                this.rejectAll();
+            }
+            this.ensureEditing(dataObject);
+            this.startupForm();
         }
 
         public beginFormEditHandler(e: IRowEventArgs) {

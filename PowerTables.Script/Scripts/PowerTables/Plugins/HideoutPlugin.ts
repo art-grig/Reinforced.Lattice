@@ -171,9 +171,9 @@ included into hideable columns list.
         }
 
         subscribe(e: EventsManager): void {
-            e.AfterDataRendered.subscribe(this.onDataRendered.bind(this), 'hideout');
-            e.BeforeDataRendered.subscribe(this.onBeforeDataRendered.bind(this), 'hideout');
-            e.AfterLayoutRendered.subscribe(this.onLayourRendered.bind(this), 'hideout');
+            e.DataRendered.subscribeAfter(this.onDataRendered.bind(this), 'hideout');
+            e.DataRendered.subscribeBefore(this.onBeforeDataRendered.bind(this), 'hideout');
+            e.LayoutRendered.subscribeAfter(this.onLayourRendered.bind(this), 'hideout');
         }
 
         private ifColVisibleHelper(columnName: string, opts: any) {

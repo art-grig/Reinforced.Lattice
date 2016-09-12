@@ -46,7 +46,7 @@
          */
         protected subscribe(e: EventsManager): void {
             if (this.afterDrawn != null) {
-                this.MasterTable.Events.AfterLayoutRendered.subscribe(this.afterDrawn.bind(this), this.RawConfig.PluginId);
+                this.MasterTable.Events.LayoutRendered.subscribeAfter(this.afterDrawn.bind(this), this.RawConfig.PluginId);
             }
         }
 

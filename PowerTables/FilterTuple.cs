@@ -46,6 +46,19 @@ namespace PowerTables
         }
 
         /// <summary>
+        /// Converts supplied value to filter-friendly tuple 
+        /// in case if value is not null
+        /// </summary>
+        /// <typeparam name="T">Value type</typeparam>
+        /// <param name="value">Value</param>
+        /// <returns>Filter tuple</returns>
+        public static Tuple<bool, T?> TupleIfNotNull<T>(this T? value) where T : struct 
+        {
+            if (value == null) return new Tuple<bool, T?>(false, null);
+            return new Tuple<bool, T?>(true, value);
+        }
+
+        /// <summary>
         /// Supplies empty filter tuple of supplied type
         /// </summary>
         /// <typeparam name="T">Value type</typeparam>

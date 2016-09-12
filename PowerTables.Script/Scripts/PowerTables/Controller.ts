@@ -132,7 +132,7 @@
                 if (rows.length == 0) this.redrawVisibleData();
                 else this._masterTable.Renderer.body(rows);
             }
-            this._masterTable.Events.AfterAdjustment.invoke(this, adjustmentResult);
+            this._masterTable.Events.Adjustment.invokeAfter(this, adjustmentResult);
 
         }
        
@@ -191,7 +191,7 @@
         }
 
         private produceRows(): IRow[] {
-            this._masterTable.Events.BeforeDataRendered.invoke(this, null);
+            this._masterTable.Events.DataRendered.invokeBefore(this, null);
 
             var result: IRow[] = [];
             var columns: IColumn[] = this._masterTable.InstanceManager.getUiColumns();

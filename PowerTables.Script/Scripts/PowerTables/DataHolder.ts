@@ -227,7 +227,7 @@
          * @returns {} 
          */
         public filterStoredData(query: IQuery) {
-            this._events.BeforeClientDataProcessing.invoke(this, query);
+            this._events.ClientDataProcessing.invokeBefore(this, query);
 
             this.DisplayedData = this.StoredData;
             this.Filtered = this.StoredData;
@@ -246,7 +246,7 @@
                 this.DisplayedData = selected;
             }
 
-            this._events.AfterClientDataProcessing.invoke(this, {
+            this._events.ClientDataProcessing.invokeAfter(this, {
                 Displaying: this.DisplayedData,
                 Filtered: this.Filtered,
                 Ordered: this.Ordered,
@@ -425,6 +425,10 @@
             var modColumns = [];
             for (var cd in source) {
                 if (source.hasOwnProperty(cd)) {
+                    if (!this._instances.Columns[cd]) {
+                        delete source[cd];
+                        continue;
+                    }
                     if (this._instances.Columns[cd].IsSpecial) continue;
                     var src = source[cd];
                     var trg = target[cd];
@@ -439,6 +443,23 @@
                 }
             }
             return modColumns;
+        }
+
+        public defaultObject(): any {
+            var def = {};
+            for (var i = 0; i < this._rawColumnNames.length; i++) {
+                var col = this._masterTable.InstanceManager.Columns[this._rawColumnNames[i]];
+                if (col.IsInteger || col.IsFloat) def[col.RawName] = 0;
+                if (col.IsBoolean) def[col.RawName] = false;
+                if (col.IsDateTime) def[col.RawName] = new Date();
+                if (col.IsString) def[col.RawName] = '';
+                if (col.IsEnum) def[col.RawName] = 0;
+                if (col.Configuration.IsNullable) def[col.RawName] = null;
+            }
+            for (var ck in this._clientValueFunction) {
+                def[ck] = this._clientValueFunction[ck](def);
+            }
+            return def;
         }
 
         private normalizeObject(dataObject: any) {
@@ -456,7 +477,7 @@
         }
 
         public proceedAdjustments(adjustments: PowerTables.Editing.IAdjustmentData): IAdjustmentResult {
-            this._masterTable.Events.BeforeAdjustment.invoke(this, adjustments);
+            this._masterTable.Events.Adjustment.invokeBefore(this, adjustments);
 
             if (this.RecentClientQuery == null || this.RecentClientQuery == undefined) return null;
             var needRefilter = false;

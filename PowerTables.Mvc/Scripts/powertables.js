@@ -805,7 +805,8 @@ var PowerTables;
          * @internal
          */
         function TableEvent(masterTable) {
-            this._handlers = {};
+            this._handlersAfter = {};
+            this._handlersBefore = {};
             this._masterTable = masterTable;
         }
         /**
@@ -814,12 +815,13 @@ var PowerTables;
          * @param thisArg "this" argument to be substituted to callee
          * @param eventArgs Event args will be passed to callee
          */
-        TableEvent.prototype.invoke = function (thisArg, eventArgs) {
+        TableEvent.prototype.invokeBefore = function (thisArg, eventArgs) {
             var ea = {
                 MasterTable: this._masterTable,
-                EventArgs: eventArgs
+                EventArgs: eventArgs,
+                EventDirection: EventDirection.Before
             };
-            var hndlrs = this._handlers;
+            var hndlrs = this._handlersBefore;
             var i = 0;
             for (var k in hndlrs) {
                 if (hndlrs.hasOwnProperty(k)) {
@@ -832,7 +834,54 @@ var PowerTables;
             }
         };
         /**
-         * Subscribes specified function to event with supplied string key.
+         * Invokes event with overridden this arg and specified event args
+         *
+         * @param thisArg "this" argument to be substituted to callee
+         * @param eventArgs Event args will be passed to callee
+         */
+        TableEvent.prototype.invokeAfter = function (thisArg, eventArgs) {
+            var ea = {
+                MasterTable: this._masterTable,
+                EventArgs: eventArgs,
+                EventDirection: EventDirection.After
+            };
+            var hndlrs = this._handlersAfter;
+            var i = 0;
+            for (var k in hndlrs) {
+                if (hndlrs.hasOwnProperty(k)) {
+                    var kHandlers = hndlrs[k];
+                    for (i = 0; i < kHandlers.length; i++) {
+                        kHandlers[i].apply(thisArg, [ea]);
+                    }
+                    i = 0;
+                }
+            }
+        };
+        /**
+         * Invokes event with overridden this arg and specified event args
+         *
+         * @param thisArg "this" argument to be substituted to callee
+         * @param eventArgs Event args will be passed to callee
+         */
+        TableEvent.prototype.invoke = function (thisArg, eventArgs) {
+            this.invokeAfter(thisArg, eventArgs);
+        };
+        /**
+         * Subscribes specified function to AFTER event with supplied string key.
+         * Subscriber key is needed to have an ability to unsubscribe from event
+         * and should reflect entity that has been subscriben
+         *
+         * @param handler Event handler to subscribe
+         * @param subscriber Subscriber key to associate with handler
+         */
+        TableEvent.prototype.subscribeAfter = function (handler, subscriber) {
+            if (!this._handlersAfter[subscriber]) {
+                this._handlersAfter[subscriber] = [];
+            }
+            this._handlersAfter[subscriber].push(handler);
+        };
+        /**
+         * Subscribes specified function to AFTER event with supplied string key.
          * Subscriber key is needed to have an ability to unsubscribe from event
          * and should reflect entity that has been subscriben
          *
@@ -840,18 +889,29 @@ var PowerTables;
          * @param subscriber Subscriber key to associate with handler
          */
         TableEvent.prototype.subscribe = function (handler, subscriber) {
-            if (!this._handlers[subscriber]) {
-                this._handlers[subscriber] = [];
+            this.subscribeAfter(handler, subscriber);
+        };
+        /**
+         * Subscribes specified function to BEFORE event with supplied string key.
+         * Subscriber key is needed to have an ability to unsubscribe from event
+         * and should reflect entity that has been subscriben
+         *
+         * @param handler Event handler to subscribe
+         * @param subscriber Subscriber key to associate with handler
+         */
+        TableEvent.prototype.subscribeBefore = function (handler, subscriber) {
+            if (!this._handlersBefore[subscriber]) {
+                this._handlersBefore[subscriber] = [];
             }
-            this._handlers[subscriber].push(handler);
+            this._handlersBefore[subscriber].push(handler);
         };
         /**
          * Unsubscribes specified addressee from event
          * @param subscriber Subscriber key associated with handler
          */
         TableEvent.prototype.unsubscribe = function (subscriber) {
-            this._handlers[subscriber] = null;
-            delete this._handlers[subscriber];
+            this._handlersAfter[subscriber] = null;
+            delete this._handlersAfter[subscriber];
         };
         return TableEvent;
     }());
@@ -863,25 +923,18 @@ var PowerTables;
     var EventsManager = (function () {
         function EventsManager(masterTable) {
             this._masterTable = masterTable;
-            this.BeforeQueryGathering = new TableEvent(masterTable);
-            this.AfterQueryGathering = new TableEvent(masterTable);
-            this.BeforeClientQueryGathering = new TableEvent(masterTable);
-            this.AfterClientQueryGathering = new TableEvent(masterTable);
-            this.BeforeLoading = new TableEvent(masterTable);
+            this.QueryGathering = new TableEvent(masterTable);
+            this.ClientQueryGathering = new TableEvent(masterTable);
+            this.Loading = new TableEvent(masterTable);
             this.LoadingError = new TableEvent(masterTable);
             this.ColumnsCreation = new TableEvent(masterTable);
             this.DataReceived = new TableEvent(masterTable);
-            this.AfterLoading = new TableEvent(masterTable);
-            this.BeforeLayoutRendered = new TableEvent(masterTable);
-            this.BeforeClientDataProcessing = new TableEvent(masterTable);
-            this.AfterClientDataProcessing = new TableEvent(masterTable);
-            this.AfterLayoutRendered = new TableEvent(masterTable);
-            this.BeforeDataRendered = new TableEvent(masterTable);
-            this.AfterDataRendered = new TableEvent(masterTable);
-            this.BeforeClientRowsRendering = new TableEvent(masterTable);
+            this.LayoutRendered = new TableEvent(masterTable);
+            this.ClientDataProcessing = new TableEvent(masterTable);
+            this.DataRendered = new TableEvent(masterTable);
+            this.ClientRowsRendering = new TableEvent(masterTable);
             this.DeferredDataReceived = new TableEvent(masterTable);
-            this.BeforeAdjustment = new TableEvent(masterTable);
-            this.AfterAdjustment = new TableEvent(masterTable);
+            this.Adjustment = new TableEvent(masterTable);
             this.AdjustmentResult = new TableEvent(masterTable);
         }
         /**
@@ -900,6 +953,12 @@ var PowerTables;
         return EventsManager;
     }());
     PowerTables.EventsManager = EventsManager;
+    (function (EventDirection) {
+        EventDirection[EventDirection["Before"] = 0] = "Before";
+        EventDirection[EventDirection["After"] = 1] = "After";
+        EventDirection[EventDirection["Undirected"] = 2] = "Undirected";
+    })(PowerTables.EventDirection || (PowerTables.EventDirection = {}));
+    var EventDirection = PowerTables.EventDirection;
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
@@ -1029,7 +1088,7 @@ var PowerTables;
                 else
                     this._masterTable.Renderer.body(rows);
             }
-            this._masterTable.Events.AfterAdjustment.invoke(this, adjustmentResult);
+            this._masterTable.Events.Adjustment.invokeAfter(this, adjustmentResult);
         };
         /**
          * Converts data object,row and column to cell
@@ -1084,7 +1143,7 @@ var PowerTables;
             return rw;
         };
         Controller.prototype.produceRows = function () {
-            this._masterTable.Events.BeforeDataRendered.invoke(this, null);
+            this._masterTable.Events.DataRendered.invokeBefore(this, null);
             var result = [];
             var columns = this._masterTable.InstanceManager.getUiColumns();
             for (var i = 0; i < this._masterTable.DataHolder.DisplayedData.length; i++) {
@@ -1292,7 +1351,7 @@ var PowerTables;
          * @returns {}
          */
         DataHolder.prototype.filterStoredData = function (query) {
-            this._events.BeforeClientDataProcessing.invoke(this, query);
+            this._events.ClientDataProcessing.invokeBefore(this, query);
             this.DisplayedData = this.StoredData;
             this.Filtered = this.StoredData;
             this.Ordered = this.StoredData;
@@ -1306,7 +1365,7 @@ var PowerTables;
                 this.Ordered = ordered;
                 this.DisplayedData = selected;
             }
-            this._events.AfterClientDataProcessing.invoke(this, {
+            this._events.ClientDataProcessing.invokeAfter(this, {
                 Displaying: this.DisplayedData,
                 Filtered: this.Filtered,
                 Ordered: this.Ordered,
@@ -1475,6 +1534,10 @@ var PowerTables;
             var modColumns = [];
             for (var cd in source) {
                 if (source.hasOwnProperty(cd)) {
+                    if (!this._instances.Columns[cd]) {
+                        delete source[cd];
+                        continue;
+                    }
                     if (this._instances.Columns[cd].IsSpecial)
                         continue;
                     var src = source[cd];
@@ -1491,6 +1554,28 @@ var PowerTables;
             }
             return modColumns;
         };
+        DataHolder.prototype.defaultObject = function () {
+            var def = {};
+            for (var i = 0; i < this._rawColumnNames.length; i++) {
+                var col = this._masterTable.InstanceManager.Columns[this._rawColumnNames[i]];
+                if (col.IsInteger || col.IsFloat)
+                    def[col.RawName] = 0;
+                if (col.IsBoolean)
+                    def[col.RawName] = false;
+                if (col.IsDateTime)
+                    def[col.RawName] = new Date();
+                if (col.IsString)
+                    def[col.RawName] = '';
+                if (col.IsEnum)
+                    def[col.RawName] = 0;
+                if (col.Configuration.IsNullable)
+                    def[col.RawName] = null;
+            }
+            for (var ck in this._clientValueFunction) {
+                def[ck] = this._clientValueFunction[ck](def);
+            }
+            return def;
+        };
         DataHolder.prototype.normalizeObject = function (dataObject) {
             for (var k in this._masterTable.InstanceManager.Columns) {
                 if (this._masterTable.InstanceManager.Columns[k].IsDateTime) {
@@ -1506,7 +1591,7 @@ var PowerTables;
             }
         };
         DataHolder.prototype.proceedAdjustments = function (adjustments) {
-            this._masterTable.Events.BeforeAdjustment.invoke(this, adjustments);
+            this._masterTable.Events.Adjustment.invokeBefore(this, adjustments);
             if (this.RecentClientQuery == null || this.RecentClientQuery == undefined)
                 return null;
             var needRefilter = false;
@@ -1624,25 +1709,6 @@ var PowerTables;
             var conditionsStr = conditions.join('&&');
             var fnText = "(function(x,y) { return (" + conditionsStr + "); })";
             this.DataObjectComparisonFunction = eval(fnText);
-        };
-        InstanceManager.prototype.defaultObject = function () {
-            var def = {};
-            for (var i = 0; i < this._rawColumnNames.length; i++) {
-                var col = this.Columns[this._rawColumnNames[i]];
-                if (col.IsInteger || col.IsFloat)
-                    def[col.RawName] = 0;
-                if (col.IsBoolean)
-                    def[col.RawName] = false;
-                if (col.IsDateTime)
-                    def[col.RawName] = new Date();
-                if (col.IsString)
-                    def[col.RawName] = '';
-                if (col.IsEnum)
-                    def[col.RawName] = 0;
-                if (col.Configuration.IsNullable)
-                    def[col.RawName] = null;
-            }
-            return def;
         };
         /*
          * @internal
@@ -1972,19 +2038,19 @@ var PowerTables;
                 StaticDataJson: this._masterTable.InstanceManager.Configuration.StaticData
             };
             if (queryScope === PowerTables.QueryScope.Client) {
-                this._events.BeforeClientQueryGathering.invoke(this, { Query: a, Scope: queryScope });
+                this._events.ClientQueryGathering.invokeBefore(this, { Query: a, Scope: queryScope });
             }
             else {
-                this._events.BeforeQueryGathering.invoke(this, { Query: a, Scope: queryScope });
+                this._events.QueryGathering.invokeBefore(this, { Query: a, Scope: queryScope });
             }
             for (var i = 0; i < this._queryPartProviders.length; i++) {
                 this._queryPartProviders[i].modifyQuery(a, queryScope);
             }
             if (queryScope === PowerTables.QueryScope.Client) {
-                this._events.AfterClientQueryGathering.invoke(this, { Query: a, Scope: queryScope });
+                this._events.ClientQueryGathering.invokeAfter(this, { Query: a, Scope: queryScope });
             }
             else {
-                this._events.AfterQueryGathering.invoke(this, { Query: a, Scope: queryScope });
+                this._events.QueryGathering.invokeAfter(this, { Query: a, Scope: queryScope });
             }
             return a;
         };
@@ -2113,7 +2179,7 @@ var PowerTables;
             this._isLoading = true;
             var dataText = JSON.stringify(data);
             var req = this.getXmlHttp();
-            this._events.BeforeLoading.invoke(this, {
+            this._events.Loading.invokeBefore(this, {
                 Request: data,
                 XMLHttp: req
             });
@@ -2145,7 +2211,7 @@ var PowerTables;
                     });
                 }
                 _this._isLoading = false;
-                _this._events.AfterLoading.invoke(_this, {
+                _this._events.Loading.invokeAfter(_this, {
                     Request: data,
                     XMLHttp: req
                 });
@@ -3698,7 +3764,7 @@ var PowerTables;
              * Perform table layout inside specified root element
              */
             Renderer.prototype.layout = function () {
-                this._events.BeforeLayoutRendered.invoke(this, null);
+                this._events.LayoutRendered.invokeBefore(this, null);
                 var rendered = this.getCachedTemplate(this._templateIds.Layout)(null);
                 this.RootElement.innerHTML = rendered;
                 var bodyMarker = this.RootElement.querySelector('[data-track="tableBodyHere"]');
@@ -3711,7 +3777,7 @@ var PowerTables;
                 this.BackBinder.Delegator = this.Delegator;
                 this.Modifier = new Rendering.DOMModifier(this._stack, this.Locator, this.BackBinder, this, this.LayoutRenderer, this._instances, this.Delegator);
                 this.BackBinder.backBind(this.RootElement);
-                this._events.AfterLayoutRendered.invoke(this, null);
+                this._events.LayoutRendered.invokeAfter(this, null);
             };
             /**
              * Clear dynamically loaded table content and replace it with new one
@@ -3719,13 +3785,13 @@ var PowerTables;
              * @param rows Set of table rows
              */
             Renderer.prototype.body = function (rows) {
-                this._events.BeforeClientRowsRendering.invoke(this, rows);
+                this._events.ClientRowsRendering.invokeBefore(this, rows);
                 //this.clearBody();
                 var html = this.ContentRenderer.renderBody(rows);
                 this.Delegator.handleElementDestroy(this.BodyElement);
                 this.BodyElement.innerHTML = html;
                 this.BackBinder.backBind(this.BodyElement);
-                this._events.AfterDataRendered.invoke(this, null);
+                this._events.DataRendered.invokeAfter(this, null);
             };
             Renderer.prototype.renderObjectContent = function (renderable) {
                 this._stack.push(Rendering.RenderingContextType.Custom, renderable);
@@ -4174,7 +4240,7 @@ var PowerTables;
              */
             PluginBase.prototype.subscribe = function (e) {
                 if (this.afterDrawn != null) {
-                    this.MasterTable.Events.AfterLayoutRendered.subscribe(this.afterDrawn.bind(this), this.RawConfig.PluginId);
+                    this.MasterTable.Events.LayoutRendered.subscribeAfter(this.afterDrawn.bind(this), this.RawConfig.PluginId);
                 }
             };
             /**
@@ -4632,16 +4698,16 @@ var PowerTables;
                 PagingPlugin.prototype.init = function (masterTable) {
                     _super.prototype.init.call(this, masterTable);
                     if (!this.Configuration.EnableClientPaging) {
-                        this.MasterTable.Events.AfterQueryGathering.subscribe(this.onFilterGathered.bind(this), 'paging');
+                        this.MasterTable.Events.QueryGathering.subscribeAfter(this.onFilterGathered.bind(this), 'paging');
                     }
                     else {
-                        this.MasterTable.Events.AfterClientQueryGathering.subscribe(this.onFilterGathered.bind(this), 'paging');
+                        this.MasterTable.Events.ClientQueryGathering.subscribeAfter(this.onFilterGathered.bind(this), 'paging');
                     }
                     if (!this.Configuration.EnableClientPaging) {
                         this.MasterTable.Events.DataReceived.subscribe(this.onResponse.bind(this), 'paging');
                     }
                     else {
-                        this.MasterTable.Events.AfterClientDataProcessing.subscribe(this.onClientDataProcessing.bind(this), 'paging');
+                        this.MasterTable.Events.ClientDataProcessing.subscribeAfter(this.onClientDataProcessing.bind(this), 'paging');
                     }
                     this.MasterTable.Events.ColumnsCreation.subscribe(this.onColumnsCreation.bind(this), 'paging');
                     if (this.Configuration.EnableClientPaging) {
@@ -5299,9 +5365,9 @@ var PowerTables;
                     return this.defaultRender(templatesProvider);
                 };
                 HideoutPlugin.prototype.subscribe = function (e) {
-                    e.AfterDataRendered.subscribe(this.onDataRendered.bind(this), 'hideout');
-                    e.BeforeDataRendered.subscribe(this.onBeforeDataRendered.bind(this), 'hideout');
-                    e.AfterLayoutRendered.subscribe(this.onLayourRendered.bind(this), 'hideout');
+                    e.DataRendered.subscribeAfter(this.onDataRendered.bind(this), 'hideout');
+                    e.DataRendered.subscribeBefore(this.onBeforeDataRendered.bind(this), 'hideout');
+                    e.LayoutRendered.subscribeAfter(this.onLayourRendered.bind(this), 'hideout');
                 };
                 HideoutPlugin.prototype.ifColVisibleHelper = function (columnName, opts) {
                     var visible = false;
@@ -5402,7 +5468,7 @@ var PowerTables;
                 ResponseInfoPlugin.prototype.init = function (masterTable) {
                     _super.prototype.init.call(this, masterTable);
                     this._recentTemplate = this.MasterTable.Renderer.getCachedTemplate(this.RawConfig.TemplateId);
-                    this.MasterTable.Events.AfterClientDataProcessing.subscribe(this.onClientDataProcessed.bind(this), 'responseInfo');
+                    this.MasterTable.Events.ClientDataProcessing.subscribeAfter(this.onClientDataProcessed.bind(this), 'responseInfo');
                     this.MasterTable.Events.DataReceived.subscribe(this.onResponse.bind(this), 'responseInfo');
                     try {
                         this._pagingPlugin = this.MasterTable.InstanceManager.getPlugin('Paging');
@@ -5522,8 +5588,8 @@ var PowerTables;
                 */
                 TotalsPlugin.prototype.subscribe = function (e) {
                     e.DataReceived.subscribe(this.onResponse.bind(this), 'totals');
-                    e.BeforeClientRowsRendering.subscribe(this.onClientRowsRendering.bind(this), 'totals');
-                    e.AfterClientDataProcessing.subscribe(this.onClientDataProcessed.bind(this), 'totals');
+                    e.ClientRowsRendering.subscribeBefore(this.onClientRowsRendering.bind(this), 'totals');
+                    e.ClientDataProcessing.subscribeAfter(this.onClientDataProcessed.bind(this), 'totals');
                     e.AdjustmentResult.subscribe(this.onAdjustments.bind(this), 'totals');
                 };
                 return TotalsPlugin;
@@ -5834,12 +5900,12 @@ var PowerTables;
                     e['SelectionChanged'] = new PowerTables.TableEvent(masterTable);
                 };
                 CheckboxifyPlugin.prototype.subscribe = function (e) {
-                    e.AfterLayoutRendered.subscribe(this.afterLayoutRender.bind(this), 'checkboxify');
-                    e.BeforeClientRowsRendering.subscribe(this.beforeRowsRendering.bind(this), 'checkboxify');
-                    e.AfterClientDataProcessing.subscribe(this.onClientReload.bind(this), 'checkboxify');
+                    e.LayoutRendered.subscribeAfter(this.afterLayoutRender.bind(this), 'checkboxify');
+                    e.ClientRowsRendering.subscribeBefore(this.beforeRowsRendering.bind(this), 'checkboxify');
+                    e.ClientDataProcessing.subscribeAfter(this.onClientReload.bind(this), 'checkboxify');
                     e.DataReceived.subscribe(this.onServerReload.bind(this), 'checkboxify');
-                    e.BeforeAdjustment.subscribe(this.onBeforeAdjustments.bind(this), 'checkboxify');
-                    e.BeforeAdjustment.subscribe(this.onAfterAdjustments.bind(this), 'checkboxify');
+                    e.Adjustment.subscribeBefore(this.onBeforeAdjustments.bind(this), 'checkboxify');
+                    e.Adjustment.subscribeBefore(this.onAfterAdjustments.bind(this), 'checkboxify');
                 };
                 return CheckboxifyPlugin;
             }(Plugins.PluginBase));
@@ -6244,9 +6310,9 @@ var PowerTables;
                     this._overlapLayer = [];
                     this._isOverlapped = false;
                     this.afterDrawn = function (e) {
-                        _this.MasterTable.Events.BeforeLoading.subscribe(function (e) { return _this.onBeforeLoading(e); }, 'overlapLoading');
-                        _this.MasterTable.Events.AfterDataRendered.subscribe(function () { return _this.deoverlap(); }, 'overlapLoading');
-                        _this.MasterTable.Events.AfterLoading.subscribe(function () { return _this.deoverlap(); }, 'overlapLoading');
+                        _this.MasterTable.Events.Loading.subscribeBefore(function (e) { return _this.onBeforeLoading(e); }, 'overlapLoading');
+                        _this.MasterTable.Events.DataRendered.subscribeAfter(function () { return _this.deoverlap(); }, 'overlapLoading');
+                        _this.MasterTable.Events.Loading.subscribeAfter(function () { return _this.deoverlap(); }, 'overlapLoading');
                         window.addEventListener('resize', _this.updateCoordsAll.bind(_this));
                     };
                 }
@@ -6561,9 +6627,9 @@ var PowerTables;
                 ReloadPlugin.prototype.subscribe = function (e) {
                     var _this = this;
                     _super.prototype.subscribe.call(this, e);
-                    e.BeforeLoading.subscribe(function () { return _this.startLoading(); }, 'reload');
-                    e.AfterLoading.subscribe(function () { return _this.stopLoading(); }, 'reload');
-                    e.AfterLayoutRendered.subscribe(function () {
+                    e.Loading.subscribeBefore(function () { return _this.startLoading(); }, 'reload');
+                    e.Loading.subscribeAfter(function () { return _this.stopLoading(); }, 'reload');
+                    e.LayoutRendered.subscribeAfter(function () {
                         _this.stopLoading();
                     }, 'reload');
                 };
@@ -6601,9 +6667,9 @@ var PowerTables;
                 }
                 LoadingPlugin.prototype.subscribe = function (e) {
                     var _this = this;
-                    e.BeforeLoading.subscribe(function () { return _this.showLoadingIndicator(); }, 'loading');
-                    e.AfterLoading.subscribe(function () { return _this.hideLoadingIndicator(); }, 'loading');
-                    e.AfterLayoutRendered.subscribe(function () {
+                    e.Loading.subscribeBefore(function () { return _this.showLoadingIndicator(); }, 'loading');
+                    e.Loading.subscribeAfter(function () { return _this.hideLoadingIndicator(); }, 'loading');
+                    e.LayoutRendered.subscribeAfter(function () {
                         _this.hideLoadingIndicator();
                     }, 'loading');
                 };
@@ -6811,9 +6877,9 @@ var PowerTables;
                     this.recalculateSubtreeReferences(e.EventArgs);
                 };
                 HierarchyPlugin.prototype.subscribe = function (e) {
-                    e.AfterClientDataProcessing.subscribe(this.onAfterClientDataProcessing.bind(this), 'Hierarchy');
-                    e.BeforeClientDataProcessing.subscribe(this.onBeforeClientDataProcessing.bind(this), 'Hierarchy');
-                    e.AfterLayoutRendered.subscribe(this.onAfterLayoutRendered.bind(this), 'Hierarchy');
+                    e.ClientDataProcessing.subscribeAfter(this.onAfterClientDataProcessing.bind(this), 'Hierarchy');
+                    e.ClientDataProcessing.subscribeBefore(this.onBeforeClientDataProcessing.bind(this), 'Hierarchy');
+                    e.LayoutRendered.subscribeAfter(this.onAfterLayoutRendered.bind(this), 'Hierarchy');
                 };
                 HierarchyPlugin.prototype.onAfterLayoutRendered = function () {
                     this.stealFilterFunctions();
@@ -7087,8 +7153,8 @@ var PowerTables;
                         _super.apply(this, arguments);
                         this._isEditing = false;
                         this.afterDrawn = function (e) {
-                            _this.MasterTable.Events.BeforeClientRowsRendering.subscribe(_this.onBeforeClientRowsRendering.bind(_this), 'editor');
-                            _this.MasterTable.Events.AfterDataRendered.subscribe(_this.onAfterDataRendered.bind(_this), 'editor');
+                            _this.MasterTable.Events.ClientRowsRendering.subscribeBefore(_this.onBeforeClientRowsRendering.bind(_this), 'editor');
+                            _this.MasterTable.Events.DataRendered.subscribeAfter(_this.onAfterDataRendered.bind(_this), 'editor');
                         };
                     }
                     CellsEditHandler.prototype.ensureEditing = function (rowDisplayIndex) {
@@ -7202,8 +7268,8 @@ var PowerTables;
                         this._activeEditors = [];
                         this._isAddingNewRow = false;
                         this.afterDrawn = function (e) {
-                            _this.MasterTable.Events.BeforeClientRowsRendering.subscribe(_this.onBeforeClientRowsRendering.bind(_this), 'roweditor');
-                            _this.MasterTable.Events.AfterDataRendered.subscribe(_this.onAfterDataRendered.bind(_this), 'roweditor');
+                            _this.MasterTable.Events.ClientRowsRendering.subscribeBefore(_this.onBeforeClientRowsRendering.bind(_this), 'roweditor');
+                            _this.MasterTable.Events.DataRendered.subscribeAfter(_this.onAfterDataRendered.bind(_this), 'roweditor');
                         };
                     }
                     RowsEditHandler.prototype.onBeforeClientRowsRendering = function (e) {
@@ -7240,8 +7306,8 @@ var PowerTables;
                         }
                         else {
                             this._isAddingNewRow = true;
-                            this.DataObject = this.MasterTable.InstanceManager.defaultObject();
-                            this.CurrentDataObjectModified = this.MasterTable.InstanceManager.defaultObject();
+                            this.DataObject = this.MasterTable.DataHolder.defaultObject();
+                            this.CurrentDataObjectModified = this.MasterTable.DataHolder.defaultObject();
                             for (var i = 0; i < this.Configuration.Fields.length; i++) {
                                 if (this.Configuration.Fields[i].PluginId !== 'DisplayEditor') {
                                     this.DataObject[this.Configuration.Fields[i].FieldName] = null;
@@ -7392,7 +7458,10 @@ var PowerTables;
                     if (this._isEditing)
                         return;
                     var lookup = this.MasterTable.DataHolder.localLookupDisplayedData(rowDisplayIndex);
-                    this.DataObject = lookup.DataObject;
+                    this.ensureEditingObject(lookup.DataObject);
+                };
+                FormEditHandler.prototype.ensureEditingObject = function (dataObject) {
+                    this.DataObject = dataObject;
                     this.CurrentDataObjectModified = {};
                     for (var cd in this.DataObject) {
                         if (this.DataObject.hasOwnProperty(cd)) {
@@ -7405,14 +7474,21 @@ var PowerTables;
                     if (this._isEditing) {
                         this.rejectAll();
                     }
-                    this.DataObject = this.MasterTable.InstanceManager.defaultObject();
-                    this.CurrentDataObjectModified = this.MasterTable.InstanceManager.defaultObject();
+                    this.DataObject = this.MasterTable.DataHolder.defaultObject();
+                    this.CurrentDataObjectModified = this.MasterTable.DataHolder.defaultObject();
                     for (var i = 0; i < this.Configuration.Fields.length; i++) {
                         if (this.Configuration.Fields[i].PluginId !== 'DisplayEditor') {
                             this.DataObject[this.Configuration.Fields[i].FieldName] = null;
                             this.CurrentDataObjectModified[this.Configuration.Fields[i].FieldName] = null;
                         }
                     }
+                    this.startupForm();
+                };
+                FormEditHandler.prototype.beginEdit = function (dataObject) {
+                    if (this._isEditing) {
+                        this.rejectAll();
+                    }
+                    this.ensureEditing(dataObject);
                     this.startupForm();
                 };
                 FormEditHandler.prototype.beginFormEditHandler = function (e) {

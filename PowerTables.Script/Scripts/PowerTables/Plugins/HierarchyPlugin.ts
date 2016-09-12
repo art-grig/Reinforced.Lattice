@@ -189,9 +189,9 @@
         }
 
         subscribe(e: EventsManager): void {
-            e.AfterClientDataProcessing.subscribe(this.onAfterClientDataProcessing.bind(this), 'Hierarchy');
-            e.BeforeClientDataProcessing.subscribe(this.onBeforeClientDataProcessing.bind(this), 'Hierarchy');
-            e.AfterLayoutRendered.subscribe(this.onAfterLayoutRendered.bind(this), 'Hierarchy');
+            e.ClientDataProcessing.subscribeAfter(this.onAfterClientDataProcessing.bind(this), 'Hierarchy');
+            e.ClientDataProcessing.subscribeBefore(this.onBeforeClientDataProcessing.bind(this), 'Hierarchy');
+            e.LayoutRendered.subscribeAfter(this.onAfterLayoutRendered.bind(this), 'Hierarchy');
         }
 
         private onAfterLayoutRendered() {

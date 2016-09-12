@@ -70,7 +70,7 @@
 
             this._recentTemplate = this.MasterTable.Renderer.getCachedTemplate(this.RawConfig.TemplateId);
 
-            this.MasterTable.Events.AfterClientDataProcessing.subscribe(this.onClientDataProcessed.bind(this), 'responseInfo');
+            this.MasterTable.Events.ClientDataProcessing.subscribeAfter(this.onClientDataProcessed.bind(this), 'responseInfo');
             this.MasterTable.Events.DataReceived.subscribe(this.onResponse.bind(this), 'responseInfo');
             try {
                 this._pagingPlugin = <IPagingPlugin>this.MasterTable.InstanceManager.getPlugin('Paging');

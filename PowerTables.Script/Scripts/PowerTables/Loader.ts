@@ -44,7 +44,7 @@
             this._previousQueryString = JSON.stringify(query);
         }
         
-        private gatherQuery(queryScope: QueryScope): IQuery {
+        public gatherQuery(queryScope: QueryScope): IQuery {
             var a: IQuery = {
                 Paging: {
                     PageSize: 0,
@@ -56,9 +56,9 @@
                 StaticDataJson: this._masterTable.InstanceManager.Configuration.StaticData
             };
             if (queryScope === QueryScope.Client) {
-                this._events.BeforeClientQueryGathering.invoke(this, { Query: a, Scope: queryScope });
+                this._events.ClientQueryGathering.invokeBefore(this, { Query: a, Scope: queryScope });
             } else {
-                this._events.BeforeQueryGathering.invoke(this, { Query: a, Scope: queryScope });
+                this._events.QueryGathering.invokeBefore(this, { Query: a, Scope: queryScope });
             }
 
             for (var i: number = 0; i < this._queryPartProviders.length; i++) {
@@ -66,9 +66,9 @@
             }
 
             if (queryScope === QueryScope.Client) {
-                this._events.AfterClientQueryGathering.invoke(this, { Query: a, Scope: queryScope });
+                this._events.ClientQueryGathering.invokeAfter(this, { Query: a, Scope: queryScope });
             } else {
-                this._events.AfterQueryGathering.invoke(this, { Query: a, Scope: queryScope });
+                this._events.QueryGathering.invokeAfter(this, { Query: a, Scope: queryScope });
             }
             return a;
         }
@@ -201,7 +201,7 @@
             var dataText: string = JSON.stringify(data);
             var req: any = this.getXmlHttp();
 
-            this._events.BeforeLoading.invoke(this, {
+            this._events.Loading.invokeBefore(this, {
                 Request: data,
                 XMLHttp: req
             });
@@ -232,7 +232,7 @@
                     });
                 }
                 this._isLoading = false;
-                this._events.AfterLoading.invoke(this, {
+                this._events.Loading.invokeAfter(this, {
                     Request: data,
                     XMLHttp: req
                 });

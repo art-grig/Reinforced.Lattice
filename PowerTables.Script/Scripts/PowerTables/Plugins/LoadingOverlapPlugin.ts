@@ -86,9 +86,9 @@
         }
 
         public afterDrawn: (e: ITableEventArgs<any>) => void = e=> {
-            this.MasterTable.Events.BeforeLoading.subscribe((e) => this.onBeforeLoading(e), 'overlapLoading');
-            this.MasterTable.Events.AfterDataRendered.subscribe(() => this.deoverlap(), 'overlapLoading');
-            this.MasterTable.Events.AfterLoading.subscribe(() => this.deoverlap(), 'overlapLoading');
+            this.MasterTable.Events.Loading.subscribeBefore((e) => this.onBeforeLoading(e), 'overlapLoading');
+            this.MasterTable.Events.DataRendered.subscribeAfter(() => this.deoverlap(), 'overlapLoading');
+            this.MasterTable.Events.Loading.subscribeAfter(() => this.deoverlap(), 'overlapLoading');
             window.addEventListener('resize', this.updateCoordsAll.bind(this));
         }
     }

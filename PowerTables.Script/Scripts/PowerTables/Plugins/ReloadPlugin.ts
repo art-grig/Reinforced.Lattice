@@ -34,9 +34,9 @@
 
         public subscribe(e: EventsManager): void {
             super.subscribe(e);
-            e.BeforeLoading.subscribe(() => this.startLoading(), 'reload');
-            e.AfterLoading.subscribe(() => this.stopLoading(), 'reload');
-            e.AfterLayoutRendered.subscribe(() => {
+            e.Loading.subscribeBefore(() => this.startLoading(), 'reload');
+            e.Loading.subscribeAfter(() => this.stopLoading(), 'reload');
+            e.LayoutRendered.subscribeAfter(() => {
                 this.stopLoading();
             }, 'reload');
         }

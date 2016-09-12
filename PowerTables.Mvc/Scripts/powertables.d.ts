@@ -1327,26 +1327,59 @@ declare module PowerTables {
     /**
      * Wrapper for table event with ability to subscribe/unsubscribe
      */
-    class TableEvent<TEventArgs> {
+    class TableEvent<TBeforeEventArgs, TAfterEventArgs> {
         constructor(masterTable: any);
         private _masterTable;
-        private _handlers;
+        private _handlersAfter;
+        private _handlersBefore;
         /**
          * Invokes event with overridden this arg and specified event args
          *
          * @param thisArg "this" argument to be substituted to callee
          * @param eventArgs Event args will be passed to callee
          */
-        invoke(thisArg: any, eventArgs: TEventArgs): void;
+        invokeBefore(thisArg: any, eventArgs: TBeforeEventArgs): void;
         /**
-         * Subscribes specified function to event with supplied string key.
+         * Invokes event with overridden this arg and specified event args
+         *
+         * @param thisArg "this" argument to be substituted to callee
+         * @param eventArgs Event args will be passed to callee
+         */
+        invokeAfter(thisArg: any, eventArgs: TAfterEventArgs): void;
+        /**
+         * Invokes event with overridden this arg and specified event args
+         *
+         * @param thisArg "this" argument to be substituted to callee
+         * @param eventArgs Event args will be passed to callee
+         */
+        invoke(thisArg: any, eventArgs: TAfterEventArgs): void;
+        /**
+         * Subscribes specified function to AFTER event with supplied string key.
          * Subscriber key is needed to have an ability to unsubscribe from event
          * and should reflect entity that has been subscriben
          *
          * @param handler Event handler to subscribe
          * @param subscriber Subscriber key to associate with handler
          */
-        subscribe(handler: (e: ITableEventArgs<TEventArgs>) => any, subscriber: string): void;
+        subscribeAfter(handler: (e: ITableEventArgs<TAfterEventArgs>) => any, subscriber: string): void;
+        /**
+         * Subscribes specified function to AFTER event with supplied string key.
+         * Subscriber key is needed to have an ability to unsubscribe from event
+         * and should reflect entity that has been subscriben
+         *
+         * @param handler Event handler to subscribe
+         * @param subscriber Subscriber key to associate with handler
+         */
+        subscribe(handler: (e: ITableEventArgs<TAfterEventArgs>) => any, subscriber: string): void;
+        /**
+         * Subscribes specified function to BEFORE event with supplied string key.
+         * Subscriber key is needed to have an ability to unsubscribe from event
+         * and should reflect entity that has been subscriben
+         *
+         * @param handler Event handler to subscribe
+         * @param subscriber Subscriber key to associate with handler
+         */
+        subscribeBefore(handler: (e: ITableEventArgs<TBeforeEventArgs>) => any, subscriber: string): void;
         /**
          * Unsubscribes specified addressee from event
          * @param subscriber Subscriber key associated with handler
@@ -1364,7 +1397,7 @@ declare module PowerTables {
          * "Before Layout Drawn" event.
          * Occurs before layout is actually drawn but after all table is initialized.
          */
-        BeforeLayoutRendered: TableEvent<any>;
+        LayoutRendered: TableEvent<any, any>;
         /**
         * "Before Filter Gathering" event.
         * Occurs every time before sending request to server via Loader before
@@ -1372,23 +1405,14 @@ declare module PowerTables {
         * additional data to prepared query that will be probably overridden by
         * other query providers.
         */
-        BeforeQueryGathering: TableEvent<IQueryGatheringEventArgs>;
-        BeforeClientQueryGathering: TableEvent<IQueryGatheringEventArgs>;
-        /**
-         * "After Filter Gathering" event.
-         * Occurs every time before sending request to server via Loader AFTER
-         * filtering information is being gathered. Here you can add your own
-         * additional data to prepared query that will probably override parameters
-         * set by another query providers.
-         */
-        AfterQueryGathering: TableEvent<IQueryGatheringEventArgs>;
-        AfterClientQueryGathering: TableEvent<IQueryGatheringEventArgs>;
+        QueryGathering: TableEvent<IQueryGatheringEventArgs, IQueryGatheringEventArgs>;
+        ClientQueryGathering: TableEvent<IQueryGatheringEventArgs, IQueryGatheringEventArgs>;
         /**
          * "Before Loading" event.
          * Occurs every time right before calling XMLHttpRequest.send and
          * passing gathered filters to server
          */
-        BeforeLoading: TableEvent<ILoadingEventArgs>;
+        Loading: TableEvent<ILoadingEventArgs, ILoadingEventArgs>;
         /**
          * "Deferred Data Received" event.
          * Occurs every time when server has answered to particular query with
@@ -1399,7 +1423,7 @@ declare module PowerTables {
          * This feature is usable when it is necessary e.g. to generate file (excel, PDF)
          * using current table filters
          */
-        DeferredDataReceived: TableEvent<IDeferredDataEventArgs>;
+        DeferredDataReceived: TableEvent<IDeferredDataEventArgs, any>;
         /**
          * "Loading Error" event.
          * Occurs every time when Loader encounters loading error.
@@ -1407,7 +1431,7 @@ declare module PowerTables {
          * Anyway, error text/cause/stacktrace will be supplied as Reason
          * field of event args
          */
-        LoadingError: TableEvent<ILoadingErrorEventArgs>;
+        LoadingError: TableEvent<ILoadingErrorEventArgs, any>;
         /**
          * "Columns Creation" event.
          * Occurs when full columns list formed and available for
@@ -1415,24 +1439,15 @@ declare module PowerTables {
          */
         ColumnsCreation: TableEvent<{
             [key: string]: IColumn;
-        }>;
+        }, any>;
         /**
          * "Data Received" event.
          * Occurs EVERY time when something is being received from server side.
          * Event argument is deserialized JSON data from server.
          */
-        DataReceived: TableEvent<IDataEventArgs>;
-        BeforeClientDataProcessing: TableEvent<IQuery>;
-        AfterClientDataProcessing: TableEvent<IClientDataResults>;
-        AfterLayoutRendered: TableEvent<any>;
-        AfterDataRendered: TableEvent<any>;
-        BeforeDataRendered: TableEvent<any>;
-        /**
-         * "After Loading" event.
-         * Occurs every time after EVERY operation connected to server response handling
-         * has been finished
-         */
-        AfterLoading: TableEvent<ILoadingEventArgs>;
+        DataReceived: TableEvent<IDataEventArgs, any>;
+        ClientDataProcessing: TableEvent<IQuery, IClientDataResults>;
+        DataRendered: TableEvent<any, any>;
         /**
          * "Before Client Rows Rendering" event.
          *
@@ -1440,7 +1455,7 @@ declare module PowerTables {
          * modified but not rendered yet. Here you can add/remove/modify render for
          * particular rows
          */
-        BeforeClientRowsRendering: TableEvent<IRow[]>;
+        ClientRowsRendering: TableEvent<IRow[], any>;
         /**
          * Registers new event for events manager.
          * This method is to be used by plugins to provide their
@@ -1452,10 +1467,9 @@ declare module PowerTables {
          * @returns {}
          */
         registerEvent<TEventArgs>(eventName: string): void;
-        SelectionChanged: TableEvent<string[]>;
-        BeforeAdjustment: TableEvent<PowerTables.Editing.IAdjustmentData>;
-        AfterAdjustment: TableEvent<PowerTables.IAdjustmentResult>;
-        AdjustmentResult: TableEvent<IAdjustmentResult>;
+        SelectionChanged: TableEvent<string[], any>;
+        Adjustment: TableEvent<PowerTables.Editing.IAdjustmentData, PowerTables.IAdjustmentResult>;
+        AdjustmentResult: TableEvent<IAdjustmentResult, any>;
     }
     /**
      * Interface for client data results event args
@@ -1490,6 +1504,15 @@ declare module PowerTables {
          * Event arguments
          */
         EventArgs: T;
+        /**
+         * Describes event direction
+         */
+        EventDirection: EventDirection;
+    }
+    enum EventDirection {
+        Before = 0,
+        After = 1,
+        Undirected = 2,
     }
     /**
      * Event args for loading events
@@ -1755,6 +1778,7 @@ declare module PowerTables {
          */
         localLookupPrimaryKey(dataObject: any, setToLookup?: any[]): ILocalLookupResult;
         private copyData(source, target);
+        defaultObject(): any;
         private normalizeObject(dataObject);
         proceedAdjustments(adjustments: PowerTables.Editing.IAdjustmentData): IAdjustmentResult;
     }
@@ -1796,7 +1820,6 @@ declare module PowerTables {
     class InstanceManager {
         constructor(configuration: Configuration.Json.ITableConfiguration, masterTable: IMasterTable, events: EventsManager);
         private compileComparisonFunction();
-        defaultObject(): any;
         /**
          * Local objects comparison function based on key fields
          *
@@ -1919,7 +1942,7 @@ declare module PowerTables {
          */
         registerQueryPartProvider(provider: IQueryPartProvider): void;
         prefetchData(data: any[]): void;
-        private gatherQuery(queryScope);
+        gatherQuery(queryScope: QueryScope): IQuery;
         private getXmlHttp();
         private _previousQueryString;
         private checkError(json, data, req);
@@ -3549,7 +3572,9 @@ declare module PowerTables.Editing.Form {
         private _activeEditors;
         private _isEditing;
         private ensureEditing(rowDisplayIndex);
+        private ensureEditingObject(dataObject);
         add(): void;
+        beginEdit(dataObject: any): void;
         beginFormEditHandler(e: IRowEventArgs): void;
         private startupForm();
         commitAll(): void;

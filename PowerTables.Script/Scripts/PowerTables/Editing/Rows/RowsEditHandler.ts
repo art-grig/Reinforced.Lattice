@@ -37,8 +37,8 @@
                 }
             } else {
                 this._isAddingNewRow = true;
-                this.DataObject = this.MasterTable.InstanceManager.defaultObject();
-                this.CurrentDataObjectModified = this.MasterTable.InstanceManager.defaultObject();
+                this.DataObject = this.MasterTable.DataHolder.defaultObject();
+                this.CurrentDataObjectModified = this.MasterTable.DataHolder.defaultObject();
                 for (var i = 0; i < this.Configuration.Fields.length; i++) {
                     if (this.Configuration.Fields[i].PluginId !== 'DisplayEditor') {
                         this.DataObject[this.Configuration.Fields[i].FieldName] = null;
@@ -84,8 +84,8 @@
         }
 
         public afterDrawn: (e: ITableEventArgs<any>) => void = (e) => {
-            this.MasterTable.Events.BeforeClientRowsRendering.subscribe(this.onBeforeClientRowsRendering.bind(this), 'roweditor');
-            this.MasterTable.Events.AfterDataRendered.subscribe(this.onAfterDataRendered.bind(this), 'roweditor');
+            this.MasterTable.Events.ClientRowsRendering.subscribeBefore(this.onBeforeClientRowsRendering.bind(this), 'roweditor');
+            this.MasterTable.Events.DataRendered.subscribeAfter(this.onAfterDataRendered.bind(this), 'roweditor');
         }
 
         public commitAll() {

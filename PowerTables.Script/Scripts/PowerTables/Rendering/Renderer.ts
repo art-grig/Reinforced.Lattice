@@ -111,7 +111,7 @@
          * Perform table layout inside specified root element         
          */
         public layout(): void {
-            this._events.BeforeLayoutRendered.invoke(this, null);
+            this._events.LayoutRendered.invokeBefore(this, null);
 
             var rendered: string = this.getCachedTemplate(this._templateIds.Layout)(null);
             this.RootElement.innerHTML = rendered;
@@ -128,7 +128,7 @@
 
 
             this.BackBinder.backBind(this.RootElement);
-            this._events.AfterLayoutRendered.invoke(this, null);
+            this._events.LayoutRendered.invokeAfter(this, null);
         }
 
         /**
@@ -137,13 +137,13 @@
          * @param rows Set of table rows         
          */
         public body(rows: IRow[]): void {
-            this._events.BeforeClientRowsRendering.invoke(this, rows);
+            this._events.ClientRowsRendering.invokeBefore(this, rows);
             //this.clearBody();
             var html: string = this.ContentRenderer.renderBody(rows);
             this.Delegator.handleElementDestroy(this.BodyElement);
             this.BodyElement.innerHTML = html;
             this.BackBinder.backBind(this.BodyElement);
-            this._events.AfterDataRendered.invoke(this, null);
+            this._events.DataRendered.invokeAfter(this, null);
         }
 
         public renderObjectContent(renderable: IRenderable): string {

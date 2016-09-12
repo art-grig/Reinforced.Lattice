@@ -292,12 +292,12 @@
         }
 
         public subscribe(e: EventsManager): void {
-            e.AfterLayoutRendered.subscribe(this.afterLayoutRender.bind(this), 'checkboxify');
-            e.BeforeClientRowsRendering.subscribe(this.beforeRowsRendering.bind(this), 'checkboxify');
-            e.AfterClientDataProcessing.subscribe(this.onClientReload.bind(this), 'checkboxify');
+            e.LayoutRendered.subscribeAfter(this.afterLayoutRender.bind(this), 'checkboxify');
+            e.ClientRowsRendering.subscribeBefore(this.beforeRowsRendering.bind(this), 'checkboxify');
+            e.ClientDataProcessing.subscribeAfter(this.onClientReload.bind(this), 'checkboxify');
             e.DataReceived.subscribe(this.onServerReload.bind(this), 'checkboxify');
-            e.BeforeAdjustment.subscribe(this.onBeforeAdjustments.bind(this), 'checkboxify');
-            e.BeforeAdjustment.subscribe(this.onAfterAdjustments.bind(this), 'checkboxify');
+            e.Adjustment.subscribeBefore(this.onBeforeAdjustments.bind(this), 'checkboxify');
+            e.Adjustment.subscribeBefore(this.onAfterAdjustments.bind(this), 'checkboxify');
 
         }
     }

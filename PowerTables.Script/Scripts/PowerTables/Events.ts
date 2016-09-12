@@ -2,7 +2,7 @@
     /**
      * Wrapper for table event with ability to subscribe/unsubscribe
      */
-    export class TableEvent<TEventArgs> {
+    export class TableEvent<TBeforeEventArgs,TAfterEventArgs> {
 
         /*
          * @internal
@@ -11,7 +11,8 @@
 
         private _masterTable: IMasterTable;
 
-        private _handlers: { [key: string]: ((e: ITableEventArgs<TEventArgs>) => any)[] } = {};
+        private _handlersAfter: { [key: string]: ((e: ITableEventArgs<TAfterEventArgs>) => any)[] } = {};
+        private _handlersBefore: { [key: string]: ((e: ITableEventArgs<TBeforeEventArgs>) => any)[] } = {};
 
         /**
          * Invokes event with overridden this arg and specified event args
@@ -19,16 +20,17 @@
          * @param thisArg "this" argument to be substituted to callee
          * @param eventArgs Event args will be passed to callee
          */
-        public invoke(thisArg: any, eventArgs: TEventArgs): void {
-            var ea: ITableEventArgs<TEventArgs> = {
+        public invokeBefore(thisArg: any, eventArgs: TBeforeEventArgs): void {
+            var ea: ITableEventArgs<TBeforeEventArgs> = {
                 MasterTable: this._masterTable,
-                EventArgs: eventArgs
-            };
-            var hndlrs: { [index: string]: { (e: ITableEventArgs<TEventArgs>): any; }[]; } = this._handlers;
+                EventArgs: eventArgs,
+                EventDirection: EventDirection.Before
+        };
+            var hndlrs: { [index: string]: { (e: ITableEventArgs<TBeforeEventArgs>): any; }[]; } = this._handlersBefore;
             var i: number = 0;
             for (var k in hndlrs) {
                 if (hndlrs.hasOwnProperty(k)) {
-                    var kHandlers: { (e: ITableEventArgs<TEventArgs>): any; }[] = hndlrs[k];
+                    var kHandlers: { (e: ITableEventArgs<TBeforeEventArgs>): any; }[] = hndlrs[k];
                     for (i = 0; i < kHandlers.length; i++) {
                         (<any>kHandlers[i]).apply(thisArg, [ea]);
                     }
@@ -37,19 +39,83 @@
             }
         }
 
+
         /**
-         * Subscribes specified function to event with supplied string key. 
+         * Invokes event with overridden this arg and specified event args
+         * 
+         * @param thisArg "this" argument to be substituted to callee
+         * @param eventArgs Event args will be passed to callee
+         */
+        public invokeAfter(thisArg: any, eventArgs: TAfterEventArgs): void {
+            var ea: ITableEventArgs<TAfterEventArgs> = {
+                MasterTable: this._masterTable,
+                EventArgs: eventArgs,
+                EventDirection: EventDirection.After
+            };
+            var hndlrs: { [index: string]: { (e: ITableEventArgs<TAfterEventArgs>): any; }[]; } = this._handlersAfter;
+            var i: number = 0;
+            for (var k in hndlrs) {
+                if (hndlrs.hasOwnProperty(k)) {
+                    var kHandlers: { (e: ITableEventArgs<TAfterEventArgs>): any; }[] = hndlrs[k];
+                    for (i = 0; i < kHandlers.length; i++) {
+                        (<any>kHandlers[i]).apply(thisArg, [ea]);
+                    }
+                    i = 0;
+                }
+            }
+        }
+
+
+        /**
+         * Invokes event with overridden this arg and specified event args
+         * 
+         * @param thisArg "this" argument to be substituted to callee
+         * @param eventArgs Event args will be passed to callee
+         */
+        public invoke(thisArg: any, eventArgs: TAfterEventArgs): void {
+            this.invokeAfter(thisArg,eventArgs);
+        }
+
+        /**
+         * Subscribes specified function to AFTER event with supplied string key. 
          * Subscriber key is needed to have an ability to unsubscribe from event 
          * and should reflect entity that has been subscriben
          * 
          * @param handler Event handler to subscribe
          * @param subscriber Subscriber key to associate with handler
          */
-        public subscribe(handler: (e: ITableEventArgs<TEventArgs>) => any, subscriber: string): void {
-            if (!this._handlers[subscriber]) {
-                this._handlers[subscriber] = [];
+        public subscribeAfter(handler: (e: ITableEventArgs<TAfterEventArgs>) => any, subscriber: string): void {
+            if (!this._handlersAfter[subscriber]) {
+                this._handlersAfter[subscriber] = [];
             }
-            this._handlers[subscriber].push(handler);
+            this._handlersAfter[subscriber].push(handler);
+        }
+
+        /**
+         * Subscribes specified function to AFTER event with supplied string key. 
+         * Subscriber key is needed to have an ability to unsubscribe from event 
+         * and should reflect entity that has been subscriben
+         * 
+         * @param handler Event handler to subscribe
+         * @param subscriber Subscriber key to associate with handler
+         */
+        public subscribe(handler: (e: ITableEventArgs<TAfterEventArgs>) => any, subscriber: string): void {
+            this.subscribeAfter(handler,subscriber);
+        }
+
+        /**
+         * Subscribes specified function to BEFORE event with supplied string key. 
+         * Subscriber key is needed to have an ability to unsubscribe from event 
+         * and should reflect entity that has been subscriben
+         * 
+         * @param handler Event handler to subscribe
+         * @param subscriber Subscriber key to associate with handler
+         */
+        public subscribeBefore(handler: (e: ITableEventArgs<TBeforeEventArgs>) => any, subscriber: string): void {
+            if (!this._handlersBefore[subscriber]) {
+                this._handlersBefore[subscriber] = [];
+            }
+            this._handlersBefore[subscriber].push(handler);
         }
 
         /**
@@ -57,8 +123,8 @@
          * @param subscriber Subscriber key associated with handler
          */
         public unsubscribe(subscriber: string): void {
-            this._handlers[subscriber] = null;
-            delete this._handlers[subscriber];
+            this._handlersAfter[subscriber] = null;
+            delete this._handlersAfter[subscriber];
         }
     }
 
@@ -71,26 +137,19 @@
 
         constructor(masterTable: any) {
             this._masterTable = masterTable;
-            this.BeforeQueryGathering = new TableEvent(masterTable);
-            this.AfterQueryGathering = new TableEvent(masterTable);
-            this.BeforeClientQueryGathering = new TableEvent(masterTable);
-            this.AfterClientQueryGathering = new TableEvent(masterTable);
-            this.BeforeLoading = new TableEvent(masterTable);
+            this.QueryGathering = new TableEvent(masterTable);
+            this.ClientQueryGathering = new TableEvent(masterTable);
+            this.Loading = new TableEvent(masterTable);
             this.LoadingError = new TableEvent(masterTable);
             this.ColumnsCreation = new TableEvent(masterTable);
             this.DataReceived = new TableEvent(masterTable);
-            this.AfterLoading = new TableEvent(masterTable);
-            this.BeforeLayoutRendered = new TableEvent(masterTable);
+            this.LayoutRendered = new TableEvent(masterTable);
 
-            this.BeforeClientDataProcessing = new TableEvent(masterTable);
-            this.AfterClientDataProcessing = new TableEvent(masterTable);
-            this.AfterLayoutRendered = new TableEvent(masterTable);
-            this.BeforeDataRendered = new TableEvent(masterTable);
-            this.AfterDataRendered = new TableEvent(masterTable);
-            this.BeforeClientRowsRendering = new TableEvent(masterTable);
+            this.ClientDataProcessing = new TableEvent(masterTable);
+            this.DataRendered = new TableEvent(masterTable);
+            this.ClientRowsRendering = new TableEvent(masterTable);
             this.DeferredDataReceived = new TableEvent(masterTable);
-            this.BeforeAdjustment = new TableEvent(masterTable);
-            this.AfterAdjustment = new TableEvent(masterTable);
+            this.Adjustment = new TableEvent(masterTable);
             this.AdjustmentResult = new TableEvent(masterTable);
         }
 
@@ -98,7 +157,7 @@
          * "Before Layout Drawn" event. 
          * Occurs before layout is actually drawn but after all table is initialized. 
          */
-        public BeforeLayoutRendered: TableEvent<any>;
+        public LayoutRendered: TableEvent<any,any>;
 
 
         /**
@@ -108,25 +167,15 @@
         * additional data to prepared query that will be probably overridden by 
         * other query providers. 
         */
-        public BeforeQueryGathering: TableEvent<IQueryGatheringEventArgs>;
-        public BeforeClientQueryGathering: TableEvent<IQueryGatheringEventArgs>;
-
-        /**
-         * "After Filter Gathering" event. 
-         * Occurs every time before sending request to server via Loader AFTER 
-         * filtering information is being gathered. Here you can add your own 
-         * additional data to prepared query that will probably override parameters 
-         * set by another query providers. 
-         */
-        public AfterQueryGathering: TableEvent<IQueryGatheringEventArgs>;
-        public AfterClientQueryGathering: TableEvent<IQueryGatheringEventArgs>;
+        public QueryGathering: TableEvent<IQueryGatheringEventArgs, IQueryGatheringEventArgs>;
+        public ClientQueryGathering: TableEvent<IQueryGatheringEventArgs, IQueryGatheringEventArgs>;
 
         /**
          * "Before Loading" event.
          * Occurs every time right before calling XMLHttpRequest.send and
          * passing gathered filters to server
          */
-        public BeforeLoading: TableEvent<ILoadingEventArgs>;
+        public Loading: TableEvent<ILoadingEventArgs, ILoadingEventArgs>;
 
         /**
          * "Deferred Data Received" event. 
@@ -138,7 +187,7 @@
          * This feature is usable when it is necessary e.g. to generate file (excel, PDF) 
          * using current table filters
          */
-        public DeferredDataReceived: TableEvent<IDeferredDataEventArgs>;
+        public DeferredDataReceived: TableEvent<IDeferredDataEventArgs,any>;
 
         /**
          * "Loading Error" event. 
@@ -147,35 +196,26 @@
          * Anyway, error text/cause/stacktrace will be supplied as Reason 
          * field of event args         
          */
-        public LoadingError: TableEvent<ILoadingErrorEventArgs>;
+        public LoadingError: TableEvent<ILoadingErrorEventArgs,any>;
 
         /**
          * "Columns Creation" event.
          * Occurs when full columns list formed and available for 
          * modifying. Addition/removal/columns modification is acceptable
          */
-        public ColumnsCreation: TableEvent<{ [key: string]: IColumn }>;
+        public ColumnsCreation: TableEvent<{ [key: string]: IColumn },any>;
 
         /**
          * "Data Received" event. 
          * Occurs EVERY time when something is being received from server side. 
          * Event argument is deserialized JSON data from server. 
          */
-        public DataReceived: TableEvent<IDataEventArgs>;
+        public DataReceived: TableEvent<IDataEventArgs,any>;
 
-        public BeforeClientDataProcessing: TableEvent<IQuery>;
-        public AfterClientDataProcessing: TableEvent<IClientDataResults>;
-        public AfterLayoutRendered: TableEvent<any>;
-        public AfterDataRendered: TableEvent<any>;
-        public BeforeDataRendered: TableEvent<any>;
+        public ClientDataProcessing: TableEvent<IQuery, IClientDataResults>;
+        public DataRendered: TableEvent<any, any>;
 
-        /**
-         * "After Loading" event.
-         * Occurs every time after EVERY operation connected to server response handling 
-         * has been finished
-         */
-        public AfterLoading: TableEvent<ILoadingEventArgs>;
-
+      
         /**
          * "Before Client Rows Rendering" event.
          * 
@@ -183,7 +223,7 @@
          * modified but not rendered yet. Here you can add/remove/modify render for 
          * particular rows
          */
-        public BeforeClientRowsRendering: TableEvent<IRow[]>;
+        public ClientRowsRendering: TableEvent<IRow[],any>;
 
         /**
          * Registers new event for events manager. 
@@ -199,11 +239,10 @@
             this[eventName] = new TableEvent(this._masterTable);
         }
 
-        public SelectionChanged: TableEvent<string[]>; //registered by Checkboxify
+        public SelectionChanged: TableEvent<string[],any>; //registered by Checkboxify
 
-        public BeforeAdjustment: TableEvent<PowerTables.Editing.IAdjustmentData>;
-        public AfterAdjustment: TableEvent<PowerTables.IAdjustmentResult>;
-        public AdjustmentResult: TableEvent<IAdjustmentResult>;
+        public Adjustment: TableEvent<PowerTables.Editing.IAdjustmentData, PowerTables.IAdjustmentResult>;
+        public AdjustmentResult: TableEvent<IAdjustmentResult,any>;
 
     }
 
@@ -242,6 +281,17 @@
          * Event arguments
          */
         EventArgs: T;
+
+        /**
+         * Describes event direction
+         */
+        EventDirection: EventDirection;
+    }
+
+    export enum EventDirection {
+        Before,
+        After,
+        Undirected
     }
 
     /**

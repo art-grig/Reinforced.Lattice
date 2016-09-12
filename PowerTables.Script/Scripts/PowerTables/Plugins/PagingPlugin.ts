@@ -168,14 +168,14 @@
         public init(masterTable: IMasterTable): void {
             super.init(masterTable);
             if (!this.Configuration.EnableClientPaging) {
-                this.MasterTable.Events.AfterQueryGathering.subscribe(this.onFilterGathered.bind(this), 'paging');
+                this.MasterTable.Events.QueryGathering.subscribeAfter(this.onFilterGathered.bind(this), 'paging');
             } else {
-                this.MasterTable.Events.AfterClientQueryGathering.subscribe(this.onFilterGathered.bind(this), 'paging');
+                this.MasterTable.Events.ClientQueryGathering.subscribeAfter(this.onFilterGathered.bind(this), 'paging');
             }
             if (!this.Configuration.EnableClientPaging) {
                 this.MasterTable.Events.DataReceived.subscribe(this.onResponse.bind(this), 'paging');
             } else {
-                this.MasterTable.Events.AfterClientDataProcessing.subscribe(this.onClientDataProcessing.bind(this), 'paging');
+                this.MasterTable.Events.ClientDataProcessing.subscribeAfter(this.onClientDataProcessing.bind(this), 'paging');
             }
             this.MasterTable.Events.ColumnsCreation.subscribe(this.onColumnsCreation.bind(this), 'paging');
 

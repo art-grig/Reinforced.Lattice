@@ -56,8 +56,8 @@
         }
 
         public afterDrawn: (e: ITableEventArgs<any>) => void = (e) => {
-            this.MasterTable.Events.BeforeClientRowsRendering.subscribe(this.onBeforeClientRowsRendering.bind(this), 'editor');
-            this.MasterTable.Events.AfterDataRendered.subscribe(this.onAfterDataRendered.bind(this), 'editor');
+            this.MasterTable.Events.ClientRowsRendering.subscribeBefore(this.onBeforeClientRowsRendering.bind(this), 'editor');
+            this.MasterTable.Events.DataRendered.subscribeAfter(this.onAfterDataRendered.bind(this), 'editor');
         }
 
         commit(editor: PowerTables.Editing.IEditor): void {
