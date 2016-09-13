@@ -6,6 +6,11 @@ namespace PowerTables.Editing.Editors.Check
     public static class CheckEditorConfigurationExtensions
     {
         /// <summary>
+        /// Validation message key in case if mandatory checkbox have not been checked
+        /// </summary>
+        public const string Validation_Mandatory = "MANDATORY";
+
+        /// <summary>
         /// Obtains configurator for checkbox editor for specified field
         /// </summary>
         /// <param name="t">Column configurator</param>

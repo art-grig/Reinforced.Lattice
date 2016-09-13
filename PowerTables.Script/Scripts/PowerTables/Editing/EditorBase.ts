@@ -1,5 +1,5 @@
 ﻿module PowerTables.Editing {
-    export class EditorBase<T> extends PowerTables.Plugins.PluginBase<T> implements PowerTables.Editing.IEditor {
+    export class EditorBase<T extends PowerTables.Editing.IEditFieldUiConfigBase> extends PowerTables.Plugins.PluginBase<T> implements PowerTables.Editing.IEditor {
 
         /**
          * Is current editor valid (flag set by master editor)
@@ -142,7 +142,26 @@
 
         FieldName: string;
 
-        notifyObjectChanged(): void {}
+        notifyObjectChanged(): void { }
+
+        private _errorMessages: { [key: string]: string };
+
+        protected defineMessages(): { [key: string]: string } {
+            return {};
+        }
+
+        public getErrorMessage(key: string):string {
+            if (!this._errorMessages.hasOwnProperty(key)) return 'Error';
+            return this._errorMessages[key];
+        }
+
+        init(masterTable: IMasterTable): void {
+            super.init(masterTable);
+            this._errorMessages = this.defineMessages();
+            for (var k in this.Configuration.ValidationMessagesOverride) {
+                this._errorMessages[k] = this.Configuration.ValidationMessagesOverride[k];
+            }
+        }
     }
 
     export interface IEditor extends IPlugin, ICell {
@@ -237,10 +256,12 @@
          */
         ValidationMessages: IValidationMessage[];
 
-        notifyObjectChanged():void;
+        notifyObjectChanged(): void;
+
+        getErrorMessage(key: string): string;
     }
     export interface IValidationMessage {
-        Message: string;
+        Message?: string;
         Code: string;
     }
 }

@@ -25,9 +25,12 @@ namespace PowerTables.Editing
 
         public ColumnConfiguration FakeColumn { get; set; }
 
+        public Dictionary<string,string> ValidationMessagesOverride { get; private set; }
+
         protected EditFieldUiConfigBase()
         {
             ValidationMessagesTemplateId = "cellValidationMessages";
+            ValidationMessagesOverride = new Dictionary<string, string>();
         }
     }
 }

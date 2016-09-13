@@ -24,7 +24,7 @@
 
         public getValue(errors: PowerTables.Editing.IValidationMessage[]): any {
             if (this.Configuration.IsMandatory && !this._value) {
-                errors.push({ Code: 'MANDATORY', Message: `${this.Column.Configuration.Title} is required` });
+                errors.push({ Code: 'MANDATORY' });
                 return null;
             }
             return this._value;
@@ -37,6 +37,12 @@
 
         public focus(): void {
             if (this.FocusElement) this.FocusElement.focus();
+        }
+
+        defineMessages(): { [key: string]: string } {
+            return {
+                'MANDATORY': `${this.Column.Configuration.Title} is required`
+            }
         }
     }
 

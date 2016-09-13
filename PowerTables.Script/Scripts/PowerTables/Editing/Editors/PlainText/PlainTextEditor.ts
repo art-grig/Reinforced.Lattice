@@ -14,7 +14,7 @@
             if (this.Column.IsDateTime) {
                 var d = this.MasterTable.Date.getDateFromDatePicker(this.Input);
                 if ((d == null) && !this.Column.Configuration.IsNullable) {
-                    errors.push({ Code: 'NULL', Message: `${this.Column.Configuration.Title} value is mandatory` });
+                    errors.push({ Code: 'NULL' });
                     return null;
                 }
                 return d;
@@ -50,7 +50,7 @@
             if (this.ValidationRegex) {
                 var mtch = this.ValidationRegex.test(value);
                 if (!mtch) {
-                    errors.push({ Code: 'REGEX', Message: `Validation failed for ${column.Configuration.Title}` });
+                    errors.push({ Code: 'REGEX' });
                     return null;
                 }
                 return value;
@@ -58,19 +58,19 @@
 
             if (value == null || value == undefined || value.length === 0) {
                 if (!column.Configuration.IsNullable && (!column.IsString)) {
-                    errors.push({ Code: 'NULL', Message: `${column.Configuration.Title} value is mandatory` });
+                    errors.push({ Code: 'NULL' });
                     return null;
                 }
 
                 if (column.IsString && !this.Configuration.AllowEmptyString) {
-                    errors.push({ Code: 'EMPTYSTRING', Message: `${column.Configuration.Title} must not be an empty string` });
+                    errors.push({ Code: 'EMPTYSTRING' });
                     return null;
                 }
                 return '';
             }
             if (this.Configuration.MaxAllowedLength > 0) {
                 if (value.length > this.Configuration.MaxAllowedLength) {
-                    errors.push({ Code: 'MAXCHARS', Message: `Maximum ${column.Configuration.Title} length exceeded` });
+                    errors.push({ Code: 'MAXCHARS' });
                     return null;
                 }
             }
@@ -80,7 +80,7 @@
 
                 i = parseInt(value);
                 if (isNaN(i)) {
-                    errors.push({ Code: 'NONINT', Message: `Invalid number provided for ${column.Configuration.Title}` });
+                    errors.push({ Code: 'NONINT' });
                     return null;
                 }
                 return i;
@@ -95,7 +95,7 @@
 
                 i = parseFloat(negative ? ('-' + value) : value);
                 if (isNaN(i) || (!this._floatRegex.test(value))) {
-                    errors.push({ Code: 'NONFLOAT', Message: `Invalid number provided for ${column.Configuration.Title}` });
+                    errors.push({ Code: 'NONFLOAT' });
                     return null;
                 }
                 return i;
@@ -105,7 +105,7 @@
                 var bs = value.toUpperCase().trim();
                 if (bs === 'TRUE') return true;
                 if (bs === 'FALSE') return false;
-                errors.push({ Code: 'NONBOOL', Message: `Invalid boolean value provided for ${column.Configuration.Title}` });
+                errors.push({ Code: 'NONBOOL' });
                 return null;
             }
 
@@ -128,6 +128,18 @@
         public focus(): void {
             this.Input.focus();
             this.Input.setSelectionRange(0, this.Input.value.length);
+        }
+
+        defineMessages(): { [key: string]: string } {
+            return {
+                'NONBOOL': `Invalid boolean value provided for ${this.Column.Configuration.Title}`,
+                'NONFLOAT': `Invalid number provided for ${this.Column.Configuration.Title}`,
+                'NONINT': `Invalid number provided for ${this.Column.Configuration.Title}`,
+                'MAXCHARS': `Maximum ${this.Column.Configuration.Title} length exceeded`,
+                'EMPTYSTRING': `${this.Column.Configuration.Title} must not be an empty string`,
+                'NULL': `${this.Column.Configuration.Title} value is mandatory`,
+                'REGEX': `Validation failed for ${this.Column.Configuration.Title}`,
+            }
         }
     }
 

@@ -32,6 +32,13 @@ namespace PowerTables.Editing
             conf.BaseUiConfig.TemplateId = templateId;
             return conf;
         }
+
+
+        public static T OverrideErrorMessage<T>(this T conf, string key, string message) where T : INongenericEditFieldUsage
+        {
+            conf.BaseUiConfig.ValidationMessagesOverride[key] = message;
+            return conf;
+        }
         
     }
 }

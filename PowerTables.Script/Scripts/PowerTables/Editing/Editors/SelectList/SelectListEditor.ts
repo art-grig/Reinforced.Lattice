@@ -11,9 +11,11 @@
             var value = null;
             if (item.length === 0) {
                 if (this.Column.IsString && this.Configuration.AllowEmptyString) value = item;
-                if (this.Column.Configuration.IsNullable) value = null;
                 else {
-                    errors.push({ Code: 'NULLVALUE', Message: `Value must be provided for ${this.Column.Configuration.Title}` });
+                    if (this.Column.Configuration.IsNullable) value = null;
+                    else {
+                        errors.push({ Code: 'NULLVALUE' });
+                    }
                 }
             } else {
 
@@ -22,7 +24,7 @@
                 else if (this.Column.IsBoolean) value = item.toUpperCase() === 'TRUE';
                 else if (this.Column.IsDateTime) value = this.MasterTable.Date.parse(item);
                 else if (this.Column.IsString) value = item.toString();
-                else errors.push({ Code: 'UNKNOWN', Message: `Unknown value for ${this.Column.Configuration.Title}` });
+                else errors.push({ Code: 'UNKNOWN' });
             }
 
             return value;
@@ -107,6 +109,13 @@
 
         public focus(): void {
             this.List.focus();
+        }
+
+        defineMessages(): { [key: string]: string } {
+            return {
+                'NULLVALUE': `Value must be provided for ${this.Column.Configuration.Title}`,
+                'UNKNOWN': `Unknown value for ${this.Column.Configuration.Title}`
+            }
         }
     }
 

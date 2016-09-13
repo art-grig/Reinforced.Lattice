@@ -6,6 +6,11 @@ namespace PowerTables.Editing.Editors.Memo
     public static class MemoUiConfigurationExtensions
     {
         /// <summary>
+        /// Validation message key in case if memo contents exceeded maximum possible length
+        /// </summary>
+        public const string Validation_Maxchars = "MAXCHARS";
+
+        /// <summary>
         /// Obtains configurator for memo editor for specified field
         /// </summary>
         /// <param name="t">Column configurator</param>

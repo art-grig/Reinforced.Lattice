@@ -5,8 +5,43 @@ using Newtonsoft.Json.Linq;
 namespace PowerTables.Editing.Editors.PlainText
 {
 
-    public static class PlainTextUiConfigurationExtensions
+    public static class PlainTextEditorConfigurationExtensions
     {
+        /// <summary>
+        /// Validation message key in case if text editor contents does not represent valid boolean value
+        /// </summary>
+        public const string Validation_NonBool = "NONBOOL";
+
+        /// <summary>
+        /// Validation message key in case if text editor contents does not represent valid floating-point value
+        /// </summary>
+        public const string Validation_NonFloat = "NONFLOAT";
+
+        /// <summary>
+        /// Validation message key in case if text editor contents does not represent valid integer value
+        /// </summary>
+        public const string Validation_NonInt = "NONINT";
+
+        /// <summary>
+        /// Validation message key in case if memo contents exceeded maximum possible length
+        /// </summary>
+        public const string Validation_Maxchars = "MAXCHARS";
+
+        /// <summary>
+        /// Validation message key in case if text editor contents are empty string
+        /// </summary>
+        public const string Validation_Emptystring = "EMPTYSTRING";
+
+        /// <summary>
+        /// Validation message key in case if text editor contents are not present
+        /// </summary>
+        public const string Validation_Null = "NULL";
+
+        /// <summary>
+        /// Validation message key in case if text editor contents does not match specified regular expression
+        /// </summary>
+        public const string Validation_Regex = "REGEX";
+
         /// <summary>
         /// Obtains configurator for plain text editor for specified field
         /// </summary>

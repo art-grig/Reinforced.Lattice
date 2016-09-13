@@ -10,6 +10,12 @@ namespace PowerTables.Editing.Editors.SelectList
 {
     public static class SelectListUiConfigurationExtensions
     {
+
+        /// <summary>
+        /// Validation message key in case if empty/null value selected in the editor select list
+        /// </summary>
+        public const string Validation_Null = "NULL";
+
         /// <summary>
         /// Obtains configurator for select list editor for specified field
         /// </summary>

@@ -599,6 +599,7 @@ module PowerTables.Editing {
 		PluginId: string;
 		ValidationMessagesTemplateId: string;
 		FakeColumn: PowerTables.Configuration.Json.IColumnConfiguration;
+		ValidationMessagesOverride: { [key:string]: string };
 	}
 	export interface IEditFormUiConfigBase
 	{

@@ -35,7 +35,7 @@
         public getValue(errors: PowerTables.Editing.IValidationMessage[]): any {
             var value = this.TextArea.value;
             if (this.MaxChars > 0 && value.length > this.MaxChars) {
-                errors.push({ Code: 'MAXCHARS', Message: `Maximum ${this.Column.Configuration.Title} length exceeded` });
+                errors.push({ Code: 'MAXCHARS' });
                 return null;
             }
             return value;
@@ -48,6 +48,13 @@
         public focus(): void {
             this.TextArea.focus();
             this.TextArea.setSelectionRange(0, this.TextArea.value.length);
+        }
+
+        defineMessages(): { [key: string]: string } {
+            return {
+                'MAXCHARS': `Maximum ${this.Column.Configuration.Title} length exceeded`,
+                'EMPTYSTRING': `${this.Column.Configuration.Title} must not be an empty string`
+            }
         }
     }
 
