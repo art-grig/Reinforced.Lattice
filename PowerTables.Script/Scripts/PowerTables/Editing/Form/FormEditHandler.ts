@@ -60,6 +60,7 @@
         }
 
         private startupForm() {
+            this.MasterTable.Events.Edit.invokeBefore(this, this.CurrentDataObjectModified);
             var vm: FormEditFormModel = new FormEditFormModel();
             for (var i = 0; i < this.Configuration.Fields.length; i++) {
                 var editorConf = this.Configuration.Fields[i];
@@ -92,7 +93,15 @@
             }
             this.ValidationMessages = errors; //todo draw validation errors
 
-            if (this.ValidationMessages.length > 0) return;
+            if (this.ValidationMessages.length > 0) {
+                this.MasterTable.Events.EditValidationFailed.invokeAfter(this,
+                    <any>{
+                        OriginalDataObject: this.DataObject,
+                        ModifiedDataObject: this.CurrentDataObjectModified,
+                        Messages: this.ValidationMessages
+                    });
+                return;
+            }
 
             this._isEditing = false;
 
@@ -104,6 +113,7 @@
 
             this.sendDataObjectToServer(() => {
                 if (!this._isEditing) {
+                    this.MasterTable.Events.Edit.invokeAfter(this, this.CurrentDataObjectModified);
                     this.CurrentDataObjectModified = null;
                     this.MasterTable.Renderer.destroyObject(this.Configuration.FormTargetSelector);
                     this._currentFormElement = null;

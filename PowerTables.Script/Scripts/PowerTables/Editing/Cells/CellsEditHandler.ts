@@ -15,6 +15,7 @@
                     this.CurrentDataObjectModified[cd] = this.DataObject[cd];
                 }
             }
+            this.MasterTable.Events.Edit.invokeBefore(this, this.CurrentDataObjectModified);
             var row = this.MasterTable.Controller.produceRow(lookup.DataObject, lookup.DisplayedIndex);
             this.Cells = row.Cells;
             this.Index = lookup.DisplayedIndex;
@@ -61,13 +62,25 @@
         }
 
         commit(editor: PowerTables.Editing.IEditor): void {
-            var msgs = [];
+            var msgs:IValidationMessage[] = [];
             this.retrieveEditorData(editor, msgs);
-            if (msgs.length !== 0) return;
+            if (msgs.length !== 0) {
+                this.MasterTable.Events.EditValidationFailed.invokeAfter(this,
+                    <any>{
+                            OriginalDataObject: this.DataObject,
+                            ModifiedDataObject: this.CurrentDataObjectModified,
+                            Messages: msgs
+                    });
+                return;
+            }
             if (editor.VisualStates != null) editor.VisualStates.changeState('saving');
             this.finishEditing(editor, false);
             this.sendDataObjectToServer(() => {
-                if (!this._isEditing) this.CurrentDataObjectModified = null;
+                if (!this._isEditing) {
+                    this.MasterTable.Events.Edit.invokeAfter(this,this.CurrentDataObjectModified);
+                    this.CurrentDataObjectModified = null;
+                }
+                
             });
 
         }

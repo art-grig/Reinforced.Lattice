@@ -151,6 +151,8 @@
             this.DeferredDataReceived = new TableEvent(masterTable);
             this.Adjustment = new TableEvent(masterTable);
             this.AdjustmentResult = new TableEvent(masterTable);
+            this.Edit = new TableEvent(masterTable);
+            this.EditValidationFailed = new TableEvent(masterTable);
         }
 
         /**
@@ -244,6 +246,23 @@
         public Adjustment: TableEvent<PowerTables.Editing.IAdjustmentData, PowerTables.IAdjustmentResult>;
         public AdjustmentResult: TableEvent<IAdjustmentResult,any>;
 
+        /**
+         * Event that occurs when editing entry. 
+         * Event parameter is object that is being edited
+         */
+        public Edit: TableEvent<any, any>;
+
+
+        /**
+         * Event that occurs when edit validation failed
+         */
+        public EditValidationFailed: TableEvent<IEditValidationEvent, IEditValidationEvent>;
+    }
+
+    export interface IEditValidationEvent {
+        OriginalDataObject: any;
+        ModifiedDataObject: any;
+        ValidationMessages:PowerTables.Editing.IValidationMessage[];
     }
 
     /**

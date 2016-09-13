@@ -46,6 +46,7 @@
                     }
                 }
             }
+            this.MasterTable.Events.Edit.invokeBefore(this, this.CurrentDataObjectModified);
             var row = this.MasterTable.Controller.produceRow(this.DataObject, rowDisplayIndex < 0 ? -1 : rowDisplayIndex);
             this.Cells = row.Cells;
             this.Index = rowDisplayIndex < 0 ? -1 : rowDisplayIndex;
@@ -96,7 +97,15 @@
             }
             this.ValidationMessages = errors; //todo draw validation errors
 
-            if (this.ValidationMessages.length > 0) return;
+            if (this.ValidationMessages.length > 0) {
+                this.MasterTable.Events.EditValidationFailed.invokeAfter(this,
+                    <any>{
+                        OriginalDataObject: this.DataObject,
+                        ModifiedDataObject: this.CurrentDataObjectModified,
+                        Messages: this.ValidationMessages
+                    });
+                return;
+            }
 
             this._isEditing = false;
 
@@ -107,7 +116,10 @@
             this._activeEditors = [];
 
             this.sendDataObjectToServer(() => {
-                if (!this._isEditing) this.CurrentDataObjectModified = null;
+                if (!this._isEditing) {
+                    this.MasterTable.Events.Edit.invokeAfter(this, this.CurrentDataObjectModified);
+                    this.CurrentDataObjectModified = null;
+                }
             });
         }
 
