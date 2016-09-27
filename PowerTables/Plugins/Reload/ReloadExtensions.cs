@@ -15,7 +15,7 @@ namespace PowerTables.Plugins.Reload
         /// <param name="where"></param>
         /// <param name="ui"></param>
         /// <returns></returns>
-        public static Configurator<TSource, TTarget> ReloadButton<TSource, TTarget>(this Configurator<TSource, TTarget> t, Action<PluginConfigurationWrapper<ReloadUiConfiguration>> ui, string where = "") where TTarget : new()
+        public static T ReloadButton<T>(this T t, Action<PluginConfigurationWrapper<ReloadUiConfiguration>> ui, string where = "") where T : IConfigurator
         {
             t.TableConfiguration.UpdatePluginConfig(PluginId, ui, where);
             return t;

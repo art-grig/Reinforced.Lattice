@@ -18,11 +18,7 @@ namespace PowerTables.Plugins.Paging
         /// <param name="ui">Pager UI configuration</param>
         /// <param name="where">Plugin placement - to distinguish which instance to update. Can be omitted if you have single plugin instance per table.</param>
         /// <returns></returns>
-        public static Configurator<TSourceData, TTableData> Paging<TSourceData, TTableData>(
-            this Configurator<TSourceData, TTableData> conf,
-            Action<PluginConfigurationWrapper<PagingClientConfiguration>> ui,
-            string where = null
-            ) where TTableData : new()
+        public static T Paging<T>(this T conf, Action<PluginConfigurationWrapper<PagingClientConfiguration>> ui, string where = null) where T : IConfigurator
         {
             conf.TableConfiguration.UpdatePluginConfig(PluginId, ui, where);
             return conf;
@@ -88,7 +84,7 @@ namespace PowerTables.Plugins.Paging
             conf.Configuration.UseFirstLastPage = useFirstLasPage;
             return conf;
         }
-        
+
         /// <summary>
         /// When client paging is enabled, paging requests will not be passed to server. Client will load unpaged data and page it manually on client-side
         /// </summary>
