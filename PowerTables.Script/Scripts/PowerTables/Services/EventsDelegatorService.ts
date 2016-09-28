@@ -2,7 +2,7 @@
     /**
      * API for managing in-table elements' events
      */
-    export class EventsDelegator {
+    export class EventsDelegatorService {
 
         /**
          * @internal
@@ -58,14 +58,14 @@
         private ensureEventSubscription(eventId: string) {
             if (this._domEvents.hasOwnProperty(eventId)) return;
             var fn = this.onTableEvent.bind(this);
-            EventsDelegator.addHandler(this._bodyElement, eventId, fn);
+            EventsDelegatorService.addHandler(this._bodyElement, eventId, fn);
             this._domEvents[eventId] = fn;
         }
 
         private ensureOutSubscription(eventId: string) {
             if (this._outEvents.hasOwnProperty(eventId)) return;
             var fn = this.onOutTableEvent.bind(this);
-            EventsDelegator.addHandler(this._layoutElement, eventId, fn);
+            EventsDelegatorService.addHandler(this._layoutElement, eventId, fn);
             this._outEvents[eventId] = fn;
         }
 
@@ -253,7 +253,7 @@
                         EventArguments: eventArguments
                     });
                 };
-                EventsDelegator.addHandler(el, eventId, fn);
+                EventsDelegatorService.addHandler(el, eventId, fn);
             } else {
                 fn = (e: any) => {
                     handler.call(receiver, {
@@ -263,7 +263,7 @@
                         EventArguments: eventArguments
                     });
                 };
-                EventsDelegator.addHandler(el, eventId, fn);
+                EventsDelegatorService.addHandler(el, eventId, fn);
             }
             el.setAttribute('data-dsub', 'true');
             this._directSubscriptions.push({ Element: el, Handler: fn, EventId: eventId });
@@ -341,7 +341,7 @@
                         }
                     }
                     if (this._outSubscriptions[os].length === 0) {
-                        EventsDelegator.removeHandler(this._layoutElement, os, this._outEvents[os]);
+                        EventsDelegatorService.removeHandler(this._layoutElement, os, this._outEvents[os]);
                         delete this._outEvents[os];
                     }
                 }
@@ -350,7 +350,7 @@
             if (arr.length !== 0) {
                 for (var i = 0; i < this._directSubscriptions.length; i++) {
                     if (arr.indexOf(this._directSubscriptions[i].Element) > -1) {
-                        EventsDelegator.removeHandler(this._directSubscriptions[i].Element,
+                        EventsDelegatorService.removeHandler(this._directSubscriptions[i].Element,
                             this._directSubscriptions[i].EventId,
                             this._directSubscriptions[i].Handler);
                     }

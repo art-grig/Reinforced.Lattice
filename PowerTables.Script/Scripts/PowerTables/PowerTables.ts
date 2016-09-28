@@ -55,11 +55,17 @@ module PowerTables {
             if (!window['__latticeInstances']) window['__latticeInstances'] = {};
             window['__latticeInstances'][this._configuration.TableRootId] = this;
 
-            this.Date = new DateService(this._configuration.DatepickerOptions);
-            this.Events = new EventsManager(this);
-            this.InstanceManager = new InstanceManager(this._configuration, this, this.Events);
-            this.DataHolder = new DataHolder(this);
-            this.Loader = new Loader(this._configuration.StaticData, this._configuration.OperationalAjaxUrl, this);
+            var dep = new Dependency();
+            dep.createNamedInstance('Master', this);
+            dep.createNamedInstance('DatepickerOptions', this._configuration.DatepickerOptions);
+            dep.createNamedInstance('Configuration', this._configuration);
+
+            this.Date = dep.resolve(PowerTables.DateService);
+            this.Events = dep.resolve(PowerTables.EventsService);
+            this.InstanceManager = dep.resolve(PowerTables.InstanceManagerService);
+            this.DataHolder = dep.resolve(PowerTables.DataHolderService);
+
+            this.Loader = new LoaderService(this._configuration.StaticData, this._configuration.OperationalAjaxUrl, this);
             this.Renderer = new Rendering.Renderer(this._configuration.TableRootId, this._configuration.Prefix, this);
             this.Controller = new Controller(this);
             this.MessageService = new MessagesService(this._configuration.MessageFunction, this.InstanceManager, this.DataHolder, this.Controller, this.Renderer);
@@ -105,17 +111,17 @@ module PowerTables {
         /**
          * API for raising and handling various table events
          */
-        public Events: EventsManager;
+        public Events: EventsService;
 
         /**
          * API for managing local data
          */
-        public DataHolder: DataHolder;
+        public DataHolder: DataHolderService;
 
         /**
          * API for data loading
          */
-        public Loader: Loader;
+        public Loader: LoaderService;
 
         /**
          * API for rendering functionality
@@ -125,7 +131,7 @@ module PowerTables {
         /**
          * API for locating instances of different components
          */
-        public InstanceManager: InstanceManager;
+        public InstanceManager: InstanceManagerService;
 
         /**
          * API for overall workflow controlling

@@ -3,9 +3,9 @@
         init(masterTable: IMasterTable): void {
             super.init(masterTable);
         }
-        private originalX: number;
-        private originalY: number;
-        private selectPane: HTMLElement;
+        private _originalX: number;
+        private _originalY: number;
+        private _selectPane: HTMLElement;
         private _isSelecting: boolean;
 
         private selectStart(x: number, y: number) {
@@ -14,35 +14,35 @@
                 return;
             }
 
-            this.selectPane = this.MasterTable.Renderer.Modifier
+            this._selectPane = this.MasterTable.Renderer.Modifier
                 .createElement(this.MasterTable.Renderer.getCachedTemplate(this.RawConfig.TemplateId)(null));
-            this.selectPane.style.left = x + 'px';
-            this.selectPane.style.top = y + 'px';
-            this.selectPane.style.width = '0';
-            this.selectPane.style.height = '0';
-            this.selectPane.style.position = 'absolute';
-            this.selectPane.style.zIndex = '9999';
-            this.selectPane.style.pointerEvents = 'none';
+            this._selectPane.style.left = x + 'px';
+            this._selectPane.style.top = y + 'px';
+            this._selectPane.style.width = '0';
+            this._selectPane.style.height = '0';
+            this._selectPane.style.position = 'absolute';
+            this._selectPane.style.zIndex = '9999';
+            this._selectPane.style.pointerEvents = 'none';
 
-            this.originalX = x;
-            this.originalY = y;
-            document.body.appendChild(this.selectPane);
+            this._originalX = x;
+            this._originalY = y;
+            document.body.appendChild(this._selectPane);
             this._isSelecting = true;
         }
 
         private move(x: number, y: number) {
             if (!this._isSelecting) return;
             
-            var cx = (x <= this.originalX) ? x : this.originalX;
-            var cy = (y <= this.originalY) ? y : this.originalY;
+            var cx = (x <= this._originalX) ? x : this._originalX;
+            var cy = (y <= this._originalY) ? y : this._originalY;
 
-            var nx = (x >= this.originalX) ? x : this.originalX;
-            var ny = (y >= this.originalY) ? y : this.originalY;
+            var nx = (x >= this._originalX) ? x : this._originalX;
+            var ny = (y >= this._originalY) ? y : this._originalY;
 
-            this.selectPane.style.left = cx + 'px';
-            this.selectPane.style.top = cy + 'px';
-            this.selectPane.style.width = (nx - cx) + 'px';
-            this.selectPane.style.height = (ny - cy) + 'px';
+            this._selectPane.style.left = cx + 'px';
+            this._selectPane.style.top = cy + 'px';
+            this._selectPane.style.width = (nx - cx) + 'px';
+            this._selectPane.style.height = (ny - cy) + 'px';
 
             //this.originalX = cx;
             //this.originalY = cy;
@@ -50,13 +50,13 @@
 
         private selectEnd() {
             if (!this._isSelecting) return;
-            document.body.removeChild(this.selectPane);
+            document.body.removeChild(this._selectPane);
             this._isSelecting = false;
         }
 
         private _isAwaitingSelection: boolean = false;
         afterDrawn: (e: ITableEventArgs<any>) => void = (a) => {
-            PowerTables.EventsDelegator.addHandler(this.MasterTable.Renderer.RootElement, "mousedown", (e: MouseEvent) => {
+            PowerTables.EventsDelegatorService.addHandler(this.MasterTable.Renderer.RootElement, "mousedown", (e: MouseEvent) => {
                 this._isAwaitingSelection = true;
                 
                 setTimeout(() => {
@@ -70,7 +70,7 @@
                     10);
                 return true;
             });
-            PowerTables.EventsDelegator.addHandler(this.MasterTable.Renderer.RootElement, "mousemove", (e: MouseEvent) => {
+            PowerTables.EventsDelegatorService.addHandler(this.MasterTable.Renderer.RootElement, "mousemove", (e: MouseEvent) => {
                 if (this._isSelecting) {
                     e.stopPropagation();
                     e.preventDefault();
@@ -79,7 +79,7 @@
                 return true;
             });
 
-            PowerTables.EventsDelegator.addHandler(document.documentElement, "mouseup", (e: MouseEvent) => {
+            PowerTables.EventsDelegatorService.addHandler(document.documentElement, "mouseup", (e: MouseEvent) => {
                 this._isAwaitingSelection = false;
                 this.selectEnd();
                 if (this._isSelecting) {

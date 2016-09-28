@@ -58,17 +58,17 @@
         /**
         * API for raising and handling various table events
         */
-        Events: EventsManager;
+        Events: EventsService;
 
         /**
          * API for managing local data
          */
-        DataHolder: DataHolder;
+        DataHolder: DataHolderService;
 
         /**
          * API for data loading
          */
-        Loader: Loader;
+        Loader: LoaderService;
 
         /**
          * API for rendering functionality
@@ -78,7 +78,7 @@
         /**
          * API for locating instances of different components
          */
-        InstanceManager: InstanceManager;
+        InstanceManager: InstanceManagerService;
 
         /**
          * API for overall workflow controlling

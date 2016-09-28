@@ -4,7 +4,7 @@
         private _serverOrderings: { [key: string]: PowerTables.Ordering } = {};
         private _boundHandler: any;
 
-        public subscribe(e: EventsManager): void {
+        public subscribe(e: EventsService): void {
             e.ColumnsCreation.subscribe(v => {
                 this.overrideHeadersTemplates(v.EventArgs);
             }, 'ordering');

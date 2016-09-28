@@ -752,6 +752,23 @@ declare module PowerTables.Plugins.MouseSelect {
     }
 }
 declare module PowerTables {
+    class Dependency {
+        constructor();
+        private static _requirers;
+        private static _requirements;
+        private _instances;
+        static requires(classFunction: Function, requirements: {
+            [_: string]: any;
+        }): void;
+        private instanceId(classFunction, create?);
+        createInstance(classFunction: Function, instance: any): void;
+        private buildUp(instance, requirements);
+        private provide(requirement, instance);
+        createNamedInstance(name: string, instance: any): void;
+        resolve(classFunction: any): any;
+    }
+}
+declare module PowerTables {
     /**
     * Helper class for producing track ids.
     * You can use this class directly, but it is better to use it via @memberref PowerTables.PowerTable.Renderer.Rendering.Modifier instance
@@ -839,7 +856,7 @@ declare module PowerTables {
          */
         static resolveComponent<T>(key: string, args?: any[]): T;
         /**
-         * Registers component-provided events in particular EventsManager instance.
+         * Registers component-provided events in particular EventsService instance.
          * It is important to register all component's events befor instantiation and .init call
          * to make them available to subscribe each other's events.
          *
@@ -850,8 +867,8 @@ declare module PowerTables {
          * @param eventsManager Events manager instance
          * @returns {}
          */
-        static registerComponentEvents(key: string, eventsManager: EventsManager, masterTable: IMasterTable): void;
-        static registerAllEvents(eventsManager: EventsManager, masterTable: IMasterTable): void;
+        static registerComponentEvents(key: string, eventsManager: EventsService, masterTable: IMasterTable): void;
+        static registerAllEvents(eventsManager: EventsService, masterTable: IMasterTable): void;
     }
 }
 declare module PowerTables {
@@ -904,15 +921,15 @@ declare module PowerTables {
         /**
         * API for raising and handling various table events
         */
-        Events: EventsManager;
+        Events: EventsService;
         /**
          * API for managing local data
          */
-        DataHolder: DataHolder;
+        DataHolder: DataHolderService;
         /**
          * API for data loading
          */
-        Loader: Loader;
+        Loader: LoaderService;
         /**
          * API for rendering functionality
          */
@@ -920,7 +937,7 @@ declare module PowerTables {
         /**
          * API for locating instances of different components
          */
-        InstanceManager: InstanceManager;
+        InstanceManager: InstanceManagerService;
         /**
          * API for overall workflow controlling
          */
@@ -1159,7 +1176,6 @@ declare module PowerTables {
      * API responsible for dates operations
      */
     class DateService {
-        constructor(datepickerOptions: IDatepickerOptions);
         private _datepickerOptions;
         private ensureDpo();
         /**
@@ -1214,7 +1230,7 @@ declare module PowerTables {
     /**
      * API for managing in-table elements' events
      */
-    class EventsDelegator {
+    class EventsDelegatorService {
         /**
          * @internal
          */
@@ -1397,9 +1413,9 @@ declare module PowerTables {
      * Events manager for table.
      * Contains all available events
      */
-    class EventsManager {
+    class EventsService {
         private _masterTable;
-        constructor(masterTable: any);
+        constructor();
         /**
          * "Before Layout Drawn" event.
          * Occurs before layout is actually drawn but after all table is initialized.
@@ -1662,16 +1678,16 @@ declare module PowerTables {
     /**
      * Class that is responsible for holding and managing data loaded from server
      */
-    class DataHolder {
-        constructor(masterTable: IMasterTable);
+    class DataHolderService {
+        constructor();
         private _rawColumnNames;
         private _comparators;
         private _filters;
         private _anyClientFiltration;
         private _events;
         private _instances;
-        private _masterTable;
         private _clientValueFunction;
+        private _date;
         /**
          * Data that actually is currently displayed in table
          */
@@ -1838,8 +1854,8 @@ declare module PowerTables {
     * It consumes PT configuration as source and provides caller with
     * plugins instances, variable ways to query them and accessing their properties
     */
-    class InstanceManager {
-        constructor(configuration: Configuration.Json.ITableConfiguration, masterTable: IMasterTable, events: EventsManager);
+    class InstanceManagerService {
+        constructor();
         private compileComparisonFunction();
         /**
          * Local objects comparison function based on key fields
@@ -1944,7 +1960,7 @@ declare module PowerTables {
     /**
      * Component that is responsible for querying server
      */
-    class Loader {
+    class LoaderService {
         constructor(staticData: any, operationalAjaxUrl: string, masterTable: IMasterTable);
         private _queryPartProviders;
         private _previousRequest;
@@ -2003,11 +2019,11 @@ declare module PowerTables.Rendering {
         private _stealer;
         private _cachedVisualStates;
         private _hasVisualStates;
-        Delegator: EventsDelegator;
+        Delegator: EventsDelegatorService;
         /**
    * @internal
    */
-        constructor(hb: Handlebars.IHandlebars, instances: InstanceManager, stack: RenderingStack, dateService: DateService);
+        constructor(hb: Handlebars.IHandlebars, instances: InstanceManagerService, stack: RenderingStack, dateService: DateService);
         private traverseBackbind<T>(elements, parentElement, backbindCollection, attribute, fn);
         private getMatchingElements(parent, attr);
         /**
@@ -2099,7 +2115,7 @@ declare module PowerTables.Rendering {
      * Part of renderer that is responsible for rendering of dynamically loaded content
      */
     class ContentRenderer {
-        constructor(templatesProvider: ITemplatesProvider, stack: Rendering.RenderingStack, instances: InstanceManager, coreTemplates: ICoreTemplateIds);
+        constructor(templatesProvider: ITemplatesProvider, stack: Rendering.RenderingStack, instances: InstanceManagerService, coreTemplates: ICoreTemplateIds);
         private _hb;
         private _templatesProvider;
         private _columnsRenderFunctions;
@@ -2131,7 +2147,7 @@ declare module PowerTables.Rendering {
      * Class that is responsible for particular HTML elements redrawing/addition/removal
      */
     class DOMModifier {
-        constructor(stack: RenderingStack, locator: DOMLocator, backBinder: BackBinder, templatesProvider: ITemplatesProvider, layoutRenderer: LayoutRenderer, instances: InstanceManager, ed: EventsDelegator);
+        constructor(stack: RenderingStack, locator: DOMLocator, backBinder: BackBinder, templatesProvider: ITemplatesProvider, layoutRenderer: LayoutRenderer, instances: InstanceManagerService, ed: EventsDelegatorService);
         private _ed;
         private _stack;
         private _locator;
@@ -2377,7 +2393,7 @@ declare module PowerTables.Rendering {
         /**
         * @internal
         */
-        constructor(templates: ITemplatesProvider, stack: RenderingStack, instances: InstanceManager, coreTemplates: ICoreTemplateIds);
+        constructor(templates: ITemplatesProvider, stack: RenderingStack, instances: InstanceManagerService, coreTemplates: ICoreTemplateIds);
         private bodyHelper();
         private pluginHelper(pluginPosition, pluginId);
         private pluginsHelper(pluginPosition);
@@ -2543,7 +2559,7 @@ declare module PowerTables.Rendering {
         /**
          * API that is responsible for UI events delegation
          */
-        Delegator: EventsDelegator;
+        Delegator: EventsDelegatorService;
         private _masterTable;
         private _instances;
         private _stack;
@@ -2684,15 +2700,15 @@ declare module PowerTables {
         /**
          * API for raising and handling various table events
          */
-        Events: EventsManager;
+        Events: EventsService;
         /**
          * API for managing local data
          */
-        DataHolder: DataHolder;
+        DataHolder: DataHolderService;
         /**
          * API for data loading
          */
-        Loader: Loader;
+        Loader: LoaderService;
         /**
          * API for rendering functionality
          */
@@ -2700,7 +2716,7 @@ declare module PowerTables {
         /**
          * API for locating instances of different components
          */
-        InstanceManager: InstanceManager;
+        InstanceManager: InstanceManagerService;
         /**
          * API for overall workflow controlling
          */
@@ -2755,7 +2771,7 @@ declare module PowerTables.Plugins {
          *
          * @param e Events manager
          */
-        protected subscribe(e: EventsManager): void;
+        protected subscribe(e: EventsService): void;
         /**
          * In this method you can register any additional Handlebars.js helpers in case of your
          * templates needs ones
@@ -2802,7 +2818,7 @@ declare module PowerTables.Plugins.Ordering {
         private _clientOrderings;
         private _serverOrderings;
         private _boundHandler;
-        subscribe(e: EventsManager): void;
+        subscribe(e: EventsService): void;
         private overrideHeadersTemplates(columns);
         private updateOrdering(columnName, ordering);
         private specifyOrdering(object, ordering);
@@ -3013,7 +3029,7 @@ declare module PowerTables.Plugins.Hideout {
         private onLayourRendered();
         init(masterTable: IMasterTable): void;
         renderContent(templatesProvider: ITemplatesProvider): string;
-        subscribe(e: EventsManager): void;
+        subscribe(e: EventsService): void;
         private ifColVisibleHelper(columnName, opts);
         registerAdditionalHelpers(hb: Handlebars.IHandlebars): void;
     }
@@ -3060,7 +3076,7 @@ declare module PowerTables.Plugins.Total {
         /**
         * @internal
         */
-        subscribe(e: EventsManager): void;
+        subscribe(e: EventsService): void;
     }
 }
 declare module PowerTables.Plugins.Checkboxify {
@@ -3093,8 +3109,8 @@ declare module PowerTables.Plugins.Checkboxify {
         private onAfterAdjustments(e);
         init(masterTable: IMasterTable): void;
         modifyQuery(query: IQuery, scope: QueryScope): void;
-        static registerEvents(e: EventsManager, masterTable: IMasterTable): void;
-        subscribe(e: EventsManager): void;
+        static registerEvents(e: EventsService, masterTable: IMasterTable): void;
+        subscribe(e: EventsService): void;
     }
 }
 declare module PowerTables.Plugins.Toolbar {
@@ -3133,7 +3149,7 @@ declare module PowerTables.Plugins.Formwatch {
         private static extractData(elements, fieldConf, dateService);
         static extractFormData(configuration: PowerTables.Plugins.Formwatch.IFormwatchFieldData[], rootElement: any, dateService: DateService): {};
         modifyQuery(query: IQuery, scope: QueryScope): void;
-        subscribe(e: EventsManager): void;
+        subscribe(e: EventsService): void;
         fieldChange(fieldSelector: string, delay: number, element: HTMLInputElement, e: Event): void;
         init(masterTable: IMasterTable): void;
     }
@@ -3247,7 +3263,7 @@ declare module PowerTables {
      * user's ones
      */
     class MessagesService {
-        constructor(usersMessageFn: (msg: ITableMessage) => void, instances: InstanceManager, dataHolder: DataHolder, controller: Controller, templatesProvider: ITemplatesProvider);
+        constructor(usersMessageFn: (msg: ITableMessage) => void, instances: InstanceManagerService, dataHolder: DataHolderService, controller: Controller, templatesProvider: ITemplatesProvider);
         private _usersMessageFn;
         private _instances;
         private _dataHolder;
@@ -3271,7 +3287,7 @@ declare module PowerTables.Plugins.Reload {
         renderContent(templatesProvider: ITemplatesProvider): string;
         startLoading(): void;
         stopLoading(): void;
-        subscribe(e: EventsManager): void;
+        subscribe(e: EventsService): void;
         init(masterTable: IMasterTable): void;
         afterDrawn: (e: ITableEventArgs<any>) => void;
     }
@@ -3279,7 +3295,7 @@ declare module PowerTables.Plugins.Reload {
 declare module PowerTables.Plugins.Loading {
     class LoadingPlugin extends PluginBase<any> implements ILoadingPlugin {
         BlinkElement: HTMLElement;
-        subscribe(e: EventsManager): void;
+        subscribe(e: EventsService): void;
         showLoadingIndicator(): void;
         hideLoadingIndicator(): void;
         static Id: string;
@@ -3322,7 +3338,7 @@ declare module PowerTables.Plugins.Hierarchy {
         private _stolenFilterFunctions;
         private stealFilterFunctions();
         private onAfterClientDataProcessing(e);
-        subscribe(e: EventsManager): void;
+        subscribe(e: EventsService): void;
         private onAfterLayoutRendered();
         filterPredicate(rowObject: any, query: IQuery): boolean;
         private onBeforeClientDataProcessing();
@@ -3714,9 +3730,9 @@ declare module PowerTables.Editing.Editors.Display {
 declare module PowerTables.Plugins.MouseSelect {
     class MouseSelectPlugin extends PowerTables.Plugins.PluginBase<PowerTables.Plugins.MouseSelect.IMouseSelectUiConfig> {
         init(masterTable: IMasterTable): void;
-        private originalX;
-        private originalY;
-        private selectPane;
+        private _originalX;
+        private _originalY;
+        private _selectPane;
         private _isSelecting;
         private selectStart(x, y);
         private move(x, y);
@@ -3724,4 +3740,6 @@ declare module PowerTables.Plugins.MouseSelect {
         private _isAwaitingSelection;
         afterDrawn: (e: ITableEventArgs<any>) => void;
     }
+}
+declare module PowerTables {
 }

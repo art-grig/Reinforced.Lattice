@@ -3,19 +3,15 @@
      * API responsible for dates operations
      */
     export class DateService {
-        /*
-         * @internal
-         */
-        constructor(datepickerOptions: IDatepickerOptions) {
-            this._datepickerOptions = datepickerOptions;
-        }
+        
+        private  _datepickerOptions: IDatepickerOptions;
 
-        private _datepickerOptions: IDatepickerOptions;
         private ensureDpo() {
             if (this._datepickerOptions == null || this._datepickerOptions == undefined) {
                 throw new Error('For this functionality you need 3rd-party datepicker. Please connect one using .Datepicker method');
             }
         }
+
         /**
          * Determines is passed object valid Date object
          * @param date 
@@ -115,6 +111,7 @@
             this._datepickerOptions.PutToDatePicker(element, date);
         }
     }
+    
 }
 
 if (!Date.prototype.toISOString) {

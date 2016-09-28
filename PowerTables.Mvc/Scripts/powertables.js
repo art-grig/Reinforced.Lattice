@@ -75,6 +75,106 @@ var PowerTables;
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
+    var Dependency = (function () {
+        function Dependency() {
+            this._instances = {};
+            this._instances['_container'] = {
+                Instance: this,
+                Requirements: {},
+                Satisficator: '_container'
+            };
+        }
+        Dependency.requires = function (classFunction, requirements) {
+            this._requirers.push(classFunction);
+            this._requirements.push(requirements);
+        };
+        Dependency.prototype.instanceId = function (classFunction, create) {
+            if (create === void 0) { create = true; }
+            if (typeof classFunction == "function") {
+                var idx = Dependency._requirers.indexOf(classFunction);
+                if (idx < 0) {
+                    if (create) {
+                        Dependency.requires(classFunction, {});
+                        return Dependency._requirers.length.toString();
+                    }
+                    else {
+                        return null;
+                    }
+                }
+                else {
+                    return idx.toString();
+                }
+            }
+            return classFunction.toString();
+        };
+        Dependency.prototype.createInstance = function (classFunction, instance) {
+            if (instance == null || instance == undefined)
+                throw new Error("Cannot register indefined instance");
+            var id = this.instanceId(classFunction);
+            var requirements = Dependency._requirements[parseInt(id)];
+            this._instances[id] = {
+                Instance: instance,
+                Requirements: requirements,
+                Satisficator: classFunction
+            };
+            this.provide(classFunction, instance);
+            this.buildUp(instance, requirements);
+        };
+        Dependency.prototype.buildUp = function (instance, requirements) {
+            for (var k in requirements) {
+                var rq = this.instanceId(requirements[k], false);
+                if (rq != null) {
+                    instance[k] = this._instances[rq].Instance;
+                }
+            }
+        };
+        Dependency.prototype.provide = function (requirement, instance) {
+            for (var k in this._instances) {
+                var target = this._instances[k].Instance;
+                for (var rk in this._instances[k].Requirements) {
+                    var req = this._instances[k].Requirements[rk];
+                    if (req === requirement) {
+                        target[rk] = instance;
+                    }
+                }
+            }
+        };
+        Dependency.prototype.createNamedInstance = function (name, instance) {
+            if (instance == null || instance == undefined)
+                instance = null;
+            this._instances[name] = {
+                Instance: instance,
+                Satisficator: name,
+                Requirements: {}
+            };
+        };
+        Dependency.prototype.resolve = function (classFunction) {
+            var id = this.instanceId(classFunction, false);
+            if (!id)
+                throw new Error("Instance of " + classFunction + " is not registered as dependency");
+            var dep = this;
+            var _ = function () { this.constructor = classFunction; };
+            _.prototype = classFunction.prototype;
+            var fn = function () {
+                dep.createInstance(classFunction, this);
+                classFunction.call(this);
+            };
+            fn.prototype = new _();
+            var instance = new fn();
+            var ret = classFunction.toString();
+            ret = ret.substr('function '.length);
+            ret = ret.substr(0, ret.indexOf('('));
+            instance.__dependencyOf = ret;
+            return instance;
+        };
+        Dependency._requirers = [];
+        Dependency._requirements = [];
+        return Dependency;
+    }());
+    PowerTables.Dependency = Dependency;
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
     /**
     * Helper class for producing track ids.
     * You can use this class directly, but it is better to use it via @memberref PowerTables.PowerTable.Renderer.Rendering.Modifier instance
@@ -194,7 +294,7 @@ var PowerTables;
             if (this._components[key] == null || this._components[key] == undefined)
                 throw new Error("Component " + key + " is not registered. Please ensure that you have connected all the additional scripts");
             if (!args)
-                return new this._components[key];
+                return new (this._components[key]);
             else {
                 var ctor = this._components[key];
                 var boundCtor = Function.prototype.bind.apply(ctor, [null].concat(args));
@@ -202,7 +302,7 @@ var PowerTables;
             }
         };
         /**
-         * Registers component-provided events in particular EventsManager instance.
+         * Registers component-provided events in particular EventsService instance.
          * It is important to register all component's events befor instantiation and .init call
          * to make them available to subscribe each other's events.
          *
@@ -271,11 +371,7 @@ var PowerTables;
      * API responsible for dates operations
      */
     var DateService = (function () {
-        /*
-         * @internal
-         */
-        function DateService(datepickerOptions) {
-            this._datepickerOptions = datepickerOptions;
+        function DateService() {
         }
         DateService.prototype.ensureDpo = function () {
             if (this._datepickerOptions == null || this._datepickerOptions == undefined) {
@@ -420,11 +516,11 @@ var PowerTables;
     /**
      * API for managing in-table elements' events
      */
-    var EventsDelegator = (function () {
+    var EventsDelegatorService = (function () {
         /**
          * @internal
          */
-        function EventsDelegator(locator, bodyElement, layoutElement, rootId, masterTable) {
+        function EventsDelegatorService(locator, bodyElement, layoutElement, rootId, masterTable) {
             this._outSubscriptions = {};
             this._cellDomSubscriptions = {};
             this._rowDomSubscriptions = {};
@@ -444,7 +540,7 @@ var PowerTables;
                 return (p.matches || p.matchesSelector || p.webkitMatchesSelector || p.mozMatchesSelector || p.msMatchesSelector || p.oMatchesSelector);
             }(Element));
         }
-        EventsDelegator.addHandler = function (element, type, handler) {
+        EventsDelegatorService.addHandler = function (element, type, handler) {
             if (element.addEventListener) {
                 element.addEventListener(type, handler, false);
             }
@@ -455,7 +551,7 @@ var PowerTables;
                 element["on" + type] = handler;
             }
         };
-        EventsDelegator.removeHandler = function (element, type, handler) {
+        EventsDelegatorService.removeHandler = function (element, type, handler) {
             if (element.removeEventListener) {
                 element.removeEventListener(type, handler, false);
             }
@@ -466,21 +562,21 @@ var PowerTables;
                 element["on" + type] = null;
             }
         };
-        EventsDelegator.prototype.ensureEventSubscription = function (eventId) {
+        EventsDelegatorService.prototype.ensureEventSubscription = function (eventId) {
             if (this._domEvents.hasOwnProperty(eventId))
                 return;
             var fn = this.onTableEvent.bind(this);
-            EventsDelegator.addHandler(this._bodyElement, eventId, fn);
+            EventsDelegatorService.addHandler(this._bodyElement, eventId, fn);
             this._domEvents[eventId] = fn;
         };
-        EventsDelegator.prototype.ensureOutSubscription = function (eventId) {
+        EventsDelegatorService.prototype.ensureOutSubscription = function (eventId) {
             if (this._outEvents.hasOwnProperty(eventId))
                 return;
             var fn = this.onOutTableEvent.bind(this);
-            EventsDelegator.addHandler(this._layoutElement, eventId, fn);
+            EventsDelegatorService.addHandler(this._layoutElement, eventId, fn);
             this._outEvents[eventId] = fn;
         };
-        EventsDelegator.prototype.traverseAndFire = function (subscriptions, path, args) {
+        EventsDelegatorService.prototype.traverseAndFire = function (subscriptions, path, args) {
             for (var i = 0; i < subscriptions.length; i++) {
                 if (subscriptions[i].Selector) {
                     for (var j = 0; j < path.length; j++) {
@@ -497,7 +593,7 @@ var PowerTables;
                 }
             }
         };
-        EventsDelegator.prototype.onTableEvent = function (e) {
+        EventsDelegatorService.prototype.onTableEvent = function (e) {
             var t = (e.target || e.srcElement), eventType = e.type;
             var forRow = this._rowDomSubscriptions[eventType];
             var forCell = this._cellDomSubscriptions[eventType];
@@ -549,7 +645,7 @@ var PowerTables;
          *
          * @param subscription Event subscription
          */
-        EventsDelegator.prototype.subscribeCellEvent = function (subscription) {
+        EventsDelegatorService.prototype.subscribeCellEvent = function (subscription) {
             var eo = this.parseEventId(subscription.EventId);
             subscription.EventId = eo['__event'];
             subscription.filter = eo;
@@ -565,7 +661,7 @@ var PowerTables;
          *
          * @param subscription Event subscription
          */
-        EventsDelegator.prototype.subscribeRowEvent = function (subscription) {
+        EventsDelegatorService.prototype.subscribeRowEvent = function (subscription) {
             var eo = this.parseEventId(subscription.EventId);
             subscription.EventId = eo['__event'];
             subscription.filter = eo;
@@ -578,7 +674,7 @@ var PowerTables;
         // custom events like |key=b`value`|keyup
         // b is type bool
         // b,s,i,f available
-        EventsDelegator.prototype.parseEventId = function (eventId) {
+        EventsDelegatorService.prototype.parseEventId = function (eventId) {
             if (eventId.indexOf('|') < 0)
                 return { __event: eventId, __no: true };
             var eo = {};
@@ -619,7 +715,7 @@ var PowerTables;
             }
             return eo;
         };
-        EventsDelegator.prototype.filterEvent = function (e, propsObject) {
+        EventsDelegatorService.prototype.filterEvent = function (e, propsObject) {
             if (propsObject['__no'])
                 return true;
             for (var p in propsObject) {
@@ -646,7 +742,7 @@ var PowerTables;
         /**
          * @internal
          */
-        EventsDelegator.prototype.subscribeEvent = function (el, eventId, handler, receiver, eventArguments) {
+        EventsDelegatorService.prototype.subscribeEvent = function (el, eventId, handler, receiver, eventArguments) {
             var eo = this.parseEventId(eventId);
             var fn;
             if (!eo['__no']) {
@@ -662,7 +758,7 @@ var PowerTables;
                         EventArguments: eventArguments
                     });
                 };
-                EventsDelegator.addHandler(el, eventId, fn);
+                EventsDelegatorService.addHandler(el, eventId, fn);
             }
             else {
                 fn = function (e) {
@@ -673,12 +769,12 @@ var PowerTables;
                         EventArguments: eventArguments
                     });
                 };
-                EventsDelegator.addHandler(el, eventId, fn);
+                EventsDelegatorService.addHandler(el, eventId, fn);
             }
             el.setAttribute('data-dsub', 'true');
             this._directSubscriptions.push({ Element: el, Handler: fn, EventId: eventId });
         };
-        EventsDelegator.prototype.onOutTableEvent = function (e) {
+        EventsDelegatorService.prototype.onOutTableEvent = function (e) {
             var subscriptions = this._outSubscriptions[e.type];
             var target = (e.target || e.srcElement);
             for (var i = 0; i < subscriptions.length; i++) {
@@ -706,7 +802,7 @@ var PowerTables;
         /**
          * @internal
          */
-        EventsDelegator.prototype.subscribeOutOfElementEvent = function (el, eventId, handler, receiver, eventArguments) {
+        EventsDelegatorService.prototype.subscribeOutOfElementEvent = function (el, eventId, handler, receiver, eventArguments) {
             var eo = this.parseEventId(eventId);
             eventId = eo['__event'];
             this.ensureOutSubscription(eventId);
@@ -728,7 +824,7 @@ var PowerTables;
          * @param e HTML element destroying of which will fire event
          * @param callback Callback being called when element is destroyed
          */
-        EventsDelegator.prototype.subscribeDestroy = function (e, callback) {
+        EventsDelegatorService.prototype.subscribeDestroy = function (e, callback) {
             callback.Element = e;
             e.setAttribute("data-dstrycb", "true");
             this._destroyCallbacks.push(callback);
@@ -736,7 +832,7 @@ var PowerTables;
         /**
          * @internal
          */
-        EventsDelegator.prototype.handleElementDestroy = function (e) {
+        EventsDelegatorService.prototype.handleElementDestroy = function (e) {
             var arr = this.collectElementsHavingAttribute(e, 'data-outsub');
             if (arr.length !== 0) {
                 for (var os in this._outSubscriptions) {
@@ -748,7 +844,7 @@ var PowerTables;
                         }
                     }
                     if (this._outSubscriptions[os].length === 0) {
-                        EventsDelegator.removeHandler(this._layoutElement, os, this._outEvents[os]);
+                        EventsDelegatorService.removeHandler(this._layoutElement, os, this._outEvents[os]);
                         delete this._outEvents[os];
                     }
                 }
@@ -757,7 +853,7 @@ var PowerTables;
             if (arr.length !== 0) {
                 for (var i = 0; i < this._directSubscriptions.length; i++) {
                     if (arr.indexOf(this._directSubscriptions[i].Element) > -1) {
-                        EventsDelegator.removeHandler(this._directSubscriptions[i].Element, this._directSubscriptions[i].EventId, this._directSubscriptions[i].Handler);
+                        EventsDelegatorService.removeHandler(this._directSubscriptions[i].Element, this._directSubscriptions[i].EventId, this._directSubscriptions[i].Handler);
                     }
                 }
             }
@@ -781,7 +877,7 @@ var PowerTables;
                 }
             }
         };
-        EventsDelegator.prototype.collectElementsHavingAttribute = function (parent, attribute) {
+        EventsDelegatorService.prototype.collectElementsHavingAttribute = function (parent, attribute) {
             var matching = parent.querySelectorAll("[" + attribute + "]");
             var arr = [];
             for (var i = 0; i < matching.length; i++) {
@@ -791,9 +887,9 @@ var PowerTables;
                 arr.push(parent);
             return arr;
         };
-        return EventsDelegator;
+        return EventsDelegatorService;
     }());
-    PowerTables.EventsDelegator = EventsDelegator;
+    PowerTables.EventsDelegatorService = EventsDelegatorService;
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
@@ -920,24 +1016,23 @@ var PowerTables;
      * Events manager for table.
      * Contains all available events
      */
-    var EventsManager = (function () {
-        function EventsManager(masterTable) {
-            this._masterTable = masterTable;
-            this.QueryGathering = new TableEvent(masterTable);
-            this.ClientQueryGathering = new TableEvent(masterTable);
-            this.Loading = new TableEvent(masterTable);
-            this.LoadingError = new TableEvent(masterTable);
-            this.ColumnsCreation = new TableEvent(masterTable);
-            this.DataReceived = new TableEvent(masterTable);
-            this.LayoutRendered = new TableEvent(masterTable);
-            this.ClientDataProcessing = new TableEvent(masterTable);
-            this.DataRendered = new TableEvent(masterTable);
-            this.ClientRowsRendering = new TableEvent(masterTable);
-            this.DeferredDataReceived = new TableEvent(masterTable);
-            this.Adjustment = new TableEvent(masterTable);
-            this.AdjustmentResult = new TableEvent(masterTable);
-            this.Edit = new TableEvent(masterTable);
-            this.EditValidationFailed = new TableEvent(masterTable);
+    var EventsService = (function () {
+        function EventsService() {
+            this.QueryGathering = new TableEvent(this._masterTable);
+            this.ClientQueryGathering = new TableEvent(this._masterTable);
+            this.Loading = new TableEvent(this._masterTable);
+            this.LoadingError = new TableEvent(this._masterTable);
+            this.ColumnsCreation = new TableEvent(this._masterTable);
+            this.DataReceived = new TableEvent(this._masterTable);
+            this.LayoutRendered = new TableEvent(this._masterTable);
+            this.ClientDataProcessing = new TableEvent(this._masterTable);
+            this.DataRendered = new TableEvent(this._masterTable);
+            this.ClientRowsRendering = new TableEvent(this._masterTable);
+            this.DeferredDataReceived = new TableEvent(this._masterTable);
+            this.Adjustment = new TableEvent(this._masterTable);
+            this.AdjustmentResult = new TableEvent(this._masterTable);
+            this.Edit = new TableEvent(this._masterTable);
+            this.EditValidationFailed = new TableEvent(this._masterTable);
         }
         /**
          * Registers new event for events manager.
@@ -949,12 +1044,12 @@ var PowerTables;
          * @param eventName Event name
          * @returns {}
          */
-        EventsManager.prototype.registerEvent = function (eventName) {
+        EventsService.prototype.registerEvent = function (eventName) {
             this[eventName] = new TableEvent(this._masterTable);
         };
-        return EventsManager;
+        return EventsService;
     }());
-    PowerTables.EventsManager = EventsManager;
+    PowerTables.EventsService = EventsService;
     (function (EventDirection) {
         EventDirection[EventDirection["Before"] = 0] = "Before";
         EventDirection[EventDirection["After"] = 1] = "After";
@@ -1165,8 +1260,8 @@ var PowerTables;
     /**
      * Class that is responsible for holding and managing data loaded from server
      */
-    var DataHolder = (function () {
-        function DataHolder(masterTable) {
+    var DataHolderService = (function () {
+        function DataHolderService() {
             this._comparators = {};
             this._filters = [];
             this._anyClientFiltration = false;
@@ -1180,12 +1275,9 @@ var PowerTables;
              */
             this.StoredData = [];
             this._manadatoryOrderings = [];
-            this._rawColumnNames = masterTable.InstanceManager.getColumnNames();
-            this._events = masterTable.Events;
-            this._instances = masterTable.InstanceManager;
-            this._masterTable = masterTable;
-            for (var ck in masterTable.InstanceManager.Columns) {
-                var col = masterTable.InstanceManager.Columns[ck];
+            this._rawColumnNames = this._instances.getColumnNames();
+            for (var ck in this._instances.Columns) {
+                var col = this._instances.Columns[ck];
                 if (col.Configuration.ClientValueFunction != null && col.Configuration.ClientValueFunction != undefined) {
                     this._clientValueFunction[col.RawName] = col.Configuration.ClientValueFunction;
                 }
@@ -1196,14 +1288,14 @@ var PowerTables;
          *
          * @param filter Client filter
          */
-        DataHolder.prototype.registerClientFilter = function (filter) {
+        DataHolderService.prototype.registerClientFilter = function (filter) {
             this._anyClientFiltration = true;
             this._filters.push(filter);
         };
-        DataHolder.prototype.getClientFilters = function () {
+        DataHolderService.prototype.getClientFilters = function () {
             return this._filters;
         };
-        DataHolder.prototype.clearClientFilters = function () {
+        DataHolderService.prototype.clearClientFilters = function () {
             this._anyClientFiltration = false;
             this._filters = [];
         };
@@ -1214,20 +1306,20 @@ var PowerTables;
          * @param comparator Comparator fn that should return 0 if entries are equal, -1 if a<b, +1 if a>b
          * @returns {}
          */
-        DataHolder.prototype.registerClientOrdering = function (dataField, comparator, mandatory) {
+        DataHolderService.prototype.registerClientOrdering = function (dataField, comparator, mandatory) {
             if (mandatory === void 0) { mandatory = false; }
             this._anyClientFiltration = true;
             this._comparators[dataField] = comparator;
             if (mandatory)
                 this._manadatoryOrderings.push(dataField);
         };
-        DataHolder.prototype.isClientFiltrationPending = function () {
+        DataHolderService.prototype.isClientFiltrationPending = function () {
             return (this.EnableClientSkip || this.EnableClientTake || this._anyClientFiltration);
         };
         /**
         * Parses response from server and turns it to objects array
         */
-        DataHolder.prototype.storeResponse = function (response, clientQuery) {
+        DataHolderService.prototype.storeResponse = function (response, clientQuery) {
             var data = [];
             var obj = {};
             var currentColIndex = 0;
@@ -1235,7 +1327,7 @@ var PowerTables;
             for (var i = 0; i < response.Data.length; i++) {
                 if (this._instances.Columns[currentCol].IsDateTime) {
                     if (response.Data[i]) {
-                        obj[currentCol] = this._masterTable.Date.parse(response.Data[i]);
+                        obj[currentCol] = this._date.parse(response.Data[i]);
                     }
                     else {
                         obj[currentCol] = null;
@@ -1265,7 +1357,7 @@ var PowerTables;
          * @param query Client query
          * @returns {Array} Array of filtered items
          */
-        DataHolder.prototype.filterSet = function (objects, query) {
+        DataHolderService.prototype.filterSet = function (objects, query) {
             var result = [];
             if (this._filters.length !== 0) {
                 for (var i = 0; i < objects.length; i++) {
@@ -1292,7 +1384,7 @@ var PowerTables;
         * @param query Client query
         * @returns {Array} Array of ordered items
         */
-        DataHolder.prototype.orderSet = function (objects, query) {
+        DataHolderService.prototype.orderSet = function (objects, query) {
             if (query.Orderings) {
                 var sortFn = '';
                 var comparersArg = '';
@@ -1322,7 +1414,7 @@ var PowerTables;
             }
             return objects;
         };
-        DataHolder.prototype.skipTakeSet = function (ordered, query) {
+        DataHolderService.prototype.skipTakeSet = function (ordered, query) {
             var selected = ordered;
             var startingIndex = query.Paging.PageIndex * query.Paging.PageSize;
             if (startingIndex > ordered.length)
@@ -1352,7 +1444,7 @@ var PowerTables;
          * @param query Table query
          * @returns {}
          */
-        DataHolder.prototype.filterStoredData = function (query) {
+        DataHolderService.prototype.filterStoredData = function (query) {
             this._events.ClientDataProcessing.invokeBefore(this, query);
             this.DisplayedData = this.StoredData;
             this.Filtered = this.StoredData;
@@ -1378,7 +1470,7 @@ var PowerTables;
          * Filter recent data and store it to currently displaying data
          * using query that was previously applied to local data
          */
-        DataHolder.prototype.filterStoredDataWithPreviousQuery = function () {
+        DataHolderService.prototype.filterStoredDataWithPreviousQuery = function () {
             this.filterStoredData(this.RecentClientQuery);
         };
         //#endregion
@@ -1389,7 +1481,7 @@ var PowerTables;
          * @param predicate Filtering predicate returning true for required objects
          * @returns Array of ILocalLookupResults
          */
-        DataHolder.prototype.localLookup = function (predicate, setToLookup) {
+        DataHolderService.prototype.localLookup = function (predicate, setToLookup) {
             if (setToLookup === void 0) { setToLookup = this.StoredData; }
             var result = [];
             for (var i = 0; i < setToLookup.length; i++) {
@@ -1418,7 +1510,7 @@ var PowerTables;
          * @param index Index of desired data object among locally displaying data
          * @returns ILocalLookupResult
          */
-        DataHolder.prototype.localLookupDisplayedDataObject = function (dataObject) {
+        DataHolderService.prototype.localLookupDisplayedDataObject = function (dataObject) {
             var index = this.DisplayedData.indexOf(dataObject);
             if (index < 0)
                 return null;
@@ -1437,7 +1529,7 @@ var PowerTables;
          * @param index Index of desired data object among locally displaying data
          * @returns ILocalLookupResult
          */
-        DataHolder.prototype.localLookupStoredDataObject = function (dataObject) {
+        DataHolderService.prototype.localLookupStoredDataObject = function (dataObject) {
             var index = this.StoredData.indexOf(dataObject);
             if (index < 0)
                 return null;
@@ -1456,7 +1548,7 @@ var PowerTables;
          * @param index Index of desired data object among locally displaying data
          * @returns ILocalLookupResult
          */
-        DataHolder.prototype.localLookupDisplayedData = function (index) {
+        DataHolderService.prototype.localLookupDisplayedData = function (index) {
             if (index < 0)
                 return null;
             if (index > this.DisplayedData.length)
@@ -1476,7 +1568,7 @@ var PowerTables;
          * @param index Index of desired data object among locally displaying data
          * @returns ILocalLookupResult
          */
-        DataHolder.prototype.localLookupStoredData = function (index) {
+        DataHolderService.prototype.localLookupStoredData = function (index) {
             if (index < 0)
                 return null;
             if (index > this.StoredData.length)
@@ -1496,15 +1588,15 @@ var PowerTables;
          * @param dataObject Object to match
          * @returns ILocalLookupResult
          */
-        DataHolder.prototype.localLookupPrimaryKey = function (dataObject, setToLookup) {
+        DataHolderService.prototype.localLookupPrimaryKey = function (dataObject, setToLookup) {
             if (setToLookup === void 0) { setToLookup = this.StoredData; }
             var found = null;
             var foundIdx = 0;
-            if (this._masterTable.InstanceManager.DataObjectComparisonFunction == null || this._masterTable.InstanceManager.DataObjectComparisonFunction == undefined) {
+            if (this._instances.DataObjectComparisonFunction == null || this._instances.DataObjectComparisonFunction == undefined) {
                 throw Error('You must specify key fields for table row to use current setup. Please call .PrimaryKey on configuration object and specify set of columns exposing primary key.');
             }
             for (var i = 0; i < setToLookup.length; i++) {
-                if (this._masterTable.InstanceManager.DataObjectComparisonFunction(dataObject, setToLookup[i])) {
+                if (this._instances.DataObjectComparisonFunction(dataObject, setToLookup[i])) {
                     found = setToLookup[i];
                     foundIdx = i;
                     break;
@@ -1532,7 +1624,7 @@ var PowerTables;
         };
         //#endregion
         //#region Adjustments
-        DataHolder.prototype.copyData = function (source, target) {
+        DataHolderService.prototype.copyData = function (source, target) {
             var modColumns = [];
             for (var cd in source) {
                 if (source.hasOwnProperty(cd)) {
@@ -1556,10 +1648,10 @@ var PowerTables;
             }
             return modColumns;
         };
-        DataHolder.prototype.defaultObject = function () {
+        DataHolderService.prototype.defaultObject = function () {
             var def = {};
             for (var i = 0; i < this._rawColumnNames.length; i++) {
-                var col = this._masterTable.InstanceManager.Columns[this._rawColumnNames[i]];
+                var col = this._instances.Columns[this._rawColumnNames[i]];
                 if (col.IsInteger || col.IsFloat)
                     def[col.RawName] = 0;
                 if (col.IsBoolean)
@@ -1578,11 +1670,11 @@ var PowerTables;
             }
             return def;
         };
-        DataHolder.prototype.normalizeObject = function (dataObject) {
-            for (var k in this._masterTable.InstanceManager.Columns) {
-                if (this._masterTable.InstanceManager.Columns[k].IsDateTime) {
+        DataHolderService.prototype.normalizeObject = function (dataObject) {
+            for (var k in this._instances.Columns) {
+                if (this._instances.Columns[k].IsDateTime) {
                     if (dataObject[k] != null && (typeof dataObject[k] === "string")) {
-                        dataObject[k] = this._masterTable.Date.parse(dataObject[k]);
+                        dataObject[k] = this._date.parse(dataObject[k]);
                     }
                 }
                 if (dataObject[k] == undefined)
@@ -1592,8 +1684,8 @@ var PowerTables;
                 dataObject[ck] = this._clientValueFunction[ck](dataObject);
             }
         };
-        DataHolder.prototype.proceedAdjustments = function (adjustments) {
-            this._masterTable.Events.Adjustment.invokeBefore(this, adjustments);
+        DataHolderService.prototype.proceedAdjustments = function (adjustments) {
+            this._events.Adjustment.invokeBefore(this, adjustments);
             if (this.RecentClientQuery == null || this.RecentClientQuery == undefined)
                 return null;
             var needRefilter = false;
@@ -1658,9 +1750,9 @@ var PowerTables;
                 TouchedColumns: touchedColumns
             };
         };
-        return DataHolder;
+        return DataHolderService;
     }());
-    PowerTables.DataHolder = DataHolder;
+    PowerTables.DataHolderService = DataHolderService;
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
@@ -1669,11 +1761,11 @@ var PowerTables;
     * It consumes PT configuration as source and provides caller with
     * plugins instances, variable ways to query them and accessing their properties
     */
-    var InstanceManager = (function () {
+    var InstanceManagerService = (function () {
         /*
          * @internal
          */
-        function InstanceManager(configuration, masterTable, events) {
+        function InstanceManagerService() {
             /**
              * Dictionary containing current table columns configurations.
              * Key - raw column name. Value - IColumn instance
@@ -1685,15 +1777,12 @@ var PowerTables;
              */
             this.Plugins = {};
             this._rawColumnNames = [];
-            this.Configuration = configuration;
-            this._masterTable = masterTable;
-            this._events = events;
             this._isHandlingSpecialPlacementCase = !(!this.Configuration.EmptyFiltersPlaceholder);
             this._specialCasePlaceholder = this.Configuration.EmptyFiltersPlaceholder;
             this.initColumns();
             this.compileComparisonFunction();
         }
-        InstanceManager.prototype.compileComparisonFunction = function () {
+        InstanceManagerService.prototype.compileComparisonFunction = function () {
             if (!this.Configuration.KeyFields)
                 return;
             if (this.Configuration.KeyFields.length === 0)
@@ -1715,21 +1804,21 @@ var PowerTables;
         /*
          * @internal
          */
-        InstanceManager.classifyType = function (fieldType) {
+        InstanceManagerService.classifyType = function (fieldType) {
             return {
-                IsDateTime: InstanceManager._datetimeTypes.indexOf(fieldType) > -1,
-                IsString: InstanceManager._stringTypes.indexOf(fieldType) > -1,
-                IsFloat: InstanceManager._floatTypes.indexOf(fieldType) > -1,
-                IsInteger: InstanceManager._integerTypes.indexOf(fieldType) > -1,
-                IsBoolean: InstanceManager._booleanTypes.indexOf(fieldType) > -1,
-                IsNullable: InstanceManager.endsWith(fieldType, '?')
+                IsDateTime: InstanceManagerService._datetimeTypes.indexOf(fieldType) > -1,
+                IsString: InstanceManagerService._stringTypes.indexOf(fieldType) > -1,
+                IsFloat: InstanceManagerService._floatTypes.indexOf(fieldType) > -1,
+                IsInteger: InstanceManagerService._integerTypes.indexOf(fieldType) > -1,
+                IsBoolean: InstanceManagerService._booleanTypes.indexOf(fieldType) > -1,
+                IsNullable: InstanceManagerService.endsWith(fieldType, '?')
             };
         };
-        InstanceManager.prototype.initColumns = function () {
+        InstanceManagerService.prototype.initColumns = function () {
             var columns = [];
             for (var i = 0; i < this.Configuration.Columns.length; i++) {
                 var cnf = this.Configuration.Columns[i];
-                var c = InstanceManager.createColumn(cnf, this._masterTable, i);
+                var c = InstanceManagerService.createColumn(cnf, this._masterTable, i);
                 this.Columns[c.RawName] = c;
                 columns.push(c);
             }
@@ -1738,18 +1827,18 @@ var PowerTables;
                 this._rawColumnNames.push(columns[j].RawName);
             }
         };
-        InstanceManager.createColumn = function (cnf, masterTable, order) {
+        InstanceManagerService.createColumn = function (cnf, masterTable, order) {
             var c = {
                 Configuration: cnf,
                 RawName: cnf.RawColumnName,
                 MasterTable: masterTable,
                 Header: null,
                 Order: order == null ? 0 : order,
-                IsDateTime: InstanceManager._datetimeTypes.indexOf(cnf.ColumnType) > -1,
-                IsString: InstanceManager._stringTypes.indexOf(cnf.ColumnType) > -1,
-                IsFloat: InstanceManager._floatTypes.indexOf(cnf.ColumnType) > -1,
-                IsInteger: InstanceManager._integerTypes.indexOf(cnf.ColumnType) > -1,
-                IsBoolean: InstanceManager._booleanTypes.indexOf(cnf.ColumnType) > -1,
+                IsDateTime: InstanceManagerService._datetimeTypes.indexOf(cnf.ColumnType) > -1,
+                IsString: InstanceManagerService._stringTypes.indexOf(cnf.ColumnType) > -1,
+                IsFloat: InstanceManagerService._floatTypes.indexOf(cnf.ColumnType) > -1,
+                IsInteger: InstanceManagerService._integerTypes.indexOf(cnf.ColumnType) > -1,
+                IsBoolean: InstanceManagerService._booleanTypes.indexOf(cnf.ColumnType) > -1,
                 IsEnum: cnf.IsEnum
             };
             c.Header = {
@@ -1762,7 +1851,7 @@ var PowerTables;
         /*
          * @internal
          */
-        InstanceManager.prototype.initPlugins = function () {
+        InstanceManagerService.prototype.initPlugins = function () {
             var pluginsConfiguration = this.Configuration.PluginsConfiguration;
             var specialCases = {};
             var anySpecialCases = false;
@@ -1776,7 +1865,7 @@ var PowerTables;
                 plugin.RawConfig = conf;
                 plugin.Order = conf.Order || 0;
                 plugin.init(this._masterTable);
-                if (this._isHandlingSpecialPlacementCase && InstanceManager.startsWith(conf.Placement, this._specialCasePlaceholder)) {
+                if (this._isHandlingSpecialPlacementCase && InstanceManagerService.startsWith(conf.Placement, this._specialCasePlaceholder)) {
                     specialCases[conf.Placement + '-'] = plugin;
                     anySpecialCases = true;
                 }
@@ -1793,7 +1882,7 @@ var PowerTables;
                         var id = this._specialCasePlaceholder + "-" + c + "-";
                         var specialPlugin = null;
                         for (var k in specialCases) {
-                            if (InstanceManager.startsWith(k, id)) {
+                            if (InstanceManagerService.startsWith(k, id)) {
                                 specialPlugin = specialCases[k];
                             }
                         }
@@ -1814,7 +1903,7 @@ var PowerTables;
             }
             this._events.ColumnsCreation.invoke(this, this.Columns);
         };
-        InstanceManager.startsWith = function (s1, prefix) {
+        InstanceManagerService.startsWith = function (s1, prefix) {
             if (s1 == undefined || s1 === null)
                 return false;
             if (prefix.length > s1.length)
@@ -1824,7 +1913,7 @@ var PowerTables;
             var part = s1.substring(0, prefix.length);
             return part === prefix;
         };
-        InstanceManager.endsWith = function (s1, postfix) {
+        InstanceManagerService.endsWith = function (s1, postfix) {
             if (s1 == undefined || s1 === null)
                 return false;
             if (postfix.length > s1.length)
@@ -1837,7 +1926,7 @@ var PowerTables;
         /*
          * @internal
          */
-        InstanceManager.prototype._subscribeConfiguredEvents = function () {
+        InstanceManagerService.prototype._subscribeConfiguredEvents = function () {
             var delegator = this._masterTable.Renderer.Delegator;
             var columns = this.getUiColumnNames();
             var ths = this;
@@ -1878,7 +1967,7 @@ var PowerTables;
         * @param pluginId Plugin ID
         * @param placement Pluign placement
         */
-        InstanceManager.prototype.getPlugin = function (pluginId, placement) {
+        InstanceManagerService.prototype.getPlugin = function (pluginId, placement) {
             if (!placement)
                 placement = '';
             var key = placement.length === 0 ? pluginId : placement + "-" + pluginId;
@@ -1888,7 +1977,7 @@ var PowerTables;
                 for (var k in this.Plugins) {
                     if (this.Plugins.hasOwnProperty(k)) {
                         var plg = this.Plugins[k];
-                        if (InstanceManager.startsWith(plg.RawConfig.PluginId, pluginId))
+                        if (InstanceManagerService.startsWith(plg.RawConfig.PluginId, pluginId))
                             return plg;
                     }
                 }
@@ -1901,9 +1990,9 @@ var PowerTables;
          * @param placement Plugins placement
          * @returns {}
          */
-        InstanceManager.prototype.getPlugins = function (placement) {
+        InstanceManagerService.prototype.getPlugins = function (placement) {
             var result = [];
-            if (!InstanceManager.endsWith(placement, "-"))
+            if (!InstanceManagerService.endsWith(placement, "-"))
                 placement += "-";
             for (var k in this.Plugins) {
                 if (this.Plugins.hasOwnProperty(k)) {
@@ -1924,7 +2013,7 @@ var PowerTables;
          * @param placement Pluign placement
          * @returns {}
          */
-        InstanceManager.prototype.getColumnFilter = function (columnName) {
+        InstanceManagerService.prototype.getColumnFilter = function (columnName) {
             var filterId = "filter-" + columnName;
             for (var k in this.Plugins) {
                 if (this.Plugins.hasOwnProperty(k)) {
@@ -1939,14 +2028,14 @@ var PowerTables;
          * Retrieves sequential columns names in corresponding order
          * @returns {}
          */
-        InstanceManager.prototype.getColumnNames = function () {
+        InstanceManagerService.prototype.getColumnNames = function () {
             return this._rawColumnNames;
         };
         /**
          * Retrieves sequential columns names in corresponding order
          * @returns {}
          */
-        InstanceManager.prototype.getUiColumnNames = function () {
+        InstanceManagerService.prototype.getUiColumnNames = function () {
             var result = [];
             var uiCol = this.getUiColumns();
             for (var i = 0; i < uiCol.length; i++) {
@@ -1959,7 +2048,7 @@ var PowerTables;
          *
          * @returns {}
          */
-        InstanceManager.prototype.getUiColumns = function () {
+        InstanceManagerService.prototype.getUiColumns = function () {
             var result = [];
             for (var ck in this.Columns) {
                 if (this.Columns.hasOwnProperty(ck)) {
@@ -1978,30 +2067,30 @@ var PowerTables;
          * @param columnName Raw column name
          * @returns {}
          */
-        InstanceManager.prototype.getColumn = function (columnName) {
+        InstanceManagerService.prototype.getColumn = function (columnName) {
             if (!this.Columns.hasOwnProperty(columnName))
                 throw new Error("Column " + columnName + " not found for rendering");
             return this.Columns[columnName];
         };
-        InstanceManager._datetimeTypes = ['DateTime', 'DateTime?'];
-        InstanceManager._stringTypes = ['String'];
-        InstanceManager._floatTypes = ['Single', 'Double', 'Decimal', 'Single?', 'Double?', 'Decimal?'];
-        InstanceManager._integerTypes = ['Int32', 'Int64', 'Int16', 'SByte', 'Byte', 'UInt32', 'UInt64', 'UInt16', 'Int32?', 'Int64?', 'Int16?', 'SByte?', 'Byte?', 'UInt32?', 'UInt64?', 'UInt16?'];
-        InstanceManager._booleanTypes = ['Boolean', 'Boolean?'];
-        return InstanceManager;
+        InstanceManagerService._datetimeTypes = ['DateTime', 'DateTime?'];
+        InstanceManagerService._stringTypes = ['String'];
+        InstanceManagerService._floatTypes = ['Single', 'Double', 'Decimal', 'Single?', 'Double?', 'Decimal?'];
+        InstanceManagerService._integerTypes = ['Int32', 'Int64', 'Int16', 'SByte', 'Byte', 'UInt32', 'UInt64', 'UInt16', 'Int32?', 'Int64?', 'Int16?', 'SByte?', 'Byte?', 'UInt32?', 'UInt64?', 'UInt16?'];
+        InstanceManagerService._booleanTypes = ['Boolean', 'Boolean?'];
+        return InstanceManagerService;
     }());
-    PowerTables.InstanceManager = InstanceManager;
+    PowerTables.InstanceManagerService = InstanceManagerService;
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
     /**
      * Component that is responsible for querying server
      */
-    var Loader = (function () {
+    var LoaderService = (function () {
         /*
          * @internal
          */
-        function Loader(staticData, operationalAjaxUrl, masterTable) {
+        function LoaderService(staticData, operationalAjaxUrl, masterTable) {
             this._queryPartProviders = [];
             this._isFirstTimeLoading = false;
             this._isLoading = false;
@@ -2018,17 +2107,17 @@ var PowerTables;
          * @param provider instance implementing IQueryPartProvider interface
          * @returns {}
          */
-        Loader.prototype.registerQueryPartProvider = function (provider) {
+        LoaderService.prototype.registerQueryPartProvider = function (provider) {
             this._queryPartProviders.push(provider);
         };
-        Loader.prototype.prefetchData = function (data) {
+        LoaderService.prototype.prefetchData = function (data) {
             var query = this.gatherQuery(PowerTables.QueryScope.Server);
             this._dataHolder.storeResponse({
                 Data: data
             }, query);
             this._previousQueryString = JSON.stringify(query);
         };
-        Loader.prototype.gatherQuery = function (queryScope) {
+        LoaderService.prototype.gatherQuery = function (queryScope) {
             var a = {
                 Paging: {
                     PageSize: 0,
@@ -2056,7 +2145,7 @@ var PowerTables;
             }
             return a;
         };
-        Loader.prototype.getXmlHttp = function () {
+        LoaderService.prototype.getXmlHttp = function () {
             if (this._previousRequest) {
                 this._previousRequest.abort();
                 this._previousRequest = null;
@@ -2079,7 +2168,7 @@ var PowerTables;
             this._previousRequest = xmlhttp;
             return xmlhttp;
         };
-        Loader.prototype.checkError = function (json, data, req) {
+        LoaderService.prototype.checkError = function (json, data, req) {
             if (json['__ZBnpwvibZm'] && json['Success'] != undefined && !json.Success) {
                 this._masterTable.MessageService.showMessage(json['Message']);
                 this._events.LoadingError.invoke(this, {
@@ -2091,7 +2180,7 @@ var PowerTables;
             }
             return false;
         };
-        Loader.prototype.checkMessage = function (json) {
+        LoaderService.prototype.checkMessage = function (json) {
             if (json.Message && json.Message['__Go7XIV13OA']) {
                 var msg = json.Message;
                 this._masterTable.MessageService.showMessage(msg);
@@ -2101,7 +2190,7 @@ var PowerTables;
             }
             return false;
         };
-        Loader.prototype.checkEditResult = function (json, data, req) {
+        LoaderService.prototype.checkEditResult = function (json, data, req) {
             if (json['__XqTFFhTxSu']) {
                 this._events.DataReceived.invoke(this, {
                     Request: data,
@@ -2123,7 +2212,7 @@ var PowerTables;
             }
             return false;
         };
-        Loader.prototype.handleRegularJsonResponse = function (req, data, clientQuery, callback, errorCallback) {
+        LoaderService.prototype.handleRegularJsonResponse = function (req, data, clientQuery, callback, errorCallback) {
             var json = JSON.parse(req.responseText);
             var error = this.checkError(json, data, req);
             var message = this.checkMessage(json);
@@ -2156,7 +2245,7 @@ var PowerTables;
                     errorCallback(json);
             }
         };
-        Loader.prototype.handleDeferredResponse = function (req, data, callback) {
+        LoaderService.prototype.handleDeferredResponse = function (req, data, callback) {
             if (req.responseText.indexOf('$Token=') === 0) {
                 var token = req.responseText.substr(7, req.responseText.length - 7);
                 var deferredUrl = this._operationalAjaxUrl + (this._operationalAjaxUrl.indexOf('?') > -1 ? '&' : '?') + 'q=' + token;
@@ -2173,10 +2262,10 @@ var PowerTables;
                 });
             }
         };
-        Loader.prototype.isLoading = function () {
+        LoaderService.prototype.isLoading = function () {
             return this._isLoading;
         };
-        Loader.prototype.doServerQuery = function (data, clientQuery, callback, errorCallback) {
+        LoaderService.prototype.doServerQuery = function (data, clientQuery, callback, errorCallback) {
             var _this = this;
             this._isLoading = true;
             var dataText = JSON.stringify(data);
@@ -2234,7 +2323,7 @@ var PowerTables;
          * @param queryModifier Inline query modifier for in-place query modification
          * @param errorCallback Will be called if error occures
          */
-        Loader.prototype.requestServer = function (command, callback, queryModifier, errorCallback, force) {
+        LoaderService.prototype.requestServer = function (command, callback, queryModifier, errorCallback, force) {
             var _this = this;
             var scope = PowerTables.QueryScope.Transboundary;
             if (command === 'query')
@@ -2278,9 +2367,9 @@ var PowerTables;
                 }
             }
         };
-        return Loader;
+        return LoaderService;
     }());
-    PowerTables.Loader = Loader;
+    PowerTables.LoaderService = LoaderService;
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
@@ -3775,7 +3864,7 @@ var PowerTables;
                 this.BodyElement = bodyMarker.parentElement;
                 this.BodyElement.removeChild(bodyMarker);
                 this.Locator = new Rendering.DOMLocator(this.BodyElement, this.RootElement, this._rootId);
-                this.Delegator = new PowerTables.EventsDelegator(this.Locator, this.BodyElement, this.RootElement, this._rootId, this._masterTable);
+                this.Delegator = new PowerTables.EventsDelegatorService(this.Locator, this.BodyElement, this.RootElement, this._rootId, this._masterTable);
                 this.BackBinder.Delegator = this.Delegator;
                 this.Modifier = new Rendering.DOMModifier(this._stack, this.Locator, this.BackBinder, this, this.LayoutRenderer, this._instances, this.Delegator);
                 this.BackBinder.backBind(this.RootElement);
@@ -4137,11 +4226,15 @@ var PowerTables;
             if (!window['__latticeInstances'])
                 window['__latticeInstances'] = {};
             window['__latticeInstances'][this._configuration.TableRootId] = this;
-            this.Date = new PowerTables.DateService(this._configuration.DatepickerOptions);
-            this.Events = new PowerTables.EventsManager(this);
-            this.InstanceManager = new PowerTables.InstanceManager(this._configuration, this, this.Events);
-            this.DataHolder = new PowerTables.DataHolder(this);
-            this.Loader = new PowerTables.Loader(this._configuration.StaticData, this._configuration.OperationalAjaxUrl, this);
+            var dep = new PowerTables.Dependency();
+            dep.createNamedInstance('Master', this);
+            dep.createNamedInstance('DatepickerOptions', this._configuration.DatepickerOptions);
+            dep.createNamedInstance('Configuration', this._configuration);
+            this.Date = dep.resolve(PowerTables.DateService);
+            this.Events = dep.resolve(PowerTables.EventsService);
+            this.InstanceManager = dep.resolve(PowerTables.InstanceManagerService);
+            this.DataHolder = dep.resolve(PowerTables.DataHolderService);
+            this.Loader = new PowerTables.LoaderService(this._configuration.StaticData, this._configuration.OperationalAjaxUrl, this);
             this.Renderer = new PowerTables.Rendering.Renderer(this._configuration.TableRootId, this._configuration.Prefix, this);
             this.Controller = new PowerTables.Controller(this);
             this.MessageService = new PowerTables.MessagesService(this._configuration.MessageFunction, this.InstanceManager, this.DataHolder, this.Controller, this.Renderer);
@@ -7546,7 +7639,7 @@ var PowerTables;
                         var editorConf = this.Configuration.Fields[i];
                         var column = null;
                         if (editorConf.FakeColumn != null) {
-                            column = PowerTables.InstanceManager.createColumn(editorConf.FakeColumn, this.MasterTable);
+                            column = PowerTables.InstanceManagerService.createColumn(editorConf.FakeColumn, this.MasterTable);
                         }
                         else {
                             column = this.MasterTable.InstanceManager.Columns[editorConf.FieldName];
@@ -8108,7 +8201,7 @@ var PowerTables;
                     _super.apply(this, arguments);
                     this._isAwaitingSelection = false;
                     this.afterDrawn = function (a) {
-                        PowerTables.EventsDelegator.addHandler(_this.MasterTable.Renderer.RootElement, "mousedown", function (e) {
+                        PowerTables.EventsDelegatorService.addHandler(_this.MasterTable.Renderer.RootElement, "mousedown", function (e) {
                             _this._isAwaitingSelection = true;
                             setTimeout(function () {
                                 if (!_this._isAwaitingSelection)
@@ -8121,7 +8214,7 @@ var PowerTables;
                             }, 10);
                             return true;
                         });
-                        PowerTables.EventsDelegator.addHandler(_this.MasterTable.Renderer.RootElement, "mousemove", function (e) {
+                        PowerTables.EventsDelegatorService.addHandler(_this.MasterTable.Renderer.RootElement, "mousemove", function (e) {
                             if (_this._isSelecting) {
                                 e.stopPropagation();
                                 e.preventDefault();
@@ -8129,7 +8222,7 @@ var PowerTables;
                             _this.move(e.pageX, e.pageY);
                             return true;
                         });
-                        PowerTables.EventsDelegator.addHandler(document.documentElement, "mouseup", function (e) {
+                        PowerTables.EventsDelegatorService.addHandler(document.documentElement, "mouseup", function (e) {
                             _this._isAwaitingSelection = false;
                             _this.selectEnd();
                             if (_this._isSelecting) {
@@ -8148,38 +8241,38 @@ var PowerTables;
                         this.selectEnd();
                         return;
                     }
-                    this.selectPane = this.MasterTable.Renderer.Modifier
+                    this._selectPane = this.MasterTable.Renderer.Modifier
                         .createElement(this.MasterTable.Renderer.getCachedTemplate(this.RawConfig.TemplateId)(null));
-                    this.selectPane.style.left = x + 'px';
-                    this.selectPane.style.top = y + 'px';
-                    this.selectPane.style.width = '0';
-                    this.selectPane.style.height = '0';
-                    this.selectPane.style.position = 'absolute';
-                    this.selectPane.style.zIndex = '9999';
-                    this.selectPane.style.pointerEvents = 'none';
-                    this.originalX = x;
-                    this.originalY = y;
-                    document.body.appendChild(this.selectPane);
+                    this._selectPane.style.left = x + 'px';
+                    this._selectPane.style.top = y + 'px';
+                    this._selectPane.style.width = '0';
+                    this._selectPane.style.height = '0';
+                    this._selectPane.style.position = 'absolute';
+                    this._selectPane.style.zIndex = '9999';
+                    this._selectPane.style.pointerEvents = 'none';
+                    this._originalX = x;
+                    this._originalY = y;
+                    document.body.appendChild(this._selectPane);
                     this._isSelecting = true;
                 };
                 MouseSelectPlugin.prototype.move = function (x, y) {
                     if (!this._isSelecting)
                         return;
-                    var cx = (x <= this.originalX) ? x : this.originalX;
-                    var cy = (y <= this.originalY) ? y : this.originalY;
-                    var nx = (x >= this.originalX) ? x : this.originalX;
-                    var ny = (y >= this.originalY) ? y : this.originalY;
-                    this.selectPane.style.left = cx + 'px';
-                    this.selectPane.style.top = cy + 'px';
-                    this.selectPane.style.width = (nx - cx) + 'px';
-                    this.selectPane.style.height = (ny - cy) + 'px';
+                    var cx = (x <= this._originalX) ? x : this._originalX;
+                    var cy = (y <= this._originalY) ? y : this._originalY;
+                    var nx = (x >= this._originalX) ? x : this._originalX;
+                    var ny = (y >= this._originalY) ? y : this._originalY;
+                    this._selectPane.style.left = cx + 'px';
+                    this._selectPane.style.top = cy + 'px';
+                    this._selectPane.style.width = (nx - cx) + 'px';
+                    this._selectPane.style.height = (ny - cy) + 'px';
                     //this.originalX = cx;
                     //this.originalY = cy;
                 };
                 MouseSelectPlugin.prototype.selectEnd = function () {
                     if (!this._isSelecting)
                         return;
-                    document.body.removeChild(this.selectPane);
+                    document.body.removeChild(this._selectPane);
                     this._isSelecting = false;
                 };
                 return MouseSelectPlugin;
@@ -8188,5 +8281,26 @@ var PowerTables;
             PowerTables.ComponentsContainer.registerComponent('MouseSelect', MouseSelectPlugin);
         })(MouseSelect = Plugins.MouseSelect || (Plugins.MouseSelect = {}));
     })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Configuration = 'Configuration';
+    var Master = 'Master';
+    PowerTables.Dependency.requires(PowerTables.InstanceManagerService, {
+        'Configuration': Configuration,
+        '_events': PowerTables.EventsService,
+        '_masterTable': Master
+    });
+    PowerTables.Dependency.requires(PowerTables.EventsService, {
+        '_masterTable': Master
+    });
+    PowerTables.Dependency.requires(PowerTables.DataHolderService, {
+        '_events': PowerTables.EventsService,
+        '_instances': PowerTables.InstanceManagerService,
+        '_date': PowerTables.DateService
+    });
+    PowerTables.Dependency.requires(PowerTables.DateService, {
+        '_datepickerOptions': 'DatepickerOptions'
+    });
 })(PowerTables || (PowerTables = {}));
 //# sourceMappingURL=../../../PowerTables.Mvc/Scripts/powertables.js.map

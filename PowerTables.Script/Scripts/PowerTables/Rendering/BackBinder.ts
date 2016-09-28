@@ -9,19 +9,19 @@
         private _callbacksQueue: ICallbackDescriptor[] = [];
         private _destroyCallbacksQueue: ICallbackDescriptor[] = [];
 
-        private _instances: InstanceManager;
+        private _instances: InstanceManagerService;
         private _stack: RenderingStack;
         private _dateService: DateService;
         private _stealer: any;
         private _cachedVisualStates: { [key: string]: IState[] } = {};
         private _hasVisualStates: boolean = false;
 
-        public Delegator: EventsDelegator;
+        public Delegator: EventsDelegatorService;
 
          /**
     * @internal
     */
-        constructor(hb: Handlebars.IHandlebars, instances: InstanceManager, stack: RenderingStack, dateService: DateService) {
+        constructor(hb: Handlebars.IHandlebars, instances: InstanceManagerService, stack: RenderingStack, dateService: DateService) {
             this._instances = instances;
             hb.registerHelper('BindEvent', this.bindEventHelper.bind(this));
             hb.registerHelper('Mark', this.markHelper.bind(this));

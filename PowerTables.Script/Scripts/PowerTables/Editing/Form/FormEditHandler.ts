@@ -66,7 +66,7 @@
                 var editorConf = this.Configuration.Fields[i];
                 var column = null;
                 if (editorConf.FakeColumn != null) {
-                    column = PowerTables.InstanceManager.createColumn(editorConf.FakeColumn, this.MasterTable);
+                    column = PowerTables.InstanceManagerService.createColumn(editorConf.FakeColumn, this.MasterTable);
                 } else {
                     column = this.MasterTable.InstanceManager.Columns[editorConf.FieldName];
                 }
