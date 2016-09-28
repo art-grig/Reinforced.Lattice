@@ -763,3 +763,8 @@ module PowerTables.Plugins.Hierarchy {
 		ExcludeCollapsed = 1, 
 	}
 }
+module PowerTables.Plugins.MouseSelect {
+	export interface IMouseSelectUiConfig
+	{
+	}
+}

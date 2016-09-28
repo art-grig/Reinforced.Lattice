@@ -21,7 +21,7 @@
             } (Element));
         }
 
-        private static addHandler(element: HTMLElement, type: string, handler: any) {
+        public static addHandler(element: HTMLElement, type: string, handler: any) {
             if (element.addEventListener) {
                 element.addEventListener(type, handler, false);
             } else if (element['attachEvent']) {
@@ -30,7 +30,7 @@
                 element["on" + type] = handler;
             }
         }
-        private static removeHandler(element: HTMLElement, type: string, handler: any) {
+        public static removeHandler(element: HTMLElement, type: string, handler: any) {
             if (element.removeEventListener) {
                 element.removeEventListener(type, handler, false);
             } else if (element['detachEvent']) {

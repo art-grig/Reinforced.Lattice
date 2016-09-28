@@ -8095,4 +8095,98 @@ var PowerTables;
         })(Editors = Editing.Editors || (Editing.Editors = {}));
     })(Editing = PowerTables.Editing || (PowerTables.Editing = {}));
 })(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var MouseSelect;
+        (function (MouseSelect) {
+            var MouseSelectPlugin = (function (_super) {
+                __extends(MouseSelectPlugin, _super);
+                function MouseSelectPlugin() {
+                    var _this = this;
+                    _super.apply(this, arguments);
+                    this._isAwaitingSelection = false;
+                    this.afterDrawn = function (a) {
+                        PowerTables.EventsDelegator.addHandler(_this.MasterTable.Renderer.RootElement, "mousedown", function (e) {
+                            _this._isAwaitingSelection = true;
+                            setTimeout(function () {
+                                if (!_this._isAwaitingSelection)
+                                    return;
+                                if (!_this._isSelecting) {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                }
+                                _this.selectStart(e.pageX, e.pageY);
+                            }, 10);
+                            return true;
+                        });
+                        PowerTables.EventsDelegator.addHandler(_this.MasterTable.Renderer.RootElement, "mousemove", function (e) {
+                            if (_this._isSelecting) {
+                                e.stopPropagation();
+                                e.preventDefault();
+                            }
+                            _this.move(e.pageX, e.pageY);
+                            return true;
+                        });
+                        PowerTables.EventsDelegator.addHandler(document.documentElement, "mouseup", function (e) {
+                            _this._isAwaitingSelection = false;
+                            _this.selectEnd();
+                            if (_this._isSelecting) {
+                                e.stopPropagation();
+                                e.preventDefault();
+                            }
+                            return true;
+                        });
+                    };
+                }
+                MouseSelectPlugin.prototype.init = function (masterTable) {
+                    _super.prototype.init.call(this, masterTable);
+                };
+                MouseSelectPlugin.prototype.selectStart = function (x, y) {
+                    if (this._isSelecting) {
+                        this.selectEnd();
+                        return;
+                    }
+                    this.selectPane = this.MasterTable.Renderer.Modifier
+                        .createElement(this.MasterTable.Renderer.getCachedTemplate(this.RawConfig.TemplateId)(null));
+                    this.selectPane.style.left = x + 'px';
+                    this.selectPane.style.top = y + 'px';
+                    this.selectPane.style.width = '0';
+                    this.selectPane.style.height = '0';
+                    this.selectPane.style.position = 'absolute';
+                    this.selectPane.style.zIndex = '9999';
+                    this.selectPane.style.pointerEvents = 'none';
+                    this.originalX = x;
+                    this.originalY = y;
+                    document.body.appendChild(this.selectPane);
+                    this._isSelecting = true;
+                };
+                MouseSelectPlugin.prototype.move = function (x, y) {
+                    if (!this._isSelecting)
+                        return;
+                    var cx = (x <= this.originalX) ? x : this.originalX;
+                    var cy = (y <= this.originalY) ? y : this.originalY;
+                    var nx = (x >= this.originalX) ? x : this.originalX;
+                    var ny = (y >= this.originalY) ? y : this.originalY;
+                    this.selectPane.style.left = cx + 'px';
+                    this.selectPane.style.top = cy + 'px';
+                    this.selectPane.style.width = (nx - cx) + 'px';
+                    this.selectPane.style.height = (ny - cy) + 'px';
+                    //this.originalX = cx;
+                    //this.originalY = cy;
+                };
+                MouseSelectPlugin.prototype.selectEnd = function () {
+                    if (!this._isSelecting)
+                        return;
+                    document.body.removeChild(this.selectPane);
+                    this._isSelecting = false;
+                };
+                return MouseSelectPlugin;
+            }(PowerTables.Plugins.PluginBase));
+            MouseSelect.MouseSelectPlugin = MouseSelectPlugin;
+            PowerTables.ComponentsContainer.registerComponent('MouseSelect', MouseSelectPlugin);
+        })(MouseSelect = Plugins.MouseSelect || (Plugins.MouseSelect = {}));
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
 //# sourceMappingURL=../../../PowerTables.Mvc/Scripts/powertables.js.map

@@ -22,6 +22,7 @@ using PowerTables.Plugins.Hideout;
 using PowerTables.Plugins.Hierarchy;
 using PowerTables.Plugins.Limit;
 using PowerTables.Plugins.LoadingOverlap;
+using PowerTables.Plugins.MouseSelect;
 using PowerTables.Plugins.Ordering;
 using PowerTables.Plugins.Paging;
 using PowerTables.Plugins.Reload;
@@ -170,6 +171,9 @@ namespace PowerTables.Typings
 
             builder.ExportAsInterface<HierarchyUiConfiguration>().WithPublicProperties();
             builder.ExportAsEnums(new[] { typeof(NodeExpandBehavior), typeof(TreeCollapsedNodeFilterBehavior) });
+
+
+            builder.ExportAsInterface<MouseSelectUiConfig>();
 
         }
 

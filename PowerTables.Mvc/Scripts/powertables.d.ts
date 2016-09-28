@@ -747,6 +747,10 @@ declare module PowerTables.Plugins.Hierarchy {
         ExcludeCollapsed = 1,
     }
 }
+declare module PowerTables.Plugins.MouseSelect {
+    interface IMouseSelectUiConfig {
+    }
+}
 declare module PowerTables {
     /**
     * Helper class for producing track ids.
@@ -1215,8 +1219,8 @@ declare module PowerTables {
          * @internal
          */
         constructor(locator: PowerTables.Rendering.DOMLocator, bodyElement: HTMLElement, layoutElement: HTMLElement, rootId: string, masterTable: IMasterTable);
-        private static addHandler(element, type, handler);
-        private static removeHandler(element, type, handler);
+        static addHandler(element: HTMLElement, type: string, handler: any): void;
+        static removeHandler(element: HTMLElement, type: string, handler: any): void;
         private _masterTable;
         private _rootId;
         private _locator;
@@ -3705,5 +3709,19 @@ declare module PowerTables.Editing.Editors.Display {
         notifyObjectChanged(): void;
         getValue(errors: PowerTables.Editing.IValidationMessage[]): any;
         setValue(value: any): void;
+    }
+}
+declare module PowerTables.Plugins.MouseSelect {
+    class MouseSelectPlugin extends PowerTables.Plugins.PluginBase<PowerTables.Plugins.MouseSelect.IMouseSelectUiConfig> {
+        init(masterTable: IMasterTable): void;
+        private originalX;
+        private originalY;
+        private selectPane;
+        private _isSelecting;
+        private selectStart(x, y);
+        private move(x, y);
+        private selectEnd();
+        private _isAwaitingSelection;
+        afterDrawn: (e: ITableEventArgs<any>) => void;
     }
 }
