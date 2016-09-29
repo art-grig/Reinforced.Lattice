@@ -146,6 +146,23 @@ namespace PowerTables.Templating.Handlebars
         /// <typeparam name="T"></typeparam>
         /// <param name="t"></param>
         /// <param name="field"></param>
+        /// <param name="ifText"></param>
+        /// <returns></returns>
+        public static MvcHtmlString IfEquals<T, TData>(this IModelProvider<T> t, Expression<Func<T, TData>> field, string comparisonConstant,string ifText)
+        {
+            var tr = IfEquals(t,field,comparisonConstant);
+            t.Writer.Write(" ");
+            t.Writer.Write(ifText);
+            tr.Dispose();
+            return MvcHtmlString.Empty;
+        }
+
+        /// <summary>
+        /// Renders handlebars "if" directive in region
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="t"></param>
+        /// <param name="field"></param>
         /// <param name="fieldName">Object field name</param>
         /// <param name="comparisonConstant">Comparison constant (Warning! Pay attendion to quotes!)</param>
         /// <returns></returns>
@@ -160,12 +177,49 @@ namespace PowerTables.Templating.Handlebars
         /// <typeparam name="T"></typeparam>
         /// <param name="t"></param>
         /// <param name="field"></param>
+        /// <param name="fieldName">Object field name</param>
+        /// <param name="comparisonConstant">Comparison constant (Warning! Pay attendion to quotes!)</param>
+        /// <param name="ifText"></param>
         /// <returns></returns>
-        public static HbTagRegion IfGt<T, TData>(this IModelProvider<T> t, Expression<Func<T, TData>> field, string comparisonConstant,bool inclusive=false)
+        public static MvcHtmlString IfEquals<T>(this IModelProvider<T> t, string fieldName, string comparisonConstant, string ifText)
+        {
+            var tr = IfEquals(t, fieldName, comparisonConstant);
+            t.Writer.Write(" ");
+            t.Writer.Write(ifText);
+            tr.Dispose();
+            return MvcHtmlString.Empty;
+        }
+
+        /// <summary>
+        /// Renders handlebars "if" directive in region
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="t"></param>
+        /// <param name="field"></param>
+        /// <returns></returns>
+        public static HbTagRegion IfGt<T, TData>(this IModelProvider<T> t, Expression<Func<T, TData>> field, string comparisonConstant, bool inclusive = false)
         {
             var proname = TraversePropertyLambda(field, t.ExistingModel);
-            return new HbTagRegion("ifcmp", string.Format("{0} {1} \"{2}\"", proname, comparisonConstant, inclusive?"a>=b":"a>b"), t.Writer);
+            return new HbTagRegion("ifcmp", string.Format("{0} {1} \"{2}\"", proname, comparisonConstant, inclusive ? "a>=b" : "a>b"), t.Writer);
         }
+
+        /// <summary>
+        /// Renders handlebars "if" directive in region
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="t"></param>
+        /// <param name="field"></param>
+        /// <returns></returns>
+        public static MvcHtmlString IfGt<T, TData>(this IModelProvider<T> t, Expression<Func<T, TData>> field, string comparisonConstant, string ifText, bool inclusive = false)
+        {
+            var tr = IfGt(t, field, comparisonConstant,inclusive);
+            t.Writer.Write(" ");
+            t.Writer.Write(ifText);
+            tr.Dispose();
+            return MvcHtmlString.Empty;
+        }
+
+
 
         /// <summary>
         /// Renders handlebars "if" directive in region
@@ -177,6 +231,22 @@ namespace PowerTables.Templating.Handlebars
         public static HbTagRegion IfGt<T>(this IModelProvider<T> t, string fieldName, string comparisonConstant, bool inclusive = false)
         {
             return new HbTagRegion("ifcmp", string.Format("{0} {1} \"{2}\"", fieldName, comparisonConstant, inclusive ? "a>=b" : "a>b"), t.Writer);
+        }
+
+        /// <summary>
+        /// Renders handlebars "if" directive in region
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="t"></param>
+        /// <param name="field"></param>
+        /// <returns></returns>
+        public static MvcHtmlString IfGt<T>(this IModelProvider<T> t, string fieldName, string comparisonConstant, string ifText, bool inclusive = false)
+        {
+            var tr = IfGt(t, fieldName, comparisonConstant, inclusive);
+            t.Writer.Write(" ");
+            t.Writer.Write(ifText);
+            tr.Dispose();
+            return MvcHtmlString.Empty;
         }
 
         /// <summary>
@@ -199,9 +269,41 @@ namespace PowerTables.Templating.Handlebars
         /// <param name="t"></param>
         /// <param name="field"></param>
         /// <returns></returns>
-        public static HbTagRegion IfLt<T, TData>(this IModelProvider<T> t, string fieldName, string comparisonConstant, bool inclusive = false)
+        public static MvcHtmlString IfLt<T, TData>(this IModelProvider<T> t, Expression<Func<T, TData>> field, string comparisonConstant, string ifText, bool inclusive = false)
+        {
+            var tr = IfLt(t, field, comparisonConstant, inclusive);
+            t.Writer.Write(" ");
+            t.Writer.Write(ifText);
+            tr.Dispose();
+            return MvcHtmlString.Empty;
+        }
+
+        /// <summary>
+        /// Renders handlebars "if" directive in region
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="t"></param>
+        /// <param name="field"></param>
+        /// <returns></returns>
+        public static HbTagRegion IfLt<T>(this IModelProvider<T> t, string fieldName, string comparisonConstant, bool inclusive = false)
         {
             return new HbTagRegion("ifcmp", string.Format("{0} {1} \"{2}\"", fieldName, comparisonConstant, inclusive ? "a<=b" : "a<b"), t.Writer);
+        }
+
+        /// <summary>
+        /// Renders handlebars "if" directive in region
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="t"></param>
+        /// <param name="field"></param>
+        /// <returns></returns>
+        public static MvcHtmlString IfLt<T>(this IModelProvider<T> t, string fieldName, string comparisonConstant, string ifText, bool inclusive = false)
+        {
+            var tr = IfLt(t, fieldName, comparisonConstant, inclusive);
+            t.Writer.Write(" ");
+            t.Writer.Write(ifText);
+            tr.Dispose();
+            return MvcHtmlString.Empty;
         }
 
         /// <summary>
@@ -224,9 +326,41 @@ namespace PowerTables.Templating.Handlebars
         /// <param name="t"></param>
         /// <param name="field"></param>
         /// <returns></returns>
+        public static MvcHtmlString IfStrEquals<T>(this IModelProvider<T> t, Expression<Func<T, string>> field, string comparisonConstant, string ifText)
+        {
+            var tr = IfStrEquals(t, field, comparisonConstant);
+            t.Writer.Write(" ");
+            t.Writer.Write(ifText);
+            tr.Dispose();
+            return MvcHtmlString.Empty;
+        }
+
+        /// <summary>
+        /// Renders custom Lattice handlebars "if" helper that compares property and string
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="t"></param>
+        /// <param name="field"></param>
+        /// <returns></returns>
         public static HbTagRegion IfStrEquals<T>(this IModelProvider<T> t, string fieldName, string comparisonConstant)
         {
             return new HbTagRegion("ifq", string.Format("{0} \"{1}\"", fieldName, comparisonConstant), t.Writer);
+        }
+
+        /// <summary>
+        /// Renders custom Lattice handlebars "if" helper that compares property and string
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="t"></param>
+        /// <param name="field"></param>
+        /// <returns></returns>
+        public static MvcHtmlString IfStrEquals<T>(this IModelProvider<T> t, string fieldName, string comparisonConstant, string ifText)
+        {
+            var tr = IfStrEquals(t, fieldName, comparisonConstant);
+            t.Writer.Write(" ");
+            t.Writer.Write(ifText);
+            tr.Dispose();
+            return MvcHtmlString.Empty;
         }
 
 
@@ -242,7 +376,6 @@ namespace PowerTables.Templating.Handlebars
             var proname = TraversePropertyLambda(condition, t.ExistingModel);
             return new HbTagRegion("unless", proname, t.Writer);
         }
-
 
         /// <summary>
         /// Renders handlebars "each" directive in region
