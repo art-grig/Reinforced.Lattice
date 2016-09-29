@@ -35,7 +35,7 @@
         }
 
         public createInstance(classFunction: Function, instance: any) {
-            if (instance == null || instance == undefined) throw new Error("Cannot register indefined instance");
+            if (instance == null || instance == undefined) throw new Error("Cannot register undefined instance");
             var id = this.instanceId(classFunction);
             var requirements = Dependency._requirements[parseInt(id)];
             this._instances[id] = {
@@ -44,7 +44,7 @@
                 Satisficator: classFunction
             };
 
-            this.provide(classFunction, instance);
+            this.provide(classFunction, this._instances[id]);
             this.buildUp(instance,requirements);
         }
 
@@ -57,14 +57,14 @@
             }
         }
 
-        private provide(requirement: any, instance: any) {
+        private provide(requirement: any, instance: IInstanceInfo) {
             for (var k in this._instances) {
                 var target = this._instances[k].Instance;
 
                 for (var rk in this._instances[k].Requirements) {
                     var req = this._instances[k].Requirements[rk];
                     if (req === requirement) {
-                        target[rk] = instance;
+                        target[rk] = instance.Instance;
                     }
                 }
             }
@@ -77,12 +77,15 @@
                 Satisficator: name,
                 Requirements: {}
             };
+            this.provide(name, this._instances[name]);
         }
 
         public resolve(classFunction: any): any {
             var id = this.instanceId(classFunction, false);
             if (!id) throw new Error(`Instance of ${classFunction} is not registered as dependency`);
-            
+            if (this._instances.hasOwnProperty(id)) {
+                return this._instances[id];
+            }
             var dep = this;
             var _ = function () { this.constructor = classFunction; };
             _.prototype = classFunction.prototype;
@@ -98,6 +101,7 @@
             ret = ret.substr('function '.length);
             ret = ret.substr(0, ret.indexOf('('));
             instance.__dependencyOf = ret;
+            this._instances[id] = instance;
             return instance;
         }
 
