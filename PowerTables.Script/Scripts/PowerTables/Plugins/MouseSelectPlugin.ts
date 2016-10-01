@@ -56,7 +56,7 @@
 
         private _isAwaitingSelection: boolean = false;
         afterDrawn: (e: ITableEventArgs<any>) => void = (a) => {
-            PowerTables.EventsDelegator.addHandler(this.MasterTable.Renderer.RootElement, "mousedown", (e: MouseEvent) => {
+            PowerTables.Services.EventsDelegatorService.addHandler(this.MasterTable.Renderer.RootElement, "mousedown", (e: MouseEvent) => {
                 this._isAwaitingSelection = true;
                 
                 setTimeout(() => {
@@ -70,7 +70,7 @@
                     10);
                 return true;
             });
-            PowerTables.EventsDelegator.addHandler(this.MasterTable.Renderer.RootElement, "mousemove", (e: MouseEvent) => {
+            PowerTables.Services.EventsDelegatorService.addHandler(this.MasterTable.Renderer.RootElement, "mousemove", (e: MouseEvent) => {
                 if (this._isSelecting) {
                     e.stopPropagation();
                     e.preventDefault();
@@ -79,7 +79,7 @@
                 return true;
             });
 
-            PowerTables.EventsDelegator.addHandler(document.documentElement, "mouseup", (e: MouseEvent) => {
+            PowerTables.Services.EventsDelegatorService.addHandler(document.documentElement, "mouseup", (e: MouseEvent) => {
                 this._isAwaitingSelection = false;
                 this.selectEnd();
                 if (this._isSelecting) {

@@ -172,7 +172,7 @@
                 Selector: '[data-checkboxify]',
                 SubscriptionId: 'checkboxify',
                 Handler: (e) => {
-                    this.selectByRowIndex(e.DisplayingRowIndex);
+                    this.selectByRowIndex(<any>e.DisplayingRowIndex);
                 }
             });
             this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
@@ -287,11 +287,11 @@
             }
         }
 
-        public static registerEvents(e: EventsManager, masterTable: IMasterTable): void {
+        public static registerEvents(e: PowerTables.Services.EventsService, masterTable: IMasterTable): void {
             e['SelectionChanged'] = new TableEvent(masterTable);
         }
 
-        public subscribe(e: EventsManager): void {
+        public subscribe(e: PowerTables.Services.EventsService): void {
             e.LayoutRendered.subscribeAfter(this.afterLayoutRender.bind(this), 'checkboxify');
             e.ClientRowsRendering.subscribeBefore(this.beforeRowsRendering.bind(this), 'checkboxify');
             e.ClientDataProcessing.subscribeAfter(this.onClientReload.bind(this), 'checkboxify');

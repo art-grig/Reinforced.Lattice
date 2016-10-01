@@ -1,9 +1,9 @@
-﻿module PowerTables {
+﻿module PowerTables.Services {
 
     /**
      * Component that is responsible for querying server
      */
-    export class Loader {
+    export class LoaderService {
 
         /*
          * @internal
@@ -20,8 +20,8 @@
         private _previousRequest: any;
         private _staticData: any; // from ctor
         private _operationalAjaxUrl: string; // from ctor
-        private _events: EventsManager; // from ctor
-        private _dataHolder: DataHolder; // from ctor
+        private _events: PowerTables.Services.EventsService; // from ctor
+        private _dataHolder: PowerTables.Services.DataHolderService; // from ctor
         private _isFirstTimeLoading: boolean = false;
         private _masterTable: IMasterTable;
 

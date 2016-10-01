@@ -753,6 +753,70 @@ declare module PowerTables.Plugins.MouseSelect {
 }
 declare module PowerTables {
     /**
+     * Wrapper for table event with ability to subscribe/unsubscribe
+     */
+    class TableEvent<TBeforeEventArgs, TAfterEventArgs> {
+        constructor(masterTable: any);
+        private _masterTable;
+        private _handlersAfter;
+        private _handlersBefore;
+        /**
+         * Invokes event with overridden this arg and specified event args
+         *
+         * @param thisArg "this" argument to be substituted to callee
+         * @param eventArgs Event args will be passed to callee
+         */
+        invokeBefore(thisArg: any, eventArgs: TBeforeEventArgs): void;
+        /**
+         * Invokes event with overridden this arg and specified event args
+         *
+         * @param thisArg "this" argument to be substituted to callee
+         * @param eventArgs Event args will be passed to callee
+         */
+        invokeAfter(thisArg: any, eventArgs: TAfterEventArgs): void;
+        /**
+         * Invokes event with overridden this arg and specified event args
+         *
+         * @param thisArg "this" argument to be substituted to callee
+         * @param eventArgs Event args will be passed to callee
+         */
+        invoke(thisArg: any, eventArgs: TAfterEventArgs): void;
+        /**
+         * Subscribes specified function to AFTER event with supplied string key.
+         * Subscriber key is needed to have an ability to unsubscribe from event
+         * and should reflect entity that has been subscriben
+         *
+         * @param handler Event handler to subscribe
+         * @param subscriber Subscriber key to associate with handler
+         */
+        subscribeAfter(handler: (e: ITableEventArgs<TAfterEventArgs>) => any, subscriber: string): void;
+        /**
+         * Subscribes specified function to AFTER event with supplied string key.
+         * Subscriber key is needed to have an ability to unsubscribe from event
+         * and should reflect entity that has been subscriben
+         *
+         * @param handler Event handler to subscribe
+         * @param subscriber Subscriber key to associate with handler
+         */
+        subscribe(handler: (e: ITableEventArgs<TAfterEventArgs>) => any, subscriber: string): void;
+        /**
+         * Subscribes specified function to BEFORE event with supplied string key.
+         * Subscriber key is needed to have an ability to unsubscribe from event
+         * and should reflect entity that has been subscriben
+         *
+         * @param handler Event handler to subscribe
+         * @param subscriber Subscriber key to associate with handler
+         */
+        subscribeBefore(handler: (e: ITableEventArgs<TBeforeEventArgs>) => any, subscriber: string): void;
+        /**
+         * Unsubscribes specified addressee from event
+         * @param subscriber Subscriber key associated with handler
+         */
+        unsubscribe(subscriber: string): void;
+    }
+}
+declare module PowerTables {
+    /**
     * Helper class for producing track ids.
     * You can use this class directly, but it is better to use it via @memberref PowerTables.PowerTable.Renderer.Rendering.Modifier instance
     */
@@ -839,7 +903,7 @@ declare module PowerTables {
          */
         static resolveComponent<T>(key: string, args?: any[]): T;
         /**
-         * Registers component-provided events in particular EventsManager instance.
+         * Registers component-provided events in particular EventsService instance.
          * It is important to register all component's events befor instantiation and .init call
          * to make them available to subscribe each other's events.
          *
@@ -850,14 +914,14 @@ declare module PowerTables {
          * @param eventsManager Events manager instance
          * @returns {}
          */
-        static registerComponentEvents(key: string, eventsManager: EventsManager, masterTable: IMasterTable): void;
-        static registerAllEvents(eventsManager: EventsManager, masterTable: IMasterTable): void;
+        static registerComponentEvents(key: string, eventsManager: PowerTables.Services.EventsService, masterTable: IMasterTable): void;
+        static registerAllEvents(eventsManager: PowerTables.Services.EventsService, masterTable: IMasterTable): void;
     }
 }
 declare module PowerTables {
     /**
      * Client filter interface.
-     * This interface is registerable in the DataHolder as
+     * This interface is registerable in the DataHolderService as
      * one of the part of filtering pipeline
      */
     interface IClientFilter {
@@ -904,15 +968,15 @@ declare module PowerTables {
         /**
         * API for raising and handling various table events
         */
-        Events: EventsManager;
+        Events: PowerTables.Services.EventsService;
         /**
          * API for managing local data
          */
-        DataHolder: DataHolder;
+        DataHolder: PowerTables.Services.DataHolderService;
         /**
          * API for data loading
          */
-        Loader: Loader;
+        Loader: PowerTables.Services.LoaderService;
         /**
          * API for rendering functionality
          */
@@ -920,15 +984,15 @@ declare module PowerTables {
         /**
          * API for locating instances of different components
          */
-        InstanceManager: InstanceManager;
+        InstanceManager: PowerTables.Services.InstanceManagerService;
         /**
          * API for overall workflow controlling
          */
-        Controller: Controller;
+        Controller: PowerTables.Services.Controller;
         /**
          * API for working with dates
          */
-        Date: DateService;
+        Date: PowerTables.Services.DateService;
         /**
          * Absorb and draw table adjustments
          *
@@ -938,7 +1002,7 @@ declare module PowerTables {
         /**
         * API for table messages
         */
-        MessageService: MessagesService;
+        MessageService: PowerTables.Services.MessagesService;
         getStaticData(): any;
         setStaticData(obj: any): void;
     }
@@ -1055,7 +1119,7 @@ declare module PowerTables {
         DataObject: any;
         /**
          * Displaying index.
-         * You can obtain data for this particular row from DataHolder
+         * You can obtain data for this particular row from DataHolderService
          * using localLookupDisplayedData method
          */
         Index: number;
@@ -1152,340 +1216,6 @@ declare module PowerTables {
     interface IUiMessage extends ITableMessage {
         UiColumnsCount: number;
         IsMessageObject?: boolean;
-    }
-}
-declare module PowerTables {
-    /**
-     * API responsible for dates operations
-     */
-    class DateService {
-        constructor(datepickerOptions: IDatepickerOptions);
-        private _datepickerOptions;
-        private ensureDpo();
-        /**
-         * Determines is passed object valid Date object
-         * @param date
-         * @returns {}
-         */
-        isValidDate(date: Date): boolean;
-        /**
-         * Converts jsDate object to server's understandable format
-         *
-         * @param date Date object
-         * @returns {string} Date in ISO 8601 format
-         */
-        serialize(date?: Date): any;
-        /**
-         * Parses ISO date string to regular Date object
-         *
-         * @param dateString Date string containing date in ISO 8601
-         * @returns {}
-         */
-        parse(dateString: string): Date;
-        /**
-         * Retrieves Date object from 3rd party datepicker exposed by HTML element
-         *
-         * @param element HTML element containing datepicker componen
-         * @returns {Date} Date object or null
-         */
-        getDateFromDatePicker(element: HTMLElement): Date;
-        /**
-         * Creates datepicker object of HTML element using configured function
-         *
-         * @param element HTML element that should be converted to datepicker
-         */
-        createDatePicker(element: HTMLElement, isNullableDate?: boolean): void;
-        /**
-         * Creates datepicker object of HTML element using configured function
-         *
-         * @param element HTML element that should be converted to datepicker
-         */
-        destroyDatePicker(element: HTMLElement): void;
-        /**
-         * Passes Date object to datepicker element
-         *
-         * @param element HTML element containing datepicker componen
-         * @param date Date object to supply to datepicker or null
-         */
-        putDateToDatePicker(element: HTMLElement, date: Date): void;
-    }
-}
-declare module PowerTables {
-    /**
-     * API for managing in-table elements' events
-     */
-    class EventsDelegator {
-        /**
-         * @internal
-         */
-        constructor(locator: PowerTables.Rendering.DOMLocator, bodyElement: HTMLElement, layoutElement: HTMLElement, rootId: string, masterTable: IMasterTable);
-        static addHandler(element: HTMLElement, type: string, handler: any): void;
-        static removeHandler(element: HTMLElement, type: string, handler: any): void;
-        private _masterTable;
-        private _rootId;
-        private _locator;
-        private _bodyElement;
-        private _layoutElement;
-        private _outSubscriptions;
-        private _cellDomSubscriptions;
-        private _rowDomSubscriptions;
-        private _matches;
-        private _domEvents;
-        private _outEvents;
-        private _destroyCallbacks;
-        private ensureEventSubscription(eventId);
-        private ensureOutSubscription(eventId);
-        private traverseAndFire(subscriptions, path, args);
-        private onTableEvent(e);
-        /**
-         * Subscribe handler to any DOM event happening on particular table cell
-         *
-         * @param subscription Event subscription
-         */
-        subscribeCellEvent(subscription: IUiSubscription<ICellEventArgs>): void;
-        /**
-         * Subscribe handler to any DOM event happening on particular table row.
-         * Note that handler will fire even if particular table cell event happened
-         *
-         * @param subscription Event subscription
-         */
-        subscribeRowEvent(subscription: IUiSubscription<IRowEventArgs>): void;
-        private parseEventId(eventId);
-        private filterEvent(e, propsObject);
-        private _directSubscriptions;
-        /**
-         * @internal
-         */
-        subscribeEvent(el: HTMLElement, eventId: string, handler: any, receiver: any, eventArguments: any[]): void;
-        private onOutTableEvent(e);
-        /**
-         * @internal
-         */
-        subscribeOutOfElementEvent(el: HTMLElement, eventId: string, handler: any, receiver: any, eventArguments: any[]): void;
-        /**
-         * Subscribes event that will be fired when supplied element will be destroyed
-         *
-         * @param e HTML element destroying of which will fire event
-         * @param callback Callback being called when element is destroyed
-         */
-        subscribeDestroy(e: HTMLElement, callback: PowerTables.Rendering.ICallbackDescriptor): void;
-        /**
-         * @internal
-         */
-        handleElementDestroy(e: HTMLElement): void;
-        private collectElementsHavingAttribute(parent, attribute);
-    }
-    interface IRowEventArgs {
-        /**
-         * Master table reference
-         */
-        Master: IMasterTable;
-        /**
-         * Original event reference
-         */
-        OriginalEvent: Event;
-        /**
-         * Row index.
-         * Data object can be restored using Table.DataHolder.localLookupDisplayedData(RowIndex)
-         */
-        DisplayingRowIndex: number;
-    }
-    /**
-     * Event arguments for particular cell event
-     */
-    interface ICellEventArgs extends IRowEventArgs {
-        /**
-         * Column index related to particular cell.
-         * Column object can be restored using Table.InstanceManager.getUiColumns()[ColumnIndex]
-         */
-        ColumnIndex: number;
-    }
-    interface ISubscription {
-        /**
-         * Event Id
-         */
-        EventId: string;
-        /**
-         * Selector of element
-         */
-        Selector?: string;
-        /**
-         * Subscription ID (for easier unsubscribe)
-         */
-        SubscriptionId: string;
-        Handler: any;
-        filter?: {
-            [key: string]: any;
-        };
-    }
-    /**
-     * Information about UI subscription
-     */
-    interface IUiSubscription<TEventArgs> extends ISubscription {
-        /**
-         * Event handler
-         *
-         * @param e Event arguments
-         */
-        Handler: (e: TEventArgs) => any;
-    }
-}
-declare module PowerTables {
-    /**
-     * Wrapper for table event with ability to subscribe/unsubscribe
-     */
-    class TableEvent<TBeforeEventArgs, TAfterEventArgs> {
-        constructor(masterTable: any);
-        private _masterTable;
-        private _handlersAfter;
-        private _handlersBefore;
-        /**
-         * Invokes event with overridden this arg and specified event args
-         *
-         * @param thisArg "this" argument to be substituted to callee
-         * @param eventArgs Event args will be passed to callee
-         */
-        invokeBefore(thisArg: any, eventArgs: TBeforeEventArgs): void;
-        /**
-         * Invokes event with overridden this arg and specified event args
-         *
-         * @param thisArg "this" argument to be substituted to callee
-         * @param eventArgs Event args will be passed to callee
-         */
-        invokeAfter(thisArg: any, eventArgs: TAfterEventArgs): void;
-        /**
-         * Invokes event with overridden this arg and specified event args
-         *
-         * @param thisArg "this" argument to be substituted to callee
-         * @param eventArgs Event args will be passed to callee
-         */
-        invoke(thisArg: any, eventArgs: TAfterEventArgs): void;
-        /**
-         * Subscribes specified function to AFTER event with supplied string key.
-         * Subscriber key is needed to have an ability to unsubscribe from event
-         * and should reflect entity that has been subscriben
-         *
-         * @param handler Event handler to subscribe
-         * @param subscriber Subscriber key to associate with handler
-         */
-        subscribeAfter(handler: (e: ITableEventArgs<TAfterEventArgs>) => any, subscriber: string): void;
-        /**
-         * Subscribes specified function to AFTER event with supplied string key.
-         * Subscriber key is needed to have an ability to unsubscribe from event
-         * and should reflect entity that has been subscriben
-         *
-         * @param handler Event handler to subscribe
-         * @param subscriber Subscriber key to associate with handler
-         */
-        subscribe(handler: (e: ITableEventArgs<TAfterEventArgs>) => any, subscriber: string): void;
-        /**
-         * Subscribes specified function to BEFORE event with supplied string key.
-         * Subscriber key is needed to have an ability to unsubscribe from event
-         * and should reflect entity that has been subscriben
-         *
-         * @param handler Event handler to subscribe
-         * @param subscriber Subscriber key to associate with handler
-         */
-        subscribeBefore(handler: (e: ITableEventArgs<TBeforeEventArgs>) => any, subscriber: string): void;
-        /**
-         * Unsubscribes specified addressee from event
-         * @param subscriber Subscriber key associated with handler
-         */
-        unsubscribe(subscriber: string): void;
-    }
-    /**
-     * Events manager for table.
-     * Contains all available events
-     */
-    class EventsManager {
-        private _masterTable;
-        constructor(masterTable: any);
-        /**
-         * "Before Layout Drawn" event.
-         * Occurs before layout is actually drawn but after all table is initialized.
-         */
-        LayoutRendered: TableEvent<any, any>;
-        /**
-        * "Before Filter Gathering" event.
-        * Occurs every time before sending request to server via Loader before
-        * filtering information is being gathered. Here you can add your own
-        * additional data to prepared query that will be probably overridden by
-        * other query providers.
-        */
-        QueryGathering: TableEvent<IQueryGatheringEventArgs, IQueryGatheringEventArgs>;
-        ClientQueryGathering: TableEvent<IQueryGatheringEventArgs, IQueryGatheringEventArgs>;
-        /**
-         * "Before Loading" event.
-         * Occurs every time right before calling XMLHttpRequest.send and
-         * passing gathered filters to server
-         */
-        Loading: TableEvent<ILoadingEventArgs, ILoadingEventArgs>;
-        /**
-         * "Deferred Data Received" event.
-         * Occurs every time when server has answered to particular query with
-         * with reference to deferred query. It means that server has memorized particular
-         * request with specified token and will proceed data selection/other operations
-         * when you query it by Operatioal AJAX URL + "?q=$Token$".
-         *
-         * This feature is usable when it is necessary e.g. to generate file (excel, PDF)
-         * using current table filters
-         */
-        DeferredDataReceived: TableEvent<IDeferredDataEventArgs, any>;
-        /**
-         * "Loading Error" event.
-         * Occurs every time when Loader encounters loading error.
-         * It may be caused by server error or network (XMLHttp) error.
-         * Anyway, error text/cause/stacktrace will be supplied as Reason
-         * field of event args
-         */
-        LoadingError: TableEvent<ILoadingErrorEventArgs, any>;
-        /**
-         * "Columns Creation" event.
-         * Occurs when full columns list formed and available for
-         * modifying. Addition/removal/columns modification is acceptable
-         */
-        ColumnsCreation: TableEvent<{
-            [key: string]: IColumn;
-        }, any>;
-        /**
-         * "Data Received" event.
-         * Occurs EVERY time when something is being received from server side.
-         * Event argument is deserialized JSON data from server.
-         */
-        DataReceived: TableEvent<IDataEventArgs, any>;
-        ClientDataProcessing: TableEvent<IQuery, IClientDataResults>;
-        DataRendered: TableEvent<any, any>;
-        /**
-         * "Before Client Rows Rendering" event.
-         *
-         * Occurs every time after after rows set for client-side was
-         * modified but not rendered yet. Here you can add/remove/modify render for
-         * particular rows
-         */
-        ClientRowsRendering: TableEvent<IRow[], any>;
-        /**
-         * Registers new event for events manager.
-         * This method is to be used by plugins to provide their
-         * own events.
-         *
-         * Events being added should be described in plugin's .d.ts file
-         * as extensions to Events manager
-         * @param eventName Event name
-         * @returns {}
-         */
-        registerEvent<TEventArgs>(eventName: string): void;
-        SelectionChanged: TableEvent<string[], any>;
-        Adjustment: TableEvent<PowerTables.Editing.IAdjustmentData, PowerTables.IAdjustmentResult>;
-        AdjustmentResult: TableEvent<IAdjustmentResult, any>;
-        /**
-         * Event that occurs when editing entry.
-         * Event parameter is object that is being edited
-         */
-        Edit: TableEvent<any, any>;
-        /**
-         * Event that occurs when edit validation failed
-         */
-        EditValidationFailed: TableEvent<IEditValidationEvent, IEditValidationEvent>;
     }
     interface IEditValidationEvent {
         OriginalDataObject: any;
@@ -1598,8 +1328,308 @@ declare module PowerTables {
          */
         Scope: QueryScope;
     }
+    interface IRowEventArgs {
+        /**
+         * Master table reference
+         */
+        Master: IMasterTable;
+        /**
+         * Original event reference
+         */
+        OriginalEvent: Event;
+        /**
+         * Row index.
+         * Data object can be restored using Table.DataHolderService.localLookupDisplayedData(RowIndex)
+         */
+        DisplayingRowIndex: number;
+    }
+    /**
+     * Event arguments for particular cell event
+     */
+    interface ICellEventArgs extends IRowEventArgs {
+        /**
+         * Column index related to particular cell.
+         * Column object can be restored using Table.InstanceManagerService.getUiColumns()[ColumnIndex]
+         */
+        ColumnIndex: number;
+    }
+    interface ISubscription {
+        /**
+         * Event Id
+         */
+        EventId: string;
+        /**
+         * Selector of element
+         */
+        Selector?: string;
+        /**
+         * Subscription ID (for easier unsubscribe)
+         */
+        SubscriptionId: string;
+        Handler: any;
+        filter?: {
+            [key: string]: any;
+        };
+    }
+    /**
+     * Information about UI subscription
+     */
+    interface IUiSubscription<TEventArgs> extends ISubscription {
+        /**
+         * Event handler
+         *
+         * @param e Event arguments
+         */
+        Handler: (e: TEventArgs) => any;
+    }
+    interface IAdjustmentResult {
+        NeedRedrawAllVisible: boolean;
+        VisiblesToRedraw: any[];
+        AddedData: any[];
+        TouchedData: any[];
+        TouchedColumns: string[][];
+    }
+    /**
+     * Result of searching among local data
+     */
+    interface ILocalLookupResult {
+        /**
+         * Data object reference itself
+         */
+        DataObject: any;
+        /**
+         * Is data object currently displaying or not
+         */
+        IsCurrentlyDisplaying: boolean;
+        /**
+         * Row index among loaded data
+         */
+        LoadedIndex: number;
+        /**
+         * Row index among displayed data
+         */
+        DisplayedIndex: number;
+    }
 }
-declare module PowerTables {
+declare module PowerTables.Services {
+    /**
+     * API responsible for dates operations
+     */
+    class DateService {
+        constructor(datepickerOptions: IDatepickerOptions);
+        private _datepickerOptions;
+        private ensureDpo();
+        /**
+         * Determines is passed object valid Date object
+         * @param date
+         * @returns {}
+         */
+        isValidDate(date: Date): boolean;
+        /**
+         * Converts jsDate object to server's understandable format
+         *
+         * @param date Date object
+         * @returns {string} Date in ISO 8601 format
+         */
+        serialize(date?: Date): any;
+        /**
+         * Parses ISO date string to regular Date object
+         *
+         * @param dateString Date string containing date in ISO 8601
+         * @returns {}
+         */
+        parse(dateString: string): Date;
+        /**
+         * Retrieves Date object from 3rd party datepicker exposed by HTML element
+         *
+         * @param element HTML element containing datepicker componen
+         * @returns {Date} Date object or null
+         */
+        getDateFromDatePicker(element: HTMLElement): Date;
+        /**
+         * Creates datepicker object of HTML element using configured function
+         *
+         * @param element HTML element that should be converted to datepicker
+         */
+        createDatePicker(element: HTMLElement, isNullableDate?: boolean): void;
+        /**
+         * Creates datepicker object of HTML element using configured function
+         *
+         * @param element HTML element that should be converted to datepicker
+         */
+        destroyDatePicker(element: HTMLElement): void;
+        /**
+         * Passes Date object to datepicker element
+         *
+         * @param element HTML element containing datepicker componen
+         * @param date Date object to supply to datepicker or null
+         */
+        putDateToDatePicker(element: HTMLElement, date: Date): void;
+    }
+}
+declare module PowerTables.Services {
+    /**
+     * API for managing in-table elements' events
+     */
+    class EventsDelegatorService {
+        /**
+         * @internal
+         */
+        constructor(locator: PowerTables.Rendering.DOMLocator, bodyElement: HTMLElement, layoutElement: HTMLElement, rootId: string, masterTable: IMasterTable);
+        static addHandler(element: HTMLElement, type: string, handler: any): void;
+        static removeHandler(element: HTMLElement, type: string, handler: any): void;
+        private _masterTable;
+        private _rootId;
+        private _locator;
+        private _bodyElement;
+        private _layoutElement;
+        private _outSubscriptions;
+        private _cellDomSubscriptions;
+        private _rowDomSubscriptions;
+        private _matches;
+        private _domEvents;
+        private _outEvents;
+        private _destroyCallbacks;
+        private ensureEventSubscription(eventId);
+        private ensureOutSubscription(eventId);
+        private traverseAndFire(subscriptions, path, args);
+        private onTableEvent(e);
+        /**
+         * Subscribe handler to any DOM event happening on particular table cell
+         *
+         * @param subscription Event subscription
+         */
+        subscribeCellEvent(subscription: IUiSubscription<ICellEventArgs>): void;
+        /**
+         * Subscribe handler to any DOM event happening on particular table row.
+         * Note that handler will fire even if particular table cell event happened
+         *
+         * @param subscription Event subscription
+         */
+        subscribeRowEvent(subscription: IUiSubscription<IRowEventArgs>): void;
+        private parseEventId(eventId);
+        private filterEvent(e, propsObject);
+        private _directSubscriptions;
+        /**
+         * @internal
+         */
+        subscribeEvent(el: HTMLElement, eventId: string, handler: any, receiver: any, eventArguments: any[]): void;
+        private onOutTableEvent(e);
+        /**
+         * @internal
+         */
+        subscribeOutOfElementEvent(el: HTMLElement, eventId: string, handler: any, receiver: any, eventArguments: any[]): void;
+        /**
+         * Subscribes event that will be fired when supplied element will be destroyed
+         *
+         * @param e HTML element destroying of which will fire event
+         * @param callback Callback being called when element is destroyed
+         */
+        subscribeDestroy(e: HTMLElement, callback: PowerTables.Rendering.ICallbackDescriptor): void;
+        /**
+         * @internal
+         */
+        handleElementDestroy(e: HTMLElement): void;
+        private collectElementsHavingAttribute(parent, attribute);
+    }
+}
+declare module PowerTables.Services {
+    /**
+     * Events manager for table.
+     * Contains all available events
+     */
+    class EventsService {
+        private _masterTable;
+        constructor(masterTable: any);
+        /**
+         * "Before Layout Drawn" event.
+         * Occurs before layout is actually drawn but after all table is initialized.
+         */
+        LayoutRendered: TableEvent<any, any>;
+        /**
+        * "Before Filter Gathering" event.
+        * Occurs every time before sending request to server via LoaderService before
+        * filtering information is being gathered. Here you can add your own
+        * additional data to prepared query that will be probably overridden by
+        * other query providers.
+        */
+        QueryGathering: TableEvent<IQueryGatheringEventArgs, IQueryGatheringEventArgs>;
+        ClientQueryGathering: TableEvent<IQueryGatheringEventArgs, IQueryGatheringEventArgs>;
+        /**
+         * "Before Loading" event.
+         * Occurs every time right before calling XMLHttpRequest.send and
+         * passing gathered filters to server
+         */
+        Loading: TableEvent<ILoadingEventArgs, ILoadingEventArgs>;
+        /**
+         * "Deferred Data Received" event.
+         * Occurs every time when server has answered to particular query with
+         * with reference to deferred query. It means that server has memorized particular
+         * request with specified token and will proceed data selection/other operations
+         * when you query it by Operatioal AJAX URL + "?q=$Token$".
+         *
+         * This feature is usable when it is necessary e.g. to generate file (excel, PDF)
+         * using current table filters
+         */
+        DeferredDataReceived: TableEvent<IDeferredDataEventArgs, any>;
+        /**
+         * "Loading Error" event.
+         * Occurs every time when LoaderService encounters loading error.
+         * It may be caused by server error or network (XMLHttp) error.
+         * Anyway, error text/cause/stacktrace will be supplied as Reason
+         * field of event args
+         */
+        LoadingError: TableEvent<ILoadingErrorEventArgs, any>;
+        /**
+         * "Columns Creation" event.
+         * Occurs when full columns list formed and available for
+         * modifying. Addition/removal/columns modification is acceptable
+         */
+        ColumnsCreation: TableEvent<{
+            [key: string]: IColumn;
+        }, any>;
+        /**
+         * "Data Received" event.
+         * Occurs EVERY time when something is being received from server side.
+         * Event argument is deserialized JSON data from server.
+         */
+        DataReceived: TableEvent<IDataEventArgs, any>;
+        ClientDataProcessing: TableEvent<IQuery, IClientDataResults>;
+        DataRendered: TableEvent<any, any>;
+        /**
+         * "Before Client Rows Rendering" event.
+         *
+         * Occurs every time after after rows set for client-side was
+         * modified but not rendered yet. Here you can add/remove/modify render for
+         * particular rows
+         */
+        ClientRowsRendering: TableEvent<IRow[], any>;
+        /**
+         * Registers new event for events manager.
+         * This method is to be used by plugins to provide their
+         * own events.
+         *
+         * Events being added should be described in plugin's .d.ts file
+         * as extensions to Events manager
+         * @param eventName Event name
+         * @returns {}
+         */
+        registerEvent<TEventArgs>(eventName: string): void;
+        SelectionChanged: TableEvent<string[], any>;
+        Adjustment: TableEvent<PowerTables.Editing.IAdjustmentData, IAdjustmentResult>;
+        AdjustmentResult: TableEvent<IAdjustmentResult, any>;
+        /**
+         * Event that occurs when editing entry.
+         * Event parameter is object that is being edited
+         */
+        Edit: TableEvent<any, any>;
+        /**
+         * Event that occurs when edit validation failed
+         */
+        EditValidationFailed: TableEvent<IEditValidationEvent, IEditValidationEvent>;
+    }
+}
+declare module PowerTables.Services {
     /**
      * This entity is responsible for integration of data between storage and rendere.
      * Also it provides functionality for table events subscription and
@@ -1658,11 +1688,11 @@ declare module PowerTables {
         private produceRows();
     }
 }
-declare module PowerTables {
+declare module PowerTables.Services {
     /**
      * Class that is responsible for holding and managing data loaded from server
      */
-    class DataHolder {
+    class DataHolderService {
         constructor(masterTable: IMasterTable);
         private _rawColumnNames;
         private _comparators;
@@ -1803,43 +1833,15 @@ declare module PowerTables {
         private normalizeObject(dataObject);
         proceedAdjustments(adjustments: PowerTables.Editing.IAdjustmentData): IAdjustmentResult;
     }
-    interface IAdjustmentResult {
-        NeedRedrawAllVisible: boolean;
-        VisiblesToRedraw: any[];
-        AddedData: any[];
-        TouchedData: any[];
-        TouchedColumns: string[][];
-    }
-    /**
-     * Result of searching among local data
-     */
-    interface ILocalLookupResult {
-        /**
-         * Data object reference itself
-         */
-        DataObject: any;
-        /**
-         * Is data object currently displaying or not
-         */
-        IsCurrentlyDisplaying: boolean;
-        /**
-         * Row index among loaded data
-         */
-        LoadedIndex: number;
-        /**
-         * Row index among displayed data
-         */
-        DisplayedIndex: number;
-    }
 }
-declare module PowerTables {
+declare module PowerTables.Services {
     /**
     * This thing is used to manage instances of columns, plugins etc.
     * It consumes PT configuration as source and provides caller with
     * plugins instances, variable ways to query them and accessing their properties
     */
-    class InstanceManager {
-        constructor(configuration: Configuration.Json.ITableConfiguration, masterTable: IMasterTable, events: EventsManager);
+    class InstanceManagerService {
+        constructor(configuration: Configuration.Json.ITableConfiguration, masterTable: IMasterTable, events: PowerTables.Services.EventsService);
         private compileComparisonFunction();
         /**
          * Local objects comparison function based on key fields
@@ -1940,11 +1942,11 @@ declare module PowerTables {
         IsNullable: boolean;
     }
 }
-declare module PowerTables {
+declare module PowerTables.Services {
     /**
      * Component that is responsible for querying server
      */
-    class Loader {
+    class LoaderService {
         constructor(staticData: any, operationalAjaxUrl: string, masterTable: IMasterTable);
         private _queryPartProviders;
         private _previousRequest;
@@ -2003,11 +2005,11 @@ declare module PowerTables.Rendering {
         private _stealer;
         private _cachedVisualStates;
         private _hasVisualStates;
-        Delegator: EventsDelegator;
+        Delegator: PowerTables.Services.EventsDelegatorService;
         /**
    * @internal
    */
-        constructor(hb: Handlebars.IHandlebars, instances: InstanceManager, stack: RenderingStack, dateService: DateService);
+        constructor(hb: Handlebars.IHandlebars, instances: PowerTables.Services.InstanceManagerService, stack: RenderingStack, dateService: PowerTables.Services.DateService);
         private traverseBackbind<T>(elements, parentElement, backbindCollection, attribute, fn);
         private getMatchingElements(parent, attr);
         /**
@@ -2099,7 +2101,7 @@ declare module PowerTables.Rendering {
      * Part of renderer that is responsible for rendering of dynamically loaded content
      */
     class ContentRenderer {
-        constructor(templatesProvider: ITemplatesProvider, stack: Rendering.RenderingStack, instances: InstanceManager, coreTemplates: ICoreTemplateIds);
+        constructor(templatesProvider: ITemplatesProvider, stack: Rendering.RenderingStack, instances: PowerTables.Services.InstanceManagerService, coreTemplates: ICoreTemplateIds);
         private _hb;
         private _templatesProvider;
         private _columnsRenderFunctions;
@@ -2131,7 +2133,7 @@ declare module PowerTables.Rendering {
      * Class that is responsible for particular HTML elements redrawing/addition/removal
      */
     class DOMModifier {
-        constructor(stack: RenderingStack, locator: DOMLocator, backBinder: BackBinder, templatesProvider: ITemplatesProvider, layoutRenderer: LayoutRenderer, instances: InstanceManager, ed: EventsDelegator);
+        constructor(stack: RenderingStack, locator: DOMLocator, backBinder: BackBinder, templatesProvider: ITemplatesProvider, layoutRenderer: LayoutRenderer, instances: PowerTables.Services.InstanceManagerService, ed: PowerTables.Services.EventsDelegatorService);
         private _ed;
         private _stack;
         private _locator;
@@ -2377,7 +2379,7 @@ declare module PowerTables.Rendering {
         /**
         * @internal
         */
-        constructor(templates: ITemplatesProvider, stack: RenderingStack, instances: InstanceManager, coreTemplates: ICoreTemplateIds);
+        constructor(templates: ITemplatesProvider, stack: RenderingStack, instances: PowerTables.Services.InstanceManagerService, coreTemplates: ICoreTemplateIds);
         private bodyHelper();
         private pluginHelper(pluginPosition, pluginId);
         private pluginsHelper(pluginPosition);
@@ -2543,7 +2545,7 @@ declare module PowerTables.Rendering {
         /**
          * API that is responsible for UI events delegation
          */
-        Delegator: EventsDelegator;
+        Delegator: PowerTables.Services.EventsDelegatorService;
         private _masterTable;
         private _instances;
         private _stack;
@@ -2673,7 +2675,7 @@ declare module PowerTables {
         /**
          * API for working with dates
          */
-        Date: DateService;
+        Date: PowerTables.Services.DateService;
         /**
          * Reloads table content.
          * This method is left for backward compatibility
@@ -2684,15 +2686,15 @@ declare module PowerTables {
         /**
          * API for raising and handling various table events
          */
-        Events: EventsManager;
+        Events: PowerTables.Services.EventsService;
         /**
          * API for managing local data
          */
-        DataHolder: DataHolder;
+        DataHolder: PowerTables.Services.DataHolderService;
         /**
          * API for data loading
          */
-        Loader: Loader;
+        Loader: PowerTables.Services.LoaderService;
         /**
          * API for rendering functionality
          */
@@ -2700,15 +2702,15 @@ declare module PowerTables {
         /**
          * API for locating instances of different components
          */
-        InstanceManager: InstanceManager;
+        InstanceManager: PowerTables.Services.InstanceManagerService;
         /**
          * API for overall workflow controlling
          */
-        Controller: Controller;
+        Controller: PowerTables.Services.Controller;
         /**
          * API for table messages
          */
-        MessageService: MessagesService;
+        MessageService: PowerTables.Services.MessagesService;
         /**
          * Fires specified DOM event on specified element
          *
@@ -2755,7 +2757,7 @@ declare module PowerTables.Plugins {
          *
          * @param e Events manager
          */
-        protected subscribe(e: EventsManager): void;
+        protected subscribe(e: PowerTables.Services.EventsService): void;
         /**
          * In this method you can register any additional Handlebars.js helpers in case of your
          * templates needs ones
@@ -2802,7 +2804,7 @@ declare module PowerTables.Plugins.Ordering {
         private _clientOrderings;
         private _serverOrderings;
         private _boundHandler;
-        subscribe(e: EventsManager): void;
+        subscribe(e: PowerTables.Services.EventsService): void;
         private overrideHeadersTemplates(columns);
         private updateOrdering(columnName, ordering);
         private specifyOrdering(object, ordering);
@@ -3013,7 +3015,7 @@ declare module PowerTables.Plugins.Hideout {
         private onLayourRendered();
         init(masterTable: IMasterTable): void;
         renderContent(templatesProvider: ITemplatesProvider): string;
-        subscribe(e: EventsManager): void;
+        subscribe(e: PowerTables.Services.EventsService): void;
         private ifColVisibleHelper(columnName, opts);
         registerAdditionalHelpers(hb: Handlebars.IHandlebars): void;
     }
@@ -3060,7 +3062,7 @@ declare module PowerTables.Plugins.Total {
         /**
         * @internal
         */
-        subscribe(e: EventsManager): void;
+        subscribe(e: PowerTables.Services.EventsService): void;
     }
 }
 declare module PowerTables.Plugins.Checkboxify {
@@ -3093,8 +3095,8 @@ declare module PowerTables.Plugins.Checkboxify {
         private onAfterAdjustments(e);
         init(masterTable: IMasterTable): void;
         modifyQuery(query: IQuery, scope: QueryScope): void;
-        static registerEvents(e: EventsManager, masterTable: IMasterTable): void;
-        subscribe(e: EventsManager): void;
+        static registerEvents(e: PowerTables.Services.EventsService, masterTable: IMasterTable): void;
+        subscribe(e: PowerTables.Services.EventsService): void;
     }
 }
 declare module PowerTables.Plugins.Toolbar {
@@ -3131,9 +3133,9 @@ declare module PowerTables.Plugins.Formwatch {
         private static extractValueFromMultiSelect(o);
         private static extractInputValue(element, fieldConf, dateService);
         private static extractData(elements, fieldConf, dateService);
-        static extractFormData(configuration: PowerTables.Plugins.Formwatch.IFormwatchFieldData[], rootElement: any, dateService: DateService): {};
+        static extractFormData(configuration: PowerTables.Plugins.Formwatch.IFormwatchFieldData[], rootElement: any, dateService: PowerTables.Services.DateService): {};
         modifyQuery(query: IQuery, scope: QueryScope): void;
-        subscribe(e: EventsManager): void;
+        subscribe(e: PowerTables.Services.EventsService): void;
         fieldChange(fieldSelector: string, delay: number, element: HTMLInputElement, e: Event): void;
         init(masterTable: IMasterTable): void;
     }
@@ -3160,7 +3162,7 @@ declare module PowerTables.Plugins.Toolbar {
         /**
          * @internal
          */
-        constructor(confirm: (form: any) => void, reject: () => void, date: DateService, autoform: PowerTables.Plugins.Formwatch.IFormwatchFieldData[]);
+        constructor(confirm: (form: any) => void, reject: () => void, date: PowerTables.Services.DateService, autoform: PowerTables.Plugins.Formwatch.IFormwatchFieldData[]);
         private _autoform;
         private _confirm;
         private _reject;
@@ -3241,13 +3243,13 @@ declare module PowerTables.Plugins.Toolbar {
         onConfirmationResponseError(fn: (form: any) => void): void;
     }
 }
-declare module PowerTables {
+declare module PowerTables.Services {
     /**
      * Class responsible for handling of table messages. It handles internally thrown messages as well as
      * user's ones
      */
     class MessagesService {
-        constructor(usersMessageFn: (msg: ITableMessage) => void, instances: InstanceManager, dataHolder: DataHolder, controller: Controller, templatesProvider: ITemplatesProvider);
+        constructor(usersMessageFn: (msg: ITableMessage) => void, instances: PowerTables.Services.InstanceManagerService, dataHolder: PowerTables.Services.DataHolderService, controller: Controller, templatesProvider: ITemplatesProvider);
         private _usersMessageFn;
         private _instances;
         private _dataHolder;
@@ -3271,7 +3273,7 @@ declare module PowerTables.Plugins.Reload {
         renderContent(templatesProvider: ITemplatesProvider): string;
         startLoading(): void;
         stopLoading(): void;
-        subscribe(e: EventsManager): void;
+        subscribe(e: PowerTables.Services.EventsService): void;
         init(masterTable: IMasterTable): void;
         afterDrawn: (e: ITableEventArgs<any>) => void;
     }
@@ -3279,7 +3281,7 @@ declare module PowerTables.Plugins.Reload {
 declare module PowerTables.Plugins.Loading {
     class LoadingPlugin extends PluginBase<any> implements ILoadingPlugin {
         BlinkElement: HTMLElement;
-        subscribe(e: EventsManager): void;
+        subscribe(e: PowerTables.Services.EventsService): void;
         showLoadingIndicator(): void;
         hideLoadingIndicator(): void;
         static Id: string;
@@ -3322,7 +3324,7 @@ declare module PowerTables.Plugins.Hierarchy {
         private _stolenFilterFunctions;
         private stealFilterFunctions();
         private onAfterClientDataProcessing(e);
-        subscribe(e: EventsManager): void;
+        subscribe(e: PowerTables.Services.EventsService): void;
         private onAfterLayoutRendered();
         filterPredicate(rowObject: any, query: IQuery): boolean;
         private onBeforeClientDataProcessing();

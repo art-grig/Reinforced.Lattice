@@ -2,7 +2,7 @@
 
     /**
      * Client filter interface. 
-     * This interface is registerable in the DataHolder as 
+     * This interface is registerable in the DataHolderService as 
      * one of the part of filtering pipeline
      */
     export interface IClientFilter {
@@ -58,17 +58,17 @@
         /**
         * API for raising and handling various table events
         */
-        Events: EventsManager;
+        Events: PowerTables.Services.EventsService;
 
         /**
          * API for managing local data
          */
-        DataHolder: DataHolder;
+        DataHolder: PowerTables.Services.DataHolderService;
 
         /**
          * API for data loading
          */
-        Loader: Loader;
+        Loader: PowerTables.Services.LoaderService;
 
         /**
          * API for rendering functionality
@@ -78,17 +78,17 @@
         /**
          * API for locating instances of different components
          */
-        InstanceManager: InstanceManager;
+        InstanceManager: PowerTables.Services.InstanceManagerService;
 
         /**
          * API for overall workflow controlling
          */
-        Controller: Controller;
+        Controller: PowerTables.Services.Controller;
 
         /**
          * API for working with dates
          */
-        Date: DateService;
+        Date: PowerTables.Services.DateService;
 
         /**
          * Absorb and draw table adjustments
@@ -100,7 +100,7 @@
          /**
          * API for table messages
          */
-        MessageService: MessagesService;
+        MessageService: PowerTables.Services.MessagesService;
 
          getStaticData(): any;
 
@@ -229,7 +229,7 @@
         DataObject: any;
         /** 
          * Displaying index. 
-         * You can obtain data for this particular row from DataHolder 
+         * You can obtain data for this particular row from DataHolderService 
          * using localLookupDisplayedData method
          */
         Index: number;
@@ -338,5 +338,226 @@
     export interface IUiMessage extends ITableMessage {
         UiColumnsCount:number;
         IsMessageObject?: boolean;
+    }
+
+    export interface IEditValidationEvent {
+        OriginalDataObject: any;
+        ModifiedDataObject: any;
+        ValidationMessages: PowerTables.Editing.IValidationMessage[];
+    }
+
+    /**
+     * Interface for client data results event args
+     */
+    export interface IClientDataResults {
+        /**
+         * Source data
+         */
+        Source: any[];
+        /**
+         * Filtered data
+         */
+        Filtered: any[];
+        /**
+         * Ordered data
+         */
+        Ordered: any[];
+        /**
+         * Actually displaying data
+         */
+        Displaying: any[];
+    }
+
+    /**
+     * Event args wrapper for table
+     */
+    export interface ITableEventArgs<T> {
+        /**
+         * Reverence to master table
+         */
+        MasterTable: IMasterTable;
+
+        /**
+         * Event arguments
+         */
+        EventArgs: T;
+
+        /**
+         * Describes event direction
+         */
+        EventDirection: EventDirection;
+    }
+
+    export enum EventDirection {
+        Before,
+        After,
+        Undirected
+    }
+
+    /**
+     * Event args for loading events
+     */
+    export interface ILoadingEventArgs {
+        /**
+         * Query to be sent to server
+         */
+        Request: IPowerTableRequest;
+
+        /**
+         * Request object to be used while sending to server
+         */
+        XMLHttp: XMLHttpRequest;
+    }
+
+    export interface ILoadingResponseEventArgs extends ILoadingEventArgs {
+        /**
+         * Response received from server
+         */
+        Response: IPowerTablesResponse;
+    }
+
+    /**
+     * Event args for loading error event
+     */
+    export interface ILoadingErrorEventArgs extends ILoadingEventArgs {
+        /**
+         * Error text
+         */
+        Reason: string;
+    }
+
+    /**
+     * Event args for deferred data received event
+     */
+    export interface IDeferredDataEventArgs extends ILoadingEventArgs {
+
+        /**
+         * Token to obtain deferred data
+         */
+        Token: string;
+
+        /**
+         * URL that should be queries to obtain request result
+         */
+        DataUrl: string;
+    }
+
+    /**
+     * Event args for data received event
+     */
+    export interface IDataEventArgs extends ILoadingEventArgs {
+
+        /**
+         * Query response
+         */
+        Data: IPowerTablesResponse;
+    }
+
+    /**
+     * Event args for query gathering process
+     */
+    export interface IQueryGatheringEventArgs {
+        /**
+         * Query is being gathered
+         */
+        Query: IQuery;
+
+        /**
+         * Query scope that is used
+         */
+        Scope: QueryScope;
+    }
+
+    export interface IRowEventArgs {
+        /**
+         * Master table reference
+         */
+        Master: IMasterTable;
+
+        /**
+         * Original event reference
+         */
+        OriginalEvent: Event;
+
+        /**
+         * Row index. 
+         * Data object can be restored using Table.DataHolderService.localLookupDisplayedData(RowIndex)
+         */
+        DisplayingRowIndex: number;
+    }
+
+    /**
+     * Event arguments for particular cell event
+     */
+    export interface ICellEventArgs extends IRowEventArgs {
+        /**
+         * Column index related to particular cell. 
+         * Column object can be restored using Table.InstanceManagerService.getUiColumns()[ColumnIndex]
+         */
+        ColumnIndex: number;
+    }
+
+    export interface ISubscription {
+        /**
+         * Event Id
+         */
+        EventId: string;
+        /**
+         * Selector of element
+         */
+        Selector?: string;
+        /**
+         * Subscription ID (for easier unsubscribe)
+         */
+        SubscriptionId: string;
+
+        Handler: any;
+
+        filter?: { [key: string]: any };
+    }
+
+    /**
+     * Information about UI subscription
+     */
+    export interface IUiSubscription<TEventArgs> extends ISubscription {
+        /**
+         * Event handler 
+         * 
+         * @param e Event arguments 
+         */
+        Handler: (e: TEventArgs) => any;
+    }
+
+    export interface IAdjustmentResult {
+        NeedRedrawAllVisible: boolean;
+        VisiblesToRedraw: any[];
+        AddedData: any[];
+        TouchedData: any[];
+        TouchedColumns: string[][];
+    }
+
+    /**
+     * Result of searching among local data
+     */
+    export interface ILocalLookupResult {
+        /**
+         * Data object reference itself
+         */
+        DataObject: any;
+
+        /**
+         * Is data object currently displaying or not
+         */
+        IsCurrentlyDisplaying: boolean;
+
+        /**
+         * Row index among loaded data
+         */
+        LoadedIndex: number;
+
+        /**
+         * Row index among displayed data
+         */
+        DisplayedIndex: number;
     }
 }

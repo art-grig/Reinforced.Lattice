@@ -1,8 +1,8 @@
-﻿module PowerTables {
+﻿module PowerTables.Services {
     /**
      * Class that is responsible for holding and managing data loaded from server
      */
-    export class DataHolder {
+    export class DataHolderService {
         constructor(masterTable: IMasterTable) {
             this._rawColumnNames = masterTable.InstanceManager.getColumnNames();
             this._events = masterTable.Events;
@@ -20,8 +20,8 @@
         private _comparators: { [key: string]: (a: any, b: any) => number } = {};
         private _filters: IClientFilter[] = [];
         private _anyClientFiltration: boolean = false;
-        private _events: EventsManager;
-        private _instances: InstanceManager;
+        private _events: PowerTables.Services.EventsService;
+        private _instances: PowerTables.Services.InstanceManagerService;
         private _masterTable: IMasterTable;
         private _clientValueFunction: { [key: string]: (dataObject: any) => any } = {}
 
@@ -549,36 +549,5 @@
         //#endregion
     }
 
-    export interface IAdjustmentResult {
-        NeedRedrawAllVisible: boolean;
-        VisiblesToRedraw: any[];
-        AddedData: any[];
-        TouchedData: any[];
-        TouchedColumns: string[][];
-    }
-
-    /**
-     * Result of searching among local data
-     */
-    export interface ILocalLookupResult {
-        /**
-         * Data object reference itself
-         */
-        DataObject: any;
-
-        /**
-         * Is data object currently displaying or not
-         */
-        IsCurrentlyDisplaying: boolean;
-
-        /**
-         * Row index among loaded data
-         */
-        LoadedIndex: number;
-
-        /**
-         * Row index among displayed data
-         */
-        DisplayedIndex: number;
-    }
+    
 }

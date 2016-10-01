@@ -70,15 +70,15 @@
         /**
          * API that is responsible for UI events delegation
          */
-        public Delegator: EventsDelegator;
+        public Delegator: PowerTables.Services.EventsDelegatorService;
 
         private _masterTable: IMasterTable;
-        private _instances: InstanceManager;
+        private _instances: PowerTables.Services.InstanceManagerService;
         private _stack: RenderingStack;
         private _datepickerFunction: (e: HTMLElement) => void;
         private _templatesCache: { [key: string]: HandlebarsTemplateDelegate } = {};
         private _rootId: string;
-        private _events: EventsManager;
+        private _events: PowerTables.Services.EventsService;
         private _templateIds: ICoreTemplateIds;
         private _prefix: string;
 
@@ -122,7 +122,7 @@
             this.BodyElement.removeChild(bodyMarker);
 
             this.Locator = new DOMLocator(this.BodyElement, this.RootElement, this._rootId);
-            this.Delegator = new EventsDelegator(this.Locator, this.BodyElement, this.RootElement, this._rootId, this._masterTable);
+            this.Delegator = new PowerTables.Services.EventsDelegatorService(this.Locator, this.BodyElement, this.RootElement, this._rootId, this._masterTable);
             this.BackBinder.Delegator = this.Delegator;
             this.Modifier = new DOMModifier(this._stack, this.Locator, this.BackBinder, this, this.LayoutRenderer, this._instances, this.Delegator);
 

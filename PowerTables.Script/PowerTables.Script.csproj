@@ -32,17 +32,18 @@
     <TypeScriptCompile Include="..\PowerTables.Typings\Scripts\Interfaces.ts">
       <Link>Scripts\Interfaces.ts</Link>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="Scripts\PowerTables\Event.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\TrackHelper.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\ComponentsContainer.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\CoreInterfaces.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\DateService.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\EventsDelegator.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Services\DateService.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Services\EventsDelegatorService.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\ExternalTypings.d.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Events.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Controller.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\DataHolder.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\InstanceManager.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Loader.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Services\EventsService.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Services\Controller.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Services\DataHolderService.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Services\InstanceManagerService.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Services\LoaderService.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\BackBinder.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\ContentRenderer.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\DOMModifier.ts" />
@@ -73,7 +74,7 @@
     <TypeScriptCompile Include="Scripts\Typings\PagingPlugin.d.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\LoadingOverlapPlugin.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Toolbar\CommandConfirmation.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\MessagesService.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Services\MessagesService.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\ReloadPlugin.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\LoadingPlugin.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\RowActionPlugin.ts" />

@@ -9,7 +9,7 @@ declare module PowerTables.Plugins {
 }
 /*
 declare module PowerTables {
-    interface EventsManager {
+    interface EventsService {
         SelectionChanged: TableEvent<string[]>;
     }    
 }

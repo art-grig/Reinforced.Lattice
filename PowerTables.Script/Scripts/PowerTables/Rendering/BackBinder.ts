@@ -9,19 +9,19 @@
         private _callbacksQueue: ICallbackDescriptor[] = [];
         private _destroyCallbacksQueue: ICallbackDescriptor[] = [];
 
-        private _instances: InstanceManager;
+        private _instances: PowerTables.Services.InstanceManagerService;
         private _stack: RenderingStack;
-        private _dateService: DateService;
+        private _dateService: PowerTables.Services.DateService;
         private _stealer: any;
         private _cachedVisualStates: { [key: string]: IState[] } = {};
         private _hasVisualStates: boolean = false;
 
-        public Delegator: EventsDelegator;
+        public Delegator: PowerTables.Services.EventsDelegatorService;
 
          /**
     * @internal
     */
-        constructor(hb: Handlebars.IHandlebars, instances: InstanceManager, stack: RenderingStack, dateService: DateService) {
+        constructor(hb: Handlebars.IHandlebars, instances: PowerTables.Services.InstanceManagerService, stack: RenderingStack, dateService: PowerTables.Services.DateService) {
             this._instances = instances;
             hb.registerHelper('BindEvent', this.bindEventHelper.bind(this));
             hb.registerHelper('Mark', this.markHelper.bind(this));

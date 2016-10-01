@@ -1,15 +1,17 @@
-﻿module PowerTables {
+﻿module PowerTables.Services {
     /**
     * This thing is used to manage instances of columns, plugins etc. 
     * It consumes PT configuration as source and provides caller with 
     * plugins instances, variable ways to query them and accessing their properties
     */
-    export class InstanceManager {
+    export class InstanceManagerService {
 
         /*
          * @internal
          */
-        constructor(configuration: Configuration.Json.ITableConfiguration, masterTable: IMasterTable, events: EventsManager) {
+        constructor(configuration: Configuration.Json.ITableConfiguration, masterTable: IMasterTable, events:
+            PowerTables.Services.
+            EventsService) {
             this.Configuration = configuration;
             this._masterTable = masterTable;
             this._events = events;
@@ -63,7 +65,7 @@
         /**
          * Events manager
          */
-        private _events: EventsManager;
+        private _events: PowerTables.Services.EventsService;
 
         /**
          * Table configuration
@@ -85,12 +87,12 @@
          */
         public static classifyType(fieldType: string): IClassifiedType {
             return {
-                IsDateTime: InstanceManager._datetimeTypes.indexOf(fieldType) > -1,
-                IsString: InstanceManager._stringTypes.indexOf(fieldType) > -1,
-                IsFloat: InstanceManager._floatTypes.indexOf(fieldType) > -1,
-                IsInteger: InstanceManager._integerTypes.indexOf(fieldType) > -1,
-                IsBoolean: InstanceManager._booleanTypes.indexOf(fieldType) > -1,
-                IsNullable: InstanceManager.endsWith(fieldType, '?')
+                IsDateTime: InstanceManagerService._datetimeTypes.indexOf(fieldType) > -1,
+                IsString: InstanceManagerService._stringTypes.indexOf(fieldType) > -1,
+                IsFloat: InstanceManagerService._floatTypes.indexOf(fieldType) > -1,
+                IsInteger: InstanceManagerService._integerTypes.indexOf(fieldType) > -1,
+                IsBoolean: InstanceManagerService._booleanTypes.indexOf(fieldType) > -1,
+                IsNullable: InstanceManagerService.endsWith(fieldType, '?')
             };
         }
 
@@ -99,7 +101,7 @@
             
             for (var i: number = 0; i < this.Configuration.Columns.length; i++) {
                 var cnf: Configuration.Json.IColumnConfiguration = this.Configuration.Columns[i];
-                var c = InstanceManager.createColumn(cnf, this._masterTable, i);
+                var c = InstanceManagerService.createColumn(cnf, this._masterTable, i);
                 this.Columns[c.RawName] = c;
                 columns.push(c);
             }
@@ -117,11 +119,11 @@
                 MasterTable: masterTable,
                 Header: null,
                 Order: order==null?0:order,
-                IsDateTime: InstanceManager._datetimeTypes.indexOf(cnf.ColumnType) > -1,
-                IsString: InstanceManager._stringTypes.indexOf(cnf.ColumnType) > -1,
-                IsFloat: InstanceManager._floatTypes.indexOf(cnf.ColumnType) > -1,
-                IsInteger: InstanceManager._integerTypes.indexOf(cnf.ColumnType) > -1,
-                IsBoolean: InstanceManager._booleanTypes.indexOf(cnf.ColumnType) > -1,
+                IsDateTime: InstanceManagerService._datetimeTypes.indexOf(cnf.ColumnType) > -1,
+                IsString: InstanceManagerService._stringTypes.indexOf(cnf.ColumnType) > -1,
+                IsFloat: InstanceManagerService._floatTypes.indexOf(cnf.ColumnType) > -1,
+                IsInteger: InstanceManagerService._integerTypes.indexOf(cnf.ColumnType) > -1,
+                IsBoolean: InstanceManagerService._booleanTypes.indexOf(cnf.ColumnType) > -1,
                 IsEnum: cnf.IsEnum
             };
             c.Header = {
@@ -152,7 +154,7 @@
                 plugin.Order = conf.Order || 0;
 
                 plugin.init(this._masterTable);
-                if (this._isHandlingSpecialPlacementCase && InstanceManager.startsWith(conf.Placement, this._specialCasePlaceholder)) {
+                if (this._isHandlingSpecialPlacementCase && InstanceManagerService.startsWith(conf.Placement, this._specialCasePlaceholder)) {
                     specialCases[conf.Placement + '-'] = plugin;
                     anySpecialCases = true;
                 } else {
@@ -169,7 +171,7 @@
                         var id: string = `${this._specialCasePlaceholder}-${c}-`;
                         var specialPlugin: IPlugin = null;
                         for (var k in specialCases) {
-                            if (InstanceManager.startsWith(k, id)) {
+                            if (InstanceManagerService.startsWith(k, id)) {
                                 specialPlugin = specialCases[k];
                             }
                         }
@@ -230,7 +232,7 @@
                         SubscriptionId: 'configured-row-' + i
                     });
                 } else {
-                    var h2 = (function (hndlr, im: InstanceManager, colName) {
+                    var h2 = (function (hndlr, im: InstanceManagerService, colName) {
                         return function (e: ICellEventArgs) {
                             if (im.getUiColumnNames().indexOf(colName) !== e.ColumnIndex) return;
                             hndlr(e);
@@ -259,7 +261,7 @@
                 for (var k in this.Plugins) {
                     if (this.Plugins.hasOwnProperty(k)) {
                         var plg: IPlugin = this.Plugins[k];
-                        if (InstanceManager.startsWith(plg.RawConfig.PluginId, pluginId)) return <any>plg;
+                        if (InstanceManagerService.startsWith(plg.RawConfig.PluginId, pluginId)) return <any>plg;
                     }
                 }
             }
@@ -274,7 +276,7 @@
          */
         public getPlugins(placement: string): IPlugin[] {
             var result: IPlugin[] = [];
-            if (!InstanceManager.endsWith(placement,"-")) placement += "-";
+            if (!InstanceManagerService.endsWith(placement,"-")) placement += "-";
             for (var k in this.Plugins) {
                 if (this.Plugins.hasOwnProperty(k)) {
                     var kp = (k + "-").substring(0, placement.length);

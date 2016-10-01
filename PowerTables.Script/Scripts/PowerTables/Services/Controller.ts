@@ -1,4 +1,4 @@
-﻿module PowerTables {
+﻿module PowerTables.Services {
     /**
      * This entity is responsible for integration of data between storage and rendere. 
      * Also it provides functionality for table events subscription and 

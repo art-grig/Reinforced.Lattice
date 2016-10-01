@@ -55,14 +55,14 @@ module PowerTables {
             if (!window['__latticeInstances']) window['__latticeInstances'] = {};
             window['__latticeInstances'][this._configuration.TableRootId] = this;
 
-            this.Date = new DateService(this._configuration.DatepickerOptions);
-            this.Events = new EventsManager(this);
-            this.InstanceManager = new InstanceManager(this._configuration, this, this.Events);
-            this.DataHolder = new DataHolder(this);
-            this.Loader = new Loader(this._configuration.StaticData, this._configuration.OperationalAjaxUrl, this);
+            this.Date = new PowerTables.Services.DateService(this._configuration.DatepickerOptions);
+            this.Events = new PowerTables.Services.EventsService(this);
+            this.InstanceManager = new PowerTables.Services.InstanceManagerService(this._configuration, this, this.Events);
+            this.DataHolder = new PowerTables.Services.DataHolderService(this);
+            this.Loader = new PowerTables.Services.LoaderService(this._configuration.StaticData, this._configuration.OperationalAjaxUrl, this);
             this.Renderer = new Rendering.Renderer(this._configuration.TableRootId, this._configuration.Prefix, this);
-            this.Controller = new Controller(this);
-            this.MessageService = new MessagesService(this._configuration.MessageFunction, this.InstanceManager, this.DataHolder, this.Controller, this.Renderer);
+            this.Controller = new PowerTables.Services.Controller(this);
+            this.MessageService = new PowerTables.Services.MessagesService(this._configuration.MessageFunction, this.InstanceManager, this.DataHolder, this.Controller, this.Renderer);
 
             this.InstanceManager.initPlugins();
             this.Renderer.layout();
@@ -90,7 +90,7 @@ module PowerTables {
         /**
          * API for working with dates
          */
-        Date: DateService;
+        Date: PowerTables.Services.DateService;
 
         /**
          * Reloads table content. 
@@ -105,17 +105,17 @@ module PowerTables {
         /**
          * API for raising and handling various table events
          */
-        public Events: EventsManager;
+        public Events: PowerTables.Services.EventsService;
 
         /**
          * API for managing local data
          */
-        public DataHolder: DataHolder;
+        public DataHolder: PowerTables.Services.DataHolderService;
 
         /**
          * API for data loading
          */
-        public Loader: Loader;
+        public Loader: PowerTables.Services.LoaderService;
 
         /**
          * API for rendering functionality
@@ -125,17 +125,17 @@ module PowerTables {
         /**
          * API for locating instances of different components
          */
-        public InstanceManager: InstanceManager;
+        public InstanceManager: PowerTables.Services.InstanceManagerService;
 
         /**
          * API for overall workflow controlling
          */
-        public Controller: Controller;
+        public Controller: PowerTables.Services.Controller;
 
         /**
          * API for table messages
          */
-        public MessageService: MessagesService;
+        public MessageService: PowerTables.Services.MessagesService;
 
         /**
          * Fires specified DOM event on specified element

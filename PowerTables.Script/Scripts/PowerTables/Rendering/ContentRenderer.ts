@@ -4,7 +4,7 @@
      * Part of renderer that is responsible for rendering of dynamically loaded content
      */
     export class ContentRenderer {
-        constructor(templatesProvider: ITemplatesProvider, stack: Rendering.RenderingStack, instances: InstanceManager, coreTemplates: ICoreTemplateIds) {
+        constructor(templatesProvider: ITemplatesProvider, stack: Rendering.RenderingStack, instances: PowerTables.Services.InstanceManagerService, coreTemplates: ICoreTemplateIds) {
             this._hb = templatesProvider.HandlebarsInstance;
             this._templatesProvider = templatesProvider;
             this._stack = stack;
@@ -17,7 +17,7 @@
         private _templatesProvider: ITemplatesProvider;
         private _columnsRenderFunctions: { [key: string]: (x: ICell) => string } = {};
         private _stack: RenderingStack;
-        private _instances: InstanceManager;
+        private _instances: PowerTables.Services.InstanceManagerService;
         private _templateIds: ICoreTemplateIds;
 
         /**

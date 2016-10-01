@@ -14,7 +14,7 @@
             return value;
         }
 
-        private static extractInputValue(element: HTMLInputElement, fieldConf: PowerTables.Plugins.Formwatch.IFormwatchFieldData, dateService: DateService): any {
+        private static extractInputValue(element: HTMLInputElement, fieldConf: PowerTables.Plugins.Formwatch.IFormwatchFieldData, dateService: PowerTables.Services.DateService): any {
             var value = null;
             if (element.type === 'select-multiple') {
                 value = FormwatchPlugin.extractValueFromMultiSelect(<any>(element));
@@ -41,7 +41,7 @@
         }
 
 
-        private static extractData(elements: NodeListOf<Element>, fieldConf: PowerTables.Plugins.Formwatch.IFormwatchFieldData, dateService: DateService): any {
+        private static extractData(elements: NodeListOf<Element>, fieldConf: PowerTables.Plugins.Formwatch.IFormwatchFieldData, dateService: PowerTables.Services.DateService): any {
             var value = null;
             var element = <HTMLInputElement>(elements.length > 0 ? elements.item(0) : null);
             if (element) {
@@ -74,7 +74,7 @@
             return value;
         }
 
-        public static extractFormData(configuration: PowerTables.Plugins.Formwatch.IFormwatchFieldData[], rootElement: any, dateService: DateService) {
+        public static extractFormData(configuration: PowerTables.Plugins.Formwatch.IFormwatchFieldData[], rootElement: any, dateService: PowerTables.Services.DateService) {
             var result = {}
             for (var i = 0; i < configuration.length; i++) {
                 var fieldConf = configuration[i];
@@ -143,7 +143,7 @@
             query.AdditionalData['Formwatch'] = str;
         }
 
-        subscribe(e: EventsManager): void {
+        subscribe(e: PowerTables.Services.EventsService): void {
             for (var i = 0; i < this.Configuration.FieldsConfiguration.length; i++) {
                 var conf = this.Configuration.FieldsConfiguration[i];
                 var element = <HTMLInputElement>document.querySelector(conf.FieldSelector);
