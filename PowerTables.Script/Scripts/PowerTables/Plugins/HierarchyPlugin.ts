@@ -188,7 +188,7 @@
             this.recalculateSubtreeReferences(e.EventArgs);
         }
 
-        subscribe(e: EventsService): void {
+        subscribe(e: EventsManager): void {
             e.ClientDataProcessing.subscribeAfter(this.onAfterClientDataProcessing.bind(this), 'Hierarchy');
             e.ClientDataProcessing.subscribeBefore(this.onBeforeClientDataProcessing.bind(this), 'Hierarchy');
             e.LayoutRendered.subscribeAfter(this.onAfterLayoutRendered.bind(this), 'Hierarchy');

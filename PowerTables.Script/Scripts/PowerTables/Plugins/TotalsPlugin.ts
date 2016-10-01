@@ -93,7 +93,7 @@
 /**
 * @internal
 */
-        public subscribe(e: EventsService): void {
+        public subscribe(e: EventsManager): void {
             e.DataReceived.subscribe(this.onResponse.bind(this), 'totals');
             e.ClientRowsRendering.subscribeBefore(this.onClientRowsRendering.bind(this), 'totals');
             e.ClientDataProcessing.subscribeAfter(this.onClientDataProcessed.bind(this), 'totals');

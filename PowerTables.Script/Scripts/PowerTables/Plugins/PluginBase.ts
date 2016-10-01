@@ -44,7 +44,7 @@
          * 
          * @param e Events manager         
          */
-        protected subscribe(e: EventsService): void {
+        protected subscribe(e: EventsManager): void {
             if (this.afterDrawn != null) {
                 this.MasterTable.Events.LayoutRendered.subscribeAfter(this.afterDrawn.bind(this), this.RawConfig.PluginId);
             }

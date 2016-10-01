@@ -287,11 +287,11 @@
             }
         }
 
-        public static registerEvents(e: EventsService, masterTable: IMasterTable): void {
+        public static registerEvents(e: EventsManager, masterTable: IMasterTable): void {
             e['SelectionChanged'] = new TableEvent(masterTable);
         }
 
-        public subscribe(e: EventsService): void {
+        public subscribe(e: EventsManager): void {
             e.LayoutRendered.subscribeAfter(this.afterLayoutRender.bind(this), 'checkboxify');
             e.ClientRowsRendering.subscribeBefore(this.beforeRowsRendering.bind(this), 'checkboxify');
             e.ClientDataProcessing.subscribeAfter(this.onClientReload.bind(this), 'checkboxify');

@@ -32,7 +32,7 @@
             }
         }
 
-        public subscribe(e: EventsService): void {
+        public subscribe(e: EventsManager): void {
             super.subscribe(e);
             e.Loading.subscribeBefore(() => this.startLoading(), 'reload');
             e.Loading.subscribeAfter(() => this.stopLoading(), 'reload');

@@ -143,7 +143,7 @@
             query.AdditionalData['Formwatch'] = str;
         }
 
-        subscribe(e: EventsService): void {
+        subscribe(e: EventsManager): void {
             for (var i = 0; i < this.Configuration.FieldsConfiguration.length; i++) {
                 var conf = this.Configuration.FieldsConfiguration[i];
                 var element = <HTMLInputElement>document.querySelector(conf.FieldSelector);

@@ -3,7 +3,7 @@
     /**
      * Component that is responsible for querying server
      */
-    export class LoaderService {
+    export class Loader {
 
         /*
          * @internal
@@ -20,8 +20,8 @@
         private _previousRequest: any;
         private _staticData: any; // from ctor
         private _operationalAjaxUrl: string; // from ctor
-        private _events: EventsService; // from ctor
-        private _dataHolder: DataHolderService; // from ctor
+        private _events: EventsManager; // from ctor
+        private _dataHolder: DataHolder; // from ctor
         private _isFirstTimeLoading: boolean = false;
         private _masterTable: IMasterTable;
 

@@ -9,7 +9,7 @@ module PowerTables.Rendering {
      */
     export class LayoutRenderer {
 
-        private _instances: InstanceManagerService;
+        private _instances: InstanceManager;
         private _templatesProvider: ITemplatesProvider;
         private _hb: Handlebars.IHandlebars;
         private _stack: RenderingStack;
@@ -18,7 +18,7 @@ module PowerTables.Rendering {
          /**
          * @internal
          */
-        constructor(templates: ITemplatesProvider, stack: RenderingStack, instances: InstanceManagerService, coreTemplates: ICoreTemplateIds) {
+        constructor(templates: ITemplatesProvider, stack: RenderingStack, instances: InstanceManager, coreTemplates: ICoreTemplateIds) {
             this._hb = templates.HandlebarsInstance;
             this._templatesProvider = templates;
             this._stack = stack;

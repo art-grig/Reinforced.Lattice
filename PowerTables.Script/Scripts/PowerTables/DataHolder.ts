@@ -2,11 +2,14 @@
     /**
      * Class that is responsible for holding and managing data loaded from server
      */
-    export class DataHolderService {
-        constructor() {
-            this._rawColumnNames = this._instances.getColumnNames();
-            for (var ck in this._instances.Columns) {
-                var col = this._instances.Columns[ck];
+    export class DataHolder {
+        constructor(masterTable: IMasterTable) {
+            this._rawColumnNames = masterTable.InstanceManager.getColumnNames();
+            this._events = masterTable.Events;
+            this._instances = masterTable.InstanceManager;
+            this._masterTable = masterTable;
+            for (var ck in masterTable.InstanceManager.Columns) {
+                var col = masterTable.InstanceManager.Columns[ck];
                 if (col.Configuration.ClientValueFunction != null && col.Configuration.ClientValueFunction != undefined) {
                     this._clientValueFunction[col.RawName] = col.Configuration.ClientValueFunction;
                 }
@@ -17,10 +20,10 @@
         private _comparators: { [key: string]: (a: any, b: any) => number } = {};
         private _filters: IClientFilter[] = [];
         private _anyClientFiltration: boolean = false;
-        private _events: EventsService;
-        private _instances: PowerTables.InstanceManagerService;
+        private _events: EventsManager;
+        private _instances: InstanceManager;
+        private _masterTable: IMasterTable;
         private _clientValueFunction: { [key: string]: (dataObject: any) => any } = {}
-        private _date: PowerTables.DateService;
 
         /**
          * Data that actually is currently displayed in table
@@ -92,7 +95,7 @@
             for (var i: number = 0; i < response.Data.length; i++) {
                 if (this._instances.Columns[currentCol].IsDateTime) {
                     if (response.Data[i]) {
-                        obj[currentCol] = this._date.parse(response.Data[i]);
+                        obj[currentCol] = this._masterTable.Date.parse(response.Data[i]);
                     } else {
                         obj[currentCol] = null;
                     }
@@ -384,11 +387,11 @@
         public localLookupPrimaryKey(dataObject: any, setToLookup: any[] = this.StoredData): ILocalLookupResult {
             var found = null;
             var foundIdx = 0;
-            if (this._instances.DataObjectComparisonFunction == null || this._instances.DataObjectComparisonFunction == undefined) {
+            if (this._masterTable.InstanceManager.DataObjectComparisonFunction == null || this._masterTable.InstanceManager.DataObjectComparisonFunction == undefined) {
                 throw Error('You must specify key fields for table row to use current setup. Please call .PrimaryKey on configuration object and specify set of columns exposing primary key.');
             }
             for (var i = 0; i < setToLookup.length; i++) {
-                if (this._instances.DataObjectComparisonFunction(dataObject, setToLookup[i])) {
+                if (this._masterTable.InstanceManager.DataObjectComparisonFunction(dataObject, setToLookup[i])) {
                     found = setToLookup[i];
                     foundIdx = i;
                     break;
@@ -445,7 +448,7 @@
         public defaultObject(): any {
             var def = {};
             for (var i = 0; i < this._rawColumnNames.length; i++) {
-                var col = this._instances.Columns[this._rawColumnNames[i]];
+                var col = this._masterTable.InstanceManager.Columns[this._rawColumnNames[i]];
                 if (col.IsInteger || col.IsFloat) def[col.RawName] = 0;
                 if (col.IsBoolean) def[col.RawName] = false;
                 if (col.IsDateTime) def[col.RawName] = new Date();
@@ -460,10 +463,10 @@
         }
 
         private normalizeObject(dataObject: any) {
-            for (var k in this._instances.Columns) {
-                if (this._instances.Columns[k].IsDateTime) {
+            for (var k in this._masterTable.InstanceManager.Columns) {
+                if (this._masterTable.InstanceManager.Columns[k].IsDateTime) {
                     if (dataObject[k] != null && (typeof dataObject[k] === "string")) {
-                        dataObject[k] = this._date.parse(dataObject[k]);
+                        dataObject[k] = this._masterTable.Date.parse(dataObject[k]);
                     }
                 }
                 if (dataObject[k] == undefined) dataObject[k] = null;
@@ -474,7 +477,7 @@
         }
 
         public proceedAdjustments(adjustments: PowerTables.Editing.IAdjustmentData): IAdjustmentResult {
-            this._events.Adjustment.invokeBefore(this, adjustments);
+            this._masterTable.Events.Adjustment.invokeBefore(this, adjustments);
 
             if (this.RecentClientQuery == null || this.RecentClientQuery == undefined) return null;
             var needRefilter = false;
@@ -545,8 +548,6 @@
         }
         //#endregion
     }
-
-    
 
     export interface IAdjustmentResult {
         NeedRedrawAllVisible: boolean;

@@ -1,4 +1,4 @@
-module PowerTables {
+﻿module PowerTables {
 
     /**
      * Class responsible for handling of table messages. It handles internally thrown messages as well as 
@@ -9,7 +9,7 @@ module PowerTables {
         /*
          * @internal
          */
-        constructor(usersMessageFn: (msg: ITableMessage) => void, instances: InstanceManagerService, dataHolder: DataHolderService, controller: Controller,templatesProvider:ITemplatesProvider) {
+        constructor(usersMessageFn: (msg: ITableMessage) => void, instances: InstanceManager, dataHolder: DataHolder, controller: Controller,templatesProvider:ITemplatesProvider) {
             this._usersMessageFn = usersMessageFn;
             this._instances = instances;
             this._dataHolder = dataHolder;
@@ -21,8 +21,8 @@ module PowerTables {
         }
 
         private _usersMessageFn: (msg: ITableMessage) => void;
-        private _instances: InstanceManagerService;
-        private _dataHolder: DataHolderService;
+        private _instances: InstanceManager;
+        private _dataHolder: DataHolder;
         private _controller: Controller;
         private _templatesProvider: ITemplatesProvider;
 

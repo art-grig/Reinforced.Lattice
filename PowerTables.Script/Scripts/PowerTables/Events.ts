@@ -132,26 +132,27 @@
      * Events manager for table. 
      * Contains all available events
      */
-    export class EventsService {
-        private _masterTable: IMasterTable;
+    export class EventsManager {
+        private _masterTable: any; //todo
 
-        constructor() {
-            this.QueryGathering = new TableEvent(this._masterTable);
-            this.ClientQueryGathering = new TableEvent(this._masterTable);
-            this.Loading = new TableEvent(this._masterTable);
-            this.LoadingError = new TableEvent(this._masterTable);
-            this.ColumnsCreation = new TableEvent(this._masterTable);
-            this.DataReceived = new TableEvent(this._masterTable);
-            this.LayoutRendered = new TableEvent(this._masterTable);
+        constructor(masterTable: any) {
+            this._masterTable = masterTable;
+            this.QueryGathering = new TableEvent(masterTable);
+            this.ClientQueryGathering = new TableEvent(masterTable);
+            this.Loading = new TableEvent(masterTable);
+            this.LoadingError = new TableEvent(masterTable);
+            this.ColumnsCreation = new TableEvent(masterTable);
+            this.DataReceived = new TableEvent(masterTable);
+            this.LayoutRendered = new TableEvent(masterTable);
 
-            this.ClientDataProcessing = new TableEvent(this._masterTable);
-            this.DataRendered = new TableEvent(this._masterTable);
-            this.ClientRowsRendering = new TableEvent(this._masterTable);
-            this.DeferredDataReceived = new TableEvent(this._masterTable);
-            this.Adjustment = new TableEvent(this._masterTable);
-            this.AdjustmentResult = new TableEvent(this._masterTable);
-            this.Edit = new TableEvent(this._masterTable);
-            this.EditValidationFailed = new TableEvent(this._masterTable);
+            this.ClientDataProcessing = new TableEvent(masterTable);
+            this.DataRendered = new TableEvent(masterTable);
+            this.ClientRowsRendering = new TableEvent(masterTable);
+            this.DeferredDataReceived = new TableEvent(masterTable);
+            this.Adjustment = new TableEvent(masterTable);
+            this.AdjustmentResult = new TableEvent(masterTable);
+            this.Edit = new TableEvent(masterTable);
+            this.EditValidationFailed = new TableEvent(masterTable);
         }
 
         /**
@@ -257,7 +258,6 @@
          */
         public EditValidationFailed: TableEvent<IEditValidationEvent, IEditValidationEvent>;
     }
-
 
     export interface IEditValidationEvent {
         OriginalDataObject: any;

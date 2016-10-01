@@ -1,7 +1,7 @@
 module PowerTables.Plugins.Loading {
     export class LoadingPlugin extends PluginBase<any> implements ILoadingPlugin {
         public BlinkElement: HTMLElement;
-        public subscribe(e: EventsService): void {
+        public subscribe(e: EventsManager): void {
             e.Loading.subscribeBefore(() => this.showLoadingIndicator(), 'loading');
             e.Loading.subscribeAfter(() => this.hideLoadingIndicator(), 'loading');
             e.LayoutRendered.subscribeAfter(() => {
