@@ -1,4 +1,14 @@
-﻿module PowerTables.Services {
+﻿declare class UIElement {
+    animate(options: AnimationOptions): void;
+}
+
+interface AnimationOptions {
+    deltaX: number;
+    deltaY: number;
+    easing: "ease-in" | "ease-out" | "ease-in-out";
+}
+
+module PowerTables.Services {
     /**
      * This entity is responsible for integration of data between storage and rendere. 
      * Also it provides functionality for table events subscription and 
@@ -10,7 +20,7 @@
          * @internal
          */
         constructor(masterTable: IMasterTable) {
-            this._masterTable = masterTable;
+            this._masterTable = masterTable;            
         }
 
         private _masterTable: IMasterTable;
@@ -72,6 +82,12 @@
          */
         public replaceVisibleData(rows:IRow[]): void {
             this._masterTable.Renderer.body(rows);
+        }
+
+        public redrawVisibleCells(dataObject: any, columns: string[]) {
+            var dispIndex: ILocalLookupResult = this._masterTable.DataHolder.localLookupDisplayedDataObject(dataObject);
+            if (dispIndex == null) throw new Error('Cannot redraw cells because proposed object it is not displaying currently');
+
         }
 
         /**

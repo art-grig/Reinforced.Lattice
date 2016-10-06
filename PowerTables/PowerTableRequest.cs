@@ -62,6 +62,11 @@ namespace PowerTables
         /// Static data extractable via PowerTablesHandler
         /// </summary>
         public string StaticDataJson { get; set; }
+
+        /// <summary>
+        /// Raw selection data (primary key to selected columns array)
+        /// </summary>
+        public Dictionary<string,int[]> Selection { get; set; }
     }
 
     /// <summary>

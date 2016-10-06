@@ -243,6 +243,8 @@ module PowerTables {
 		AdditionalData: { [key:string]: string };
 		/** Static data extractable via PowerTablesHandler */
 		StaticDataJson: string;
+		/** Raw selection data (primary key to selected columns array) */
+		Selection: { [key:string]: number[] };
 	}
 	/** Paging information */
 	export interface IPaging

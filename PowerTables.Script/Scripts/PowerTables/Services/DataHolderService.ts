@@ -14,7 +14,13 @@
                     this._clientValueFunction[col.RawName] = col.Configuration.ClientValueFunction;
                 }
             }
+            this._configuration = masterTable.InstanceManager.Configuration;
+            this.compileComparisonFunction();
         }
+
+        private _configuration: PowerTables.Configuration.Json.ITableConfiguration;
+
+        private _hasPrimaryKey: boolean;
 
         private _rawColumnNames: string[];
         private _comparators: { [key: string]: (a: any, b: any) => number } = {};
@@ -64,6 +70,53 @@
             this._filters = [];
         }
 
+        private compileComparisonFunction() {
+            if ((!this._configuration.KeyFields) || (this._configuration.KeyFields.length === 0)) {
+                this.DataObjectComparisonFunction = <any>(function (){
+                    throw Error('You must specify key fields for table row to use current setup. Please call .PrimaryKey on configuration object and specify set of columns exposing primary key.');
+                });
+                this.PrimaryKeyFunction = <any>(function () {
+                    throw Error('You must specify key fields for table row to use current setup. Please call .PrimaryKey on configuration object and specify set of columns exposing primary key.');
+                });
+                this._hasPrimaryKey = false;
+                return;
+            }
+            if (this._configuration.KeyFields.length === 0) return;
+            var conditions = [];
+            var fields = [];
+            for (var i = 0; i < this._configuration.KeyFields.length; i++) {
+                var field = this._configuration.KeyFields[i];
+                if (this._instances.Columns[this._configuration.KeyFields[i]].IsDateTime) {
+                    conditions.push(`((x.${field}==null?0:x.${field}.getTime())===(y.${field}==null?0:y.${field}.getTime()))`);
+                    fields.push(`(x.${field}).getTime()`);
+                } else {
+                    conditions.push(`(x.${field}===y.${field})`);
+                    if (this._instances.Columns[this._configuration.KeyFields[i]].IsBoolean) {
+                        fields.push(`(x.${field}?'1':'0')`);
+                    } else {
+                        fields.push(`(x.${field})`);
+                    }
+                }
+            }
+            var conditionsStr = conditions.join('&&');
+            var keyStr = fields.join('+":"+');
+            this.DataObjectComparisonFunction = eval(`(function(x,y) { return (${conditionsStr}); })`);
+            this.PrimaryKeyFunction = eval(`(function(x) { return (${keyStr}); })`);
+            this._hasPrimaryKey = true;
+        }
+
+        public PrimaryKeyFunction: (x: any) => string;
+
+        /**
+         * Local objects comparison function based on key fields
+         * 
+         * @param x Local data object 1
+         * @param y Local data object 2
+         * @returns {Boolean} True if objects are equal with primary key
+         */
+        public DataObjectComparisonFunction: (x: any, y: any) => boolean;
+
+
         /**
          * Registers new client ordering comparer function
          * 
@@ -91,6 +144,7 @@
             var obj: {} = {};
             var currentColIndex: number = 0;
             var currentCol: string = this._rawColumnNames[currentColIndex];
+            this._storedDataCache = {};
 
             for (var i: number = 0; i < response.Data.length; i++) {
                 if (this._instances.Columns[currentCol].IsDateTime) {
@@ -109,6 +163,10 @@
                         obj[ck] = this._clientValueFunction[ck](obj);
                     }
                     data.push(obj);
+                    if (this._hasPrimaryKey) {
+                        obj['__key'] = this.PrimaryKeyFunction(obj);
+                        this._storedDataCache[obj['__key']] = obj;
+                    }
                     obj = {};
                 }
                 currentCol = this._rawColumnNames[currentColIndex];
@@ -117,6 +175,7 @@
             this.filterStoredData(clientQuery);
         }
 
+        private _storedDataCache:{[_:string]:any};
 
         //#region Client processing
 
@@ -376,6 +435,14 @@
             return result;
         }
 
+        public getByPrimaryKeyObject(primaryKeyPart: any) : any {
+            return this._storedDataCache[this.PrimaryKeyFunction(primaryKeyPart)];
+        }
+
+        public getByPrimaryKey(primaryKey: string): any {
+            return this._storedDataCache[primaryKey];
+        }
+
 
         /**
          * Finds data object among recently loaded by primary key and returns ILocalLookupResult 
@@ -387,11 +454,9 @@
         public localLookupPrimaryKey(dataObject: any, setToLookup: any[] = this.StoredData): ILocalLookupResult {
             var found = null;
             var foundIdx = 0;
-            if (this._masterTable.InstanceManager.DataObjectComparisonFunction == null || this._masterTable.InstanceManager.DataObjectComparisonFunction == undefined) {
-                throw Error('You must specify key fields for table row to use current setup. Please call .PrimaryKey on configuration object and specify set of columns exposing primary key.');
-            }
+
             for (var i = 0; i < setToLookup.length; i++) {
-                if (this._masterTable.InstanceManager.DataObjectComparisonFunction(dataObject, setToLookup[i])) {
+                if (this.DataObjectComparisonFunction(dataObject, setToLookup[i])) {
                     found = setToLookup[i];
                     foundIdx = i;
                     break;
@@ -474,6 +539,10 @@
             for (var ck in this._clientValueFunction) {
                 dataObject[ck] = this._clientValueFunction[ck](dataObject);
             }
+            if (this._hasPrimaryKey) {
+                dataObject['__key'] = this.PrimaryKeyFunction(dataObject);
+                this._storedDataCache[dataObject['__key']] = dataObject;
+            }
         }
 
         public proceedAdjustments(adjustments: PowerTables.Editing.IAdjustmentData): IAdjustmentResult {
@@ -489,8 +558,8 @@
             for (var i = 0; i < adjustments.Updates.length; i++) {
                 this.normalizeObject(adjustments.Updates[i]);
 
-                var update = this.localLookupPrimaryKey(adjustments.Updates[i]);
-                if (update.LoadedIndex < 0) {
+                var update = this.getByPrimaryKey(adjustments.Updates[i]['__key']);
+                if (!update) {
                     if (this.StoredData.length > 0) {
                         this.StoredData.push(adjustments.Updates[i]);
                         added.push(adjustments.Updates[i]);
@@ -512,6 +581,7 @@
                 if (lookup.LoadedIndex > -1) {
                     this.StoredData.splice(lookup.LoadedIndex, 1);
                     needRefilter = true;
+                    delete this._storedDataCache[adjustments.Removals[j]['__key']];
                 }
 
                 lookup = this.localLookupPrimaryKey(adjustments.Removals[j],this.Filtered);

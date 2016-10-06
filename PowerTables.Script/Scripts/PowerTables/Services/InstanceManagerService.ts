@@ -17,38 +17,8 @@
             this._events = events;
             this._isHandlingSpecialPlacementCase = !(!this.Configuration.EmptyFiltersPlaceholder);
             this._specialCasePlaceholder = this.Configuration.EmptyFiltersPlaceholder;
-
             this.initColumns();
-            this.compileComparisonFunction();
         }
-
-        private compileComparisonFunction() {
-            if (!this.Configuration.KeyFields) return;
-            if (this.Configuration.KeyFields.length === 0) return;
-            var conditions = [];
-            for (var i = 0; i < this.Configuration.KeyFields.length; i++) {
-                var field = this.Configuration.KeyFields[i];
-                if (this.Columns[this.Configuration.KeyFields[i]].IsDateTime) {
-                    conditions.push(`((x.${field}==null?0:x.${field}.gettime())===(y.${field}==null?0:y.${field}.gettime()))`);
-                } else {
-                    conditions.push(`(x.${field}===y.${field})`);
-                }
-            }
-            var conditionsStr = conditions.join('&&');
-            var fnText = `(function(x,y) { return (${conditionsStr}); })`;
-            this.DataObjectComparisonFunction = eval(fnText);
-
-        }
-
-        /**
-         * Local objects comparison function based on key fields
-         * 
-         * @param x Local data object 1
-         * @param y Local data object 2
-         * @returns {Boolean} True if objects are equal with primary key
-         */
-        public DataObjectComparisonFunction: (x: any, y: any) => boolean;
-
 
         /**
          * Dictionary containing current table columns configurations.

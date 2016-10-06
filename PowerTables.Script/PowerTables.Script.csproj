@@ -33,6 +33,7 @@
       <Link>Scripts\Interfaces.ts</Link>
     </TypeScriptCompile>
     <TypeScriptCompile Include="Scripts\PowerTables\Event.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Services\SelectionService.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\TrackHelper.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\ComponentsContainer.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\CoreInterfaces.ts" />
