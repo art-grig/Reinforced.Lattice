@@ -114,11 +114,12 @@
             }
             this._isEditing = false;
             this._activeEditors = [];
-
+            
             this.sendDataObjectToServer(() => {
                 if (!this._isEditing) {
                     this.MasterTable.Events.Edit.invokeAfter(this, this.CurrentDataObjectModified);
                     this.CurrentDataObjectModified = null;
+
                 }
             });
         }
