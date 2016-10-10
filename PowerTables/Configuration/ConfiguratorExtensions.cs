@@ -339,24 +339,7 @@ namespace PowerTables.Configuration
             return conf;
         }
 
-        /// <summary>
-        /// Sets template IDs for touched data. 
-        /// Touched data is being added to table after various edits
-        /// </summary>
-        /// <param name="conf"></param>
-        /// <param name="touchedRowTemplateId">Template ID for touched row</param>
-        /// <param name="touchedCellTemplateId">Template ID for touched columns</param>
-        /// <param name="addedRowTemplateId">Template ID for added row</param>
-        public static T AdjustmentTemplates<T>
-            (this T conf, string touchedRowTemplateId, string touchedCellTemplateId, string addedRowTemplateId) where T : IConfigurator
-        {
-            conf.TableConfiguration.TouchedCellTemplateId = touchedCellTemplateId;
-            conf.TableConfiguration.TouchedRowTemplateId = touchedRowTemplateId;
-            conf.TableConfiguration.AddedRowTemplateId = addedRowTemplateId;
-            return conf;
-        }
-
-
+        
         /// <summary>
         /// Function that should consume IRow instance and return template name for this particular row.
         /// Return null/empty/undefined will let system to choose default template. 

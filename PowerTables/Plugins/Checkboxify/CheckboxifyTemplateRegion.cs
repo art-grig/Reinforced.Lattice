@@ -42,20 +42,6 @@ namespace PowerTables.Plugins.Checkboxify
         bool CanCheck { get; }
     }
 
-    public class CheckedRowTemplateRegion : PluginTemplateRegion,
-        IProvidesTracking,
-        IProvidesContent,
-        IProvidesColumnContent
-    {
-        
-
-        public bool IsTrackSet { get; set; }
-
-        public CheckedRowTemplateRegion(IViewPlugins page, string id) : base(page, id)
-        {
-        }
-    }
-
     public static class CheckboxifyTemplateExtensions
     {
         public static CheckboxifySelectAllTemplateRegion CheckboxifySelectAll(this IViewPlugins t, string templateId = "checkboxifySelectAll")
@@ -66,11 +52,6 @@ namespace PowerTables.Plugins.Checkboxify
         public static CheckboxifiedCellTemplateRegion CheckboxifyCell(this IViewPlugins t, string templateId = "checkboxifyCell")
         {
             return new CheckboxifiedCellTemplateRegion(t,templateId);
-        }
-
-        public static CheckedRowTemplateRegion CheckboxifyRow(this IViewPlugins t, string templateId = "checkboxifyRow")
-        {
-            return new CheckedRowTemplateRegion(t,templateId);
         }
 
         public static MvcHtmlString BindSelectAll(this CheckboxifySelectAllTemplateRegion t, string eventId)

@@ -62,6 +62,8 @@ module PowerTables {
             this.Loader = new PowerTables.Services.LoaderService(this._configuration.StaticData, this._configuration.OperationalAjaxUrl, this);
             this.Renderer = new Rendering.Renderer(this._configuration.TableRootId, this._configuration.Prefix, this);
             this.Controller = new PowerTables.Services.Controller(this);
+            this.Selection = new PowerTables.Services.SelectionService(this);
+
             this.MessageService = new PowerTables.Services.MessagesService(this._configuration.MessageFunction, this.InstanceManager, this.DataHolder, this.Controller, this.Renderer);
 
             this.InstanceManager.initPlugins();
@@ -166,5 +168,7 @@ module PowerTables {
         public setStaticData(obj: any): void {
             this._configuration.StaticData = JSON.stringify(obj);
         }
+
+        Selection: PowerTables.Services.SelectionService;
     }
 } 

@@ -27,12 +27,6 @@ declare module PowerTables.Configuration.Json {
         CoreTemplates: PowerTables.ICoreTemplateIds;
         /** Object's key fields. Necessary for some operations */
         KeyFields: string[];
-        /** Template ID for adjusted cells */
-        TouchedCellTemplateId: string;
-        /** Template ID for adjusted rows */
-        TouchedRowTemplateId: string;
-        /** Template ID for adjusted rows */
-        AddedRowTemplateId: string;
         /** Function that will be called after tables initialization */
         CallbackFunction: (table: IMasterTable) => void;
         /**
@@ -867,6 +861,10 @@ declare module PowerTables {
          */
         Date: PowerTables.Services.DateService;
         /**
+         * API for working with selection
+         */
+        Selection: PowerTables.Services.SelectionService;
+        /**
          * Absorb and draw table adjustments
          *
          * @param adjustments Table adjustmetns object
@@ -968,6 +966,14 @@ declare module PowerTables {
          * Is cell updated or not
          */
         IsUpdated?: boolean;
+        /**
+         * Does cell belong to an added row in case of parsering update result
+         */
+        IsAdded?: boolean;
+        /**
+         * Flag to note that this row was selected by user
+         */
+        IsSelected?: boolean;
     }
     /**
      * Colun header rendering object
@@ -1015,6 +1021,18 @@ declare module PowerTables {
          * Overriden Template ID for row
          */
         TemplateIdOverride?: string;
+        /**
+         * Flag to note that this row was selected by user
+         */
+        IsSelected?: boolean;
+        /**
+         * Is cell updated or not
+         */
+        IsUpdated?: boolean;
+        /**
+         * Does cell belong to an added row in case of parsering update result
+         */
+        IsAdded?: boolean;
     }
     interface ITemplatesProvider {
         /**
@@ -2397,6 +2415,7 @@ declare module PowerTables {
         proceedAdjustments(adjustments: PowerTables.Editing.IAdjustmentData): void;
         getStaticData(): any;
         setStaticData(obj: any): void;
+        Selection: PowerTables.Services.SelectionService;
     }
 }
 declare module PowerTables.Rendering {
@@ -3065,14 +3084,6 @@ declare module PowerTables.Rendering {
         StateWasMixedIn: boolean;
     }
 }
-declare class UIElement {
-    animate(options: AnimationOptions): void;
-}
-interface AnimationOptions {
-    deltaX: number;
-    deltaY: number;
-    easing: "ease-in" | "ease-out" | "ease-in-out";
-}
 declare module PowerTables.Services {
     /**
      * This entity is responsible for integration of data between storage and rendere.
@@ -3106,7 +3117,8 @@ declare module PowerTables.Services {
          * Redraws locally visible data
          */
         replaceVisibleData(rows: IRow[]): void;
-        redrawVisibleCells(dataObject: any, columns: string[]): void;
+        redrawVisibleCells(dataObject: any, columns: IColumn[]): void;
+        redrawColumns(columns: IColumn[]): void;
         /**
          * @internal
          */
@@ -3681,12 +3693,16 @@ declare module PowerTables.Services {
 }
 declare module PowerTables.Services {
     class SelectionService implements IQueryPartProvider {
-        constructor(dataHolder: PowerTables.Services.DataHolderService, loader: PowerTables.Services.LoaderService, instanceManager: PowerTables.Services.InstanceManagerService, events: PowerTables.Services.EventsService);
-        private _dataHolder;
-        private _instanceManager;
-        private _events;
+        constructor(masterTable: IMasterTable);
+        private _masterTable;
+        private _selectedColumns;
         private _selectionData;
+        private _selectedColsObjects;
         isSelected(dataObject: any): boolean;
+        isCellSelected(dataObject: any, column: IColumn): boolean;
+        hasSelectedCells(dataObject: any): boolean;
+        getSelectedCells(dataObject: any): number[];
+        getSelectedCellsByPrimaryKey(dataObject: any): boolean;
         isSelectedPrimaryKey(primaryKey: string): boolean;
         toggleRowByPrimaryKey(primaryKey: string, selected?: boolean): void;
         toggleObjectSelected(dataObject: any, selected?: boolean): void;
@@ -3695,7 +3711,8 @@ declare module PowerTables.Services {
         getSelectedObjects(): any[];
         getSelectedColumns(primaryKey: string): IColumn[];
         getSelectedColumnsByObject(dataObject: any): IColumn[];
-        toggleColumns(primaryKey: string, columnNames: string[], select?: boolean): void;
+        toggleCells(primaryKey: string, columnNames: string[], select?: boolean): void;
+        toggleColumns(columnNames: string[], select?: boolean): void;
     }
 }
 declare module PowerTables {

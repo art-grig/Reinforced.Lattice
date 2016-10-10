@@ -91,6 +91,11 @@
         Date: PowerTables.Services.DateService;
 
         /**
+         * API for working with selection
+         */
+        Selection:PowerTables.Services.SelectionService;
+
+        /**
          * Absorb and draw table adjustments
          * 
          * @param adjustments Table adjustmetns object         
@@ -202,7 +207,17 @@
         /**
          * Is cell updated or not
          */
-        IsUpdated?:boolean;
+        IsUpdated?: boolean;
+
+        /**
+         * Does cell belong to an added row in case of parsering update result
+         */
+        IsAdded?:boolean;
+
+        /**
+         * Flag to note that this row was selected by user
+         */
+        IsSelected?: boolean;
     }
 
     /**
@@ -252,7 +267,22 @@
         /**
          * Overriden Template ID for row
          */
-        TemplateIdOverride?:string;
+        TemplateIdOverride?: string;
+
+        /**
+         * Flag to note that this row was selected by user
+         */
+        IsSelected?: boolean;
+
+        /**
+         * Is cell updated or not
+         */
+        IsUpdated?: boolean;
+
+        /**
+         * Does cell belong to an added row in case of parsering update result
+         */
+        IsAdded?: boolean;
     }
 
     export interface ITemplatesProvider {

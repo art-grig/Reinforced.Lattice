@@ -28,6 +28,23 @@ namespace PowerTables.Templating.BuiltIn
         object Data { get; }
 
         IHbDictionary<string,string> DataObject { get; }
+
+        /// <summary>
+        /// True when this cell is selected, false otherwise.
+        /// Warning! Do not mess with Row.IsSelected. 
+        /// When row is selected then it does not mean that cell is selected.
+        /// </summary>
+        bool IsSelected { get; }
+
+        /// <summary>
+        /// True, when cell is updated during updating data in table
+        /// </summary>
+        bool IsUpdated { get; }
+
+        /// <summary>
+        /// True when row containing this cell was added during updating table
+        /// </summary>
+        bool IsAdded { get; }
     }
 
     /// <summary>

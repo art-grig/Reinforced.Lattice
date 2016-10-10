@@ -64,22 +64,7 @@ namespace PowerTables.Configuration.Json
         /// Object's key fields. Necessary for some operations
         /// </summary>
         public string[] KeyFields { get; set; }
-
-        /// <summary>
-        /// Template ID for adjusted cells
-        /// </summary>
-        public string TouchedCellTemplateId { get; set; }
-
-        /// <summary>
-        /// Template ID for adjusted rows
-        /// </summary>
-        public string TouchedRowTemplateId { get; set; }
-
-        /// <summary>
-        /// Template ID for adjusted rows
-        /// </summary>
-        public string AddedRowTemplateId { get; set; }
-
+       
         /// <summary>
         /// Function that will be called after tables initialization
         /// </summary>
@@ -353,5 +338,12 @@ namespace PowerTables.Configuration.Json
         /// </summary>
         public JRaw ConfirmationWindowViewModel { get; set; }
 
+    }
+
+
+
+    public class SelectionConfiguration
+    {
+        
     }
 }

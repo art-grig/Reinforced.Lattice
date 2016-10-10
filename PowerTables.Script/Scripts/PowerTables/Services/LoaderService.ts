@@ -53,7 +53,9 @@
                 Orderings: {},
                 Filterings: {},
                 AdditionalData: {},
-                StaticDataJson: this._masterTable.InstanceManager.Configuration.StaticData
+                StaticDataJson: this._masterTable.InstanceManager.Configuration.StaticData,
+                Selection: null
+
             };
             if (queryScope === QueryScope.Client) {
                 this._events.ClientQueryGathering.invokeBefore(this, { Query: a, Scope: queryScope });

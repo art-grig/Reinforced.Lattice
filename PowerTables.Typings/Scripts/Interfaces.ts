@@ -32,12 +32,6 @@ module PowerTables.Configuration.Json {
 		CoreTemplates: PowerTables.ICoreTemplateIds;
 		/** Object's key fields. Necessary for some operations */
 		KeyFields: string[];
-		/** Template ID for adjusted cells */
-		TouchedCellTemplateId: string;
-		/** Template ID for adjusted rows */
-		TouchedRowTemplateId: string;
-		/** Template ID for adjusted rows */
-		AddedRowTemplateId: string;
 		/** Function that will be called after tables initialization */
 		CallbackFunction: (table:IMasterTable) => void;
 		/**

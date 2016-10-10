@@ -23,6 +23,24 @@ namespace PowerTables.Templating.BuiltIn
     public interface IRowModel<TRow>
     {
         /// <summary>
+        /// True when this cell is selected, false otherwise.
+        /// Warning! Do not mess with Cell.IsSelected. 
+        /// When row is selected then it does not mean that cell is selected.
+        /// </summary>
+        bool IsSelected { get; }
+
+
+        /// <summary>
+        /// True, when row contains updated cells that was updated during adjustment
+        /// </summary>
+        bool IsUpdated { get; }
+
+        /// <summary>
+        /// True when row was added during adjustment
+        /// </summary>
+        bool IsAdded { get; }
+
+        /// <summary>
         /// Data object 
         /// </summary>
         TRow DataObject { get; }
@@ -40,9 +58,9 @@ namespace PowerTables.Templating.BuiltIn
 
     public static class RowWrapperExtensions
     {
-        public static RowWrapperTemplateRegion<dynamic> RowWrapper(this ITemplatesScope tp, string templateId = "rowWrapper")
+        public static RowWrapperTemplateRegion<object> RowWrapper(this ITemplatesScope tp, string templateId = "rowWrapper")
         {
-            return new RowWrapperTemplateRegion<dynamic>(tp.TemplatesPrefix,templateId, tp.Output);
+            return new RowWrapperTemplateRegion<object>(tp.TemplatesPrefix, templateId, tp.Output);
         }
 
         public static RowWrapperTemplateRegion<TRow> RowWrapper<TRow>(this ITemplatesScope tp, string templateId = "rowWrapper")
