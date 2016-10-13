@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Web.Mvc;
+using PowerTables.CellTemplating;
 using PowerTables.Configuration;
 using PowerTables.Mvc.Models;
 using PowerTables.Mvc.Models.Tutorial;

@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using PowerTables.CellTemplating;
 using PowerTables.Configuration;
 using PowerTables.Plugins;
 using PowerTables.Plugins.Hideout;

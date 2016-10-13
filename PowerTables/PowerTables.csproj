@@ -76,6 +76,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CellTemplating\CellTemplateBuilder.cs" />
+    <Compile Include="CellTemplating\DataWrapper.cs" />
+    <Compile Include="CellTemplating\RazorSwitchBuilder.cs" />
     <Compile Include="CellTemplating\SwitchBuilder.cs" />
     <Compile Include="CellTemplating\Template.cs" />
     <Compile Include="CellTemplating\TemplatesExtensions.cs" />

@@ -467,7 +467,11 @@ namespace PowerTables.CellTemplating
                     if (i < tpl.Length - 1) sb.Append("+ '");
                     continue;
                 }
-
+                if (tpl[i] == '{' && (i < tpl.Length - 1) && tpl[i + 1] == '{')
+                {
+                    sb.Append('{');
+                    continue;
+                }
                 if (tpl[i] == '{' && IsValidToken(tpl[i + 1]))
                 {
                     if (i > 0) sb.Append("' +");

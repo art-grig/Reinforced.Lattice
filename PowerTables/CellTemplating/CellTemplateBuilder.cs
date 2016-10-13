@@ -8,12 +8,12 @@ namespace PowerTables.CellTemplating
     /// <summary>
     /// Class used to build buttons to be output inside cell
     /// </summary>
-    public class CellTemplateBuilder
+    public class CellTemplateBuilder : IHtmlString
     {
         private readonly List<string> _lines = new List<string>();
         private string _result;
-        private readonly string _objectProperty;
-        private readonly string _defaultProperty;
+        internal readonly string _objectProperty;
+        internal readonly string _defaultProperty;
 
         /// <summary>
         /// Creates new instance of Cell template builder
@@ -58,18 +58,6 @@ namespace PowerTables.CellTemplating
         /// <param name="expression">Expression to check</param>
         /// <param name="content">Content to return</param>
         /// <returns></returns>
-        public CellTemplateBuilder IfNotPresent(string expression, IHtmlString content)
-        {
-            return IfNotPresent(expression, Template.SanitizeHtmlString(content));
-        }
-
-
-        /// <summary>
-        /// Template will return specified content if specified column is null or undefined
-        /// </summary>
-        /// <param name="expression">Expression to check</param>
-        /// <param name="content">Content to return</param>
-        /// <returns></returns>
         public CellTemplateBuilder IfNotPresent(string expression, Action<Template> content)
         {
             expression = Template.CompileExpression(expression, "v", _objectProperty, _defaultProperty);
@@ -91,29 +79,9 @@ namespace PowerTables.CellTemplating
             return this;
         }
 
-        /// <summary>
-        /// Adds switch Switch operator to templating function
-        /// </summary>
-        /// <param name="expression">Expression to switch</param>
-        /// <param name="swtch">Switch builder action</param>
-        /// <returns></returns>
-        public CellTemplateBuilder Switch(string expression, Action<SwitchBuilder> swtch)
+        internal void Line(string line)
         {
-            SwitchBuilder swb = new SwitchBuilder(expression, _objectProperty, _defaultProperty);
-            swtch(swb);
-            _lines.Add(swb.Build());
-            return this;
-        }
-
-        /// <summary>
-        /// Returns specified template part if condition met
-        /// </summary>
-        /// <param name="expression">Expression</param>
-        /// <param name="elment">Element builder delegate</param>
-        /// <returns></returns>
-        public CellTemplateBuilder ReturnsIf(string expression, Action<Template> elment)
-        {
-            return ReturnsIf(expression, Template.BuildDelegate(elment));
+            _lines.Add(line);
         }
 
         /// <summary>
@@ -126,29 +94,6 @@ namespace PowerTables.CellTemplating
         {
             _lines.Add(string.Format("if ({0}) return {1}; ", Template.CompileExpression(expression, "v", _objectProperty, _defaultProperty), Template.Compile(content, "v", _objectProperty, _defaultProperty)));
             return this;
-        }
-
-        /// <summary>
-        /// Returns specified template part if condition met
-        /// </summary>
-        /// <param name="expression">Expression</param>
-        /// <param name="content">Text to return</param>
-        /// <returns></returns>
-        public CellTemplateBuilder ReturnsIf(string expression, IHtmlString content)
-        {
-            return ReturnsIf(expression, Template.SanitizeHtmlString(content));
-        }
-
-        /// <summary>
-        /// Returns specified template part if condition met
-        /// </summary>
-        /// <param name="expression">Expression</param>
-        /// <param name="elment">Element builder delegate</param>
-        /// <param name="elseElment">What to return if condition not met</param>
-        /// <returns></returns>
-        public CellTemplateBuilder ReturnsIf(string expression, Action<Template> elment, Action<Template> elseElment)
-        {
-            return ReturnsIf(expression, Template.BuildDelegate(elment), Template.BuildDelegate(elseElment));
         }
 
         /// <summary>
@@ -170,53 +115,6 @@ namespace PowerTables.CellTemplating
         /// <summary>
         /// Returns specified template part if condition met
         /// </summary>
-        /// <param name="expression">Expression</param>
-        /// <param name="positiveContent">Content if expression is positive</param>
-        /// <param name="negativeContent">Content if expression is negative</param>
-        /// <returns></returns>
-        public CellTemplateBuilder ReturnsIf(string expression, IHtmlString positiveContent, IHtmlString negativeContent)
-        {
-            return ReturnsIf(expression, Template.SanitizeHtmlString(positiveContent),
-                Template.SanitizeHtmlString(negativeContent));
-        }
-
-        /// <summary>
-        /// Returns specified template part if condition met
-        /// </summary>
-        /// <param name="expression">Expression</param>
-        /// <param name="positiveContent">Content if expression is positive</param>
-        /// <param name="negativeContent">Content if expression is negative</param>
-        /// <returns></returns>
-        public CellTemplateBuilder ReturnsIf(string expression, IHtmlString positiveContent, string negativeContent)
-        {
-            return ReturnsIf(expression, Template.SanitizeHtmlString(positiveContent), negativeContent);
-        }
-
-        /// <summary>
-        /// Returns specified template part if condition met
-        /// </summary>
-        /// <param name="expression">Expression</param>
-        /// <param name="positiveContent">Content if expression is positive</param>
-        /// <param name="negativeContent">Content if expression is negative</param>
-        /// <returns></returns>
-        public CellTemplateBuilder ReturnsIf(string expression, string positiveContent, IHtmlString negativeContent)
-        {
-            return ReturnsIf(expression, positiveContent, Template.SanitizeHtmlString(negativeContent));
-        }
-
-        /// <summary>
-        /// Returns specified template part if condition met
-        /// </summary>
-        /// <param name="elment">Element builder delegate</param>
-        /// <returns></returns>
-        public CellTemplateBuilder Returns(Action<Template> elment)
-        {
-            return Returns(Template.BuildDelegate(elment));
-        }
-
-        /// <summary>
-        /// Returns specified template part if condition met
-        /// </summary>
         /// <param name="content">Content to return</param>
         /// <returns></returns>
         public CellTemplateBuilder Returns(string content)
@@ -224,16 +122,6 @@ namespace PowerTables.CellTemplating
             var text = Template.Compile(content, "v", _objectProperty, _defaultProperty);
             _result = string.Format("return {0}; ", text);
             return this;
-        }
-
-        /// <summary>
-        /// Returns specified template part if condition met
-        /// </summary>
-        /// <param name="content">Content to return</param>
-        /// <returns></returns>
-        public CellTemplateBuilder Returns(IHtmlString content)
-        {
-            return Returns(Template.SanitizeHtmlString(content));
         }
 
         /// <summary>
@@ -251,6 +139,11 @@ namespace PowerTables.CellTemplating
             if (!string.IsNullOrEmpty(_result)) sb.Append(_result);
             sb.Append("}");
             return sb.ToString();
+        }
+
+        public string ToHtmlString()
+        {
+            return string.Empty;
         }
     }
 }
