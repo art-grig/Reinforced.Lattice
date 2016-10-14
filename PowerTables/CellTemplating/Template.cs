@@ -346,6 +346,18 @@ namespace PowerTables.CellTemplating
             char[] hex = new char[2];
             for (int i = 0; i < s.Length; i++)
             {
+                if (s[i] == '\r')
+                {
+                    sb.Append("\\r");
+                    continue;
+                }
+
+                if (s[i] == '\n')
+                {
+                    sb.Append("\\n");
+                    continue;
+                }
+
                 if (s[i] == '%')
                 {
                     if (i < s.Length - 2)

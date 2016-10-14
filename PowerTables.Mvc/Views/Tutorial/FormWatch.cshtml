@@ -5,12 +5,16 @@
 @model PowerTables.Mvc.Models.Tutorial.FormWatchTutorialModel
 @{
     Layout = "~/Views/Shared/TutorialsLayout.cshtml";
-    Model.Table.Column(c => c.State).Template(tpl => 
+    Model.Table.Column(c => c.State).Template(tpl =>
         tpl.Razor(@<a href="@Url.Action("Editor", new { param = "{State}%%%" })">Edit {State}</a>));
 
-    Model.Table.Column(c => c.TypeOfToy).RazorSwitch("{@}", x => x.Cases(EnumHelper.GetSelectList(typeof(ToyType)), c => c.Value, @<span>@item.Text</span>));
-                                                   
-   
+    Model.Table.Column(c => c.TypeOfToy).RazorSwitch("{@}", x => x.Cases(EnumHelper.GetSelectList(typeof(ToyType)), c => c.Value, @<div class="well">
+                                                                                                                                       <span>
+                                                                                                                                           @item.Text
+                                                                                                                                       </span>
+        </div>));
+
+
 }
 
 @section Result{
