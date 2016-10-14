@@ -274,7 +274,7 @@ namespace PowerTables.CellTemplating
         /// <returns>Fluent</returns>
         public static SwitchBuilder When(this SwitchBuilder x, string caseExpression, IHtmlString content)
         {
-            return x.When(caseExpression, CellTemplating.Template.SanitizeHtmlString(content));
+            return x.When(caseExpression, String.Format("'{0}'",CellTemplating.Template.SanitizeHtmlString(content)));
         }
 
 
@@ -286,13 +286,13 @@ namespace PowerTables.CellTemplating
         /// <returns>Fluent</returns>
         public static SwitchBuilder RazorWhen(this SwitchBuilder x, string caseExpression, Func<object, HelperResult> content)
         {
-            return x.When(caseExpression, content(new object()));
+            return x.When(caseExpression, String.Format("'{0}'", content(new object())));
         }
 
         /// <summary>
         /// Specifies template for default condition
         /// </summary>
-        /// <param name="template">TemplTE builder</param>
+        /// <param name="content">TemplTE builder</param>
         /// <returns>Fluent</returns>
         public static SwitchBuilder Default(this SwitchBuilder x, Action<Template> content)
         {
@@ -304,7 +304,7 @@ namespace PowerTables.CellTemplating
         /// <summary>
         /// Specifies template for default condition
         /// </summary>
-        /// <param name="template">TemplTE builder</param>
+        /// <param name="content">TemplTE builder</param>
         /// <returns>Fluent</returns>
         public static SwitchBuilder Default(this SwitchBuilder x, IHtmlString content)
         {
@@ -314,7 +314,7 @@ namespace PowerTables.CellTemplating
         /// <summary>
         /// Specifies template for default condition
         /// </summary>
-        /// <param name="template">TemplTE builder</param>
+        /// <param name="content">TemplTE builder</param>
         /// <returns>Fluent</returns>
         public static SwitchBuilder RazorDefault(this SwitchBuilder x, Func<object, HelperResult> content)
         {
@@ -354,7 +354,7 @@ namespace PowerTables.CellTemplating
         {
             foreach (var option in options)
             {
-                x.When(expression(option), template(option));
+                x.When(expression(option), String.Format("'{0}'", template(option)));
             }
             return x;
         }

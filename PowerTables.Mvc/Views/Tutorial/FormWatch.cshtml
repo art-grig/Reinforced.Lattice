@@ -1,13 +1,14 @@
 ﻿@using PowerTables
 @using PowerTables.CellTemplating
 @using PowerTables.Configuration
+@using PowerTables.Mvc.Models.Tutorial
 @model PowerTables.Mvc.Models.Tutorial.FormWatchTutorialModel
 @{
     Layout = "~/Views/Shared/TutorialsLayout.cshtml";
     Model.Table.Column(c => c.State).Template(tpl => 
         tpl.Razor(@<a href="@Url.Action("Editor", new { param = "{State}%%%" })">Edit {State}</a>));
 
-    Model.Table.Column(c => c.TypeOfToy).Razor(@<i>Something (@item[x=>x.Id]) </i>);
+    Model.Table.Column(c => c.TypeOfToy).RazorSwitch("{@}", x => x.Cases(EnumHelper.GetSelectList(typeof(ToyType)), c => c.Value, @<span>@item.Text</span>));
                                                    
    
 }

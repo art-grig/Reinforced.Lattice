@@ -31,7 +31,7 @@ namespace PowerTables.CellTemplating
         /// <returns>Fluent</returns>
         public RazorSwitchBuilder When(string caseExpression, Func<object,HelperResult> content)
         {
-            _lines.Add(string.Format(" case {0}: return {1}; ", Template.CompileExpression(caseExpression, "v", _objectProperty, _defaultProperty), content));
+            _lines.Add(string.Format(" case {0}: return '{1}'; ", Template.CompileExpression(caseExpression, "v", _objectProperty, _defaultProperty), content(new object())));
             return this;
         }
 
@@ -43,7 +43,7 @@ namespace PowerTables.CellTemplating
         /// <returns>Fluent</returns>
         private void When(string caseExpression, IHtmlString content)
         {
-            _lines.Add(string.Format(" case {0}: return {1}; ", Template.CompileExpression(caseExpression, "v", _objectProperty, _defaultProperty), CellTemplating.Template.SanitizeHtmlString(content)));
+            _lines.Add(string.Format(" case {0}: return '{1}'; ", Template.CompileExpression(caseExpression, "v", _objectProperty, _defaultProperty), CellTemplating.Template.SanitizeHtmlString(content)));
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace PowerTables.CellTemplating
         /// <returns>Fluent</returns>
         public RazorSwitchBuilder Default(Func<object, HelperResult> content)
         {
-            _default = string.Format(" default: return {0}; ", Template.SanitizeHtmlString(content(new object())));
+            _default = string.Format(" default: return '{0}'; ", Template.SanitizeHtmlString(content(new object())));
             return this;
         }
 
