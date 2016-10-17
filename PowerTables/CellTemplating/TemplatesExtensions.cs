@@ -45,7 +45,7 @@ namespace PowerTables.CellTemplating
             TemplateDataWrapper<TRow> r = new TemplateDataWrapper<TRow>(ctb);
             var result = mvcTemplate(r);
 
-            ctb.Returns(result.ToHtmlString());
+            ctb.Returns(result);
             var fun = ctb.Build();
             col.TemplateFunction(fun);
             return col;
