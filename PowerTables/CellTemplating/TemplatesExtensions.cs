@@ -52,6 +52,27 @@ namespace PowerTables.CellTemplating
         }
 
         /// <summary>
+        /// Renders configured template in specified column. 
+        /// You can use {field} syntax to include specific table column value.
+        /// Use `{field} + 10` to embed JS expression inside template. Code in `'s will 
+        /// be included to template without chages
+        /// </summary>
+        /// <param name="col">Column</param>
+        /// <param name="mvcTemplate">Razor template</param>
+        /// <returns>Fluent</returns>
+        public static IColumnTargetProperty<T> Razor<T>(this IColumnTargetProperty<T> col,
+            Func<object, HelperResult> mvcTemplate)
+        {
+            CellTemplateBuilder ctb = new CellTemplateBuilder();
+            var result = mvcTemplate(new object());
+
+            ctb.Returns(result);
+            var fun = ctb.Build();
+            col.TemplateFunction(fun);
+            return col;
+        }
+
+        /// <summary>
         /// Appends onclick attribute to element (usually button)
         /// </summary>
         /// <param name="b"></param>

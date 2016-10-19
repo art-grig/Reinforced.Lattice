@@ -421,12 +421,12 @@ namespace PowerTables.Configuration
         /// <param name="conf">Table configurator</param>
         /// <param name="subscription">Event subscription configuration</param>
         /// <returns></returns>
-        public static ColumnUsage<TSourceData, TTableData, TColumn> SubscribeCellEvent<TSourceData, TTableData, TColumn>
-            (this ColumnUsage<TSourceData, TTableData, TColumn> conf, Action<TableEventSubscription> subscription) where TTableData : new()
+        public static T SubscribeCellEvent<T>
+            (this T conf, Action<TableEventSubscription> subscription) where T : IColumnConfigurator
         {
             TableEventSubscription sub = new TableEventSubscription();
             sub.SubscriptionInfo.IsRowSubscription = false;
-            sub.SubscriptionInfo.ColumnName = conf.ColumnProperty.Name;
+            sub.SubscriptionInfo.ColumnName = conf.ColumnConfiguration.RawColumnName;
 
             subscription(sub);
             conf.TableConfigurator.TableConfiguration.Subscriptions.Add(sub.SubscriptionInfo);
@@ -439,8 +439,8 @@ namespace PowerTables.Configuration
         /// Return null/empty/undefined will let system to choose default template. 
         /// You can access cell data via .DataObject property
         /// </summary>
-        public static ColumnUsage<TSourceData, TTableData, TColumn> TemplateSelector<TSourceData, TTableData, TColumn>(this ColumnUsage<TSourceData, TTableData, TColumn> conf, string selectorFunction)
-            where TTableData : new()
+        public static T TemplateSelector<T>(this T conf, string selectorFunction)
+            where T : IColumnConfigurator
         {
             conf.ColumnConfiguration.TemplateSelector = string.IsNullOrEmpty(selectorFunction) ? null : new JRaw(selectorFunction);
             return conf;
