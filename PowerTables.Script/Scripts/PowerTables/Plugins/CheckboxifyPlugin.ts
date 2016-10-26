@@ -1,48 +1,13 @@
 ﻿module PowerTables.Plugins.Checkboxify {
     export class CheckboxifyPlugin extends PluginBase<Plugins.Checkboxify.ICheckboxifyClientConfig> implements IQueryPartProvider {
-        private _selectedItems: string[] = [];
-        private _visibleAll: boolean = false;
-        private _allSelected: boolean = false;
         private _ourColumn: IColumn;
         public ValueColumnName: string;
-        private _canSelectAll: boolean;
-        private _pagingPlugin: PowerTables.Plugins.Paging.PagingPlugin = null;
-        private _selectables: any[] = [];
+        
 
         public selectAll(selected?: boolean): void {
-            if (!this._canSelectAll) return;
-            this._allSelected = selected == null ? !this._allSelected : selected;
+            if (!this.MasterTable.Selection.canSelectAll()) return;
+            this.MasterTable.Selection.toggleAll(selected);
             this.redrawHeader();
-            this._selectedItems.splice(0, this._selectedItems.length);
-            if (this._allSelected) {
-                if (this.Configuration.SelectAllSelectsClientUndisplayedData) {
-                    for (var i: number = 0; i < this.MasterTable.DataHolder.StoredData.length; i++) {
-                        if (this._selectables.indexOf(this.MasterTable.DataHolder.StoredData[i]) > -1) {
-                            this._selectedItems.push(this.MasterTable.DataHolder.StoredData[i][this.ValueColumnName].toString());
-                        }
-                    }
-                    this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
-                    this.MasterTable.Controller.redrawVisibleData();
-                } else if (this.Configuration.SelectAllSelectsServerUndisplayedData) {
-                    this.MasterTable.Loader.requestServer('checkboxify_all', data => {
-                        this._selectedItems = data;
-                        this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
-                        this.MasterTable.Controller.redrawVisibleData();
-                    });
-                } else {
-                    for (var j: number = 0; j < this.MasterTable.DataHolder.DisplayedData.length; j++) {
-                        if (this._selectables.indexOf(this.MasterTable.DataHolder.DisplayedData[j]) > -1) {
-                            this._selectedItems.push(this.MasterTable.DataHolder.DisplayedData[j][this.ValueColumnName].toString());
-                        }
-                    }
-                    this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
-                    this.MasterTable.Controller.redrawVisibleData();
-                }
-            } else {
-                this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
-                this.MasterTable.Controller.redrawVisibleData();
-            }
-
         }
 
         private redrawHeader() {
@@ -83,7 +48,8 @@
             var header: ISpecialHeader = {
                 Column: col,
                 renderContent: null,
-                renderElement: (tp) => tp.getCachedTemplate(this.Configuration.SelectAllTemplateId)({ IsAllSelected: this._allSelected, CanSelectAll: this._canSelectAll }),
+                renderElement: (tp) => tp.getCachedTemplate(this.Configuration.SelectAllTemplateId)(
+                    { IsAllSelected: this.MasterTable.Selection.isAllSelected(), CanSelectAll: this.MasterTable.Selection.canSelectAll() }),
                 selectAllEvent: (e) => this.selectAll()
             }
 
@@ -92,24 +58,16 @@
             this.MasterTable.Renderer.ContentRenderer.cacheColumnRenderingFunction(col, x => {
                 if (x.Row.IsSpecial) return '';
                 if (this.Configuration.CanSelectFunction && !this.Configuration.CanSelectFunction(x.Row)) return '';
-                var value = x.DataObject[this.ValueColumnName].toString();
-                this._selectables.push(x.DataObject);
-                var selected: boolean = this._selectedItems.indexOf(value) > -1;
+                var selected: boolean = this.MasterTable.Selection.isSelected(x.DataObject);
                 var canCheck: boolean = this.canCheck(x.DataObject, x.Row);
-                return this.MasterTable.Renderer.getCachedTemplate(this.Configuration.CellTemplateId)({ Value: value, IsChecked: selected, CanCheck: canCheck });
+                return this.MasterTable.Renderer.getCachedTemplate(this.Configuration.CellTemplateId)(
+                    { Value: x.DataObject['__key'], IsChecked: selected, CanCheck: canCheck });
             });
             return col;
         }
 
         private canCheck(dataObject: any, row: IRow) {
             return dataObject != null && !row.IsSpecial;
-        }
-
-        public getSelection(): string[] {
-            return this._selectedItems;
-        }
-        public resetSelection() {
-            this.selectAll(false);
         }
 
         public selectByRowIndex(rowIndex: number, select: boolean = null): boolean {
@@ -285,10 +243,6 @@
                 query.AdditionalData['Selection'] = this._selectedItems.join('|');
                 query.AdditionalData['SelectionColumn'] = this.ValueColumnName;
             }
-        }
-
-        public static registerEvents(e: PowerTables.Services.EventsService, masterTable: IMasterTable): void {
-            e['SelectionChanged'] = new TableEvent(masterTable);
         }
 
         public subscribe(e: PowerTables.Services.EventsService): void {

@@ -296,8 +296,7 @@ namespace PowerTables.Configuration
             string pluginWrapper = "pluginWrapper",
             string rowWrapper = "rowWrapper",
             string headerWrapper = "headerWrapper",
-            string cellWrapper = "cellWrapper",
-            string messages = "messages"
+            string cellWrapper = "cellWrapper"
             ) where T : IConfigurator
         {
             t.TableConfiguration.CoreTemplates.Layout = layout;
@@ -305,7 +304,6 @@ namespace PowerTables.Configuration
             t.TableConfiguration.CoreTemplates.RowWrapper = rowWrapper;
             t.TableConfiguration.CoreTemplates.HeaderWrapper = headerWrapper;
             t.TableConfiguration.CoreTemplates.CellWrapper = cellWrapper;
-            t.TableConfiguration.CoreTemplates.Messages = messages;
             return t;
         }
 

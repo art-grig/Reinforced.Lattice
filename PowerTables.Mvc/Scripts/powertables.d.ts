@@ -46,6 +46,8 @@ declare module PowerTables.Configuration.Json {
         *             Function type is (query:IPowerTableRequest,scope:QueryScope,continueFn:any) =&gt; void
         */
         QueryConfirmation: (query: IPowerTableRequest, scope: QueryScope, continueFn: any) => void;
+        /** Configuration of selection mechanism */
+        SelectionConfiguration: PowerTables.Configuration.Json.ISelectionConfiguration;
         /** Gets or sets table prefetched data */
         PrefetchedData: any[];
     }
@@ -113,6 +115,14 @@ declare module PowerTables.Configuration.Json {
         /** Handler function */
         Handler: (dataObject: any, originalEvent: any) => void;
     }
+    interface ISelectionConfiguration {
+        SelectAllBehavior: PowerTables.Configuration.Json.SelectAllBehavior;
+    }
+    enum SelectAllBehavior {
+        AllVisible = 0,
+        OnlyIfAllDataVisible = 1,
+        AllLoadedData = 2,
+    }
 }
 declare module PowerTables {
     /**
@@ -156,8 +166,6 @@ declare module PowerTables {
         CellWrapper: string;
         /** Header wrapper template ID (default is "headerWrapper") */
         HeaderWrapper: string;
-        /** Banner messages template (default is "messages") */
-        Messages: string;
     }
     /** JSON model for table message */
     interface ITableMessage {
@@ -1872,20 +1880,12 @@ declare module PowerTables.Filters.Value {
 }
 declare module PowerTables.Plugins.Checkboxify {
     class CheckboxifyPlugin extends PluginBase<Plugins.Checkboxify.ICheckboxifyClientConfig> implements IQueryPartProvider {
-        private _selectedItems;
-        private _visibleAll;
-        private _allSelected;
         private _ourColumn;
         ValueColumnName: string;
-        private _canSelectAll;
-        private _pagingPlugin;
-        private _selectables;
         selectAll(selected?: boolean): void;
         private redrawHeader();
         private createColumn();
         private canCheck(dataObject, row);
-        getSelection(): string[];
-        resetSelection(): void;
         selectByRowIndex(rowIndex: number, select?: boolean): boolean;
         selectByDataObject(dataObject: any, select?: boolean): boolean;
         selectByPredicate(predicate: (dataObject: any) => boolean, select?: boolean): boolean;
@@ -1900,7 +1900,6 @@ declare module PowerTables.Plugins.Checkboxify {
         private onAfterAdjustments(e);
         init(masterTable: IMasterTable): void;
         modifyQuery(query: IQuery, scope: QueryScope): void;
-        static registerEvents(e: PowerTables.Services.EventsService, masterTable: IMasterTable): void;
         subscribe(e: PowerTables.Services.EventsService): void;
     }
 }
@@ -3510,7 +3509,11 @@ declare module PowerTables.Services {
          * @returns {}
          */
         registerEvent<TEventArgs>(eventName: string): void;
-        SelectionChanged: TableEvent<string[], any>;
+        SelectionChanged: TableEvent<{
+            [primaryKey: string]: number[];
+        }, {
+            [primaryKey: string]: number[];
+        }>;
         Adjustment: TableEvent<PowerTables.Editing.IAdjustmentData, IAdjustmentResult>;
         AdjustmentResult: TableEvent<IAdjustmentResult, any>;
         /**
@@ -3694,11 +3697,15 @@ declare module PowerTables.Services {
 declare module PowerTables.Services {
     class SelectionService implements IQueryPartProvider {
         constructor(masterTable: IMasterTable);
+        private _configuration;
         private _masterTable;
-        private _selectedColumns;
         private _selectionData;
-        private _selectedColsObjects;
+        private _isAllSelected;
         isSelected(dataObject: any): boolean;
+        isAllSelected(): boolean;
+        canSelectAll(): boolean;
+        resetSelection(): void;
+        toggleAll(selected?: boolean): void;
         isCellSelected(dataObject: any, column: IColumn): boolean;
         hasSelectedCells(dataObject: any): boolean;
         getSelectedCells(dataObject: any): number[];
@@ -3712,7 +3719,6 @@ declare module PowerTables.Services {
         getSelectedColumns(primaryKey: string): IColumn[];
         getSelectedColumnsByObject(dataObject: any): IColumn[];
         toggleCells(primaryKey: string, columnNames: string[], select?: boolean): void;
-        toggleColumns(columnNames: string[], select?: boolean): void;
     }
 }
 declare module PowerTables {

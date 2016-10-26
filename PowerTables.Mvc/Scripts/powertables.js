@@ -3,6 +3,21 @@
 //     the code is regenerated.
 var PowerTables;
 (function (PowerTables) {
+    var Configuration;
+    (function (Configuration) {
+        var Json;
+        (function (Json) {
+            (function (SelectAllBehavior) {
+                SelectAllBehavior[SelectAllBehavior["AllVisible"] = 0] = "AllVisible";
+                SelectAllBehavior[SelectAllBehavior["OnlyIfAllDataVisible"] = 1] = "OnlyIfAllDataVisible";
+                SelectAllBehavior[SelectAllBehavior["AllLoadedData"] = 2] = "AllLoadedData";
+            })(Json.SelectAllBehavior || (Json.SelectAllBehavior = {}));
+            var SelectAllBehavior = Json.SelectAllBehavior;
+        })(Json = Configuration.Json || (Configuration.Json = {}));
+    })(Configuration = PowerTables.Configuration || (PowerTables.Configuration = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
     /** Message type enum */
     (function (MessageType) {
         /**
@@ -1973,50 +1988,12 @@ var PowerTables;
                 __extends(CheckboxifyPlugin, _super);
                 function CheckboxifyPlugin() {
                     _super.apply(this, arguments);
-                    this._selectedItems = [];
-                    this._visibleAll = false;
-                    this._allSelected = false;
-                    this._pagingPlugin = null;
-                    this._selectables = [];
                 }
                 CheckboxifyPlugin.prototype.selectAll = function (selected) {
-                    var _this = this;
-                    if (!this._canSelectAll)
+                    if (!this.MasterTable.Selection.canSelectAll())
                         return;
-                    this._allSelected = selected == null ? !this._allSelected : selected;
+                    this.MasterTable.Selection.toggleAll(selected);
                     this.redrawHeader();
-                    this._selectedItems.splice(0, this._selectedItems.length);
-                    if (this._allSelected) {
-                        if (this.Configuration.SelectAllSelectsClientUndisplayedData) {
-                            for (var i = 0; i < this.MasterTable.DataHolder.StoredData.length; i++) {
-                                if (this._selectables.indexOf(this.MasterTable.DataHolder.StoredData[i]) > -1) {
-                                    this._selectedItems.push(this.MasterTable.DataHolder.StoredData[i][this.ValueColumnName].toString());
-                                }
-                            }
-                            this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
-                            this.MasterTable.Controller.redrawVisibleData();
-                        }
-                        else if (this.Configuration.SelectAllSelectsServerUndisplayedData) {
-                            this.MasterTable.Loader.requestServer('checkboxify_all', function (data) {
-                                _this._selectedItems = data;
-                                _this.MasterTable.Events.SelectionChanged.invoke(_this, _this._selectedItems);
-                                _this.MasterTable.Controller.redrawVisibleData();
-                            });
-                        }
-                        else {
-                            for (var j = 0; j < this.MasterTable.DataHolder.DisplayedData.length; j++) {
-                                if (this._selectables.indexOf(this.MasterTable.DataHolder.DisplayedData[j]) > -1) {
-                                    this._selectedItems.push(this.MasterTable.DataHolder.DisplayedData[j][this.ValueColumnName].toString());
-                                }
-                            }
-                            this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
-                            this.MasterTable.Controller.redrawVisibleData();
-                        }
-                    }
-                    else {
-                        this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
-                        this.MasterTable.Controller.redrawVisibleData();
-                    }
                 };
                 CheckboxifyPlugin.prototype.redrawHeader = function () {
                     this.MasterTable.Renderer.Modifier.redrawHeader(this._ourColumn);
@@ -2054,7 +2031,7 @@ var PowerTables;
                     var header = {
                         Column: col,
                         renderContent: null,
-                        renderElement: function (tp) { return tp.getCachedTemplate(_this.Configuration.SelectAllTemplateId)({ IsAllSelected: _this._allSelected, CanSelectAll: _this._canSelectAll }); },
+                        renderElement: function (tp) { return tp.getCachedTemplate(_this.Configuration.SelectAllTemplateId)({ IsAllSelected: _this.MasterTable.Selection.isAllSelected(), CanSelectAll: _this.MasterTable.Selection.canSelectAll() }); },
                         selectAllEvent: function (e) { return _this.selectAll(); }
                     };
                     col.Header = header;
@@ -2063,22 +2040,14 @@ var PowerTables;
                             return '';
                         if (_this.Configuration.CanSelectFunction && !_this.Configuration.CanSelectFunction(x.Row))
                             return '';
-                        var value = x.DataObject[_this.ValueColumnName].toString();
-                        _this._selectables.push(x.DataObject);
-                        var selected = _this._selectedItems.indexOf(value) > -1;
+                        var selected = _this.MasterTable.Selection.isSelected(x.DataObject);
                         var canCheck = _this.canCheck(x.DataObject, x.Row);
-                        return _this.MasterTable.Renderer.getCachedTemplate(_this.Configuration.CellTemplateId)({ Value: value, IsChecked: selected, CanCheck: canCheck });
+                        return _this.MasterTable.Renderer.getCachedTemplate(_this.Configuration.CellTemplateId)({ Value: x.DataObject['__key'], IsChecked: selected, CanCheck: canCheck });
                     });
                     return col;
                 };
                 CheckboxifyPlugin.prototype.canCheck = function (dataObject, row) {
                     return dataObject != null && !row.IsSpecial;
-                };
-                CheckboxifyPlugin.prototype.getSelection = function () {
-                    return this._selectedItems;
-                };
-                CheckboxifyPlugin.prototype.resetSelection = function () {
-                    this.selectAll(false);
                 };
                 CheckboxifyPlugin.prototype.selectByRowIndex = function (rowIndex, select) {
                     if (select === void 0) { select = null; }
@@ -2259,9 +2228,6 @@ var PowerTables;
                         query.AdditionalData['Selection'] = this._selectedItems.join('|');
                         query.AdditionalData['SelectionColumn'] = this.ValueColumnName;
                     }
-                };
-                CheckboxifyPlugin.registerEvents = function (e, masterTable) {
-                    e['SelectionChanged'] = new PowerTables.TableEvent(masterTable);
                 };
                 CheckboxifyPlugin.prototype.subscribe = function (e) {
                     e.LayoutRendered.subscribeAfter(this.afterLayoutRender.bind(this), 'checkboxify');
@@ -7481,6 +7447,7 @@ var PowerTables;
                 this.AdjustmentResult = new PowerTables.TableEvent(masterTable);
                 this.Edit = new PowerTables.TableEvent(masterTable);
                 this.EditValidationFailed = new PowerTables.TableEvent(masterTable);
+                this.SelectionChanged = new PowerTables.TableEvent(masterTable);
             }
             /**
              * Registers new event for events manager.
@@ -8170,21 +8137,74 @@ var PowerTables;
     (function (Services) {
         var SelectionService = (function () {
             function SelectionService(masterTable) {
-                this._selectedColumns = [];
                 this._selectionData = {};
-                this._selectedColsObjects = {};
+                this._isAllSelected = false;
                 masterTable.Loader.registerQueryPartProvider(this);
                 this._masterTable = masterTable;
+                this._configuration = this._masterTable.InstanceManager.Configuration.SelectionConfiguration;
             }
             SelectionService.prototype.isSelected = function (dataObject) {
                 return this.isSelectedPrimaryKey(dataObject['__key']);
             };
+            SelectionService.prototype.isAllSelected = function () {
+                return this._isAllSelected;
+            };
+            SelectionService.prototype.canSelectAll = function () {
+                if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.OnlyIfAllDataVisible) {
+                    return this._masterTable.DataHolder.StoredData.length === this._masterTable.DataHolder.DisplayedData.length;
+                }
+                return true;
+            };
+            SelectionService.prototype.resetSelection = function () {
+                this.toggleAll(false);
+            };
+            SelectionService.prototype.toggleAll = function (selected) {
+                if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.OnlyIfAllDataVisible) {
+                    if (this._masterTable.DataHolder.StoredData.length !==
+                        this._masterTable.DataHolder.DisplayedData.length)
+                        return;
+                }
+                this._masterTable.Events.SelectionChanged.invokeBefore(this, this._selectionData);
+                if (selected == null) {
+                    selected = !this._isAllSelected;
+                }
+                var redrawAll = false;
+                var objectsToRedraw = [];
+                var objSet = null;
+                if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.AllVisible ||
+                    this._configuration.SelectAllBehavior ===
+                        PowerTables.Configuration.Json.SelectAllBehavior.OnlyIfAllDataVisible) {
+                    objSet = this._masterTable.DataHolder.DisplayedData;
+                }
+                else {
+                    objSet = this._masterTable.DataHolder.StoredData;
+                }
+                if (selected) {
+                    for (var i = 0; i < objSet.length; i++) {
+                        var sd = objSet[i];
+                        if (!this._selectionData.hasOwnProperty(sd["__key"])) {
+                            objectsToRedraw.push(sd);
+                            this._selectionData[sd["__key"]] = [];
+                        }
+                    }
+                }
+                else {
+                    for (var i = 0; i < objSet.length; i++) {
+                        var sd = objSet[i];
+                        if (this._selectionData.hasOwnProperty(sd["__key"])) {
+                            objectsToRedraw.push(sd);
+                            delete this._selectionData[sd["__key"]];
+                        }
+                    }
+                }
+                this._isAllSelected = selected;
+                this._masterTable.Controller.redrawVisibleData(); //todo
+                this._masterTable.Events.SelectionChanged.invokeAfter(this, this._selectionData);
+            };
             SelectionService.prototype.isCellSelected = function (dataObject, column) {
-                if (this._selectedColumns.indexOf(column.Order) >= 0)
-                    return true;
                 var sd = this._selectionData[dataObject['__key']];
                 if (!sd)
-                    return this._selectedColumns.indexOf(column.Order) >= 0;
+                    return false;
                 return sd.indexOf(column.Order) >= 0;
             };
             SelectionService.prototype.hasSelectedCells = function (dataObject) {
@@ -8212,19 +8232,24 @@ var PowerTables;
                 return sd.length === 0;
             };
             SelectionService.prototype.toggleRowByPrimaryKey = function (primaryKey, selected) {
+                this._masterTable.Events.SelectionChanged.invokeBefore(this, this._selectionData);
                 if (selected == undefined || selected == null) {
                     selected = !this.isSelectedPrimaryKey(primaryKey);
                 }
                 if (selected) {
                     if (!this._selectionData.hasOwnProperty(primaryKey)) {
                         this._selectionData[primaryKey] = [];
+                        this._masterTable.Events.SelectionChanged.invoke(this, this._selectionData);
                         this._masterTable.Controller.redrawVisibleDataObject(this._masterTable.DataHolder.getByPrimaryKey(primaryKey));
+                        this._masterTable.Events.SelectionChanged.invokeAfter(this, this._selectionData);
                     }
                 }
                 else {
                     if (this._selectionData.hasOwnProperty(primaryKey)) {
                         delete this._selectionData[primaryKey];
+                        this._masterTable.Events.SelectionChanged.invoke(this, this._selectionData);
                         this._masterTable.Controller.redrawVisibleDataObject(this._masterTable.DataHolder.getByPrimaryKey(primaryKey));
+                        this._masterTable.Events.SelectionChanged.invokeAfter(this, this._selectionData);
                     }
                 }
             };
@@ -8267,6 +8292,7 @@ var PowerTables;
                 return this.getSelectedColumns(dataObject['__key']);
             };
             SelectionService.prototype.toggleCells = function (primaryKey, columnNames, select) {
+                this._masterTable.Events.SelectionChanged.invokeBefore(this, this._selectionData);
                 var arr = null;
                 if (this._selectionData.hasOwnProperty(primaryKey)) {
                     arr = this._selectionData[primaryKey];
@@ -8291,18 +8317,11 @@ var PowerTables;
                         if (select) {
                             if (colIdx < 0) {
                                 arr.push(idx);
-                                if (!this._selectedColsObjects[idx])
-                                    this._selectedColsObjects[idx] = [];
-                                this._selectedColsObjects[idx].push(primaryKey);
                             }
                         }
                         else {
                             if (colIdx > -1) {
                                 arr.splice(colIdx, 1);
-                                if (this._selectedColsObjects[idx]) {
-                                    this._selectedColsObjects[idx]
-                                        .splice(this._selectedColsObjects[idx].indexOf(primaryKey));
-                                }
                             }
                         }
                     }
@@ -8313,23 +8332,7 @@ var PowerTables;
                     delete this._selectionData[primaryKey];
                 }
                 this._masterTable.Controller.redrawVisibleCells(this._masterTable.DataHolder.getByPrimaryKey(primaryKey), columnsToRedraw);
-            };
-            SelectionService.prototype.toggleColumns = function (columnNames, select) {
-                var cols = this._masterTable.InstanceManager.Columns;
-                var columnsToRedraw = [];
-                for (var i = 0; i < columnNames.length; i++) {
-                    var col = cols[columnNames[i]];
-                    if (select == null || select == undefined) {
-                        select = this._selectedColumns.indexOf(col.Order) < 0;
-                    }
-                    if (select) {
-                        var associatedObjects = ;
-                    }
-                    else {
-                        this._selectedColumns.splice(this._selectedColumns.indexOf(col.Order), 1);
-                        columnsToRedraw.push(col);
-                    }
-                }
+                this._masterTable.Events.SelectionChanged.invokeAfter(this, this._selectionData);
             };
             return SelectionService;
         }());

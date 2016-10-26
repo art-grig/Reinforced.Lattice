@@ -4,24 +4,85 @@
         constructor(masterTable: IMasterTable) {
             masterTable.Loader.registerQueryPartProvider(this);
             this._masterTable = masterTable;
+            this._configuration = this._masterTable.InstanceManager.Configuration.SelectionConfiguration;
         }
+
+        private _configuration: PowerTables.Configuration.Json.ISelectionConfiguration;
 
         private _masterTable: IMasterTable;
 
-        private _selectedColumns: number[] = [];
-
         private _selectionData: { [primaryKey: string]: number[] } = {};
-
-        private _selectedColsObjects: { [_: number]: string[] } = {};
+        private _isAllSelected: boolean = false;
 
         public isSelected(dataObject: any): boolean {
             return this.isSelectedPrimaryKey(dataObject['__key']);
         }
 
+        public isAllSelected(): boolean {
+            return this._isAllSelected;
+        }
+
+        public canSelectAll(): boolean {
+            if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.OnlyIfAllDataVisible) {
+                return this._masterTable.DataHolder.StoredData.length === this._masterTable.DataHolder.DisplayedData.length;
+            }
+            return true;
+        }
+
+        public resetSelection() {
+            this.toggleAll(false);
+        }
+
+        public toggleAll(selected?: boolean) {
+            
+            if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.OnlyIfAllDataVisible) {
+                if (this._masterTable.DataHolder.StoredData.length !==
+                    this._masterTable.DataHolder.DisplayedData.length) return;
+            }
+            this._masterTable.Events.SelectionChanged.invokeBefore(this, this._selectionData);
+
+            if (selected == null) {
+                selected = !this._isAllSelected;
+            }
+            var redrawAll = false;
+
+            var objectsToRedraw = [];
+            var objSet = null;
+            if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.AllVisible ||
+                this._configuration.SelectAllBehavior ===
+                PowerTables.Configuration.Json.SelectAllBehavior.OnlyIfAllDataVisible
+            ) {
+                objSet = this._masterTable.DataHolder.DisplayedData;
+            } else {
+                objSet = this._masterTable.DataHolder.StoredData;
+            }
+            if (selected) {
+                for (var i = 0; i < objSet.length; i++) {
+                    var sd = objSet[i];
+                    if (!this._selectionData.hasOwnProperty(sd["__key"])) {
+                        objectsToRedraw.push(sd);
+                        this._selectionData[sd["__key"]] = [];
+                    }
+                }
+            } else {
+                for (var i = 0; i < objSet.length; i++) {
+                    var sd = objSet[i];
+                    if (this._selectionData.hasOwnProperty(sd["__key"])) {
+                        objectsToRedraw.push(sd);
+                        delete this._selectionData[sd["__key"]];
+                    }
+                }
+            }
+            this._isAllSelected = selected;
+            
+            this._masterTable.Controller.redrawVisibleData(); //todo
+            this._masterTable.Events.SelectionChanged.invokeAfter(this, this._selectionData);
+        }
+
+
         public isCellSelected(dataObject: any, column: IColumn): boolean {
-            if (this._selectedColumns.indexOf(column.Order) >= 0) return true;
             var sd = this._selectionData[dataObject['__key']];
-            if (!sd) return this._selectedColumns.indexOf(column.Order) >= 0;
+            if (!sd) return false;
             return sd.indexOf(column.Order) >= 0;
         }
 
@@ -50,6 +111,7 @@
         }
 
         public toggleRowByPrimaryKey(primaryKey: string, selected?: boolean): void {
+            this._masterTable.Events.SelectionChanged.invokeBefore(this, this._selectionData);
             if (selected == undefined || selected == null) {
                 selected = !this.isSelectedPrimaryKey(primaryKey);
             }
@@ -57,14 +119,19 @@
             if (selected) {
                 if (!this._selectionData.hasOwnProperty(primaryKey)) {
                     this._selectionData[primaryKey] = [];
+                    this._masterTable.Events.SelectionChanged.invoke(this, this._selectionData);
                     this._masterTable.Controller.redrawVisibleDataObject(this._masterTable.DataHolder.getByPrimaryKey(primaryKey));
+                    this._masterTable.Events.SelectionChanged.invokeAfter(this, this._selectionData);
                 }
             } else {
                 if (this._selectionData.hasOwnProperty(primaryKey)) {
                     delete this._selectionData[primaryKey];
+                    this._masterTable.Events.SelectionChanged.invoke(this, this._selectionData);
                     this._masterTable.Controller.redrawVisibleDataObject(this._masterTable.DataHolder.getByPrimaryKey(primaryKey));
+                    this._masterTable.Events.SelectionChanged.invokeAfter(this, this._selectionData);
                 }
             }
+            
         }
 
         public toggleObjectSelected(dataObject: any, selected?: boolean) {
@@ -111,6 +178,7 @@
         }
 
         public toggleCells(primaryKey: string, columnNames: string[], select?: boolean) {
+            this._masterTable.Events.SelectionChanged.invokeBefore(this, this._selectionData);
             var arr = null;
             if (this._selectionData.hasOwnProperty(primaryKey)) {
                 arr = this._selectionData[primaryKey];
@@ -132,16 +200,16 @@
                     if (select) {
                         if (colIdx < 0) {
                             arr.push(idx);
-                            if (!this._selectedColsObjects[idx]) this._selectedColsObjects[idx] = [];
-                            this._selectedColsObjects[idx].push(primaryKey);
+                            //if (!this._selectedColsObjects[idx]) this._selectedColsObjects[idx] = [];
+                            //this._selectedColsObjects[idx].push(primaryKey);
                         }
                     } else {
                         if (colIdx > -1) {
                             arr.splice(colIdx, 1);
-                            if (this._selectedColsObjects[idx]) {
-                                this._selectedColsObjects[idx]
-                                    .splice(this._selectedColsObjects[idx].indexOf(primaryKey));
-                            }
+                            //if (this._selectedColsObjects[idx]) {
+                            //    this._selectedColsObjects[idx]
+                            //        .splice(this._selectedColsObjects[idx].indexOf(primaryKey));
+                            //}
                         }
                     }
                 }
@@ -151,25 +219,7 @@
                 delete this._selectionData[primaryKey];
             }
             this._masterTable.Controller.redrawVisibleCells(this._masterTable.DataHolder.getByPrimaryKey(primaryKey), columnsToRedraw);
-        }
-
-        public toggleColumns(columnNames: string[],select?:boolean) {
-            var cols = this._masterTable.InstanceManager.Columns;
-            var columnsToRedraw: IColumn[] = [];
-
-            for (var i = 0; i < columnNames.length; i++) {
-                var col = cols[columnNames[i]];
-                if (select == null || select == undefined) {
-                    select = this._selectedColumns.indexOf(col.Order) < 0;
-                }
-
-                if (select) {
-                    var associatedObjects = 
-                } else {
-                    this._selectedColumns.splice(this._selectedColumns.indexOf(col.Order), 1);
-                    columnsToRedraw.push(col);
-                }
-            }
+            this._masterTable.Events.SelectionChanged.invokeAfter(this, this._selectionData);
         }
     }
 } 

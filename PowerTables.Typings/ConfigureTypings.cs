@@ -174,6 +174,9 @@ namespace PowerTables.Typings
 
 
             builder.ExportAsInterface<MouseSelectUiConfig>();
+            builder.ExportAsInterface<SelectionConfiguration>()
+                .WithPublicProperties();
+            builder.ExportAsEnum<PowerTables.Configuration.Json.SelectAllBehavior>();
 
         }
 

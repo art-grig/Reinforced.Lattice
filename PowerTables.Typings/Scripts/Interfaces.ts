@@ -51,6 +51,8 @@ module PowerTables.Configuration.Json {
 		*             Function type is (query:IPowerTableRequest,scope:QueryScope,continueFn:any) =&gt; void
 		*/
 		QueryConfirmation: (query:IPowerTableRequest,scope:QueryScope,continueFn:any) => void;
+		/** Configuration of selection mechanism */
+		SelectionConfiguration: PowerTables.Configuration.Json.ISelectionConfiguration;
 		/** Gets or sets table prefetched data */
 		PrefetchedData: any[];
 	}
@@ -121,6 +123,15 @@ module PowerTables.Configuration.Json {
 		/** Handler function */
 		Handler: (dataObject:any, originalEvent:any) => void;
 	}
+	export interface ISelectionConfiguration
+	{
+		SelectAllBehavior: PowerTables.Configuration.Json.SelectAllBehavior;
+	}
+	export enum SelectAllBehavior { 
+		AllVisible = 0, 
+		OnlyIfAllDataVisible = 1, 
+		AllLoadedData = 2, 
+	}
 }
 module PowerTables {
 	/**
@@ -166,8 +177,6 @@ module PowerTables {
 		CellWrapper: string;
 		/** Header wrapper template ID (default is "headerWrapper") */
 		HeaderWrapper: string;
-		/** Banner messages template (default is "messages") */
-		Messages: string;
 	}
 	/** JSON model for table message */
 	export interface ITableMessage

@@ -94,6 +94,11 @@ namespace PowerTables.Configuration.Json
         public JRaw QueryConfirmation { get; set; }
 
         /// <summary>
+        /// Configuration of selection mechanism
+        /// </summary>
+        public SelectionConfiguration SelectionConfiguration { get; set; }
+
+        /// <summary>
         /// Default constructor
         /// </summary>
         public TableConfiguration()
@@ -175,11 +180,6 @@ namespace PowerTables.Configuration.Json
         public string HeaderWrapper { get; set; }
 
         /// <summary>
-        /// Banner messages template (default is "messages")
-        /// </summary>
-        public string Messages { get; set; }
-
-        /// <summary>
         /// Default constructor
         /// </summary>
         public CoreTemplateIds()
@@ -189,7 +189,6 @@ namespace PowerTables.Configuration.Json
             RowWrapper = "rowWrapper";
             HeaderWrapper = "headerWrapper";
             CellWrapper = "cellWrapper";
-            Messages = "messages";
         }
     }
 
@@ -344,6 +343,13 @@ namespace PowerTables.Configuration.Json
 
     public class SelectionConfiguration
     {
-        
+        public SelectAllBehavior SelectAllBehavior { get; set; }
+    }
+
+    public enum SelectAllBehavior
+    {
+        AllVisible,
+        OnlyIfAllDataVisible,
+        AllLoadedData
     }
 }

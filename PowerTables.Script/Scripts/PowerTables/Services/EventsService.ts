@@ -1,5 +1,5 @@
 ﻿module PowerTables.Services {
-    
+
 
     /**
      * Events manager for table. 
@@ -26,13 +26,15 @@
             this.AdjustmentResult = new TableEvent(masterTable);
             this.Edit = new TableEvent(masterTable);
             this.EditValidationFailed = new TableEvent(masterTable);
+
+            this.SelectionChanged = new TableEvent(masterTable);
         }
 
         /**
          * "Before Layout Drawn" event. 
          * Occurs before layout is actually drawn but after all table is initialized. 
          */
-        public LayoutRendered: TableEvent<any,any>;
+        public LayoutRendered: TableEvent<any, any>;
 
 
         /**
@@ -62,7 +64,7 @@
          * This feature is usable when it is necessary e.g. to generate file (excel, PDF) 
          * using current table filters
          */
-        public DeferredDataReceived: TableEvent<IDeferredDataEventArgs,any>;
+        public DeferredDataReceived: TableEvent<IDeferredDataEventArgs, any>;
 
         /**
          * "Loading Error" event. 
@@ -71,26 +73,26 @@
          * Anyway, error text/cause/stacktrace will be supplied as Reason 
          * field of event args         
          */
-        public LoadingError: TableEvent<ILoadingErrorEventArgs,any>;
+        public LoadingError: TableEvent<ILoadingErrorEventArgs, any>;
 
         /**
          * "Columns Creation" event.
          * Occurs when full columns list formed and available for 
          * modifying. Addition/removal/columns modification is acceptable
          */
-        public ColumnsCreation: TableEvent<{ [key: string]: IColumn },any>;
+        public ColumnsCreation: TableEvent<{ [key: string]: IColumn }, any>;
 
         /**
          * "Data Received" event. 
          * Occurs EVERY time when something is being received from server side. 
          * Event argument is deserialized JSON data from server. 
          */
-        public DataReceived: TableEvent<IDataEventArgs,any>;
+        public DataReceived: TableEvent<IDataEventArgs, any>;
 
         public ClientDataProcessing: TableEvent<IQuery, IClientDataResults>;
         public DataRendered: TableEvent<any, any>;
 
-      
+
         /**
          * "Before Client Rows Rendering" event.
          * 
@@ -98,7 +100,7 @@
          * modified but not rendered yet. Here you can add/remove/modify render for 
          * particular rows
          */
-        public ClientRowsRendering: TableEvent<IRow[],any>;
+        public ClientRowsRendering: TableEvent<IRow[], any>;
 
         /**
          * Registers new event for events manager. 
@@ -114,10 +116,10 @@
             this[eventName] = new TableEvent(this._masterTable);
         }
 
-        public SelectionChanged: TableEvent<string[],any>; //registered by Checkboxify
+        public SelectionChanged: TableEvent<{ [primaryKey: string]: number[] }, { [primaryKey: string]: number[] }>; //registered by Checkboxify
 
         public Adjustment: TableEvent<PowerTables.Editing.IAdjustmentData, IAdjustmentResult>;
-        public AdjustmentResult: TableEvent<IAdjustmentResult,any>;
+        public AdjustmentResult: TableEvent<IAdjustmentResult, any>;
 
         /**
          * Event that occurs when editing entry. 
@@ -132,5 +134,5 @@
         public EditValidationFailed: TableEvent<IEditValidationEvent, IEditValidationEvent>;
     }
 
-   
+
 }
