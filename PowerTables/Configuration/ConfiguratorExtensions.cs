@@ -308,34 +308,7 @@ namespace PowerTables.Configuration
         }
 
 
-        /// <summary>
-        /// Points object's key fields. This information is used to assemble 
-        /// local key comparison function and compare local objects in runtime. 
-        /// It is used to proform update of local objects set
-        /// </summary>
-        /// <param name="conf">Column configuration</param>
-        /// <param name="columns"></param>
-        public static Configurator<TSourceData, TTableData> PrimaryKey<TSourceData, TTableData>
-            (this Configurator<TSourceData, TTableData> conf, Action<ColumnListBuilder<TSourceData, TTableData>> columns) where TTableData : new()
-        {
-            ColumnListBuilder<TSourceData, TTableData> clb = new ColumnListBuilder<TSourceData, TTableData>(conf);
-            columns(clb);
-            conf.TableConfiguration.KeyFields = clb.Names.ToArray();
-            return conf;
-        }
-
-        /// <summary>
-        /// Points object's key fields. This information is used to assemble 
-        /// local key comparison function and compare local objects in runtime. 
-        /// It is used to proform update of local objects set
-        /// </summary>
-        /// <param name="conf">Column configuration</param>
-        /// <param name="keyFields">Columns names representing primary key</param>
-        public static T PrimaryKey<T> (this T conf, params string[] keyFields) where T : IConfigurator
-        {
-            conf.TableConfiguration.KeyFields = keyFields;
-            return conf;
-        }
+        
 
         
         /// <summary>
@@ -402,12 +375,12 @@ namespace PowerTables.Configuration
         /// <param name="conf">Table configurator</param>
         /// <param name="subscription">Event subscription configuration</param>
         /// <returns></returns>
-        public static ColumnUsage<TSourceData, TTableData, TColumn> SubscribeCellEvent<TSourceData, TTableData, TColumn>
-            (this ColumnUsage<TSourceData, TTableData, TColumn> conf, Action<TableEventSubscription> subscription) where TTableData : new()
+        public static T SubscribeCellEvent<T>
+            (this T conf, Action<TableEventSubscription> subscription) where T : IColumnConfigurator
         {
             TableEventSubscription sub = new TableEventSubscription();
             sub.SubscriptionInfo.IsRowSubscription = false;
-            sub.SubscriptionInfo.ColumnName = conf.ColumnProperty.Name;
+            sub.SubscriptionInfo.ColumnName = conf.ColumnConfiguration.RawColumnName;
 
             subscription(sub);
             conf.TableConfigurator.TableConfiguration.Subscriptions.Add(sub.SubscriptionInfo);
@@ -420,8 +393,8 @@ namespace PowerTables.Configuration
         /// Return null/empty/undefined will let system to choose default template. 
         /// You can access cell data via .DataObject property
         /// </summary>
-        public static ColumnUsage<TSourceData, TTableData, TColumn> TemplateSelector<TSourceData, TTableData, TColumn>(this ColumnUsage<TSourceData, TTableData, TColumn> conf, string selectorFunction)
-            where TTableData : new()
+        public static T TemplateSelector<T>(this T conf, string selectorFunction)
+            where T : IColumnConfigurator
         {
             conf.ColumnConfiguration.TemplateSelector = string.IsNullOrEmpty(selectorFunction) ? null : new JRaw(selectorFunction);
             return conf;

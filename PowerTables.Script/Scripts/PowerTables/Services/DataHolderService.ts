@@ -560,11 +560,11 @@
 
                 var update = this.getByPrimaryKey(adjustments.Updates[i]['__key']);
                 if (!update) {
-                    if (this.StoredData.length > 0) {
+                    //if (this.StoredData.length > 0) { whoai?!
                         this.StoredData.push(adjustments.Updates[i]);
                         added.push(adjustments.Updates[i]);
                         needRefilter = true;
-                    }
+                    //}
                 } else {
                     touchedColumns.push(this.copyData(adjustments.Updates[i], update.DataObject));
                     touchedData.push(update.DataObject);

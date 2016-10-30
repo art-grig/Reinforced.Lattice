@@ -346,6 +346,18 @@ namespace PowerTables.CellTemplating
             char[] hex = new char[2];
             for (int i = 0; i < s.Length; i++)
             {
+                if (s[i] == '\r')
+                {
+                    sb.Append("\\r");
+                    continue;
+                }
+
+                if (s[i] == '\n')
+                {
+                    sb.Append("\\n");
+                    continue;
+                }
+
                 if (s[i] == '%')
                 {
                     if (i < s.Length - 2)
@@ -467,7 +479,11 @@ namespace PowerTables.CellTemplating
                     if (i < tpl.Length - 1) sb.Append("+ '");
                     continue;
                 }
-
+                if (tpl[i] == '{' && (i < tpl.Length - 1) && tpl[i + 1] == '{')
+                {
+                    sb.Append('{');
+                    continue;
+                }
                 if (tpl[i] == '{' && IsValidToken(tpl[i + 1]))
                 {
                     if (i > 0) sb.Append("' +");

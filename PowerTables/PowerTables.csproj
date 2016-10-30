@@ -76,6 +76,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CellTemplating\CellTemplateBuilder.cs" />
+    <Compile Include="CellTemplating\DataWrapper.cs" />
+    <Compile Include="CellTemplating\RazorSwitchBuilder.cs" />
     <Compile Include="CellTemplating\SwitchBuilder.cs" />
     <Compile Include="CellTemplating\Template.cs" />
     <Compile Include="CellTemplating\TemplatesExtensions.cs" />
@@ -83,6 +85,7 @@
     <Compile Include="Configuration\DatepickerOptions.cs" />
     <Compile Include="Configuration\EventSubscriptionWrapper.cs" />
     <Compile Include="Configuration\FakeColumn.cs" />
+    <Compile Include="Configuration\HashCalculator.cs" />
     <Compile Include="Configuration\IColumnConfigurator.cs" />
     <Compile Include="Configuration\IColumnTargetProperty.cs" />
     <Compile Include="Configuration\IConfigurator.cs" />

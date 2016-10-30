@@ -33,6 +33,8 @@ namespace PowerTables.Configuration
         public Type SourceType { get; protected set; }
         public Type TableType { get; protected set; }
 
+        internal HashCalculator HashCalculator { get; private set; }
+
         public object GetColumnValue(object rowObject, string propertyName)
         {
             if (!TableColumnsDictionary.ContainsKey(propertyName))
@@ -346,6 +348,11 @@ namespace PowerTables.Configuration
             return _colFilters[columnName];
         }
 
+        internal void SetPrimaryKey(string[] primaryKeyFields)
+        {
+            HashCalculator = new HashCalculator(_tableColumns, primaryKeyFields, TableType);
+            TableConfiguration.KeyFields = primaryKeyFields;
+        }
 
 
     }
