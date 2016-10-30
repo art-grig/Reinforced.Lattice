@@ -1886,20 +1886,11 @@ declare module PowerTables.Plugins.Checkboxify {
         private redrawHeader();
         private createColumn();
         private canCheck(dataObject, row);
-        selectByRowIndex(rowIndex: number, select?: boolean): boolean;
-        selectByDataObject(dataObject: any, select?: boolean): boolean;
-        selectByPredicate(predicate: (dataObject: any) => boolean, select?: boolean): boolean;
-        private toggleInternal(dataObject, displayedIndex, select?);
         private afterLayoutRender();
-        private beforeRowsRendering(e);
         private enableSelectAll(enabled);
         private onClientReload(e);
         private onServerReload(e);
-        private applySelection(a);
-        private onBeforeAdjustments(e);
-        private onAfterAdjustments(e);
         init(masterTable: IMasterTable): void;
-        modifyQuery(query: IQuery, scope: QueryScope): void;
         subscribe(e: PowerTables.Services.EventsService): void;
     }
 }

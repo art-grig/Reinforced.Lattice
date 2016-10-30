@@ -1502,19 +1502,20 @@ var PowerTables;
             var RangeFilterPlugin = (function (_super) {
                 __extends(RangeFilterPlugin, _super);
                 function RangeFilterPlugin() {
+                    var _this = this;
                     _super.apply(this, arguments);
                     this._filteringIsBeingExecuted = false;
                     this._isInitializing = true;
                     this.afterDrawn = function (e) {
-                        if (this.Configuration.Hidden)
+                        if (_this.Configuration.Hidden)
                             return;
-                        if (this.AssociatedColumn.IsDateTime) {
-                            var fromDate = this.MasterTable.Date.parse(this.Configuration.FromValue);
-                            var toDate = this.MasterTable.Date.parse(this.Configuration.ToValue);
-                            this.MasterTable.Date.putDateToDatePicker(this.FromValueProvider, fromDate);
-                            this.MasterTable.Date.putDateToDatePicker(this.ToValueProvider, toDate);
+                        if (_this.AssociatedColumn.IsDateTime) {
+                            var fromDate = _this.MasterTable.Date.parse(_this.Configuration.FromValue);
+                            var toDate = _this.MasterTable.Date.parse(_this.Configuration.ToValue);
+                            _this.MasterTable.Date.putDateToDatePicker(_this.FromValueProvider, fromDate);
+                            _this.MasterTable.Date.putDateToDatePicker(_this.ToValueProvider, toDate);
                         }
-                        this._isInitializing = false;
+                        _this._isInitializing = false;
                     };
                 }
                 RangeFilterPlugin.prototype.getFromValue = function () {
@@ -1823,6 +1824,7 @@ var PowerTables;
             var ValueFilterPlugin = (function (_super) {
                 __extends(ValueFilterPlugin, _super);
                 function ValueFilterPlugin() {
+                    var _this = this;
                     _super.apply(this, arguments);
                     this._filteringIsBeingExecuted = false;
                     this._isInitializing = true;
@@ -1830,13 +1832,13 @@ var PowerTables;
                     * @internal
                     */
                     this.afterDrawn = function (e) {
-                        if (this.Configuration.Hidden)
+                        if (_this.Configuration.Hidden)
                             return;
-                        if (this.AssociatedColumn.IsDateTime) {
-                            var date = this.MasterTable.Date.parse(this.Configuration.DefaultValue);
-                            this.MasterTable.Date.putDateToDatePicker(this.FilterValueProvider, date);
+                        if (_this.AssociatedColumn.IsDateTime) {
+                            var date = _this.MasterTable.Date.parse(_this.Configuration.DefaultValue);
+                            _this.MasterTable.Date.putDateToDatePicker(_this.FilterValueProvider, date);
                         }
-                        this._isInitializing = false;
+                        _this._isInitializing = false;
                     };
                 }
                 /**
@@ -2031,7 +2033,10 @@ var PowerTables;
                     var header = {
                         Column: col,
                         renderContent: null,
-                        renderElement: function (tp) { return tp.getCachedTemplate(_this.Configuration.SelectAllTemplateId)({ IsAllSelected: _this.MasterTable.Selection.isAllSelected(), CanSelectAll: _this.MasterTable.Selection.canSelectAll() }); },
+                        renderElement: function (tp) { return tp.getCachedTemplate(_this.Configuration.SelectAllTemplateId)({
+                            IsAllSelected: _this.MasterTable.Selection.isAllSelected(),
+                            CanSelectAll: _this.MasterTable.Selection.canSelectAll()
+                        }); },
                         selectAllEvent: function (e) { return _this.selectAll(); }
                     };
                     col.Header = header;
@@ -2042,71 +2047,16 @@ var PowerTables;
                             return '';
                         var selected = _this.MasterTable.Selection.isSelected(x.DataObject);
                         var canCheck = _this.canCheck(x.DataObject, x.Row);
-                        return _this.MasterTable.Renderer.getCachedTemplate(_this.Configuration.CellTemplateId)({ Value: x.DataObject['__key'], IsChecked: selected, CanCheck: canCheck });
+                        return _this.MasterTable.Renderer.getCachedTemplate(_this.Configuration.CellTemplateId)({
+                            Value: x.DataObject['__key'],
+                            IsChecked: selected,
+                            CanCheck: canCheck
+                        });
                     });
                     return col;
                 };
                 CheckboxifyPlugin.prototype.canCheck = function (dataObject, row) {
                     return dataObject != null && !row.IsSpecial;
-                };
-                CheckboxifyPlugin.prototype.selectByRowIndex = function (rowIndex, select) {
-                    if (select === void 0) { select = null; }
-                    var displayedLookup = this.MasterTable.DataHolder.localLookupDisplayedData(rowIndex);
-                    if (displayedLookup == null)
-                        return false;
-                    this.toggleInternal(displayedLookup.DataObject, displayedLookup.DisplayedIndex, select);
-                    return true;
-                };
-                CheckboxifyPlugin.prototype.selectByDataObject = function (dataObject, select) {
-                    if (select === void 0) { select = null; }
-                    var displayedLookup = this.MasterTable.DataHolder.localLookupStoredDataObject(dataObject);
-                    if (displayedLookup == null)
-                        return false;
-                    this.toggleInternal(displayedLookup.DataObject, displayedLookup.DisplayedIndex, select);
-                    return true;
-                };
-                CheckboxifyPlugin.prototype.selectByPredicate = function (predicate, select) {
-                    if (select === void 0) { select = null; }
-                    var displayedLookup = this.MasterTable.DataHolder.localLookup(predicate);
-                    var result = false;
-                    for (var i = 0; i < displayedLookup.length; i++) {
-                        if (!displayedLookup[i].IsCurrentlyDisplaying)
-                            continue;
-                        this.toggleInternal(displayedLookup[i].DataObject, displayedLookup[i].DisplayedIndex, select);
-                        result = true;
-                    }
-                    return result;
-                };
-                CheckboxifyPlugin.prototype.toggleInternal = function (dataObject, displayedIndex, select) {
-                    var _this = this;
-                    if (select === void 0) { select = null; }
-                    var v = dataObject[this.ValueColumnName].toString();
-                    var idx = this._selectedItems.indexOf(v);
-                    var overrideRow = false;
-                    var toggle = select == null;
-                    var check = ((select != null) && (select));
-                    if (idx > -1) {
-                        if (toggle || (!check)) {
-                            this._selectedItems.splice(idx, 1);
-                            this._allSelected = false;
-                        }
-                    }
-                    else {
-                        if (toggle || (check)) {
-                            this._selectedItems.push(v);
-                            overrideRow = true;
-                            this._allSelected = this.MasterTable.DataHolder.DisplayedData.length === this._selectedItems.length;
-                        }
-                    }
-                    if (displayedIndex >= 0) {
-                        this.redrawHeader();
-                        var row = this.MasterTable.Controller.produceRow(dataObject, displayedIndex);
-                        if (overrideRow) {
-                            row.renderElement = function (e) { return e.getCachedTemplate(_this.Configuration.RowTemplateId)(row); };
-                        }
-                        this.MasterTable.Renderer.Modifier.redrawRow(row);
-                    }
-                    this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
                 };
                 CheckboxifyPlugin.prototype.afterLayoutRender = function () {
                     var _this = this;
@@ -2115,27 +2065,10 @@ var PowerTables;
                         Selector: '[data-checkboxify]',
                         SubscriptionId: 'checkboxify',
                         Handler: function (e) {
-                            _this.selectByRowIndex(e.DisplayingRowIndex);
+                            var obj = _this.MasterTable.DataHolder.localLookupDisplayedData(e.DisplayingRowIndex);
+                            _this.MasterTable.Selection.toggleObjectSelected(obj);
                         }
                     });
-                    this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
-                };
-                CheckboxifyPlugin.prototype.beforeRowsRendering = function (e) {
-                    this._selectables = [];
-                    var selectedRows = 0;
-                    for (var i = 0; i < e.EventArgs.length; i++) {
-                        var row = e.EventArgs[i];
-                        if (row.IsSpecial)
-                            continue;
-                        if (this._selectedItems.indexOf(row.DataObject[this.ValueColumnName].toString()) > -1) {
-                            row.renderElement = function (a) { return a.getCachedTemplate('checkboxifyRow')(row); };
-                            selectedRows++;
-                        }
-                    }
-                    if (selectedRows < this._selectedItems.length) {
-                        this._allSelected = false;
-                        this.redrawHeader();
-                    }
                 };
                 CheckboxifyPlugin.prototype.enableSelectAll = function (enabled) {
                     var prev = this._canSelectAll;
@@ -2172,70 +2105,17 @@ var PowerTables;
                             this.applySelection(e.EventArgs.Data.AdditionalData['Selection']);
                     }
                 };
-                CheckboxifyPlugin.prototype.applySelection = function (a) {
-                    if (!a)
-                        return;
-                    if (a.ReplaceSelection) {
-                        this._selectedItems = a.SelectionToReplace;
-                        this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
-                        this.MasterTable.Controller.redrawVisibleData();
-                    }
-                    else if (a.ModifySelection) {
-                        for (var i = 0; i < a.AddToSelection.length; i++) {
-                            if (this._selectedItems.indexOf(a.AddToSelection[i]) < 0) {
-                                this._selectedItems.push(a.AddToSelection[i]);
-                            }
-                        }
-                        for (var i = 0; i < a.RemoveFromSelection.length; i++) {
-                            if (this._selectedItems.indexOf(a.RemoveFromSelection[i]) > -1) {
-                                this._selectedItems.splice(this._selectedItems.indexOf(a.RemoveFromSelection[i]), 1);
-                            }
-                        }
-                        this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
-                        this.MasterTable.Controller.redrawVisibleData();
-                    }
-                };
-                CheckboxifyPlugin.prototype.onBeforeAdjustments = function (e) {
-                    if (e.EventArgs.AdditionalData['Selection'])
-                        this.applySelection(e.EventArgs.AdditionalData['Selection']);
-                };
-                CheckboxifyPlugin.prototype.onAfterAdjustments = function (e) {
-                    if (e.EventArgs.Removals.length > 0) {
-                        for (var i = 0; i < e.EventArgs.Removals.length; i++) {
-                            var removal = e.EventArgs.Removals[i];
-                            var removalSelected = removal[this.ValueColumnName].toString();
-                            var idx = this._selectedItems.indexOf(removalSelected);
-                            if (idx > -1)
-                                this._selectedItems.splice(idx, 1);
-                        }
-                    }
-                };
                 CheckboxifyPlugin.prototype.init = function (masterTable) {
                     _super.prototype.init.call(this, masterTable);
                     var col = this.createColumn();
                     this.MasterTable.InstanceManager.Columns['_checkboxify'] = col;
                     this._ourColumn = col;
                     this.ValueColumnName = this.Configuration.SelectionColumnName;
-                    this._canSelectAll = this.Configuration.EnableSelectAll;
-                    this.MasterTable.Loader.registerQueryPartProvider(this);
-                    try {
-                        this._pagingPlugin = this.MasterTable.InstanceManager.getPlugin('Paging');
-                    }
-                    catch (e) { }
-                };
-                CheckboxifyPlugin.prototype.modifyQuery = function (query, scope) {
-                    if (scope === PowerTables.QueryScope.Transboundary) {
-                        query.AdditionalData['Selection'] = this._selectedItems.join('|');
-                        query.AdditionalData['SelectionColumn'] = this.ValueColumnName;
-                    }
                 };
                 CheckboxifyPlugin.prototype.subscribe = function (e) {
                     e.LayoutRendered.subscribeAfter(this.afterLayoutRender.bind(this), 'checkboxify');
-                    e.ClientRowsRendering.subscribeBefore(this.beforeRowsRendering.bind(this), 'checkboxify');
                     e.ClientDataProcessing.subscribeAfter(this.onClientReload.bind(this), 'checkboxify');
                     e.DataReceived.subscribe(this.onServerReload.bind(this), 'checkboxify');
-                    e.Adjustment.subscribeBefore(this.onBeforeAdjustments.bind(this), 'checkboxify');
-                    e.Adjustment.subscribeBefore(this.onAfterAdjustments.bind(this), 'checkboxify');
                 };
                 return CheckboxifyPlugin;
             }(Plugins.PluginBase));

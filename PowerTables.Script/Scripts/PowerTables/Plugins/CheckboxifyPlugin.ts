@@ -49,7 +49,10 @@
                 Column: col,
                 renderContent: null,
                 renderElement: (tp) => tp.getCachedTemplate(this.Configuration.SelectAllTemplateId)(
-                    { IsAllSelected: this.MasterTable.Selection.isAllSelected(), CanSelectAll: this.MasterTable.Selection.canSelectAll() }),
+                    {
+                        IsAllSelected: this.MasterTable.Selection.isAllSelected(),
+                        CanSelectAll: this.MasterTable.Selection.canSelectAll()
+                    }),
                 selectAllEvent: (e) => this.selectAll()
             }
 
@@ -61,7 +64,11 @@
                 var selected: boolean = this.MasterTable.Selection.isSelected(x.DataObject);
                 var canCheck: boolean = this.canCheck(x.DataObject, x.Row);
                 return this.MasterTable.Renderer.getCachedTemplate(this.Configuration.CellTemplateId)(
-                    { Value: x.DataObject['__key'], IsChecked: selected, CanCheck: canCheck });
+                {
+                    Value: x.DataObject['__key'],
+                    IsChecked: selected,
+                    CanCheck: canCheck
+                });
             });
             return col;
         }
@@ -70,87 +77,16 @@
             return dataObject != null && !row.IsSpecial;
         }
 
-        public selectByRowIndex(rowIndex: number, select: boolean = null): boolean {
-            var displayedLookup: ILocalLookupResult = this.MasterTable.DataHolder.localLookupDisplayedData(rowIndex);
-            if (displayedLookup == null) return false;
-            this.toggleInternal(displayedLookup.DataObject, displayedLookup.DisplayedIndex, select);
-            return true;
-        }
-
-        public selectByDataObject(dataObject: any, select: boolean = null): boolean {
-            var displayedLookup: ILocalLookupResult = this.MasterTable.DataHolder.localLookupStoredDataObject(dataObject);
-            if (displayedLookup == null) return false;
-            this.toggleInternal(displayedLookup.DataObject, displayedLookup.DisplayedIndex, select);
-            return true;
-        }
-
-        public selectByPredicate(predicate: (dataObject: any) => boolean, select: boolean = null): boolean {
-            var displayedLookup: ILocalLookupResult[] = this.MasterTable.DataHolder.localLookup(predicate);
-            var result = false;
-            for (var i = 0; i < displayedLookup.length; i++) {
-                if (!displayedLookup[i].IsCurrentlyDisplaying) continue;
-                this.toggleInternal(displayedLookup[i].DataObject, displayedLookup[i].DisplayedIndex, select);
-                result = true;
-            }
-            return result;
-        }
-
-        private toggleInternal(dataObject: any, displayedIndex: number, select: boolean = null) {
-            var v = dataObject[this.ValueColumnName].toString();
-            var idx: number = this._selectedItems.indexOf(v);
-            var overrideRow: boolean = false;
-            var toggle: boolean = select == null;
-            var check: boolean = ((select != null) && (select));
-            if (idx > -1) {
-                if (toggle || (!check)) {
-                    this._selectedItems.splice(idx, 1);
-                    this._allSelected = false;
-                }
-            } else {
-                if (toggle || (check)) {
-                    this._selectedItems.push(v);
-                    overrideRow = true;
-                    this._allSelected = this.MasterTable.DataHolder.DisplayedData.length === this._selectedItems.length;
-                }
-            }
-            if (displayedIndex >= 0) {
-                this.redrawHeader();
-                var row: IRow = this.MasterTable.Controller.produceRow(dataObject, displayedIndex);
-                if (overrideRow) {
-                    row.renderElement = (e) => e.getCachedTemplate(this.Configuration.RowTemplateId)(row);
-                }
-                this.MasterTable.Renderer.Modifier.redrawRow(row);
-            }
-            this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
-        }
-
         private afterLayoutRender() {
             this.MasterTable.Renderer.Delegator.subscribeCellEvent({
                 EventId: 'click',
                 Selector: '[data-checkboxify]',
                 SubscriptionId: 'checkboxify',
                 Handler: (e) => {
-                    this.selectByRowIndex(<any>e.DisplayingRowIndex);
+                    var obj = this.MasterTable.DataHolder.localLookupDisplayedData(e.DisplayingRowIndex);
+                    this.MasterTable.Selection.toggleObjectSelected(obj);
                 }
             });
-            this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
-        }
-
-        private beforeRowsRendering(e: ITableEventArgs<IRow[]>) {
-            this._selectables = [];
-            var selectedRows = 0;
-            for (var i: number = 0; i < e.EventArgs.length; i++) {
-                var row: IRow = e.EventArgs[i];
-                if (row.IsSpecial) continue;
-                if (this._selectedItems.indexOf(row.DataObject[this.ValueColumnName].toString()) > -1) {
-                    row.renderElement = (a) => a.getCachedTemplate('checkboxifyRow')(row);
-                    selectedRows++;
-                }
-            }
-            if (selectedRows < this._selectedItems.length) {
-                this._allSelected = false;
-                this.redrawHeader();
-            }
         }
 
         private enableSelectAll(enabled: boolean) {
@@ -185,74 +121,20 @@
             }
         }
 
-        private applySelection(a: PowerTables.Plugins.Checkboxify.ISelectionAdditionalData) {
-            if (!a) return;
-            if (a.ReplaceSelection) {
-                this._selectedItems = a.SelectionToReplace;
-                this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
-                this.MasterTable.Controller.redrawVisibleData();
-            } else if (a.ModifySelection) {
-                for (var i = 0; i < a.AddToSelection.length; i++) {
-                    if (this._selectedItems.indexOf(a.AddToSelection[i]) < 0) {
-                        this._selectedItems.push(a.AddToSelection[i]);
-                    }
-                }
-
-                for (var i = 0; i < a.RemoveFromSelection.length; i++) {
-                    if (this._selectedItems.indexOf(a.RemoveFromSelection[i]) > -1) {
-                        this._selectedItems.splice(this._selectedItems.indexOf(a.RemoveFromSelection[i]), 1);
-                    }
-                }
-                this.MasterTable.Events.SelectionChanged.invoke(this, this._selectedItems);
-                this.MasterTable.Controller.redrawVisibleData();
-            }
-        }
-
-        private onBeforeAdjustments(e: ITableEventArgs<PowerTables.Editing.IAdjustmentData>) {
-
-            if (e.EventArgs.AdditionalData['Selection']) this.applySelection(e.EventArgs.AdditionalData['Selection']);
-        }
-
-        private onAfterAdjustments(e: ITableEventArgs<PowerTables.Editing.IAdjustmentData>) {
-            if (e.EventArgs.Removals.length > 0) {
-                for (var i = 0; i < e.EventArgs.Removals.length; i++) {
-                    var removal = e.EventArgs.Removals[i];
-                    var removalSelected = removal[this.ValueColumnName].toString();
-                    var idx = this._selectedItems.indexOf(removalSelected);
-                    if (idx > -1) this._selectedItems.splice(idx, 1);
-                }
-            }
-        }
-
+        
         public init(masterTable: IMasterTable): void {
             super.init(masterTable);
             var col: IColumn = this.createColumn();
             this.MasterTable.InstanceManager.Columns['_checkboxify'] = col;
             this._ourColumn = col;
             this.ValueColumnName = this.Configuration.SelectionColumnName;
-            this._canSelectAll = this.Configuration.EnableSelectAll;
-            this.MasterTable.Loader.registerQueryPartProvider(this);
-            try {
-                this._pagingPlugin = this.MasterTable.InstanceManager.getPlugin<PowerTables.Plugins.Paging.PagingPlugin>('Paging');
-            } catch (e) { }
         }
 
-
-        public modifyQuery(query: IQuery, scope: QueryScope): void {
-            if (scope === QueryScope.Transboundary) {
-                query.AdditionalData['Selection'] = this._selectedItems.join('|');
-                query.AdditionalData['SelectionColumn'] = this.ValueColumnName;
-            }
-        }
 
         public subscribe(e: PowerTables.Services.EventsService): void {
             e.LayoutRendered.subscribeAfter(this.afterLayoutRender.bind(this), 'checkboxify');
-            e.ClientRowsRendering.subscribeBefore(this.beforeRowsRendering.bind(this), 'checkboxify');
             e.ClientDataProcessing.subscribeAfter(this.onClientReload.bind(this), 'checkboxify');
             e.DataReceived.subscribe(this.onServerReload.bind(this), 'checkboxify');
-            e.Adjustment.subscribeBefore(this.onBeforeAdjustments.bind(this), 'checkboxify');
-            e.Adjustment.subscribeBefore(this.onAfterAdjustments.bind(this), 'checkboxify');
-
         }
     }
 
