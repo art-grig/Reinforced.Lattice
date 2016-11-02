@@ -264,6 +264,11 @@ namespace PowerTables.Configuration.Json
         /// Return null/empty/undefined will let system to choose default template
         /// </summary>
         public JRaw TemplateSelector { get; set; }
+
+        /// <summary>
+        /// Special column does not represent any data and supposed to be handled by plugin from inside table
+        /// </summary>
+        public bool IsSpecial { get; set; }
     }
 
     /// <summary>

@@ -40,13 +40,11 @@
                         children[i]._parent = dataObject;
                         children[i]._subtree = [];
                     }
-                    var ar: PowerTables.Editing.IAdjustmentData = {
-                        Updates: children,
-                        AdditionalData: {},
-                        Removals: []
-                    };
-                    dataObject.IsLoading = false;
-                    this.MasterTable.DataHolder.proceedAdjustments(ar);
+                    //var ar: PowerTables.ITableAdjustment = { todo
+                    //    Updates: children,
+                    //};
+                    //dataObject.IsLoading = false;
+                    //this.MasterTable.DataHolder.proceedAdjustments(ar);
                     this.refilterStoredData();
                     this.MasterTable.Controller.redrawVisibleData();
                 }, q => {

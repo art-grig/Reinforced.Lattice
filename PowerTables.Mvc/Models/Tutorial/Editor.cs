@@ -43,7 +43,7 @@ namespace PowerTables.Mvc.Models.Tutorial
             conf.Column(c => c.Id).Orderable(c => c.Id, ui => ui.DefaultOrdering(Ordering.Descending));
             conf.Column(c => c.Edit).DataOnly(false);
 
-            conf.AdjustmentTemplates("updatedRow", "updatedCell", "addedRow");
+            //conf.AdjustmentTemplates("updatedRow", "updatedCell", "addedRow");
 
             conf.Column(c => c.Name)
                 .Template(t => t.Returns(v => v.Tag("span")

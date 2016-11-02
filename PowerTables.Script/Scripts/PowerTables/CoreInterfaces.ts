@@ -100,7 +100,7 @@
          * 
          * @param adjustments Table adjustmetns object         
          */
-        proceedAdjustments(adjustments: PowerTables.Editing.IAdjustmentData): void;
+        proceedAdjustments(adjustments: PowerTables.ITableAdjustment): void;
 
          /**
          * API for table messages
@@ -358,11 +358,6 @@
          * True when column holds boolean
          */
         IsBoolean: boolean;
-
-        /**
-         * Flag for special column that has plugin purpose and does not holds data
-         */
-        IsSpecial?:boolean;
     }
 
     export interface IUiMessage extends ITableMessage {

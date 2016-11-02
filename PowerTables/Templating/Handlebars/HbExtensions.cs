@@ -45,11 +45,8 @@ namespace PowerTables.Templating.Handlebars
         public static MvcHtmlString If<T>(this IModelProvider<T> t, Expression<Func<T, bool>> condition, string textIf)
         {
             var proname = TraversePropertyLambda(condition, t.ExistingModel);
-            var tr = new HbTagRegion("if", proname, t.Writer);
-            t.Writer.Write(" ");
-            t.Writer.Write(textIf);
-            tr.Dispose();
-            return MvcHtmlString.Empty;
+            var tr = new HbTagRegion("if", proname);
+            return tr.Render(textIf);
         }
 
         /// <summary>
@@ -62,11 +59,8 @@ namespace PowerTables.Templating.Handlebars
         /// <returns></returns>
         public static MvcHtmlString If<T>(this IModelProvider<T> t, string condition, string textIf)
         {
-            var tr = new HbTagRegion("if", condition, t.Writer);
-            t.Writer.Write(" ");
-            t.Writer.Write(textIf);
-            tr.Dispose();
-            return MvcHtmlString.Empty;
+            var tr = new HbTagRegion("if", condition);
+            return tr.Render(textIf);
         }
 
         /// <summary>
@@ -80,11 +74,8 @@ namespace PowerTables.Templating.Handlebars
         public static MvcHtmlString Unless<T>(this IModelProvider<T> t, Expression<Func<T, bool>> condition, string textUnless)
         {
             var proname = TraversePropertyLambda(condition, t.ExistingModel);
-            var tr = new HbTagRegion("unless", proname, t.Writer);
-            t.Writer.Write(" ");
-            t.Writer.Write(textUnless);
-            tr.Dispose();
-            return MvcHtmlString.Empty;
+            var tr = new HbTagRegion("unless", proname);
+            return tr.Render(textUnless);
         }
 
         /// <summary>
@@ -97,11 +88,8 @@ namespace PowerTables.Templating.Handlebars
         /// <returns></returns>
         public static MvcHtmlString Unless<T>(this IModelProvider<T> t, string condition, string textUnless)
         {
-            var tr = new HbTagRegion("unless", condition, t.Writer);
-            t.Writer.Write(" ");
-            t.Writer.Write(textUnless);
-            tr.Dispose();
-            return MvcHtmlString.Empty;
+            var tr = new HbTagRegion("unless", condition);
+            return tr.Render(textUnless);
         }
 
 
@@ -150,11 +138,9 @@ namespace PowerTables.Templating.Handlebars
         /// <returns></returns>
         public static MvcHtmlString IfEquals<T, TData>(this IModelProvider<T> t, Expression<Func<T, TData>> field, string comparisonConstant,string ifText)
         {
-            var tr = IfEquals(t,field,comparisonConstant);
-            t.Writer.Write(" ");
-            t.Writer.Write(ifText);
-            tr.Dispose();
-            return MvcHtmlString.Empty;
+            var proname = TraversePropertyLambda(field, t.ExistingModel);
+            var tr = new HbTagRegion("ifq", string.Format("{0} {1}", proname, comparisonConstant));
+            return tr.Render(ifText);
         }
 
         /// <summary>
@@ -183,11 +169,8 @@ namespace PowerTables.Templating.Handlebars
         /// <returns></returns>
         public static MvcHtmlString IfEquals<T>(this IModelProvider<T> t, string fieldName, string comparisonConstant, string ifText)
         {
-            var tr = IfEquals(t, fieldName, comparisonConstant);
-            t.Writer.Write(" ");
-            t.Writer.Write(ifText);
-            tr.Dispose();
-            return MvcHtmlString.Empty;
+            var tr = new HbTagRegion("ifq", string.Format("{0} {1}", fieldName, comparisonConstant));
+            return tr.Render(ifText);
         }
 
         /// <summary>
@@ -212,14 +195,10 @@ namespace PowerTables.Templating.Handlebars
         /// <returns></returns>
         public static MvcHtmlString IfGt<T, TData>(this IModelProvider<T> t, Expression<Func<T, TData>> field, string comparisonConstant, string ifText, bool inclusive = false)
         {
-            var tr = IfGt(t, field, comparisonConstant,inclusive);
-            t.Writer.Write(" ");
-            t.Writer.Write(ifText);
-            tr.Dispose();
-            return MvcHtmlString.Empty;
+            var proname = TraversePropertyLambda(field, t.ExistingModel);
+            var tr = new HbTagRegion("ifcmp", string.Format("{0} {1} \"{2}\"", proname, comparisonConstant, inclusive ? "a>=b" : "a>b"));
+            return tr.Render(ifText);
         }
-
-
 
         /// <summary>
         /// Renders handlebars "if" directive in region
@@ -242,11 +221,8 @@ namespace PowerTables.Templating.Handlebars
         /// <returns></returns>
         public static MvcHtmlString IfGt<T>(this IModelProvider<T> t, string fieldName, string comparisonConstant, string ifText, bool inclusive = false)
         {
-            var tr = IfGt(t, fieldName, comparisonConstant, inclusive);
-            t.Writer.Write(" ");
-            t.Writer.Write(ifText);
-            tr.Dispose();
-            return MvcHtmlString.Empty;
+            var tr = new HbTagRegion("ifcmp", string.Format("{0} {1} \"{2}\"", fieldName, comparisonConstant, inclusive ? "a>=b" : "a>b"));
+            return tr.Render(ifText);
         }
 
         /// <summary>
@@ -271,11 +247,9 @@ namespace PowerTables.Templating.Handlebars
         /// <returns></returns>
         public static MvcHtmlString IfLt<T, TData>(this IModelProvider<T> t, Expression<Func<T, TData>> field, string comparisonConstant, string ifText, bool inclusive = false)
         {
-            var tr = IfLt(t, field, comparisonConstant, inclusive);
-            t.Writer.Write(" ");
-            t.Writer.Write(ifText);
-            tr.Dispose();
-            return MvcHtmlString.Empty;
+            var proname = TraversePropertyLambda(field, t.ExistingModel);
+            var tr = new HbTagRegion("ifcmp", string.Format("{0} {1} \"{2}\"", proname, comparisonConstant, inclusive ? "a<=b" : "a<b"));
+            return tr.Render(ifText);
         }
 
         /// <summary>
@@ -299,11 +273,8 @@ namespace PowerTables.Templating.Handlebars
         /// <returns></returns>
         public static MvcHtmlString IfLt<T>(this IModelProvider<T> t, string fieldName, string comparisonConstant, string ifText, bool inclusive = false)
         {
-            var tr = IfLt(t, fieldName, comparisonConstant, inclusive);
-            t.Writer.Write(" ");
-            t.Writer.Write(ifText);
-            tr.Dispose();
-            return MvcHtmlString.Empty;
+            var tr = new HbTagRegion("ifcmp", string.Format("{0} {1} \"{2}\"", fieldName, comparisonConstant, inclusive ? "a<=b" : "a<b"));
+            return tr.Render(ifText);
         }
 
         /// <summary>
@@ -328,11 +299,9 @@ namespace PowerTables.Templating.Handlebars
         /// <returns></returns>
         public static MvcHtmlString IfStrEquals<T>(this IModelProvider<T> t, Expression<Func<T, string>> field, string comparisonConstant, string ifText)
         {
-            var tr = IfStrEquals(t, field, comparisonConstant);
-            t.Writer.Write(" ");
-            t.Writer.Write(ifText);
-            tr.Dispose();
-            return MvcHtmlString.Empty;
+            var proname = TraversePropertyLambda(field, t.ExistingModel);
+            var tr = new HbTagRegion("ifq", string.Format("{0} \"{1}\"", proname, comparisonConstant));
+            return tr.Render(ifText);
         }
 
         /// <summary>
@@ -356,11 +325,8 @@ namespace PowerTables.Templating.Handlebars
         /// <returns></returns>
         public static MvcHtmlString IfStrEquals<T>(this IModelProvider<T> t, string fieldName, string comparisonConstant, string ifText)
         {
-            var tr = IfStrEquals(t, fieldName, comparisonConstant);
-            t.Writer.Write(" ");
-            t.Writer.Write(ifText);
-            tr.Dispose();
-            return MvcHtmlString.Empty;
+            var tr =  new HbTagRegion("ifq", string.Format("{0} \"{1}\"", fieldName, comparisonConstant));
+            return tr.Render(ifText);
         }
 
 

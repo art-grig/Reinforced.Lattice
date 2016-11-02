@@ -308,9 +308,9 @@ namespace PowerTables.Configuration
         }
 
 
-        
 
-        
+
+
         /// <summary>
         /// Function that should consume IRow instance and return template name for this particular row.
         /// Return null/empty/undefined will let system to choose default template. 
@@ -410,7 +410,7 @@ namespace PowerTables.Configuration
         /// <param name="columnName">Name of column catching corresponding cell events</param>
         /// <param name="subscription">Event subscription</param>
         /// <returns></returns>
-        public static T SubscribeCellEvent<T> (this T conf, string columnName, TableEventSubscription subscription) where T:IConfigurator
+        public static T SubscribeCellEvent<T>(this T conf, string columnName, TableEventSubscription subscription) where T : IConfigurator
         {
             subscription.SubscriptionInfo.ColumnName = columnName;
             subscription.SubscriptionInfo.IsRowSubscription = false;
@@ -498,6 +498,11 @@ namespace PowerTables.Configuration
             return configurator;
         }
 
-
+        public static PowerTablesHandler<TSourceData, TTableData> CreateHandler<TSourceData, TTableData>(
+            this Configurator<TSourceData, TTableData> configurator, IQueryHandler<TSourceData, TTableData> queryHandler = null,
+            ITokenStorage tokenStorage = null) where TTableData : new()
+        {
+            return new PowerTablesHandler<TSourceData, TTableData>(configurator, queryHandler, tokenStorage);
+        }
     }
 }

@@ -75,6 +75,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Adjustments\AdjustmentExtensions.cs" />
+    <Compile Include="Adjustments\TableAdjustment.cs" />
+    <Compile Include="Adjustments\AdjustmentWrapper.cs" />
     <Compile Include="CellTemplating\CellTemplateBuilder.cs" />
     <Compile Include="CellTemplating\DataWrapper.cs" />
     <Compile Include="CellTemplating\RazorSwitchBuilder.cs" />
@@ -116,7 +119,6 @@
     <Compile Include="Editing\CellEditorTemplateRegionBase.cs" />
     <Compile Include="Editing\CellValidationMessagesTemplateRegion.cs" />
     <Compile Include="Editing\Editors\Check\CheckEditorTemplateRegion.cs" />
-    <Compile Include="Editing\EditionResult.cs" />
     <Compile Include="Editing\EditorCommandHandler.cs" />
     <Compile Include="Editing\Editors\Memo\MemoEditorConfigurationExtensions.cs" />
     <Compile Include="Editing\Editors\Memo\MemoEditorTemplateRegion.cs" />
@@ -159,9 +161,7 @@
     <Compile Include="InitializationExtensions.cs" />
     <Compile Include="IQueryHandler.cs" />
     <Compile Include="ITokenStorage.cs" />
-    <Compile Include="Plugins\Checkboxify\SelectionAdditionalData.cs" />
     <Compile Include="Plugins\Checkboxify\CheckboxifyExtensions.cs" />
-    <Compile Include="Plugins\Checkboxify\CheckboxifyCommandHandler.cs" />
     <Compile Include="Plugins\Checkboxify\CheckboxifyTemplateRegion.cs" />
     <Compile Include="Plugins\ColumnListBuilder.cs" />
     <Compile Include="Plugins\ColumnPluginConfigurationWrapper.cs" />
@@ -203,7 +203,6 @@
     <Compile Include="Plugins\Reload\ReloadTemplateRegion.cs" />
     <Compile Include="Plugins\Reload\ReloadUiConfiguration.cs" />
     <Compile Include="Plugins\ResponseInfo\ActionBasedResponseModifier.cs" />
-    <Compile Include="Plugins\Checkboxify\CheckboxifyClientConfig.cs" />
     <Compile Include="Plugins\ResponseInfo\ResponseInfoClientConfiguration.cs" />
     <Compile Include="Plugins\ResponseInfo\ResponseInfoTemplateRegion.cs" />
     <Compile Include="Plugins\Toolbar\ConfirmationTemplateRegion.cs" />

@@ -29,7 +29,7 @@ namespace PowerTables.Mvc.Models.Tutorial
                     .PagingWithPeriods(useFirstLasPage: true)   // lets pick most complex paging
                     .UseGotoPage()                              // and also enable "Go to page" functionality
                 );
-            conf.MouseSelect(ui => { });
+            //conf.MouseSelect(ui => { });
             return conf;
         }
     }

@@ -82,26 +82,23 @@
                 return;
             }
             if (this._configuration.KeyFields.length === 0) return;
-            var conditions = [];
+            
             var fields = [];
             for (var i = 0; i < this._configuration.KeyFields.length; i++) {
                 var field = this._configuration.KeyFields[i];
                 if (this._instances.Columns[this._configuration.KeyFields[i]].IsDateTime) {
-                    conditions.push(`((x.${field}==null?0:x.${field}.getTime())===(y.${field}==null?0:y.${field}.getTime()))`);
-                    fields.push(`(x.${field}).getTime()`);
+                    fields.push(`((x.${field})==null?'':(x.${field}).getTime())`);
                 } else {
-                    conditions.push(`(x.${field}===y.${field})`);
                     if (this._instances.Columns[this._configuration.KeyFields[i]].IsBoolean) {
-                        fields.push(`(x.${field}?'1':'0')`);
+                        fields.push(`((x.${field})==null?'':(x.${field}?'1':'0'))`);
                     } else {
-                        fields.push(`(x.${field})`);
+                        fields.push(`((x.${field})==null?'':(x.${field}))`);
                     }
                 }
             }
-            var conditionsStr = conditions.join('&&');
             var keyStr = fields.join('+":"+');
-            this.DataObjectComparisonFunction = eval(`(function(x,y) { return (${conditionsStr}); })`);
-            this.PrimaryKeyFunction = eval(`(function(x) { return (${keyStr}); })`);
+            this.DataObjectComparisonFunction = function (x, y) { return x['__key'] === y['__key']; };
+            this.PrimaryKeyFunction = eval(`(function(x) { return (${keyStr}) + ':'; })`);
             this._hasPrimaryKey = true;
         }
 
@@ -136,6 +133,39 @@
             return (this.EnableClientSkip || this.EnableClientTake || this._anyClientFiltration);
         }
 
+        public deserializeData(source:any[]):any[] {
+            var data: any[] = [];
+            var obj: {} = {};
+            var currentColIndex: number = 0;
+            var currentCol: string = this._rawColumnNames[currentColIndex];
+
+            for (var i: number = 0; i < source.length; i++) {
+                if (this._instances.Columns[currentCol].IsDateTime) {
+                    if (source[i]) {
+                        obj[currentCol] = this._masterTable.Date.parse(source[i]);
+                    } else {
+                        obj[currentCol] = null;
+                    }
+                } else {
+                    obj[currentCol] = source[i];
+                }
+                currentColIndex++;
+                if (currentColIndex >= this._rawColumnNames.length) {
+                    currentColIndex = 0;
+                    for (var ck in this._clientValueFunction) {
+                        obj[ck] = this._clientValueFunction[ck](obj);
+                    }
+                    data.push(obj);
+                    if (this._hasPrimaryKey) {
+                        obj['__key'] = this.PrimaryKeyFunction(obj);
+                    }
+                    obj = {};
+                }
+                currentCol = this._rawColumnNames[currentColIndex];
+            }
+            return data;
+        }
+
         /**
         * Parses response from server and turns it to objects array
         */
@@ -165,7 +195,7 @@
                     data.push(obj);
                     if (this._hasPrimaryKey) {
                         obj['__key'] = this.PrimaryKeyFunction(obj);
-                        this._storedDataCache[obj['__key']] = obj;
+                        this._storedDataCache[obj['__key']] = obj; // line that makes difference
                     }
                     obj = {};
                 }
@@ -488,13 +518,9 @@
 
         private copyData(source: any, target: any): string[] {
             var modColumns = [];
-            for (var cd in source) {
+            for (var cd in this._instances.Columns) {
+                if (this._instances.Columns[cd].Configuration.IsSpecial) continue;
                 if (source.hasOwnProperty(cd)) {
-                    if (!this._instances.Columns[cd]) {
-                        delete source[cd];
-                        continue;
-                    }
-                    if (this._instances.Columns[cd].IsSpecial) continue;
                     var src = source[cd];
                     var trg = target[cd];
                     if (this._instances.Columns[cd].IsDateTime) {
@@ -524,28 +550,13 @@
             for (var ck in this._clientValueFunction) {
                 def[ck] = this._clientValueFunction[ck](def);
             }
+            if (this._hasPrimaryKey) {
+                def['__key'] = this.PrimaryKeyFunction(def);
+            }
             return def;
         }
 
-        private normalizeObject(dataObject: any) {
-            for (var k in this._masterTable.InstanceManager.Columns) {
-                if (this._masterTable.InstanceManager.Columns[k].IsDateTime) {
-                    if (dataObject[k] != null && (typeof dataObject[k] === "string")) {
-                        dataObject[k] = this._masterTable.Date.parse(dataObject[k]);
-                    }
-                }
-                if (dataObject[k] == undefined) dataObject[k] = null;
-            }
-            for (var ck in this._clientValueFunction) {
-                dataObject[ck] = this._clientValueFunction[ck](dataObject);
-            }
-            if (this._hasPrimaryKey) {
-                dataObject['__key'] = this.PrimaryKeyFunction(dataObject);
-                this._storedDataCache[dataObject['__key']] = dataObject;
-            }
-        }
-
-        public proceedAdjustments(adjustments: PowerTables.Editing.IAdjustmentData): IAdjustmentResult {
+        public proceedAdjustments(adjustments: PowerTables.ITableAdjustment): IAdjustmentResult {
             this._masterTable.Events.Adjustment.invokeBefore(this, adjustments);
 
             if (this.RecentClientQuery == null || this.RecentClientQuery == undefined) return null;
@@ -555,42 +566,43 @@
             var touchedColumns = [];
             var added = [];
 
-            for (var i = 0; i < adjustments.Updates.length; i++) {
-                this.normalizeObject(adjustments.Updates[i]);
+            var adjustedObjects = this.deserializeData(adjustments.UpdatedData);
 
-                var update = this.getByPrimaryKey(adjustments.Updates[i]['__key']);
+            for (var i = 0; i < adjustedObjects.length; i++) {
+                
+                var update = this.getByPrimaryKey(adjustedObjects[i]['__key']);
                 if (!update) {
                     //if (this.StoredData.length > 0) { whoai?!
-                        this.StoredData.push(adjustments.Updates[i]);
-                        added.push(adjustments.Updates[i]);
+                    this.StoredData.push(adjustedObjects[i]);
+                    added.push(adjustedObjects[i]);
                         needRefilter = true;
                     //}
                 } else {
-                    touchedColumns.push(this.copyData(adjustments.Updates[i], update.DataObject));
-                    touchedData.push(update.DataObject);
+                    touchedColumns.push(this.copyData(adjustedObjects[i], update));
+                    touchedData.push(update);
                     if (update.DisplayedIndex > 0) {
-                        redrawVisibles.push(update.DataObject);
+                        redrawVisibles.push(update);
                     }
                     needRefilter = true;
                 }
             }
 
-            for (var j = 0; j < adjustments.Removals.length; j++) {
-                this.normalizeObject(adjustments.Removals[j]);
-                var lookup = this.localLookupPrimaryKey(adjustments.Removals[j]);
+            for (var j = 0; j < adjustments.RemoveKeys.length; j++) {
+
+                var lookup = this.localLookupPrimaryKey(adjustments.RemoveKeys[j]);
                 if (lookup.LoadedIndex > -1) {
                     this.StoredData.splice(lookup.LoadedIndex, 1);
                     needRefilter = true;
-                    delete this._storedDataCache[adjustments.Removals[j]['__key']];
+                    delete this._storedDataCache[adjustments.RemoveKeys[j]];
                 }
 
-                lookup = this.localLookupPrimaryKey(adjustments.Removals[j],this.Filtered);
+                lookup = this.localLookupPrimaryKey(adjustments.RemoveKeys[j],this.Filtered);
                 if (lookup.LoadedIndex > -1) {
                     this.Filtered.splice(lookup.LoadedIndex, 1);
                     needRefilter = true;
                 }
 
-                lookup = this.localLookupPrimaryKey(adjustments.Removals[j], this.Ordered);
+                lookup = this.localLookupPrimaryKey(adjustments.RemoveKeys[j], this.Ordered);
                 if (lookup.LoadedIndex > -1) {
                     this.Ordered.splice(lookup.LoadedIndex, 1);
                     needRefilter = true;

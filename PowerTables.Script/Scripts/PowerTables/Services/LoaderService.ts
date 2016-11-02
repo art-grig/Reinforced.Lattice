@@ -130,9 +130,7 @@
                     XMLHttp: req,
                     Data: json
                 });
-                var currentTableAdjustments = json.TableAdjustments;
-                if (json.ConfirmedObject !== null && json.ConfirmedObject != undefined) currentTableAdjustments.Updates.push(json.ConfirmedObject);
-                this._masterTable.proceedAdjustments(currentTableAdjustments);
+                this._masterTable.proceedAdjustments(json);
                 for (var otherAdj in json.OtherTablesAdjustments) {
                     if (json.OtherTablesAdjustments.hasOwnProperty(otherAdj)) {
                         if (window['__latticeInstances'][otherAdj]) {

@@ -118,7 +118,7 @@
 
         public SelectionChanged: TableEvent<{ [primaryKey: string]: number[] }, { [primaryKey: string]: number[] }>; //registered by Checkboxify
 
-        public Adjustment: TableEvent<PowerTables.Editing.IAdjustmentData, IAdjustmentResult>;
+        public Adjustment: TableEvent<PowerTables.ITableAdjustment, IAdjustmentResult>;
         public AdjustmentResult: TableEvent<IAdjustmentResult, any>;
 
         /**

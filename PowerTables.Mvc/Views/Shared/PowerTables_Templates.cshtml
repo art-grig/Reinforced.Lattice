@@ -113,7 +113,7 @@
     Following HTML is being wrapped around each data row
 *@
 @using (var t = this.RowWrapper())
-{ <tr class="@t.If(c=>c.IsSelected,"success") @t.If(c=>c.IsUpdated,"touched") @t.If(c=>c.IsAdded,"touched")" @t.Track()>@t.Content()</tr> }
+{ <tr class="@t.If(c => c.IsSelected, "success") @t.If(c=>c.IsUpdated,"touched") @t.If(c=>c.IsAdded,"touched")" @t.Track()>@t.Content()</tr> }
 
 @*
     Cell wrapper template.

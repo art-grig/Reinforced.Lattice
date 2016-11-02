@@ -94,6 +94,8 @@ module PowerTables.Configuration.Json {
 		*             Return null/empty/undefined will let system to choose default template
 		*/
 		TemplateSelector: (cell:ICell)=>string;
+		/** Special column does not represent any data and supposed to be handled by plugin from inside table */
+		IsSpecial: boolean;
 	}
 	/** Plugin JSON configuration */
 	export interface IPluginConfiguration
@@ -257,6 +259,22 @@ module PowerTables {
 		/** Required page size */
 		PageSize: number;
 	}
+	export interface ITableAdjustment
+	{
+		/** Table message associated with this response */
+		Message: PowerTables.ITableMessage;
+		/** Special mark to disctinguish Edition result from others on client side */
+		IsUpdateResult: boolean;
+		UpdatedData: any[];
+		RemoveKeys: string[];
+		OtherTableAdjustments: { [key:string]: PowerTables.ITableAdjustment };
+		/**
+		* Additional data being serialized for client. 
+		*             This field could contain anything that will be parsed on client side and corresponding actions will be performed. 
+		*             See <see cref="T:PowerTables.ResponseProcessing.IResponseModifier" />
+		*/
+		AdditionalData: { [key:string]: any };
+	}
 	/** Message type enum */
 	export enum MessageType { 
 		/**
@@ -275,40 +293,6 @@ module PowerTables {
 		Descending = 1, 
 		/** Ordering is not applied */
 		Neutral = 2, 
-	}
-}
-module PowerTables.Plugins.Checkboxify {
-	/**
-	* Client configuration for Checkboxify plugin. 
-	*             See <see cref="T:PowerTables.Plugins.Checkboxify.CheckboxifyExtensions" />
-	*/
-	export interface ICheckboxifyClientConfig
-	{
-		SelectionColumnName: string;
-		ResetOnReload: boolean;
-		EnableSelectAll: boolean;
-		SelectAllSelectsServerUndisplayedData: boolean;
-		SelectAllSelectsClientUndisplayedData: boolean;
-		SelectAllOnlyIfAllData: boolean;
-		ResetOnClientReload: boolean;
-		SelectAllTemplateId: string;
-		RowTemplateId: string;
-		CellTemplateId: string;
-		CanSelectFunction: (v:any)=>boolean;
-	}
-	/** Additional JSON data that instructs client side what selection should be set */
-	export interface ISelectionAdditionalData
-	{
-		/** When true, selection on table will be replaced with <see cref="P:PowerTables.Plugins.Checkboxify.SelectionAdditionalData.SelectionToReplace" /> */
-		ReplaceSelection: boolean;
-		/** Object IDs that must be selected instead of existing selection */
-		SelectionToReplace: string[];
-		/** When true, selection on table will be modified */
-		ModifySelection: boolean;
-		/** Adds specified keys to selection */
-		AddToSelection: string[];
-		/** Removes specified keys from selection */
-		RemoveFromSelection: string[];
 	}
 }
 module PowerTables.Plugins.Formwatch {
@@ -609,41 +593,6 @@ module PowerTables.Editing {
 	export interface IEditFormUiConfigBase
 	{
 		Fields: PowerTables.Editing.IEditFieldUiConfigBase[];
-	}
-	/** Result of table edition or other action */
-	export interface IEditionResult
-	{
-		/** Table message associated with this response */
-		Message: PowerTables.ITableMessage;
-		/** Special mark to disctinguish Edition result from others on client side */
-		IsUpdateResult: boolean;
-		/**
-		* Object which edition is confirmed. 
-		*             When using in-table editing, edited object will be passed here
-		*/
-		ConfirmedObject: any;
-		/** Adjustments set for table that has initiated request */
-		TableAdjustments: PowerTables.Editing.IAdjustmentData;
-		/**
-		* Adjustments for other tables located on same page. 
-		*             Here: key is other table id (the same that has passed to table initialization script)
-		*             value is adjustmetns set for mentioned table
-		*/
-		OtherTablesAdjustments: { [key:string]: PowerTables.Editing.IAdjustmentData };
-	}
-	/** Adjustments set for particular table */
-	export interface IAdjustmentData
-	{
-		/** Objects that should be removed from clien table */
-		Removals: any[];
-		/** Objects that should be updated in client table */
-		Updates: any[];
-		/**
-		* Additional data being serialized for client. 
-		*             This field could contain anything that will be parsed on client side and corresponding actions will be performed. 
-		*             See <see cref="T:PowerTables.ResponseProcessing.IResponseModifier" />
-		*/
-		AdditionalData: { [key:string]: any };
 	}
 }
 module PowerTables.Editing.Cells {

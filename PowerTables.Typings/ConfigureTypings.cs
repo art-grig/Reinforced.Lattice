@@ -74,10 +74,10 @@ namespace PowerTables.Typings
                 ;
 
             builder.ExportAsInterface<PluginConfiguration>().WithPublicProperties();
-            builder.ExportAsInterface<CheckboxifyClientConfig>().WithPublicProperties()
-                .WithProperty(c => c.CanSelectFunction, c => c.Type("(v:any)=>boolean"));
+            //builder.ExportAsInterface<CheckboxifyClientConfig>().WithPublicProperties()
+            //    .WithProperty(c => c.CanSelectFunction, c => c.Type("(v:any)=>boolean"));
 
-            builder.ExportAsInterface<SelectionAdditionalData>().WithPublicProperties();
+            //builder.ExportAsInterface<SelectionAdditionalData>().WithPublicProperties();
 
             builder.ExportAsInterface<FormwatchClientConfiguration>().WithPublicProperties();
             builder.ExportAsInterface<FormwatchFieldData>().WithPublicProperties()
@@ -152,8 +152,7 @@ namespace PowerTables.Typings
                 .WithProperty(c => c.MissingKeyFunction, a => a.Type("(a:any)=>any"))
                 ;
             builder.ExportAsInterface<MemoEditorUiConfig>().WithPublicProperties();
-            builder.ExportAsInterface<EditionResult>().WithPublicProperties();
-            builder.ExportAsInterface<AdjustmentData>().WithPublicProperties();
+            builder.ExportAsInterface<TableAdjustment>().WithAllProperties();
             builder.ExportAsInterface<CheckEditorUiConfig>().WithPublicProperties();
             builder.ExportAsInterface<PlainTextEditorUiConfig>()
                 .WithPublicProperties()

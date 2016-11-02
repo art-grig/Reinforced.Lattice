@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using PowerTables.Adjustments;
 using PowerTables.Editing;
 using PowerTables.Mvc.Models;
 using PowerTables.Mvc.Models.Tutorial;
@@ -26,25 +27,27 @@ namespace PowerTables.Mvc.Controllers
             return handler.Handle(Data.SourceData.AsQueryable(), ControllerContext);
         }
 
-        private void EditData(PowerTablesData<Toy, Row> powerTablesData, EditionResultWrapper<Row> edit)
+        private TableAdjustment EditData(PowerTablesData<Toy, Row> powerTablesData, Row edit)
         {
-            if (edit.ConfirmedObject.Id == 0)
+            if (edit.Id == 0)
             {
-                edit.ConfirmedObject.Id = Data.SourceData.Count + 1;
+                edit.Id = Data.SourceData.Count + 1;
                 Data.SourceData.Add(new Toy()
                 {
-                    CreatedDate = edit.ConfirmedObject.CreatedDate,
-                    Id = edit.ConfirmedObject.Id,
-                    DeliveryDelay = edit.ConfirmedObject.DeliveryDelay,
-                    ToyName = edit.ConfirmedObject.Name + " Added"
+                    CreatedDate = edit.CreatedDate,
+                    Id = edit.Id,
+                    DeliveryDelay = edit.DeliveryDelay,
+                    ToyName = edit.Name + " Added"
                 });
-                edit.Message(TableMessage.User("info", "Object added", "Successfull"));
-                edit.Adjustments.AddOrUpdate(edit.ConfirmedObject);
-                return;
+                return powerTablesData.Configuration.Adjust(x =>
+                {
+                    x.Message(TableMessage.User("info", "Object added", "Successfull"));
+                    x.Update(edit);
+                });
 
             }
-            edit.ConfirmedObject.Name = edit.ConfirmedObject.Name + " - Edited";
-            edit.ConfirmedObject.TypeOfToy = ToyType.Dolls;
+            edit.Name = edit.Name + " - Edited";
+            edit.TypeOfToy = ToyType.Dolls;
 
             var idsToUpdate = new[] { 2750, 2747, 2744 };
             var src = Data.SourceData.Where(c => idsToUpdate.Contains(c.Id)).ToArray();
@@ -54,8 +57,12 @@ namespace PowerTables.Mvc.Controllers
                 row.Name = "UFO edited this label";
                 row.IsPaid = true;
             }
-            edit.Adjustments.AddOrUpdateAll(mapped);
-            edit.Message(TableMessage.User("info", "Objects were updated", "Successful"));
+            return powerTablesData.Configuration.Adjust(x =>
+            {
+                x.Message(TableMessage.User("info", "Objects were updated", "Successful"));
+                x.Update(mapped);
+                x.Update(edit);
+            });
         }
     }
 }

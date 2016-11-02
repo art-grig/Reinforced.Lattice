@@ -79,22 +79,8 @@
                     }, this.MasterTable.Date, btn.ConfirmationFormConfiguration);
 
                     try {
-                        var chb = this.MasterTable.InstanceManager.getPlugin<PowerTables.Plugins.Checkboxify.CheckboxifyPlugin>('Checkboxify');
-                        var selection = chb.getSelection();
-                        tc.SelectedItems = selection;
-                        var objects = [];
-                        if (selection.length > 0) {
-                            var foundCount = 0;
-                            for (var i = 0; i < this.MasterTable.DataHolder.StoredData.length; i++) {
-                                var obj = this.MasterTable.DataHolder.StoredData[i];
-                                if (selection.indexOf(obj[chb.ValueColumnName].toString()) > -1) {
-                                    objects.push(obj);
-                                    foundCount++;
-                                    if (foundCount === selection.length) break;
-                                }
-                            }
-                        }
-                        tc.SelectedObjects = objects;
+                        tc.SelectedItems = this.MasterTable.Selection.getSelectedKeys();
+                        tc.SelectedObjects = this.MasterTable.Selection.getSelectedObjects();
                     } catch (e) { }
                     var r = this.MasterTable.Renderer.renderObject(btn.ConfirmationTemplateId, tc, btn.ConfirmationTargetSelector);
                     tc.RootElement = r;
@@ -140,8 +126,8 @@
         public init(masterTable: IMasterTable): void {
             super.init(masterTable);
             try {
-                var p: PowerTables.Plugins.Checkboxify.CheckboxifyPlugin = this.MasterTable.InstanceManager.getPlugin<PowerTables.Plugins.Checkboxify.CheckboxifyPlugin>('Checkboxify');
-                var nothingSelected: boolean = p.getSelection().length === 0;
+                
+                var nothingSelected: boolean = this.MasterTable.Selection.getSelectedKeys().length === 0;
                 for (var i: number = 0; i < this.Configuration.Buttons.length; i++) {
                     if (this.Configuration.Buttons[i].DisableIfNothingChecked) {
                         this.Configuration.Buttons[i].IsDisabled = nothingSelected;
