@@ -797,6 +797,7 @@ declare module PowerTables.Services {
         getSelectedObjects(): any[];
         getSelectedColumns(primaryKey: string): IColumn[];
         getSelectedColumnsByObject(dataObject: any): IColumn[];
+        toggleCellsByObject(dataObject: any, columnNames: string[], select?: boolean): void;
         toggleCells(primaryKey: string, columnNames: string[], select?: boolean): void;
     }
 }
@@ -1347,6 +1348,10 @@ declare module PowerTables {
          * Data object can be restored using Table.DataHolderService.localLookupDisplayedData(RowIndex)
          */
         DisplayingRowIndex: number;
+        /**
+         * Stops event propagation
+         */
+        Stop: boolean;
     }
     /**
      * Event arguments for particular cell event
@@ -1949,6 +1954,7 @@ declare module PowerTables.Services {
          * @returns {}
          */
         getColumn(columnName: string): IColumn;
+        getColumnByOrder(columnOrder: number): IColumn;
     }
     interface IClassifiedType {
         IsDateTime: boolean;

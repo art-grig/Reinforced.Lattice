@@ -67,6 +67,15 @@ namespace PowerTables.Configuration
             _tableConfiguration.Columns.Remove(conf);
         }
 
+        internal IEnumerable<IColumnConfigurator> GetColumnsByIndexes(int[] indexes)
+        {
+            for (int index = 0; index < _tableColumns.Count; index++)
+            {
+                var propertyDescription = _tableColumns[index];
+                if (indexes.Contains(index)) yield return _configurators[propertyDescription];
+            }
+        }
+
         /// <summary>
         /// Retrieves column configurator
         /// </summary>
@@ -135,7 +144,7 @@ namespace PowerTables.Configuration
 
             PropertyDescription pd = new PropertyDescription(columnName, typeof(TColumn), title,
                 (x) => getValue(x),
-                (x, y) => setValue(x, (TColumn)y));
+                (x, y) => setValue(x, (TColumn)y),null);
             _tableColumns.Add(pd);
             CreateColumn(pd, order.Value);
             return (IColumnTargetProperty<TColumn>)_configurators[pd];

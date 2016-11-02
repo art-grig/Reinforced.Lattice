@@ -80,10 +80,12 @@
                                 break;
                             }
                         }
+                        if (args.Stop) break;
                     }
                 } else {
                     subscriptions[i].Handler(args);
                 }
+                if (args.Stop) break;
             }
         }
 
@@ -117,21 +119,24 @@
 
             if (cellLocation != null) {
                 var cellArgs: ICellEventArgs = {
-                    Master:this._masterTable,
-                    OriginalEvent: e,
-                    DisplayingRowIndex: cellLocation.RowIndex,
-                    ColumnIndex: cellLocation.ColumnIndex
-                };
-                this.traverseAndFire(forCell, pathToCell, cellArgs);
-            }
-
-            if (rowIndex != null) {
-                var rowArgs: IRowEventArgs = {
                     Master: this._masterTable,
                     OriginalEvent: e,
-                    DisplayingRowIndex: rowIndex
+                    DisplayingRowIndex: cellLocation.RowIndex,
+                    ColumnIndex: cellLocation.ColumnIndex,
+                    Stop:false
                 };
-                this.traverseAndFire(forRow, pathToRow, rowArgs);
+                this.traverseAndFire(forCell, pathToCell, cellArgs);
+                this.traverseAndFire(forRow, pathToCell, cellArgs);
+            } else {
+                if (rowIndex != null) {
+                    var rowArgs: IRowEventArgs = {
+                        Master: this._masterTable,
+                        OriginalEvent: e,
+                        DisplayingRowIndex: rowIndex,
+                        Stop: false
+                    };
+                    this.traverseAndFire(forRow, pathToRow, rowArgs);
+                }
             }
         }
 

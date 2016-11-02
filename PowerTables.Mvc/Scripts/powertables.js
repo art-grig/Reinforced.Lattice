@@ -370,6 +370,9 @@ var PowerTables;
             SelectionService.prototype.getSelectedColumnsByObject = function (dataObject) {
                 return this.getSelectedColumns(dataObject['__key']);
             };
+            SelectionService.prototype.toggleCellsByObject = function (dataObject, columnNames, select) {
+                this.toggleCells(dataObject['__key'], columnNames, select);
+            };
             SelectionService.prototype.toggleCells = function (primaryKey, columnNames, select) {
                 this._masterTable.Events.SelectionChanged.invokeBefore(this, this._selectionData);
                 var arr = null;
@@ -431,7 +434,7 @@ var PowerTables;
          * Returns string track ID for cell
          */
         TrackHelper.getCellTrack = function (cell) {
-            var colIdx = cell.Column.MasterTable.InstanceManager.getUiColumnNames().indexOf(cell.Column.RawName);
+            var colIdx = cell.Column.Order;
             var rowIdx = cell.Row.Index;
             return TrackHelper.getCellTrackByIndexes(rowIdx, colIdx);
         };
@@ -846,11 +849,15 @@ var PowerTables;
                                     break;
                                 }
                             }
+                            if (args.Stop)
+                                break;
                         }
                     }
                     else {
                         subscriptions[i].Handler(args);
                     }
+                    if (args.Stop)
+                        break;
                 }
             };
             EventsDelegatorService.prototype.onTableEvent = function (e) {
@@ -887,17 +894,22 @@ var PowerTables;
                         Master: this._masterTable,
                         OriginalEvent: e,
                         DisplayingRowIndex: cellLocation.RowIndex,
-                        ColumnIndex: cellLocation.ColumnIndex
+                        ColumnIndex: cellLocation.ColumnIndex,
+                        Stop: false
                     };
                     this.traverseAndFire(forCell, pathToCell, cellArgs);
+                    this.traverseAndFire(forRow, pathToCell, cellArgs);
                 }
-                if (rowIndex != null) {
-                    var rowArgs = {
-                        Master: this._masterTable,
-                        OriginalEvent: e,
-                        DisplayingRowIndex: rowIndex
-                    };
-                    this.traverseAndFire(forRow, pathToRow, rowArgs);
+                else {
+                    if (rowIndex != null) {
+                        var rowArgs = {
+                            Master: this._masterTable,
+                            OriginalEvent: e,
+                            DisplayingRowIndex: rowIndex,
+                            Stop: false
+                        };
+                        this.traverseAndFire(forRow, pathToRow, rowArgs);
+                    }
                 }
             };
             /**
@@ -2276,6 +2288,9 @@ var PowerTables;
                 if (!this.Columns.hasOwnProperty(columnName))
                     throw new Error("Column " + columnName + " not found for rendering");
                 return this.Columns[columnName];
+            };
+            InstanceManagerService.prototype.getColumnByOrder = function (columnOrder) {
+                return this.Columns[this._rawColumnNames[columnOrder]];
             };
             InstanceManagerService._datetimeTypes = ['DateTime', 'DateTime?'];
             InstanceManagerService._stringTypes = ['String'];
@@ -7177,8 +7192,9 @@ var PowerTables;
                     CellsEditHandler.prototype.beginCellEditHandle = function (e) {
                         if (this._isEditing)
                             return;
-                        var col = this.MasterTable.InstanceManager.getUiColumns()[e.ColumnIndex];
+                        var col = this.MasterTable.InstanceManager.getColumnByOrder(e.ColumnIndex);
                         this.beginCellEdit(col, e.DisplayingRowIndex);
+                        e.Stop = true;
                     };
                     CellsEditHandler.prototype.onBeforeClientRowsRendering = function (e) {
                         if (!this._isEditing)

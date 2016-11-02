@@ -93,7 +93,7 @@
         /**
          * API for working with selection
          */
-        Selection:PowerTables.Services.SelectionService;
+        Selection: PowerTables.Services.SelectionService;
 
         /**
          * Absorb and draw table adjustments
@@ -102,14 +102,14 @@
          */
         proceedAdjustments(adjustments: PowerTables.ITableAdjustment): void;
 
-         /**
-         * API for table messages
-         */
+        /**
+        * API for table messages
+        */
         MessageService: PowerTables.Services.MessagesService;
 
-         getStaticData(): any;
+        getStaticData(): any;
 
-         setStaticData(obj:any) :void;
+        setStaticData(obj: any): void;
     }
 
     /**
@@ -212,7 +212,7 @@
         /**
          * Does cell belong to an added row in case of parsering update result
          */
-        IsAdded?:boolean;
+        IsAdded?: boolean;
 
         /**
          * Flag to note that this row was selected by user
@@ -304,7 +304,7 @@
          * @param templateId 
          * @returns {} 
          */
-        hasCachedTemplate(templateId: string):boolean;
+        hasCachedTemplate(templateId: string): boolean;
     }
 
     export interface IColumn {
@@ -361,7 +361,7 @@
     }
 
     export interface IUiMessage extends ITableMessage {
-        UiColumnsCount:number;
+        UiColumnsCount: number;
         IsMessageObject?: boolean;
     }
 
@@ -509,6 +509,11 @@
          * Data object can be restored using Table.DataHolderService.localLookupDisplayedData(RowIndex)
          */
         DisplayingRowIndex: number;
+
+        /**
+         * Stops event propagation
+         */
+        Stop: boolean;
     }
 
     /**

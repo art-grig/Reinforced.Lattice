@@ -29,6 +29,9 @@ namespace PowerTables.Mvc.Controllers
 
         private TableAdjustment EditData(PowerTablesData<Toy, Row> powerTablesData, Row edit)
         {
+            var selection = powerTablesData.Selection();
+            var exSelection = powerTablesData.ExtendedSelection();
+
             if (edit.Id == 0)
             {
                 edit.Id = Data.SourceData.Count + 1;

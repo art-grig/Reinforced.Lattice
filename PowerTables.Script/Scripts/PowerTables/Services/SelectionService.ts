@@ -34,7 +34,7 @@
         }
 
         public toggleAll(selected?: boolean) {
-            
+
             if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.OnlyIfAllDataVisible) {
                 if (this._masterTable.DataHolder.StoredData.length !==
                     this._masterTable.DataHolder.DisplayedData.length) return;
@@ -74,7 +74,7 @@
                 }
             }
             this._isAllSelected = selected;
-            
+
             this._masterTable.Controller.redrawVisibleData(); //todo
             this._masterTable.Events.SelectionChanged.invokeAfter(this, this._selectionData);
         }
@@ -131,7 +131,7 @@
                     this._masterTable.Events.SelectionChanged.invokeAfter(this, this._selectionData);
                 }
             }
-            
+
         }
 
         public toggleObjectSelected(dataObject: any, selected?: boolean) {
@@ -175,6 +175,10 @@
 
         public getSelectedColumnsByObject(dataObject: any): IColumn[] {
             return this.getSelectedColumns(dataObject['__key']);
+        }
+
+        public toggleCellsByObject(dataObject: any, columnNames: string[], select?: boolean) {
+            this.toggleCells(dataObject['__key'], columnNames, select);
         }
 
         public toggleCells(primaryKey: string, columnNames: string[], select?: boolean) {

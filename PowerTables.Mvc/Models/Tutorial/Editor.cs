@@ -13,6 +13,7 @@ using PowerTables.Editing.Rows;
 using PowerTables.FrequentlyUsed;
 using PowerTables.Plugins.LoadingOverlap;
 using PowerTables.Plugins.Ordering;
+using PowerTables.Plugins.SimpeSelect;
 using PowerTables.Plugins.Toolbar;
 
 namespace PowerTables.Mvc.Models.Tutorial
@@ -130,7 +131,7 @@ namespace PowerTables.Mvc.Models.Tutorial
 
 
             conf.AddColumn<bool>("NewColumn", c => !c.IsPaid, (c, v) => c.IsPaid = !v).Title("New column").ClientExpression("!{IsPaid}");
-
+            conf.SimpleSelectCell();
             return conf;
         }
 

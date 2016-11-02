@@ -205,6 +205,7 @@
     <Compile Include="Plugins\ResponseInfo\ActionBasedResponseModifier.cs" />
     <Compile Include="Plugins\ResponseInfo\ResponseInfoClientConfiguration.cs" />
     <Compile Include="Plugins\ResponseInfo\ResponseInfoTemplateRegion.cs" />
+    <Compile Include="Plugins\SimpeSelect\SimpleSelectExtensions.cs" />
     <Compile Include="Plugins\Toolbar\ConfirmationTemplateRegion.cs" />
     <Compile Include="Plugins\Toolbar\ToolbarBuilder.cs" />
     <Compile Include="Plugins\Toolbar\ToolbarButtonClientConfiguration.cs" />
@@ -239,6 +240,7 @@
     <Compile Include="ResponseProcessing\IResponseModifier.cs" />
     <Compile Include="ResponseProcessing\IResponseModifiersApplier.cs" />
     <Compile Include="ResponseProcessing\JsonNetResult.cs" />
+    <Compile Include="SelectionExtensions.cs" />
     <Compile Include="SerializationSettings.cs" />
     <Compile Include="TableMessage.cs" />
     <Compile Include="Templating\AdditionalTemplatesScope.cs" />

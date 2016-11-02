@@ -328,6 +328,10 @@
                 throw new Error(`Column ${columnName} not found for rendering`);
             return this.Columns[columnName];
         }
+
+        public getColumnByOrder(columnOrder: number): IColumn {
+            return this.Columns[this._rawColumnNames[columnOrder]];
+        }
     }
 
     /*

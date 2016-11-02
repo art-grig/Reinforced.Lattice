@@ -22,5 +22,10 @@ namespace PowerTables.Configuration
         /// Retrieves column type
         /// </summary>
         Type ColumnType { get; }
+
+        /// <summary>
+        /// Column property information
+        /// </summary>
+        PropertyDescription ColumnProperty { get; }
     }
 }
