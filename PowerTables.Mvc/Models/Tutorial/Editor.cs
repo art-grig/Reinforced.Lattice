@@ -127,6 +127,7 @@ namespace PowerTables.Mvc.Models.Tutorial
             {
                 c.AddSimpleButton("Add new...").AddNewByForm();
                 c.AddSimpleButton("Add new by row...").AddNewByRow();
+                c.AddCommandButton("Test Selection", "Test").DisableIfNothingChecked();
             });
 
 

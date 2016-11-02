@@ -92,7 +92,7 @@
                     if (this._instances.Columns[this._configuration.KeyFields[i]].IsBoolean) {
                         fields.push(`((x.${field})==null?'':(x.${field}?'1':'0'))`);
                     } else {
-                        fields.push(`((x.${field})==null?'':(x.${field}))`);
+                        fields.push(`((x.${field})==null?'':(x.${field}.toString()))`);
                     }
                 }
             }

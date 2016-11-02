@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using PowerTables.Adjustments;
+using PowerTables.Defaults;
 using PowerTables.Editing;
 using PowerTables.Mvc.Models;
 using PowerTables.Mvc.Models.Tutorial;
@@ -24,7 +25,20 @@ namespace PowerTables.Mvc.Controllers
             t.Editor();
             var handler = new PowerTablesHandler<Toy, Row>(t);
             handler.AddEditHandler(EditData);
+            handler.AddCommandHandler("Test", TestSelection);
             return handler.Handle(Data.SourceData.AsQueryable(), ControllerContext);
+        }
+
+        private TableAdjustment TestSelection(PowerTablesData<Toy, Row> data)
+        {
+            var selectdCells = data.ExtendedSelection()
+                .Select(c => c.SelectedObject.Id + ": " + string.Join(", ", c.SelectedColumnNames));
+
+            var selectionData = string.Join("\n", selectdCells);
+
+            return
+                data.Configuration.Adjust(
+                    x => x.Message(TableMessage.User("info", "Selection", selectionData)));
         }
 
         private TableAdjustment EditData(PowerTablesData<Toy, Row> powerTablesData, Row edit)

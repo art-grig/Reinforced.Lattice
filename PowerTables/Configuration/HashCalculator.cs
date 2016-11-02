@@ -133,7 +133,7 @@ namespace PowerTables.Configuration
                     if (hash[i] == ':')
                     {
                         var len = i - cStart - 1;
-                        values.Add(len == 0 ? string.Empty : hash.Substring(cStart, i - cStart - 1));
+                        values.Add(len == 0 ? string.Empty : hash.Substring(cStart, i - cStart));
                         if (i + 1 == hash.Length) break;
                         cStart = i + 1;
                     }
