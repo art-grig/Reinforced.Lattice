@@ -349,6 +349,12 @@ namespace PowerTables.Configuration.Json
     public class SelectionConfiguration
     {
         public SelectAllBehavior SelectAllBehavior { get; set; }
+
+        public JRaw CanSelectRowFunction { get; set; }
+
+        public JRaw CanSelectCellFunction { get; set; }
+
+        public string[] NonselectableColumns { get; set; }
     }
 
     public enum SelectAllBehavior

@@ -128,6 +128,9 @@ module PowerTables.Configuration.Json {
 	export interface ISelectionConfiguration
 	{
 		SelectAllBehavior: PowerTables.Configuration.Json.SelectAllBehavior;
+		CanSelectRowFunction: (dataObject:any)=>boolean;
+		CanSelectCellFunction: (dataObject:any,column:string,select:boolean)=>boolean;
+		NonselectableColumns: string[];
 	}
 	export enum SelectAllBehavior { 
 		AllVisible = 0, 

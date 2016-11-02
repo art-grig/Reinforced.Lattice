@@ -41,6 +41,11 @@ namespace PowerTables.Templating.BuiltIn
         bool IsAdded { get; }
 
         /// <summary>
+        /// True when row was added during adjustment
+        /// </summary>
+        bool CanBeSelected { get; }
+
+        /// <summary>
         /// Data object 
         /// </summary>
         TRow DataObject { get; }

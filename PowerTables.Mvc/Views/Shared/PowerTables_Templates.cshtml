@@ -370,16 +370,18 @@
     </th>
 }
 
-@using (var t = Plugin.CheckboxifyCell())
+@using (var t = this.Cell("checkboxifyCell"))
 {
-    using (t.If(c => c.CanCheck))
+    using (t.If(c=>c.Row.CanBeSelected))
     {
-        using (t.If(c => c.IsChecked))
-        {
-            <div><input @t.ThisWillTriggerSelection() type="checkbox" checked="checked" /></div>
-            @t.Else()
-            <div><input type="checkbox" @t.ThisWillTriggerSelection() /></div>
-        }
+        <div data-checkboxify="true">
+            @using (t.If(c => c.Row.IsSelected))
+            {
+                <input type="checkbox" checked="checked" />
+                @t.Else()
+                <input type="checkbox" />
+            }
+        </div>
     }
 }
 

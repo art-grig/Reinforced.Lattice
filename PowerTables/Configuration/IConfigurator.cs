@@ -127,6 +127,8 @@ namespace PowerTables.Configuration
         IColumnTargetProperty<TColumn> AddColumn<TColumn>(string columnName, Func<object, TColumn> getValue,
             Action<object, TColumn> setValue, string title = null, int? order = null);
 
+        bool HasColumn(string columnName);
+
         /// <summary>
         /// Retrieves column value of specified row
         /// </summary>

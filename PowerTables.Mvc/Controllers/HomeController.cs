@@ -50,7 +50,7 @@ namespace PowerTables.Mvc.Controllers
 
         public OperationResult Delete(PowerTablesData<Toy, Row> request)
         {
-            int[] selectedIds = request.Request.GetSelectionIds<int>();
+            int[] selectedIds = request.Selection().Select(c=>c.Id).ToArray();
             var rc = Data.SourceData.RemoveAll(c => selectedIds.Contains(c.Id));
             return new OperationResult() { Message = String.Format("All went ok. {0} items removed", rc), Success = true };
         }

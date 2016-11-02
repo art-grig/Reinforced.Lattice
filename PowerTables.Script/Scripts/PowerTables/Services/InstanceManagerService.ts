@@ -185,8 +185,7 @@
          */
         public _subscribeConfiguredEvents() {
             var delegator = this._masterTable.Renderer.Delegator;
-            var columns = this.getUiColumnNames();
-            var ths = this;
+            
             for (var i = 0; i < this.Configuration.Subscriptions.length; i++) {
                 var sub = this.Configuration.Subscriptions[i];
                 if (sub.IsRowSubscription) {
@@ -204,7 +203,7 @@
                 } else {
                     var h2 = (function (hndlr, im: InstanceManagerService, colName) {
                         return function (e: ICellEventArgs) {
-                            if (im.getUiColumnNames().indexOf(colName) !== e.ColumnIndex) return;
+                            if (im.getColumnNames().indexOf(colName) !== e.ColumnIndex) return;
                             hndlr(e);
                         }
                     })(sub.Handler, this._masterTable.InstanceManager, sub.ColumnName);

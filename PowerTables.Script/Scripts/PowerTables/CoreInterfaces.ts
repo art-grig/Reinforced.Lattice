@@ -283,6 +283,11 @@
          * Does cell belong to an added row in case of parsering update result
          */
         IsAdded?: boolean;
+
+        /**
+         * True when row can be selected, false otherwise
+         */
+        CanBeSelected?:boolean;
     }
 
     export interface ITemplatesProvider {

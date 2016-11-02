@@ -39,11 +39,11 @@
         public prefetchData(data: any[]) {
             var query = this.gatherQuery(QueryScope.Server);
             this._dataHolder.storeResponse(<any>{
-                Data:data
+                Data: data
             }, query);
             this._previousQueryString = JSON.stringify(query);
         }
-        
+
         public gatherQuery(queryScope: QueryScope): IQuery {
             var a: IQuery = {
                 Paging: {
@@ -167,6 +167,7 @@
                 if (data.Command === 'query') {
                     this._dataHolder.storeResponse(json, clientQuery);
                     callback(json);
+                    data.Query.Selection = null; // selection must not affect query results
                     this._previousQueryString = JSON.stringify(data.Query);
                 } else {
                     callback(json);
@@ -276,9 +277,9 @@
             }
 
             var queriesEqual: boolean = (command === 'query') && (JSON.stringify(serverQuery) === this._previousQueryString);
-
+            this._masterTable.Selection.modifyQuery(serverQuery, scope);
             if (force || !queriesEqual) {
-                
+
                 var data: IPowerTableRequest = {
                     Command: command,
                     Query: serverQuery

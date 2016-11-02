@@ -35,6 +35,11 @@ namespace PowerTables.Configuration
 
         internal HashCalculator HashCalculator { get; private set; }
 
+        public bool HasColumn(string columnName)
+        {
+            return _tableColumnsDictionary.ContainsKey(columnName);
+        }
+
         public object GetColumnValue(object rowObject, string propertyName)
         {
             if (!TableColumnsDictionary.ContainsKey(propertyName))
@@ -140,11 +145,11 @@ namespace PowerTables.Configuration
         public IColumnTargetProperty<TColumn> AddColumn<TColumn>(string columnName, Func<object, TColumn> getValue, Action<object, TColumn> setValue, string title = null, int? order = null)
         {
             if (!order.HasValue) order = _tableColumns.Count;
-            if (string.IsNullOrEmpty(title)) title = columnName;
+            if (title == null) title = columnName;
 
             PropertyDescription pd = new PropertyDescription(columnName, typeof(TColumn), title,
                 (x) => getValue(x),
-                (x, y) => setValue(x, (TColumn)y),null);
+                (x, y) => setValue(x, (TColumn)y), null);
             _tableColumns.Add(pd);
             CreateColumn(pd, order.Value);
             return (IColumnTargetProperty<TColumn>)_configurators[pd];

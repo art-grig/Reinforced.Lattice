@@ -2,7 +2,6 @@
     export class SelectionService implements IQueryPartProvider {
 
         constructor(masterTable: IMasterTable) {
-            masterTable.Loader.registerQueryPartProvider(this);
             this._masterTable = masterTable;
             this._configuration = this._masterTable.InstanceManager.Configuration.SelectionConfiguration;
         }
@@ -20,6 +19,11 @@
 
         public isAllSelected(): boolean {
             return this._isAllSelected;
+        }
+
+        public canSelect(dataObject: any): boolean {
+            if (this._configuration.CanSelectRowFunction == null) return true;
+            return this._configuration.CanSelectRowFunction(dataObject);
         }
 
         public canSelectAll(): boolean {
@@ -192,37 +196,30 @@
             }
             var cols = this._masterTable.InstanceManager.Columns;
             var columnsToRedraw = [];
+            var data = this._masterTable.DataHolder.getByPrimaryKey(primaryKey);
 
             for (var i = 0; i < columnNames.length; i++) {
                 var idx = cols[columnNames[i]].Order;
                 var colIdx = arr.indexOf(idx);
                 var srcLen = arr.length;
-                if (select == null || select == undefined) {
-                    if (colIdx > -1) arr.splice(colIdx, 1);
-                    else arr.push(idx);
-                } else {
-                    if (select) {
-                        if (colIdx < 0) {
-                            arr.push(idx);
-                            //if (!this._selectedColsObjects[idx]) this._selectedColsObjects[idx] = [];
-                            //this._selectedColsObjects[idx].push(primaryKey);
-                        }
-                    } else {
-                        if (colIdx > -1) {
-                            arr.splice(colIdx, 1);
-                            //if (this._selectedColsObjects[idx]) {
-                            //    this._selectedColsObjects[idx]
-                            //        .splice(this._selectedColsObjects[idx].indexOf(primaryKey));
-                            //}
-                        }
-                    }
+                var selectIt = select;
+                if ((this._configuration.NonselectableColumns.indexOf(columnNames[i]) < 0)) continue;
+
+                if (selectIt == null || selectIt == undefined) {
+                    if (colIdx > -1) selectIt = false;
+                    else selectIt = true;
                 }
+                if (this._configuration.CanSelectCellFunction!=null && !this._configuration.CanSelectCellFunction(data, columnNames[i], selectIt)) continue;
+
+                if (selectIt && colIdx < 0) arr.push(idx);
+                if ((!selectIt) && colIdx > -1) arr.splice(colIdx, 1);
+
                 if (srcLen !== arr.length) columnsToRedraw.push(cols[columnNames[i]]);
             }
             if (arr.length === 0) {
                 delete this._selectionData[primaryKey];
             }
-            this._masterTable.Controller.redrawVisibleCells(this._masterTable.DataHolder.getByPrimaryKey(primaryKey), columnsToRedraw);
+            this._masterTable.Controller.redrawVisibleCells(data, columnsToRedraw);
             this._masterTable.Events.SelectionChanged.invokeAfter(this, this._selectionData);
         }
     }

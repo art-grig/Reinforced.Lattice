@@ -182,6 +182,7 @@ module PowerTables.Services {
                 Index: idx,
                 MasterTable: this._masterTable,
                 IsSelected: this._masterTable.Selection.isSelected(dataObject),
+                CanBeSelected: this._masterTable.Selection.canSelect(dataObject),
                 Cells: null
             };
 
