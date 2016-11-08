@@ -53,7 +53,7 @@ module PowerTables.Editing {
             var editor = ComponentsContainer.resolveComponent<PowerTables.Editing.IEditor>(editorConf.PluginId);
             editor.DataObject = this.DataObject;
             editor.ModifiedDataObject = this.CurrentDataObjectModified;
-
+            editor.Data = this.DataObject[fieldName];
             editor.FieldName = fieldName;
             editor.Column = column;
             editor.CanComplete = canComplete;

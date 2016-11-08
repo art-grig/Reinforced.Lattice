@@ -22,7 +22,7 @@ namespace PowerTables.Mvc.Models.Tutorial
             conf.Column(c => c.LastSoldDate).DataOnly(false);
 
             conf.HideoutMenu(c => c.IncludeAll()
-                .Except(a => a.Id)
+                .Except(a => a.Id) 
                 .Except(a => a.ResponsibleUserId)
                 .Except(a => a.ItemsLeft)
                 .Except(a => a.DeliveryDelay)
