@@ -96,26 +96,7 @@ namespace PowerTables
             {
                 properties = _propertiesCache[t].ToList();
             }
-
-            if (!_propertyDictionariesCache.ContainsKey(t))
-            {
-                lock (_propertyDictionariesCache)
-                {
-                    if (!_propertyDictionariesCache.ContainsKey(t))
-                    {
-                        propDictionary = properties.ToDictionary(c => c.Name, c => c);
-                        _propertyDictionariesCache[t] = propDictionary;
-                    }
-                    else
-                    {
-                        propDictionary = _propertyDictionariesCache[t];
-                    }
-                }                
-            }
-            else
-            {
-                propDictionary = _propertyDictionariesCache[t];
-            }
+            propDictionary = properties.ToDictionary(c => c.Name, c => c);
         }
 
         /// <summary>

@@ -504,19 +504,5 @@ namespace PowerTables.Configuration
         {
             return new PowerTablesHandler<TSourceData, TTableData>(configurator, queryHandler, tokenStorage);
         }
-
-        /// <summary>
-        /// Marks column as special. Special columns are not being serialized to client and has no abilities to 
-        /// participate primary key, but can be drawn and used for some additional actions
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="conf">Column configurator</param>
-        /// <param name="special">Special value</param>
-        /// <returns>Fluent</returns>
-        public static T Special<T>(this T conf, bool special = true) where T : IColumnConfigurator
-        {
-            conf.ColumnConfiguration.IsSpecial = special;
-            return conf;
-        }
     }
 }

@@ -22,11 +22,11 @@ namespace PowerTables.Plugins.Checkboxify
         /// <typeparam name="T"></typeparam>
         /// <param name="conf">Table</param>
         /// <returns>Fluent</returns>
-        public static T Checkboxify<T>(this T conf) where T: IConfigurator
+        public static T Checkboxify<T>(this T conf) where T : IConfigurator
         {
             if (conf.HasColumn("_checkboxify")) return conf;
 
-            var cc = conf.AddColumn("_checkboxify", x => string.Empty, (x, y) => { }, " ", order: -1);
+            var cc = conf.AddUiColumn<string>("_checkboxify", " ", -1);
             cc.TemplateId("checkboxifyCell");
             cc.SubscribeCellEvent(c => c.Selector("[data-checkboxify]").Handle("click", "function(c) { c.Master.Selection.toggleObjectSelected(c.Master.DataHolder.localLookupDisplayedData(c.DisplayingRowIndex).DataObject); }"));
 
@@ -53,7 +53,7 @@ namespace PowerTables.Plugins.Checkboxify
         /// <param name="a">Additional data</param>
         /// <param name="addToSelection">Keys to be added to selection</param>
         /// <param name="removeFromSelection">Keys to be removed from selection</param>
-        public static void ModifySelection(this IAdditionalDataProvider a, IEnumerable<string> addToSelection = null,IEnumerable<string> removeFromSelection = null )
+        public static void ModifySelection(this IAdditionalDataProvider a, IEnumerable<string> addToSelection = null, IEnumerable<string> removeFromSelection = null)
         {
             //a.AdditionalData["Selection"] = new SelectionAdditionalData()
             //{

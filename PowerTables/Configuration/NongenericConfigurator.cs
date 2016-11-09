@@ -150,9 +150,32 @@ namespace PowerTables.Configuration
             PropertyDescription pd = new PropertyDescription(columnName, typeof(TColumn), title,
                 (x) => getValue(x),
                 (x, y) => setValue(x, (TColumn)y), null);
-            _tableColumns.Add(pd);
+            if (order < 0) _tableColumns.Insert(0, pd);
+            else _tableColumns.Insert(order.Value, pd);
             CreateColumn(pd, order.Value);
             return (IColumnTargetProperty<TColumn>)_configurators[pd];
+        }
+
+        /// <summary>
+        /// Creates new UI-only column without binding to any existing data
+        /// </summary>
+        /// <param name="columnName">Column name</param>
+        /// <param name="title">Column title (optional)</param>
+        /// <param name="order">Column order</param>
+        /// <returns>Corresponding column configurator</returns>
+        public IColumnTargetProperty<T> AddUiColumn<T>(string columnName, string title = null, int? order = null)
+        {
+            if (!order.HasValue) order = _tableColumns.Count;
+            if (title == null) title = columnName;
+
+            PropertyDescription pd = new PropertyDescription(columnName, typeof(T), title,
+                (x) => null,
+                (x, y) => {}, null);
+            
+            CreateColumn(pd, order.Value);
+            var conf = (IColumnTargetProperty<T>)_configurators[pd];
+            conf.ColumnConfiguration.IsSpecial = true;
+            return conf;
         }
 
         protected void InitializeColumnsConfiguration()

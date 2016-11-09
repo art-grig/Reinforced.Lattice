@@ -72,7 +72,7 @@
 
         private compileComparisonFunction() {
             if ((!this._configuration.KeyFields) || (this._configuration.KeyFields.length === 0)) {
-                this.DataObjectComparisonFunction = <any>(function (){
+                this.DataObjectComparisonFunction = <any>(function () {
                     throw Error('You must specify key fields for table row to use current setup. Please call .PrimaryKey on configuration object and specify set of columns exposing primary key.');
                 });
                 this.PrimaryKeyFunction = <any>(function () {
@@ -82,12 +82,12 @@
                 return;
             }
             if (this._configuration.KeyFields.length === 0) return;
-            
+
             var fields = [];
             for (var i = 0; i < this._configuration.KeyFields.length; i++) {
                 var field = this._configuration.KeyFields[i];
                 if (this._instances.Columns[this._configuration.KeyFields[i]].IsDateTime) {
-                    fields.push(`((x.${field})==null?'':(x.${field}).getTime())`);
+                    fields.push(`((x.${field})==null?'':((x.${field}).getTime()))`);
                 } else {
                     if (this._instances.Columns[this._configuration.KeyFields[i]].IsBoolean) {
                         fields.push(`((x.${field})==null?'':(x.${field}?'1':'0'))`);
@@ -133,12 +133,12 @@
             return (this.EnableClientSkip || this.EnableClientTake || this._anyClientFiltration);
         }
 
-        public deserializeData(source:any[]):any[] {
+        public deserializeData(source: any[]): any[] {
             var data: any[] = [];
             var obj: {} = {};
-            var currentColIndex: number = 0;
+            var currentColIndex: number = this.getNextNonSpecialColumn(-1);
             var currentCol: string = this._rawColumnNames[currentColIndex];
-
+           
             for (var i: number = 0; i < source.length; i++) {
                 if (this._instances.Columns[currentCol].IsDateTime) {
                     if (source[i]) {
@@ -149,15 +149,17 @@
                 } else {
                     obj[currentCol] = source[i];
                 }
-                currentColIndex++;
-                if (currentColIndex >= this._rawColumnNames.length) {
-                    currentColIndex = 0;
+
+                currentColIndex = this.getNextNonSpecialColumn(currentColIndex);
+                if (currentColIndex === -1) {
+                    currentColIndex = this.getNextNonSpecialColumn(currentColIndex);
                     for (var ck in this._clientValueFunction) {
                         obj[ck] = this._clientValueFunction[ck](obj);
                     }
                     data.push(obj);
                     if (this._hasPrimaryKey) {
                         obj['__key'] = this.PrimaryKeyFunction(obj);
+                        this._storedDataCache[obj['__key']] = obj; // line that makes difference
                     }
                     obj = {};
                 }
@@ -166,13 +168,23 @@
             return data;
         }
 
+        private getNextNonSpecialColumn(currentColIndex: number): number {
+            do {
+                currentColIndex++;
+                if (currentColIndex >= this._rawColumnNames.length) {
+                    return -1;
+                }
+            } while (this._instances.Columns[this._rawColumnNames[currentColIndex]].Configuration.IsSpecial);
+            return currentColIndex;
+        }
+
         /**
         * Parses response from server and turns it to objects array
         */
         public storeResponse(response: IPowerTablesResponse, clientQuery: IQuery) {
             var data: any[] = [];
             var obj: {} = {};
-            var currentColIndex: number = 0;
+            var currentColIndex: number = this.getNextNonSpecialColumn(-1);
             var currentCol: string = this._rawColumnNames[currentColIndex];
             this._storedDataCache = {};
 
@@ -186,9 +198,10 @@
                 } else {
                     obj[currentCol] = response.Data[i];
                 }
-                currentColIndex++;
-                if (currentColIndex >= this._rawColumnNames.length) {
-                    currentColIndex = 0;
+
+                currentColIndex = this.getNextNonSpecialColumn(currentColIndex);
+                if (currentColIndex === -1) {
+                    currentColIndex = this.getNextNonSpecialColumn(currentColIndex);
                     for (var ck in this._clientValueFunction) {
                         obj[ck] = this._clientValueFunction[ck](obj);
                     }
@@ -205,7 +218,7 @@
             this.filterStoredData(clientQuery);
         }
 
-        private _storedDataCache:{[_:string]:any};
+        private _storedDataCache: { [_: string]: any };
 
         //#region Client processing
 
@@ -465,7 +478,7 @@
             return result;
         }
 
-        public getByPrimaryKeyObject(primaryKeyPart: any) : any {
+        public getByPrimaryKeyObject(primaryKeyPart: any): any {
             return this._storedDataCache[this.PrimaryKeyFunction(primaryKeyPart)];
         }
 
@@ -569,13 +582,13 @@
             var adjustedObjects = this.deserializeData(adjustments.UpdatedData);
 
             for (var i = 0; i < adjustedObjects.length; i++) {
-                
+
                 var update = this.getByPrimaryKey(adjustedObjects[i]['__key']);
                 if (!update) {
                     //if (this.StoredData.length > 0) { whoai?!
                     this.StoredData.push(adjustedObjects[i]);
                     added.push(adjustedObjects[i]);
-                        needRefilter = true;
+                    needRefilter = true;
                     //}
                 } else {
                     touchedColumns.push(this.copyData(adjustedObjects[i], update));
@@ -596,7 +609,7 @@
                     delete this._storedDataCache[adjustments.RemoveKeys[j]];
                 }
 
-                lookup = this.localLookupPrimaryKey(adjustments.RemoveKeys[j],this.Filtered);
+                lookup = this.localLookupPrimaryKey(adjustments.RemoveKeys[j], this.Filtered);
                 if (lookup.LoadedIndex > -1) {
                     this.Filtered.splice(lookup.LoadedIndex, 1);
                     needRefilter = true;
@@ -631,5 +644,5 @@
         //#endregion
     }
 
-    
+
 }

@@ -1,6 +1,8 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using PowerTables.Plugins;
@@ -15,13 +17,28 @@ namespace PowerTables.Configuration
         /// It is used to proform update of local objects set
         /// </summary>
         /// <param name="conf">Column configuration</param>
-        /// <param name="columns"></param>
-        public static Configurator<TSourceData, TTableData> PrimaryKey<TSourceData, TTableData>
-            (this Configurator<TSourceData, TTableData> conf, Action<ColumnListBuilder<TSourceData, TTableData>> columns) where TTableData : new()
+        /// <param name="keyExpression">Expression specifying PK. Must be property expression or anonymous object creation (x=>new{x.A,x.B,x.C})</param>
+        public static Configurator<TSourceData, TTableData> PrimaryKey<TSourceData, TTableData,T2>
+            (this Configurator<TSourceData, TTableData> conf, Expression<Func<TTableData, T2>> keyExpression) where TTableData : new()
         {
-            ColumnListBuilder<TSourceData, TTableData> clb = new ColumnListBuilder<TSourceData, TTableData>(conf);
-            columns(clb);
-            return PrimaryKey(conf, clb.Names.ToArray());
+            if (keyExpression.Body.NodeType == ExpressionType.MemberAccess)
+            {
+                var parse = LambdaHelpers.ParsePropertyLambda(keyExpression);
+                return conf.PrimaryKey(parse.Name);
+            }
+            if (keyExpression.Body.NodeType == ExpressionType.New)
+            {
+                var expr = (NewExpression) keyExpression.Body;
+                List<string> parameterNames = new List<string>();
+                if (expr.Arguments.Count==0) throw new Exception("Primary key cannot be empty");
+                foreach (var exprArgument in expr.Arguments)
+                {
+                    var p = LambdaHelpers.ParsePropertyExpression(exprArgument);
+                    parameterNames.Add(p.Name);
+                }
+                return conf.PrimaryKey(parameterNames.ToArray());
+            }
+            throw new Exception(string.Format("Unknown key expression {0}", keyExpression));
         }
 
         /// <summary>

@@ -54,7 +54,10 @@ namespace PowerTables
             {
                 return DateTime.Parse(src, null, DateTimeStyles.RoundtripKind);
             }
-
+            if (targetType == typeof(Guid))
+            {
+                return Guid.Parse(src);
+            }
             
 
             if (targetType.IsEnum)

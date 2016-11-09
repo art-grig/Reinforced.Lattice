@@ -109,6 +109,7 @@ namespace PowerTables.Configuration.Json
             Prefix = "lt";
             CoreTemplates = new CoreTemplateIds();
             Subscriptions = new List<ConfiguredSubscriptionInfo>();
+            SelectionConfiguration = new SelectionConfiguration();
         }
 
         /// <summary>

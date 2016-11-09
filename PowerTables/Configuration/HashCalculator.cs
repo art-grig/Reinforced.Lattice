@@ -75,6 +75,7 @@ namespace PowerTables.Configuration
             if (type == typeof(bool)) return ConvertBoolean(value);
             if (type == typeof(string)) return ConvertString(value);
             if (type == typeof(DateTime)) return ConvertDate(value);
+            if (type == typeof(Guid)) return ConvertGuid(value);
             throw new Exception(string.Format("Sorry, Reinforced.Lattice does not support type {0} as primary key", type.FullName));
         }
 
@@ -91,6 +92,11 @@ namespace PowerTables.Configuration
         private static string ConvertBoolean(object value)
         {
             return (bool)value ? "1" : "0";
+        }
+
+        private static string ConvertGuid(object value)
+        {
+            return value.ToString();
         }
 
         private static string ConvertString(object value)
@@ -172,6 +178,7 @@ namespace PowerTables.Configuration
             if (type == typeof(bool)) return DecryptBoolean(value);
             if (type == typeof(string)) return DecryptString(value);
             if (type == typeof(DateTime)) return DecryptDate(value);
+            if (type == typeof(Guid)) return DecryptGuid(value);
             throw new Exception(string.Format("Sorry, Reinforced.Lattice does not support type {0} as primary key", type.FullName));
         }
 
@@ -208,7 +215,12 @@ namespace PowerTables.Configuration
 
         private static object DecryptDate(string value)
         {
-            return new DateTime(long.Parse(value));
+            return (new DateTime(1970, 1, 1)).AddMilliseconds(long.Parse(value));
+        }
+
+        private static object DecryptGuid(string value)
+        {
+            return Guid.Parse(value);
         }
 
         private static object DecryptString(string value)
