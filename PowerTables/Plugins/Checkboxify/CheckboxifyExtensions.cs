@@ -21,15 +21,16 @@ namespace PowerTables.Plugins.Checkboxify
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="conf">Table</param>
+        /// <param name="columnConf">Checkboxify column configuration</param>
         /// <returns>Fluent</returns>
-        public static T Checkboxify<T>(this T conf) where T : IConfigurator
+        public static T Checkboxify<T>(this T conf, Action<IColumnTargetProperty<string>> columnConf = null) where T : IConfigurator
         {
             if (conf.HasColumn("_checkboxify")) return conf;
 
             var cc = conf.AddUiColumn<string>("_checkboxify", " ", -1);
             cc.TemplateId("checkboxifyCell");
             cc.SubscribeCellEvent(c => c.Selector("[data-checkboxify]").Handle("click", "function(c) { c.Master.Selection.toggleObjectSelected(c.Master.DataHolder.localLookupDisplayedData(c.DisplayingRowIndex).DataObject); }"));
-
+            if (columnConf != null) columnConf(cc);
             return conf;
         }
 

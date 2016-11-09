@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -39,6 +40,28 @@ namespace PowerTables
             var pi = mex.Member as PropertyInfo;
             if (pi == null) throw new Exception("Here should be property");
             return pi;
+        }
+
+        public static string[] ExtractColumnsList(LambdaExpression keyExpression)
+        {
+            if (keyExpression.Body.NodeType == ExpressionType.MemberAccess)
+            {
+                var parse = LambdaHelpers.ParsePropertyLambda(keyExpression);
+                return new string[] { parse.Name };
+            }
+            if (keyExpression.Body.NodeType == ExpressionType.New)
+            {
+                var expr = (NewExpression)keyExpression.Body;
+                List<string> parameterNames = new List<string>();
+                if (expr.Arguments.Count == 0) throw new Exception("Columns list cannot be empty");
+                foreach (var exprArgument in expr.Arguments)
+                {
+                    var p = LambdaHelpers.ParsePropertyExpression(exprArgument);
+                    parameterNames.Add(p.Name);
+                }
+                return parameterNames.ToArray();
+            }
+            throw new Exception(string.Format("Unknown columns list expression {0}", keyExpression));
         }
 
         /// <summary>
@@ -189,10 +212,10 @@ namespace PowerTables
         {
             Expression cfrom = Expression.Constant(@from);
             Expression cto = Expression.Constant(to);
-            
+
             if (filterExpression.Body.Type.IsNullable())
             {
-                cfrom = Expression.Convert(cfrom,filterExpression.Body.Type);
+                cfrom = Expression.Convert(cfrom, filterExpression.Body.Type);
                 cto = Expression.Convert(cto, filterExpression.Body.Type);
             }
 

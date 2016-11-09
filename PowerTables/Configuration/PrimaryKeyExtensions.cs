@@ -21,24 +21,7 @@ namespace PowerTables.Configuration
         public static Configurator<TSourceData, TTableData> PrimaryKey<TSourceData, TTableData,T2>
             (this Configurator<TSourceData, TTableData> conf, Expression<Func<TTableData, T2>> keyExpression) where TTableData : new()
         {
-            if (keyExpression.Body.NodeType == ExpressionType.MemberAccess)
-            {
-                var parse = LambdaHelpers.ParsePropertyLambda(keyExpression);
-                return conf.PrimaryKey(parse.Name);
-            }
-            if (keyExpression.Body.NodeType == ExpressionType.New)
-            {
-                var expr = (NewExpression) keyExpression.Body;
-                List<string> parameterNames = new List<string>();
-                if (expr.Arguments.Count==0) throw new Exception("Primary key cannot be empty");
-                foreach (var exprArgument in expr.Arguments)
-                {
-                    var p = LambdaHelpers.ParsePropertyExpression(exprArgument);
-                    parameterNames.Add(p.Name);
-                }
-                return conf.PrimaryKey(parameterNames.ToArray());
-            }
-            throw new Exception(string.Format("Unknown key expression {0}", keyExpression));
+            return conf.PrimaryKey(LambdaHelpers.ExtractColumnsList(keyExpression));
         }
 
         /// <summary>

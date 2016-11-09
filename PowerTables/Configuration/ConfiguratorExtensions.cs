@@ -504,5 +504,20 @@ namespace PowerTables.Configuration
         {
             return new PowerTablesHandler<TSourceData, TTableData>(configurator, queryHandler, tokenStorage);
         }
+
+        public static Configurator<TSource, TTarget> Selection<TSource, TTarget>(
+            this Configurator<TSource, TTarget> conf, Action<GenericSelectionConfigurationWrapper<TTarget>> config) where TTarget : new()
+        {
+            var wr = new GenericSelectionConfigurationWrapper<TTarget>(conf.TableConfiguration.SelectionConfiguration);
+            config(wr);
+            return conf;
+        }
+
+        public static NongenericConfigurator Selection(this NongenericConfigurator conf, Action<SelectionConfigurationWrapper> config)
+        {
+            var wr = new SelectionConfigurationWrapper(conf.TableConfiguration.SelectionConfiguration);
+            config(wr);
+            return conf;
+        }
     }
 }

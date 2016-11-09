@@ -95,6 +95,7 @@
     <Compile Include="Configuration\Json\JsonConfigurationExtensions.cs" />
     <Compile Include="Configuration\NongenericConfigurator.cs" />
     <Compile Include="Configuration\PrimaryKeyExtensions.cs" />
+    <Compile Include="Configuration\SelectionConfigurationWrapper.cs" />
     <Compile Include="Defaults\DefaultCommandHandler.cs" />
     <Compile Include="Defaults\DefaultQueryHandler.cs" />
     <Compile Include="Defaults\DelegateCommandHandler.cs" />

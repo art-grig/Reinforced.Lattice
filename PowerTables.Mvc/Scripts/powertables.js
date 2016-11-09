@@ -23,24 +23,14 @@ var PowerTables;
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
-    /** Message type enum */
     (function (MessageType) {
-        /**
-        * UserMessage is shown using specified custom functions for
-        *             messages showing
-        */
         MessageType[MessageType["UserMessage"] = 0] = "UserMessage";
-        /** Banner message is displayed among whole table instead of data */
         MessageType[MessageType["Banner"] = 1] = "Banner";
     })(PowerTables.MessageType || (PowerTables.MessageType = {}));
     var MessageType = PowerTables.MessageType;
-    /** Ordering */
     (function (Ordering) {
-        /** Ascending */
         Ordering[Ordering["Ascending"] = 0] = "Ascending";
-        /** Descending */
         Ordering[Ordering["Descending"] = 1] = "Descending";
-        /** Ordering is not applied */
         Ordering[Ordering["Neutral"] = 2] = "Neutral";
     })(PowerTables.Ordering || (PowerTables.Ordering = {}));
     var Ordering = PowerTables.Ordering;
@@ -66,22 +56,13 @@ var PowerTables;
     (function (Plugins) {
         var Hierarchy;
         (function (Hierarchy) {
-            /** Controls policy of nodes collapsing and expanding */
             (function (NodeExpandBehavior) {
-                /** This option will not fetch subtree nodes when locally loaded data available */
                 NodeExpandBehavior[NodeExpandBehavior["LoadFromCacheWhenPossible"] = 0] = "LoadFromCacheWhenPossible";
-                /**
-                * This option will make hierarchy plugin always fetch subtree from
-                *             server-side even if local data available
-                */
                 NodeExpandBehavior[NodeExpandBehavior["AlwaysLoadRemotely"] = 1] = "AlwaysLoadRemotely";
             })(Hierarchy.NodeExpandBehavior || (Hierarchy.NodeExpandBehavior = {}));
             var NodeExpandBehavior = Hierarchy.NodeExpandBehavior;
-            /** This option controls client filtering policy related to collapsed nodes */
             (function (TreeCollapsedNodeFilterBehavior) {
-                /** In this case, even collapsed nodes will be included to filter results */
                 TreeCollapsedNodeFilterBehavior[TreeCollapsedNodeFilterBehavior["IncludeCollapsed"] = 0] = "IncludeCollapsed";
-                /** In this case, even collapsed nodes will be excluded from filter results */
                 TreeCollapsedNodeFilterBehavior[TreeCollapsedNodeFilterBehavior["ExcludeCollapsed"] = 1] = "ExcludeCollapsed";
             })(Hierarchy.TreeCollapsedNodeFilterBehavior || (Hierarchy.TreeCollapsedNodeFilterBehavior = {}));
             var TreeCollapsedNodeFilterBehavior = Hierarchy.TreeCollapsedNodeFilterBehavior;
@@ -281,7 +262,14 @@ var PowerTables;
                     }
                 }
                 this._isAllSelected = selected;
-                this._masterTable.Controller.redrawVisibleData(); //todo
+                if (objectsToRedraw.length > this._masterTable.DataHolder.DisplayedData.length / 2) {
+                    this._masterTable.Controller.redrawVisibleData();
+                }
+                else {
+                    for (var j = 0; j < objectsToRedraw.length; j++) {
+                        this._masterTable.Controller.redrawVisibleDataObject(objectsToRedraw[j]); //todo    
+                    }
+                }
                 this._masterTable.Events.SelectionChanged.invokeAfter(this, this._selectionData);
             };
             SelectionService.prototype.isCellSelected = function (dataObject, column) {
@@ -321,17 +309,39 @@ var PowerTables;
                 }
                 if (selected) {
                     if (!this._selectionData.hasOwnProperty(primaryKey)) {
+                        if (this._configuration.SelectSingle) {
+                            var rk = [];
+                            for (var sk in this._selectionData) {
+                                rk.push(sk);
+                            }
+                            for (var i = 0; i < rk.length; i++) {
+                                delete this._selectionData[rk[i]];
+                                this._masterTable.Controller
+                                    .redrawVisibleDataObject(this._masterTable.DataHolder.getByPrimaryKey(rk[i]));
+                            }
+                        }
                         this._selectionData[primaryKey] = [];
-                        this._masterTable.Events.SelectionChanged.invoke(this, this._selectionData);
                         this._masterTable.Controller.redrawVisibleDataObject(this._masterTable.DataHolder.getByPrimaryKey(primaryKey));
                         this._masterTable.Events.SelectionChanged.invokeAfter(this, this._selectionData);
                     }
                 }
                 else {
                     if (this._selectionData.hasOwnProperty(primaryKey)) {
-                        delete this._selectionData[primaryKey];
-                        this._masterTable.Events.SelectionChanged.invoke(this, this._selectionData);
-                        this._masterTable.Controller.redrawVisibleDataObject(this._masterTable.DataHolder.getByPrimaryKey(primaryKey));
+                        if (this._configuration.SelectSingle) {
+                            var rk = [];
+                            for (var sk in this._selectionData) {
+                                rk.push(sk);
+                            }
+                            for (var i = 0; i < rk.length; i++) {
+                                delete this._selectionData[rk[i]];
+                                this._masterTable.Controller
+                                    .redrawVisibleDataObject(this._masterTable.DataHolder.getByPrimaryKey(rk[i]));
+                            }
+                        }
+                        else {
+                            delete this._selectionData[primaryKey];
+                            this._masterTable.Controller.redrawVisibleDataObject(this._masterTable.DataHolder.getByPrimaryKey(primaryKey));
+                        }
                         this._masterTable.Events.SelectionChanged.invokeAfter(this, this._selectionData);
                     }
                 }
@@ -1256,7 +1266,7 @@ var PowerTables;
                 if (idx == null || idx == undefined) {
                     var dispIndex = this._masterTable.DataHolder.localLookupDisplayedDataObject(dataObject);
                     if (dispIndex == null)
-                        throw new Error('Cannot redraw object because it is not displaying currently');
+                        return null;
                     idx = dispIndex.DisplayedIndex;
                 }
                 var row = this.produceRow(dataObject, idx);

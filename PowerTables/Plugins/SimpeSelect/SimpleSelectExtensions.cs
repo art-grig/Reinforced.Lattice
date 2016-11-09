@@ -9,15 +9,30 @@ namespace PowerTables.Plugins.SimpeSelect
 {
     public static class SimpleSelectExtensions
     {
-        public static T SimpleSelectRow<T>(this T conf) where T : IConfigurator
+        /// <summary>
+        /// Adds ability for simple row selection by using mouse click. Nothing special, but fits needs
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="conf">Table configuration</param>
+        /// <param name="selector">Selector of element that will trigger selection</param>
+        /// <returns>Fluent</returns>
+        public static T SimpleSelectRow<T>(this T conf, string selector = null) where T : IConfigurator
         {
-            conf.SubscribeRowEvent(a => a.Handle("click", "function(c) { c.Master.Selection.toggleObjectSelected(c.Master.DataHolder.localLookupDisplayedData(c.DisplayingRowIndex).DataObject); }"));
+            conf.SubscribeRowEvent(a =>
+                a.Handle("click", "function(c) { c.Master.Selection.toggleObjectSelected(c.Master.DataHolder.localLookupDisplayedData(c.DisplayingRowIndex).DataObject); }").Selector(selector));
             return conf;
         }
 
-        public static T SimpleSelectCell<T>(this T conf) where T : IConfigurator
+        /// <summary>
+        /// Adds ability for simple cells selection by using mouse click. Nothing special, but fits basic needs
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="conf">Configuration</param>
+        /// <param name="selector">Selector of element that will trigger selection</param>
+        /// <returns>Fluent</returns>
+        public static T SimpleSelectCell<T>(this T conf,string selector = null) where T : IConfigurator
         {
-            conf.SubscribeRowEvent(a => a.Handle("click", "function(c) { c.Master.Selection.toggleCellsByObject(c.Master.DataHolder.localLookupDisplayedData(c.DisplayingRowIndex).DataObject,[c.Master.InstanceManager.getColumnNames()[c.ColumnIndex]]); }"));
+            conf.SubscribeRowEvent(a => a.Handle("click", "function(c) { c.Master.Selection.toggleCellsByObject(c.Master.DataHolder.localLookupDisplayedData(c.DisplayingRowIndex).DataObject,[c.Master.InstanceManager.getColumnNames()[c.ColumnIndex]]); }").Selector(selector));
             return conf;
         }
     }

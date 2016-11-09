@@ -78,8 +78,13 @@
                 }
             }
             this._isAllSelected = selected;
-
-            this._masterTable.Controller.redrawVisibleData(); //todo
+            if (objectsToRedraw.length > this._masterTable.DataHolder.DisplayedData.length / 2) {
+                this._masterTable.Controller.redrawVisibleData();
+            } else {
+                for (var j = 0; j < objectsToRedraw.length; j++) {
+                    this._masterTable.Controller.redrawVisibleDataObject(objectsToRedraw[j]); //todo    
+                }
+            }
             this._masterTable.Events.SelectionChanged.invokeAfter(this, this._selectionData);
         }
 
@@ -122,16 +127,38 @@
 
             if (selected) {
                 if (!this._selectionData.hasOwnProperty(primaryKey)) {
+                    if (this._configuration.SelectSingle) {
+                        var rk = [];
+                        for (var sk in this._selectionData) {
+                            rk.push(sk);
+                        }
+                        for (var i = 0; i < rk.length; i++) {
+                            delete this._selectionData[rk[i]];
+                            this._masterTable.Controller
+                                .redrawVisibleDataObject(this._masterTable.DataHolder.getByPrimaryKey(rk[i]));
+                        }
+                    }
                     this._selectionData[primaryKey] = [];
-                    this._masterTable.Events.SelectionChanged.invoke(this, this._selectionData);
                     this._masterTable.Controller.redrawVisibleDataObject(this._masterTable.DataHolder.getByPrimaryKey(primaryKey));
                     this._masterTable.Events.SelectionChanged.invokeAfter(this, this._selectionData);
                 }
             } else {
+                
                 if (this._selectionData.hasOwnProperty(primaryKey)) {
-                    delete this._selectionData[primaryKey];
-                    this._masterTable.Events.SelectionChanged.invoke(this, this._selectionData);
-                    this._masterTable.Controller.redrawVisibleDataObject(this._masterTable.DataHolder.getByPrimaryKey(primaryKey));
+                    if (this._configuration.SelectSingle) {
+                        var rk = [];
+                        for (var sk in this._selectionData) {
+                            rk.push(sk);
+                        }
+                        for (var i = 0; i < rk.length; i++) {
+                            delete this._selectionData[rk[i]];
+                            this._masterTable.Controller
+                                .redrawVisibleDataObject(this._masterTable.DataHolder.getByPrimaryKey(rk[i]));
+                        }
+                    } else {
+                        delete this._selectionData[primaryKey];
+                        this._masterTable.Controller.redrawVisibleDataObject(this._masterTable.DataHolder.getByPrimaryKey(primaryKey));
+                    }
                     this._masterTable.Events.SelectionChanged.invokeAfter(this, this._selectionData);
                 }
             }

@@ -9,6 +9,7 @@ using PowerTables.Defaults;
 using PowerTables.Plugins.Checkboxify;
 using PowerTables.Plugins.Limit;
 using PowerTables.Plugins.Paging;
+using PowerTables.Plugins.SimpeSelect;
 using PowerTables.Plugins.Toolbar;
 
 namespace PowerTables.Mvc.Controllers
@@ -42,11 +43,12 @@ namespace PowerTables.Mvc.Controllers
     {
         public static Configurator<DateTime, PlanningRow> Configure(this Configurator<DateTime, PlanningRow> conf)
         {
-            conf.PrimaryKey(c => new { c.DateTime, c.Identifier, c.Day, c.DayOfWeek });
+            conf.PrimaryKey(c => new { c.DateTime });
             conf.ProjectDataWith(c => GetPlanned(c.AsEnumerable()).AsQueryable());
             conf.Paging(c => c.PagingSimple(), where: "rb");
             conf.Limit(c => c.Values(new[] { "12", "24" }, "12"), where: "lt");
-            conf.Checkboxify();
+            conf.SimpleSelectRow();
+            conf.Selection(x => x.SelectSingle());
             conf.Toolbar("toolbar-rt", a =>
             {
                 a.AddCommandButton("Something", "Add");
