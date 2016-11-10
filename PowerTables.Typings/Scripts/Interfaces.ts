@@ -61,6 +61,7 @@ module PowerTables.Configuration.Json {
 	export interface ISelectionConfiguration
 	{
 		SelectAllBehavior: PowerTables.Configuration.Json.SelectAllBehavior;
+		ResetSelectionBehavior: PowerTables.Configuration.Json.ResetSelectionBehavior;
 		CanSelectRowFunction: (dataObject:any)=>boolean;
 		CanSelectCellFunction: (dataObject:any,column:string,select:boolean)=>boolean;
 		NonselectableColumns: string[];
@@ -70,6 +71,12 @@ module PowerTables.Configuration.Json {
 		AllVisible = 0, 
 		OnlyIfAllDataVisible = 1, 
 		AllLoadedData = 2, 
+		Disabled = 3, 
+	}
+	export enum ResetSelectionBehavior { 
+		DontReset = 0, 
+		ServerReload = 1, 
+		ClientReload = 2, 
 	}
 }
 module PowerTables {
@@ -97,12 +104,11 @@ module PowerTables {
 	}
 	export interface IPowerTablesResponse
 	{
-		IsLatticeResponse: boolean;
 		Message: PowerTables.ITableMessage;
 		ResultsCount: number;
 		PageIndex: number;
 		Data: any[];
-		AdditionalData: { [key:string]: any };
+		AdditionalData: any;
 		Success: boolean;
 	}
 	export interface IPowerTableRequest
@@ -131,7 +137,7 @@ module PowerTables {
 		UpdatedData: any[];
 		RemoveKeys: string[];
 		OtherTableAdjustments: { [key:string]: PowerTables.ITableAdjustment };
-		AdditionalData: { [key:string]: any };
+		AdditionalData: any;
 	}
 	export enum MessageType { 
 		UserMessage = 0, 
@@ -441,5 +447,11 @@ module PowerTables.Plugins.Hierarchy {
 module PowerTables.Plugins.MouseSelect {
 	export interface IMouseSelectUiConfig
 	{
+	}
+}
+module PowerTables.Plugins.Checkboxify {
+	export interface ICheckboxifyUiConfig
+	{
+		SelectAllTemplateId: string;
 	}
 }

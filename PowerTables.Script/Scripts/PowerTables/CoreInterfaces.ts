@@ -287,7 +287,7 @@
         /**
          * True when row can be selected, false otherwise
          */
-        CanBeSelected?:boolean;
+        CanBeSelected?: boolean;
     }
 
     export interface ITemplatesProvider {
@@ -594,5 +594,19 @@
          * Row index among displayed data
          */
         DisplayedIndex: number;
+    }
+
+    /**
+     * Interface for component that receives and handles additional data that came with 
+     * particular response
+     */
+    export interface IAdditionalDataReceiver {
+        /**
+         * Method for handling additional data request
+         * 
+         * @param additionalData Additional data object
+         * @returns {} 
+         */
+        handleAdditionalData(additionalData: any): void;
     }
 }

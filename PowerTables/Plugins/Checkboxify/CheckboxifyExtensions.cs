@@ -22,8 +22,10 @@ namespace PowerTables.Plugins.Checkboxify
         /// <typeparam name="T"></typeparam>
         /// <param name="conf">Table</param>
         /// <param name="columnConf">Checkboxify column configuration</param>
+        /// <param name="ui">UI configuration for checkboxify</param>
         /// <returns>Fluent</returns>
-        public static T Checkboxify<T>(this T conf, Action<IColumnTargetProperty<string>> columnConf = null) where T : IConfigurator
+        public static T Checkboxify<T>(this T conf, Action<IColumnTargetProperty<string>> columnConf = null,
+            Action<PluginConfigurationWrapper<CheckboxifyUiConfig>> ui = null ) where T : IConfigurator
         {
             if (conf.HasColumn("_checkboxify")) return conf;
 
@@ -31,6 +33,7 @@ namespace PowerTables.Plugins.Checkboxify
             cc.TemplateId("checkboxifyCell");
             cc.SubscribeCellEvent(c => c.Selector("[data-checkboxify]").Handle("click", "function(c) { c.Master.Selection.toggleObjectSelected(c.Master.DataHolder.localLookupDisplayedData(c.DisplayingRowIndex).DataObject); }"));
             if (columnConf != null) columnConf(cc);
+            conf.TableConfiguration.UpdatePluginConfig<CheckboxifyUiConfig>(PluginId, ui);
             return conf;
         }
 
@@ -63,36 +66,5 @@ namespace PowerTables.Plugins.Checkboxify
             //    RemoveFromSelection = removeFromSelection == null ? null : removeFromSelection.ToArray()
             //};
         }
-    }
-
-    /// <summary>
-    /// Describes how "Select all" checkbox should act
-    /// </summary>
-    public enum SelectAllBehavior
-    {
-        /// <summary>
-        /// Disabled "Select all" checkbox
-        /// </summary>
-        Disabled,
-
-        /// <summary>
-        /// "Select all" will be avaiable only if all data is visible on page
-        /// </summary>
-        OnlyIfAllDataVisible,
-
-        /// <summary>
-        /// "Select all" will select/deselect only current data page
-        /// </summary>
-        CurrentPage,
-
-        /// <summary>
-        /// "Select all" will query server to retrieve all data to select
-        /// </summary>
-        InvolveServer,
-
-        /// <summary>
-        /// "Select all" select all available local data
-        /// </summary>
-        AllLocal
     }
 }

@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Mvc;
 using PowerTables.Adjustments;
 using PowerTables.Configuration;
+using PowerTables.Configuration.Json;
 using PowerTables.Defaults;
 using PowerTables.Plugins.Checkboxify;
 using PowerTables.Plugins.Limit;
@@ -47,8 +48,8 @@ namespace PowerTables.Mvc.Controllers
             conf.ProjectDataWith(c => GetPlanned(c.AsEnumerable()).AsQueryable());
             conf.Paging(c => c.PagingSimple(), where: "rb");
             conf.Limit(c => c.Values(new[] { "12", "24" }, "12"), where: "lt");
-            conf.SimpleSelectRow();
-            conf.Selection(x => x.SelectSingle());
+            conf.Checkboxify();
+            conf.Selection(x => x.ResetSelectionOn(ResetSelectionBehavior.DontReset).SelectAllBehavior(SelectAllBehavior.AllLoadedData));
             conf.Toolbar("toolbar-rt", a =>
             {
                 a.AddCommandButton("Something", "Add");

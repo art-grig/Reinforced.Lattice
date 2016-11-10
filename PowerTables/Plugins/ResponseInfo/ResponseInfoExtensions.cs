@@ -44,7 +44,7 @@ namespace PowerTables.Plugins.ResponseInfo
         {
             var arm = new ActionBasedResponseModifier<TSourceData, TTableData>((a, r) =>
             {
-                r.AdditionalData[PluginId] = responseDataEvaluator(a);
+                r.AdditionalData.Data[PluginId] = responseDataEvaluator(a);
             });
             conf.RegisterResponseModifier(arm);
 

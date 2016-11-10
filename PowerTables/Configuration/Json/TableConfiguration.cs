@@ -351,6 +351,8 @@ namespace PowerTables.Configuration.Json
     {
         public SelectAllBehavior SelectAllBehavior { get; set; }
 
+        public ResetSelectionBehavior ResetSelectionBehavior { get; set; }
+
         public JRaw CanSelectRowFunction { get; set; }
 
         public JRaw CanSelectCellFunction { get; set; }
@@ -364,6 +366,14 @@ namespace PowerTables.Configuration.Json
     {
         AllVisible,
         OnlyIfAllDataVisible,
-        AllLoadedData
+        AllLoadedData,
+        Disabled
+    }
+
+    public enum ResetSelectionBehavior
+    {
+        DontReset,
+        ServerReload,
+        ClientReload
     }
 }

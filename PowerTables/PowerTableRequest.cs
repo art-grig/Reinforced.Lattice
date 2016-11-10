@@ -69,6 +69,8 @@ namespace PowerTables
         public Dictionary<string,int[]> Selection { get; set; }
     }
 
+    
+
     /// <summary>
     /// Paging information
     /// </summary>

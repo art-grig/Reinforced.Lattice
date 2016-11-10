@@ -19,7 +19,7 @@ namespace PowerTables
         /// Just leave it in place and do not touch
         /// </summary>
         [JsonProperty(PropertyName = "__ZBnpwvibZm")]
-        public bool IsLatticeResponse { get { return true; } }
+        internal bool IsLatticeResponse { get { return true; } }
 
         /// <summary>
         /// Table message associated with this response
@@ -47,7 +47,7 @@ namespace PowerTables
         /// This field could contain anything that will be parsed on client side and corresponding actions will be performed. 
         /// See <see cref="IResponseModifier"/> 
         /// </summary>
-        public Dictionary<string, object> AdditionalData { get; set; }
+        public AdditionalDataContainer AdditionalData { get; set; }
 
         /// <summary>
         /// Query succeeded: true/false
@@ -74,6 +74,19 @@ namespace PowerTables
 
             Message = TableMessage.Banner("error", msg, sb.ToString().Replace("\n", "<br/>"));
 
+        }
+    }
+
+    public class AdditionalDataContainer
+    {
+        [JsonProperty(PropertyName = "__TxQeah2p")]
+        internal bool IsAdditionalData { get { return true; } }
+
+        public Dictionary<string, object> Data { get; private set; }
+
+        public AdditionalDataContainer()
+        {
+            Data = new Dictionary<string, object>();
         }
     }
 }

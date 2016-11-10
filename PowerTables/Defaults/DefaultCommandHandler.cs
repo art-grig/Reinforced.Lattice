@@ -26,7 +26,7 @@ namespace PowerTables.Defaults
                 PageIndex = data.CurrentPage,
                 ResultsCount = data.ResultsCount,
                 Data = data.Configuration.EncodeResults(mapped),
-                AdditionalData = new Dictionary<string, object>(),
+                AdditionalData = new AdditionalDataContainer(),
                 Success = false
             };
 

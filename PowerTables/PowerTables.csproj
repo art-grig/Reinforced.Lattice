@@ -164,6 +164,7 @@
     <Compile Include="ITokenStorage.cs" />
     <Compile Include="Plugins\Checkboxify\CheckboxifyExtensions.cs" />
     <Compile Include="Plugins\Checkboxify\CheckboxifyTemplateRegion.cs" />
+    <Compile Include="Plugins\Checkboxify\CheckboxifyUiConfig.cs" />
     <Compile Include="Plugins\ColumnListBuilder.cs" />
     <Compile Include="Plugins\ColumnPluginConfigurationWrapper.cs" />
     <Compile Include="Plugins\Formwatch\FormWatchBuilder.cs" />

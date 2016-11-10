@@ -138,7 +138,7 @@
             var obj: {} = {};
             var currentColIndex: number = this.getNextNonSpecialColumn(-1);
             var currentCol: string = this._rawColumnNames[currentColIndex];
-           
+
             for (var i: number = 0; i < source.length; i++) {
                 if (this._instances.Columns[currentCol].IsDateTime) {
                     if (source[i]) {
@@ -216,6 +216,7 @@
             }
             this.StoredData = data;
             this.filterStoredData(clientQuery);
+            this.updateStats(response.ResultsCount);
         }
 
         private _storedDataCache: { [_: string]: any };
@@ -294,6 +295,7 @@
 
         private skipTakeSet(ordered: any[], query: IQuery): any[] {
             var selected = ordered;
+
             var startingIndex: number = query.Paging.PageIndex * query.Paging.PageSize;
             if (startingIndex > ordered.length) startingIndex = 0;
             var take: number = query.Paging.PageSize;
@@ -346,7 +348,9 @@
                 this.Filtered = filtered;
                 this.Ordered = ordered;
                 this.DisplayedData = selected;
+                
             }
+            this.updateStats();
 
             this._events.ClientDataProcessing.invokeAfter(this, {
                 Displaying: this.DisplayedData,
@@ -642,7 +646,37 @@
             }
         }
         //#endregion
+
+        public Stats:IStats = {
+            CurrentPage: 0,
+            TotalPages: 0,
+            CurrentPageSize: 0,
+            TotalItems: 0,
+            CurrentlyDisplayingItems: 0,
+            TotalLoadedItems: 0
+        };
+
+        private updateStats(totalItems?:number) {
+            this.Stats.CurrentPage = this.RecentClientQuery.Paging.PageIndex;
+            this.Stats.CurrentPageSize = this.RecentClientQuery.Paging.PageSize;
+            this.Stats.TotalLoadedItems = this.StoredData.length;
+            this.Stats.CurrentlyDisplayingItems = this.DisplayedData.length;
+            if (totalItems != null) {
+                this.Stats.TotalItems = totalItems;
+            }
+            if (this.Stats.CurrentPageSize != 0) {
+                this.Stats.TotalPages = this.Stats.TotalItems / this.Stats.CurrentPageSize;
+            }
+        }
     }
 
+    export interface IStats {
+        CurrentPage: number;
+        TotalPages: number;
+        CurrentPageSize: number;
+        TotalItems: number;
+        CurrentlyDisplayingItems: number;
+        TotalLoadedItems:number;
+    }
 
 }

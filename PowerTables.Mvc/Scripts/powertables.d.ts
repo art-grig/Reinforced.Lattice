@@ -52,6 +52,7 @@ declare module PowerTables.Configuration.Json {
     }
     interface ISelectionConfiguration {
         SelectAllBehavior: PowerTables.Configuration.Json.SelectAllBehavior;
+        ResetSelectionBehavior: PowerTables.Configuration.Json.ResetSelectionBehavior;
         CanSelectRowFunction: (dataObject: any) => boolean;
         CanSelectCellFunction: (dataObject: any, column: string, select: boolean) => boolean;
         NonselectableColumns: string[];
@@ -61,6 +62,12 @@ declare module PowerTables.Configuration.Json {
         AllVisible = 0,
         OnlyIfAllDataVisible = 1,
         AllLoadedData = 2,
+        Disabled = 3,
+    }
+    enum ResetSelectionBehavior {
+        DontReset = 0,
+        ServerReload = 1,
+        ClientReload = 2,
     }
 }
 declare module PowerTables {
@@ -84,14 +91,11 @@ declare module PowerTables {
         Class: string;
     }
     interface IPowerTablesResponse {
-        IsLatticeResponse: boolean;
         Message: PowerTables.ITableMessage;
         ResultsCount: number;
         PageIndex: number;
         Data: any[];
-        AdditionalData: {
-            [key: string]: any;
-        };
+        AdditionalData: any;
         Success: boolean;
     }
     interface IPowerTableRequest {
@@ -126,9 +130,7 @@ declare module PowerTables {
         OtherTableAdjustments: {
             [key: string]: PowerTables.ITableAdjustment;
         };
-        AdditionalData: {
-            [key: string]: any;
-        };
+        AdditionalData: any;
     }
     enum MessageType {
         UserMessage = 0,
@@ -428,6 +430,11 @@ declare module PowerTables.Plugins.Hierarchy {
 }
 declare module PowerTables.Plugins.MouseSelect {
     interface IMouseSelectUiConfig {
+    }
+}
+declare module PowerTables.Plugins.Checkboxify {
+    interface ICheckboxifyUiConfig {
+        SelectAllTemplateId: string;
     }
 }
 declare module PowerTables {
@@ -1146,6 +1153,19 @@ declare module PowerTables {
          */
         DisplayedIndex: number;
     }
+    /**
+     * Interface for component that receives and handles additional data that came with
+     * particular response
+     */
+    interface IAdditionalDataReceiver {
+        /**
+         * Method for handling additional data request
+         *
+         * @param additionalData Additional data object
+         * @returns {}
+         */
+        handleAdditionalData(additionalData: any): void;
+    }
 }
 declare module PowerTables.Services {
     /**
@@ -1590,6 +1610,16 @@ declare module PowerTables.Services {
         private copyData(source, target);
         defaultObject(): any;
         proceedAdjustments(adjustments: PowerTables.ITableAdjustment): IAdjustmentResult;
+        Stats: IStats;
+        private updateStats(totalItems?);
+    }
+    interface IStats {
+        CurrentPage: number;
+        TotalPages: number;
+        CurrentPageSize: number;
+        TotalItems: number;
+        CurrentlyDisplayingItems: number;
+        TotalLoadedItems: number;
     }
 }
 declare module PowerTables.Services {
@@ -1699,6 +1729,7 @@ declare module PowerTables.Services {
     class LoaderService {
         constructor(staticData: any, operationalAjaxUrl: string, masterTable: IMasterTable);
         private _queryPartProviders;
+        private _additionalDataReceivers;
         private _previousRequest;
         private _staticData;
         private _operationalAjaxUrl;
@@ -1714,12 +1745,21 @@ declare module PowerTables.Services {
          * @returns {}
          */
         registerQueryPartProvider(provider: IQueryPartProvider): void;
+        /**
+         * Registers new object that can handle additional data object from server (if any)
+         *
+         * @param dataKey Key of additional data object appearing in additional data dictionary
+         * @param receiver Receiver object
+         * @returns {}
+         */
+        registerAdditionalDataReceiver(dataKey: string, receiver: IAdditionalDataReceiver): void;
         prefetchData(data: any[]): void;
         gatherQuery(queryScope: QueryScope): IQuery;
         private getXmlHttp();
         private _previousQueryString;
         private checkError(json, data, req);
         private checkMessage(json);
+        private checkAdditionalData(json);
         private checkEditResult(json, data, req);
         private handleRegularJsonResponse(req, data, clientQuery, callback, errorCallback);
         private handleDeferredResponse(req, data, callback);
@@ -2772,7 +2812,7 @@ declare module PowerTables.Plugins.Hideout {
     }
 }
 declare module PowerTables.Plugins.ResponseInfo {
-    class ResponseInfoPlugin extends PluginBase<Plugins.ResponseInfo.IResponseInfoClientConfiguration> {
+    class ResponseInfoPlugin extends PluginBase<Plugins.ResponseInfo.IResponseInfoClientConfiguration> implements PowerTables.IAdditionalDataReceiver {
         private _recentData;
         private _recentServerData;
         private _recentTemplate;
@@ -2785,19 +2825,16 @@ declare module PowerTables.Plugins.ResponseInfo {
         onClientDataProcessed(e: ITableEventArgs<IClientDataResults>): void;
         renderContent(templatesProvider: ITemplatesProvider): string;
         init(masterTable: IMasterTable): void;
+        handleAdditionalData(additionalData: any): void;
     }
 }
 declare module PowerTables.Plugins.Total {
     /**
      * Client-side implementation of totals plugin
      */
-    class TotalsPlugin extends PluginBase<Plugins.Total.ITotalClientConfiguration> {
+    class TotalsPlugin extends PluginBase<Plugins.Total.ITotalClientConfiguration> implements PowerTables.IAdditionalDataReceiver {
         private _totalsForColumns;
         private makeTotalsRow();
-        /**
-        * @internal
-        */
-        onResponse(e: ITableEventArgs<IDataEventArgs>): void;
         /**
         * @internal
         */
@@ -2813,6 +2850,16 @@ declare module PowerTables.Plugins.Total {
         /**
         * @internal
         */
+        subscribe(e: PowerTables.Services.EventsService): void;
+        handleAdditionalData(additionalData: any): void;
+        init(masterTable: IMasterTable): void;
+    }
+}
+declare module PowerTables.Plugins.Checkboxify {
+    class CheckboxifyPlugin extends PowerTables.Plugins.PluginBase<PowerTables.Plugins.Checkboxify.ICheckboxifyUiConfig> {
+        private _ourColumn;
+        private redrawHeader();
+        init(masterTable: IMasterTable): void;
         subscribe(e: PowerTables.Services.EventsService): void;
     }
 }

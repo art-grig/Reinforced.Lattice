@@ -44,6 +44,10 @@ namespace PowerTables.Configuration
         public static SelectionConfigurationWrapper SelectSingle(this SelectionConfigurationWrapper c, bool single = true)
         {
             c.Configuration.SelectSingle = single;
+            if (single)
+            {
+                c.Configuration.SelectAllBehavior = Json.SelectAllBehavior.Disabled;
+            }
             return c;
         }
 
@@ -78,6 +82,13 @@ namespace PowerTables.Configuration
         public static SelectionConfigurationWrapper SelectAllBehavior(this SelectionConfigurationWrapper c, SelectAllBehavior sab)
         {
             c.Configuration.SelectAllBehavior = sab;
+            return c;
+        }
+
+        public static SelectionConfigurationWrapper ResetSelectionOn(this SelectionConfigurationWrapper c,
+            ResetSelectionBehavior rb)
+        {
+            c.Configuration.ResetSelectionBehavior = rb;
             return c;
         }
     }

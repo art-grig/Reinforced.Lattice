@@ -52,7 +52,7 @@ namespace PowerTables.Adjustments
         internal AdjustmentWrapper(Configurator<TSource, TData> configurator)
         {
             _configurator = configurator;
-            AdditionalData = new Dictionary<string, object>();
+            AdditionalData = new AdditionalDataContainer();
             
         }
         private readonly Dictionary<string,TableAdjustment> _otherTableAdjustments = new Dictionary<string, TableAdjustment>();
@@ -86,6 +86,6 @@ namespace PowerTables.Adjustments
         }
 
 
-        public Dictionary<string, object> AdditionalData { get; private set; }
+        public AdditionalDataContainer AdditionalData { get; private set; }
     }
 }

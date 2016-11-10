@@ -4,6 +4,17 @@
         constructor(masterTable: IMasterTable) {
             this._masterTable = masterTable;
             this._configuration = this._masterTable.InstanceManager.Configuration.SelectionConfiguration;
+            if (this._configuration.SelectSingle) {
+                this._configuration.SelectAllBehavior = PowerTables.Configuration.Json.SelectAllBehavior.Disabled;
+            }
+            if (this._configuration.ResetSelectionBehavior ===
+                PowerTables.Configuration.Json.ResetSelectionBehavior.ClientReload) {
+                masterTable.Events.ClientDataProcessing.subscribeAfter(x => this.toggleAll(false), 'selection');
+            }
+            if (this._configuration.ResetSelectionBehavior ===
+                PowerTables.Configuration.Json.ResetSelectionBehavior.ServerReload) {
+                masterTable.Events.DataReceived.subscribe(x => this.toggleAll(false), 'selection');
+            }
         }
 
         private _configuration: PowerTables.Configuration.Json.ISelectionConfiguration;
@@ -17,8 +28,21 @@
             return this.isSelectedPrimaryKey(dataObject['__key']);
         }
 
+
         public isAllSelected(): boolean {
-            return this._isAllSelected;
+            //if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.Disabled) {
+            //    return false;
+            //}
+            //if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.OnlyIfAllDataVisible) {
+            //    return this._isAllSelected;
+            //}
+
+            // extremely stupid - will be changed later
+            for (var i = 0; i < this._masterTable.DataHolder.DisplayedData.length; i++) {
+                if (!this._selectionData.hasOwnProperty(this._masterTable.DataHolder.DisplayedData[i]['__key']))
+                    return false;
+            }
+            return true;
         }
 
         public canSelect(dataObject: any): boolean {
@@ -27,6 +51,9 @@
         }
 
         public canSelectAll(): boolean {
+            if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.Disabled) {
+                return false;
+            }
             if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.OnlyIfAllDataVisible) {
                 return this._masterTable.DataHolder.StoredData.length === this._masterTable.DataHolder.DisplayedData.length;
             }
@@ -38,7 +65,9 @@
         }
 
         public toggleAll(selected?: boolean) {
-
+            if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.Disabled) {
+                return;
+            }
             if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.OnlyIfAllDataVisible) {
                 if (this._masterTable.DataHolder.StoredData.length !==
                     this._masterTable.DataHolder.DisplayedData.length) return;
@@ -46,7 +75,7 @@
             this._masterTable.Events.SelectionChanged.invokeBefore(this, this._selectionData);
 
             if (selected == null) {
-                selected = !this._isAllSelected;
+                selected = !this.isAllSelected();
             }
             var redrawAll = false;
 
@@ -143,7 +172,7 @@
                     this._masterTable.Events.SelectionChanged.invokeAfter(this, this._selectionData);
                 }
             } else {
-                
+
                 if (this._selectionData.hasOwnProperty(primaryKey)) {
                     if (this._configuration.SelectSingle) {
                         var rk = [];
@@ -236,7 +265,7 @@
                     if (colIdx > -1) selectIt = false;
                     else selectIt = true;
                 }
-                if (this._configuration.CanSelectCellFunction!=null && !this._configuration.CanSelectCellFunction(data, columnNames[i], selectIt)) continue;
+                if (this._configuration.CanSelectCellFunction != null && !this._configuration.CanSelectCellFunction(data, columnNames[i], selectIt)) continue;
 
                 if (selectIt && colIdx < 0) arr.push(idx);
                 if ((!selectIt) && colIdx > -1) arr.splice(colIdx, 1);

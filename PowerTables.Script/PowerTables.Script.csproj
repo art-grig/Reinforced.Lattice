@@ -33,6 +33,7 @@
       <Link>Scripts\Interfaces.ts</Link>
     </TypeScriptCompile>
     <TypeScriptCompile Include="Scripts\PowerTables\Event.ts" />
+
     <TypeScriptCompile Include="Scripts\PowerTables\Services\SelectionService.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\TrackHelper.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\ComponentsContainer.ts" />
@@ -66,6 +67,7 @@
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\HideoutPlugin.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\ResponseInfoPlugin.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\TotalsPlugin.ts" />
+	<TypeScriptCompile Include="Scripts\PowerTables\Plugins\CheckboxifyPlugin.ts" />
     <TypeScriptCompile Include="Scripts\Typings\CheckboxifyPlugin.d.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\Toolbar\ToolbarPlugin.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\FormwatchPlugin.ts" />

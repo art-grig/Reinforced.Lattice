@@ -36,6 +36,6 @@ namespace PowerTables
         /// This field could contain anything that will be parsed on client side and corresponding actions will be performed. 
         /// See <see cref="IResponseModifier"/> 
         /// </summary>
-        public Dictionary<string, object> AdditionalData { get; set; }
+        public AdditionalDataContainer AdditionalData { get; set; }
     }
 }

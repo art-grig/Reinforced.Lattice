@@ -173,12 +173,15 @@ namespace PowerTables.Typings
 
 
             builder.ExportAsInterface<MouseSelectUiConfig>();
+            builder.ExportAsInterface<CheckboxifyUiConfig>().WithPublicProperties();
             builder.ExportAsInterface<SelectionConfiguration>()
                 .WithPublicProperties()
                 .WithProperty(c => c.CanSelectRowFunction, c => c.Type("(dataObject:any)=>boolean"))
                 .WithProperty(c => c.CanSelectCellFunction, c => c.Type("(dataObject:any,column:string,select:boolean)=>boolean"))
                 ;
             builder.ExportAsEnum<PowerTables.Configuration.Json.SelectAllBehavior>();
+            builder.ExportAsEnum<PowerTables.Configuration.Json.ResetSelectionBehavior>();
+            
 
         }
 
