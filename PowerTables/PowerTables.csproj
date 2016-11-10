@@ -201,6 +201,8 @@
     <Compile Include="Plugins\Paging\PagingTemplateRegion.cs" />
     <Compile Include="Plugins\PluginConfigurationCommonExtensions.cs" />
     <Compile Include="Plugins\PluginConfigurationWrapper.cs" />
+    <Compile Include="Plugins\RegularSelect\RegularSelectExtensions.cs" />
+    <Compile Include="Plugins\RegularSelect\RegularSelectUiConfig.cs" />
     <Compile Include="Plugins\Reload\ReloadExtensions.cs" />
     <Compile Include="Plugins\Reload\ReloadTemplateRegion.cs" />
     <Compile Include="Plugins\Reload\ReloadUiConfiguration.cs" />

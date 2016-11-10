@@ -455,3 +455,12 @@ module PowerTables.Plugins.Checkboxify {
 		SelectAllTemplateId: string;
 	}
 }
+module PowerTables.Plugins.RegularSelect {
+	export interface IRegularSelectUiConfig
+	{
+	}
+	export enum RegularSelectMode { 
+		Rows = 0, 
+		Cells = 1, 
+	}
+}

@@ -201,16 +201,19 @@
                         SubscriptionId: 'configured-row-' + i
                     });
                 } else {
-                    var h2 = (function (hndlr, im: InstanceManagerService, colName) {
+                    
+                    var h2 = (sub.ColumnName==null)?sub.Handler:
+                        (function (hndlr, im: InstanceManagerService, colName) {
                         return function (e: ICellEventArgs) {
                             if (im.getColumnNames().indexOf(colName) !== e.ColumnIndex) return;
                             hndlr(e);
                         }
-                    })(sub.Handler, this._masterTable.InstanceManager, sub.ColumnName);
+                        })(sub.Handler, this._masterTable.InstanceManager, sub.ColumnName);
+
                     delegator.subscribeCellEvent({
                         EventId: sub.DomEvent,
                         Selector: sub.Selector,
-                        Handler: h2,
+                        Handler: <any>h2,
                         SubscriptionId: 'configured-cell-' + i
                     });
                 }

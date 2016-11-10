@@ -10,6 +10,7 @@ using PowerTables.Defaults;
 using PowerTables.Plugins.Checkboxify;
 using PowerTables.Plugins.Limit;
 using PowerTables.Plugins.Paging;
+using PowerTables.Plugins.RegularSelect;
 using PowerTables.Plugins.SimpeSelect;
 using PowerTables.Plugins.Toolbar;
 
@@ -48,7 +49,7 @@ namespace PowerTables.Mvc.Controllers
             conf.ProjectDataWith(c => GetPlanned(c.AsEnumerable()).AsQueryable());
             conf.Paging(c => c.PagingSimple(), where: "rb");
             conf.Limit(c => c.Values(new[] { "12", "24" }, "12"), where: "lt");
-            conf.Checkboxify();
+            conf.RegularSelect(RegularSelectMode.Rows);
             conf.Selection(x => x.ResetSelectionOn(ResetSelectionBehavior.DontReset).SelectAllBehavior(SelectAllBehavior.AllLoadedData));
             conf.Toolbar("toolbar-rt", a =>
             {

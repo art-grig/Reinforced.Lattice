@@ -78,6 +78,20 @@ var PowerTables;
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var RegularSelect;
+        (function (RegularSelect) {
+            (function (RegularSelectMode) {
+                RegularSelectMode[RegularSelectMode["Rows"] = 0] = "Rows";
+                RegularSelectMode[RegularSelectMode["Cells"] = 1] = "Cells";
+            })(RegularSelect.RegularSelectMode || (RegularSelect.RegularSelectMode = {}));
+            var RegularSelectMode = RegularSelect.RegularSelectMode;
+        })(RegularSelect = Plugins.RegularSelect || (Plugins.RegularSelect = {}));
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
     /**
      * Wrapper for table event with ability to subscribe/unsubscribe
      */
@@ -381,6 +395,11 @@ var PowerTables;
                         this._masterTable.Events.SelectionChanged.invokeAfter(this, this._selectionData);
                     }
                 }
+            };
+            SelectionService.prototype.toggleDisplayingRow = function (displayIndex, selected) {
+                if (displayIndex < 0 || displayIndex >= this._masterTable.DataHolder.DisplayedData.length)
+                    return;
+                this.toggleRowByPrimaryKey(this._masterTable.DataHolder.DisplayedData[displayIndex]['__key'], selected);
             };
             SelectionService.prototype.toggleObjectSelected = function (dataObject, selected) {
                 this.toggleRowByPrimaryKey(dataObject['__key'], selected);
@@ -838,6 +857,7 @@ var PowerTables;
                 this._domEvents = {};
                 this._outEvents = {};
                 this._destroyCallbacks = [];
+                this._previousMousePos = { row: 0, column: 0 };
                 this._directSubscriptions = [];
                 this._locator = locator;
                 this._bodyElement = bodyElement;
@@ -873,7 +893,26 @@ var PowerTables;
                     element["on" + type] = null;
                 }
             };
+            EventsDelegatorService.prototype.ensureMouseOpSubscriptions = function () {
+                if (this._domEvents.hasOwnProperty('mousemove'))
+                    return;
+                var fn = this.onMouseMoveEvent.bind(this);
+                EventsDelegatorService.addHandler(this._bodyElement, 'mousemove', fn);
+                this._domEvents["mousemove"] = fn;
+            };
+            EventsDelegatorService.prototype.checkMouseEvent = function (eventId) {
+                if (eventId === 'mouseover' || eventId === 'mouseout') {
+                    throw Error('Mouseover and mouseout events are not supported. Please use mouseenter and mouseleave events instead');
+                }
+                if (eventId === 'mouseenter' || eventId === 'mouseleave') {
+                    this.ensureMouseOpSubscriptions();
+                    return true;
+                }
+                return false;
+            };
             EventsDelegatorService.prototype.ensureEventSubscription = function (eventId) {
+                if (this.checkMouseEvent(eventId))
+                    return;
                 if (this._domEvents.hasOwnProperty(eventId))
                     return;
                 var fn = this.onTableEvent.bind(this);
@@ -881,6 +920,8 @@ var PowerTables;
                 this._domEvents[eventId] = fn;
             };
             EventsDelegatorService.prototype.ensureOutSubscription = function (eventId) {
+                if (this.checkMouseEvent(eventId))
+                    return;
                 if (this._outEvents.hasOwnProperty(eventId))
                     return;
                 var fn = this.onOutTableEvent.bind(this);
@@ -888,6 +929,8 @@ var PowerTables;
                 this._outEvents[eventId] = fn;
             };
             EventsDelegatorService.prototype.traverseAndFire = function (subscriptions, path, args) {
+                if (!subscriptions)
+                    return;
                 for (var i = 0; i < subscriptions.length; i++) {
                     if (subscriptions[i].Selector) {
                         for (var j = 0; j < path.length; j++) {
@@ -906,6 +949,89 @@ var PowerTables;
                     }
                     if (args.Stop)
                         break;
+                }
+            };
+            EventsDelegatorService.prototype.onMouseMoveEvent = function (e) {
+                var t = (e.target || e.srcElement), eventType = e.type;
+                var rowEvents = {
+                    'mouseenter': this._rowDomSubscriptions['mouseenter'],
+                    'mouseleave': this._rowDomSubscriptions['mouseleave']
+                };
+                var cellEvents = {
+                    'mouseenter': this._cellDomSubscriptions['mouseenter'],
+                    'mouseleave': this._cellDomSubscriptions['mouseleave']
+                };
+                if ((!rowEvents["mouseenter"]) &&
+                    (!rowEvents["mouseleave"]) &&
+                    (!cellEvents["mouseenter"]) &&
+                    (!cellEvents["mouseleave"]))
+                    return;
+                var pathToCell = [];
+                var pathToRow = [];
+                var cellLocation = null, rowIndex = null;
+                while (t !== this._bodyElement) {
+                    if (this._locator.isCell(t))
+                        cellLocation = PowerTables.TrackHelper.getCellLocation(t);
+                    if (this._locator.isRow(t))
+                        rowIndex = PowerTables.TrackHelper.getRowIndex(t);
+                    if (cellLocation == null)
+                        pathToCell.push(t);
+                    if (rowIndex == null)
+                        pathToRow.push(t);
+                    t = t.parentElement;
+                    if (t.parentElement == null) {
+                        // we encountered event on detached element
+                        // just return
+                        return;
+                    }
+                }
+                if (cellLocation != null) {
+                    if (this._previousMousePos.row !== cellLocation.RowIndex ||
+                        this._previousMousePos.column !== cellLocation.ColumnIndex) {
+                        var cellInArgs = {
+                            Master: this._masterTable,
+                            OriginalEvent: e,
+                            DisplayingRowIndex: cellLocation.RowIndex,
+                            ColumnIndex: cellLocation.ColumnIndex,
+                            Stop: false
+                        };
+                        var cellOutArgs = {
+                            Master: this._masterTable,
+                            OriginalEvent: e,
+                            DisplayingRowIndex: this._previousMousePos.row,
+                            ColumnIndex: this._previousMousePos.column,
+                            Stop: false
+                        };
+                        this.traverseAndFire(cellEvents["mouseleave"], pathToCell, cellOutArgs);
+                        this.traverseAndFire(cellEvents["mouseenter"], pathToCell, cellInArgs);
+                        if (this._previousMousePos.row !== cellLocation.RowIndex) {
+                            this.traverseAndFire(rowEvents["mouseleave"], pathToCell, cellOutArgs);
+                            this.traverseAndFire(rowEvents["mouseenter"], pathToCell, cellInArgs);
+                        }
+                        this._previousMousePos.row = cellLocation.RowIndex;
+                        this._previousMousePos.column = cellLocation.ColumnIndex;
+                    }
+                }
+                else {
+                    if (rowIndex != null) {
+                        if (this._previousMousePos.row !== rowIndex) {
+                            var rowInArgs = {
+                                Master: this._masterTable,
+                                OriginalEvent: e,
+                                DisplayingRowIndex: rowIndex,
+                                Stop: false
+                            };
+                            var rowOutArgs = {
+                                Master: this._masterTable,
+                                OriginalEvent: e,
+                                DisplayingRowIndex: rowIndex,
+                                Stop: false
+                            };
+                            this.traverseAndFire(rowEvents["mouseleave"], pathToCell, rowOutArgs);
+                            this.traverseAndFire(rowEvents["mouseenter"], pathToCell, rowInArgs);
+                            this._previousMousePos.row = rowIndex;
+                        }
+                    }
                 }
             };
             EventsDelegatorService.prototype.onTableEvent = function (e) {
@@ -2243,13 +2369,14 @@ var PowerTables;
                         });
                     }
                     else {
-                        var h2 = (function (hndlr, im, colName) {
-                            return function (e) {
-                                if (im.getColumnNames().indexOf(colName) !== e.ColumnIndex)
-                                    return;
-                                hndlr(e);
-                            };
-                        })(sub.Handler, this._masterTable.InstanceManager, sub.ColumnName);
+                        var h2 = (sub.ColumnName == null) ? sub.Handler :
+                            (function (hndlr, im, colName) {
+                                return function (e) {
+                                    if (im.getColumnNames().indexOf(colName) !== e.ColumnIndex)
+                                        return;
+                                    hndlr(e);
+                                };
+                            })(sub.Handler, this._masterTable.InstanceManager, sub.ColumnName);
                         delegator.subscribeCellEvent({
                             EventId: sub.DomEvent,
                             Selector: sub.Selector,
@@ -6655,6 +6782,65 @@ var PowerTables;
             }());
             Toolbar.CommandConfirmation = CommandConfirmation;
         })(Toolbar = Plugins.Toolbar || (Plugins.Toolbar = {}));
+    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Plugins;
+    (function (Plugins) {
+        var RegularSelect;
+        (function (RegularSelect) {
+            var RegularSelectPlugin = (function (_super) {
+                __extends(RegularSelectPlugin, _super);
+                function RegularSelectPlugin() {
+                    _super.apply(this, arguments);
+                    this._isSelecting = false;
+                    this._reset = false;
+                }
+                RegularSelectPlugin.prototype.init = function (masterTable) {
+                    _super.prototype.init.call(this, masterTable);
+                };
+                RegularSelectPlugin.prototype.startSelection = function (e) {
+                    this._isSelecting = true;
+                    this._startRow = e.DisplayingRowIndex;
+                    this._startColumn = e.ColumnIndex;
+                    this._endRow = e.DisplayingRowIndex;
+                    this._endColumn = e.ColumnIndex;
+                    this._reset = false;
+                    e.OriginalEvent.preventDefault();
+                };
+                RegularSelectPlugin.prototype.endSelection = function (e) {
+                    this._isSelecting = false;
+                    e.OriginalEvent.preventDefault();
+                };
+                RegularSelectPlugin.prototype.diff = function (row, column) {
+                    // first lets calculate rows by difference
+                    if (this._endRow !== row) {
+                        var select = Math.abs(this._endRow - this._startRow) < Math.abs(row - this._startRow);
+                        var rngStart = row < this._endRow ? row : this._endRow;
+                        var rngEnd = row > this._endRow ? row : this._endRow;
+                        for (var i = rngStart; i <= rngEnd; i++) {
+                            this.MasterTable.Selection.toggleDisplayingRow(i, select);
+                        }
+                    }
+                    this._endRow = row;
+                    this._endColumn = column;
+                };
+                RegularSelectPlugin.prototype.move = function (e) {
+                    if (!this._isSelecting)
+                        return;
+                    if (!this._reset) {
+                        this.MasterTable.Selection.resetSelection();
+                        this._reset = true;
+                    }
+                    this.diff(e.DisplayingRowIndex, e.ColumnIndex);
+                    e.OriginalEvent.preventDefault();
+                };
+                return RegularSelectPlugin;
+            }(PowerTables.Plugins.PluginBase));
+            RegularSelect.RegularSelectPlugin = RegularSelectPlugin;
+            PowerTables.ComponentsContainer.registerComponent('RegularSelect', RegularSelectPlugin);
+        })(RegularSelect = Plugins.RegularSelect || (Plugins.RegularSelect = {}));
     })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
 })(PowerTables || (PowerTables = {}));
 var PowerTables;

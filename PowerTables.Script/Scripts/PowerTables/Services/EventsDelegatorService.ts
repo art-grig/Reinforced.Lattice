@@ -7,7 +7,7 @@
         /**
          * @internal
          */
-        constructor(locator: PowerTables.Rendering.DOMLocator, bodyElement: HTMLElement, layoutElement: HTMLElement, rootId: string, masterTable:IMasterTable) {
+        constructor(locator: PowerTables.Rendering.DOMLocator, bodyElement: HTMLElement, layoutElement: HTMLElement, rootId: string, masterTable: IMasterTable) {
             this._locator = locator;
             this._bodyElement = bodyElement;
             this._layoutElement = layoutElement;
@@ -40,7 +40,7 @@
             }
         }
 
-        private _masterTable:IMasterTable;
+        private _masterTable: IMasterTable;
         private _rootId: string;
         private _locator: PowerTables.Rendering.DOMLocator;
         private _bodyElement: HTMLElement;
@@ -55,7 +55,26 @@
         private _outEvents: { [key: string]: any } = {};
         private _destroyCallbacks: PowerTables.Rendering.ICallbackDescriptor[] = [];
 
+        private ensureMouseOpSubscriptions() {
+            if (this._domEvents.hasOwnProperty('mousemove')) return;
+            var fn = this.onMouseMoveEvent.bind(this);
+            EventsDelegatorService.addHandler(this._bodyElement, 'mousemove', fn);
+            this._domEvents["mousemove"] = fn;
+        }
+
+        private checkMouseEvent(eventId: string):boolean {
+            if (eventId === 'mouseover' || eventId === 'mouseout') {
+                throw Error('Mouseover and mouseout events are not supported. Please use mouseenter and mouseleave events instead');
+            }
+            if (eventId === 'mouseenter' || eventId === 'mouseleave') {
+                this.ensureMouseOpSubscriptions();
+                return true;
+            }
+            return false;
+        }
+
         private ensureEventSubscription(eventId: string) {
+            if (this.checkMouseEvent(eventId)) return;
             if (this._domEvents.hasOwnProperty(eventId)) return;
             var fn = this.onTableEvent.bind(this);
             EventsDelegatorService.addHandler(this._bodyElement, eventId, fn);
@@ -63,6 +82,7 @@
         }
 
         private ensureOutSubscription(eventId: string) {
+            if (this.checkMouseEvent(eventId)) return;
             if (this._outEvents.hasOwnProperty(eventId)) return;
             var fn = this.onOutTableEvent.bind(this);
             EventsDelegatorService.addHandler(this._layoutElement, eventId, fn);
@@ -70,6 +90,7 @@
         }
 
         private traverseAndFire(subscriptions: ISubscription[], path: any[], args: any) {
+            if (!subscriptions) return;
             for (var i: number = 0; i < subscriptions.length; i++) {
 
                 if (subscriptions[i].Selector) {
@@ -86,6 +107,92 @@
                     subscriptions[i].Handler(args);
                 }
                 if (args.Stop) break;
+            }
+        }
+
+        private _previousMousePos: { row: number; column: number; } = { row: 0, column: 0 };
+
+        private onMouseMoveEvent(e: MouseEvent) {
+            var t: HTMLElement = <HTMLElement>(e.target || e.srcElement), eventType = e.type;
+            var rowEvents = {
+                'mouseenter': this._rowDomSubscriptions['mouseenter'],
+                'mouseleave': this._rowDomSubscriptions['mouseleave']
+            };
+
+            var cellEvents = {
+                'mouseenter': this._cellDomSubscriptions['mouseenter'],
+                'mouseleave': this._cellDomSubscriptions['mouseleave']
+            };
+            if ((!rowEvents["mouseenter"]) &&
+                (!rowEvents["mouseleave"]) &&
+                (!cellEvents["mouseenter"]) &&
+                (!cellEvents["mouseleave"])) return;
+
+            var pathToCell: any[] = [];
+            var pathToRow: any[] = [];
+            var cellLocation: ICellLocation = null, rowIndex: number = null;
+
+            while (t !== this._bodyElement) {
+                if (this._locator.isCell(t)) cellLocation = TrackHelper.getCellLocation(t);
+                if (this._locator.isRow(t)) rowIndex = TrackHelper.getRowIndex(t);
+
+                if (cellLocation == null) pathToCell.push(t);
+                if (rowIndex == null) pathToRow.push(t);
+
+                t = t.parentElement;
+                if (t.parentElement == null) {
+                    // we encountered event on detached element
+                    // just return
+                    return;
+                }
+            }
+
+            if (cellLocation != null) {
+                if (this._previousMousePos.row !== cellLocation.RowIndex ||
+                    this._previousMousePos.column !== cellLocation.ColumnIndex) {
+                    var cellInArgs: ICellEventArgs = {
+                        Master: this._masterTable,
+                        OriginalEvent: e,
+                        DisplayingRowIndex: cellLocation.RowIndex,
+                        ColumnIndex: cellLocation.ColumnIndex,
+                        Stop: false
+                    };
+                    var cellOutArgs: ICellEventArgs = {
+                        Master: this._masterTable,
+                        OriginalEvent: e,
+                        DisplayingRowIndex: this._previousMousePos.row,
+                        ColumnIndex: this._previousMousePos.column,
+                        Stop: false
+                    };
+                    this.traverseAndFire(cellEvents["mouseleave"], pathToCell, cellOutArgs);
+                    this.traverseAndFire(cellEvents["mouseenter"], pathToCell, cellInArgs);
+                    if (this._previousMousePos.row !== cellLocation.RowIndex) {
+                        this.traverseAndFire(rowEvents["mouseleave"], pathToCell, cellOutArgs);
+                        this.traverseAndFire(rowEvents["mouseenter"], pathToCell, cellInArgs);
+                    }
+                    this._previousMousePos.row = cellLocation.RowIndex;
+                    this._previousMousePos.column = cellLocation.ColumnIndex;
+                }
+            } else {
+                if (rowIndex != null) {
+                    if (this._previousMousePos.row !== rowIndex) {
+                        var rowInArgs: IRowEventArgs = {
+                            Master: this._masterTable,
+                            OriginalEvent: e,
+                            DisplayingRowIndex: rowIndex,
+                            Stop: false
+                        };
+                        var rowOutArgs: IRowEventArgs = {
+                            Master: this._masterTable,
+                            OriginalEvent: e,
+                            DisplayingRowIndex: rowIndex,
+                            Stop: false
+                        };
+                        this.traverseAndFire(rowEvents["mouseleave"], pathToCell, rowOutArgs);
+                        this.traverseAndFire(rowEvents["mouseenter"], pathToCell, rowInArgs);
+                        this._previousMousePos.row = rowIndex;
+                    }
+                }
             }
         }
 
@@ -123,7 +230,7 @@
                     OriginalEvent: e,
                     DisplayingRowIndex: cellLocation.RowIndex,
                     ColumnIndex: cellLocation.ColumnIndex,
-                    Stop:false
+                    Stop: false
                 };
                 this.traverseAndFire(forCell, pathToCell, cellArgs);
                 this.traverseAndFire(forRow, pathToCell, cellArgs);
@@ -185,8 +292,8 @@
                 var evtSplit = eventId.split('|');
                 eo['__event'] = evtSplit[evtSplit.length - 1];
                 eo['__altern'] = {};
-                for (var i = 0; i < evtSplit.length-1; i++) {
-                    if (evtSplit[i].length===0) continue;
+                for (var i = 0; i < evtSplit.length - 1; i++) {
+                    if (evtSplit[i].length === 0) continue;
                     var eqidx = evtSplit[i].indexOf('=');
                     var key = evtSplit[i].substring(0, eqidx);
                     var right = evtSplit[i].substring(eqidx + 1);
@@ -203,7 +310,7 @@
                         default:
                             val = rightRaw;
                     }
-                    
+
                     var keyalterns = key.split('+');
                     if (keyalterns.length > 1) {
                         eo[keyalterns[0]] = val;
@@ -219,7 +326,7 @@
         private filterEvent(e: Event, propsObject: { [key: string]: any }): boolean {
             if (propsObject['__no']) return true;
             for (var p in propsObject) {
-                if (p === '__event' || p ==='__altern') continue;
+                if (p === '__event' || p === '__altern') continue;
                 if (e[p] !== propsObject[p]) {
                     if (propsObject["__altern"][p]) {
                         var altern = false;
@@ -325,7 +432,7 @@
          * @param e HTML element destroying of which will fire event
          * @param callback Callback being called when element is destroyed        
          */
-        public subscribeDestroy(e: HTMLElement, callback: PowerTables.Rendering.ICallbackDescriptor):void {
+        public subscribeDestroy(e: HTMLElement, callback: PowerTables.Rendering.ICallbackDescriptor): void {
             callback.Element = e;
             e.setAttribute("data-dstrycb", "true");
             this._destroyCallbacks.push(callback);
@@ -407,5 +514,5 @@
         filter: { [key: string]: any };
     }
 
-    
+
 } 

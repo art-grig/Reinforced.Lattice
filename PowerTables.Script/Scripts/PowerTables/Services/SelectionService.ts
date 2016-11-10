@@ -194,6 +194,11 @@
 
         }
 
+        public toggleDisplayingRow(displayIndex: number, selected?: boolean) {
+            if (displayIndex < 0 || displayIndex >= this._masterTable.DataHolder.DisplayedData.length) return;
+            this.toggleRowByPrimaryKey(this._masterTable.DataHolder.DisplayedData[displayIndex]['__key'], selected);
+        }
+
         public toggleObjectSelected(dataObject: any, selected?: boolean) {
             this.toggleRowByPrimaryKey(dataObject['__key'], selected);
         }

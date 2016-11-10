@@ -25,6 +25,7 @@ using PowerTables.Plugins.LoadingOverlap;
 using PowerTables.Plugins.MouseSelect;
 using PowerTables.Plugins.Ordering;
 using PowerTables.Plugins.Paging;
+using PowerTables.Plugins.RegularSelect;
 using PowerTables.Plugins.Reload;
 using PowerTables.Plugins.ResponseInfo;
 using PowerTables.Plugins.Toolbar;
@@ -181,6 +182,10 @@ namespace PowerTables.Typings
                 ;
             builder.ExportAsEnum<PowerTables.Configuration.Json.SelectAllBehavior>();
             builder.ExportAsEnum<PowerTables.Configuration.Json.ResetSelectionBehavior>();
+
+
+            builder.ExportAsInterface<RegularSelectUiConfig>();
+            builder.ExportAsEnum<RegularSelectMode>();
             
 
         }

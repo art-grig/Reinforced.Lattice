@@ -84,5 +84,57 @@ namespace PowerTables.Configuration
             conf.SubscriptionInfo.Selector = String.Format("[data-{0}]",data);
             return conf;
         }
+
+        /// <summary>
+        /// Redirects table event to specified plugin
+        /// </summary>
+        /// <param name="conf">Table event subscription configurator</param>
+        /// <param name="eventId">DOM event ID. You can use clas DomEvent here</param>
+        /// <param name="pluginId">Plugin ID</param>
+        /// <param name="functionName">Plugin function to call when event occurs</param>
+        /// <param name="where">Plugin position. Optionsl</param>
+        /// <returns>Fluent</returns>        
+        public static TableEventSubscription StreamEventToPlugin(this TableEventSubscription conf, DOMEvent eventId, string pluginId,string functionName,string where = null)
+        {
+            var fn = string.Empty;
+            if (string.IsNullOrEmpty(where))
+            {
+                fn = string.Format("function(e) {{ e.Master.InstanceManager.getPlugin('{0}').{1}(e); }}", pluginId,
+                    functionName);
+            }
+            else
+            {
+                fn = string.Format("function(e) {{ e.Master.InstanceManager.getPlugin('{0}','{2}').{1}(e); }}", pluginId,
+                    functionName,where);
+            }
+            conf.SubscriptionInfo.DomEvent = eventId;
+            conf.SubscriptionInfo.Handler = new JRaw(fn);
+            return conf;
+        }
+
+        /// <summary>
+        /// Redirects table event to specified plugin
+        /// </summary>
+        /// <param name="conf">Table event subscription configurator</param>
+        /// <param name="pluginId">Plugin ID</param>
+        /// <param name="functionName">Plugin function to call when event occurs</param>
+        /// <param name="where">Plugin position. Optionsl</param>
+        /// <returns>Fluent</returns>        
+        public static TableEventSubscription HandleByPlugin(this TableEventSubscription conf,string pluginId, string functionName, string where = null)
+        {
+            var fn = string.Empty;
+            if (string.IsNullOrEmpty(where))
+            {
+                fn = string.Format("function(e) {{ e.Master.InstanceManager.getPlugin('{0}').{1}(e); }}", pluginId,
+                    functionName);
+            }
+            else
+            {
+                fn = string.Format("function(e) {{ e.Master.InstanceManager.getPlugin('{0}','{2}').{1}(e); }}", pluginId,
+                    functionName, where);
+            }
+            conf.SubscriptionInfo.Handler = new JRaw(fn);
+            return conf;
+        }
     }
 }

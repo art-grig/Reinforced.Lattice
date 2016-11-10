@@ -437,6 +437,14 @@ declare module PowerTables.Plugins.Checkboxify {
         SelectAllTemplateId: string;
     }
 }
+declare module PowerTables.Plugins.RegularSelect {
+    interface IRegularSelectUiConfig {
+    }
+    enum RegularSelectMode {
+        Rows = 0,
+        Cells = 1,
+    }
+}
 declare module PowerTables {
     /**
      * Wrapper for table event with ability to subscribe/unsubscribe
@@ -520,6 +528,7 @@ declare module PowerTables.Services {
         getSelectedCellsByPrimaryKey(dataObject: any): boolean;
         isSelectedPrimaryKey(primaryKey: string): boolean;
         toggleRowByPrimaryKey(primaryKey: string, selected?: boolean): void;
+        toggleDisplayingRow(displayIndex: number, selected?: boolean): void;
         toggleObjectSelected(dataObject: any, selected?: boolean): void;
         modifyQuery(query: IQuery, scope: QueryScope): void;
         getSelectedKeys(): string[];
@@ -1246,9 +1255,13 @@ declare module PowerTables.Services {
         private _domEvents;
         private _outEvents;
         private _destroyCallbacks;
+        private ensureMouseOpSubscriptions();
+        private checkMouseEvent(eventId);
         private ensureEventSubscription(eventId);
         private ensureOutSubscription(eventId);
         private traverseAndFire(subscriptions, path, args);
+        private _previousMousePos;
+        private onMouseMoveEvent(e);
         private onTableEvent(e);
         /**
          * Subscribe handler to any DOM event happening on particular table cell
@@ -3005,6 +3018,21 @@ declare module PowerTables.Plugins.Toolbar {
         onAfterReject(fn: (form: any) => void): void;
         onAfterConfirmationResponse(fn: (form: any) => void): void;
         onConfirmationResponseError(fn: (form: any) => void): void;
+    }
+}
+declare module PowerTables.Plugins.RegularSelect {
+    class RegularSelectPlugin extends PowerTables.Plugins.PluginBase<PowerTables.Plugins.RegularSelect.IRegularSelectUiConfig> {
+        init(masterTable: IMasterTable): void;
+        private _isSelecting;
+        private _reset;
+        private _startRow;
+        private _startColumn;
+        private _endRow;
+        private _endColumn;
+        startSelection(e: ICellEventArgs): void;
+        endSelection(e: ICellEventArgs): void;
+        private diff(row, column);
+        move(e: ICellEventArgs): void;
     }
 }
 declare module PowerTables.Services {

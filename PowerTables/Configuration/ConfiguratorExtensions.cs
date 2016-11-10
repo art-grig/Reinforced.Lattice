@@ -349,6 +349,25 @@ namespace PowerTables.Configuration
             return conf;
         }
 
+        /// <summary>
+        /// Subscribes event handler of DOM event occured on each row. 
+        /// Please use this function to subscribe row events instead of template bindings or onclick to 
+        /// improve event handling time and reduce RAM usage. This method actually makes table to subscribe row 
+        /// event via events delegator
+        /// </summary>
+        /// <param name="conf">Table configurator</param>
+        /// <param name="subscription">Event subscription configuration</param>
+        /// <returns></returns>
+        public static T SubscribeAllCellsEvent<T>(this T conf, Action<TableEventSubscription> subscription) where T : IConfigurator
+        {
+            TableEventSubscription sub = new TableEventSubscription();
+            sub.SubscriptionInfo.IsRowSubscription = false;
+            sub.SubscriptionInfo.ColumnName = null;
+            subscription(sub);
+            conf.TableConfiguration.Subscriptions.Add(sub.SubscriptionInfo);
+            return conf;
+        }
+
 
         /// <summary>
         /// Subscribes event handler of DOM event occured on each row. 
