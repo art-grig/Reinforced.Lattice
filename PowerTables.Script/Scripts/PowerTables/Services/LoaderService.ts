@@ -273,9 +273,9 @@
                 });
 
             });
-            req.onabort = (e => {
-                alert('hop!');
-            });
+            //req.onabort = (e => {
+            //    alert('hop!');
+            //});
 
             //failTimeout = setTimeout(() => { req.abort(); this.Renderer.showError('Network error: network unreacheable'); }, 10000);
 

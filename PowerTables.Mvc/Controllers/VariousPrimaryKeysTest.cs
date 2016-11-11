@@ -48,7 +48,7 @@ namespace PowerTables.Mvc.Controllers
             conf.PrimaryKey(c => new { c.DateTime });
             conf.ProjectDataWith(c => GetPlanned(c.AsEnumerable()).AsQueryable());
             conf.Paging(c => c.PagingSimple(), where: "rb");
-            conf.Limit(c => c.Values(new[] { "12", "24" }, "12"), where: "lt");
+            conf.Limit(c => c.Values(new[] { "12", "24","All" }, "12"), where: "lt");
             conf.RegularSelect(RegularSelectMode.Cells);
             conf.Selection(x => x.ResetSelectionOn(ResetSelectionBehavior.DontReset).SelectAllBehavior(SelectAllBehavior.AllLoadedData));
             conf.Toolbar("toolbar-rt", a =>
@@ -104,7 +104,7 @@ namespace PowerTables.Mvc.Controllers
         private IEnumerable<DateTime> GetDates()
         {
             var curMonth = DateTime.UtcNow.Date.AddDays(-DateTime.UtcNow.Date.Day);
-            while (curMonth.Month < DateTime.Today.Month + 1)
+            while (curMonth < DateTime.Today.AddMonths(2))
             {
                 yield return curMonth;
                 curMonth = curMonth.AddHours(2);
