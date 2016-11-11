@@ -1840,7 +1840,7 @@ declare module PowerTables.Rendering {
         private renderCallbackHelper();
         private destroyCallbackHelper();
         private markHelper(fieldName, key, receiverPath);
-        private datepickerHelper(columnName, forceNullable);
+        private datepickerHelper(condition, nullable);
         private visualStateHelper(stateName, stateJson);
     }
     /**

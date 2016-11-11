@@ -323,17 +323,13 @@
             this._markQueue.push(md);
             return `data-mrk="${index}"`;
         }
-        private datepickerHelper(columnName: string, forceNullable: boolean): string {
+        private datepickerHelper(condition: boolean, nullable: boolean): string {
             var index: number = this._datepickersQueue.length;
-            //dirty hack. todo
-            var col = this._instances.Columns.hasOwnProperty(columnName)
-                ? this._instances.Columns[columnName]
-                : this._stack.Current.Object['Column'];
-
-            if (col.IsDateTime) {
+            
+            if (condition) {
                 var md: IDatepickerDescriptor = <IDatepickerDescriptor>{
                     ElementReceiver: this._stack.Current.Object,
-                    IsNullable: forceNullable || col.Configuration.IsNullable
+                    IsNullable: nullable
                 };
                 this._datepickersQueue.push(md);
                 return `data-dp="${index}"`;

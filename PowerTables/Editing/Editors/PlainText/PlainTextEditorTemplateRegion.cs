@@ -20,7 +20,7 @@ namespace PowerTables.Editing.Editors.PlainText
     {
         public static MvcHtmlString ThisIsInput(this PlainTextEditorTemplateRegion t)
         {
-            return MvcHtmlString.Create(t.Mark("Input") + " " + t.Datepicker(t.CleanValue(c=>c.Column.RawName)));
+            return MvcHtmlString.Create(t.Mark("Input") + " " + t.Datepicker());
         }
 
         public static PlainTextEditorTemplateRegion Editor_PlainText(this IViewPlugins t, string templateId = "plainTextEditor")

@@ -3208,16 +3208,12 @@ var PowerTables;
                 this._markQueue.push(md);
                 return "data-mrk=\"" + index + "\"";
             };
-            BackBinder.prototype.datepickerHelper = function (columnName, forceNullable) {
+            BackBinder.prototype.datepickerHelper = function (condition, nullable) {
                 var index = this._datepickersQueue.length;
-                //dirty hack. todo
-                var col = this._instances.Columns.hasOwnProperty(columnName)
-                    ? this._instances.Columns[columnName]
-                    : this._stack.Current.Object['Column'];
-                if (col.IsDateTime) {
+                if (condition) {
                     var md = {
                         ElementReceiver: this._stack.Current.Object,
-                        IsNullable: forceNullable || col.Configuration.IsNullable
+                        IsNullable: nullable
                     };
                     this._datepickersQueue.push(md);
                     return "data-dp=\"" + index + "\"";
