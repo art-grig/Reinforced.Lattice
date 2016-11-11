@@ -66,7 +66,7 @@
             if (eventId === 'mouseover' || eventId === 'mouseout') {
                 throw Error('Mouseover and mouseout events are not supported. Please use mouseenter and mouseleave events instead');
             }
-            if (eventId === 'mouseenter' || eventId === 'mouseleave') {
+            if (eventId === 'mouseenter' || eventId === 'mouseleave' || eventId === 'mousemove') {
                 this.ensureMouseOpSubscriptions();
                 return true;
             }
@@ -116,16 +116,20 @@
             var t: HTMLElement = <HTMLElement>(e.target || e.srcElement), eventType = e.type;
             var rowEvents = {
                 'mouseenter': this._rowDomSubscriptions['mouseenter'],
-                'mouseleave': this._rowDomSubscriptions['mouseleave']
+                'mouseleave': this._rowDomSubscriptions['mouseleave'],
+                'mousemove': this._rowDomSubscriptions['mousemove']
             };
 
             var cellEvents = {
                 'mouseenter': this._cellDomSubscriptions['mouseenter'],
-                'mouseleave': this._cellDomSubscriptions['mouseleave']
+                'mouseleave': this._cellDomSubscriptions['mouseleave'],
+                'mousemove': this._cellDomSubscriptions['mousemove']
             };
             if ((!rowEvents["mouseenter"]) &&
                 (!rowEvents["mouseleave"]) &&
+                (!rowEvents["mousemove"]) &&
                 (!cellEvents["mouseenter"]) &&
+                (!cellEvents["mousemove"]) &&
                 (!cellEvents["mouseleave"])) return;
 
             var pathToCell: any[] = [];
@@ -148,15 +152,16 @@
             }
 
             if (cellLocation != null) {
+                var cellInArgs: ICellEventArgs = {
+                    Master: this._masterTable,
+                    OriginalEvent: e,
+                    DisplayingRowIndex: cellLocation.RowIndex,
+                    ColumnIndex: cellLocation.ColumnIndex,
+                    Stop: false
+                };
                 if (this._previousMousePos.row !== cellLocation.RowIndex ||
                     this._previousMousePos.column !== cellLocation.ColumnIndex) {
-                    var cellInArgs: ICellEventArgs = {
-                        Master: this._masterTable,
-                        OriginalEvent: e,
-                        DisplayingRowIndex: cellLocation.RowIndex,
-                        ColumnIndex: cellLocation.ColumnIndex,
-                        Stop: false
-                    };
+                   
                     var cellOutArgs: ICellEventArgs = {
                         Master: this._masterTable,
                         OriginalEvent: e,
@@ -173,25 +178,29 @@
                     this._previousMousePos.row = cellLocation.RowIndex;
                     this._previousMousePos.column = cellLocation.ColumnIndex;
                 }
+                this.traverseAndFire(cellEvents["mousemove"], pathToCell, cellInArgs);
+                this.traverseAndFire(rowEvents["mousemove"], pathToCell, cellInArgs);
             } else {
                 if (rowIndex != null) {
+                    var rowInArgs: IRowEventArgs = {
+                        Master: this._masterTable,
+                        OriginalEvent: e,
+                        DisplayingRowIndex: rowIndex,
+                        Stop: false
+                    };
                     if (this._previousMousePos.row !== rowIndex) {
-                        var rowInArgs: IRowEventArgs = {
-                            Master: this._masterTable,
-                            OriginalEvent: e,
-                            DisplayingRowIndex: rowIndex,
-                            Stop: false
-                        };
+                        
                         var rowOutArgs: IRowEventArgs = {
                             Master: this._masterTable,
                             OriginalEvent: e,
-                            DisplayingRowIndex: rowIndex,
+                            DisplayingRowIndex: this._previousMousePos.row,
                             Stop: false
                         };
                         this.traverseAndFire(rowEvents["mouseleave"], pathToCell, rowOutArgs);
                         this.traverseAndFire(rowEvents["mouseenter"], pathToCell, rowInArgs);
                         this._previousMousePos.row = rowIndex;
                     }
+                    this.traverseAndFire(rowEvents["mousemove"], pathToCell, rowInArgs);
                 }
             }
         }

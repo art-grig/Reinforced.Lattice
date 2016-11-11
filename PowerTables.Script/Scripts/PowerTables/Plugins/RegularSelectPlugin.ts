@@ -83,7 +83,7 @@
         public move(e: ICellEventArgs) {
             if (!this._isSelecting) return;
             if (!this._reset) {
-                //this.MasterTable.Selection.resetSelection();
+                this.MasterTable.Selection.resetSelection();
                 this._reset = true;
             }
             this.diff(e.DisplayingRowIndex, e.ColumnIndex);

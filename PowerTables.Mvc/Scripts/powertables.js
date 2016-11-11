@@ -960,7 +960,7 @@ var PowerTables;
                 if (eventId === 'mouseover' || eventId === 'mouseout') {
                     throw Error('Mouseover and mouseout events are not supported. Please use mouseenter and mouseleave events instead');
                 }
-                if (eventId === 'mouseenter' || eventId === 'mouseleave') {
+                if (eventId === 'mouseenter' || eventId === 'mouseleave' || eventId === 'mousemove') {
                     this.ensureMouseOpSubscriptions();
                     return true;
                 }
@@ -1011,15 +1011,19 @@ var PowerTables;
                 var t = (e.target || e.srcElement), eventType = e.type;
                 var rowEvents = {
                     'mouseenter': this._rowDomSubscriptions['mouseenter'],
-                    'mouseleave': this._rowDomSubscriptions['mouseleave']
+                    'mouseleave': this._rowDomSubscriptions['mouseleave'],
+                    'mousemove': this._rowDomSubscriptions['mousemove']
                 };
                 var cellEvents = {
                     'mouseenter': this._cellDomSubscriptions['mouseenter'],
-                    'mouseleave': this._cellDomSubscriptions['mouseleave']
+                    'mouseleave': this._cellDomSubscriptions['mouseleave'],
+                    'mousemove': this._cellDomSubscriptions['mousemove']
                 };
                 if ((!rowEvents["mouseenter"]) &&
                     (!rowEvents["mouseleave"]) &&
+                    (!rowEvents["mousemove"]) &&
                     (!cellEvents["mouseenter"]) &&
+                    (!cellEvents["mousemove"]) &&
                     (!cellEvents["mouseleave"]))
                     return;
                 var pathToCell = [];
@@ -1042,15 +1046,15 @@ var PowerTables;
                     }
                 }
                 if (cellLocation != null) {
+                    var cellInArgs = {
+                        Master: this._masterTable,
+                        OriginalEvent: e,
+                        DisplayingRowIndex: cellLocation.RowIndex,
+                        ColumnIndex: cellLocation.ColumnIndex,
+                        Stop: false
+                    };
                     if (this._previousMousePos.row !== cellLocation.RowIndex ||
                         this._previousMousePos.column !== cellLocation.ColumnIndex) {
-                        var cellInArgs = {
-                            Master: this._masterTable,
-                            OriginalEvent: e,
-                            DisplayingRowIndex: cellLocation.RowIndex,
-                            ColumnIndex: cellLocation.ColumnIndex,
-                            Stop: false
-                        };
                         var cellOutArgs = {
                             Master: this._masterTable,
                             OriginalEvent: e,
@@ -1067,26 +1071,29 @@ var PowerTables;
                         this._previousMousePos.row = cellLocation.RowIndex;
                         this._previousMousePos.column = cellLocation.ColumnIndex;
                     }
+                    this.traverseAndFire(cellEvents["mousemove"], pathToCell, cellInArgs);
+                    this.traverseAndFire(rowEvents["mousemove"], pathToCell, cellInArgs);
                 }
                 else {
                     if (rowIndex != null) {
+                        var rowInArgs = {
+                            Master: this._masterTable,
+                            OriginalEvent: e,
+                            DisplayingRowIndex: rowIndex,
+                            Stop: false
+                        };
                         if (this._previousMousePos.row !== rowIndex) {
-                            var rowInArgs = {
-                                Master: this._masterTable,
-                                OriginalEvent: e,
-                                DisplayingRowIndex: rowIndex,
-                                Stop: false
-                            };
                             var rowOutArgs = {
                                 Master: this._masterTable,
                                 OriginalEvent: e,
-                                DisplayingRowIndex: rowIndex,
+                                DisplayingRowIndex: this._previousMousePos.row,
                                 Stop: false
                             };
                             this.traverseAndFire(rowEvents["mouseleave"], pathToCell, rowOutArgs);
                             this.traverseAndFire(rowEvents["mouseenter"], pathToCell, rowInArgs);
                             this._previousMousePos.row = rowIndex;
                         }
+                        this.traverseAndFire(rowEvents["mousemove"], pathToCell, rowInArgs);
                     }
                 }
             };
@@ -6920,7 +6927,7 @@ var PowerTables;
                     if (!this._isSelecting)
                         return;
                     if (!this._reset) {
-                        //this.MasterTable.Selection.resetSelection();
+                        this.MasterTable.Selection.resetSelection();
                         this._reset = true;
                     }
                     this.diff(e.DisplayingRowIndex, e.ColumnIndex);
