@@ -49,7 +49,7 @@ namespace PowerTables.Mvc.Controllers
             conf.ProjectDataWith(c => GetPlanned(c.AsEnumerable()).AsQueryable());
             conf.Paging(c => c.PagingSimple(), where: "rb");
             conf.Limit(c => c.Values(new[] { "12", "24" }, "12"), where: "lt");
-            conf.RegularSelect(RegularSelectMode.Rows);
+            conf.RegularSelect(RegularSelectMode.Cells);
             conf.Selection(x => x.ResetSelectionOn(ResetSelectionBehavior.DontReset).SelectAllBehavior(SelectAllBehavior.AllLoadedData));
             conf.Toolbar("toolbar-rt", a =>
             {

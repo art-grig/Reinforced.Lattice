@@ -242,6 +242,12 @@
             return this.getSelectedColumns(dataObject['__key']);
         }
 
+        //#region Cells selection
+        public toggleCellsByDisplayIndex(displayIndex: number, columnNames: string[], select?: boolean) {
+            if (displayIndex < 0 || displayIndex >= this._masterTable.DataHolder.DisplayedData.length) return;
+            this.toggleCells(this._masterTable.DataHolder.DisplayedData[displayIndex]['__key'], columnNames, select);
+        }
+
         public toggleCellsByObject(dataObject: any, columnNames: string[], select?: boolean) {
             this.toggleCells(dataObject['__key'], columnNames, select);
         }
@@ -283,5 +289,62 @@
             this._masterTable.Controller.redrawVisibleCells(data, columnsToRedraw);
             this._masterTable.Events.SelectionChanged.invokeAfter(this, this._selectionData);
         }
+
+        public setCellsByDisplayIndex(displayIndex: number, columnNames: string[]) {
+            if (displayIndex < 0 || displayIndex >= this._masterTable.DataHolder.DisplayedData.length) return;
+            this.setCells(this._masterTable.DataHolder.DisplayedData[displayIndex]['__key'], columnNames);
+        }
+
+        public setCellsByObject(dataObject: any, columnNames: string[]) {
+            this.setCells(dataObject['__key'], columnNames);
+        }
+
+        public setCells(primaryKey: string, columnNames: string[]) {
+            this._masterTable.Events.SelectionChanged.invokeBefore(this, this._selectionData);
+            var arr = null;
+            if (this._selectionData.hasOwnProperty(primaryKey)) {
+                arr = this._selectionData[primaryKey];
+            } else {
+                arr = [];
+            }
+            var cols = this._masterTable.InstanceManager.Columns;
+            var columnsToRedraw = [];
+            var data = this._masterTable.DataHolder.getByPrimaryKey(primaryKey);
+            var newArr = [];
+
+            var allColsNames = this._masterTable.InstanceManager.getColumnNames();
+
+            for (var j = 0; j < columnNames.length; j++) {
+                if (this._configuration.NonselectableColumns) {
+                    if ((this._configuration.NonselectableColumns.indexOf(columnNames[j]) < 0)) continue;
+                }
+                if (this._configuration.CanSelectCellFunction != null && !this._configuration.CanSelectCellFunction(data, columnNames[j], true)) continue;
+
+                newArr.push(cols[columnNames[j]].Order);
+            }
+
+            var maxArr = newArr.length > arr.length ? newArr : arr;
+            for (var k = 0; k < maxArr.length; k++) {
+                var colNum = maxArr[k];
+                var nw = newArr.indexOf(colNum) > -1;
+                var old = arr.indexOf(colNum) > -1;
+
+                if (nw && !old) columnsToRedraw.push(cols[allColsNames[colNum]]);
+                if (old && !nw) columnsToRedraw.push(cols[allColsNames[colNum]]);
+            }
+
+            if (newArr.length === 0) {
+                delete this._selectionData[primaryKey];
+            } else {
+                this._selectionData[primaryKey] = newArr;
+
+            }
+            this._masterTable.Controller.redrawVisibleCells(data, columnsToRedraw);
+            this._masterTable.Events.SelectionChanged.invokeAfter(this, this._selectionData);
+        }
+
+
+
+        //#endregion
     }
 } 

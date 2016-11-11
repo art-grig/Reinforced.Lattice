@@ -184,7 +184,7 @@ namespace PowerTables.Typings
             builder.ExportAsEnum<PowerTables.Configuration.Json.ResetSelectionBehavior>();
 
 
-            builder.ExportAsInterface<RegularSelectUiConfig>();
+            builder.ExportAsInterface<RegularSelectUiConfig>().WithPublicProperties();
             builder.ExportAsEnum<RegularSelectMode>();
             
 

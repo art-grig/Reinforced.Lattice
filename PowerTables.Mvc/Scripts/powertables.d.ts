@@ -439,6 +439,7 @@ declare module PowerTables.Plugins.Checkboxify {
 }
 declare module PowerTables.Plugins.RegularSelect {
     interface IRegularSelectUiConfig {
+        Mode: PowerTables.Plugins.RegularSelect.RegularSelectMode;
     }
     enum RegularSelectMode {
         Rows = 0,
@@ -535,8 +536,12 @@ declare module PowerTables.Services {
         getSelectedObjects(): any[];
         getSelectedColumns(primaryKey: string): IColumn[];
         getSelectedColumnsByObject(dataObject: any): IColumn[];
+        toggleCellsByDisplayIndex(displayIndex: number, columnNames: string[], select?: boolean): void;
         toggleCellsByObject(dataObject: any, columnNames: string[], select?: boolean): void;
         toggleCells(primaryKey: string, columnNames: string[], select?: boolean): void;
+        setCellsByDisplayIndex(displayIndex: number, columnNames: string[]): void;
+        setCellsByObject(dataObject: any, columnNames: string[]): void;
+        setCells(primaryKey: string, columnNames: string[]): void;
     }
 }
 declare module PowerTables {
@@ -936,6 +941,10 @@ declare module PowerTables {
          * Column order (left-to-right)
          */
         Order: number;
+        /**
+         * Column order (left-to-right)
+         */
+        UiOrder: number;
         /**
          * True when column holds DateTime values
          */
@@ -3029,6 +3038,7 @@ declare module PowerTables.Plugins.RegularSelect {
         private _startColumn;
         private _endRow;
         private _endColumn;
+        private _prevUiCols;
         startSelection(e: ICellEventArgs): void;
         endSelection(e: ICellEventArgs): void;
         private diff(row, column);

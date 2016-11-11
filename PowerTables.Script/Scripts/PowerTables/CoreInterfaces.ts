@@ -334,6 +334,11 @@
          */
         Order: number;
 
+        /** 
+         * Column order (left-to-right) 
+         */
+        UiOrder: number;
+
         /**
          * True when column holds DateTime values
          */

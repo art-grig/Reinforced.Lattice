@@ -458,6 +458,7 @@ module PowerTables.Plugins.Checkboxify {
 module PowerTables.Plugins.RegularSelect {
 	export interface IRegularSelectUiConfig
 	{
+		Mode: PowerTables.Plugins.RegularSelect.RegularSelectMode;
 	}
 	export enum RegularSelectMode { 
 		Rows = 0, 

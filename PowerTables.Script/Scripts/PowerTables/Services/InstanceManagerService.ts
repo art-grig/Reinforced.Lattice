@@ -88,14 +88,15 @@
                 RawName: cnf.RawColumnName,
                 MasterTable: masterTable,
                 Header: null,
-                Order: order==null?0:order,
+                Order: order == null ? 0 : order,
                 IsDateTime: InstanceManagerService._datetimeTypes.indexOf(cnf.ColumnType) > -1,
                 IsString: InstanceManagerService._stringTypes.indexOf(cnf.ColumnType) > -1,
                 IsFloat: InstanceManagerService._floatTypes.indexOf(cnf.ColumnType) > -1,
                 IsInteger: InstanceManagerService._integerTypes.indexOf(cnf.ColumnType) > -1,
                 IsBoolean: InstanceManagerService._booleanTypes.indexOf(cnf.ColumnType) > -1,
-                IsEnum: cnf.IsEnum
-            };
+                IsEnum: cnf.IsEnum,
+                UiOrder: 0
+        };
             c.Header = {
                 Column: c,
                 renderContent: <any>null,
@@ -316,6 +317,9 @@
                 }
             }
             result = result.sort((a, b) => a.Configuration.DisplayOrder - b.Configuration.DisplayOrder);
+            for (var i = 0; i < result.length; i++) {
+                result[i].UiOrder = i;
+            }
             return result;
         }
 
