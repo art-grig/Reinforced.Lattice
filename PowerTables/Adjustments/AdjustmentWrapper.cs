@@ -11,6 +11,11 @@ namespace PowerTables.Adjustments
     {
         private readonly Configurator<TSource, TData> _configurator;
 
+        public Configurator<TSource, TData> Configurator
+        {
+            get { return _configurator; }
+        }
+
         public TableAdjustment Build()
         {
             TableAdjustment result = new TableAdjustment();

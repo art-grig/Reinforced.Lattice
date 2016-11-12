@@ -1,5 +1,5 @@
 ﻿module PowerTables.Services {
-    export class SelectionService implements IQueryPartProvider {
+    export class SelectionService implements IQueryPartProvider, IAdditionalDataReceiver {
 
         constructor(masterTable: IMasterTable) {
             this._masterTable = masterTable;
@@ -15,6 +15,7 @@
                 PowerTables.Configuration.Json.ResetSelectionBehavior.ServerReload) {
                 masterTable.Events.DataReceived.subscribe(x => this.toggleAll(false), 'selection');
             }
+            masterTable.Loader.registerAdditionalDataReceiver('Selection', this);
         }
 
         private _configuration: PowerTables.Configuration.Json.ISelectionConfiguration;
@@ -148,7 +149,7 @@
             return sd.length === 0;
         }
 
-        public toggleRowByPrimaryKey(primaryKey: string, selected?: boolean): void {
+        public toggleRow(primaryKey: string, selected?: boolean): void {
             this._masterTable.Events.SelectionChanged.invokeBefore(this, this._selectionData);
             if (selected == undefined || selected == null) {
                 selected = !this.isSelectedPrimaryKey(primaryKey);
@@ -196,11 +197,11 @@
 
         public toggleDisplayingRow(displayIndex: number, selected?: boolean) {
             if (displayIndex < 0 || displayIndex >= this._masterTable.DataHolder.DisplayedData.length) return;
-            this.toggleRowByPrimaryKey(this._masterTable.DataHolder.DisplayedData[displayIndex]['__key'], selected);
+            this.toggleRow(this._masterTable.DataHolder.DisplayedData[displayIndex]['__key'], selected);
         }
 
         public toggleObjectSelected(dataObject: any, selected?: boolean) {
-            this.toggleRowByPrimaryKey(dataObject['__key'], selected);
+            this.toggleRow(dataObject['__key'], selected);
         }
 
         modifyQuery(query: IQuery, scope: QueryScope): void {
@@ -346,5 +347,30 @@
 
 
         //#endregion
+        handleAdditionalData(additionalData): void {
+            var ad = additionalData as PowerTables.Adjustments.ISelectionAdditionalData;
+            if (ad.SelectionToggle === PowerTables.Adjustments.SelectionToggle.All) {
+                this.toggleAll(true);
+            } else if (ad.SelectionToggle === PowerTables.Adjustments.SelectionToggle.Nothing) {
+                this.toggleAll(false);
+            } else {
+                for (var ok in ad.Select) {
+                    if (ad.Select[ok] == null || ad.Select[ok].length === 0) {
+                        this.toggleRow(ok, true);
+                    } else {
+                        this.setCells(ok, ad.Select[ok]);
+                    }
+                }
+
+                for (var ok2 in ad.Unselect) {
+                    if (ad.Unselect[ok2] == null || ad.Unselect[ok2].length === 0) {
+                        this.toggleRow(ok2, true);
+                    } else {
+                        this.toggleCells(ok2, ad.Unselect[ok2], false);
+                    }
+                }
+            }
+
+        }
     }
 } 

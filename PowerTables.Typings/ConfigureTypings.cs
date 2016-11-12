@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using System.Web.Mvc;
+using PowerTables.Adjustments;
 using PowerTables.Configuration;
 using PowerTables.Configuration.Json;
 using PowerTables.Editing;
@@ -180,6 +181,9 @@ namespace PowerTables.Typings
                 .WithProperty(c => c.CanSelectRowFunction, c => c.Type("(dataObject:any)=>boolean"))
                 .WithProperty(c => c.CanSelectCellFunction, c => c.Type("(dataObject:any,column:string,select:boolean)=>boolean"))
                 ;
+            builder.ExportAsInterface<SelectionAdditionalData>().WithPublicProperties();
+            builder.ExportAsEnum<SelectionToggle>();
+
             builder.ExportAsEnum<PowerTables.Configuration.Json.SelectAllBehavior>();
             builder.ExportAsEnum<PowerTables.Configuration.Json.ResetSelectionBehavior>();
 

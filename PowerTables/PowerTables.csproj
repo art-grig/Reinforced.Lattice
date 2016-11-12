@@ -76,6 +76,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Adjustments\AdjustmentExtensions.cs" />
+    <Compile Include="Adjustments\SelectionAdditionalData.cs" />
     <Compile Include="Adjustments\TableAdjustment.cs" />
     <Compile Include="Adjustments\AdjustmentWrapper.cs" />
     <Compile Include="CellTemplating\CellTemplateBuilder.cs" />

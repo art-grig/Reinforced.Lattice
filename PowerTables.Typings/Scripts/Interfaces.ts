@@ -455,6 +455,19 @@ module PowerTables.Plugins.Checkboxify {
 		SelectAllTemplateId: string;
 	}
 }
+module PowerTables.Adjustments {
+	export interface ISelectionAdditionalData
+	{
+		SelectionToggle: PowerTables.Adjustments.SelectionToggle;
+		Unselect: { [key:string]: string[] };
+		Select: { [key:string]: string[] };
+	}
+	export enum SelectionToggle { 
+		LeaveAsIs = 0, 
+		All = 1, 
+		Nothing = 2, 
+	}
+}
 module PowerTables.Plugins.RegularSelect {
 	export interface IRegularSelectUiConfig
 	{

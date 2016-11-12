@@ -37,34 +37,11 @@ namespace PowerTables.Plugins.Checkboxify
             return conf;
         }
 
-        /// <summary>
-        /// Response will set selection on client-side to specified range of values
-        /// </summary>
-        /// <param name="a">Additional data</param>
-        /// <param name="keysToSelect">Keys to be selectd</param>
-        public static void SetSelection(this IAdditionalDataProvider a, IEnumerable<string> keysToSelect)
+        public static PluginConfigurationWrapper<CheckboxifyUiConfig> SelectAllTemplateId(
+            this PluginConfigurationWrapper<CheckboxifyUiConfig> c, string templateId)
         {
-            //a.AdditionalData["Selection"] = new SelectionAdditionalData()
-            //{
-            //    ReplaceSelection = true,
-            //    SelectionToReplace = keysToSelect.ToArray()
-            //};
-        }
-
-        /// <summary>
-        /// Modify selection range on client-side
-        /// </summary>
-        /// <param name="a">Additional data</param>
-        /// <param name="addToSelection">Keys to be added to selection</param>
-        /// <param name="removeFromSelection">Keys to be removed from selection</param>
-        public static void ModifySelection(this IAdditionalDataProvider a, IEnumerable<string> addToSelection = null, IEnumerable<string> removeFromSelection = null)
-        {
-            //a.AdditionalData["Selection"] = new SelectionAdditionalData()
-            //{
-            //    ModifySelection = true,
-            //    AddToSelection = addToSelection==null?null:addToSelection.ToArray(),
-            //    RemoveFromSelection = removeFromSelection == null ? null : removeFromSelection.ToArray()
-            //};
+            c.Configuration.SelectAllTemplateId = templateId;
+            return c;
         }
     }
 }
