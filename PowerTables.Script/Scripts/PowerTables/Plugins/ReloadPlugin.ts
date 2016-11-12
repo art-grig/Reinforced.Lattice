@@ -32,7 +32,7 @@
             }
         }
 
-        public subscribe(e: EventsManager): void {
+        public subscribe(e: PowerTables.Services.EventsService): void {
             super.subscribe(e);
             e.Loading.subscribeBefore(() => this.startLoading(), 'reload');
             e.Loading.subscribeAfter(() => this.stopLoading(), 'reload');
@@ -56,13 +56,13 @@
     }
 
     class ReloadButton {
-        constructor(controller: Controller, forceReload: boolean) {
+        constructor(controller: PowerTables.Services.Controller, forceReload: boolean) {
             this._controller = controller;
             this._forceReload = forceReload;
         }
 
         public VisualStates: PowerTables.Rendering.VisualState;
-        private _controller: Controller;
+        private _controller: PowerTables.Services.Controller;
         private _forceReload: boolean;
 
         public triggerReload() {

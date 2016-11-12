@@ -1,4 +1,4 @@
-﻿module PowerTables {
+﻿module PowerTables.Services {
     /**
      * API responsible for dates operations
      */

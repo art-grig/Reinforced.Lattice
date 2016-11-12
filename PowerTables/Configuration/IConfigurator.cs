@@ -127,6 +127,18 @@ namespace PowerTables.Configuration
         IColumnTargetProperty<TColumn> AddColumn<TColumn>(string columnName, Func<object, TColumn> getValue,
             Action<object, TColumn> setValue, string title = null, int? order = null);
 
+
+        /// <summary>
+        /// Creates new UI-only column without binding to any existing data
+        /// </summary>
+        /// <param name="columnName">Column name</param>
+        /// <param name="title">Column title (optional)</param>
+        /// <param name="order">Column order</param>
+        /// <returns>Corresponding column configurator</returns>
+        IColumnTargetProperty<T> AddUiColumn<T>(string columnName, string title = null, int? order = null);
+
+        bool HasColumn(string columnName);
+
         /// <summary>
         /// Retrieves column value of specified row
         /// </summary>

@@ -21,26 +21,26 @@ namespace PowerTables.Defaults
         {
             // queryable reveals here
             var mapped = data.Mapped.Value;
-            PowerTablesResponse ptr = new PowerTablesResponse()
+            PowerTablesResponse result = new PowerTablesResponse()
             {
                 PageIndex = data.CurrentPage,
                 ResultsCount = data.ResultsCount,
                 Data = data.Configuration.EncodeResults(mapped),
-                AdditionalData = new Dictionary<string, object>(),
+                AdditionalData = new AdditionalDataContainer(),
                 Success = false
             };
 
             try
             {
-                responseModifiers.ApplyResponseModifiers(data, ptr);
+                responseModifiers.ApplyResponseModifiers(data, result);
             }
             catch (Exception ex)
             {
-                ptr.FormatException(ex);
+                result.FormatException(ex);
             }
 
-            ptr.Success = true;
-            return new JsonNetResult() { Data = ptr, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            result.Success = true;
+            return new JsonNetResult() { Data = result, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
         }
 
         public Task<ActionResult> HandleAsync(PowerTablesData data, IResponseModifiersApplier responseModifiers)

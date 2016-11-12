@@ -17,8 +17,8 @@ namespace PowerTables.Mvc.Models.Tutorial
         {
             conf.Filtering();
 
-            conf.Checkboxify(c => c.Id, SelectAllBehavior.CurrentPage, ui => ui.ResetBehavior(resetOnLoad: true));
-            conf.AdjustmentTemplates("updatedRow", "updatedCell", "addedRow");
+            conf.Checkboxify();
+            //conf.AdjustmentTemplates("updatedRow", "updatedCell", "addedRow");
 
 
             conf.Toolbar("toolbar-rt", a =>

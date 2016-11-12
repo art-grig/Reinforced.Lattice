@@ -43,7 +43,7 @@ namespace PowerTables.Mvc.Models.Tutorial
             conf.Column(c => c.LastSoldDate).Title("Last sell");
             conf.Column(c => c.ResponsibleUserName).Title("Responsible");
             conf.Column(c => c.SupplierAddress).Title("Supp. Address");
-            conf.PrimaryKey(c => c.Include(v => v.Id));
+            conf.PrimaryKey(c => c.Id);
 
             /* 
              * .DataOnly columns are passed to clien-side but are not displayed

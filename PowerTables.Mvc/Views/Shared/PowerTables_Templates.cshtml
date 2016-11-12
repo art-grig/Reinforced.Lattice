@@ -15,6 +15,7 @@
 @using PowerTables.Plugins.Limit
 @using PowerTables.Plugins.Loading
 @using PowerTables.Plugins.LoadingOverlap
+@using PowerTables.Plugins.MouseSelect
 @using PowerTables.Plugins.Ordering
 @using PowerTables.Plugins.Paging
 @using PowerTables.Plugins.Reload
@@ -112,23 +113,15 @@
     Following HTML is being wrapped around each data row
 *@
 @using (var t = this.RowWrapper())
-{ <tr @t.Track()>@t.Content()</tr> }
-
-@using (var t = this.RowWrapper("updatedRow"))
-{ <tr class="success" @t.Track()>@t.Content()</tr> }
-
-@using (var t = this.RowWrapper("addedRow"))
-{ <tr style="background-color: #96f2e1" @t.Track()>@t.Content()</tr> }
+{ <tr class="@t.If(c => c.IsSelected, "success") @t.If(c=>c.IsUpdated,"touched") @t.If(c=>c.IsAdded,"touched")" @t.Track()>@t.Content()</tr> }
 
 @*
     Cell wrapper template.
     Following HTML is being wrapped around each data cell
 *@
 @using (var t = this.CellWrapper())
-{ <td @t.Track()>@t.Content()</td> }
+{ <td class="@t.If(c=>c.IsSelected,"success") @t.If(c=>c.IsUpdated,"touched") @t.If(c=>c.IsAdded,"touched")" @t.Track()>@t.Content()</td> }
 
-@using (var t = this.CellWrapper("updatedCell"))
-{ <td class="touched" @t.Track()>@t.Content()</td> }
 
 @using (var t = this.Message("error"))
 {
@@ -205,6 +198,13 @@
                 }
             }
         </ul>
+    </div>
+}
+
+@using (var t = Plugin.MouseSelect())
+{
+    <div style="width: 100%; height: 100%; display: block; position: relative; border: 1px solid #2b597f; background: #428BCA; opacity: 0.5">
+
     </div>
 }
 
@@ -370,24 +370,21 @@
     </th>
 }
 
-@using (var t = Plugin.CheckboxifyCell())
+@using (var t = this.Cell("checkboxifyCell"))
 {
-    using (t.If(c => c.CanCheck))
+    using (t.If(c=>c.Row.CanBeSelected))
     {
-        using (t.If(c => c.IsChecked))
-        {
-            <div><input @t.ThisWillTriggerSelection() type="checkbox" checked="checked" /></div>
-            @t.Else()
-            <div><input type="checkbox" @t.ThisWillTriggerSelection() /></div>
-        }
+        <div data-checkboxify="true">
+            @using (t.If(c => c.Row.IsSelected))
+            {
+                <input type="checkbox" checked="checked" />
+                @t.Else()
+                <input type="checkbox" />
+            }
+        </div>
     }
 }
 
-
-@using (var t = Plugin.CheckboxifyRow())
-{
-    <tr class="success" @t.Track()>@t.Content()</tr>
-}
 
 @using (var t = Plugin.Toolbar())
 {
@@ -793,13 +790,13 @@
                     <label>
                         <input type="checkbox" @t.BindChanged("change") @t.BindCommit("change")
                                @t.WhenChecked(c => c.Attr("checked", "checked"))> @t.Value(c => c.Column.Configuration.Title)
-                    </label>
+                        </label>
+                    </div>
+                    <div class="help-block" @t.WhenInvalid(c => { c.State.Show(); c.Content(d => d.ValidationMessages); }) style="display: none; color: #E15C5C;">
+                    </div>
                 </div>
-                <div class="help-block" @t.WhenInvalid(c => { c.State.Show(); c.Content(d => d.ValidationMessages); }) style="display: none; color: #E15C5C;">
-                </div>
+
             </div>
-            
-        </div>
     }
 }
 

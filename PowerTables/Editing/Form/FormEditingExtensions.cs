@@ -40,7 +40,7 @@ namespace PowerTables.Editing.Form
                 begin.DataSelector(BeginDataSelector);
             }
 
-            begin.Handler(string.Format("function(e) {{ e.Master.InstanceManager.getPlugin('{0}').beginFormEditHandler(e); }}", PluginId));
+            begin.HandleByPlugin(PluginId, "beginFormEditHandler");
             conf.SubscribeRowEvent(begin);
             return conf;
         }

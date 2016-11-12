@@ -101,7 +101,7 @@ namespace PowerTables.Configuration
         public ColumnUsage<TSourceData, TTableData, TColType> Column<TColType>(Expression<Func<TTableData, TColType>> column)
         {
             var tp = LambdaHelpers.ParsePropertyLambda(column);
-            return (ColumnUsage<TSourceData, TTableData, TColType>) base.Column(tp.Name);
+            return (ColumnUsage<TSourceData, TTableData, TColType>)base.Column(tp.Name);
         }
 
         /// <summary>
@@ -119,11 +119,11 @@ namespace PowerTables.Configuration
             if (string.IsNullOrEmpty(title)) title = columnName;
 
             PropertyDescription pd = new PropertyDescription(columnName, typeof(TColumn), title,
-                (x) => getValue((TTableData) x),
-                (x, y) => setValue((TTableData) x, (TColumn)y));
+                (x) => getValue((TTableData)x),
+                (x, y) => setValue((TTableData)x, (TColumn)y), null);
             _tableColumns.Add(pd);
             CreateColumn(pd, order.Value);
-            return (ColumnUsage<TSourceData, TTableData, TColumn>) _configurators[pd];
+            return (ColumnUsage<TSourceData, TTableData, TColumn>)_configurators[pd];
         }
 
         /// <summary>
@@ -134,7 +134,7 @@ namespace PowerTables.Configuration
         /// <returns>Corresponding column configurator</returns>
         public new ColumnUsage<TSourceData, TTableData, TColumn> Column<TColumn>(string columnName, bool @throw = true)
         {
-            return (ColumnUsage<TSourceData, TTableData, TColumn>) base.Column<TColumn>(columnName,@throw);
+            return (ColumnUsage<TSourceData, TTableData, TColumn>)base.Column<TColumn>(columnName, @throw);
         }
 
         /// <summary>

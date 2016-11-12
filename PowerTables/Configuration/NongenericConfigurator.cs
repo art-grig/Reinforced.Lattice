@@ -33,6 +33,13 @@ namespace PowerTables.Configuration
         public Type SourceType { get; protected set; }
         public Type TableType { get; protected set; }
 
+        internal HashCalculator HashCalculator { get; private set; }
+
+        public bool HasColumn(string columnName)
+        {
+            return _tableColumnsDictionary.ContainsKey(columnName);
+        }
+
         public object GetColumnValue(object rowObject, string propertyName)
         {
             if (!TableColumnsDictionary.ContainsKey(propertyName))
@@ -63,6 +70,15 @@ namespace PowerTables.Configuration
             _columnsConfiguration.Remove(tcol);
             _configurators.Remove(tcol);
             _tableConfiguration.Columns.Remove(conf);
+        }
+
+        internal IEnumerable<IColumnConfigurator> GetColumnsByIndexes(int[] indexes)
+        {
+            for (int index = 0; index < _tableColumns.Count; index++)
+            {
+                var propertyDescription = _tableColumns[index];
+                if (indexes.Contains(index)) yield return _configurators[propertyDescription];
+            }
         }
 
         /// <summary>
@@ -129,14 +145,37 @@ namespace PowerTables.Configuration
         public IColumnTargetProperty<TColumn> AddColumn<TColumn>(string columnName, Func<object, TColumn> getValue, Action<object, TColumn> setValue, string title = null, int? order = null)
         {
             if (!order.HasValue) order = _tableColumns.Count;
-            if (string.IsNullOrEmpty(title)) title = columnName;
+            if (title == null) title = columnName;
 
             PropertyDescription pd = new PropertyDescription(columnName, typeof(TColumn), title,
                 (x) => getValue(x),
-                (x, y) => setValue(x, (TColumn)y));
-            _tableColumns.Add(pd);
+                (x, y) => setValue(x, (TColumn)y), null);
+            if (order < 0) _tableColumns.Insert(0, pd);
+            else _tableColumns.Insert(order.Value, pd);
             CreateColumn(pd, order.Value);
             return (IColumnTargetProperty<TColumn>)_configurators[pd];
+        }
+
+        /// <summary>
+        /// Creates new UI-only column without binding to any existing data
+        /// </summary>
+        /// <param name="columnName">Column name</param>
+        /// <param name="title">Column title (optional)</param>
+        /// <param name="order">Column order</param>
+        /// <returns>Corresponding column configurator</returns>
+        public IColumnTargetProperty<T> AddUiColumn<T>(string columnName, string title = null, int? order = null)
+        {
+            if (!order.HasValue) order = _tableColumns.Count;
+            if (title == null) title = columnName;
+
+            PropertyDescription pd = new PropertyDescription(columnName, typeof(T), title,
+                (x) => null,
+                (x, y) => {}, null);
+            
+            CreateColumn(pd, order.Value);
+            var conf = (IColumnTargetProperty<T>)_configurators[pd];
+            conf.ColumnConfiguration.IsSpecial = true;
+            return conf;
         }
 
         protected void InitializeColumnsConfiguration()
@@ -346,6 +385,11 @@ namespace PowerTables.Configuration
             return _colFilters[columnName];
         }
 
+        internal void SetPrimaryKey(string[] primaryKeyFields)
+        {
+            HashCalculator = new HashCalculator(_tableColumns, primaryKeyFields, TableType);
+            TableConfiguration.KeyFields = primaryKeyFields;
+        }
 
 
     }

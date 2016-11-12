@@ -64,22 +64,7 @@ namespace PowerTables.Configuration.Json
         /// Object's key fields. Necessary for some operations
         /// </summary>
         public string[] KeyFields { get; set; }
-
-        /// <summary>
-        /// Template ID for adjusted cells
-        /// </summary>
-        public string TouchedCellTemplateId { get; set; }
-
-        /// <summary>
-        /// Template ID for adjusted rows
-        /// </summary>
-        public string TouchedRowTemplateId { get; set; }
-
-        /// <summary>
-        /// Template ID for adjusted rows
-        /// </summary>
-        public string AddedRowTemplateId { get; set; }
-
+       
         /// <summary>
         /// Function that will be called after tables initialization
         /// </summary>
@@ -109,6 +94,11 @@ namespace PowerTables.Configuration.Json
         public JRaw QueryConfirmation { get; set; }
 
         /// <summary>
+        /// Configuration of selection mechanism
+        /// </summary>
+        public SelectionConfiguration SelectionConfiguration { get; set; }
+
+        /// <summary>
         /// Default constructor
         /// </summary>
         public TableConfiguration()
@@ -119,6 +109,7 @@ namespace PowerTables.Configuration.Json
             Prefix = "lt";
             CoreTemplates = new CoreTemplateIds();
             Subscriptions = new List<ConfiguredSubscriptionInfo>();
+            SelectionConfiguration = new SelectionConfiguration();
         }
 
         /// <summary>
@@ -190,11 +181,6 @@ namespace PowerTables.Configuration.Json
         public string HeaderWrapper { get; set; }
 
         /// <summary>
-        /// Banner messages template (default is "messages")
-        /// </summary>
-        public string Messages { get; set; }
-
-        /// <summary>
         /// Default constructor
         /// </summary>
         public CoreTemplateIds()
@@ -204,7 +190,6 @@ namespace PowerTables.Configuration.Json
             RowWrapper = "rowWrapper";
             HeaderWrapper = "headerWrapper";
             CellWrapper = "cellWrapper";
-            Messages = "messages";
         }
     }
 
@@ -280,6 +265,11 @@ namespace PowerTables.Configuration.Json
         /// Return null/empty/undefined will let system to choose default template
         /// </summary>
         public JRaw TemplateSelector { get; set; }
+
+        /// <summary>
+        /// Special column does not represent any data and supposed to be handled by plugin from inside table
+        /// </summary>
+        public bool IsSpecial { get; set; }
     }
 
     /// <summary>
@@ -353,5 +343,37 @@ namespace PowerTables.Configuration.Json
         /// </summary>
         public JRaw ConfirmationWindowViewModel { get; set; }
 
+    }
+
+
+
+    public class SelectionConfiguration
+    {
+        public SelectAllBehavior SelectAllBehavior { get; set; }
+
+        public ResetSelectionBehavior ResetSelectionBehavior { get; set; }
+
+        public JRaw CanSelectRowFunction { get; set; }
+
+        public JRaw CanSelectCellFunction { get; set; }
+
+        public string[] NonselectableColumns { get; set; }
+
+        public bool SelectSingle { get; set; }
+    }
+
+    public enum SelectAllBehavior
+    {
+        AllVisible,
+        OnlyIfAllDataVisible,
+        AllLoadedData,
+        Disabled
+    }
+
+    public enum ResetSelectionBehavior
+    {
+        DontReset,
+        ServerReload,
+        ClientReload
     }
 }

@@ -11,8 +11,10 @@ using PowerTables.Editing.Editors.SelectList;
 using PowerTables.Editing.Form;
 using PowerTables.Editing.Rows;
 using PowerTables.FrequentlyUsed;
+using PowerTables.Plugins.Checkboxify;
 using PowerTables.Plugins.LoadingOverlap;
 using PowerTables.Plugins.Ordering;
+using PowerTables.Plugins.SimpeSelect;
 using PowerTables.Plugins.Toolbar;
 
 namespace PowerTables.Mvc.Models.Tutorial
@@ -43,7 +45,7 @@ namespace PowerTables.Mvc.Models.Tutorial
             conf.Column(c => c.Id).Orderable(c => c.Id, ui => ui.DefaultOrdering(Ordering.Descending));
             conf.Column(c => c.Edit).DataOnly(false);
 
-            conf.AdjustmentTemplates("updatedRow", "updatedCell", "addedRow");
+            //conf.AdjustmentTemplates("updatedRow", "updatedCell", "addedRow");
 
             conf.Column(c => c.Name)
                 .Template(t => t.Returns(v => v.Tag("span")
@@ -126,11 +128,12 @@ namespace PowerTables.Mvc.Models.Tutorial
             {
                 c.AddSimpleButton("Add new...").AddNewByForm();
                 c.AddSimpleButton("Add new by row...").AddNewByRow();
+                c.AddCommandButton("Test Selection", "Test").DisableIfNothingChecked();
             });
 
 
             conf.AddColumn<bool>("NewColumn", c => !c.IsPaid, (c, v) => c.IsPaid = !v).Title("New column").ClientExpression("!{IsPaid}");
-
+            conf.Checkboxify();
             return conf;
         }
 

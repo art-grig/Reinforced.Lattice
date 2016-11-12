@@ -1,5 +1,7 @@
 ﻿module PowerTables.Plugins.ResponseInfo {
-    export class ResponseInfoPlugin extends PluginBase<Plugins.ResponseInfo.IResponseInfoClientConfiguration> {
+    export class ResponseInfoPlugin extends PluginBase<Plugins.ResponseInfo.IResponseInfoClientConfiguration>
+        implements PowerTables.IAdditionalDataReceiver
+    {
         private _recentData: any = {};
         private _recentServerData: any;
         private _recentTemplate: HandlebarsTemplateDelegate;
@@ -10,14 +12,7 @@
 
         public onResponse(e: ITableEventArgs<IDataEventArgs>) {
             this._isServerRequest = true;
-            if (this.Configuration.ResponseObjectOverriden) {
-                if (!e.EventArgs.Data.AdditionalData) return;
-                if (!e.EventArgs.Data.AdditionalData['ResponseInfo']) return;
-
-                this._recentData = e.EventArgs.Data.AdditionalData['ResponseInfo'];
-                this._isReadyForRendering = true;
-                this.MasterTable.Renderer.Modifier.redrawPlugin(this);
-            } else {
+            if (!this.Configuration.ResponseObjectOverriden) {
                 this._recentServerData = {
                     TotalCount: e.EventArgs.Data.ResultsCount,
                     IsLocalRequest: false,
@@ -69,7 +64,9 @@
             super.init(masterTable);
 
             this._recentTemplate = this.MasterTable.Renderer.getCachedTemplate(this.RawConfig.TemplateId);
-
+            if (this.Configuration.ResponseObjectOverriden) {
+                this.MasterTable.Loader.registerAdditionalDataReceiver('ResponseInfo', this);
+            }
             this.MasterTable.Events.ClientDataProcessing.subscribeAfter(this.onClientDataProcessed.bind(this), 'responseInfo');
             this.MasterTable.Events.DataReceived.subscribe(this.onResponse.bind(this), 'responseInfo');
             try {
@@ -79,6 +76,12 @@
                 this._pagingEnabled = false;
             }
 
+        }
+
+        handleAdditionalData(additionalData): void {
+            this._recentData = additionalData;
+            this._isReadyForRendering = true;
+            this.MasterTable.Renderer.Modifier.redrawPlugin(this);
         }
     }
 

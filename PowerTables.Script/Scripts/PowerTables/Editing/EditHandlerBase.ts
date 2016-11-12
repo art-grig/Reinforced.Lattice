@@ -21,7 +21,7 @@ module PowerTables.Editing {
             throw Error("Not implemented");
         }
 
-        protected dispatchEditResponse(editResponse: PowerTables.Editing.IEditionResult, then: () => void) {
+        protected dispatchEditResponse(editResponse: PowerTables.ITableAdjustment, then: () => void) {
             if (then) then();
         }
         protected isEditable(column: IColumn): boolean {

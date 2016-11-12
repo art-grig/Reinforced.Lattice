@@ -75,6 +75,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Adjustments\AdjustmentExtensions.cs" />
+    <Compile Include="Adjustments\SelectionAdditionalData.cs" />
+    <Compile Include="Adjustments\TableAdjustment.cs" />
+    <Compile Include="Adjustments\AdjustmentWrapper.cs" />
     <Compile Include="CellTemplating\CellTemplateBuilder.cs" />
     <Compile Include="CellTemplating\DataWrapper.cs" />
     <Compile Include="CellTemplating\RazorSwitchBuilder.cs" />
@@ -85,11 +89,14 @@
     <Compile Include="Configuration\DatepickerOptions.cs" />
     <Compile Include="Configuration\EventSubscriptionWrapper.cs" />
     <Compile Include="Configuration\FakeColumn.cs" />
+    <Compile Include="Configuration\HashCalculator.cs" />
     <Compile Include="Configuration\IColumnConfigurator.cs" />
     <Compile Include="Configuration\IColumnTargetProperty.cs" />
     <Compile Include="Configuration\IConfigurator.cs" />
     <Compile Include="Configuration\Json\JsonConfigurationExtensions.cs" />
     <Compile Include="Configuration\NongenericConfigurator.cs" />
+    <Compile Include="Configuration\PrimaryKeyExtensions.cs" />
+    <Compile Include="Configuration\SelectionConfigurationWrapper.cs" />
     <Compile Include="Defaults\DefaultCommandHandler.cs" />
     <Compile Include="Defaults\DefaultQueryHandler.cs" />
     <Compile Include="Defaults\DelegateCommandHandler.cs" />
@@ -114,7 +121,6 @@
     <Compile Include="Editing\CellEditorTemplateRegionBase.cs" />
     <Compile Include="Editing\CellValidationMessagesTemplateRegion.cs" />
     <Compile Include="Editing\Editors\Check\CheckEditorTemplateRegion.cs" />
-    <Compile Include="Editing\EditionResult.cs" />
     <Compile Include="Editing\EditorCommandHandler.cs" />
     <Compile Include="Editing\Editors\Memo\MemoEditorConfigurationExtensions.cs" />
     <Compile Include="Editing\Editors\Memo\MemoEditorTemplateRegion.cs" />
@@ -157,10 +163,9 @@
     <Compile Include="InitializationExtensions.cs" />
     <Compile Include="IQueryHandler.cs" />
     <Compile Include="ITokenStorage.cs" />
-    <Compile Include="Plugins\Checkboxify\SelectionAdditionalData.cs" />
     <Compile Include="Plugins\Checkboxify\CheckboxifyExtensions.cs" />
-    <Compile Include="Plugins\Checkboxify\CheckboxifyCommandHandler.cs" />
     <Compile Include="Plugins\Checkboxify\CheckboxifyTemplateRegion.cs" />
+    <Compile Include="Plugins\Checkboxify\CheckboxifyUiConfig.cs" />
     <Compile Include="Plugins\ColumnListBuilder.cs" />
     <Compile Include="Plugins\ColumnPluginConfigurationWrapper.cs" />
     <Compile Include="Plugins\Formwatch\FormWatchBuilder.cs" />
@@ -185,6 +190,9 @@
     <Compile Include="Plugins\LoadingOverlap\LoadingOverlapUiConfig.cs" />
     <Compile Include="Plugins\Loading\LoadingPluginTemplateRegion.cs" />
     <Compile Include="Plugins\Loading\LoadingUiConfig.cs" />
+    <Compile Include="Plugins\MouseSelect\MouseSelectExtensions.cs" />
+    <Compile Include="Plugins\MouseSelect\MouseSelectTemplateRegion.cs" />
+    <Compile Include="Plugins\MouseSelect\MouseSelectUiConfig.cs" />
     <Compile Include="Plugins\Ordering\OrderingConfiguration.cs" />
     <Compile Include="Plugins\Ordering\OrderingExtensions.cs" />
     <Compile Include="Plugins\Ordering\OrderingPluginTemplateRegion.cs" />
@@ -194,13 +202,15 @@
     <Compile Include="Plugins\Paging\PagingTemplateRegion.cs" />
     <Compile Include="Plugins\PluginConfigurationCommonExtensions.cs" />
     <Compile Include="Plugins\PluginConfigurationWrapper.cs" />
+    <Compile Include="Plugins\RegularSelect\RegularSelectExtensions.cs" />
+    <Compile Include="Plugins\RegularSelect\RegularSelectUiConfig.cs" />
     <Compile Include="Plugins\Reload\ReloadExtensions.cs" />
     <Compile Include="Plugins\Reload\ReloadTemplateRegion.cs" />
     <Compile Include="Plugins\Reload\ReloadUiConfiguration.cs" />
     <Compile Include="Plugins\ResponseInfo\ActionBasedResponseModifier.cs" />
-    <Compile Include="Plugins\Checkboxify\CheckboxifyClientConfig.cs" />
     <Compile Include="Plugins\ResponseInfo\ResponseInfoClientConfiguration.cs" />
     <Compile Include="Plugins\ResponseInfo\ResponseInfoTemplateRegion.cs" />
+    <Compile Include="Plugins\SimpeSelect\SimpleSelectExtensions.cs" />
     <Compile Include="Plugins\Toolbar\ConfirmationTemplateRegion.cs" />
     <Compile Include="Plugins\Toolbar\ToolbarBuilder.cs" />
     <Compile Include="Plugins\Toolbar\ToolbarButtonClientConfiguration.cs" />
@@ -235,6 +245,7 @@
     <Compile Include="ResponseProcessing\IResponseModifier.cs" />
     <Compile Include="ResponseProcessing\IResponseModifiersApplier.cs" />
     <Compile Include="ResponseProcessing\JsonNetResult.cs" />
+    <Compile Include="SelectionExtensions.cs" />
     <Compile Include="SerializationSettings.cs" />
     <Compile Include="TableMessage.cs" />
     <Compile Include="Templating\AdditionalTemplatesScope.cs" />

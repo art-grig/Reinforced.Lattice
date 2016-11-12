@@ -1,4 +1,5 @@
-﻿module PowerTables {
+﻿
+module PowerTables.Services {
     /**
      * This entity is responsible for integration of data between storage and rendere. 
      * Also it provides functionality for table events subscription and 
@@ -14,7 +15,7 @@
         }
 
         private _masterTable: IMasterTable;
-        
+
         /**
          * Initializes full reloading cycle
          * @returns {} 
@@ -42,7 +43,7 @@
         public redrawVisibleDataObject(dataObject: any, idx?: number): HTMLElement {
             if (idx == null || idx == undefined) {
                 var dispIndex: ILocalLookupResult = this._masterTable.DataHolder.localLookupDisplayedDataObject(dataObject);
-                if (dispIndex == null) throw new Error('Cannot redraw object because it is not displaying currently');
+                if (dispIndex == null) return null;
                 idx = dispIndex.DisplayedIndex;
             }
             var row: IRow = this.produceRow(dataObject, idx);
@@ -70,50 +71,57 @@
         /**
          * Redraws locally visible data
          */
-        public replaceVisibleData(rows:IRow[]): void {
+        public replaceVisibleData(rows: IRow[]): void {
             this._masterTable.Renderer.body(rows);
+        }
+
+        public redrawVisibleCells(dataObject: any, columns: IColumn[]) {
+            var dispIndex: ILocalLookupResult = this._masterTable.DataHolder.localLookupDisplayedDataObject(dataObject);
+            if (dispIndex == null) throw new Error('Cannot redraw cells because proposed object it is not displaying currently');
+            var row = this.produceRow(dataObject, dispIndex.DisplayedIndex);
+            for (var i = 0; i < columns.length; i++) {
+                if (row.Cells.hasOwnProperty(columns[i].RawName)) {
+                    this._masterTable.Renderer.Modifier.redrawCell(row.Cells[columns[i].RawName]);
+                }
+            }
+        }
+
+        public redrawColumns(columns: IColumn[]) {
+            var rows = this.produceRows();
+            for (var i = 0; i < rows.length; i++) {
+                for (var j = 0; j < columns.length; j++) {
+                    this._masterTable.Renderer.Modifier.redrawCell(rows[i].Cells[columns[j].RawName]);
+                }
+            }
         }
 
         /**
          * @internal
          */
         public drawAdjustmentResult(adjustmentResult: IAdjustmentResult) {
-            var adjRowTemplate = this._masterTable.InstanceManager.Configuration.TouchedRowTemplateId;
-            var adjCellTemplate = this._masterTable.InstanceManager.Configuration.TouchedCellTemplateId;
-            var addedTemplate = this._masterTable.InstanceManager.Configuration.AddedRowTemplateId;
             this._masterTable.Events.AdjustmentResult.invoke(this, adjustmentResult);
 
             var rows: IRow[] = this.produceRows();
 
             for (var i = 0; i < rows.length; i++) {
                 var needRedrawRow = false;
-                var cellsToRedraw = [];
+                var cellsToRedraw: ICell[] = [];
 
                 if (adjustmentResult.AddedData.indexOf(rows[i]) > -1) {
-                    if (addedTemplate) {
-                        rows[i].TemplateIdOverride = addedTemplate;
-                    }
+                    rows[i].IsAdded = true;
                     needRedrawRow = true;
                 } else {
                     var adjIdx = adjustmentResult.TouchedData.indexOf(rows[i].DataObject);
                     if (adjIdx > -1) {
-                        if (adjRowTemplate) {
-                            rows[i].TemplateIdOverride = adjRowTemplate;
-                            needRedrawRow = true;
-                        }
+                        rows[i].IsUpdated = true;
+                        needRedrawRow = true;
 
                         var cols = adjustmentResult.TouchedColumns[adjIdx];
                         for (var j = 0; j < cols.length; j++) {
                             if (!rows[i].Cells.hasOwnProperty(cols[j])) continue;
                             var cell = rows[i].Cells[cols[j]];
-                            
-                            if (adjCellTemplate) {
-                                cell.TemplateIdOverride = adjCellTemplate;
-                            }
                             cell.IsUpdated = true;
-                            if (!needRedrawRow) {
-                                cellsToRedraw.push(cell);
-                            }
+                            cellsToRedraw.push(cell);
                         }
                     }
                 }
@@ -135,7 +143,7 @@
             this._masterTable.Events.Adjustment.invokeAfter(this, adjustmentResult);
 
         }
-       
+
         /**
          * Converts data object,row and column to cell
          * 
@@ -152,7 +160,8 @@
                 DataObject: dataObject,
                 Row: row,
                 renderContent: null,
-                renderElement: null
+                renderElement: null,
+                IsSelected: this._masterTable.Selection.isCellSelected(dataObject, column)
             };
         }
 
@@ -171,8 +180,12 @@
             var rw: IRow = <IRow>{
                 DataObject: dataObject,
                 Index: idx,
-                MasterTable: this._masterTable
-            }
+                MasterTable: this._masterTable,
+                IsSelected: this._masterTable.Selection.isSelected(dataObject),
+                CanBeSelected: this._masterTable.Selection.canSelect(dataObject),
+                Cells: null
+            };
+
             if (dataObject.IsMessageObject) {
                 dataObject.UiColumnsCount = columns.length;
                 rw.renderElement = hb => hb.getCachedTemplate('messages')(dataObject);
@@ -180,6 +193,7 @@
                 return rw;
             }
             var cells: { [key: string]: ICell } = {};
+
 
             for (var j: number = 0; j < columns.length; j++) {
                 var col: IColumn = columns[j];

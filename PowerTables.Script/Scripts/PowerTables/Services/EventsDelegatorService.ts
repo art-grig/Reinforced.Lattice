@@ -1,13 +1,13 @@
-﻿module PowerTables {
+﻿module PowerTables.Services {
     /**
      * API for managing in-table elements' events
      */
-    export class EventsDelegator {
+    export class EventsDelegatorService {
 
         /**
          * @internal
          */
-        constructor(locator: PowerTables.Rendering.DOMLocator, bodyElement: HTMLElement, layoutElement: HTMLElement, rootId: string, masterTable:IMasterTable) {
+        constructor(locator: PowerTables.Rendering.DOMLocator, bodyElement: HTMLElement, layoutElement: HTMLElement, rootId: string, masterTable: IMasterTable) {
             this._locator = locator;
             this._bodyElement = bodyElement;
             this._layoutElement = layoutElement;
@@ -21,7 +21,7 @@
             } (Element));
         }
 
-        private static addHandler(element: HTMLElement, type: string, handler: any) {
+        public static addHandler(element: HTMLElement, type: string, handler: any) {
             if (element.addEventListener) {
                 element.addEventListener(type, handler, false);
             } else if (element['attachEvent']) {
@@ -30,7 +30,7 @@
                 element["on" + type] = handler;
             }
         }
-        private static removeHandler(element: HTMLElement, type: string, handler: any) {
+        public static removeHandler(element: HTMLElement, type: string, handler: any) {
             if (element.removeEventListener) {
                 element.removeEventListener(type, handler, false);
             } else if (element['detachEvent']) {
@@ -40,7 +40,7 @@
             }
         }
 
-        private _masterTable:IMasterTable;
+        private _masterTable: IMasterTable;
         private _rootId: string;
         private _locator: PowerTables.Rendering.DOMLocator;
         private _bodyElement: HTMLElement;
@@ -55,21 +55,42 @@
         private _outEvents: { [key: string]: any } = {};
         private _destroyCallbacks: PowerTables.Rendering.ICallbackDescriptor[] = [];
 
+        private ensureMouseOpSubscriptions() {
+            if (this._domEvents.hasOwnProperty('mousemove')) return;
+            var fn = this.onMouseMoveEvent.bind(this);
+            EventsDelegatorService.addHandler(this._bodyElement, 'mousemove', fn);
+            this._domEvents["mousemove"] = fn;
+        }
+
+        private checkMouseEvent(eventId: string):boolean {
+            if (eventId === 'mouseover' || eventId === 'mouseout') {
+                throw Error('Mouseover and mouseout events are not supported. Please use mouseenter and mouseleave events instead');
+            }
+            if (eventId === 'mouseenter' || eventId === 'mouseleave' || eventId === 'mousemove') {
+                this.ensureMouseOpSubscriptions();
+                return true;
+            }
+            return false;
+        }
+
         private ensureEventSubscription(eventId: string) {
+            if (this.checkMouseEvent(eventId)) return;
             if (this._domEvents.hasOwnProperty(eventId)) return;
             var fn = this.onTableEvent.bind(this);
-            EventsDelegator.addHandler(this._bodyElement, eventId, fn);
+            EventsDelegatorService.addHandler(this._bodyElement, eventId, fn);
             this._domEvents[eventId] = fn;
         }
 
         private ensureOutSubscription(eventId: string) {
+            if (this.checkMouseEvent(eventId)) return;
             if (this._outEvents.hasOwnProperty(eventId)) return;
             var fn = this.onOutTableEvent.bind(this);
-            EventsDelegator.addHandler(this._layoutElement, eventId, fn);
+            EventsDelegatorService.addHandler(this._layoutElement, eventId, fn);
             this._outEvents[eventId] = fn;
         }
 
         private traverseAndFire(subscriptions: ISubscription[], path: any[], args: any) {
+            if (!subscriptions) return;
             for (var i: number = 0; i < subscriptions.length; i++) {
 
                 if (subscriptions[i].Selector) {
@@ -80,9 +101,106 @@
                                 break;
                             }
                         }
+                        if (args.Stop) break;
                     }
                 } else {
                     subscriptions[i].Handler(args);
+                }
+                if (args.Stop) break;
+            }
+        }
+
+        private _previousMousePos: { row: number; column: number; } = { row: 0, column: 0 };
+
+        private onMouseMoveEvent(e: MouseEvent) {
+            var t: HTMLElement = <HTMLElement>(e.target || e.srcElement), eventType = e.type;
+            var rowEvents = {
+                'mouseenter': this._rowDomSubscriptions['mouseenter'],
+                'mouseleave': this._rowDomSubscriptions['mouseleave'],
+                'mousemove': this._rowDomSubscriptions['mousemove']
+            };
+
+            var cellEvents = {
+                'mouseenter': this._cellDomSubscriptions['mouseenter'],
+                'mouseleave': this._cellDomSubscriptions['mouseleave'],
+                'mousemove': this._cellDomSubscriptions['mousemove']
+            };
+            if ((!rowEvents["mouseenter"]) &&
+                (!rowEvents["mouseleave"]) &&
+                (!rowEvents["mousemove"]) &&
+                (!cellEvents["mouseenter"]) &&
+                (!cellEvents["mousemove"]) &&
+                (!cellEvents["mouseleave"])) return;
+
+            var pathToCell: any[] = [];
+            var pathToRow: any[] = [];
+            var cellLocation: ICellLocation = null, rowIndex: number = null;
+
+            while (t !== this._bodyElement) {
+                if (this._locator.isCell(t)) cellLocation = TrackHelper.getCellLocation(t);
+                if (this._locator.isRow(t)) rowIndex = TrackHelper.getRowIndex(t);
+
+                if (cellLocation == null) pathToCell.push(t);
+                if (rowIndex == null) pathToRow.push(t);
+
+                t = t.parentElement;
+                if (t.parentElement == null) {
+                    // we encountered event on detached element
+                    // just return
+                    return;
+                }
+            }
+
+            if (cellLocation != null) {
+                var cellInArgs: ICellEventArgs = {
+                    Master: this._masterTable,
+                    OriginalEvent: e,
+                    DisplayingRowIndex: cellLocation.RowIndex,
+                    ColumnIndex: cellLocation.ColumnIndex,
+                    Stop: false
+                };
+                if (this._previousMousePos.row !== cellLocation.RowIndex ||
+                    this._previousMousePos.column !== cellLocation.ColumnIndex) {
+                   
+                    var cellOutArgs: ICellEventArgs = {
+                        Master: this._masterTable,
+                        OriginalEvent: e,
+                        DisplayingRowIndex: this._previousMousePos.row,
+                        ColumnIndex: this._previousMousePos.column,
+                        Stop: false
+                    };
+                    this.traverseAndFire(cellEvents["mouseleave"], pathToCell, cellOutArgs);
+                    this.traverseAndFire(cellEvents["mouseenter"], pathToCell, cellInArgs);
+                    if (this._previousMousePos.row !== cellLocation.RowIndex) {
+                        this.traverseAndFire(rowEvents["mouseleave"], pathToCell, cellOutArgs);
+                        this.traverseAndFire(rowEvents["mouseenter"], pathToCell, cellInArgs);
+                    }
+                    this._previousMousePos.row = cellLocation.RowIndex;
+                    this._previousMousePos.column = cellLocation.ColumnIndex;
+                }
+                this.traverseAndFire(cellEvents["mousemove"], pathToCell, cellInArgs);
+                this.traverseAndFire(rowEvents["mousemove"], pathToCell, cellInArgs);
+            } else {
+                if (rowIndex != null) {
+                    var rowInArgs: IRowEventArgs = {
+                        Master: this._masterTable,
+                        OriginalEvent: e,
+                        DisplayingRowIndex: rowIndex,
+                        Stop: false
+                    };
+                    if (this._previousMousePos.row !== rowIndex) {
+                        
+                        var rowOutArgs: IRowEventArgs = {
+                            Master: this._masterTable,
+                            OriginalEvent: e,
+                            DisplayingRowIndex: this._previousMousePos.row,
+                            Stop: false
+                        };
+                        this.traverseAndFire(rowEvents["mouseleave"], pathToCell, rowOutArgs);
+                        this.traverseAndFire(rowEvents["mouseenter"], pathToCell, rowInArgs);
+                        this._previousMousePos.row = rowIndex;
+                    }
+                    this.traverseAndFire(rowEvents["mousemove"], pathToCell, rowInArgs);
                 }
             }
         }
@@ -117,21 +235,24 @@
 
             if (cellLocation != null) {
                 var cellArgs: ICellEventArgs = {
-                    Master:this._masterTable,
-                    OriginalEvent: e,
-                    DisplayingRowIndex: cellLocation.RowIndex,
-                    ColumnIndex: cellLocation.ColumnIndex
-                };
-                this.traverseAndFire(forCell, pathToCell, cellArgs);
-            }
-
-            if (rowIndex != null) {
-                var rowArgs: IRowEventArgs = {
                     Master: this._masterTable,
                     OriginalEvent: e,
-                    DisplayingRowIndex: rowIndex
+                    DisplayingRowIndex: cellLocation.RowIndex,
+                    ColumnIndex: cellLocation.ColumnIndex,
+                    Stop: false
                 };
-                this.traverseAndFire(forRow, pathToRow, rowArgs);
+                this.traverseAndFire(forCell, pathToCell, cellArgs);
+                this.traverseAndFire(forRow, pathToCell, cellArgs);
+            } else {
+                if (rowIndex != null) {
+                    var rowArgs: IRowEventArgs = {
+                        Master: this._masterTable,
+                        OriginalEvent: e,
+                        DisplayingRowIndex: rowIndex,
+                        Stop: false
+                    };
+                    this.traverseAndFire(forRow, pathToRow, rowArgs);
+                }
             }
         }
 
@@ -180,8 +301,8 @@
                 var evtSplit = eventId.split('|');
                 eo['__event'] = evtSplit[evtSplit.length - 1];
                 eo['__altern'] = {};
-                for (var i = 0; i < evtSplit.length-1; i++) {
-                    if (evtSplit[i].length===0) continue;
+                for (var i = 0; i < evtSplit.length - 1; i++) {
+                    if (evtSplit[i].length === 0) continue;
                     var eqidx = evtSplit[i].indexOf('=');
                     var key = evtSplit[i].substring(0, eqidx);
                     var right = evtSplit[i].substring(eqidx + 1);
@@ -198,7 +319,7 @@
                         default:
                             val = rightRaw;
                     }
-                    
+
                     var keyalterns = key.split('+');
                     if (keyalterns.length > 1) {
                         eo[keyalterns[0]] = val;
@@ -214,7 +335,7 @@
         private filterEvent(e: Event, propsObject: { [key: string]: any }): boolean {
             if (propsObject['__no']) return true;
             for (var p in propsObject) {
-                if (p === '__event' || p ==='__altern') continue;
+                if (p === '__event' || p === '__altern') continue;
                 if (e[p] !== propsObject[p]) {
                     if (propsObject["__altern"][p]) {
                         var altern = false;
@@ -253,7 +374,7 @@
                         EventArguments: eventArguments
                     });
                 };
-                EventsDelegator.addHandler(el, eventId, fn);
+                EventsDelegatorService.addHandler(el, eventId, fn);
             } else {
                 fn = (e: any) => {
                     handler.call(receiver, {
@@ -263,7 +384,7 @@
                         EventArguments: eventArguments
                     });
                 };
-                EventsDelegator.addHandler(el, eventId, fn);
+                EventsDelegatorService.addHandler(el, eventId, fn);
             }
             el.setAttribute('data-dsub', 'true');
             this._directSubscriptions.push({ Element: el, Handler: fn, EventId: eventId });
@@ -320,7 +441,7 @@
          * @param e HTML element destroying of which will fire event
          * @param callback Callback being called when element is destroyed        
          */
-        public subscribeDestroy(e: HTMLElement, callback: PowerTables.Rendering.ICallbackDescriptor):void {
+        public subscribeDestroy(e: HTMLElement, callback: PowerTables.Rendering.ICallbackDescriptor): void {
             callback.Element = e;
             e.setAttribute("data-dstrycb", "true");
             this._destroyCallbacks.push(callback);
@@ -341,7 +462,7 @@
                         }
                     }
                     if (this._outSubscriptions[os].length === 0) {
-                        EventsDelegator.removeHandler(this._layoutElement, os, this._outEvents[os]);
+                        EventsDelegatorService.removeHandler(this._layoutElement, os, this._outEvents[os]);
                         delete this._outEvents[os];
                     }
                 }
@@ -350,7 +471,7 @@
             if (arr.length !== 0) {
                 for (var i = 0; i < this._directSubscriptions.length; i++) {
                     if (arr.indexOf(this._directSubscriptions[i].Element) > -1) {
-                        EventsDelegator.removeHandler(this._directSubscriptions[i].Element,
+                        EventsDelegatorService.removeHandler(this._directSubscriptions[i].Element,
                             this._directSubscriptions[i].EventId,
                             this._directSubscriptions[i].Handler);
                     }
@@ -402,63 +523,5 @@
         filter: { [key: string]: any };
     }
 
-    export interface IRowEventArgs {
-        /**
-         * Master table reference
-         */
-        Master: IMasterTable;
 
-        /**
-         * Original event reference
-         */
-        OriginalEvent: Event;
-
-        /**
-         * Row index. 
-         * Data object can be restored using Table.DataHolder.localLookupDisplayedData(RowIndex)
-         */
-        DisplayingRowIndex: number;
-    }
-
-    /**
-     * Event arguments for particular cell event
-     */
-    export interface ICellEventArgs extends IRowEventArgs {
-        /**
-         * Column index related to particular cell. 
-         * Column object can be restored using Table.InstanceManager.getUiColumns()[ColumnIndex]
-         */
-        ColumnIndex: number;
-    }
-
-    export interface ISubscription {
-        /**
-         * Event Id
-         */
-        EventId: string;
-        /**
-         * Selector of element
-         */
-        Selector?: string;
-        /**
-         * Subscription ID (for easier unsubscribe)
-         */
-        SubscriptionId: string;
-
-        Handler: any;
-
-        filter?: { [key: string]: any };
-    }
-
-    /**
-     * Information about UI subscription
-     */
-    export interface IUiSubscription<TEventArgs> extends ISubscription {
-        /**
-         * Event handler 
-         * 
-         * @param e Event arguments 
-         */
-        Handler: (e: TEventArgs) => any;
-    }
 } 

@@ -296,8 +296,7 @@ namespace PowerTables.Configuration
             string pluginWrapper = "pluginWrapper",
             string rowWrapper = "rowWrapper",
             string headerWrapper = "headerWrapper",
-            string cellWrapper = "cellWrapper",
-            string messages = "messages"
+            string cellWrapper = "cellWrapper"
             ) where T : IConfigurator
         {
             t.TableConfiguration.CoreTemplates.Layout = layout;
@@ -305,56 +304,11 @@ namespace PowerTables.Configuration
             t.TableConfiguration.CoreTemplates.RowWrapper = rowWrapper;
             t.TableConfiguration.CoreTemplates.HeaderWrapper = headerWrapper;
             t.TableConfiguration.CoreTemplates.CellWrapper = cellWrapper;
-            t.TableConfiguration.CoreTemplates.Messages = messages;
             return t;
         }
 
 
-        /// <summary>
-        /// Points object's key fields. This information is used to assemble 
-        /// local key comparison function and compare local objects in runtime. 
-        /// It is used to proform update of local objects set
-        /// </summary>
-        /// <param name="conf">Column configuration</param>
-        /// <param name="columns"></param>
-        public static Configurator<TSourceData, TTableData> PrimaryKey<TSourceData, TTableData>
-            (this Configurator<TSourceData, TTableData> conf, Action<ColumnListBuilder<TSourceData, TTableData>> columns) where TTableData : new()
-        {
-            ColumnListBuilder<TSourceData, TTableData> clb = new ColumnListBuilder<TSourceData, TTableData>(conf);
-            columns(clb);
-            conf.TableConfiguration.KeyFields = clb.Names.ToArray();
-            return conf;
-        }
 
-        /// <summary>
-        /// Points object's key fields. This information is used to assemble 
-        /// local key comparison function and compare local objects in runtime. 
-        /// It is used to proform update of local objects set
-        /// </summary>
-        /// <param name="conf">Column configuration</param>
-        /// <param name="keyFields">Columns names representing primary key</param>
-        public static T PrimaryKey<T> (this T conf, params string[] keyFields) where T : IConfigurator
-        {
-            conf.TableConfiguration.KeyFields = keyFields;
-            return conf;
-        }
-
-        /// <summary>
-        /// Sets template IDs for touched data. 
-        /// Touched data is being added to table after various edits
-        /// </summary>
-        /// <param name="conf"></param>
-        /// <param name="touchedRowTemplateId">Template ID for touched row</param>
-        /// <param name="touchedCellTemplateId">Template ID for touched columns</param>
-        /// <param name="addedRowTemplateId">Template ID for added row</param>
-        public static T AdjustmentTemplates<T>
-            (this T conf, string touchedRowTemplateId, string touchedCellTemplateId, string addedRowTemplateId) where T : IConfigurator
-        {
-            conf.TableConfiguration.TouchedCellTemplateId = touchedCellTemplateId;
-            conf.TableConfiguration.TouchedRowTemplateId = touchedRowTemplateId;
-            conf.TableConfiguration.AddedRowTemplateId = addedRowTemplateId;
-            return conf;
-        }
 
 
         /// <summary>
@@ -390,6 +344,25 @@ namespace PowerTables.Configuration
         {
             TableEventSubscription sub = new TableEventSubscription();
             sub.SubscriptionInfo.IsRowSubscription = true;
+            subscription(sub);
+            conf.TableConfiguration.Subscriptions.Add(sub.SubscriptionInfo);
+            return conf;
+        }
+
+        /// <summary>
+        /// Subscribes event handler of DOM event occured on each row. 
+        /// Please use this function to subscribe row events instead of template bindings or onclick to 
+        /// improve event handling time and reduce RAM usage. This method actually makes table to subscribe row 
+        /// event via events delegator
+        /// </summary>
+        /// <param name="conf">Table configurator</param>
+        /// <param name="subscription">Event subscription configuration</param>
+        /// <returns></returns>
+        public static T SubscribeAllCellsEvent<T>(this T conf, Action<TableEventSubscription> subscription) where T : IConfigurator
+        {
+            TableEventSubscription sub = new TableEventSubscription();
+            sub.SubscriptionInfo.IsRowSubscription = false;
+            sub.SubscriptionInfo.ColumnName = null;
             subscription(sub);
             conf.TableConfiguration.Subscriptions.Add(sub.SubscriptionInfo);
             return conf;
@@ -456,7 +429,7 @@ namespace PowerTables.Configuration
         /// <param name="columnName">Name of column catching corresponding cell events</param>
         /// <param name="subscription">Event subscription</param>
         /// <returns></returns>
-        public static T SubscribeCellEvent<T> (this T conf, string columnName, TableEventSubscription subscription) where T:IConfigurator
+        public static T SubscribeCellEvent<T>(this T conf, string columnName, TableEventSubscription subscription) where T : IConfigurator
         {
             subscription.SubscriptionInfo.ColumnName = columnName;
             subscription.SubscriptionInfo.IsRowSubscription = false;
@@ -544,6 +517,26 @@ namespace PowerTables.Configuration
             return configurator;
         }
 
+        public static PowerTablesHandler<TSourceData, TTableData> CreateHandler<TSourceData, TTableData>(
+            this Configurator<TSourceData, TTableData> configurator, IQueryHandler<TSourceData, TTableData> queryHandler = null,
+            ITokenStorage tokenStorage = null) where TTableData : new()
+        {
+            return new PowerTablesHandler<TSourceData, TTableData>(configurator, queryHandler, tokenStorage);
+        }
 
+        public static Configurator<TSource, TTarget> Selection<TSource, TTarget>(
+            this Configurator<TSource, TTarget> conf, Action<GenericSelectionConfigurationWrapper<TTarget>> config) where TTarget : new()
+        {
+            var wr = new GenericSelectionConfigurationWrapper<TTarget>(conf.TableConfiguration.SelectionConfiguration);
+            config(wr);
+            return conf;
+        }
+
+        public static NongenericConfigurator Selection(this NongenericConfigurator conf, Action<SelectionConfigurationWrapper> config)
+        {
+            var wr = new SelectionConfigurationWrapper(conf.TableConfiguration.SelectionConfiguration);
+            config(wr);
+            return conf;
+        }
     }
 }

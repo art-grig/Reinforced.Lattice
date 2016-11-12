@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using System.Web.Mvc;
+using PowerTables.Adjustments;
 using PowerTables.Configuration;
 using PowerTables.Configuration.Json;
 using PowerTables.Editing;
@@ -22,8 +23,10 @@ using PowerTables.Plugins.Hideout;
 using PowerTables.Plugins.Hierarchy;
 using PowerTables.Plugins.Limit;
 using PowerTables.Plugins.LoadingOverlap;
+using PowerTables.Plugins.MouseSelect;
 using PowerTables.Plugins.Ordering;
 using PowerTables.Plugins.Paging;
+using PowerTables.Plugins.RegularSelect;
 using PowerTables.Plugins.Reload;
 using PowerTables.Plugins.ResponseInfo;
 using PowerTables.Plugins.Toolbar;
@@ -73,10 +76,10 @@ namespace PowerTables.Typings
                 ;
 
             builder.ExportAsInterface<PluginConfiguration>().WithPublicProperties();
-            builder.ExportAsInterface<CheckboxifyClientConfig>().WithPublicProperties()
-                .WithProperty(c => c.CanSelectFunction, c => c.Type("(v:any)=>boolean"));
+            //builder.ExportAsInterface<CheckboxifyClientConfig>().WithPublicProperties()
+            //    .WithProperty(c => c.CanSelectFunction, c => c.Type("(v:any)=>boolean"));
 
-            builder.ExportAsInterface<SelectionAdditionalData>().WithPublicProperties();
+            //builder.ExportAsInterface<SelectionAdditionalData>().WithPublicProperties();
 
             builder.ExportAsInterface<FormwatchClientConfiguration>().WithPublicProperties();
             builder.ExportAsInterface<FormwatchFieldData>().WithPublicProperties()
@@ -151,8 +154,7 @@ namespace PowerTables.Typings
                 .WithProperty(c => c.MissingKeyFunction, a => a.Type("(a:any)=>any"))
                 ;
             builder.ExportAsInterface<MemoEditorUiConfig>().WithPublicProperties();
-            builder.ExportAsInterface<EditionResult>().WithPublicProperties();
-            builder.ExportAsInterface<AdjustmentData>().WithPublicProperties();
+            builder.ExportAsInterface<TableAdjustment>().WithAllProperties();
             builder.ExportAsInterface<CheckEditorUiConfig>().WithPublicProperties();
             builder.ExportAsInterface<PlainTextEditorUiConfig>()
                 .WithPublicProperties()
@@ -170,6 +172,25 @@ namespace PowerTables.Typings
 
             builder.ExportAsInterface<HierarchyUiConfiguration>().WithPublicProperties();
             builder.ExportAsEnums(new[] { typeof(NodeExpandBehavior), typeof(TreeCollapsedNodeFilterBehavior) });
+
+
+            builder.ExportAsInterface<MouseSelectUiConfig>();
+            builder.ExportAsInterface<CheckboxifyUiConfig>().WithPublicProperties();
+            builder.ExportAsInterface<SelectionConfiguration>()
+                .WithPublicProperties()
+                .WithProperty(c => c.CanSelectRowFunction, c => c.Type("(dataObject:any)=>boolean"))
+                .WithProperty(c => c.CanSelectCellFunction, c => c.Type("(dataObject:any,column:string,select:boolean)=>boolean"))
+                ;
+            builder.ExportAsInterface<SelectionAdditionalData>().WithPublicProperties();
+            builder.ExportAsEnum<SelectionToggle>();
+
+            builder.ExportAsEnum<PowerTables.Configuration.Json.SelectAllBehavior>();
+            builder.ExportAsEnum<PowerTables.Configuration.Json.ResetSelectionBehavior>();
+
+
+            builder.ExportAsInterface<RegularSelectUiConfig>().WithPublicProperties();
+            builder.ExportAsEnum<RegularSelectMode>();
+            
 
         }
 

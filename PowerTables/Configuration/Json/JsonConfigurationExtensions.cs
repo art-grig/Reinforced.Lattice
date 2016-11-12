@@ -108,7 +108,7 @@ namespace PowerTables.Configuration.Json
         public static void UpdatePluginConfig<TConfig>(this TableConfiguration conf, string pluginId, Action<PluginConfigurationWrapper<TConfig>> pluginConfiguration, string where = null)
             where TConfig : new()
         {
-            PluginConfiguration config = conf.GetPluginConfiguration(pluginId, where); 
+            PluginConfiguration config = conf.GetPluginConfiguration(pluginId, where);
             if (config == null)
             {
                 config = new PluginConfiguration(pluginId)
@@ -119,7 +119,7 @@ namespace PowerTables.Configuration.Json
                 conf.PluginsConfiguration.Add(config);
                 if (config.Configuration is IProvidesTemplate)
                 {
-                    config.TemplateId = ((IProvidesTemplate) config.Configuration).DefaultTemplateId;
+                    config.TemplateId = ((IProvidesTemplate)config.Configuration).DefaultTemplateId;
                 }
             }
 

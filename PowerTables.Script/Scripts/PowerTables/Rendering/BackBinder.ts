@@ -9,19 +9,19 @@
         private _callbacksQueue: ICallbackDescriptor[] = [];
         private _destroyCallbacksQueue: ICallbackDescriptor[] = [];
 
-        private _instances: InstanceManager;
+        private _instances: PowerTables.Services.InstanceManagerService;
         private _stack: RenderingStack;
-        private _dateService: DateService;
+        private _dateService: PowerTables.Services.DateService;
         private _stealer: any;
         private _cachedVisualStates: { [key: string]: IState[] } = {};
         private _hasVisualStates: boolean = false;
 
-        public Delegator: EventsDelegator;
+        public Delegator: PowerTables.Services.EventsDelegatorService;
 
          /**
     * @internal
     */
-        constructor(hb: Handlebars.IHandlebars, instances: InstanceManager, stack: RenderingStack, dateService: DateService) {
+        constructor(hb: Handlebars.IHandlebars, instances: PowerTables.Services.InstanceManagerService, stack: RenderingStack, dateService: PowerTables.Services.DateService) {
             this._instances = instances;
             hb.registerHelper('BindEvent', this.bindEventHelper.bind(this));
             hb.registerHelper('Mark', this.markHelper.bind(this));
@@ -323,17 +323,13 @@
             this._markQueue.push(md);
             return `data-mrk="${index}"`;
         }
-        private datepickerHelper(columnName: string, forceNullable: boolean): string {
+        private datepickerHelper(condition: boolean, nullable: boolean): string {
             var index: number = this._datepickersQueue.length;
-            //dirty hack. todo
-            var col = this._instances.Columns.hasOwnProperty(columnName)
-                ? this._instances.Columns[columnName]
-                : this._stack.Current.Object['Column'];
-
-            if (col.IsDateTime) {
+            
+            if (condition) {
                 var md: IDatepickerDescriptor = <IDatepickerDescriptor>{
                     ElementReceiver: this._stack.Current.Object,
-                    IsNullable: forceNullable || col.Configuration.IsNullable
+                    IsNullable: nullable
                 };
                 this._datepickersQueue.push(md);
                 return `data-dp="${index}"`;

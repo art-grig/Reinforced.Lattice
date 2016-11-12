@@ -61,7 +61,7 @@ namespace PowerTables.Editing
 
         public static MvcHtmlString Datepicker<T>(this CellEditorTemplateRegionBase<T> t) where T : ICellEditorViewModel
         {
-            return t.Datepicker(t.CleanValue(c => c.Column.RawName));
+            return t.DatepickerIf(t.CleanValue(c => c.Column.IsDateTime), t.CleanValue(c => c.Column.Configuration.IsNullable));
         }
 
         public static MvcHtmlString BindChanged<T>(this CellEditorTemplateRegionBase<T> t,string eventId) where T : ICellEditorViewModel

@@ -1,6 +1,7 @@
 ﻿using PowerTables.Configuration;
 using PowerTables.Plugins;
 using PowerTables.Plugins.Limit;
+using PowerTables.Plugins.MouseSelect;
 using PowerTables.Plugins.Paging;
 
 namespace PowerTables.Mvc.Models.Tutorial
@@ -28,6 +29,7 @@ namespace PowerTables.Mvc.Models.Tutorial
                     .PagingWithPeriods(useFirstLasPage: true)   // lets pick most complex paging
                     .UseGotoPage()                              // and also enable "Go to page" functionality
                 );
+            //conf.MouseSelect(ui => { });
             return conf;
         }
     }

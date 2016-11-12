@@ -7,7 +7,7 @@
         /**
          * @internal
          */
-        constructor(confirm: (form: any) => void, reject: () => void, date: DateService, autoform: PowerTables.Plugins.Formwatch.IFormwatchFieldData[]) {
+        constructor(confirm: (form: any) => void, reject: () => void, date: PowerTables.Services.DateService, autoform: PowerTables.Plugins.Formwatch.IFormwatchFieldData[]) {
             this._confirm = confirm;
             this._reject = reject;
             this._date = date;
@@ -17,7 +17,7 @@
         private _autoform: PowerTables.Plugins.Formwatch.IFormwatchFieldData[];
         private _confirm: (form: any) => void;
         private _reject: () => void;
-        private _date: DateService;
+        private _date: PowerTables.Services.DateService;
         private _beforeConfirm: ((form: any) => void)[] = [];
 
         /**

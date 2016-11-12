@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading.Tasks;
 using PowerTables.Configuration.Json;
@@ -47,5 +48,6 @@ namespace PowerTables.Configuration
         }
 
         public Type ColumnType { get { return typeof(TColumn); } }
+        public PropertyDescription ColumnProperty { get { return default(PropertyDescription); } }
     }
 }

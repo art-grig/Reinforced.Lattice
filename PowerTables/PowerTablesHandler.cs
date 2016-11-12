@@ -44,7 +44,7 @@ namespace PowerTables
             _tokenStorage = tokenStorage;
             if (_tokenStorage == null) _tokenStorage = InMemoryTokenStorage.Instance;
         }
-        private Dictionary<string, ICommandHandler> _inplaceCommandHandlers = new Dictionary<string, ICommandHandler>();
+        private readonly Dictionary<string, ICommandHandler> _inplaceCommandHandlers = new Dictionary<string, ICommandHandler>();
 
         private ICommandHandler ResolveCommandHandler(string command)
         {

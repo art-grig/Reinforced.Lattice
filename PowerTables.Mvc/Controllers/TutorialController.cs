@@ -30,6 +30,8 @@ namespace PowerTables.Mvc.Controllers
                 i++;
                 tutorialAttribute.Value.TutorialId = tutorialAttribute.Key;
             }
+
+            
         }
         private Configurator<Toy, Row> Table()
         {

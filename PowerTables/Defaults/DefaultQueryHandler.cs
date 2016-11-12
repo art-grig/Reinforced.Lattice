@@ -11,7 +11,7 @@ namespace PowerTables.Defaults
     /// </summary>
     public class DefaultQueryHandler<TSourceData, TTableData> : IQueryHandler<TSourceData, TTableData> where TTableData : new()
     {
-        private ITokenStorage _tokenStorage;
+        private readonly ITokenStorage _tokenStorage;
         private PowerTableRequest _request;
         public virtual PowerTableRequest ExtractRequest(ControllerContext context)
         {

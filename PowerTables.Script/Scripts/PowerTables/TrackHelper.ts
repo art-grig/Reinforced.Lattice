@@ -9,7 +9,7 @@ module PowerTables {
          * Returns string track ID for cell
          */
         public static getCellTrack(cell: ICell): string {
-            var colIdx: number = cell.Column.MasterTable.InstanceManager.getUiColumnNames().indexOf(cell.Column.RawName);
+            var colIdx: number = cell.Column.Order;
             var rowIdx: number = cell.Row.Index;
             return TrackHelper.getCellTrackByIndexes(rowIdx, colIdx);
         }

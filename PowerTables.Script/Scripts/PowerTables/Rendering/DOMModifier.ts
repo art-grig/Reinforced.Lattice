@@ -6,7 +6,7 @@
         /*
         * @internal
         */
-        constructor(stack: RenderingStack, locator: DOMLocator, backBinder: BackBinder, templatesProvider: ITemplatesProvider, layoutRenderer: LayoutRenderer, instances: InstanceManager, ed: EventsDelegator) {
+        constructor(stack: RenderingStack, locator: DOMLocator, backBinder: BackBinder, templatesProvider: ITemplatesProvider, layoutRenderer: LayoutRenderer, instances: PowerTables.Services.InstanceManagerService, ed: PowerTables.Services.EventsDelegatorService) {
             this._stack = stack;
             this._locator = locator;
             this._backBinder = backBinder;
@@ -16,13 +16,13 @@
             this._ed = ed;
         }
 
-        private _ed: EventsDelegator;
+        private _ed: PowerTables.Services.EventsDelegatorService;
         private _stack: RenderingStack;
         private _locator: DOMLocator;
         private _backBinder: BackBinder;
         private _templatesProvider: ITemplatesProvider;
         private _layoutRenderer: LayoutRenderer;
-        private _instances: InstanceManager;
+        private _instances: PowerTables.Services.InstanceManagerService;
 
         
 

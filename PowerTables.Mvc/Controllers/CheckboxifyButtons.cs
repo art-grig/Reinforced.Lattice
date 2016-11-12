@@ -31,33 +31,35 @@ namespace PowerTables.Mvc.Controllers
             return handler.Handle(Data.SourceData.AsQueryable(), ControllerContext);            
         }
 
-        private TableUpdateResult RemoveSelected(PowerTablesData<Toy, Row> arg)
+        private TableAdjustment RemoveSelected(PowerTablesData<Toy, Row> arg)
         {
-            EditionResult er = new EditionResult();
-            var editResultWrapper = new EditionResultWrapper<Row>(er);
-            var selected = arg.Request.GetSelectionIds<int>();
-            foreach (var i in selected)
-            {
-                editResultWrapper.Adjustments.Remove(new Row() {Id = i});
-            }
-            return new TableUpdateResult(editResultWrapper);
+            //EditionResult er = new EditionResult();
+            //var editResultWrapper = new EditionResultWrapper<Row>(er);
+            //var selected = arg.Request.GetSelectionIds<int>();
+            //foreach (var i in selected)
+            //{
+            //    editResultWrapper.Adjustments.Remove(new Row() {Id = i});
+            //}
+            //return new TableUpdateResult(editResultWrapper);
+            return null;
         }
 
-        private TableUpdateResult UpdateSelected(PowerTablesData<Toy, Row> arg)
+        private TableAdjustment UpdateSelected(PowerTablesData<Toy, Row> arg)
         {
-            var form = arg.Request.ConfirmationForm<SimpleConfirmationModel>();
-            EditionResult er = new EditionResult();
-            var editResultWrapper = new EditionResultWrapper<Row>(er);
-            var selected = arg.Request.GetSelectionIds<int>();
-            foreach (var i in selected)
-            {
-                var data = Data.SourceData.Single(c => c.Id == i);
-                data.ToyName = form.ToyName;
-                data.GroupType = form.ToyType.Value;
+            //var form = arg.Request.ConfirmationForm<SimpleConfirmationModel>();
+            //EditionResult er = new EditionResult();
+            //var editResultWrapper = new EditionResultWrapper<Row>(er);
+            //var selected = arg.Request.GetSelectionIds<int>();
+            //foreach (var i in selected)
+            //{
+            //    var data = Data.SourceData.Single(c => c.Id == i);
+            //    data.ToyName = form.ToyName;
+            //    data.GroupType = form.ToyType.Value;
 
-                editResultWrapper.Adjustments.AddOrUpdate(arg.Configuration.Map(data));
-            }
-            return new TableUpdateResult(editResultWrapper);
+            //    editResultWrapper.Adjustments.AddOrUpdate(arg.Configuration.Map(data));
+            //}
+            //return new TableUpdateResult(editResultWrapper);
+            return null;
         }
     }
 }

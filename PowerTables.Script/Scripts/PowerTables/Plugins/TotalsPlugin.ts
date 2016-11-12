@@ -2,7 +2,8 @@
     /**
      * Client-side implementation of totals plugin
      */
-    export class TotalsPlugin extends PluginBase<Plugins.Total.ITotalClientConfiguration> {
+    export class TotalsPlugin extends PluginBase<Plugins.Total.ITotalClientConfiguration>
+        implements PowerTables.IAdditionalDataReceiver {
         private _totalsForColumns: { [key: string]: string };
 
         private makeTotalsRow(): IRow {
@@ -46,20 +47,10 @@
 
             return result;
         }
-/**
-* @internal
-*/
-        public onResponse(e: ITableEventArgs<IDataEventArgs>) {
-            if (!e.EventArgs.Data.AdditionalData) return;
-            if (!e.EventArgs.Data.AdditionalData.hasOwnProperty('Total')) return;
 
-            var response: IPowerTablesResponse = e.EventArgs.Data;
-            var total: Plugins.Total.ITotalResponse = response.AdditionalData['Total'];
-            this._totalsForColumns = total.TotalsForColumns;
-        }
-/**
-* @internal
-*/
+        /**
+        * @internal
+        */
         public onClientRowsRendering(e: ITableEventArgs<IRow[]>) {
             if (this._totalsForColumns) {
                 if (this.Configuration.ShowOnTop) {
@@ -69,18 +60,18 @@
                 }
             }
         }
-/**
-* @internal
-*/
+        /**
+        * @internal
+        */
         private onAdjustments(e: ITableEventArgs<IAdjustmentResult>) {
             var adjustments = e.EventArgs;
             if (adjustments.NeedRedrawAllVisible) return;
             var row = this.makeTotalsRow(); //todo recalculate totals in more intelligent way
             this.MasterTable.Renderer.Modifier.redrawRow(row);
         }
-/**
-* @internal
-*/
+        /**
+        * @internal
+        */
         public onClientDataProcessed(e: ITableEventArgs<IClientDataResults>) {
             if (!this._totalsForColumns) this._totalsForColumns = {};
 
@@ -90,14 +81,26 @@
                 }
             }
         }
-/**
-* @internal
-*/
-        public subscribe(e: EventsManager): void {
-            e.DataReceived.subscribe(this.onResponse.bind(this), 'totals');
+        /**
+        * @internal
+        */
+        public subscribe(e: PowerTables.Services.EventsService): void {
             e.ClientRowsRendering.subscribeBefore(this.onClientRowsRendering.bind(this), 'totals');
             e.ClientDataProcessing.subscribeAfter(this.onClientDataProcessed.bind(this), 'totals');
-            e.AdjustmentResult.subscribe(this.onAdjustments.bind(this),'totals');
+            e.AdjustmentResult.subscribe(this.onAdjustments.bind(this), 'totals');
+        }
+        
+        handleAdditionalData(additionalData): void {
+            var total: Plugins.Total.ITotalResponse = additionalData;
+            for (var tc in total.TotalsForColumns) {
+                if (!this._totalsForColumns) this._totalsForColumns = {};
+                this._totalsForColumns[tc] = total.TotalsForColumns[tc];
+            }
+        }
+
+        init(masterTable: IMasterTable): void {
+            super.init(masterTable);
+            this.MasterTable.Loader.registerAdditionalDataReceiver('Total', this);
         }
     }
 

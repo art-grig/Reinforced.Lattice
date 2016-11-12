@@ -37,19 +37,34 @@ namespace PowerTables.Templating
                 commaSeparatedEvents, arguments.Length == 0 ? null : string.Join(" ", arguments)));
         }
 
+        ///// <summary>
+        ///// Marks element where should be conditional datepicker. 
+        ///// If specified column is of DateTime type - there will be datepicker. 
+        ///// Otherwise nothing happens
+        ///// </summary>
+        ///// <param name="t"></param>
+        ///// <param name="columnExpression">Column name to determine is datepicker needed or not</param>
+        ///// <param name="forceNullable">Force datepicker to produce nullable date</param>
+        ///// <returns></returns>
+        //public static MvcHtmlString Datepicker(this IProvidesDatepicker t, string columnExpression, bool forceNullable = false)
+        //{
+        //    return
+        //        MvcHtmlString.Create(string.Format("{{{{{{Datepicker {0} {1} }}}}}}", columnExpression, forceNullable.ToString().ToLower()));
+        //}
+
         /// <summary>
         /// Marks element where should be conditional datepicker. 
         /// If specified column is of DateTime type - there will be datepicker. 
         /// Otherwise nothing happens
         /// </summary>
         /// <param name="t"></param>
-        /// <param name="columnExpression">Column name to determine is datepicker needed or not</param>
-        /// <param name="forceNullable">Force datepicker to produce nullable date</param>
+        /// <param name="condition">Condition of turning input into datepicker</param>
+        /// <param name="nullableCondition">Condition of datepicker to provide nullable date</param>
         /// <returns></returns>
-        public static MvcHtmlString Datepicker(this IProvidesDatepicker t, string columnExpression, bool forceNullable = false)
+        public static MvcHtmlString DatepickerIf(this IProvidesDatepicker t, string condition, string nullableCondition)
         {
             return
-                MvcHtmlString.Create(string.Format("{{{{{{Datepicker {0} {1} }}}}}}", columnExpression, forceNullable.ToString().ToLower()));
+                MvcHtmlString.Create(string.Format("{{{{{{Datepicker {0} {1} }}}}}}", condition, nullableCondition));
         }
 
         private static string WrapQuotesOrNull(this string param)

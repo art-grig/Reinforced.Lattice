@@ -24,7 +24,7 @@ namespace PowerTables.Plugins.Total
                 var result = keyValuePair.Value.DynamicInvoke(gData);
                 tr.TotalsForColumns[keyValuePair.Key] = result;
             }
-            response.AdditionalData[TotalExtensions.PluginId] = tr;
+            response.AdditionalData.Data[TotalExtensions.PluginId] = tr;
         }
     }
 }
