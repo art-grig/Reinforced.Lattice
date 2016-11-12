@@ -61,7 +61,24 @@ namespace PowerTables.Adjustments
         }
 
 
-        public static AdjustmentWrapper<TSource, TData> Select<TSource, TData, TK>(this AdjustmentWrapper<TSource, TData> c, IEnumerable<TSource> keys, Expression<Func<TData, TK>> columns = null)
+        public static AdjustmentWrapper<TSource, TData> Select<TSource, TData>(this AdjustmentWrapper<TSource, TData> c, IEnumerable<TSource> keys)
+            where TData : new()
+        {
+            var keysList = c.Configurator.ProducePrimaryKeys(c.Configurator.MapRange(keys)).ToList();
+            c.Select(keysList);
+            return c;
+        }
+
+        public static AdjustmentWrapper<TSource, TData> UnselectSource<TSource, TData>(this AdjustmentWrapper<TSource, TData> c, IEnumerable<TSource> keys)
+            where TData : new()
+        {
+            var keysList = c.Configurator.ProducePrimaryKeys(c.Configurator.MapRange(keys)).ToList();
+            c.Unselect(keysList);
+            return c;
+        }
+
+
+        public static AdjustmentWrapper<TSource, TData> Select<TSource, TData, TK>(this AdjustmentWrapper<TSource, TData> c, IEnumerable<TSource> keys, Expression<Func<TData, TK>> columns)
             where TData : new()
         {
             var colsList = columns == null ? null : LambdaHelpers.ExtractColumnsList(columns);
@@ -70,7 +87,7 @@ namespace PowerTables.Adjustments
             return c;
         }
 
-        public static AdjustmentWrapper<TSource, TData> Unselect<TSource, TData, TK>(this AdjustmentWrapper<TSource, TData> c, IEnumerable<TSource> keys, Expression<Func<TData, TK>> columns = null)
+        public static AdjustmentWrapper<TSource, TData> UnselectSource<TSource, TData, TK>(this AdjustmentWrapper<TSource, TData> c, IEnumerable<TSource> keys, Expression<Func<TData, TK>> columns)
             where TData : new()
         {
             var colsList = columns == null ? null : LambdaHelpers.ExtractColumnsList(columns);
@@ -79,8 +96,24 @@ namespace PowerTables.Adjustments
             return c;
         }
 
+        public static AdjustmentWrapper<TSource, TData> Select<TSource, TData>(this AdjustmentWrapper<TSource, TData> c, IEnumerable<TData> keys)
+            where TData : new()
+        {
+            var keysList = c.Configurator.ProducePrimaryKeys(keys).ToList();
+            c.Select(keysList, null);
+            return c;
+        }
 
-        public static AdjustmentWrapper<TSource, TData> Select<TSource, TData, TK>(this AdjustmentWrapper<TSource, TData> c, IEnumerable<TData> keys, Expression<Func<TData, TK>> columns = null)
+        public static AdjustmentWrapper<TSource, TData> Unselect<TSource, TData>(this AdjustmentWrapper<TSource, TData> c, IEnumerable<TData> keys)
+            where TData : new()
+        {
+            var keysList = c.Configurator.ProducePrimaryKeys(keys).ToList();
+            c.Unselect(keysList, null);
+            return c;
+        }
+
+
+        public static AdjustmentWrapper<TSource, TData> Select<TSource, TData, TK>(this AdjustmentWrapper<TSource, TData> c, IEnumerable<TData> keys, Expression<Func<TData, TK>> columns)
             where TData : new()
         {
             var colsList = columns == null ? null : LambdaHelpers.ExtractColumnsList(columns);
@@ -89,7 +122,7 @@ namespace PowerTables.Adjustments
             return c;
         }
 
-        public static AdjustmentWrapper<TSource, TData> Unselect<TSource, TData, TK>(this AdjustmentWrapper<TSource, TData> c, IEnumerable<TData> keys, Expression<Func<TData, TK>> columns = null)
+        public static AdjustmentWrapper<TSource, TData> Unselect<TSource, TData, TK>(this AdjustmentWrapper<TSource, TData> c, IEnumerable<TData> keys, Expression<Func<TData, TK>> columns)
             where TData : new()
         {
             var colsList = columns == null ? null : LambdaHelpers.ExtractColumnsList(columns);
@@ -99,7 +132,7 @@ namespace PowerTables.Adjustments
         }
 
 
-        public static AdjustmentWrapper<TSource, TData> Select<TSource, TData, TK>(this AdjustmentWrapper<TSource, TData> c, TSource key, Expression<Func<TData, TK>> columns = null)
+        public static AdjustmentWrapper<TSource, TData> Select<TSource, TData, TK>(this AdjustmentWrapper<TSource, TData> c, TSource key, Expression<Func<TData, TK>> columns)
             where TData : new()
         {
             var colsList = columns == null ? null : LambdaHelpers.ExtractColumnsList(columns);
@@ -108,7 +141,7 @@ namespace PowerTables.Adjustments
             return c;
         }
 
-        public static AdjustmentWrapper<TSource, TData> Unselect<TSource, TData, TK>(this AdjustmentWrapper<TSource, TData> c, TSource key, Expression<Func<TData, TK>> columns = null)
+        public static AdjustmentWrapper<TSource, TData> Unselect<TSource, TData, TK>(this AdjustmentWrapper<TSource, TData> c, TSource key, Expression<Func<TData, TK>> columns)
             where TData : new()
         {
             var colsList = columns == null ? null : LambdaHelpers.ExtractColumnsList(columns);
@@ -118,17 +151,49 @@ namespace PowerTables.Adjustments
         }
 
 
-        public static AdjustmentWrapper<TSource, TData> Select<TSource, TData, TK>(this AdjustmentWrapper<TSource, TData> c, TData key, Expression<Func<TData, TK>> columns = null)
+        public static AdjustmentWrapper<TSource, TData> Select<TSource, TData, TK>(this AdjustmentWrapper<TSource, TData> c, TData key, Expression<Func<TData, TK>> columns)
             where TData : new()
         {
             c.Select(new[] { key }, columns);
             return c;
         }
 
-        public static AdjustmentWrapper<TSource, TData> Unselect<TSource, TData, TK>(this AdjustmentWrapper<TSource, TData> c, TData key, Expression<Func<TData, TK>> columns = null)
+        public static AdjustmentWrapper<TSource, TData> Unselect<TSource, TData, TK>(this AdjustmentWrapper<TSource, TData> c, TData key, Expression<Func<TData, TK>> columns)
             where TData : new()
         {
             c.Unselect(new[] { key }, columns);
+            return c;
+        }
+
+
+        public static AdjustmentWrapper<TSource, TData> Select<TSource, TData, TK>(this AdjustmentWrapper<TSource, TData> c, TSource key)
+            where TData : new()
+        {
+            var keysList = c.Configurator.ProducePrimaryKey(c.Configurator.Map(key));
+            c.Select(new[] { keysList });
+            return c;
+        }
+
+        public static AdjustmentWrapper<TSource, TData> Unselect<TSource, TData, TK>(this AdjustmentWrapper<TSource, TData> c, TSource key)
+            where TData : new()
+        {
+            var keysList = c.Configurator.ProducePrimaryKey(c.Configurator.Map(key));
+            c.Unselect(new[] { keysList });
+            return c;
+        }
+
+
+        public static AdjustmentWrapper<TSource, TData> Select<TSource, TData, TK>(this AdjustmentWrapper<TSource, TData> c, TData key)
+            where TData : new()
+        {
+            c.Select(new[] { key });
+            return c;
+        }
+
+        public static AdjustmentWrapper<TSource, TData> Unselect<TSource, TData, TK>(this AdjustmentWrapper<TSource, TData> c, TData key)
+            where TData : new()
+        {
+            c.Unselect(new[] { key });
             return c;
         }
     }

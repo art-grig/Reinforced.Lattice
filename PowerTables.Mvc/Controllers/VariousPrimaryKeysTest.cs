@@ -48,7 +48,7 @@ namespace PowerTables.Mvc.Controllers
             conf.PrimaryKey(c => new { c.DateTime });
             conf.ProjectDataWith(c => GetPlanned(c.AsEnumerable()).AsQueryable());
             conf.Paging(c => c.PagingSimple(), where: "rb");
-            conf.Limit(c => c.Values(new[] { "12", "24","All" }, "12"), where: "lt");
+            conf.Limit(c => c.Values(new[] { "12", "24", "All" }, "12"), where: "lt");
             conf.RegularSelect(RegularSelectMode.Cells);
             conf.Selection(x => x.ResetSelectionOn(ResetSelectionBehavior.DontReset).SelectAllBehavior(SelectAllBehavior.AllLoadedData));
             conf.Toolbar("toolbar-rt", a =>
@@ -121,8 +121,13 @@ namespace PowerTables.Mvc.Controllers
         public TableAdjustment SomethingCmd(PowerTablesData<DateTime, PlanningRow> powerTablesData)
         {
             var selection = powerTablesData.Selection().ToArray();
-
-            return powerTablesData.Configuration.Adjust(c => c.Message(TableMessage.User("error", "Blah")));
+            var dt = DateTime.UtcNow.Date.AddDays(-DateTime.UtcNow.Date.Day);
+            var dt2 = dt.AddHours(2);
+            var dt3 = dt.AddHours(4);
+            return powerTablesData.Configuration.Adjust(c =>
+                c.Message(TableMessage.User("error", "Blah"))
+                .Select(new[] { dt, dt2, dt3 })
+                );
         }
     }
 

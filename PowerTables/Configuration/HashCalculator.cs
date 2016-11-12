@@ -114,7 +114,7 @@ namespace PowerTables.Configuration
 
         private static string ConvertDate(object value)
         {
-            return ((DateTime)value).Ticks.ToString();
+            return ((long)((DateTime)value).Subtract(new DateTime(1970, 1, 1)).TotalMilliseconds).ToString();
         }
 
 
