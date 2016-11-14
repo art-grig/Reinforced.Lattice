@@ -85,6 +85,8 @@
     <Compile Include="CellTemplating\SwitchBuilder.cs" />
     <Compile Include="CellTemplating\Template.cs" />
     <Compile Include="CellTemplating\TemplatesExtensions.cs" />
+    <Compile Include="Commands\CommandConfirmationTemplateRegion.cs" />
+    <Compile Include="Commands\CommandDescription.cs" />
     <Compile Include="Configuration\ConfiguratorExtensions.cs" />
     <Compile Include="Configuration\DatepickerOptions.cs" />
     <Compile Include="Configuration\EventSubscriptionWrapper.cs" />
