@@ -260,8 +260,10 @@ var PowerTables;
                 //}
                 // extremely stupid - will be changed later
                 for (var i = 0; i < this._masterTable.DataHolder.DisplayedData.length; i++) {
-                    if (!this._selectionData.hasOwnProperty(this._masterTable.DataHolder.DisplayedData[i]['__key']))
-                        return false;
+                    if (this.canSelect(this._masterTable.DataHolder.DisplayedData[i])) {
+                        if (!this._selectionData.hasOwnProperty(this._masterTable.DataHolder.DisplayedData[i]['__key']))
+                            return false;
+                    }
                 }
                 return true;
             };
@@ -309,18 +311,22 @@ var PowerTables;
                 if (selected) {
                     for (var i = 0; i < objSet.length; i++) {
                         var sd = objSet[i];
-                        if (!this._selectionData.hasOwnProperty(sd["__key"])) {
-                            objectsToRedraw.push(sd);
-                            this._selectionData[sd["__key"]] = [];
+                        if (this.canSelect(sd)) {
+                            if (!this._selectionData.hasOwnProperty(sd["__key"])) {
+                                objectsToRedraw.push(sd);
+                                this._selectionData[sd["__key"]] = [];
+                            }
                         }
                     }
                 }
                 else {
                     for (var i = 0; i < objSet.length; i++) {
                         var sd = objSet[i];
-                        if (this._selectionData.hasOwnProperty(sd["__key"])) {
-                            objectsToRedraw.push(sd);
-                            delete this._selectionData[sd["__key"]];
+                        if (this.canSelect(sd)) {
+                            if (this._selectionData.hasOwnProperty(sd["__key"])) {
+                                objectsToRedraw.push(sd);
+                                delete this._selectionData[sd["__key"]];
+                            }
                         }
                     }
                 }
@@ -416,6 +422,13 @@ var PowerTables;
             };
             SelectionService.prototype.toggleObjectSelected = function (dataObject, selected) {
                 this.toggleRow(dataObject['__key'], selected);
+            };
+            SelectionService.prototype.handleAdjustments = function (added, removeKeys) {
+                for (var i = 0; i < removeKeys.length; i++) {
+                    if (this._selectionData.hasOwnProperty(removeKeys[i])) {
+                        delete this._selectionData[removeKeys[i]];
+                    }
+                }
             };
             SelectionService.prototype.modifyQuery = function (query, scope) {
                 query.Selection = this._selectionData;
@@ -1773,6 +1786,22 @@ var PowerTables;
                 }
                 if (this._configuration.KeyFields.length === 0)
                     return;
+                if (!window['___ltcstrh']) {
+                    window['___ltcstrh'] = function (x) {
+                        if (x == null)
+                            return '';
+                        var r = '';
+                        for (var i = 0; i < x.length; i++) {
+                            if (x[i] === '\\')
+                                r += '\\\\';
+                            else if (x[i] === ':')
+                                r += '\\:';
+                            else
+                                r += x[i];
+                        }
+                        return r;
+                    };
+                }
                 var fields = [];
                 for (var i = 0; i < this._configuration.KeyFields.length; i++) {
                     var field = this._configuration.KeyFields[i];
@@ -1782,6 +1811,9 @@ var PowerTables;
                     else {
                         if (this._instances.Columns[this._configuration.KeyFields[i]].IsBoolean) {
                             fields.push("((x." + field + ")==null?'':(x." + field + "?'1':'0'))");
+                        }
+                        else if (this._instances.Columns[this._configuration.KeyFields[i]].IsString) {
+                            fields.push("(window.___ltcstrh(x." + field + "))");
                         }
                         else {
                             fields.push("((x." + field + ")==null?'':(x." + field + ".toString()))");
@@ -1836,7 +1868,6 @@ var PowerTables;
                         data.push(obj);
                         if (this._hasPrimaryKey) {
                             obj['__key'] = this.PrimaryKeyFunction(obj);
-                            this._storedDataCache[obj['__key']] = obj; // line that makes difference
                         }
                         obj = {};
                     }
@@ -2261,6 +2292,7 @@ var PowerTables;
                         needRefilter = true;
                     }
                 }
+                this._masterTable.Selection.handleAdjustments(added, adjustments.RemoveKeys);
                 if (needRefilter) {
                     this.filterStoredDataWithPreviousQuery();
                     redrawVisibles = [];

@@ -82,7 +82,18 @@
                 return;
             }
             if (this._configuration.KeyFields.length === 0) return;
-
+            if (!window['___ltcstrh']) {
+                window['___ltcstrh'] = function(x:String) {
+                    if (x == null) return '';
+                    var r = '';
+                    for (var i = 0; i < x.length; i++) {
+                        if (x[i] === '\\') r += '\\\\';
+                        else if (x[i] === ':') r += '\\:';
+                        else r += x[i];
+                    }
+                    return r;
+                }
+            }
             var fields = [];
             for (var i = 0; i < this._configuration.KeyFields.length; i++) {
                 var field = this._configuration.KeyFields[i];
@@ -91,6 +102,10 @@
                 } else {
                     if (this._instances.Columns[this._configuration.KeyFields[i]].IsBoolean) {
                         fields.push(`((x.${field})==null?'':(x.${field}?'1':'0'))`);
+                    }
+                    else if (this._instances.Columns[this._configuration.KeyFields[i]].IsString) {
+
+                        fields.push(`(window.___ltcstrh(x.${field}))`);
                     } else {
                         fields.push(`((x.${field})==null?'':(x.${field}.toString()))`);
                     }
@@ -159,7 +174,6 @@
                     data.push(obj);
                     if (this._hasPrimaryKey) {
                         obj['__key'] = this.PrimaryKeyFunction(obj);
-                        this._storedDataCache[obj['__key']] = obj; // line that makes difference
                     }
                     obj = {};
                 }
@@ -625,6 +639,8 @@
                     needRefilter = true;
                 }
             }
+            this._masterTable.Selection.handleAdjustments(added,adjustments.RemoveKeys);
+
             if (needRefilter) {
                 this.filterStoredDataWithPreviousQuery();
                 redrawVisibles = [];

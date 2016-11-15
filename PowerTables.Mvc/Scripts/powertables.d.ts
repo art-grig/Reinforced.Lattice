@@ -547,6 +547,7 @@ declare module PowerTables.Services {
         toggleRow(primaryKey: string, selected?: boolean): void;
         toggleDisplayingRow(displayIndex: number, selected?: boolean): void;
         toggleObjectSelected(dataObject: any, selected?: boolean): void;
+        handleAdjustments(added: any[], removeKeys: string[]): void;
         modifyQuery(query: IQuery, scope: QueryScope): void;
         getSelectedKeys(): string[];
         getSelectedObjects(): any[];
