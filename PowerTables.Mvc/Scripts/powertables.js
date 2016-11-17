@@ -4261,7 +4261,7 @@ var PowerTables;
              */
             DOMLocator.prototype.getCellElement = function (cell) {
                 var track = PowerTables.TrackHelper.getCellTrack(cell);
-                return this._bodyElement.querySelector(this._rootIdPrefix + " [data-track=\"" + track + "\"]");
+                return this._bodyElement.querySelector("[data-track=\"" + track + "\"]");
             };
             /**
              * Retrieves cell element using supplied coordinates
@@ -4271,7 +4271,7 @@ var PowerTables;
              */
             DOMLocator.prototype.getCellElementByIndex = function (rowDisplayIndex, columnIndex) {
                 var track = PowerTables.TrackHelper.getCellTrackByIndexes(rowDisplayIndex, columnIndex);
-                return this._bodyElement.querySelector(this._rootIdPrefix + " [data-track=\"" + track + "\"]");
+                return this._bodyElement.querySelector("[data-track=\"" + track + "\"]");
             };
             /**
              * Retrieves row element (including wrapper)
@@ -4281,7 +4281,7 @@ var PowerTables;
              */
             DOMLocator.prototype.getRowElement = function (row) {
                 var track = PowerTables.TrackHelper.getRowTrack(row);
-                return this._bodyElement.querySelector(this._rootIdPrefix + " [data-track=\"" + track + "\"]");
+                return this._bodyElement.querySelector("[data-track=\"" + track + "\"]");
             };
             /**
             * Retrieves row element (including wrapper) by specified row index
@@ -4291,7 +4291,7 @@ var PowerTables;
             */
             DOMLocator.prototype.getRowElementByIndex = function (rowDisplayingIndex) {
                 var track = PowerTables.TrackHelper.getRowTrackByIndex(rowDisplayingIndex);
-                return this._bodyElement.querySelector(this._rootIdPrefix + " [data-track=\"" + track + "\"]");
+                return this._bodyElement.querySelector("[data-track=\"" + track + "\"]");
             };
             /**
              * Retrieves data cells for specified column (including wrappers)
@@ -4300,8 +4300,8 @@ var PowerTables;
              * @returns HTML NodeList containing results
              */
             DOMLocator.prototype.getColumnCellsElements = function (column) {
-                var colIdx = column.MasterTable.InstanceManager.getUiColumnNames().indexOf(column.RawName);
-                return this._bodyElement.querySelectorAll(this._rootIdPrefix + " [data-track$=\"-c" + colIdx + "\"]");
+                var colIdx = column.Order;
+                return this._bodyElement.querySelectorAll("[data-track$=\"-c" + colIdx + "\"]");
             };
             /**
              * Retrieves data cells for specified column (including wrappers) by column index
@@ -4310,7 +4310,7 @@ var PowerTables;
              * @returns HTML NodeList containing results
              */
             DOMLocator.prototype.getColumnCellsElementsByColumnIndex = function (columnIndex) {
-                return this._bodyElement.querySelectorAll(this._rootIdPrefix + " [data-track$=\"-c" + columnIndex + "\"]");
+                return this._bodyElement.querySelectorAll("[data-track$=\"-c" + columnIndex + "\"]");
             };
             /**
              * Retrieves data cells for whole row (including wrapper)
@@ -4328,7 +4328,7 @@ var PowerTables;
              * @returns NodeList containing results
              */
             DOMLocator.prototype.getRowCellsElementsByIndex = function (rowDisplayingIndex) {
-                return this._bodyElement.querySelectorAll(this._rootIdPrefix + " [data-track^=\"c-r" + rowDisplayingIndex + "-\"]");
+                return this._bodyElement.querySelectorAll("[data-track^=\"c-r" + rowDisplayingIndex + "-\"]");
             };
             /**
              * Retrieves HTML element for column header (including wrapper)
@@ -4338,7 +4338,7 @@ var PowerTables;
              */
             DOMLocator.prototype.getHeaderElement = function (header) {
                 var track = PowerTables.TrackHelper.getHeaderTrack(header);
-                return this._rootElement.querySelector(this._rootIdPrefix + " [data-track=\"" + track + "\"]");
+                return this._rootElement.querySelector("[data-track=\"" + track + "\"]");
             };
             /**
              * Retrieves HTML element for plugin (including wrapper)
@@ -4348,7 +4348,7 @@ var PowerTables;
              */
             DOMLocator.prototype.getPluginElement = function (plugin) {
                 var track = PowerTables.TrackHelper.getPluginTrack(plugin);
-                return this._rootElement.querySelector(this._rootIdPrefix + " [data-track=\"" + track + "\"]");
+                return this._rootElement.querySelector("[data-track=\"" + track + "\"]");
             };
             /**
              * Retrieves HTML element for plugin (including wrapper)
@@ -4358,7 +4358,7 @@ var PowerTables;
              */
             DOMLocator.prototype.getPluginElementsByPositionPart = function (placement) {
                 var track = PowerTables.TrackHelper.getPluginTrackByLocation(placement);
-                return this._rootElement.querySelectorAll(this._rootIdPrefix + " [data-track^=\"" + track + "\"]");
+                return this._rootElement.querySelectorAll("[data-track^=\"" + track + "\"]");
             };
             /**
              * Determines if supplied element is table row
