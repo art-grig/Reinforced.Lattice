@@ -81,12 +81,12 @@ namespace PowerTables.Configuration
 
         private static string ConvertFloating(object value)
         {
-            return ((double)value).ToString(UsCulture);
+            return Convert.ToDouble(value).ToString(UsCulture);
         }
 
         private static string ConvertInteger(object value)
         {
-            return ((long)value).ToString();
+            return value.ToString();
         }
 
         private static string ConvertBoolean(object value)

@@ -606,6 +606,7 @@
                     //if (this.StoredData.length > 0) { whoai?!
                     this.StoredData.push(adjustedObjects[i]);
                     added.push(adjustedObjects[i]);
+                    this._storedDataCache[adjustedObjects[i]['__key']] = adjustedObjects[i];
                     needRefilter = true;
                     //}
                 } else {
@@ -619,23 +620,22 @@
             }
 
             for (var j = 0; j < adjustments.RemoveKeys.length; j++) {
+                var dataObject = this.getByPrimaryKey(adjustments.RemoveKeys[j]);
+                if (dataObject == null || dataObject == undefined) continue;
 
-                var lookup = this.localLookupPrimaryKey(adjustments.RemoveKeys[j]);
-                if (lookup.LoadedIndex > -1) {
-                    this.StoredData.splice(lookup.LoadedIndex, 1);
+                if (this.StoredData.indexOf(dataObject) > -1) {
+                    this.StoredData.splice(this.StoredData.indexOf(dataObject), 1);
                     needRefilter = true;
                     delete this._storedDataCache[adjustments.RemoveKeys[j]];
                 }
 
-                lookup = this.localLookupPrimaryKey(adjustments.RemoveKeys[j], this.Filtered);
-                if (lookup.LoadedIndex > -1) {
-                    this.Filtered.splice(lookup.LoadedIndex, 1);
+                if (this.Filtered.indexOf(dataObject) > -1) {
+                    this.Filtered.splice(this.Filtered.indexOf(dataObject), 1);
                     needRefilter = true;
                 }
 
-                lookup = this.localLookupPrimaryKey(adjustments.RemoveKeys[j], this.Ordered);
-                if (lookup.LoadedIndex > -1) {
-                    this.Ordered.splice(lookup.LoadedIndex, 1);
+                if (this.Ordered.indexOf(dataObject) > -1) {
+                    this.Ordered.splice(this.Ordered.indexOf(dataObject), 1);
                     needRefilter = true;
                 }
             }

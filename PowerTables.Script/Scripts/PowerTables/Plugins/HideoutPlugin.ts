@@ -62,8 +62,10 @@
             var shown = [];
 
             for (var i = 0; i < this.ColumnStates.length; i++) {
-                if (this.Configuration.ColumnInitiatingReload.indexOf(this.ColumnStates[i].RawName) < 0)
-                    continue;
+                if (scope !== QueryScope.Transboundary) {
+                    if (this.Configuration.ColumnInitiatingReload.indexOf(this.ColumnStates[i].RawName) < 0)
+                        continue;
+                }
                 if (!this.ColumnStates[i].Visible) {
                     hidden.push(this.ColumnStates[i].RawName);
                 } else {
