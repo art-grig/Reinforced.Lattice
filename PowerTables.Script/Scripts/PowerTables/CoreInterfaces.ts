@@ -614,4 +614,10 @@
          */
         handleAdditionalData(additionalData: any): void;
     }
+
+    export interface ICommandExecutionParameters {
+        Subject: any;
+        Selection: any[];
+        Confirmation: any;
+    }
 }

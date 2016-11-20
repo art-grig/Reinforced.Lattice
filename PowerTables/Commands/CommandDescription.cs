@@ -18,6 +18,8 @@ namespace PowerTables.Commands
         public JRaw CanExecute { get; set; }
 
         public CommandType Type { get; set; }
+
+        public ConfirmationConfiguration Confirmation { get; set; }
     }
 
     public class ConfirmationConfiguration

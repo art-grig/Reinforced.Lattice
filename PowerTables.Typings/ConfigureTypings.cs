@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using System.Web.Mvc;
 using PowerTables.Adjustments;
+using PowerTables.Commands;
 using PowerTables.Configuration;
 using PowerTables.Configuration.Json;
 using PowerTables.Editing;
@@ -190,8 +191,19 @@ namespace PowerTables.Typings
 
             builder.ExportAsInterface<RegularSelectUiConfig>().WithPublicProperties();
             builder.ExportAsEnum<RegularSelectMode>();
-            
 
+            builder.ExportAsEnum<CommandType>();
+            builder.ExportAsInterface<CommandDescription>()
+                .WithPublicProperties()
+                .WithProperty(c => c.CanExecute, x => x.Type("(dataObject:any)=>boolean"))
+                .WithProperty(x => x.ClientFunction, x => x.Type("(param:ICommandExecutionParameters)=>any"))
+                ;
+
+            builder.ExportAsInterface<ConfirmationConfiguration>().WithPublicProperties();
+            builder.ExportAsInterface<CommandAutoformConfiguration>().WithPublicProperties();
+            builder.ExportAsInterface<DetailLoadingConfiguration>()
+                .WithPublicProperties()
+                .WithProperty(x => x.ValidateToLoad, x => x.Type("(param:ICommandExecutionParameters)=>boolean"));
         }
 
     }

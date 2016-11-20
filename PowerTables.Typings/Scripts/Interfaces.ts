@@ -136,7 +136,7 @@ module PowerTables {
 		IsUpdateResult: boolean;
 		UpdatedData: any[];
 		RemoveKeys: string[];
-		OtherTableAdjustments: { [key:string]: PowerTables.ITableAdjustment };
+		OtherTablesAdjustments: { [key:string]: PowerTables.ITableAdjustment };
 		AdditionalData: any;
 	}
 	export enum MessageType { 
@@ -476,5 +476,41 @@ module PowerTables.Plugins.RegularSelect {
 	export enum RegularSelectMode { 
 		Rows = 0, 
 		Cells = 1, 
+	}
+}
+module PowerTables.Commands {
+	export interface ICommandDescription
+	{
+		Name: string;
+		ClientFunction: (param:ICommandExecutionParameters)=>any;
+		CanExecute: (dataObject:any)=>boolean;
+		Type: PowerTables.Commands.CommandType;
+		Confirmation: PowerTables.Commands.IConfirmationConfiguration;
+	}
+	export interface IConfirmationConfiguration
+	{
+		TemplateId: string;
+		TargetSelector: string;
+		Formwatch: PowerTables.Plugins.Formwatch.IFormwatchFieldData[];
+		Autoform: PowerTables.Commands.ICommandAutoformConfiguration;
+		Details: PowerTables.Commands.IDetailLoadingConfiguration;
+		ContentLoadingUrl: string;
+		ContentLoadingCommand: string;
+	}
+	export interface ICommandAutoformConfiguration
+	{
+		Autoform: PowerTables.Editing.IEditFormUiConfigBase;
+		DisableWhenContentLoading: boolean;
+		DisableWhileDetailsLoading: boolean;
+	}
+	export interface IDetailLoadingConfiguration
+	{
+		CommandName: string;
+		LoadImmediately: boolean;
+		ValidateToLoad: (param:ICommandExecutionParameters)=>boolean;
+	}
+	export enum CommandType { 
+		Client = 0, 
+		Server = 1, 
 	}
 }
