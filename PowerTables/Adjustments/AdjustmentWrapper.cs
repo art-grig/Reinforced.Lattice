@@ -42,7 +42,7 @@ namespace PowerTables.Adjustments
             }
             result.RemoveKeys = removals.ToArray();
             result.Message = Message;
-            result.OtherTableAdjustments = _otherTableAdjustments;
+            result.OtherTablesAdjustments = _otherTableAdjustments;
             result.AdditionalData = AdditionalData;
             return result;
         }

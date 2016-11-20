@@ -40,8 +40,10 @@
 
             // extremely stupid - will be changed later
             for (var i = 0; i < this._masterTable.DataHolder.DisplayedData.length; i++) {
-                if (!this._selectionData.hasOwnProperty(this._masterTable.DataHolder.DisplayedData[i]['__key']))
-                    return false;
+                if (this.canSelect(this._masterTable.DataHolder.DisplayedData[i])) {
+                    if (!this._selectionData.hasOwnProperty(this._masterTable.DataHolder.DisplayedData[i]['__key']))
+                        return false;
+                }
             }
             return true;
         }
@@ -93,17 +95,21 @@
             if (selected) {
                 for (var i = 0; i < objSet.length; i++) {
                     var sd = objSet[i];
-                    if (!this._selectionData.hasOwnProperty(sd["__key"])) {
-                        objectsToRedraw.push(sd);
-                        this._selectionData[sd["__key"]] = [];
+                    if (this.canSelect(sd)) {
+                        if (!this._selectionData.hasOwnProperty(sd["__key"])) {
+                            objectsToRedraw.push(sd);
+                            this._selectionData[sd["__key"]] = [];
+                        }
                     }
                 }
             } else {
                 for (var i = 0; i < objSet.length; i++) {
                     var sd = objSet[i];
-                    if (this._selectionData.hasOwnProperty(sd["__key"])) {
-                        objectsToRedraw.push(sd);
-                        delete this._selectionData[sd["__key"]];
+                    if (this.canSelect(sd)) {
+                        if (this._selectionData.hasOwnProperty(sd["__key"])) {
+                            objectsToRedraw.push(sd);
+                            delete this._selectionData[sd["__key"]];
+                        }
                     }
                 }
             }
@@ -203,6 +209,15 @@
         public toggleObjectSelected(dataObject: any, selected?: boolean) {
             this.toggleRow(dataObject['__key'], selected);
         }
+
+        public handleAdjustments(added: any[], removeKeys: string[]) {
+            for (var i = 0; i < removeKeys.length; i++) {
+                if (this._selectionData.hasOwnProperty(removeKeys[i])) {
+                    delete this._selectionData[removeKeys[i]];
+                }
+            }
+        }
+
 
         modifyQuery(query: IQuery, scope: QueryScope): void {
             query.Selection = this._selectionData;

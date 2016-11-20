@@ -260,8 +260,10 @@ var PowerTables;
                 //}
                 // extremely stupid - will be changed later
                 for (var i = 0; i < this._masterTable.DataHolder.DisplayedData.length; i++) {
-                    if (!this._selectionData.hasOwnProperty(this._masterTable.DataHolder.DisplayedData[i]['__key']))
-                        return false;
+                    if (this.canSelect(this._masterTable.DataHolder.DisplayedData[i])) {
+                        if (!this._selectionData.hasOwnProperty(this._masterTable.DataHolder.DisplayedData[i]['__key']))
+                            return false;
+                    }
                 }
                 return true;
             };
@@ -309,18 +311,22 @@ var PowerTables;
                 if (selected) {
                     for (var i = 0; i < objSet.length; i++) {
                         var sd = objSet[i];
-                        if (!this._selectionData.hasOwnProperty(sd["__key"])) {
-                            objectsToRedraw.push(sd);
-                            this._selectionData[sd["__key"]] = [];
+                        if (this.canSelect(sd)) {
+                            if (!this._selectionData.hasOwnProperty(sd["__key"])) {
+                                objectsToRedraw.push(sd);
+                                this._selectionData[sd["__key"]] = [];
+                            }
                         }
                     }
                 }
                 else {
                     for (var i = 0; i < objSet.length; i++) {
                         var sd = objSet[i];
-                        if (this._selectionData.hasOwnProperty(sd["__key"])) {
-                            objectsToRedraw.push(sd);
-                            delete this._selectionData[sd["__key"]];
+                        if (this.canSelect(sd)) {
+                            if (this._selectionData.hasOwnProperty(sd["__key"])) {
+                                objectsToRedraw.push(sd);
+                                delete this._selectionData[sd["__key"]];
+                            }
                         }
                     }
                 }
@@ -416,6 +422,13 @@ var PowerTables;
             };
             SelectionService.prototype.toggleObjectSelected = function (dataObject, selected) {
                 this.toggleRow(dataObject['__key'], selected);
+            };
+            SelectionService.prototype.handleAdjustments = function (added, removeKeys) {
+                for (var i = 0; i < removeKeys.length; i++) {
+                    if (this._selectionData.hasOwnProperty(removeKeys[i])) {
+                        delete this._selectionData[removeKeys[i]];
+                    }
+                }
             };
             SelectionService.prototype.modifyQuery = function (query, scope) {
                 query.Selection = this._selectionData;
@@ -1773,6 +1786,22 @@ var PowerTables;
                 }
                 if (this._configuration.KeyFields.length === 0)
                     return;
+                if (!window['___ltcstrh']) {
+                    window['___ltcstrh'] = function (x) {
+                        if (x == null)
+                            return '';
+                        var r = '';
+                        for (var i = 0; i < x.length; i++) {
+                            if (x[i] === '\\')
+                                r += '\\\\';
+                            else if (x[i] === ':')
+                                r += '\\:';
+                            else
+                                r += x[i];
+                        }
+                        return r;
+                    };
+                }
                 var fields = [];
                 for (var i = 0; i < this._configuration.KeyFields.length; i++) {
                     var field = this._configuration.KeyFields[i];
@@ -1782,6 +1811,9 @@ var PowerTables;
                     else {
                         if (this._instances.Columns[this._configuration.KeyFields[i]].IsBoolean) {
                             fields.push("((x." + field + ")==null?'':(x." + field + "?'1':'0'))");
+                        }
+                        else if (this._instances.Columns[this._configuration.KeyFields[i]].IsString) {
+                            fields.push("(window.___ltcstrh(x." + field + "))");
                         }
                         else {
                             fields.push("((x." + field + ")==null?'':(x." + field + ".toString()))");
@@ -1836,7 +1868,6 @@ var PowerTables;
                         data.push(obj);
                         if (this._hasPrimaryKey) {
                             obj['__key'] = this.PrimaryKeyFunction(obj);
-                            this._storedDataCache[obj['__key']] = obj; // line that makes difference
                         }
                         obj = {};
                     }
@@ -2232,6 +2263,7 @@ var PowerTables;
                         //if (this.StoredData.length > 0) { whoai?!
                         this.StoredData.push(adjustedObjects[i]);
                         added.push(adjustedObjects[i]);
+                        this._storedDataCache[adjustedObjects[i]['__key']] = adjustedObjects[i];
                         needRefilter = true;
                     }
                     else {
@@ -2244,23 +2276,24 @@ var PowerTables;
                     }
                 }
                 for (var j = 0; j < adjustments.RemoveKeys.length; j++) {
-                    var lookup = this.localLookupPrimaryKey(adjustments.RemoveKeys[j]);
-                    if (lookup.LoadedIndex > -1) {
-                        this.StoredData.splice(lookup.LoadedIndex, 1);
+                    var dataObject = this.getByPrimaryKey(adjustments.RemoveKeys[j]);
+                    if (dataObject == null || dataObject == undefined)
+                        continue;
+                    if (this.StoredData.indexOf(dataObject) > -1) {
+                        this.StoredData.splice(this.StoredData.indexOf(dataObject), 1);
                         needRefilter = true;
                         delete this._storedDataCache[adjustments.RemoveKeys[j]];
                     }
-                    lookup = this.localLookupPrimaryKey(adjustments.RemoveKeys[j], this.Filtered);
-                    if (lookup.LoadedIndex > -1) {
-                        this.Filtered.splice(lookup.LoadedIndex, 1);
+                    if (this.Filtered.indexOf(dataObject) > -1) {
+                        this.Filtered.splice(this.Filtered.indexOf(dataObject), 1);
                         needRefilter = true;
                     }
-                    lookup = this.localLookupPrimaryKey(adjustments.RemoveKeys[j], this.Ordered);
-                    if (lookup.LoadedIndex > -1) {
-                        this.Ordered.splice(lookup.LoadedIndex, 1);
+                    if (this.Ordered.indexOf(dataObject) > -1) {
+                        this.Ordered.splice(this.Ordered.indexOf(dataObject), 1);
                         needRefilter = true;
                     }
                 }
+                this._masterTable.Selection.handleAdjustments(added, adjustments.RemoveKeys);
                 if (needRefilter) {
                     this.filterStoredDataWithPreviousQuery();
                     redrawVisibles = [];
@@ -4229,7 +4262,7 @@ var PowerTables;
              */
             DOMLocator.prototype.getCellElement = function (cell) {
                 var track = PowerTables.TrackHelper.getCellTrack(cell);
-                return this._bodyElement.querySelector(this._rootIdPrefix + " [data-track=\"" + track + "\"]");
+                return this._bodyElement.querySelector("[data-track=\"" + track + "\"]");
             };
             /**
              * Retrieves cell element using supplied coordinates
@@ -4239,7 +4272,7 @@ var PowerTables;
              */
             DOMLocator.prototype.getCellElementByIndex = function (rowDisplayIndex, columnIndex) {
                 var track = PowerTables.TrackHelper.getCellTrackByIndexes(rowDisplayIndex, columnIndex);
-                return this._bodyElement.querySelector(this._rootIdPrefix + " [data-track=\"" + track + "\"]");
+                return this._bodyElement.querySelector("[data-track=\"" + track + "\"]");
             };
             /**
              * Retrieves row element (including wrapper)
@@ -4249,7 +4282,7 @@ var PowerTables;
              */
             DOMLocator.prototype.getRowElement = function (row) {
                 var track = PowerTables.TrackHelper.getRowTrack(row);
-                return this._bodyElement.querySelector(this._rootIdPrefix + " [data-track=\"" + track + "\"]");
+                return this._bodyElement.querySelector("[data-track=\"" + track + "\"]");
             };
             /**
             * Retrieves row element (including wrapper) by specified row index
@@ -4259,7 +4292,7 @@ var PowerTables;
             */
             DOMLocator.prototype.getRowElementByIndex = function (rowDisplayingIndex) {
                 var track = PowerTables.TrackHelper.getRowTrackByIndex(rowDisplayingIndex);
-                return this._bodyElement.querySelector(this._rootIdPrefix + " [data-track=\"" + track + "\"]");
+                return this._bodyElement.querySelector("[data-track=\"" + track + "\"]");
             };
             /**
              * Retrieves data cells for specified column (including wrappers)
@@ -4268,8 +4301,8 @@ var PowerTables;
              * @returns HTML NodeList containing results
              */
             DOMLocator.prototype.getColumnCellsElements = function (column) {
-                var colIdx = column.MasterTable.InstanceManager.getUiColumnNames().indexOf(column.RawName);
-                return this._bodyElement.querySelectorAll(this._rootIdPrefix + " [data-track$=\"-c" + colIdx + "\"]");
+                var colIdx = column.Order;
+                return this._bodyElement.querySelectorAll("[data-track$=\"-c" + colIdx + "\"]");
             };
             /**
              * Retrieves data cells for specified column (including wrappers) by column index
@@ -4278,7 +4311,7 @@ var PowerTables;
              * @returns HTML NodeList containing results
              */
             DOMLocator.prototype.getColumnCellsElementsByColumnIndex = function (columnIndex) {
-                return this._bodyElement.querySelectorAll(this._rootIdPrefix + " [data-track$=\"-c" + columnIndex + "\"]");
+                return this._bodyElement.querySelectorAll("[data-track$=\"-c" + columnIndex + "\"]");
             };
             /**
              * Retrieves data cells for whole row (including wrapper)
@@ -4296,7 +4329,7 @@ var PowerTables;
              * @returns NodeList containing results
              */
             DOMLocator.prototype.getRowCellsElementsByIndex = function (rowDisplayingIndex) {
-                return this._bodyElement.querySelectorAll(this._rootIdPrefix + " [data-track^=\"c-r" + rowDisplayingIndex + "-\"]");
+                return this._bodyElement.querySelectorAll("[data-track^=\"c-r" + rowDisplayingIndex + "-\"]");
             };
             /**
              * Retrieves HTML element for column header (including wrapper)
@@ -4306,7 +4339,7 @@ var PowerTables;
              */
             DOMLocator.prototype.getHeaderElement = function (header) {
                 var track = PowerTables.TrackHelper.getHeaderTrack(header);
-                return this._rootElement.querySelector(this._rootIdPrefix + " [data-track=\"" + track + "\"]");
+                return this._rootElement.querySelector("[data-track=\"" + track + "\"]");
             };
             /**
              * Retrieves HTML element for plugin (including wrapper)
@@ -4316,7 +4349,7 @@ var PowerTables;
              */
             DOMLocator.prototype.getPluginElement = function (plugin) {
                 var track = PowerTables.TrackHelper.getPluginTrack(plugin);
-                return this._rootElement.querySelector(this._rootIdPrefix + " [data-track=\"" + track + "\"]");
+                return this._rootElement.querySelector("[data-track=\"" + track + "\"]");
             };
             /**
              * Retrieves HTML element for plugin (including wrapper)
@@ -4326,7 +4359,7 @@ var PowerTables;
              */
             DOMLocator.prototype.getPluginElementsByPositionPart = function (placement) {
                 var track = PowerTables.TrackHelper.getPluginTrackByLocation(placement);
-                return this._rootElement.querySelectorAll(this._rootIdPrefix + " [data-track^=\"" + track + "\"]");
+                return this._rootElement.querySelectorAll("[data-track^=\"" + track + "\"]");
             };
             /**
              * Determines if supplied element is table row
@@ -5922,8 +5955,10 @@ var PowerTables;
                     var hidden = [];
                     var shown = [];
                     for (var i = 0; i < this.ColumnStates.length; i++) {
-                        if (this.Configuration.ColumnInitiatingReload.indexOf(this.ColumnStates[i].RawName) < 0)
-                            continue;
+                        if (scope !== PowerTables.QueryScope.Transboundary) {
+                            if (this.Configuration.ColumnInitiatingReload.indexOf(this.ColumnStates[i].RawName) < 0)
+                                continue;
+                        }
                         if (!this.ColumnStates[i].Visible) {
                             hidden.push(this.ColumnStates[i].RawName);
                         }

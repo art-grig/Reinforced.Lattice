@@ -26,7 +26,7 @@
          */
         public getCellElement(cell: ICell): HTMLElement {
             var track: string = TrackHelper.getCellTrack(cell);
-            return <HTMLElement>this._bodyElement.querySelector(`${this._rootIdPrefix} [data-track="${track}"]`);
+            return <HTMLElement>this._bodyElement.querySelector(`[data-track="${track}"]`);
         }
 
         /**
@@ -37,7 +37,7 @@
          */
         public getCellElementByIndex(rowDisplayIndex: number, columnIndex: number): HTMLElement {
             var track: string = TrackHelper.getCellTrackByIndexes(rowDisplayIndex, columnIndex);
-            return <HTMLElement>this._bodyElement.querySelector(`${this._rootIdPrefix} [data-track="${track}"]`);
+            return <HTMLElement>this._bodyElement.querySelector(`[data-track="${track}"]`);
         }
 
         /**
@@ -48,7 +48,7 @@
          */
         public getRowElement(row: IRow): HTMLElement {
             var track: string = TrackHelper.getRowTrack(row);
-            return <HTMLElement>this._bodyElement.querySelector(`${this._rootIdPrefix} [data-track="${track}"]`);
+            return <HTMLElement>this._bodyElement.querySelector(`[data-track="${track}"]`);
         }
 
         /**
@@ -59,7 +59,7 @@
         */
         public getRowElementByIndex(rowDisplayingIndex: number): HTMLElement {
             var track: string = TrackHelper.getRowTrackByIndex(rowDisplayingIndex);
-            return <HTMLElement>this._bodyElement.querySelector(`${this._rootIdPrefix} [data-track="${track}"]`);
+            return <HTMLElement>this._bodyElement.querySelector(`[data-track="${track}"]`);
         }
 
         /**
@@ -69,8 +69,8 @@
          * @returns HTML NodeList containing results
          */
         public getColumnCellsElements(column: IColumn): NodeList {
-            var colIdx: number = column.MasterTable.InstanceManager.getUiColumnNames().indexOf(column.RawName);
-            return this._bodyElement.querySelectorAll(`${this._rootIdPrefix} [data-track$="-c${colIdx}"]`);
+            var colIdx: number = column.Order;
+            return this._bodyElement.querySelectorAll(`[data-track$="-c${colIdx}"]`);
         }
 
         /**
@@ -80,7 +80,7 @@
          * @returns HTML NodeList containing results
          */
         public getColumnCellsElementsByColumnIndex(columnIndex: number): NodeList {
-            return this._bodyElement.querySelectorAll(`${this._rootIdPrefix} [data-track$="-c${columnIndex}"]`);
+            return this._bodyElement.querySelectorAll(`[data-track$="-c${columnIndex}"]`);
         }
 
         /**
@@ -100,7 +100,7 @@
          * @returns NodeList containing results 
          */
         public getRowCellsElementsByIndex(rowDisplayingIndex: number): NodeList {
-            return this._bodyElement.querySelectorAll(`${this._rootIdPrefix} [data-track^="c-r${rowDisplayingIndex}-"]`);
+            return this._bodyElement.querySelectorAll(`[data-track^="c-r${rowDisplayingIndex}-"]`);
         }
 
         /**
@@ -111,7 +111,7 @@
          */
         public getHeaderElement(header: IColumnHeader): HTMLElement {
             var track: string = TrackHelper.getHeaderTrack(header);
-            return <HTMLElement>this._rootElement.querySelector(`${this._rootIdPrefix} [data-track="${track}"]`);
+            return <HTMLElement>this._rootElement.querySelector(`[data-track="${track}"]`);
         }
 
         /**
@@ -122,7 +122,7 @@
          */
         public getPluginElement(plugin: IPlugin): HTMLElement {
             var track: string = TrackHelper.getPluginTrack(plugin);
-            return <HTMLElement>this._rootElement.querySelector(`${this._rootIdPrefix} [data-track="${track}"]`);
+            return <HTMLElement>this._rootElement.querySelector(`[data-track="${track}"]`);
         }
 
         /**
@@ -133,7 +133,7 @@
          */
         public getPluginElementsByPositionPart(placement: string): NodeList {
             var track: string = TrackHelper.getPluginTrackByLocation(placement);
-            return this._rootElement.querySelectorAll(`${this._rootIdPrefix} [data-track^="${track}"]`);
+            return this._rootElement.querySelectorAll(`[data-track^="${track}"]`);
         }
 
         /**

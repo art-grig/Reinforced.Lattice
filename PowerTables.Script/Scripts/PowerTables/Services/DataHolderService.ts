@@ -82,7 +82,18 @@
                 return;
             }
             if (this._configuration.KeyFields.length === 0) return;
-
+            if (!window['___ltcstrh']) {
+                window['___ltcstrh'] = function(x:String) {
+                    if (x == null) return '';
+                    var r = '';
+                    for (var i = 0; i < x.length; i++) {
+                        if (x[i] === '\\') r += '\\\\';
+                        else if (x[i] === ':') r += '\\:';
+                        else r += x[i];
+                    }
+                    return r;
+                }
+            }
             var fields = [];
             for (var i = 0; i < this._configuration.KeyFields.length; i++) {
                 var field = this._configuration.KeyFields[i];
@@ -91,6 +102,10 @@
                 } else {
                     if (this._instances.Columns[this._configuration.KeyFields[i]].IsBoolean) {
                         fields.push(`((x.${field})==null?'':(x.${field}?'1':'0'))`);
+                    }
+                    else if (this._instances.Columns[this._configuration.KeyFields[i]].IsString) {
+
+                        fields.push(`(window.___ltcstrh(x.${field}))`);
                     } else {
                         fields.push(`((x.${field})==null?'':(x.${field}.toString()))`);
                     }
@@ -159,7 +174,6 @@
                     data.push(obj);
                     if (this._hasPrimaryKey) {
                         obj['__key'] = this.PrimaryKeyFunction(obj);
-                        this._storedDataCache[obj['__key']] = obj; // line that makes difference
                     }
                     obj = {};
                 }
@@ -592,6 +606,7 @@
                     //if (this.StoredData.length > 0) { whoai?!
                     this.StoredData.push(adjustedObjects[i]);
                     added.push(adjustedObjects[i]);
+                    this._storedDataCache[adjustedObjects[i]['__key']] = adjustedObjects[i];
                     needRefilter = true;
                     //}
                 } else {
@@ -605,26 +620,27 @@
             }
 
             for (var j = 0; j < adjustments.RemoveKeys.length; j++) {
+                var dataObject = this.getByPrimaryKey(adjustments.RemoveKeys[j]);
+                if (dataObject == null || dataObject == undefined) continue;
 
-                var lookup = this.localLookupPrimaryKey(adjustments.RemoveKeys[j]);
-                if (lookup.LoadedIndex > -1) {
-                    this.StoredData.splice(lookup.LoadedIndex, 1);
+                if (this.StoredData.indexOf(dataObject) > -1) {
+                    this.StoredData.splice(this.StoredData.indexOf(dataObject), 1);
                     needRefilter = true;
                     delete this._storedDataCache[adjustments.RemoveKeys[j]];
                 }
 
-                lookup = this.localLookupPrimaryKey(adjustments.RemoveKeys[j], this.Filtered);
-                if (lookup.LoadedIndex > -1) {
-                    this.Filtered.splice(lookup.LoadedIndex, 1);
+                if (this.Filtered.indexOf(dataObject) > -1) {
+                    this.Filtered.splice(this.Filtered.indexOf(dataObject), 1);
                     needRefilter = true;
                 }
 
-                lookup = this.localLookupPrimaryKey(adjustments.RemoveKeys[j], this.Ordered);
-                if (lookup.LoadedIndex > -1) {
-                    this.Ordered.splice(lookup.LoadedIndex, 1);
+                if (this.Ordered.indexOf(dataObject) > -1) {
+                    this.Ordered.splice(this.Ordered.indexOf(dataObject), 1);
                     needRefilter = true;
                 }
             }
+            this._masterTable.Selection.handleAdjustments(added,adjustments.RemoveKeys);
+
             if (needRefilter) {
                 this.filterStoredDataWithPreviousQuery();
                 redrawVisibles = [];

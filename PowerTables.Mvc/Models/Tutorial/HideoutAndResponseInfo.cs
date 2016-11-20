@@ -27,6 +27,7 @@ namespace PowerTables.Mvc.Models.Tutorial
                 .Except(a => a.ItemsLeft)
                 .Except(a => a.DeliveryDelay)
                 .Except(a => a.ItemsWasInitially)
+                .Except(a => a.Edit)
 
                 , ui => ui.PlaceAt("lt"));
             

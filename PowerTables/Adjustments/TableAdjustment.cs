@@ -29,7 +29,7 @@ namespace PowerTables
         internal string[] RemoveKeys { get; set; }
 
         [JsonProperty]
-        internal Dictionary<string, TableAdjustment> OtherTableAdjustments { get; set; }
+        internal Dictionary<string, TableAdjustment> OtherTablesAdjustments { get; set; }
 
         /// <summary>
         /// Additional data being serialized for client. 
