@@ -615,9 +615,41 @@
         handleAdditionalData(additionalData: any): void;
     }
 
+    /**
+     * Command execution parameters
+     */
     export interface ICommandExecutionParameters {
+
+        /**
+         * Reference to command description
+         */
+        CommandDescription: PowerTables.Commands.ICommandDescription;
+
+        /**
+         * Reference to master table
+         */
+        Master: IMasterTable,
+
+        /**
+         * Command subject (if any)
+         * Object that command was triggered on
+         */
         Subject: any;
+
+        /**
+         * Selection objects
+         */
         Selection: any[];
+
+        /**
+         * Confirmation object (if any)
+         * This field might be null when command confirmation has not been obtained yet
+         */
         Confirmation: any;
+
+        /**
+         * Command execution result
+         */
+        Result:any;
     }
 }

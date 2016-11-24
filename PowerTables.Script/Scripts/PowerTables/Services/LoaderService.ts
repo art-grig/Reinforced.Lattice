@@ -17,7 +17,7 @@
         }
 
         private _queryPartProviders: IQueryPartProvider[] = [];
-        private _additionalDataReceivers: {[_:string]:IAdditionalDataReceiver[]} = {};
+        private _additionalDataReceivers: { [_: string]: IAdditionalDataReceiver[] } = {};
 
         private _previousRequest: any;
         private _staticData: any; // from ctor
@@ -45,7 +45,7 @@
          * @param receiver Receiver object
          * @returns {} 
          */
-        public registerAdditionalDataReceiver(dataKey: string, receiver: IAdditionalDataReceiver) :void {
+        public registerAdditionalDataReceiver(dataKey: string, receiver: IAdditionalDataReceiver): void {
             if (!this._additionalDataReceivers[dataKey]) {
                 this._additionalDataReceivers[dataKey] = [];
             }
@@ -91,11 +91,7 @@
             return a;
         }
 
-        private getXmlHttp() {
-            if (this._previousRequest) {
-                this._previousRequest.abort();
-                this._previousRequest = null;
-            }
+        public createXmlHttp(): any {
             var xmlhttp: boolean | XMLHttpRequest;
             try {
                 xmlhttp = new ActiveXObject('Msxml2.XMLHTTP');
@@ -109,8 +105,18 @@
             if (!xmlhttp && typeof XMLHttpRequest != 'undefined') {
                 xmlhttp = new XMLHttpRequest();
             }
-            this._previousRequest = xmlhttp;
             return xmlhttp;
+        }
+
+
+        private getXmlHttp() {
+            if (this._previousRequest) {
+                this._previousRequest.abort();
+                this._previousRequest = null;
+            }
+            var req = this.createXmlHttp();
+            this._previousRequest = req;
+            return req;
         }
 
         private _previousQueryString: string;
@@ -141,7 +147,7 @@
 
         private checkAdditionalData(json: any): void {
             if (json.AdditionalData && json.AdditionalData['__TxQeah2p']) {
-                var data:{[_:string]:any} = json.AdditionalData['Data'];
+                var data: { [_: string]: any } = json.AdditionalData['Data'];
                 for (var adk in data) {
                     if (!this._additionalDataReceivers[adk]) continue;
                     var receivers = this._additionalDataReceivers[adk];
@@ -257,6 +263,8 @@
                         this.handleRegularJsonResponse(req, data, clientQuery, callback, errorCallback);
                     } else if (ctype && ctype.indexOf('lattice/service') >= 0) {
                         this.handleDeferredResponse(req, data, callback);
+                    } else {
+                        if (callback) callback(req.responseText);
                     }
                 } else {
                     if (req.status === 0) return false; // for IE
@@ -265,6 +273,7 @@
                         XMLHttp: req,
                         Reason: 'Network error'
                     });
+                    if (errorCallback) errorCallback(req.responseText);
                 }
                 this._isLoading = false;
                 this._events.Loading.invokeAfter(this, {

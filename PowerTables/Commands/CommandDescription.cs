@@ -14,12 +14,17 @@ namespace PowerTables.Commands
         public string Name { get; set; }
 
         public JRaw ClientFunction { get; set; }
-        
+
         public JRaw CanExecute { get; set; }
 
         public CommandType Type { get; set; }
 
         public ConfirmationConfiguration Confirmation { get; set; }
+
+        public JRaw OnSuccess { get; set; }
+        public JRaw OnFailure { get; set; }
+        public JRaw OnDismiss { get; set; }
+        public JRaw OnCommit { get; set; }
     }
 
     public class ConfirmationConfiguration
@@ -37,9 +42,13 @@ namespace PowerTables.Commands
 
         public DetailLoadingConfiguration Details { get; set; }
 
-        public string ContentLoadingUrl { get; set; }
+        public JRaw ContentLoadingUrl { get; set; }
+
+        public string ContentLoadingMethod { get; set; }
 
         public string ContentLoadingCommand { get; set; }
+
+        public JRaw InitConfirmationObject { get; set; }
     }
 
     public class CommandAutoformConfiguration
@@ -55,9 +64,15 @@ namespace PowerTables.Commands
     {
         public string CommandName { get; set; }
 
+        public string TempalteId { get; set; }
+
         public bool LoadImmediately { get; set; }
 
         public JRaw ValidateToLoad { get; set; }
+
+        public int LoadDelay { get; set; }
+
+        public Dictionary<string,List<string>> DetailsReloadEvents { get; set; }
     }
 
     public enum CommandType

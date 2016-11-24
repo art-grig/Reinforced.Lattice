@@ -24,6 +24,7 @@ module PowerTables.Configuration.Json {
 		QueryConfirmation: (query:IPowerTableRequest,scope:QueryScope,continueFn:any) => void;
 		SelectionConfiguration: PowerTables.Configuration.Json.ISelectionConfiguration;
 		PrefetchedData: any[];
+		Commands: { [key:string]: PowerTables.Commands.ICommandDescription };
 	}
 	export interface IColumnConfiguration
 	{
@@ -486,6 +487,10 @@ module PowerTables.Commands {
 		CanExecute: (dataObject:any)=>boolean;
 		Type: PowerTables.Commands.CommandType;
 		Confirmation: PowerTables.Commands.IConfirmationConfiguration;
+		OnSuccess: (param:ICommandExecutionParameters)=>void;
+		OnFailure: (param:ICommandExecutionParameters)=>void;
+		OnDismiss: (param:ICommandExecutionParameters)=>void;
+		OnCommit: (param:ICommandExecutionParameters)=>void;
 	}
 	export interface IConfirmationConfiguration
 	{
@@ -494,8 +499,10 @@ module PowerTables.Commands {
 		Formwatch: PowerTables.Plugins.Formwatch.IFormwatchFieldData[];
 		Autoform: PowerTables.Commands.ICommandAutoformConfiguration;
 		Details: PowerTables.Commands.IDetailLoadingConfiguration;
-		ContentLoadingUrl: string;
+		ContentLoadingUrl: (subject:any)=>string;
+		ContentLoadingMethod: string;
 		ContentLoadingCommand: string;
+		InitConfirmationObject: (confirmationObject:any)=>void;
 	}
 	export interface ICommandAutoformConfiguration
 	{
@@ -506,8 +513,11 @@ module PowerTables.Commands {
 	export interface IDetailLoadingConfiguration
 	{
 		CommandName: string;
+		TempalteId: string;
 		LoadImmediately: boolean;
 		ValidateToLoad: (param:ICommandExecutionParameters)=>boolean;
+		LoadDelay: number;
+		DetailsReloadEvents: { [key:string]: string[] };
 	}
 	export enum CommandType { 
 		Client = 0, 

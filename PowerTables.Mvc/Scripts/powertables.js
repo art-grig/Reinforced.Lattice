@@ -1529,19 +1529,20 @@ var PowerTables;
             var RangeFilterPlugin = (function (_super) {
                 __extends(RangeFilterPlugin, _super);
                 function RangeFilterPlugin() {
+                    var _this = this;
                     _super.apply(this, arguments);
                     this._filteringIsBeingExecuted = false;
                     this._isInitializing = true;
                     this.afterDrawn = function (e) {
-                        if (this.Configuration.Hidden)
+                        if (_this.Configuration.Hidden)
                             return;
-                        if (this.AssociatedColumn.IsDateTime) {
-                            var fromDate = this.MasterTable.Date.parse(this.Configuration.FromValue);
-                            var toDate = this.MasterTable.Date.parse(this.Configuration.ToValue);
-                            this.MasterTable.Date.putDateToDatePicker(this.FromValueProvider, fromDate);
-                            this.MasterTable.Date.putDateToDatePicker(this.ToValueProvider, toDate);
+                        if (_this.AssociatedColumn.IsDateTime) {
+                            var fromDate = _this.MasterTable.Date.parse(_this.Configuration.FromValue);
+                            var toDate = _this.MasterTable.Date.parse(_this.Configuration.ToValue);
+                            _this.MasterTable.Date.putDateToDatePicker(_this.FromValueProvider, fromDate);
+                            _this.MasterTable.Date.putDateToDatePicker(_this.ToValueProvider, toDate);
                         }
-                        this._isInitializing = false;
+                        _this._isInitializing = false;
                     };
                 }
                 RangeFilterPlugin.prototype.getFromValue = function () {
@@ -1850,6 +1851,7 @@ var PowerTables;
             var ValueFilterPlugin = (function (_super) {
                 __extends(ValueFilterPlugin, _super);
                 function ValueFilterPlugin() {
+                    var _this = this;
                     _super.apply(this, arguments);
                     this._filteringIsBeingExecuted = false;
                     this._isInitializing = true;
@@ -1857,13 +1859,13 @@ var PowerTables;
                     * @internal
                     */
                     this.afterDrawn = function (e) {
-                        if (this.Configuration.Hidden)
+                        if (_this.Configuration.Hidden)
                             return;
-                        if (this.AssociatedColumn.IsDateTime) {
-                            var date = this.MasterTable.Date.parse(this.Configuration.DefaultValue);
-                            this.MasterTable.Date.putDateToDatePicker(this.FilterValueProvider, date);
+                        if (_this.AssociatedColumn.IsDateTime) {
+                            var date = _this.MasterTable.Date.parse(_this.Configuration.DefaultValue);
+                            _this.MasterTable.Date.putDateToDatePicker(_this.FilterValueProvider, date);
                         }
-                        this._isInitializing = false;
+                        _this._isInitializing = false;
                     };
                 }
                 /**
@@ -5989,11 +5991,275 @@ var PowerTables;
     var Services;
     (function (Services) {
         var CommandsService = (function () {
-            function CommandsService() {
+            function CommandsService(masterTable) {
+                this._masterTable = masterTable;
+                this._commandsCache = this._masterTable.InstanceManager.Configuration.Commands;
             }
+            CommandsService.prototype.triggerCommand = function (commandName, subject, callback) {
+                if (callback === void 0) { callback = null; }
+                var command = this._commandsCache[commandName];
+                if (command == null || command == undefined) {
+                    throw Error("Command " + commandName + " was not found");
+                }
+                if (command.Confirmation != null && command.Confirmation != undefined) {
+                    var tc = new ConfirmationWindowViewModel(this._masterTable, command, subject);
+                    var r = this._masterTable.Renderer
+                        .renderObject(command.Confirmation.TemplateId, tc, command.Confirmation.TargetSelector);
+                    tc.RootElement = r;
+                    tc.rendered();
+                }
+                else {
+                    this.triggerCommandWithConfirmation(commandName, subject, null, callback);
+                }
+            };
+            CommandsService.prototype.triggerCommandWithConfirmation = function (commandName, subject, confirmation, callback) {
+                if (callback === void 0) { callback = null; }
+            };
             return CommandsService;
         }());
         Services.CommandsService = CommandsService;
+        var ConfirmationWindowViewModel = (function () {
+            function ConfirmationWindowViewModel(masterTable, commandDescription, subject) {
+                this.RootElement = null;
+                this.ContentPlaceholder = null;
+                this.DetailsPlaceholder = null;
+                this._editorColumn = {};
+                //#region Autoform
+                this.EditorsSet = {};
+                this.ActiveEditors = [];
+                this.ValidationMessages = [];
+                this._masterTable = masterTable;
+                this._commandDescription = commandDescription;
+                this._config = commandDescription.Confirmation;
+                this.DataObject = {};
+                this._editorObjectModified = {};
+                this.Subject = subject;
+                if (commandDescription.Confirmation.Autoform != null) {
+                    this.produceAutoformColumns(commandDescription.Confirmation.Autoform);
+                }
+                if (commandDescription.Confirmation.InitConfirmationObject) {
+                    commandDescription.Confirmation.InitConfirmationObject(this.DataObject);
+                    var confirmationObject = this.DataObject;
+                    for (var eo in confirmationObject) {
+                        if (confirmationObject.hasOwnProperty(eo)) {
+                            this._editorObjectModified[eo] = confirmationObject[eo];
+                        }
+                    }
+                }
+                if (commandDescription.Confirmation.Autoform != null) {
+                    this.initAutoform(commandDescription.Confirmation.Autoform);
+                }
+            }
+            ConfirmationWindowViewModel.prototype.rendered = function () {
+                this.initFormWatchDatepickers(this.RootElement);
+                this.loadContent();
+            };
+            ConfirmationWindowViewModel.prototype.loadContent = function () {
+                var _this = this;
+                if (this.ContentPlaceholder == null)
+                    return;
+                if ((!this._config.ContentLoadingUrl) && (!this._config.ContentLoadingCommand))
+                    return;
+                if (this.VisualStates != null)
+                    this.VisualStates.mixinState('contentLoading');
+                if (this._config.Autoform != null && this._config.Autoform.DisableWhenContentLoading) {
+                    for (var i = 0; i < this.ActiveEditors.length; i++) {
+                        if (this.ActiveEditors[i].VisualStates != null)
+                            this.ActiveEditors[i].VisualStates.mixinState('saving');
+                    }
+                }
+                if (this._config.ContentLoadingUrl != null && this._config.ContentLoadingUrl != undefined) {
+                    var url = this._config.ContentLoadingUrl(this.Subject);
+                    this.loadContentByUrl(url, this._config.ContentLoadingMethod);
+                }
+                else {
+                    this._masterTable.Loader.requestServer(this._config.ContentLoadingCommand, function (r) {
+                        _this.ContentPlaceholder.innerHTML = r;
+                        _this.initFormWatchDatepickers(_this.ContentPlaceholder);
+                        _this.contentLoaded();
+                    }, null, function (r) {
+                        _this.ContentPlaceholder.innerHTML = r;
+                        _this.contentLoaded();
+                    });
+                }
+            };
+            ConfirmationWindowViewModel.prototype.contentLoaded = function () {
+                if (this.VisualStates != null)
+                    this.VisualStates.unmixinState('contentLoading');
+                if (this._config.Autoform != null && this._config.Autoform.DisableWhenContentLoading) {
+                    for (var i = 0; i < this.ActiveEditors.length; i++) {
+                        if (this.ActiveEditors[i].VisualStates != null)
+                            this.ActiveEditors[i].VisualStates.unmixinState('saving');
+                    }
+                }
+            };
+            ConfirmationWindowViewModel.prototype.loadContentByUrl = function (url, method) {
+                var _this = this;
+                var req = this._masterTable.Loader.createXmlHttp();
+                req.open(method, url, true);
+                req.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                var reqEvent = req.onload ? 'onload' : 'onreadystatechange';
+                req[reqEvent] = (function () {
+                    if (req.readyState !== 4)
+                        return false;
+                    _this.ContentPlaceholder.innerHTML = req.responseText;
+                    _this.contentLoaded();
+                });
+                if (method === 'GET' || this.Subject === null)
+                    req.send();
+                else
+                    req.send(JSON.stringify(this.Subject));
+            };
+            ConfirmationWindowViewModel.prototype.loadDetails = function () {
+                if (this.DetailsPlaceholder == null)
+                    return;
+                if (this._config.Details == null || this._config.Details == undefined)
+                    return;
+            };
+            ConfirmationWindowViewModel.prototype.initFormWatchDatepickers = function (parent) {
+                var formWatch = this._commandDescription.Confirmation.Formwatch;
+                if (formWatch != null) {
+                    for (var i = 0; i < formWatch.length; i++) {
+                        var conf = formWatch[i];
+                        if (conf.TriggerSearchOnEvents && conf.TriggerSearchOnEvents.length > 0) {
+                            var element = parent.querySelector(conf.FieldSelector);
+                            if (conf.AutomaticallyAttachDatepicker) {
+                                this._masterTable.Date.createDatePicker(element);
+                            }
+                        }
+                    }
+                }
+            };
+            ConfirmationWindowViewModel.prototype.confirm = function () {
+            };
+            ConfirmationWindowViewModel.prototype.dismiss = function () {
+            };
+            ConfirmationWindowViewModel.prototype.Editors = function () {
+                var s = '';
+                for (var i = 0; i < this.ActiveEditors.length; i++) {
+                    s += this.editor(this.ActiveEditors[i]);
+                }
+                return s;
+            };
+            ConfirmationWindowViewModel.prototype.editor = function (editor) {
+                return this._masterTable.Renderer.renderObjectContent(editor);
+            };
+            ConfirmationWindowViewModel.prototype.Editor = function (fieldName) {
+                var editor = this.EditorsSet[fieldName];
+                if (editor == null || editor == undefined)
+                    return '';
+                return this.editor(editor);
+            };
+            ConfirmationWindowViewModel.prototype.createEditor = function (fieldName, column) {
+                var editorConf = this._commandDescription.Confirmation.Autoform.Autoform.Fields[fieldName];
+                var editor = PowerTables.ComponentsContainer.resolveComponent(editorConf.PluginId);
+                editor.DataObject = this.DataObject;
+                editor.ModifiedDataObject = this._editorObjectModified;
+                editor.Data = this.DataObject[fieldName];
+                editor.FieldName = fieldName;
+                editor.Column = column;
+                editor.CanComplete = false;
+                editor.IsFormEdit = true;
+                editor.IsRowEdit = false;
+                editor.IsCellEdit = !(editor.IsFormEdit || editor.IsRowEdit);
+                editor.Row = this;
+                editor.RawConfig = { Configuration: editorConf, Order: 0, PluginId: editorConf.PluginId, Placement: '', TemplateId: editorConf.TemplateId };
+                editor.init(this._masterTable);
+                return editor;
+            };
+            ConfirmationWindowViewModel.prototype.defaultValue = function (col) {
+                if (col.IsInteger || col.IsFloat)
+                    return 0;
+                if (col.IsBoolean)
+                    return false;
+                if (col.IsDateTime)
+                    return new Date();
+                if (col.IsString)
+                    return '';
+                if (col.IsEnum)
+                    return 0;
+                if (col.Configuration.IsNullable)
+                    return null;
+                return null;
+            };
+            ConfirmationWindowViewModel.prototype.produceAutoformColumns = function (autoform) {
+                var fields = autoform.Autoform;
+                for (var j = 0; j < fields.Fields.length; j++) {
+                    this._editorColumn[fields.Fields[j].FieldName] = PowerTables.Services.InstanceManagerService.createColumn(fields.Fields[j].FakeColumn, this._masterTable);
+                    this.DataObject[fields.Fields[j].FieldName] = this
+                        .defaultValue(this._editorColumn[fields.Fields[j].FieldName]);
+                    this._editorObjectModified[fields.Fields[j].FieldName] = this.DataObject[fields.Fields[j].FieldName];
+                }
+            };
+            ConfirmationWindowViewModel.prototype.initAutoform = function (autoform) {
+                var fields = autoform.Autoform;
+                for (var i = 0; i < fields.Fields.length; i++) {
+                    var editorConf = fields.Fields[i];
+                    var column = this._editorColumn[editorConf.FieldName];
+                    var editor = this.createEditor(editorConf.FieldName, column);
+                    this.EditorsSet[editorConf.FieldName] = editor;
+                    this.ActiveEditors.push(editor);
+                }
+            };
+            ConfirmationWindowViewModel.prototype.notifyChanged = function (editor) {
+                this.retrieveEditorData(editor);
+                for (var i = 0; i < this.ActiveEditors.length; i++) {
+                    this.ActiveEditors[i].notifyObjectChanged();
+                }
+            };
+            ConfirmationWindowViewModel.prototype.reject = function (editor) {
+                this._editorObjectModified[editor.FieldName] = this.DataObject[editor.FieldName];
+                this.setEditorValue(editor);
+            };
+            ConfirmationWindowViewModel.prototype.commit = function (editor) {
+                var idx = this.ActiveEditors.indexOf(editor);
+                if (this.ActiveEditors.length > idx + 1) {
+                    idx = -1;
+                    for (var i = 0; i < this.ActiveEditors.length; i++) {
+                        if (!this.ActiveEditors[i].IsValid) {
+                            idx = i;
+                            break;
+                        }
+                    }
+                    if (idx !== -1)
+                        this.ActiveEditors[idx].focus();
+                }
+            };
+            ConfirmationWindowViewModel.prototype.retrieveEditorData = function (editor, errors) {
+                var errorsArrayPresent = (!(!errors));
+                errors = errors || [];
+                var thisErrors = [];
+                this._editorObjectModified[editor.FieldName] = editor.getValue(thisErrors);
+                for (var j = 0; j < thisErrors.length; j++) {
+                    thisErrors[j].Message = editor.getErrorMessage(thisErrors[j].Code);
+                }
+                editor.Data = this._editorObjectModified[editor.FieldName];
+                editor.ValidationMessages = thisErrors;
+                for (var i = 0; i < thisErrors.length; i++) {
+                    errors.push(thisErrors[i]);
+                }
+                if (thisErrors.length > 0) {
+                    editor.IsValid = false;
+                    if (editor.VisualStates != null)
+                        editor.VisualStates.changeState('invalid');
+                }
+                else {
+                    editor.IsValid = true;
+                    if (editor.VisualStates != null)
+                        editor.VisualStates.normalState();
+                }
+                if (!errorsArrayPresent) {
+                    this.ValidationMessages.concat(errors);
+                }
+            };
+            ConfirmationWindowViewModel.prototype.setEditorValue = function (editor) {
+                editor.IsInitialValueSetting = true;
+                editor.setValue(this._editorObjectModified[editor.FieldName]);
+                editor.IsInitialValueSetting = false;
+            };
+            return ConfirmationWindowViewModel;
+        }());
+        Services.ConfirmationWindowViewModel = ConfirmationWindowViewModel;
     })(Services = PowerTables.Services || (PowerTables.Services = {}));
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
@@ -7931,11 +8197,7 @@ var PowerTables;
                 }
                 return a;
             };
-            LoaderService.prototype.getXmlHttp = function () {
-                if (this._previousRequest) {
-                    this._previousRequest.abort();
-                    this._previousRequest = null;
-                }
+            LoaderService.prototype.createXmlHttp = function () {
                 var xmlhttp;
                 try {
                     xmlhttp = new ActiveXObject('Msxml2.XMLHTTP');
@@ -7951,8 +8213,16 @@ var PowerTables;
                 if (!xmlhttp && typeof XMLHttpRequest != 'undefined') {
                     xmlhttp = new XMLHttpRequest();
                 }
-                this._previousRequest = xmlhttp;
                 return xmlhttp;
+            };
+            LoaderService.prototype.getXmlHttp = function () {
+                if (this._previousRequest) {
+                    this._previousRequest.abort();
+                    this._previousRequest = null;
+                }
+                var req = this.createXmlHttp();
+                this._previousRequest = req;
+                return req;
             };
             LoaderService.prototype.checkError = function (json, data, req) {
                 if (json['__ZBnpwvibZm'] && json['Success'] != undefined && !json.Success) {
@@ -8093,6 +8363,10 @@ var PowerTables;
                         else if (ctype && ctype.indexOf('lattice/service') >= 0) {
                             _this.handleDeferredResponse(req, data, callback);
                         }
+                        else {
+                            if (callback)
+                                callback(req.responseText);
+                        }
                     }
                     else {
                         if (req.status === 0)
@@ -8102,6 +8376,8 @@ var PowerTables;
                             XMLHttp: req,
                             Reason: 'Network error'
                         });
+                        if (errorCallback)
+                            errorCallback(req.responseText);
                     }
                     _this._isLoading = false;
                     _this._events.Loading.invokeAfter(_this, {

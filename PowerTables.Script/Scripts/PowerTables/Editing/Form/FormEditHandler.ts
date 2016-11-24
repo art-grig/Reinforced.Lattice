@@ -161,6 +161,7 @@
             this.CurrentDataObjectModified[editor.FieldName] = this.DataObject[editor.FieldName];
             this.setEditorValue(editor);
         }
+
     }
 
     export class FormEditFormModel {

@@ -19,6 +19,9 @@ declare module PowerTables.Configuration.Json {
         QueryConfirmation: (query: IPowerTableRequest, scope: QueryScope, continueFn: any) => void;
         SelectionConfiguration: PowerTables.Configuration.Json.ISelectionConfiguration;
         PrefetchedData: any[];
+        Commands: {
+            [key: string]: PowerTables.Commands.ICommandDescription;
+        };
     }
     interface IColumnConfiguration {
         Title: string;
@@ -469,6 +472,10 @@ declare module PowerTables.Commands {
         CanExecute: (dataObject: any) => boolean;
         Type: PowerTables.Commands.CommandType;
         Confirmation: PowerTables.Commands.IConfirmationConfiguration;
+        OnSuccess: (param: ICommandExecutionParameters) => void;
+        OnFailure: (param: ICommandExecutionParameters) => void;
+        OnDismiss: (param: ICommandExecutionParameters) => void;
+        OnCommit: (param: ICommandExecutionParameters) => void;
     }
     interface IConfirmationConfiguration {
         TemplateId: string;
@@ -476,8 +483,10 @@ declare module PowerTables.Commands {
         Formwatch: PowerTables.Plugins.Formwatch.IFormwatchFieldData[];
         Autoform: PowerTables.Commands.ICommandAutoformConfiguration;
         Details: PowerTables.Commands.IDetailLoadingConfiguration;
-        ContentLoadingUrl: string;
+        ContentLoadingUrl: (subject: any) => string;
+        ContentLoadingMethod: string;
         ContentLoadingCommand: string;
+        InitConfirmationObject: (confirmationObject: any) => void;
     }
     interface ICommandAutoformConfiguration {
         Autoform: PowerTables.Editing.IEditFormUiConfigBase;
@@ -488,6 +497,10 @@ declare module PowerTables.Commands {
         CommandName: string;
         LoadImmediately: boolean;
         ValidateToLoad: (param: ICommandExecutionParameters) => boolean;
+        LoadDelay: number;
+        DetailsReloadEvents: {
+            [key: string]: string[];
+        };
     }
     enum CommandType {
         Client = 0,
@@ -1067,10 +1080,36 @@ declare module PowerTables {
          */
         handleAdditionalData(additionalData: any): void;
     }
+    /**
+     * Command execution parameters
+     */
     interface ICommandExecutionParameters {
+        /**
+         * Reference to command description
+         */
+        CommandDescription: PowerTables.Commands.ICommandDescription;
+        /**
+         * Reference to master table
+         */
+        Master: IMasterTable;
+        /**
+         * Command subject (if any)
+         * Object that command was triggered on
+         */
         Subject: any;
+        /**
+         * Selection objects
+         */
         Selection: any[];
+        /**
+         * Confirmation object (if any)
+         * This field might be null when command confirmation has not been obtained yet
+         */
         Confirmation: any;
+        /**
+         * Command execution result
+         */
+        Result: any;
     }
 }
 declare module PowerTables.Editing.Editors.Cells {
@@ -2846,6 +2885,55 @@ declare module PowerTables.Rendering {
 }
 declare module PowerTables.Services {
     class CommandsService {
+        constructor(masterTable: IMasterTable);
+        private _masterTable;
+        private _commandsCache;
+        triggerCommand(commandName: string, subject: any, callback?: ((params: ICommandExecutionParameters) => void)): void;
+        triggerCommandWithConfirmation(commandName: string, subject: any, confirmation: any, callback?: ((params: ICommandExecutionParameters) => void)): void;
+    }
+    class ConfirmationWindowViewModel implements PowerTables.Editing.IEditHandler {
+        constructor(masterTable: IMasterTable, commandDescription: PowerTables.Commands.ICommandDescription, subject: any);
+        RootElement: HTMLElement;
+        ContentPlaceholder: HTMLElement;
+        DetailsPlaceholder: HTMLElement;
+        VisualStates: PowerTables.Rendering.VisualState;
+        Subject: any;
+        private _masterTable;
+        private _commandDescription;
+        private _config;
+        private _editorObjectModified;
+        private _editorColumn;
+        rendered(): void;
+        private loadContent();
+        private contentLoaded();
+        private loadContentByUrl(url, method);
+        private loadDetails();
+        private initFormWatchDatepickers(parent);
+        confirm(): void;
+        dismiss(): void;
+        EditorsSet: {
+            [key: string]: PowerTables.Editing.IEditor;
+        };
+        ActiveEditors: PowerTables.Editing.IEditor[];
+        Editors(): string;
+        private editor(editor);
+        Editor(fieldName: string): string;
+        private createEditor(fieldName, column);
+        defaultValue(col: IColumn): any;
+        private produceAutoformColumns(autoform);
+        private initAutoform(autoform);
+        DataObject: any;
+        Index: number;
+        MasterTable: IMasterTable;
+        Cells: {
+            [index: string]: ICell;
+        };
+        ValidationMessages: PowerTables.Editing.IValidationMessage[];
+        notifyChanged(editor: PowerTables.Editing.IEditor): void;
+        reject(editor: PowerTables.Editing.IEditor): void;
+        commit(editor: PowerTables.Editing.IEditor): void;
+        private retrieveEditorData(editor, errors?);
+        protected setEditorValue(editor: PowerTables.Editing.IEditor): void;
     }
 }
 declare module PowerTables.Services {
@@ -3440,6 +3528,7 @@ declare module PowerTables.Services {
         registerAdditionalDataReceiver(dataKey: string, receiver: IAdditionalDataReceiver): void;
         prefetchData(data: any[]): void;
         gatherQuery(queryScope: QueryScope): IQuery;
+        createXmlHttp(): any;
         private getXmlHttp();
         private _previousQueryString;
         private checkError(json, data, req);
