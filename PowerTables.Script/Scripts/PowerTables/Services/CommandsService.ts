@@ -115,14 +115,14 @@
 
     export class ConfirmationWindowViewModel implements PowerTables.Editing.IEditHandler {
         constructor(masterTable: IMasterTable, commandDescription: PowerTables.Commands.ICommandDescription, subject: any, originalCallback: ((params: ICommandExecutionParameters) => void)) {
-            this._masterTable = masterTable;
+            this.MasterTable = masterTable;
             this._commandDescription = commandDescription;
             this._config = commandDescription.Confirmation;
             this._originalCallback = originalCallback;
             this.DataObject = {};
             this._editorObjectModified = {};
             this.Subject = subject;
-            this.Selection = this._masterTable.Selection.getSelectedObjects();
+            this.Selection = this.MasterTable.Selection.getSelectedObjects();
             
             this._embedBound = this.embedConfirmation.bind(this);
 
@@ -146,7 +146,7 @@
 
             var tplParams: ICommandExecutionParameters = {
                 CommandDescription: this._commandDescription,
-                Master: this._masterTable,
+                Master: this.MasterTable,
                 Confirmation: this._editorObjectModified,
                 Result: null,
                 Selection: this.Selection,
@@ -173,7 +173,6 @@
 
         public RecentDetails: { Data: any } = { Data: null };
 
-        private _masterTable: IMasterTable;
         private _commandDescription: PowerTables.Commands.ICommandDescription;
         private _config: PowerTables.Commands.IConfirmationConfiguration;
         private _embedBound: any;
@@ -193,6 +192,7 @@
 
         //#region Content loading
         private loadContent() {
+            
             if (this.ContentPlaceholder == null) return;
             if ((!this._config.ContentLoadingUrl) && (!this._config.ContentLoadingCommand)) return;
             if (this.VisualStates != null) this.VisualStates.mixinState('contentLoading');
@@ -201,14 +201,16 @@
                     if (this.ActiveEditors[i].VisualStates != null) this.ActiveEditors[i].VisualStates.mixinState('loading');
                 }
             }
+            this._isloadingContent = true;
             if (this._config.ContentLoadingUrl != null && this._config.ContentLoadingUrl != undefined) {
                 var url = this._config.ContentLoadingUrl(this.Subject);
                 this.loadContentByUrl(url, this._config.ContentLoadingMethod);
             } else {
-                this._masterTable.Loader.requestServer(this._config.ContentLoadingCommand, r => {
+                this.MasterTable.Loader.requestServer(this._config.ContentLoadingCommand, r => {
                     this.ContentPlaceholder.innerHTML = r;
                     this.initFormWatchDatepickers(this.ContentPlaceholder);
                     this.contentLoaded();
+                    
                 }, this._embedBound, r => {
                     this.ContentPlaceholder.innerHTML = r;
                     this.contentLoaded();
@@ -217,6 +219,7 @@
         }
 
         private contentLoaded() {
+            this._isloadingContent = false;
             if (this.VisualStates != null) this.VisualStates.unmixinState('contentLoading');
             if (this._config.Autoform != null && this._config.Autoform.DisableWhenContentLoading) {
                 for (var i = 0; i < this.ActiveEditors.length; i++) {
@@ -226,7 +229,7 @@
         }
 
         private loadContentByUrl(url: string, method: string) {
-            var req = this._masterTable.Loader.createXmlHttp();
+            var req = this.MasterTable.Loader.createXmlHttp();
             req.open(method, url, true);
             req.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
             var reqEvent: string = req.onload ? 'onload' : 'onreadystatechange';
@@ -271,7 +274,7 @@
 
 
             if (this._config.Details.CommandName != null && this._config.Details.CommandName != undefined) {
-                this._masterTable.Loader.requestServer(this._config.Details.CommandName,
+                this.MasterTable.Loader.requestServer(this._config.Details.CommandName,
                     r => {
                         this.detailsLoaded(r);
                     },
@@ -299,7 +302,7 @@
                             Details: detailsResult,
                             Confirmation: this.getConfirmation()
                         };
-                        this._masterTable.Renderer
+                        this.MasterTable.Renderer
                             .renderObjectTo(this._config.Details.TempalteId, param, this.DetailsPlaceholder);
                         this.initFormWatchDatepickers(this.DetailsPlaceholder);
                     } else {
@@ -332,7 +335,7 @@
         private collectCommandParameters(): ICommandExecutionParameters {
             var result: ICommandExecutionParameters = {
                 CommandDescription: this._commandDescription,
-                Master: this._masterTable,
+                Master: this.MasterTable,
                 Selection: this.Selection,
                 Subject: this.Subject,
                 Result: null,
@@ -342,15 +345,16 @@
 
             return result;
         }
+        private _isloadingContent: boolean = false;
 
         private getConfirmation() {
             var confirmation = null;
             if (this._config.Formwatch != null) {
-                confirmation = PowerTables.Plugins.Formwatch.FormwatchPlugin.extractFormData(this._config.Formwatch, this.RootElement, this._masterTable.Date);
+                confirmation = PowerTables.Plugins.Formwatch.FormwatchPlugin.extractFormData(this._config.Formwatch, this.RootElement, this.MasterTable.Date);
             }
 
             if (this._config.Autoform != null) {
-                this.collectAutoForm();
+                if (!this._isloadingContent) this.collectAutoForm();
                 if (confirmation == null) confirmation = {};
                 let confirmationObject = this._editorObjectModified;
                 for (var eo in confirmationObject) {
@@ -372,7 +376,7 @@
                     if (conf.TriggerSearchOnEvents && conf.TriggerSearchOnEvents.length > 0) {
                         var element = <HTMLInputElement>parent.querySelector(conf.FieldSelector);
                         if (conf.AutomaticallyAttachDatepicker) {
-                            this._masterTable.Date.createDatePicker(element);
+                            this.MasterTable.Date.createDatePicker(element);
                         }
                     }
                 }
@@ -380,21 +384,22 @@
         }
 
         public confirm() {
+            var params = this.collectCommandParameters();
+            if (this.ValidationMessages.length > 0) return;
             if (this.VisualStates != null) this.VisualStates.mixinState('saving');
             if (this._config.Autoform != null && this._config.Autoform.DisableWhenContentLoading) {
                 for (var i = 0; i < this.ActiveEditors.length; i++) {
                     if (this.ActiveEditors[i].VisualStates != null) this.ActiveEditors[i].VisualStates.mixinState('saving');
                 }
             }
-            if (this._config.OnCommit) this._config.OnCommit(this.collectCommandParameters());
-            this._masterTable.Commands.triggerCommandWithConfirmation(this._commandDescription.Name,
+            if (this._config.OnCommit) this._config.OnCommit(params);
+            this.MasterTable.Commands.triggerCommandWithConfirmation(this._commandDescription.Name,
                 this.Subject, this.getConfirmation(), r => {
-                    var params = this.collectCommandParameters();
                     params.Result = r;
                     this.RootElement = null;
                     this.ContentPlaceholder = null;
                     this.DetailsPlaceholder = null;
-                    this._masterTable.Renderer.destroyObject(this._commandDescription.Confirmation.TargetSelector);
+                    this.MasterTable.Renderer.destroyObject(this._commandDescription.Confirmation.TargetSelector);
                     if (this._originalCallback) this._originalCallback(params);
                 });
         }
@@ -403,7 +408,7 @@
             this.RootElement = null;
             this.ContentPlaceholder = null;
             this.DetailsPlaceholder = null;
-            this._masterTable.Renderer.destroyObject(this._commandDescription.Confirmation.TargetSelector);
+            this.MasterTable.Renderer.destroyObject(this._commandDescription.Confirmation.TargetSelector);
             var params = this.collectCommandParameters();
             if (this._config.OnDismiss) this._config.OnDismiss(params);
             if (this._originalCallback) this._originalCallback(params);
@@ -422,7 +427,7 @@
         }
 
         private editor(editor: PowerTables.Editing.IEditor): string {
-            return this._masterTable.Renderer.renderObjectContent(editor);
+            return this.MasterTable.Renderer.renderObjectContent(editor);
         }
 
         public Editor(fieldName: string): string {
@@ -445,7 +450,7 @@
             editor.IsCellEdit = !(editor.IsFormEdit || editor.IsRowEdit);
             editor.Row = this;
             editor.RawConfig = { Configuration: editorConf, Order: 0, PluginId: editorConf.PluginId, Placement: '', TemplateId: editorConf.TemplateId }
-            editor.init(this._masterTable);
+            editor.init(this.MasterTable);
             return editor;
         }
 
@@ -465,7 +470,7 @@
                 this._autoformFields[fields[i].FieldName] = fields[i];
             }
             for (var j = 0; j < fields.length; j++) {
-                this._editorColumn[fields[j].FieldName] = PowerTables.Services.InstanceManagerService.createColumn(fields[j].FakeColumn, this._masterTable);
+                this._editorColumn[fields[j].FieldName] = PowerTables.Services.InstanceManagerService.createColumn(fields[j].FakeColumn, this.MasterTable);
                 this.DataObject[fields[j].FieldName] = this
                     .defaultValue(this._editorColumn[fields[j].FieldName]);
                 this._editorObjectModified[fields[j].FieldName] = this.DataObject[fields[j].FieldName];

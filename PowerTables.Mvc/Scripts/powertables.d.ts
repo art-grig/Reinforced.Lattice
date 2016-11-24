@@ -1890,7 +1890,6 @@ declare module PowerTables.Services {
         RecentDetails: {
             Data: any;
         };
-        private _masterTable;
         private _commandDescription;
         private _config;
         private _embedBound;
@@ -1908,6 +1907,7 @@ declare module PowerTables.Services {
         private detailsLoaded(detailsResult);
         private embedConfirmation(q);
         private collectCommandParameters();
+        private _isloadingContent;
         private getConfirmation();
         private initFormWatchDatepickers(parent);
         confirm(): void;

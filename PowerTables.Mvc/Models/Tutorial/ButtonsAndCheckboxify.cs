@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Web.Mvc;
 using PowerTables.CellTemplating;
 using PowerTables.Commands;
@@ -23,6 +24,13 @@ namespace PowerTables.Mvc.Models.Tutorial
         public int Rate { get; set; }
 
         public bool ShowMyEmail { get; set; }
+    }
+
+    public class CommentsValidationForm
+    {
+        public bool Validated { get; set; }
+
+        public DateTime CommentDate { get; set; }
     }
     public static partial class Tutorial
     {
@@ -50,9 +58,8 @@ namespace PowerTables.Mvc.Models.Tutorial
                 .Command(Update, x => x.Window<SimpleConfirmationModel>("confirmationSelectionForm", "#confirmationContent", c => c.WatchForm(d => d.WatchAllFields())))
                 .Command("Remove3", x =>
                 {
-                    x
-                        .Server(Remove)
-                        .Window("removalConfirmation", "#confirmationContent", d => d.Part("Name", "Toy").Part("NamePlural", "toys"));
+                    x.Server(Remove)
+                     .Window("removalConfirmation", "#confirmationContent", d => d.Part("Name", "Toy").Part("NamePlural", "toys"));
 
                 })
                 .Command("LeaveComment", x =>
@@ -74,6 +81,24 @@ namespace PowerTables.Mvc.Models.Tutorial
                 {
                     x.Window("commentsView", "#confirmationContent", z => z.ContentCommand("LoadComments"));
                 })
+                .Command("CommentFeedback", x =>
+                {
+                    x.Window<CommentsValidationForm>("commentsAndFeedback", "#confirmationContent", d =>
+                    {
+                        d.AutoForm(c =>
+                        {
+                            c.EditCheck(v => v.Validated)
+                                .FakeColumn(n => n.Title("Validated"))
+                                .OverrideErrorMessage(CheckEditorConfigurationExtensions.Validation_Mandatory,"You must validate comments")
+                                .Mandatory()
+                                ;
+                            c.EditPlainText(v => v.CommentDate)
+                                .FakeColumn(n => n.Title("Validated at"));
+
+                        });
+                        d.ContentCommand("LoadComments");
+                    });
+                })
                 
             ;
 
@@ -81,6 +106,8 @@ namespace PowerTables.Mvc.Models.Tutorial
                 .SubscribeCellEvent(a => a.Command("click", "LeaveComment").Selector("a"));
             conf.Column(c => c.PreviousState).Template(x => x.Returns("<a class='btn btn-sm btn-default'>View Comments</a>"))
                .SubscribeCellEvent(a => a.Command("click", "ViewComments").Selector("a"));
+            conf.Column(c => c.ItemsSold).Template(x => x.Returns("<a class='btn btn-sm btn-default'>Feedback</a>"))
+               .SubscribeCellEvent(a => a.Command("click", "CommentFeedback").Selector("a"));
 
             conf.Toolbar("toolbar-rt", a =>
             {

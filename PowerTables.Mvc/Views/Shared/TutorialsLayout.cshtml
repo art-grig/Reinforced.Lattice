@@ -306,7 +306,8 @@
                     <div @conf1.WhenContentLoading(c => c.Style("display", "none")) @conf1.ThisIsContentContainer()></div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal" @conf1.BindDismiss("click")>Ok</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal" @conf1.BindDismiss("click")>Cancel</button>
+                    <button type="button" class="btn btn-primary" @conf1.BindConfirm("click")>Confirm</button>
                 </div>
             </div>
         }
