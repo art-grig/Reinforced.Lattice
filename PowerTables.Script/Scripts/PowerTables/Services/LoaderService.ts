@@ -122,6 +122,7 @@
         private _previousQueryString: string;
 
         private checkError(json: any, data: IPowerTableRequest, req: XMLHttpRequest): boolean {
+            if (json == null) return false;
             if (json['__ZBnpwvibZm'] && json['Success'] != undefined && !json.Success) {
                 this._masterTable.MessageService.showMessage(json['Message']);
 
@@ -136,6 +137,7 @@
         }
 
         private checkMessage(json: any): boolean {
+            if (json == null) return false;
             if (json.Message && json.Message['__Go7XIV13OA']) {
                 var msg = <ITableMessage>json.Message;
                 this._masterTable.MessageService.showMessage(msg);
@@ -146,6 +148,7 @@
         }
 
         private checkAdditionalData(json: any): void {
+            if (json == null) return;
             if (json.AdditionalData && json.AdditionalData['__TxQeah2p']) {
                 var data: { [_: string]: any } = json.AdditionalData['Data'];
                 for (var adk in data) {
@@ -159,6 +162,7 @@
         }
 
         private checkEditResult(json: any, data: IPowerTableRequest, req: XMLHttpRequest): boolean {
+            if (json == null) return false;
             if (json['__XqTFFhTxSu']) {
                 this._events.DataReceived.invoke(this, {
                     Request: data,

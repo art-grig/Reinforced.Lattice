@@ -90,7 +90,7 @@ namespace PowerTables.Templating.BuiltIn
 
         public static MvcHtmlString TemplatePiece<TConfirmation>(this IConfirmationWindow<TConfirmation> p, string pieceName)
         {
-            return MvcHtmlString.Create("{{{TemplatePieces[" + pieceName + "]}}}");
+            return MvcHtmlString.Create("{{{TemplatePieces." + pieceName + "}}}");
         }
 
         public static MvcHtmlString WhenContentLoading<TConfirmation>(this IConfirmationWindow<TConfirmation> t, Action<VisualState> state)

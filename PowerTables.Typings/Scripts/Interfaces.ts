@@ -478,6 +478,7 @@ module PowerTables.Commands {
 	export interface ICommandDescription
 	{
 		Name: string;
+		ServerName: string;
 		ClientFunction: (param:ICommandExecutionParameters)=>any;
 		ConfirmationDataFunction: (param:ICommandExecutionParameters)=>any;
 		CanExecute: (data:{Subject:any,Master:IMasterTable})=>boolean;

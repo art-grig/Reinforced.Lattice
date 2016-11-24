@@ -12,6 +12,7 @@ namespace PowerTables.Commands
     public class CommandDescription
     {
         public string Name { get; set; }
+        public string ServerName { get; set; }
 
         public JRaw ClientFunction { get; set; }
 

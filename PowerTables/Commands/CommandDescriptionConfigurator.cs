@@ -10,19 +10,27 @@ namespace PowerTables.Commands
     {
         internal CommandDescription Description { get; set; }
 
-        public CommandDescriptionConfigurator(CommandDescription description)
+        internal CommandDescriptionConfigurator(CommandDescription description)
         {
             Description = description;
         }
     }
 
-    public class CommandConfirmationConfigurator<T>
+    public class CommandConfirmationConfigurator
     {
         internal ConfirmationConfiguration Configuration { get; set; }
 
-        public CommandConfirmationConfigurator(ConfirmationConfiguration configuration)
+        internal CommandConfirmationConfigurator(ConfirmationConfiguration configuration)
         {
             Configuration = configuration;
+        }
+    }
+
+    public class CommandConfirmationConfigurator<T> : CommandConfirmationConfigurator
+    {
+        internal CommandConfirmationConfigurator(ConfirmationConfiguration configuration)
+            : base(configuration)
+        {
         }
     }
 
@@ -30,7 +38,7 @@ namespace PowerTables.Commands
     {
         internal DetailLoadingConfiguration Configuration { get; set; }
 
-        public ConfirmationDetailsConfigurator(DetailLoadingConfiguration configuration)
+        internal ConfirmationDetailsConfigurator(DetailLoadingConfiguration configuration)
         {
             Configuration = configuration;
         }

@@ -61,7 +61,11 @@
 
         private onSelectionChanged(e: ITableEventArgs<string[]>) {
             var atleastOne: boolean = false;
-            var disabled: boolean = e.EventArgs.length === 0;
+            var disabled: boolean = true;
+            for (var d in e.EventArgs) {
+                disabled = false;
+                break;
+            }
 
             for (var bc in this._buttonsConfig) {
                 if (this._buttonsConfig.hasOwnProperty(bc)) {

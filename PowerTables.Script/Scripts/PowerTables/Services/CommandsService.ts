@@ -77,10 +77,8 @@
                         if (callback) callback(params);
                     },
                     q => {
-                        q.AdditionalData['CommandData'] = JSON.stringify({
-                            Confirmation: confirmation,
-                            Subject: subject
-                        });
+                        q.AdditionalData['CommandConfirmation'] = JSON.stringify(confirmation);
+                        q.AdditionalData['CommandSubject'] = JSON.stringify(subject);
                         return q;
                     });
 
@@ -93,17 +91,15 @@
 
             if (cmd.Type === PowerTables.Commands.CommandType.Server) {
 
-                this._masterTable.Loader.requestServer(commandName,
+                this._masterTable.Loader.requestServer(cmd.ServerName,
                     r => {
                         params.Result = r;
                         if (callback) callback(params);
                         if (cmd.OnSuccess) cmd.OnSuccess(params);
                     },
                     q => {
-                        q.AdditionalData['CommandData'] = JSON.stringify({
-                            Confirmation: confirmation,
-                            Subject: subject
-                        });
+                        q.AdditionalData['CommandConfirmation'] = JSON.stringify(confirmation);
+                        q.AdditionalData['CommandSubject'] = JSON.stringify(subject);
                         return q;
                     },
                     r => {
@@ -127,7 +123,7 @@
             this._editorObjectModified = {};
             this.Subject = subject;
             this.Selection = this._masterTable.Selection.getSelectedObjects();
-
+            
             this._embedBound = this.embedConfirmation.bind(this);
 
             if (commandDescription.Confirmation.Autoform != null) {
@@ -185,6 +181,7 @@
         private _editorObjectModified: any;
         private _editorColumn: { [_: string]: IColumn } = {};
         private _originalCallback: ((params: ICommandExecutionParameters) => void) = null;
+        private _autoformFields: { [_: string]: PowerTables.Editing.IEditFieldUiConfigBase } = {};
 
         public rendered() {
             this.initFormWatchDatepickers(this.RootElement);
@@ -327,10 +324,8 @@
 
 
         private embedConfirmation(q: IQuery): IQuery {
-            q.AdditionalData['CommandData'] = JSON.stringify({
-                Confirmation: this.getConfirmation(),
-                Subject: this.Subject
-            });
+            q.AdditionalData['CommandConfirmation'] = JSON.stringify(this.getConfirmation());
+            q.AdditionalData['CommandSubject'] = JSON.stringify(this.Subject);
             return q;
         }
 
@@ -399,7 +394,7 @@
                     this.RootElement = null;
                     this.ContentPlaceholder = null;
                     this.DetailsPlaceholder = null;
-                    this.MasterTable.Renderer.destroyObject(this._commandDescription.Confirmation.TargetSelector);
+                    this._masterTable.Renderer.destroyObject(this._commandDescription.Confirmation.TargetSelector);
                     if (this._originalCallback) this._originalCallback(params);
                 });
         }
@@ -408,8 +403,10 @@
             this.RootElement = null;
             this.ContentPlaceholder = null;
             this.DetailsPlaceholder = null;
-            this.MasterTable.Renderer.destroyObject(this._commandDescription.Confirmation.TargetSelector);
-            if (this._config.OnDismiss) this._config.OnDismiss(this.collectCommandParameters());
+            this._masterTable.Renderer.destroyObject(this._commandDescription.Confirmation.TargetSelector);
+            var params = this.collectCommandParameters();
+            if (this._config.OnDismiss) this._config.OnDismiss(params);
+            if (this._originalCallback) this._originalCallback(params);
         }
 
         //#region Autoform
@@ -435,7 +432,7 @@
         }
 
         private createEditor(fieldName: string, column: IColumn): PowerTables.Editing.IEditor {
-            var editorConf = this._commandDescription.Confirmation.Autoform.Autoform[fieldName];
+            var editorConf = this._autoformFields[fieldName];
             var editor = ComponentsContainer.resolveComponent<PowerTables.Editing.IEditor>(editorConf.PluginId);
             editor.DataObject = this.DataObject;
             editor.ModifiedDataObject = this._editorObjectModified;
@@ -464,6 +461,9 @@
 
         private produceAutoformColumns(autoform: PowerTables.Commands.ICommandAutoformConfiguration) {
             var fields = autoform.Autoform;
+            for (var i = 0; i < fields.length; i++) {
+                this._autoformFields[fields[i].FieldName] = fields[i];
+            }
             for (var j = 0; j < fields.length; j++) {
                 this._editorColumn[fields[j].FieldName] = PowerTables.Services.InstanceManagerService.createColumn(fields[j].FakeColumn, this._masterTable);
                 this.DataObject[fields[j].FieldName] = this

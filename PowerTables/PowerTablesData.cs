@@ -7,7 +7,7 @@ namespace PowerTables
     /// <summary>
     /// Various sets of source data, selected and collected for response construction
     /// </summary>
-    public class PowerTablesData
+    public class PowerTablesData : IRequestable
     {
         /// <summary>
         /// Source set
@@ -91,10 +91,15 @@ namespace PowerTables
         }
     }
 
+    public interface IRequestable
+    {
+        PowerTableRequest Request { get; }
+    }
+
     /// <summary>
     /// Various sets of source data, selected and collected for response construction, strongly typed
     /// </summary>
-    public class PowerTablesData<TSourceData, TTableData> where TTableData : new()
+    public class PowerTablesData<TSourceData, TTableData> : IRequestable where TTableData : new()
     {
         /// <summary>
         /// Source set

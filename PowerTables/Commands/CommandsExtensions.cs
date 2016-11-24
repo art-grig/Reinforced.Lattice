@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.WebPages;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PowerTables.CellTemplating;
 using PowerTables.Configuration;
@@ -24,7 +25,7 @@ namespace PowerTables.Commands
             CommandDescription cd = null;
             if (!conf.TableConfiguration.Commands.ContainsKey(commandName))
             {
-                cd = new CommandDescription() { Name = commandName, Type = CommandType.Server };
+                cd = new CommandDescription() { Name = commandName, ServerName = commandName, Type = CommandType.Server };
                 conf.TableConfiguration.Commands[commandName] = cd;
             }
             else
@@ -61,6 +62,13 @@ namespace PowerTables.Commands
             return cmd;
         }
 
+        public static CommandDescriptionConfigurator Server(this CommandDescriptionConfigurator cmd, string serverCommandName)
+        {
+            cmd.Description.ClientFunction = null;
+            cmd.Description.ServerName = serverCommandName;
+            return cmd;
+        }
+
         public static CommandDescriptionConfigurator CanExecuteExpression(this CommandDescriptionConfigurator cmd, string expression, bool canExecuteByDefault = true)
         {
             var ex = CellTemplating.Template.CompileExpression(expression, "data.Subject", "data", string.Empty);
@@ -82,26 +90,40 @@ namespace PowerTables.Commands
             c.Description.Confirmation.TemplateId = templateId;
             c.Description.Confirmation.TargetSelector = targetSelector;
             var x = new CommandConfirmationConfigurator<T>(c.Description.Confirmation);
-            conf(x);
+            if (conf!=null) conf(x);
+            return c;
+        }
+
+        public static CommandDescriptionConfigurator Window(this CommandDescriptionConfigurator c,
+            string templateId, string targetSelector, Action<CommandConfirmationConfigurator> conf = null)
+        {
+            if (c.Description.Confirmation == null) c.Description.Confirmation = new ConfirmationConfiguration();
+            c.Description.Confirmation.TemplateId = templateId;
+            c.Description.Confirmation.TargetSelector = targetSelector;
+            if (conf != null)
+            {
+                var x = new CommandConfirmationConfigurator(c.Description.Confirmation);
+                conf(x);
+            }
             return c;
         }
 
 
-        public static CommandConfirmationConfigurator<T> InitConfirmationObjectWith<T>(this CommandConfirmationConfigurator<T> c, string function)
+        public static T InitConfirmationObjectWith<T>(this T c, string function) where T : CommandConfirmationConfigurator
         {
             c.Configuration.InitConfirmationObject = new JRaw(function);
             return c;
         }
 
 
-        public static CommandConfirmationConfigurator<T> ContentUrl<T>(this CommandConfirmationConfigurator<T> c, string url)
+        public static T ContentUrl<T>(this T c, string url) where T : CommandConfirmationConfigurator
         {
             c.Configuration.ContentLoadingCommand = null;
             c.Configuration.ContentLoadingUrl = new JRaw(string.Format("function(a) {{ return '{0}';}}", url));
             return c;
         }
 
-        public static CommandConfirmationConfigurator<T> ContentUrlExpression<T>(this CommandConfirmationConfigurator<T> c, string expression)
+        public static T ContentUrlExpression<T>(this T c, string expression) where T : CommandConfirmationConfigurator
         {
             c.Configuration.ContentLoadingCommand = null;
             CellTemplateBuilder ctb = new CellTemplateBuilder(null, null);
@@ -111,7 +133,7 @@ namespace PowerTables.Commands
         }
 
 
-        public static CommandConfirmationConfigurator<T> ContentCommand<T>(this CommandConfirmationConfigurator<T> c, string commandName)
+        public static T ContentCommand<T>(this T c, string commandName) where T : CommandConfirmationConfigurator
         {
             c.Configuration.ContentLoadingCommand = commandName;
             c.Configuration.ContentLoadingUrl = null;
@@ -119,13 +141,13 @@ namespace PowerTables.Commands
         }
 
 
-        public static CommandConfirmationConfigurator<T> OnDismiss<T>(this CommandConfirmationConfigurator<T> cmd, string function)
+        public static T OnDismiss<T>(this T cmd, string function) where T : CommandConfirmationConfigurator
         {
             cmd.Configuration.OnDismiss = new JRaw(function);
             return cmd;
         }
 
-        public static CommandConfirmationConfigurator<T> OnCommit<T>(this CommandConfirmationConfigurator<T> cmd, string function)
+        public static T OnCommit<T>(this T cmd, string function) where T : CommandConfirmationConfigurator
         {
             cmd.Configuration.OnCommit = new JRaw(function);
             return cmd;
@@ -142,11 +164,14 @@ namespace PowerTables.Commands
 
         public static CommandConfirmationConfigurator<T> AutoForm<T>(this CommandConfirmationConfigurator<T> cmd, Action<EditHandlerConfiguration<T, ConfirmationFormConfig>> form)
         {
-
+            
             if (cmd.Configuration.Autoform == null) cmd.Configuration.Autoform = new CommandAutoformConfiguration();
             EditHandlerConfiguration<T, ConfirmationFormConfig> c = new EditHandlerConfiguration<T, ConfirmationFormConfig>();
-            c.FormClientConfig.AutoformConfig.DisableWhenContentLoading = cmd.Configuration.Autoform.DisableWhenContentLoading;
-            c.FormClientConfig.AutoformConfig.DisableWhileDetailsLoading = cmd.Configuration.Autoform.DisableWhileDetailsLoading;
+            c.FormClientConfig.AutoformConfig = new CommandAutoformConfiguration
+            {
+                DisableWhenContentLoading = cmd.Configuration.Autoform.DisableWhenContentLoading,
+                DisableWhileDetailsLoading = cmd.Configuration.Autoform.DisableWhileDetailsLoading
+            };
             form(c);
             cmd.Configuration.Autoform.Autoform = c.FormClientConfig.Fields;
             cmd.Configuration.Autoform.DisableWhenContentLoading = c.FormClientConfig.AutoformConfig.DisableWhenContentLoading;
@@ -212,7 +237,7 @@ namespace PowerTables.Commands
             return c;
         }
 
-        public static CommandConfirmationConfigurator<T> Part<T>(this CommandConfirmationConfigurator<T> cmd, string templatePiece, Action<CellTemplateBuilder> template)
+        public static T Part<T>(this T cmd, string templatePiece, Action<CellTemplateBuilder> template) where T : CommandConfirmationConfigurator
         {
             CellTemplateBuilder ctb = new CellTemplateBuilder(null, null);
             template(ctb);
@@ -220,9 +245,45 @@ namespace PowerTables.Commands
             return cmd;
         }
 
-        public static CommandConfirmationConfigurator<T> RazorPart<T>(this CommandConfirmationConfigurator<T> cmd, string templatePiece, Func<object, HelperResult> content)
+        public static T Part<T>(this T cmd, string templatePiece, string template) where T : CommandConfirmationConfigurator
+        {
+            return cmd.Part(templatePiece,x=>x.Returns(template));
+        }
+
+        public static T RazorPart<T>(this T cmd, string templatePiece, Func<object, HelperResult> content) where T : CommandConfirmationConfigurator
         {
             return cmd.Part(templatePiece, x => x.Razor(content));
+        }
+
+        public static TRow CommandSubject<TSource, TRow>(this PowerTablesData<TSource, TRow> d) where TRow : new()
+        {
+            return d.RetrieveAdditionalObject<TRow>("CommandSubject");
+        }
+
+        public static TRow CommandSubject<TSource, TRow>(this PowerTablesData<TSource, TRow> d,JsonSerializerSettings settings) where TRow : new()
+        {
+            return d.RetrieveAdditionalObject<TRow>("CommandSubject",settings);
+        }
+
+        public static TRow CommandSubject<TSource, TRow>(this PowerTablesData<TSource, TRow> d, params JsonConverter[] converters) where TRow : new()
+        {
+            return d.RetrieveAdditionalObject<TRow>("CommandSubject", converters);
+        }
+
+
+        public static T CommandConfirmation<T>(this IRequestable d)
+        {
+            return d.RetrieveAdditionalObject<T>("CommandConfirmation");
+        }
+
+        public static T CommandConfirmation<T>(this IRequestable d, JsonSerializerSettings settings)
+        {
+            return d.RetrieveAdditionalObject<T>("CommandConfirmation", settings);
+        }
+
+        public static T CommandConfirmation<T>(this IRequestable d, params JsonConverter[] converters)
+        {
+            return d.RetrieveAdditionalObject<T>("CommandConfirmation", converters);
         }
     }
 
