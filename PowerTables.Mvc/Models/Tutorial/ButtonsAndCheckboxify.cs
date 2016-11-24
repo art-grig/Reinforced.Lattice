@@ -38,7 +38,7 @@ namespace PowerTables.Mvc.Models.Tutorial
 
             conf.Checkboxify();
 
-            var rateItems = Enumerable.Range(5, 1).Select(c => new SelectListItem()
+            var rateItems = Enumerable.Range(1, 5).OrderByDescending(c=>c).Select(c => new SelectListItem()
             {
                 Text = c + " stars",
                 Value = c.ToString()
@@ -70,11 +70,17 @@ namespace PowerTables.Mvc.Models.Tutorial
                         });
                     });
                 })
+                .Command("ViewComments", x =>
+                {
+                    x.Window("commentsView", "#confirmationContent", z => z.ContentCommand("LoadComments"));
+                })
                 
             ;
 
-            conf.Column(c => c.TypeOfToy).Template(x => x.Returns("<a class='btn'>Leave comment</a>"))
+            conf.Column(c => c.TypeOfToy).Template(x => x.Returns("<a class='btn btn-sm btn-default'>Leave comment</a>"))
                 .SubscribeCellEvent(a => a.Command("click", "LeaveComment").Selector("a"));
+            conf.Column(c => c.PreviousState).Template(x => x.Returns("<a class='btn btn-sm btn-default'>View Comments</a>"))
+               .SubscribeCellEvent(a => a.Command("click", "ViewComments").Selector("a"));
 
             conf.Toolbar("toolbar-rt", a =>
             {

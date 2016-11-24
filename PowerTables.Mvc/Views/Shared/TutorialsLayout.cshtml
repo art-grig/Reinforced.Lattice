@@ -276,6 +276,40 @@
                 </div>
             </div>
         }
+
+        using (var conf1 = t.Plugin.Confirmation<Row>("commentsView"))
+        {
+            <div class="modal-content" @t.Callback("showModal") @t.DestroyCallback("hideModal")>
+                <div class="modal-body">
+                    <p class="text-center" style="display: none" @conf1.WhenContentLoading(c => c.Style("display", "inline"))>
+                        <h1><span class="glyphicon glyphicon-refresh"></span> Loading...</h1>
+                    </p>
+                    <div @conf1.WhenContentLoading(c=>c.Style("display","none")) @conf1.ThisIsContentContainer()></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" @conf1.BindDismiss("click")>Ok</button>
+                </div>
+            </div>
+        }
+
+        using (var conf1 = t.Plugin.Confirmation<Row>("commentsAndFeedback"))
+        {
+            <div class="modal-content" @t.Callback("showModal") @t.DestroyCallback("hideModal")>
+                <div class="modal-body">
+                    <fieldset class="form-horizontal">
+                        @conf1.Editors()
+                    </fieldset>
+                    <p class="text-center" style="display: none" @conf1.WhenContentLoading(c => c.Style("display", "inline"))>
+                        <h1><span class="glyphicon glyphicon-refresh"></span> Loading...
+                        </h1>
+                    </p>
+                    <div @conf1.WhenContentLoading(c => c.Style("display", "none")) @conf1.ThisIsContentContainer()></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" @conf1.BindDismiss("click")>Ok</button>
+                </div>
+            </div>
+        }
     }
 
 </body>
