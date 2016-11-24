@@ -107,6 +107,11 @@
         */
         MessageService: PowerTables.Services.MessagesService;
 
+        /**
+         * API for commands
+         */
+        Commands:PowerTables.Services.CommandsService;
+
         getStaticData(): any;
 
         setStaticData(obj: any): void;

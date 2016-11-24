@@ -210,7 +210,8 @@ namespace PowerTables.Typings
             builder.ExportAsInterface<CommandAutoformConfiguration>().WithPublicProperties();
             builder.ExportAsInterface<DetailLoadingConfiguration>()
                 .WithPublicProperties()
-                .WithProperty(x => x.ValidateToLoad, x => x.Type("(param:ICommandExecutionParameters)=>boolean"));
+                .WithProperty(x => x.ValidateToLoad, x => x.Type("(param:ICommandExecutionParameters)=>boolean"))
+                .WithProperty(x => x.DetailsFunction, x => x.Type("(param:ICommandExecutionParameters)=>any"));
         }
 
     }

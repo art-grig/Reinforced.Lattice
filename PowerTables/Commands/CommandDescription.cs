@@ -70,6 +70,8 @@ namespace PowerTables.Commands
 
         public JRaw ValidateToLoad { get; set; }
 
+        public JRaw DetailsFunction { get; set; }
+
         public int LoadDelay { get; set; }
 
         public Dictionary<string,List<string>> DetailsReloadEvents { get; set; }

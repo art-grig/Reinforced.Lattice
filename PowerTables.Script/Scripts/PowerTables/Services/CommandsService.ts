@@ -1,6 +1,4 @@
 ﻿module PowerTables.Services {
-
-
     export class CommandsService {
         constructor(masterTable: IMasterTable) {
             this._masterTable = masterTable;
@@ -10,8 +8,7 @@
         private _masterTable: IMasterTable;
 
         private _commandsCache: { [_: string]: PowerTables.Commands.ICommandDescription }
-
-
+        
         public triggerCommand(commandName: string, subject: any, callback: ((params: ICommandExecutionParameters) => void) = null) {
             var command = this._commandsCache[commandName];
             if (command == null || command == undefined) {
@@ -30,7 +27,23 @@
         }
 
         public triggerCommandWithConfirmation(commandName: string, subject: any, confirmation: any, callback: ((params: ICommandExecutionParameters) => void) = null) {
-
+            var fn = r => {
+                callback({
+                    CommandDescription: this._commandsCache[commandName],
+                    Master: this._masterTable,
+                    Selection: this._masterTable.Selection.getSelectedObjects(),
+                    Subject: subject,
+                    Result: r,
+                    Confirmation: confirmation
+                });
+            };
+            this._masterTable.Loader.requestServer(commandName, fn, q => {
+                q.AdditionalData['CommandData'] = JSON.stringify({
+                    Confirmation: confirmation,
+                    Subject: subject
+                });
+                return q;
+            }, fn);
         }
     }
 
@@ -43,6 +56,7 @@
             this.DataObject = {};
             this._editorObjectModified = {};
             this.Subject = subject;
+            this._embedBound = this.embedConfirmation.bind(this);
 
             if (commandDescription.Confirmation.Autoform != null) {
                 this.produceAutoformColumns(commandDescription.Confirmation.Autoform);
@@ -71,9 +85,12 @@
         public VisualStates: PowerTables.Rendering.VisualState;
         public Subject: any;
 
+        public RecentDetails: { Data: any } = { Data: null };
+
         private _masterTable: IMasterTable;
         private _commandDescription: PowerTables.Commands.ICommandDescription;
         private _config: PowerTables.Commands.IConfirmationConfiguration;
+        private _embedBound: any;
 
         private _editorObjectModified: any;
         private _editorColumn: { [_: string]: IColumn } = {};
@@ -81,15 +98,19 @@
         public rendered() {
             this.initFormWatchDatepickers(this.RootElement);
             this.loadContent();
+            if (this._config.Details != null && this._config.Details != undefined) {
+                if (this._config.Details.LoadImmediately) this.loadDetailsInternal();
+            }
         }
 
+        //#region Content loading
         private loadContent() {
             if (this.ContentPlaceholder == null) return;
             if ((!this._config.ContentLoadingUrl) && (!this._config.ContentLoadingCommand)) return;
             if (this.VisualStates != null) this.VisualStates.mixinState('contentLoading');
             if (this._config.Autoform != null && this._config.Autoform.DisableWhenContentLoading) {
                 for (var i = 0; i < this.ActiveEditors.length; i++) {
-                    if (this.ActiveEditors[i].VisualStates != null) this.ActiveEditors[i].VisualStates.mixinState('saving');
+                    if (this.ActiveEditors[i].VisualStates != null) this.ActiveEditors[i].VisualStates.mixinState('loading');
                 }
             }
             if (this._config.ContentLoadingUrl != null && this._config.ContentLoadingUrl != undefined) {
@@ -100,7 +121,7 @@
                     this.ContentPlaceholder.innerHTML = r;
                     this.initFormWatchDatepickers(this.ContentPlaceholder);
                     this.contentLoaded();
-                }, null, r => {
+                }, this._embedBound, r => {
                     this.ContentPlaceholder.innerHTML = r;
                     this.contentLoaded();
                 });
@@ -111,7 +132,7 @@
             if (this.VisualStates != null) this.VisualStates.unmixinState('contentLoading');
             if (this._config.Autoform != null && this._config.Autoform.DisableWhenContentLoading) {
                 for (var i = 0; i < this.ActiveEditors.length; i++) {
-                    if (this.ActiveEditors[i].VisualStates != null) this.ActiveEditors[i].VisualStates.unmixinState('saving');
+                    if (this.ActiveEditors[i].VisualStates != null) this.ActiveEditors[i].VisualStates.unmixinState('loading');
                 }
             }
         }
@@ -129,12 +150,132 @@
             if (method === 'GET' || this.Subject === null) req.send();
             else req.send(JSON.stringify(this.Subject));
         }
+        //#endregion
+
+        //#region Details loading
+        private _loadDetailsTimeout: any = null;
 
         private loadDetails() {
             if (this.DetailsPlaceholder == null) return;
             if (this._config.Details == null || this._config.Details == undefined) return;
+            if (this._config.Details.LoadDelay <= 0) {
+                this.loadDetailsInternal();
+            } else {
+                clearTimeout(this._loadDetailsTimeout);
+                this._loadDetailsTimeout = setTimeout(() => {
+                    this.loadDetailsInternal();
+                }, this._config.Details.LoadDelay);
+            }
+        }
+
+        private loadDetailsInternal() {
+            var parameters = this.collectCommandParameters();
+            if (this._config.Details.ValidateToLoad != null) {
+                if (!this._config.Details.ValidateToLoad(parameters)) return;
+            }
+
+            if (this.VisualStates != null) this.VisualStates.mixinState('detailsLoading');
+            if (this._config.Autoform != null && this._config.Autoform.DisableWhileDetailsLoading) {
+                for (var i = 0; i < this.ActiveEditors.length; i++) {
+                    if (this.ActiveEditors[i].VisualStates != null) this.ActiveEditors[i].VisualStates.mixinState('loading');
+                }
+            }
+
+
+            if (this._config.Details.CommandName != null && this._config.Details.CommandName != undefined) {
+                this._masterTable.Loader.requestServer(this._config.Details.CommandName,
+                    r => {
+                        this.detailsLoaded(r);
+                    },
+                    this._embedBound,
+                    r => {
+                        this.detailsLoaded(r);
+                    });
+            } else if (this._config.Details.DetailsFunction != null && this._config.Details.DetailsFunction != undefined) {
+                this.detailsLoaded(this._config.Details.DetailsFunction(parameters));
+            } else {
+                this.detailsLoaded(this.getConfirmation());
+            }
 
         }
+
+        private detailsLoaded(detailsResult: any) {
+            if (detailsResult != null && detailsResult != undefined) {
+                if (typeof detailsResult == 'string') {
+                    this.DetailsPlaceholder.innerHTML = detailsResult;
+                    this.initFormWatchDatepickers(this.DetailsPlaceholder);
+                } else {
+                    if (this._config.Details.TempalteId != null && this._config.Details.TempalteId != undefined) {
+                        var param = {
+                            Subject: this.Subject,
+                            Details: detailsResult,
+                            Confirmation: this.getConfirmation()
+                        };
+                        this._masterTable.Renderer
+                            .renderObjectTo(this._config.Details.TempalteId, param, this.DetailsPlaceholder);
+                        this.initFormWatchDatepickers(this.DetailsPlaceholder);
+                    } else {
+                        this.DetailsPlaceholder.innerHTML = detailsResult.toString();
+                        this.initFormWatchDatepickers(this.DetailsPlaceholder);
+                    }
+                }
+
+            }
+
+            this.RecentDetails.Data = detailsResult;
+
+            if (this.VisualStates != null) this.VisualStates.unmixinState('detailsLoading');
+            if (this._config.Autoform != null && this._config.Autoform.DisableWhileDetailsLoading) {
+                for (var i = 0; i < this.ActiveEditors.length; i++) {
+                    if (this.ActiveEditors[i].VisualStates != null) this.ActiveEditors[i].VisualStates.unmixinState('loading');
+                }
+            }
+        }
+
+        //#endregion
+
+
+        private embedConfirmation(q: IQuery): IQuery {
+            q.AdditionalData['CommandData'] = JSON.stringify({
+                Confirmation: this.getConfirmation(),
+                Subject: this.Subject
+            });
+            return q;
+        }
+
+        private collectCommandParameters(): ICommandExecutionParameters {
+            var result: ICommandExecutionParameters = {
+                CommandDescription: this._commandDescription,
+                Master: this._masterTable,
+                Selection: this._masterTable.Selection.getSelectedObjects(),
+                Subject: this.Subject,
+                Result: null,
+                Confirmation: this.getConfirmation()
+            };
+
+
+            return result;
+        }
+
+        private getConfirmation() {
+            var confirmation = null;
+            if (this._config.Formwatch != null) {
+                confirmation = PowerTables.Plugins.Formwatch.FormwatchPlugin.extractFormData(this._config.Formwatch, this.RootElement, this._masterTable.Date);
+            }
+
+            if (this._config.Autoform != null) {
+                this.collectAutoForm();
+                if (confirmation == null) confirmation = {};
+                let confirmationObject = this._editorObjectModified;
+                for (var eo in confirmationObject) {
+                    if (confirmationObject.hasOwnProperty(eo)) {
+                        confirmation[eo] = confirmationObject[eo];
+                    }
+                }
+            }
+            return confirmation;
+        }
+
 
         private initFormWatchDatepickers(parent: HTMLElement) {
             var formWatch = this._commandDescription.Confirmation.Formwatch;
@@ -153,11 +294,26 @@
         }
 
         public confirm() {
-
+            if (this.VisualStates != null) this.VisualStates.mixinState('saving');
+            if (this._config.Autoform != null && this._config.Autoform.DisableWhenContentLoading) {
+                for (var i = 0; i < this.ActiveEditors.length; i++) {
+                    if (this.ActiveEditors[i].VisualStates != null) this.ActiveEditors[i].VisualStates.mixinState('saving');
+                }
+            }
+            this._masterTable.Commands.triggerCommandWithConfirmation(this._commandDescription.Name,
+                this.Subject, this.getConfirmation(), r => {
+                    this.RootElement = null;
+                    this.ContentPlaceholder = null;
+                    this.DetailsPlaceholder = null;
+                    this.MasterTable.Renderer.destroyObject(this._commandDescription.Confirmation.TargetSelector);
+                });
         }
 
         public dismiss() {
-
+            this.RootElement = null;
+            this.ContentPlaceholder = null;
+            this.DetailsPlaceholder = null;
+            this.MasterTable.Renderer.destroyObject(this._commandDescription.Confirmation.TargetSelector);
         }
 
         //#region Autoform
@@ -296,6 +452,28 @@
             editor.setValue(this._editorObjectModified[editor.FieldName]);
             editor.IsInitialValueSetting = false;
         }
+
+        private collectAutoForm(): boolean {
+            this.ValidationMessages = [];
+            var errors = [];
+            for (var i = 0; i < this.ActiveEditors.length; i++) {
+                this.retrieveEditorData(this.ActiveEditors[i], errors);
+            }
+            this.ValidationMessages = errors; //todo draw validation errors
+
+            if (this.ValidationMessages.length > 0) {
+                this.MasterTable.Events.EditValidationFailed.invokeAfter(this,
+                    <any>{
+                        OriginalDataObject: this.DataObject,
+                        ModifiedDataObject: this._editorObjectModified,
+                        Messages: this.ValidationMessages
+                    });
+                return false;
+            }
+            return true;
+        }
+
+
         //#endregion
 
 

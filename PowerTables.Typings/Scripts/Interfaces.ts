@@ -516,6 +516,7 @@ module PowerTables.Commands {
 		TempalteId: string;
 		LoadImmediately: boolean;
 		ValidateToLoad: (param:ICommandExecutionParameters)=>boolean;
+		DetailsFunction: (param:ICommandExecutionParameters)=>any;
 		LoadDelay: number;
 		DetailsReloadEvents: { [key:string]: string[] };
 	}

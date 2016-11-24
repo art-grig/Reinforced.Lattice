@@ -4126,6 +4126,7 @@ var PowerTables;
             this.Renderer = new PowerTables.Rendering.Renderer(this._configuration.TableRootId, this._configuration.Prefix, this);
             this.Controller = new PowerTables.Services.Controller(this);
             this.Selection = new PowerTables.Services.SelectionService(this);
+            this.Commands = new PowerTables.Services.CommandsService(this);
             this.MessageService = new PowerTables.Services.MessagesService(this._configuration.MessageFunction, this.InstanceManager, this.DataHolder, this.Controller, this.Renderer);
             this.InstanceManager.initPlugins();
             this.Renderer.layout();
@@ -5709,17 +5710,20 @@ var PowerTables;
             };
             Renderer.prototype.renderObject = function (templateId, viewModelBehind, targetSelector) {
                 var parent = document.querySelector(targetSelector);
+                return this.renderObjectTo(templateId, viewModelBehind, parent);
+            };
+            Renderer.prototype.renderObjectTo = function (templateId, viewModelBehind, target) {
                 this._stack.clear();
                 this._stack.push(Rendering.RenderingContextType.Custom, viewModelBehind);
                 var html = this.getCachedTemplate(templateId)(viewModelBehind);
                 var parser = new Rendering.Html2Dom.HtmlParser();
                 var element = parser.html2DomElements(html);
-                parent.innerHTML = '';
+                target.innerHTML = '';
                 for (var i = 0; i < element.length; i++) {
-                    parent.appendChild(element[i]);
+                    target.appendChild(element[i]);
                 }
-                this.BackBinder.backBind(parent);
-                return parent;
+                this.BackBinder.backBind(target);
+                return target;
             };
             Renderer.prototype.destroyAtElement = function (parent) {
                 this.Delegator.handleElementDestroy(parent);
@@ -6013,7 +6017,25 @@ var PowerTables;
                 }
             };
             CommandsService.prototype.triggerCommandWithConfirmation = function (commandName, subject, confirmation, callback) {
+                var _this = this;
                 if (callback === void 0) { callback = null; }
+                var fn = function (r) {
+                    callback({
+                        CommandDescription: _this._commandsCache[commandName],
+                        Master: _this._masterTable,
+                        Selection: _this._masterTable.Selection.getSelectedObjects(),
+                        Subject: subject,
+                        Result: r,
+                        Confirmation: confirmation
+                    });
+                };
+                this._masterTable.Loader.requestServer(commandName, fn, function (q) {
+                    q.AdditionalData['CommandData'] = JSON.stringify({
+                        Confirmation: confirmation,
+                        Subject: subject
+                    });
+                    return q;
+                }, fn);
             };
             return CommandsService;
         }());
@@ -6023,7 +6045,11 @@ var PowerTables;
                 this.RootElement = null;
                 this.ContentPlaceholder = null;
                 this.DetailsPlaceholder = null;
+                this.RecentDetails = { Data: null };
                 this._editorColumn = {};
+                //#endregion
+                //#region Details loading
+                this._loadDetailsTimeout = null;
                 //#region Autoform
                 this.EditorsSet = {};
                 this.ActiveEditors = [];
@@ -6034,6 +6060,7 @@ var PowerTables;
                 this.DataObject = {};
                 this._editorObjectModified = {};
                 this.Subject = subject;
+                this._embedBound = this.embedConfirmation.bind(this);
                 if (commandDescription.Confirmation.Autoform != null) {
                     this.produceAutoformColumns(commandDescription.Confirmation.Autoform);
                 }
@@ -6053,7 +6080,12 @@ var PowerTables;
             ConfirmationWindowViewModel.prototype.rendered = function () {
                 this.initFormWatchDatepickers(this.RootElement);
                 this.loadContent();
+                if (this._config.Details != null && this._config.Details != undefined) {
+                    if (this._config.Details.LoadImmediately)
+                        this.loadDetailsInternal();
+                }
             };
+            //#region Content loading
             ConfirmationWindowViewModel.prototype.loadContent = function () {
                 var _this = this;
                 if (this.ContentPlaceholder == null)
@@ -6065,7 +6097,7 @@ var PowerTables;
                 if (this._config.Autoform != null && this._config.Autoform.DisableWhenContentLoading) {
                     for (var i = 0; i < this.ActiveEditors.length; i++) {
                         if (this.ActiveEditors[i].VisualStates != null)
-                            this.ActiveEditors[i].VisualStates.mixinState('saving');
+                            this.ActiveEditors[i].VisualStates.mixinState('loading');
                     }
                 }
                 if (this._config.ContentLoadingUrl != null && this._config.ContentLoadingUrl != undefined) {
@@ -6077,7 +6109,7 @@ var PowerTables;
                         _this.ContentPlaceholder.innerHTML = r;
                         _this.initFormWatchDatepickers(_this.ContentPlaceholder);
                         _this.contentLoaded();
-                    }, null, function (r) {
+                    }, this._embedBound, function (r) {
                         _this.ContentPlaceholder.innerHTML = r;
                         _this.contentLoaded();
                     });
@@ -6089,7 +6121,7 @@ var PowerTables;
                 if (this._config.Autoform != null && this._config.Autoform.DisableWhenContentLoading) {
                     for (var i = 0; i < this.ActiveEditors.length; i++) {
                         if (this.ActiveEditors[i].VisualStates != null)
-                            this.ActiveEditors[i].VisualStates.unmixinState('saving');
+                            this.ActiveEditors[i].VisualStates.unmixinState('loading');
                     }
                 }
             };
@@ -6111,10 +6143,119 @@ var PowerTables;
                     req.send(JSON.stringify(this.Subject));
             };
             ConfirmationWindowViewModel.prototype.loadDetails = function () {
+                var _this = this;
                 if (this.DetailsPlaceholder == null)
                     return;
                 if (this._config.Details == null || this._config.Details == undefined)
                     return;
+                if (this._config.Details.LoadDelay <= 0) {
+                    this.loadDetailsInternal();
+                }
+                else {
+                    clearTimeout(this._loadDetailsTimeout);
+                    this._loadDetailsTimeout = setTimeout(function () {
+                        _this.loadDetailsInternal();
+                    }, this._config.Details.LoadDelay);
+                }
+            };
+            ConfirmationWindowViewModel.prototype.loadDetailsInternal = function () {
+                var _this = this;
+                var parameters = this.collectCommandParameters();
+                if (this._config.Details.ValidateToLoad != null) {
+                    if (!this._config.Details.ValidateToLoad(parameters))
+                        return;
+                }
+                if (this.VisualStates != null)
+                    this.VisualStates.mixinState('detailsLoading');
+                if (this._config.Autoform != null && this._config.Autoform.DisableWhileDetailsLoading) {
+                    for (var i = 0; i < this.ActiveEditors.length; i++) {
+                        if (this.ActiveEditors[i].VisualStates != null)
+                            this.ActiveEditors[i].VisualStates.mixinState('loading');
+                    }
+                }
+                if (this._config.Details.CommandName != null && this._config.Details.CommandName != undefined) {
+                    this._masterTable.Loader.requestServer(this._config.Details.CommandName, function (r) {
+                        _this.detailsLoaded(r);
+                    }, this._embedBound, function (r) {
+                        _this.detailsLoaded(r);
+                    });
+                }
+                else if (this._config.Details.DetailsFunction != null && this._config.Details.DetailsFunction != undefined) {
+                    this.detailsLoaded(this._config.Details.DetailsFunction(parameters));
+                }
+                else {
+                    this.detailsLoaded(this.getConfirmation());
+                }
+            };
+            ConfirmationWindowViewModel.prototype.detailsLoaded = function (detailsResult) {
+                if (detailsResult != null && detailsResult != undefined) {
+                    if (typeof detailsResult == 'string') {
+                        this.DetailsPlaceholder.innerHTML = detailsResult;
+                        this.initFormWatchDatepickers(this.DetailsPlaceholder);
+                    }
+                    else {
+                        if (this._config.Details.TempalteId != null && this._config.Details.TempalteId != undefined) {
+                            var param = {
+                                Subject: this.Subject,
+                                Details: detailsResult,
+                                Confirmation: this.getConfirmation()
+                            };
+                            this._masterTable.Renderer
+                                .renderObjectTo(this._config.Details.TempalteId, param, this.DetailsPlaceholder);
+                            this.initFormWatchDatepickers(this.DetailsPlaceholder);
+                        }
+                        else {
+                            this.DetailsPlaceholder.innerHTML = detailsResult.toString();
+                            this.initFormWatchDatepickers(this.DetailsPlaceholder);
+                        }
+                    }
+                }
+                this.RecentDetails.Data = detailsResult;
+                if (this.VisualStates != null)
+                    this.VisualStates.unmixinState('detailsLoading');
+                if (this._config.Autoform != null && this._config.Autoform.DisableWhileDetailsLoading) {
+                    for (var i = 0; i < this.ActiveEditors.length; i++) {
+                        if (this.ActiveEditors[i].VisualStates != null)
+                            this.ActiveEditors[i].VisualStates.unmixinState('loading');
+                    }
+                }
+            };
+            //#endregion
+            ConfirmationWindowViewModel.prototype.embedConfirmation = function (q) {
+                q.AdditionalData['CommandData'] = JSON.stringify({
+                    Confirmation: this.getConfirmation(),
+                    Subject: this.Subject
+                });
+                return q;
+            };
+            ConfirmationWindowViewModel.prototype.collectCommandParameters = function () {
+                var result = {
+                    CommandDescription: this._commandDescription,
+                    Master: this._masterTable,
+                    Selection: this._masterTable.Selection.getSelectedObjects(),
+                    Subject: this.Subject,
+                    Result: null,
+                    Confirmation: this.getConfirmation()
+                };
+                return result;
+            };
+            ConfirmationWindowViewModel.prototype.getConfirmation = function () {
+                var confirmation = null;
+                if (this._config.Formwatch != null) {
+                    confirmation = PowerTables.Plugins.Formwatch.FormwatchPlugin.extractFormData(this._config.Formwatch, this.RootElement, this._masterTable.Date);
+                }
+                if (this._config.Autoform != null) {
+                    this.collectAutoForm();
+                    if (confirmation == null)
+                        confirmation = {};
+                    var confirmationObject = this._editorObjectModified;
+                    for (var eo in confirmationObject) {
+                        if (confirmationObject.hasOwnProperty(eo)) {
+                            confirmation[eo] = confirmationObject[eo];
+                        }
+                    }
+                }
+                return confirmation;
             };
             ConfirmationWindowViewModel.prototype.initFormWatchDatepickers = function (parent) {
                 var formWatch = this._commandDescription.Confirmation.Formwatch;
@@ -6131,8 +6272,27 @@ var PowerTables;
                 }
             };
             ConfirmationWindowViewModel.prototype.confirm = function () {
+                var _this = this;
+                if (this.VisualStates != null)
+                    this.VisualStates.mixinState('saving');
+                if (this._config.Autoform != null && this._config.Autoform.DisableWhenContentLoading) {
+                    for (var i = 0; i < this.ActiveEditors.length; i++) {
+                        if (this.ActiveEditors[i].VisualStates != null)
+                            this.ActiveEditors[i].VisualStates.mixinState('saving');
+                    }
+                }
+                this._masterTable.Commands.triggerCommandWithConfirmation(this._commandDescription.Name, this.Subject, this.getConfirmation(), function (r) {
+                    _this.RootElement = null;
+                    _this.ContentPlaceholder = null;
+                    _this.DetailsPlaceholder = null;
+                    _this.MasterTable.Renderer.destroyObject(_this._commandDescription.Confirmation.TargetSelector);
+                });
             };
             ConfirmationWindowViewModel.prototype.dismiss = function () {
+                this.RootElement = null;
+                this.ContentPlaceholder = null;
+                this.DetailsPlaceholder = null;
+                this.MasterTable.Renderer.destroyObject(this._commandDescription.Confirmation.TargetSelector);
             };
             ConfirmationWindowViewModel.prototype.Editors = function () {
                 var s = '';
@@ -6256,6 +6416,23 @@ var PowerTables;
                 editor.IsInitialValueSetting = true;
                 editor.setValue(this._editorObjectModified[editor.FieldName]);
                 editor.IsInitialValueSetting = false;
+            };
+            ConfirmationWindowViewModel.prototype.collectAutoForm = function () {
+                this.ValidationMessages = [];
+                var errors = [];
+                for (var i = 0; i < this.ActiveEditors.length; i++) {
+                    this.retrieveEditorData(this.ActiveEditors[i], errors);
+                }
+                this.ValidationMessages = errors; //todo draw validation errors
+                if (this.ValidationMessages.length > 0) {
+                    this.MasterTable.Events.EditValidationFailed.invokeAfter(this, {
+                        OriginalDataObject: this.DataObject,
+                        ModifiedDataObject: this._editorObjectModified,
+                        Messages: this.ValidationMessages
+                    });
+                    return false;
+                }
+                return true;
             };
             return ConfirmationWindowViewModel;
         }());

@@ -495,8 +495,10 @@ declare module PowerTables.Commands {
     }
     interface IDetailLoadingConfiguration {
         CommandName: string;
+        TempalteId: string;
         LoadImmediately: boolean;
         ValidateToLoad: (param: ICommandExecutionParameters) => boolean;
+        DetailsFunction: (param: ICommandExecutionParameters) => any;
         LoadDelay: number;
         DetailsReloadEvents: {
             [key: string]: string[];
@@ -632,6 +634,10 @@ declare module PowerTables {
         * API for table messages
         */
         MessageService: PowerTables.Services.MessagesService;
+        /**
+         * API for commands
+         */
+        Commands: PowerTables.Services.CommandsService;
         getStaticData(): any;
         setStaticData(obj: any): void;
     }
@@ -2205,6 +2211,10 @@ declare module PowerTables {
          */
         MessageService: PowerTables.Services.MessagesService;
         /**
+         * API for table messages
+         */
+        Commands: PowerTables.Services.CommandsService;
+        /**
          * Fires specified DOM event on specified element
          *
          * @param eventName DOM event id
@@ -2802,6 +2812,7 @@ declare module PowerTables.Rendering {
         body(rows: IRow[]): void;
         renderObjectContent(renderable: IRenderable): string;
         renderObject(templateId: string, viewModelBehind: any, targetSelector: string): HTMLElement;
+        renderObjectTo(templateId: string, viewModelBehind: any, target: HTMLElement): HTMLElement;
         destroyAtElement(parent: HTMLElement): void;
         destroyObject(targetSelector: string): void;
         /**
@@ -2898,16 +2909,26 @@ declare module PowerTables.Services {
         DetailsPlaceholder: HTMLElement;
         VisualStates: PowerTables.Rendering.VisualState;
         Subject: any;
+        RecentDetails: {
+            Data: any;
+        };
         private _masterTable;
         private _commandDescription;
         private _config;
+        private _embedBound;
         private _editorObjectModified;
         private _editorColumn;
         rendered(): void;
         private loadContent();
         private contentLoaded();
         private loadContentByUrl(url, method);
+        private _loadDetailsTimeout;
         private loadDetails();
+        private loadDetailsInternal();
+        private detailsLoaded(detailsResult);
+        private embedConfirmation(q);
+        private collectCommandParameters();
+        private getConfirmation();
         private initFormWatchDatepickers(parent);
         confirm(): void;
         dismiss(): void;
@@ -2934,6 +2955,7 @@ declare module PowerTables.Services {
         commit(editor: PowerTables.Editing.IEditor): void;
         private retrieveEditorData(editor, errors?);
         protected setEditorValue(editor: PowerTables.Editing.IEditor): void;
+        private collectAutoForm();
     }
 }
 declare module PowerTables.Services {
