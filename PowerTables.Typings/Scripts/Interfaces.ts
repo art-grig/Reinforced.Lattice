@@ -484,13 +484,11 @@ module PowerTables.Commands {
 	{
 		Name: string;
 		ClientFunction: (param:ICommandExecutionParameters)=>any;
-		CanExecute: (dataObject:any)=>boolean;
+		CanExecute: (data:{Subject:any,Master:IMasterTable})=>boolean;
 		Type: PowerTables.Commands.CommandType;
 		Confirmation: PowerTables.Commands.IConfirmationConfiguration;
 		OnSuccess: (param:ICommandExecutionParameters)=>void;
 		OnFailure: (param:ICommandExecutionParameters)=>void;
-		OnDismiss: (param:ICommandExecutionParameters)=>void;
-		OnCommit: (param:ICommandExecutionParameters)=>void;
 	}
 	export interface IConfirmationConfiguration
 	{
@@ -503,6 +501,8 @@ module PowerTables.Commands {
 		ContentLoadingMethod: string;
 		ContentLoadingCommand: string;
 		InitConfirmationObject: (confirmationObject:any)=>void;
+		OnDismiss: (param:ICommandExecutionParameters)=>void;
+		OnCommit: (param:ICommandExecutionParameters)=>void;
 	}
 	export interface ICommandAutoformConfiguration
 	{

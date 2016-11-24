@@ -23,8 +23,7 @@ namespace PowerTables.Commands
 
         public JRaw OnSuccess { get; set; }
         public JRaw OnFailure { get; set; }
-        public JRaw OnDismiss { get; set; }
-        public JRaw OnCommit { get; set; }
+        
     }
 
     public class ConfirmationConfiguration
@@ -49,6 +48,8 @@ namespace PowerTables.Commands
         public string ContentLoadingCommand { get; set; }
 
         public JRaw InitConfirmationObject { get; set; }
+        public JRaw OnDismiss { get; set; }
+        public JRaw OnCommit { get; set; }
     }
 
     public class CommandAutoformConfiguration

@@ -8,15 +8,19 @@
         private _masterTable: IMasterTable;
 
         private _commandsCache: { [_: string]: PowerTables.Commands.ICommandDescription }
-        
+
         public triggerCommand(commandName: string, subject: any, callback: ((params: ICommandExecutionParameters) => void) = null) {
             var command = this._commandsCache[commandName];
             if (command == null || command == undefined) {
                 throw Error(`Command ${commandName} was not found`);
             }
+            
+            if (command.CanExecute) {
+                if (!command.CanExecute({ Subject: subject, Master: this._masterTable })) return;
+            }
 
             if (command.Confirmation != null && command.Confirmation != undefined) {
-                var tc = new ConfirmationWindowViewModel(this._masterTable, command, subject);
+                var tc = new ConfirmationWindowViewModel(this._masterTable, command, subject, callback);
                 var r = this._masterTable.Renderer
                     .renderObject(command.Confirmation.TemplateId, tc, command.Confirmation.TargetSelector);
                 tc.RootElement = r;
@@ -27,32 +31,57 @@
         }
 
         public triggerCommandWithConfirmation(commandName: string, subject: any, confirmation: any, callback: ((params: ICommandExecutionParameters) => void) = null) {
-            var fn = r => {
-                callback({
+            var cmd = this._commandsCache[commandName];
+            if (cmd.CanExecute) {
+                if (!cmd.CanExecute({ Subject: subject, Master: this._masterTable })) return;
+            }
+            var params = {
+                CommandDescription: this._commandsCache[commandName],
+                Master: this._masterTable,
+                Selection: this._masterTable.Selection.getSelectedObjects(),
+                Subject: subject,
+                Result: null,
+                Confirmation: confirmation
+            };
+            if (cmd.Type === PowerTables.Commands.CommandType.Server) {
+                
+                this._masterTable.Loader.requestServer(commandName,
+                    r => {
+                        params.Result = r;
+                        if (callback) callback(params);
+                        if (cmd.OnSuccess) cmd.OnSuccess(params);
+                    },
+                    q => {
+                        q.AdditionalData['CommandData'] = JSON.stringify({
+                            Confirmation: confirmation,
+                            Subject: subject
+                        });
+                        return q;
+                    },
+                    r => {
+                        params.Result = r;
+                        if (callback) callback(params);
+                        if (cmd.OnFailure) cmd.OnFailure(params);
+                    });
+            } else {
+                cmd.ClientFunction({
                     CommandDescription: this._commandsCache[commandName],
                     Master: this._masterTable,
                     Selection: this._masterTable.Selection.getSelectedObjects(),
                     Subject: subject,
-                    Result: r,
+                    Result: null,
                     Confirmation: confirmation
                 });
-            };
-            this._masterTable.Loader.requestServer(commandName, fn, q => {
-                q.AdditionalData['CommandData'] = JSON.stringify({
-                    Confirmation: confirmation,
-                    Subject: subject
-                });
-                return q;
-            }, fn);
+            }
         }
     }
 
     export class ConfirmationWindowViewModel implements PowerTables.Editing.IEditHandler {
-        constructor(masterTable: IMasterTable, commandDescription: PowerTables.Commands.ICommandDescription, subject: any) {
+        constructor(masterTable: IMasterTable, commandDescription: PowerTables.Commands.ICommandDescription, subject: any, originalCallback: ((params: ICommandExecutionParameters) => void)) {
             this._masterTable = masterTable;
             this._commandDescription = commandDescription;
             this._config = commandDescription.Confirmation;
-
+            this._originalCallback = originalCallback;
             this.DataObject = {};
             this._editorObjectModified = {};
             this.Subject = subject;
@@ -94,6 +123,7 @@
 
         private _editorObjectModified: any;
         private _editorColumn: { [_: string]: IColumn } = {};
+        private _originalCallback: ((params: ICommandExecutionParameters) => void) = null;
 
         public rendered() {
             this.initFormWatchDatepickers(this.RootElement);
@@ -300,12 +330,16 @@
                     if (this.ActiveEditors[i].VisualStates != null) this.ActiveEditors[i].VisualStates.mixinState('saving');
                 }
             }
+            if (this._config.OnCommit) this._config.OnCommit(this.collectCommandParameters());
             this._masterTable.Commands.triggerCommandWithConfirmation(this._commandDescription.Name,
                 this.Subject, this.getConfirmation(), r => {
+                    var params = this.collectCommandParameters();
+                    params.Result = r;
                     this.RootElement = null;
                     this.ContentPlaceholder = null;
                     this.DetailsPlaceholder = null;
                     this.MasterTable.Renderer.destroyObject(this._commandDescription.Confirmation.TargetSelector);
+                    if (this._originalCallback) this._originalCallback(params);
                 });
         }
 
@@ -314,6 +348,7 @@
             this.ContentPlaceholder = null;
             this.DetailsPlaceholder = null;
             this.MasterTable.Renderer.destroyObject(this._commandDescription.Confirmation.TargetSelector);
+            if (this._config.OnDismiss) this._config.OnDismiss(this.collectCommandParameters());
         }
 
         //#region Autoform

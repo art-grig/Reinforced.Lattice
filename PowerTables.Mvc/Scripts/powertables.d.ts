@@ -469,13 +469,14 @@ declare module PowerTables.Commands {
     interface ICommandDescription {
         Name: string;
         ClientFunction: (param: ICommandExecutionParameters) => any;
-        CanExecute: (dataObject: any) => boolean;
+        CanExecute: (data: {
+            Subject: any;
+            Master: IMasterTable;
+        }) => boolean;
         Type: PowerTables.Commands.CommandType;
         Confirmation: PowerTables.Commands.IConfirmationConfiguration;
         OnSuccess: (param: ICommandExecutionParameters) => void;
         OnFailure: (param: ICommandExecutionParameters) => void;
-        OnDismiss: (param: ICommandExecutionParameters) => void;
-        OnCommit: (param: ICommandExecutionParameters) => void;
     }
     interface IConfirmationConfiguration {
         TemplateId: string;
@@ -487,6 +488,8 @@ declare module PowerTables.Commands {
         ContentLoadingMethod: string;
         ContentLoadingCommand: string;
         InitConfirmationObject: (confirmationObject: any) => void;
+        OnDismiss: (param: ICommandExecutionParameters) => void;
+        OnCommit: (param: ICommandExecutionParameters) => void;
     }
     interface ICommandAutoformConfiguration {
         Autoform: PowerTables.Editing.IEditFormUiConfigBase;
@@ -2903,7 +2906,7 @@ declare module PowerTables.Services {
         triggerCommandWithConfirmation(commandName: string, subject: any, confirmation: any, callback?: ((params: ICommandExecutionParameters) => void)): void;
     }
     class ConfirmationWindowViewModel implements PowerTables.Editing.IEditHandler {
-        constructor(masterTable: IMasterTable, commandDescription: PowerTables.Commands.ICommandDescription, subject: any);
+        constructor(masterTable: IMasterTable, commandDescription: PowerTables.Commands.ICommandDescription, subject: any, originalCallback: ((params: ICommandExecutionParameters) => void));
         RootElement: HTMLElement;
         ContentPlaceholder: HTMLElement;
         DetailsPlaceholder: HTMLElement;
@@ -2918,6 +2921,7 @@ declare module PowerTables.Services {
         private _embedBound;
         private _editorObjectModified;
         private _editorColumn;
+        private _originalCallback;
         rendered(): void;
         private loadContent();
         private contentLoaded();

@@ -195,9 +195,8 @@ namespace PowerTables.Typings
             builder.ExportAsEnum<CommandType>();
             builder.ExportAsInterface<CommandDescription>()
                 .WithPublicProperties()
-                .WithProperty(c => c.CanExecute, x => x.Type("(dataObject:any)=>boolean"))
-                .WithProperty(c => c.OnCommit, x => x.Type("(param:ICommandExecutionParameters)=>void"))
-                .WithProperty(c => c.OnDismiss, x => x.Type("(param:ICommandExecutionParameters)=>void"))
+                .WithProperty(c => c.CanExecute, x => x.Type("(data:{Subject:any,Master:IMasterTable})=>boolean"))
+                
                 .WithProperty(c => c.OnSuccess, x => x.Type("(param:ICommandExecutionParameters)=>void"))
                 .WithProperty(c => c.OnFailure, x => x.Type("(param:ICommandExecutionParameters)=>void"))
                 .WithProperty(x => x.ClientFunction, x => x.Type("(param:ICommandExecutionParameters)=>any"))
@@ -206,6 +205,8 @@ namespace PowerTables.Typings
             builder.ExportAsInterface<ConfirmationConfiguration>().WithPublicProperties()
                 .WithProperty(x => x.InitConfirmationObject, x => x.Type("(confirmationObject:any)=>void"))
                 .WithProperty(x => x.ContentLoadingUrl, x => x.Type("(subject:any)=>string"))
+                .WithProperty(c => c.OnCommit, x => x.Type("(param:ICommandExecutionParameters)=>void"))
+                .WithProperty(c => c.OnDismiss, x => x.Type("(param:ICommandExecutionParameters)=>void"))
                 ;
             builder.ExportAsInterface<CommandAutoformConfiguration>().WithPublicProperties();
             builder.ExportAsInterface<DetailLoadingConfiguration>()

@@ -6005,8 +6005,12 @@ var PowerTables;
                 if (command == null || command == undefined) {
                     throw Error("Command " + commandName + " was not found");
                 }
+                if (command.CanExecute) {
+                    if (!command.CanExecute({ Subject: subject, Master: this._masterTable }))
+                        return;
+                }
                 if (command.Confirmation != null && command.Confirmation != undefined) {
-                    var tc = new ConfirmationWindowViewModel(this._masterTable, command, subject);
+                    var tc = new ConfirmationWindowViewModel(this._masterTable, command, subject, callback);
                     var r = this._masterTable.Renderer
                         .renderObject(command.Confirmation.TemplateId, tc, command.Confirmation.TargetSelector);
                     tc.RootElement = r;
@@ -6017,36 +6021,63 @@ var PowerTables;
                 }
             };
             CommandsService.prototype.triggerCommandWithConfirmation = function (commandName, subject, confirmation, callback) {
-                var _this = this;
                 if (callback === void 0) { callback = null; }
-                var fn = function (r) {
-                    callback({
-                        CommandDescription: _this._commandsCache[commandName],
-                        Master: _this._masterTable,
-                        Selection: _this._masterTable.Selection.getSelectedObjects(),
+                var cmd = this._commandsCache[commandName];
+                if (cmd.CanExecute) {
+                    if (!cmd.CanExecute({ Subject: subject, Master: this._masterTable }))
+                        return;
+                }
+                var params = {
+                    CommandDescription: this._commandsCache[commandName],
+                    Master: this._masterTable,
+                    Selection: this._masterTable.Selection.getSelectedObjects(),
+                    Subject: subject,
+                    Result: null,
+                    Confirmation: confirmation
+                };
+                if (cmd.Type === PowerTables.Commands.CommandType.Server) {
+                    this._masterTable.Loader.requestServer(commandName, function (r) {
+                        params.Result = r;
+                        if (callback)
+                            callback(params);
+                        if (cmd.OnSuccess)
+                            cmd.OnSuccess(params);
+                    }, function (q) {
+                        q.AdditionalData['CommandData'] = JSON.stringify({
+                            Confirmation: confirmation,
+                            Subject: subject
+                        });
+                        return q;
+                    }, function (r) {
+                        params.Result = r;
+                        if (callback)
+                            callback(params);
+                        if (cmd.OnFailure)
+                            cmd.OnFailure(params);
+                    });
+                }
+                else {
+                    cmd.ClientFunction({
+                        CommandDescription: this._commandsCache[commandName],
+                        Master: this._masterTable,
+                        Selection: this._masterTable.Selection.getSelectedObjects(),
                         Subject: subject,
-                        Result: r,
+                        Result: null,
                         Confirmation: confirmation
                     });
-                };
-                this._masterTable.Loader.requestServer(commandName, fn, function (q) {
-                    q.AdditionalData['CommandData'] = JSON.stringify({
-                        Confirmation: confirmation,
-                        Subject: subject
-                    });
-                    return q;
-                }, fn);
+                }
             };
             return CommandsService;
         }());
         Services.CommandsService = CommandsService;
         var ConfirmationWindowViewModel = (function () {
-            function ConfirmationWindowViewModel(masterTable, commandDescription, subject) {
+            function ConfirmationWindowViewModel(masterTable, commandDescription, subject, originalCallback) {
                 this.RootElement = null;
                 this.ContentPlaceholder = null;
                 this.DetailsPlaceholder = null;
                 this.RecentDetails = { Data: null };
                 this._editorColumn = {};
+                this._originalCallback = null;
                 //#endregion
                 //#region Details loading
                 this._loadDetailsTimeout = null;
@@ -6057,6 +6088,7 @@ var PowerTables;
                 this._masterTable = masterTable;
                 this._commandDescription = commandDescription;
                 this._config = commandDescription.Confirmation;
+                this._originalCallback = originalCallback;
                 this.DataObject = {};
                 this._editorObjectModified = {};
                 this.Subject = subject;
@@ -6281,11 +6313,17 @@ var PowerTables;
                             this.ActiveEditors[i].VisualStates.mixinState('saving');
                     }
                 }
+                if (this._config.OnCommit)
+                    this._config.OnCommit(this.collectCommandParameters());
                 this._masterTable.Commands.triggerCommandWithConfirmation(this._commandDescription.Name, this.Subject, this.getConfirmation(), function (r) {
+                    var params = _this.collectCommandParameters();
+                    params.Result = r;
                     _this.RootElement = null;
                     _this.ContentPlaceholder = null;
                     _this.DetailsPlaceholder = null;
                     _this.MasterTable.Renderer.destroyObject(_this._commandDescription.Confirmation.TargetSelector);
+                    if (_this._originalCallback)
+                        _this._originalCallback(params);
                 });
             };
             ConfirmationWindowViewModel.prototype.dismiss = function () {
@@ -6293,6 +6331,8 @@ var PowerTables;
                 this.ContentPlaceholder = null;
                 this.DetailsPlaceholder = null;
                 this.MasterTable.Renderer.destroyObject(this._commandDescription.Confirmation.TargetSelector);
+                if (this._config.OnDismiss)
+                    this._config.OnDismiss(this.collectCommandParameters());
             };
             ConfirmationWindowViewModel.prototype.Editors = function () {
                 var s = '';

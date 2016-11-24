@@ -87,6 +87,8 @@
     <Compile Include="CellTemplating\TemplatesExtensions.cs" />
     <Compile Include="Commands\CommandConfirmationTemplateRegion.cs" />
     <Compile Include="Commands\CommandDescription.cs" />
+    <Compile Include="Commands\CommandDescriptionConfigurator.cs" />
+    <Compile Include="Commands\CommandsExtensions.cs" />
     <Compile Include="Configuration\ConfiguratorExtensions.cs" />
     <Compile Include="Configuration\DatepickerOptions.cs" />
     <Compile Include="Configuration\EventSubscriptionWrapper.cs" />
