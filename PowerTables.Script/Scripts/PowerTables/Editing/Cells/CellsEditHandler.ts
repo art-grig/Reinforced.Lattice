@@ -37,8 +37,8 @@
 
         public beginCellEditHandle(e: ICellEventArgs) {
             if (this._isEditing) return;
-            var col = this.MasterTable.InstanceManager.getColumnByOrder(e.ColumnIndex);
-            this.beginCellEdit(col, e.DisplayingRowIndex);
+            var col = this.MasterTable.InstanceManager.getColumnByOrder(e.Column);
+            this.beginCellEdit(col, e.Row);
             e.Stop = true;
         }
 

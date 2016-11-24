@@ -128,10 +128,6 @@ namespace PowerTables.Typings
             builder.ExportAsInterface<ToolbarButtonsClientConfiguration>().WithPublicProperties();
             builder.ExportAsInterface<ToolbarButtonClientConfiguration>()
                 .WithProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                .WithProperty(c => c.CommandCallbackFunction,
-                    c => c.Type("(table:any /*PowerTables.PowerTable*/,response:IPowerTablesResponse)=>void"))
-                .WithProperty(c => c.ConfirmationFunction,
-                    c => c.Type("(continuation:(queryModifier?:(a:IQuery)=>void)=>void)=>void"))
                 .WithProperty(c => c.OnClick,
                     c => c.Type("(table:any /*PowerTables.PowerTable*/,menuElement:any)=>void"));
 
@@ -200,6 +196,7 @@ namespace PowerTables.Typings
                 .WithProperty(c => c.OnSuccess, x => x.Type("(param:ICommandExecutionParameters)=>void"))
                 .WithProperty(c => c.OnFailure, x => x.Type("(param:ICommandExecutionParameters)=>void"))
                 .WithProperty(x => x.ClientFunction, x => x.Type("(param:ICommandExecutionParameters)=>any"))
+                .WithProperty(x => x.ConfirmationDataFunction, x => x.Type("(param:ICommandExecutionParameters)=>any"))
                 ;
 
             builder.ExportAsInterface<ConfirmationConfiguration>().WithPublicProperties()
@@ -207,6 +204,7 @@ namespace PowerTables.Typings
                 .WithProperty(x => x.ContentLoadingUrl, x => x.Type("(subject:any)=>string"))
                 .WithProperty(c => c.OnCommit, x => x.Type("(param:ICommandExecutionParameters)=>void"))
                 .WithProperty(c => c.OnDismiss, x => x.Type("(param:ICommandExecutionParameters)=>void"))
+                .WithProperty(c => c.TemplatePieces, x => x.Type("{[_:string]:(param:ICommandExecutionParameters)=>string}"))
                 ;
             builder.ExportAsInterface<CommandAutoformConfiguration>().WithPublicProperties();
             builder.ExportAsInterface<DetailLoadingConfiguration>()

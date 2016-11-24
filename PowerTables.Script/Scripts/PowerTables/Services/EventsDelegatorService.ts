@@ -155,8 +155,8 @@
                 var cellInArgs: ICellEventArgs = {
                     Master: this._masterTable,
                     OriginalEvent: e,
-                    DisplayingRowIndex: cellLocation.RowIndex,
-                    ColumnIndex: cellLocation.ColumnIndex,
+                    Row: cellLocation.RowIndex,
+                    Column: cellLocation.ColumnIndex,
                     Stop: false
                 };
                 if (this._previousMousePos.row !== cellLocation.RowIndex ||
@@ -165,8 +165,8 @@
                     var cellOutArgs: ICellEventArgs = {
                         Master: this._masterTable,
                         OriginalEvent: e,
-                        DisplayingRowIndex: this._previousMousePos.row,
-                        ColumnIndex: this._previousMousePos.column,
+                        Row: this._previousMousePos.row,
+                        Column: this._previousMousePos.column,
                         Stop: false
                     };
                     this.traverseAndFire(cellEvents["mouseleave"], pathToCell, cellOutArgs);
@@ -185,7 +185,7 @@
                     var rowInArgs: IRowEventArgs = {
                         Master: this._masterTable,
                         OriginalEvent: e,
-                        DisplayingRowIndex: rowIndex,
+                        Row: rowIndex,
                         Stop: false
                     };
                     if (this._previousMousePos.row !== rowIndex) {
@@ -193,7 +193,7 @@
                         var rowOutArgs: IRowEventArgs = {
                             Master: this._masterTable,
                             OriginalEvent: e,
-                            DisplayingRowIndex: this._previousMousePos.row,
+                            Row: this._previousMousePos.row,
                             Stop: false
                         };
                         this.traverseAndFire(rowEvents["mouseleave"], pathToCell, rowOutArgs);
@@ -237,8 +237,8 @@
                 var cellArgs: ICellEventArgs = {
                     Master: this._masterTable,
                     OriginalEvent: e,
-                    DisplayingRowIndex: cellLocation.RowIndex,
-                    ColumnIndex: cellLocation.ColumnIndex,
+                    Row: cellLocation.RowIndex,
+                    Column: cellLocation.ColumnIndex,
                     Stop: false
                 };
                 this.traverseAndFire(forCell, pathToCell, cellArgs);
@@ -248,7 +248,7 @@
                     var rowArgs: IRowEventArgs = {
                         Master: this._masterTable,
                         OriginalEvent: e,
-                        DisplayingRowIndex: rowIndex,
+                        Row: rowIndex,
                         Stop: false
                     };
                     this.traverseAndFire(forRow, pathToRow, rowArgs);

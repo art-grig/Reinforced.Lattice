@@ -22,10 +22,9 @@ namespace PowerTables.Plugins.Toolbar
             return _innerBuilder.AddSimpleButton(htmlContent);
         }
 
-        public ToolbarItemBuilder AddCommandItem(string htmlContent, string command,
-            bool disableWhileCommand = true, string callbackFunction = null)
+        public ToolbarItemBuilder AddCommandItem(string htmlContent, string command, bool disableWhileCommand = true)
         {
-            return _innerBuilder.AddCommandButton(htmlContent, command, disableWhileCommand, callbackFunction);
+            return _innerBuilder.AddCommandButton(htmlContent, command, disableWhileCommand);
         }
 
         public void Separator()

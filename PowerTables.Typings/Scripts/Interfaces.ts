@@ -297,8 +297,6 @@ module PowerTables.Plugins.Toolbar {
 		BlackoutWhileCommand: boolean;
 		DisableIfNothingChecked: boolean;
 		Title: string;
-		CommandCallbackFunction: (table:any /*PowerTables.PowerTable*/,response:IPowerTablesResponse)=>void;
-		ConfirmationFunction: (continuation:(queryModifier?:(a:IQuery)=>void)=>void)=>void;
 		OnClick: (table:any /*PowerTables.PowerTable*/,menuElement:any)=>void;
 		Submenu: PowerTables.Plugins.Toolbar.IToolbarButtonClientConfiguration[];
 		HasSubmenu: boolean;
@@ -306,9 +304,6 @@ module PowerTables.Plugins.Toolbar {
 		Separator: boolean;
 		InternalId: number;
 		IsDisabled: boolean;
-		ConfirmationTemplateId: string;
-		ConfirmationTargetSelector: string;
-		ConfirmationFormConfiguration: PowerTables.Plugins.Formwatch.IFormwatchFieldData[];
 	}
 }
 module PowerTables.Plugins.Total {
@@ -484,6 +479,7 @@ module PowerTables.Commands {
 	{
 		Name: string;
 		ClientFunction: (param:ICommandExecutionParameters)=>any;
+		ConfirmationDataFunction: (param:ICommandExecutionParameters)=>any;
 		CanExecute: (data:{Subject:any,Master:IMasterTable})=>boolean;
 		Type: PowerTables.Commands.CommandType;
 		Confirmation: PowerTables.Commands.IConfirmationConfiguration;
@@ -493,6 +489,7 @@ module PowerTables.Commands {
 	export interface IConfirmationConfiguration
 	{
 		TemplateId: string;
+		TemplatePieces: {[_:string]:(param:ICommandExecutionParameters)=>string};
 		TargetSelector: string;
 		Formwatch: PowerTables.Plugins.Formwatch.IFormwatchFieldData[];
 		Autoform: PowerTables.Commands.ICommandAutoformConfiguration;
@@ -506,7 +503,7 @@ module PowerTables.Commands {
 	}
 	export interface ICommandAutoformConfiguration
 	{
-		Autoform: PowerTables.Editing.IEditFormUiConfigBase;
+		Autoform: PowerTables.Editing.IEditFieldUiConfigBase[];
 		DisableWhenContentLoading: boolean;
 		DisableWhileDetailsLoading: boolean;
 	}
@@ -518,7 +515,6 @@ module PowerTables.Commands {
 		ValidateToLoad: (param:ICommandExecutionParameters)=>boolean;
 		DetailsFunction: (param:ICommandExecutionParameters)=>any;
 		LoadDelay: number;
-		DetailsReloadEvents: { [key:string]: string[] };
 	}
 	export enum CommandType { 
 		Client = 0, 

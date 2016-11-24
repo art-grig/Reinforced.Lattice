@@ -15,6 +15,8 @@ namespace PowerTables.Commands
 
         public JRaw ClientFunction { get; set; }
 
+        public JRaw ConfirmationDataFunction { get; set; }
+
         public JRaw CanExecute { get; set; }
 
         public CommandType Type { get; set; }
@@ -29,6 +31,8 @@ namespace PowerTables.Commands
     public class ConfirmationConfiguration
     {
         public string TemplateId { get; set; }
+
+        public Dictionary<string,JRaw> TemplatePieces { get; set; }
 
         public string TargetSelector { get; set; }
 
@@ -50,11 +54,16 @@ namespace PowerTables.Commands
         public JRaw InitConfirmationObject { get; set; }
         public JRaw OnDismiss { get; set; }
         public JRaw OnCommit { get; set; }
+
+        public ConfirmationConfiguration()
+        {
+            TemplatePieces = new Dictionary<string, JRaw>();
+        }
     }
 
     public class CommandAutoformConfiguration
     {
-        public EditFormUiConfigBase Autoform { get; set; }
+        public List<EditFieldUiConfigBase> Autoform { get; set; }
 
         public bool DisableWhenContentLoading { get; set; }
 
@@ -75,7 +84,6 @@ namespace PowerTables.Commands
 
         public int LoadDelay { get; set; }
 
-        public Dictionary<string,List<string>> DetailsReloadEvents { get; set; }
     }
 
     public enum CommandType

@@ -31,7 +31,7 @@ namespace PowerTables.Plugins.Checkboxify
 
             var cc = conf.AddUiColumn<string>("_checkboxify", " ", -1);
             cc.TemplateId("checkboxifyCell");
-            cc.SubscribeCellEvent(c => c.Handle("click", "function(c) { c.Master.Selection.toggleDisplayingRow(c.DisplayingRowIndex); }"));
+            cc.SubscribeCellEvent(c => c.Handle("click", "function(c) { c.Master.Selection.toggleDisplayingRow(c.Row); }"));
             if (columnConf != null) columnConf(cc);
             conf.TableConfiguration.UpdatePluginConfig<CheckboxifyUiConfig>(PluginId, ui);
             return conf;

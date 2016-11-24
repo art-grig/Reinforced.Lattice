@@ -51,16 +51,6 @@ namespace PowerTables.Plugins.Toolbar
         public string Title { get; set; }
 
         /// <summary>
-        /// Gets or sets JS function to be executed after command execution. JS function is of type: (table:PowerTables.PowerTable, response:IPowerTablesResponse) => void
-        /// </summary>
-        public JRaw CommandCallbackFunction { get; set; }
-
-        /// <summary>
-        /// Gets or sets JS function to be executed before command execution with ability to confinue or reject action. JS function is of type: (continuation: ( queryModifier?:(a:IQuery) => IQuery ) => void ) => void
-        /// </summary>
-        public JRaw ConfirmationFunction { get; set; }
-
-        /// <summary>
         /// Gets or sets JS function to be executed on button click. JS function is of type: (table:any (PowerTables.PowerTable), menuElement:any)=>void
         /// </summary>
         public JRaw OnClick { get; set; }
@@ -102,20 +92,6 @@ namespace PowerTables.Plugins.Toolbar
         /// Gets or sets value indicating whether button is disabled 
         /// </summary>
         public bool IsDisabled { get; set; }
-
-        /// <summary>
-        /// Gets or sets template ID for confirmation button's action
-        /// </summary>
-        public string ConfirmationTemplateId { get; set; }
-
-        /// <summary>
-        /// Gets or sets element selector where confirmation panel will be placed to
-        /// </summary>
-        public string ConfirmationTargetSelector { get; set; }
-
-        /// <summary>
-        /// Gets or sets confirmation form fields configuration
-        /// </summary>
-        public List<FormwatchFieldData> ConfirmationFormConfiguration { get; set; }
+        
     }
 }

@@ -179,7 +179,7 @@
 
         public beginRowEditHandle(e: IRowEventArgs) {
             //if (this._isEditing) return;
-            this.beginRowEdit(e.DisplayingRowIndex);
+            this.beginRowEdit(e.Row);
         }
 
         public commitRowEditHandle(e: IRowEventArgs) {

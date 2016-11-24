@@ -288,8 +288,6 @@ declare module PowerTables.Plugins.Toolbar {
         BlackoutWhileCommand: boolean;
         DisableIfNothingChecked: boolean;
         Title: string;
-        CommandCallbackFunction: (table: any, response: IPowerTablesResponse) => void;
-        ConfirmationFunction: (continuation: (queryModifier?: (a: IQuery) => void) => void) => void;
         OnClick: (table: any, menuElement: any) => void;
         Submenu: PowerTables.Plugins.Toolbar.IToolbarButtonClientConfiguration[];
         HasSubmenu: boolean;
@@ -297,9 +295,6 @@ declare module PowerTables.Plugins.Toolbar {
         Separator: boolean;
         InternalId: number;
         IsDisabled: boolean;
-        ConfirmationTemplateId: string;
-        ConfirmationTargetSelector: string;
-        ConfirmationFormConfiguration: PowerTables.Plugins.Formwatch.IFormwatchFieldData[];
     }
 }
 declare module PowerTables.Plugins.Total {
@@ -469,6 +464,7 @@ declare module PowerTables.Commands {
     interface ICommandDescription {
         Name: string;
         ClientFunction: (param: ICommandExecutionParameters) => any;
+        ConfirmationDataFunction: (param: ICommandExecutionParameters) => any;
         CanExecute: (data: {
             Subject: any;
             Master: IMasterTable;
@@ -480,6 +476,9 @@ declare module PowerTables.Commands {
     }
     interface IConfirmationConfiguration {
         TemplateId: string;
+        TemplatePieces: {
+            [_: string]: (param: ICommandExecutionParameters) => string;
+        };
         TargetSelector: string;
         Formwatch: PowerTables.Plugins.Formwatch.IFormwatchFieldData[];
         Autoform: PowerTables.Commands.ICommandAutoformConfiguration;
@@ -492,7 +491,7 @@ declare module PowerTables.Commands {
         OnCommit: (param: ICommandExecutionParameters) => void;
     }
     interface ICommandAutoformConfiguration {
-        Autoform: PowerTables.Editing.IEditFormUiConfigBase;
+        Autoform: PowerTables.Editing.IEditFieldUiConfigBase[];
         DisableWhenContentLoading: boolean;
         DisableWhileDetailsLoading: boolean;
     }
@@ -503,9 +502,6 @@ declare module PowerTables.Commands {
         ValidateToLoad: (param: ICommandExecutionParameters) => boolean;
         DetailsFunction: (param: ICommandExecutionParameters) => any;
         LoadDelay: number;
-        DetailsReloadEvents: {
-            [key: string]: string[];
-        };
     }
     enum CommandType {
         Client = 0,
@@ -1003,7 +999,7 @@ declare module PowerTables {
          * Row index.
          * Data object can be restored using Table.DataHolderService.localLookupDisplayedData(RowIndex)
          */
-        DisplayingRowIndex: number;
+        Row: number;
         /**
          * Stops event propagation
          */
@@ -1017,7 +1013,7 @@ declare module PowerTables {
          * Column index related to particular cell.
          * Column object can be restored using Table.InstanceManagerService.getUiColumns()[ColumnIndex]
          */
-        ColumnIndex: number;
+        Column: number;
     }
     interface ISubscription {
         /**
@@ -2017,95 +2013,6 @@ declare module PowerTables.Plugins.RowAction {
 }
 declare module PowerTables.Plugins.Toolbar {
     /**
-     * Backing class for confirmation panel created as part of button action
-     */
-    class CommandConfirmation {
-        /**
-         * @internal
-         */
-        constructor(confirm: (form: any) => void, reject: () => void, date: PowerTables.Services.DateService, autoform: PowerTables.Plugins.Formwatch.IFormwatchFieldData[]);
-        private _autoform;
-        private _confirm;
-        private _reject;
-        private _date;
-        private _beforeConfirm;
-        /**
-         * @internal
-         */
-        AfterConfirm: ((form: any) => void)[];
-        private _beforeReject;
-        /**
-         * @internal
-         */
-        AfterReject: ((form: any) => void)[];
-        /**
-         * @internal
-         */
-        AfterConfirmationResponse: ((form: any) => void)[];
-        /**
-         * @internal
-         */
-        ConfirmationResponseError: ((form: any) => void)[];
-        /**
-         * Set of form values (available only after window is commited or dismissed)
-         */
-        Form: any;
-        /**
-         * Reference to root element of confirmation window
-         */
-        RootElement: HTMLElement;
-        /**
-         * Set of selected item keys defined in corresponding Checboxify plugin
-         */
-        SelectedItems: string[];
-        /**
-         * Set of selected corresponding objects selected by checkboxify plugin
-         */
-        SelectedObjects: any[];
-        /**
-         * @internal
-         */
-        onRender(parent: HTMLElement): void;
-        /**
-         * @internal
-         */
-        fireEvents(form: any, array: ((form: any) => void)[]): void;
-        private collectFormData();
-        /**
-         * Commits confirmation form, collects form, destroys confirmation panel element and proceeds server command, fires corresponding events
-         */
-        confirm(): void;
-        /**
-         * Destroys confirmation panel element, collects form, does not send anything to server, fires corresponding events
-         */
-        dismiss(): void;
-        /**
-         * Subscribes specified function to be invoked after pressing confirm button (or calling confirm method) but before processing
-         * @param fn Function that consumes form data
-         */
-        onBeforeConfirm(fn: (form: any) => void): void;
-        /**
-         * Subscribes specified function to be invoked after pressing confirm button and client-side form processing (it is possible to add something to form)
-         * but before sending data to server
-         * @param fn Function that consumes form data
-         */
-        onAfterConfirm(fn: (form: any) => void): void;
-        /**
-         * Subscribes specified function to be invoked after pressing reject button (or calling reject method) but before processing
-         * @param fn Function that consumes form data
-         */
-        onBeforeReject(fn: (form: any) => void): void;
-        /**
-         * Subscribes specified function to be invoked after pressing reject button (or calling reject method) but before processing
-         * @param fn Function that consumes form data
-         */
-        onAfterReject(fn: (form: any) => void): void;
-        onAfterConfirmationResponse(fn: (form: any) => void): void;
-        onConfirmationResponseError(fn: (form: any) => void): void;
-    }
-}
-declare module PowerTables.Plugins.Toolbar {
-    /**
      * Client-side supply for Toolbar plugin
      */
     class ToolbarPlugin extends PluginBase<Plugins.Toolbar.IToolbarButtonsClientConfiguration> {
@@ -2902,6 +2809,8 @@ declare module PowerTables.Services {
         constructor(masterTable: IMasterTable);
         private _masterTable;
         private _commandsCache;
+        canExecute(commandName: string, subject?: any): boolean;
+        triggerCommandOnRow(commandName: string, rowIndex: number, callback?: ((params: ICommandExecutionParameters) => void)): void;
         triggerCommand(commandName: string, subject: any, callback?: ((params: ICommandExecutionParameters) => void)): void;
         triggerCommandWithConfirmation(commandName: string, subject: any, confirmation: any, callback?: ((params: ICommandExecutionParameters) => void)): void;
     }
@@ -2910,8 +2819,12 @@ declare module PowerTables.Services {
         RootElement: HTMLElement;
         ContentPlaceholder: HTMLElement;
         DetailsPlaceholder: HTMLElement;
+        TemplatePieces: {
+            [_: string]: string;
+        };
         VisualStates: PowerTables.Rendering.VisualState;
         Subject: any;
+        Selection: any[];
         RecentDetails: {
             Data: any;
         };

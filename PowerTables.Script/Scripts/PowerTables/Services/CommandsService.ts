@@ -9,12 +9,26 @@
 
         private _commandsCache: { [_: string]: PowerTables.Commands.ICommandDescription }
 
+        public canExecute(commandName: string, subject: any = null): boolean {
+            if (!this._commandsCache.hasOwnProperty(commandName)) return true;
+            var command = this._commandsCache[commandName];
+            if (command.CanExecute) {
+                return command.CanExecute({ Subject: subject, Master: this._masterTable });
+            }
+            return true;
+        }
+
+        public triggerCommandOnRow(commandName: string, rowIndex: number, callback: ((params: ICommandExecutionParameters) => void) = null) {
+            this.triggerCommand(commandName, this._masterTable.DataHolder.DisplayedData[rowIndex], callback);
+        }
+
         public triggerCommand(commandName: string, subject: any, callback: ((params: ICommandExecutionParameters) => void) = null) {
             var command = this._commandsCache[commandName];
             if (command == null || command == undefined) {
-                throw Error(`Command ${commandName} was not found`);
+                this.triggerCommandWithConfirmation(commandName, subject, null, callback);
+                return;
             }
-            
+
             if (command.CanExecute) {
                 if (!command.CanExecute({ Subject: subject, Master: this._masterTable })) return;
             }
@@ -25,26 +39,60 @@
                     .renderObject(command.Confirmation.TemplateId, tc, command.Confirmation.TargetSelector);
                 tc.RootElement = r;
                 tc.rendered();
+            } else if (command.ConfirmationDataFunction != null && command.ConfirmationDataFunction != undefined) {
+                var confirmationData = command.ConfirmationDataFunction({
+                    CommandDescription: this._commandsCache[commandName],
+                    Master: this._masterTable,
+                    Selection: this._masterTable.Selection.getSelectedObjects(),
+                    Subject: subject,
+                    Result: null,
+                    Confirmation: null
+                });
+                if (confirmationData != null) {
+                    this.triggerCommandWithConfirmation(commandName, subject, confirmationData, callback);
+                }
             } else {
                 this.triggerCommandWithConfirmation(commandName, subject, null, callback);
             }
         }
 
         public triggerCommandWithConfirmation(commandName: string, subject: any, confirmation: any, callback: ((params: ICommandExecutionParameters) => void) = null) {
-            var cmd = this._commandsCache[commandName];
-            if (cmd.CanExecute) {
-                if (!cmd.CanExecute({ Subject: subject, Master: this._masterTable })) return;
-            }
             var params = {
-                CommandDescription: this._commandsCache[commandName],
+                CommandDescription: null,
                 Master: this._masterTable,
                 Selection: this._masterTable.Selection.getSelectedObjects(),
                 Subject: subject,
                 Result: null,
                 Confirmation: confirmation
             };
+            var cmd = this._commandsCache[commandName];
+            if (!cmd) {
+                this._masterTable.Loader.requestServer(commandName,
+                    r => {
+                        if (r.$isDeferred && r.$url) {
+                            window.location.href = r.$url;
+                            return;
+                        }
+                        params.Result = r;
+                        if (callback) callback(params);
+                    },
+                    q => {
+                        q.AdditionalData['CommandData'] = JSON.stringify({
+                            Confirmation: confirmation,
+                            Subject: subject
+                        });
+                        return q;
+                    });
+
+                return;
+            }
+            params.CommandDescription = cmd;
+            if (cmd.CanExecute) {
+                if (!cmd.CanExecute({ Subject: subject, Master: this._masterTable })) return;
+            }
+
             if (cmd.Type === PowerTables.Commands.CommandType.Server) {
-                
+
                 this._masterTable.Loader.requestServer(commandName,
                     r => {
                         params.Result = r;
@@ -64,14 +112,7 @@
                         if (cmd.OnFailure) cmd.OnFailure(params);
                     });
             } else {
-                cmd.ClientFunction({
-                    CommandDescription: this._commandsCache[commandName],
-                    Master: this._masterTable,
-                    Selection: this._masterTable.Selection.getSelectedObjects(),
-                    Subject: subject,
-                    Result: null,
-                    Confirmation: confirmation
-                });
+                cmd.ClientFunction(params);
             }
         }
     }
@@ -85,6 +126,8 @@
             this.DataObject = {};
             this._editorObjectModified = {};
             this.Subject = subject;
+            this.Selection = this._masterTable.Selection.getSelectedObjects();
+
             this._embedBound = this.embedConfirmation.bind(this);
 
             if (commandDescription.Confirmation.Autoform != null) {
@@ -104,15 +147,33 @@
             if (commandDescription.Confirmation.Autoform != null) {
                 this.initAutoform(commandDescription.Confirmation.Autoform);
             }
+
+            var tplParams: ICommandExecutionParameters = {
+                CommandDescription: this._commandDescription,
+                Master: this._masterTable,
+                Confirmation: this._editorObjectModified,
+                Result: null,
+                Selection: this.Selection,
+                Subject: subject
+            };
+
+            var templatePieces = this._config.TemplatePieces;
+            for (var k in templatePieces) {
+                if (templatePieces.hasOwnProperty(k)) {
+                    this.TemplatePieces[k] = templatePieces[k](tplParams);
+                }
+            }
         }
 
 
         public RootElement: HTMLElement = null;
         public ContentPlaceholder: HTMLElement = null;
         public DetailsPlaceholder: HTMLElement = null;
+        public TemplatePieces: { [_: string]: string } = {};
 
         public VisualStates: PowerTables.Rendering.VisualState;
         public Subject: any;
+        public Selection: any[];
 
         public RecentDetails: { Data: any } = { Data: null };
 
@@ -277,7 +338,7 @@
             var result: ICommandExecutionParameters = {
                 CommandDescription: this._commandDescription,
                 Master: this._masterTable,
-                Selection: this._masterTable.Selection.getSelectedObjects(),
+                Selection: this.Selection,
                 Subject: this.Subject,
                 Result: null,
                 Confirmation: this.getConfirmation()
@@ -374,7 +435,7 @@
         }
 
         private createEditor(fieldName: string, column: IColumn): PowerTables.Editing.IEditor {
-            var editorConf = this._commandDescription.Confirmation.Autoform.Autoform.Fields[fieldName];
+            var editorConf = this._commandDescription.Confirmation.Autoform.Autoform[fieldName];
             var editor = ComponentsContainer.resolveComponent<PowerTables.Editing.IEditor>(editorConf.PluginId);
             editor.DataObject = this.DataObject;
             editor.ModifiedDataObject = this._editorObjectModified;
@@ -403,18 +464,18 @@
 
         private produceAutoformColumns(autoform: PowerTables.Commands.ICommandAutoformConfiguration) {
             var fields = autoform.Autoform;
-            for (var j = 0; j < fields.Fields.length; j++) {
-                this._editorColumn[fields.Fields[j].FieldName] = PowerTables.Services.InstanceManagerService.createColumn(fields.Fields[j].FakeColumn, this._masterTable);
-                this.DataObject[fields.Fields[j].FieldName] = this
-                    .defaultValue(this._editorColumn[fields.Fields[j].FieldName]);
-                this._editorObjectModified[fields.Fields[j].FieldName] = this.DataObject[fields.Fields[j].FieldName];
+            for (var j = 0; j < fields.length; j++) {
+                this._editorColumn[fields[j].FieldName] = PowerTables.Services.InstanceManagerService.createColumn(fields[j].FakeColumn, this._masterTable);
+                this.DataObject[fields[j].FieldName] = this
+                    .defaultValue(this._editorColumn[fields[j].FieldName]);
+                this._editorObjectModified[fields[j].FieldName] = this.DataObject[fields[j].FieldName];
             }
 
         }
         private initAutoform(autoform: PowerTables.Commands.ICommandAutoformConfiguration) {
             var fields = autoform.Autoform;
-            for (var i = 0; i < fields.Fields.length; i++) {
-                var editorConf = fields.Fields[i];
+            for (var i = 0; i < fields.length; i++) {
+                var editorConf = fields[i];
                 var column = this._editorColumn[editorConf.FieldName];
 
                 var editor = this.createEditor(editorConf.FieldName, column);
@@ -434,6 +495,7 @@
             for (var i = 0; i < this.ActiveEditors.length; i++) {
                 this.ActiveEditors[i].notifyObjectChanged();
             }
+            this.loadDetails();
         }
         reject(editor: PowerTables.Editing.IEditor): void {
             this._editorObjectModified[editor.FieldName] = this.DataObject[editor.FieldName];

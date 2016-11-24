@@ -523,7 +523,7 @@
          * Row index. 
          * Data object can be restored using Table.DataHolderService.localLookupDisplayedData(RowIndex)
          */
-        DisplayingRowIndex: number;
+        Row: number;
 
         /**
          * Stops event propagation
@@ -539,7 +539,7 @@
          * Column index related to particular cell. 
          * Column object can be restored using Table.InstanceManagerService.getUiColumns()[ColumnIndex]
          */
-        ColumnIndex: number;
+        Column: number;
     }
 
     export interface ISubscription {

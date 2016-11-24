@@ -15,4 +15,24 @@ namespace PowerTables.Commands
             Description = description;
         }
     }
+
+    public class CommandConfirmationConfigurator<T>
+    {
+        internal ConfirmationConfiguration Configuration { get; set; }
+
+        public CommandConfirmationConfigurator(ConfirmationConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+    }
+
+    public class ConfirmationDetailsConfigurator
+    {
+        internal DetailLoadingConfiguration Configuration { get; set; }
+
+        public ConfirmationDetailsConfigurator(DetailLoadingConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+    }
 }

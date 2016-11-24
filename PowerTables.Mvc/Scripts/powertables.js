@@ -269,8 +269,8 @@ var PowerTables;
                     CellsEditHandler.prototype.beginCellEditHandle = function (e) {
                         if (this._isEditing)
                             return;
-                        var col = this.MasterTable.InstanceManager.getColumnByOrder(e.ColumnIndex);
-                        this.beginCellEdit(col, e.DisplayingRowIndex);
+                        var col = this.MasterTable.InstanceManager.getColumnByOrder(e.Column);
+                        this.beginCellEdit(col, e.Row);
                         e.Stop = true;
                     };
                     CellsEditHandler.prototype.onBeforeClientRowsRendering = function (e) {
@@ -1032,12 +1032,12 @@ var PowerTables;
                 };
                 FormEditHandler.prototype.beginFormEditHandler = function (e) {
                     if (this._isEditing) {
-                        var lookup = this.MasterTable.DataHolder.localLookupDisplayedData(e.DisplayingRowIndex);
+                        var lookup = this.MasterTable.DataHolder.localLookupDisplayedData(e.Row);
                         if (this.DataObject !== lookup.DataObject) {
                             this.rejectAll();
                         }
                     }
-                    this.ensureEditing(e.DisplayingRowIndex);
+                    this.ensureEditing(e.Row);
                     this.startupForm();
                 };
                 FormEditHandler.prototype.startupForm = function () {
@@ -1348,7 +1348,7 @@ var PowerTables;
                     };
                     RowsEditHandler.prototype.beginRowEditHandle = function (e) {
                         //if (this._isEditing) return;
-                        this.beginRowEdit(e.DisplayingRowIndex);
+                        this.beginRowEdit(e.Row);
                     };
                     RowsEditHandler.prototype.commitRowEditHandle = function (e) {
                         if (!this._isEditing)
@@ -1529,20 +1529,19 @@ var PowerTables;
             var RangeFilterPlugin = (function (_super) {
                 __extends(RangeFilterPlugin, _super);
                 function RangeFilterPlugin() {
-                    var _this = this;
                     _super.apply(this, arguments);
                     this._filteringIsBeingExecuted = false;
                     this._isInitializing = true;
                     this.afterDrawn = function (e) {
-                        if (_this.Configuration.Hidden)
+                        if (this.Configuration.Hidden)
                             return;
-                        if (_this.AssociatedColumn.IsDateTime) {
-                            var fromDate = _this.MasterTable.Date.parse(_this.Configuration.FromValue);
-                            var toDate = _this.MasterTable.Date.parse(_this.Configuration.ToValue);
-                            _this.MasterTable.Date.putDateToDatePicker(_this.FromValueProvider, fromDate);
-                            _this.MasterTable.Date.putDateToDatePicker(_this.ToValueProvider, toDate);
+                        if (this.AssociatedColumn.IsDateTime) {
+                            var fromDate = this.MasterTable.Date.parse(this.Configuration.FromValue);
+                            var toDate = this.MasterTable.Date.parse(this.Configuration.ToValue);
+                            this.MasterTable.Date.putDateToDatePicker(this.FromValueProvider, fromDate);
+                            this.MasterTable.Date.putDateToDatePicker(this.ToValueProvider, toDate);
                         }
-                        _this._isInitializing = false;
+                        this._isInitializing = false;
                     };
                 }
                 RangeFilterPlugin.prototype.getFromValue = function () {
@@ -1851,7 +1850,6 @@ var PowerTables;
             var ValueFilterPlugin = (function (_super) {
                 __extends(ValueFilterPlugin, _super);
                 function ValueFilterPlugin() {
-                    var _this = this;
                     _super.apply(this, arguments);
                     this._filteringIsBeingExecuted = false;
                     this._isInitializing = true;
@@ -1859,13 +1857,13 @@ var PowerTables;
                     * @internal
                     */
                     this.afterDrawn = function (e) {
-                        if (_this.Configuration.Hidden)
+                        if (this.Configuration.Hidden)
                             return;
-                        if (_this.AssociatedColumn.IsDateTime) {
-                            var date = _this.MasterTable.Date.parse(_this.Configuration.DefaultValue);
-                            _this.MasterTable.Date.putDateToDatePicker(_this.FilterValueProvider, date);
+                        if (this.AssociatedColumn.IsDateTime) {
+                            var date = this.MasterTable.Date.parse(this.Configuration.DefaultValue);
+                            this.MasterTable.Date.putDateToDatePicker(this.FilterValueProvider, date);
                         }
-                        _this._isInitializing = false;
+                        this._isInitializing = false;
                     };
                 }
                 /**
@@ -2465,13 +2463,13 @@ var PowerTables;
                     this._stolenFilterFunctions = [];
                 }
                 HierarchyPlugin.prototype.expandSubtree = function (args) {
-                    this.toggleSubtreeByObject(this.MasterTable.DataHolder.localLookupDisplayedData(args.DisplayingRowIndex).DataObject, true, args.DisplayingRowIndex);
+                    this.toggleSubtreeByObject(this.MasterTable.DataHolder.localLookupDisplayedData(args.Row).DataObject, true, args.Row);
                 };
                 HierarchyPlugin.prototype.collapseSubtree = function (args) {
-                    this.toggleSubtreeByObject(this.MasterTable.DataHolder.localLookupDisplayedData(args.DisplayingRowIndex).DataObject, false, args.DisplayingRowIndex);
+                    this.toggleSubtreeByObject(this.MasterTable.DataHolder.localLookupDisplayedData(args.Row).DataObject, false, args.Row);
                 };
                 HierarchyPlugin.prototype.toggleSubtree = function (args) {
-                    this.toggleSubtreeByObject(this.MasterTable.DataHolder.localLookupDisplayedData(args.DisplayingRowIndex).DataObject, null, args.DisplayingRowIndex);
+                    this.toggleSubtreeByObject(this.MasterTable.DataHolder.localLookupDisplayedData(args.Row).DataObject, null, args.Row);
                 };
                 HierarchyPlugin.prototype.toggleSubtreeByObject = function (dataObject, turnOpen, index) {
                     if (dataObject == null || dataObject == undefined)
@@ -3440,10 +3438,10 @@ var PowerTables;
                 };
                 RegularSelectPlugin.prototype.startSelection = function (e) {
                     this._isSelecting = true;
-                    this._startRow = e.DisplayingRowIndex;
-                    this._startColumn = e.ColumnIndex;
-                    this._endRow = e.DisplayingRowIndex;
-                    this._endColumn = this.MasterTable.InstanceManager.getColumnByOrder(e.ColumnIndex).UiOrder;
+                    this._startRow = e.Row;
+                    this._startColumn = e.Column;
+                    this._endRow = e.Row;
+                    this._endColumn = this.MasterTable.InstanceManager.getColumnByOrder(e.Column).UiOrder;
                     this._reset = false;
                     e.OriginalEvent.preventDefault();
                 };
@@ -3500,7 +3498,7 @@ var PowerTables;
                         this.MasterTable.Selection.resetSelection();
                         this._reset = true;
                     }
-                    this.diff(e.DisplayingRowIndex, e.ColumnIndex);
+                    this.diff(e.Row, e.Column);
                     e.OriginalEvent.preventDefault();
                 };
                 return RegularSelectPlugin;
@@ -3681,128 +3679,6 @@ var PowerTables;
         var Toolbar;
         (function (Toolbar) {
             /**
-             * Backing class for confirmation panel created as part of button action
-             */
-            var CommandConfirmation = (function () {
-                /**
-                 * @internal
-                 */
-                function CommandConfirmation(confirm, reject, date, autoform) {
-                    this._beforeConfirm = [];
-                    /**
-                     * @internal
-                     */
-                    this.AfterConfirm = [];
-                    this._beforeReject = [];
-                    /**
-                     * @internal
-                     */
-                    this.AfterReject = [];
-                    /**
-                     * @internal
-                     */
-                    this.AfterConfirmationResponse = [];
-                    /**
-                     * @internal
-                     */
-                    this.ConfirmationResponseError = [];
-                    /**
-                     * Set of form values (available only after window is commited or dismissed)
-                     */
-                    this.Form = null;
-                    this._confirm = confirm;
-                    this._reject = reject;
-                    this._date = date;
-                    this._autoform = autoform;
-                }
-                /**
-                 * @internal
-                 */
-                CommandConfirmation.prototype.onRender = function (parent) {
-                    this.RootElement = parent;
-                    if (this._autoform != null) {
-                        for (var i = 0; i < this._autoform.length; i++) {
-                            var conf = this._autoform[i];
-                            if (conf.TriggerSearchOnEvents && conf.TriggerSearchOnEvents.length > 0) {
-                                var element = document.querySelector(conf.FieldSelector);
-                                if (conf.AutomaticallyAttachDatepicker) {
-                                    this._date.createDatePicker(element);
-                                }
-                            }
-                        }
-                    }
-                };
-                /**
-                 * @internal
-                 */
-                CommandConfirmation.prototype.fireEvents = function (form, array) {
-                    for (var i = 0; i < array.length; i++) {
-                        array[i](form);
-                    }
-                };
-                CommandConfirmation.prototype.collectFormData = function () {
-                    if (this.Form != null)
-                        return;
-                    var form = {};
-                    if (this._autoform != null) {
-                        form = PowerTables.Plugins.Formwatch.FormwatchPlugin.extractFormData(this._autoform, this.RootElement, this._date);
-                    }
-                    this.Form = form;
-                };
-                /**
-                 * Commits confirmation form, collects form, destroys confirmation panel element and proceeds server command, fires corresponding events
-                 */
-                CommandConfirmation.prototype.confirm = function () {
-                    this.collectFormData();
-                    this.fireEvents(this.Form, this._beforeConfirm);
-                    this._confirm(this.Form);
-                    this.fireEvents(this.Form, this.AfterConfirm);
-                };
-                /**
-                 * Destroys confirmation panel element, collects form, does not send anything to server, fires corresponding events
-                 */
-                CommandConfirmation.prototype.dismiss = function () {
-                    this.collectFormData();
-                    this.fireEvents(this.Form, this._beforeReject);
-                    this._reject();
-                    this.fireEvents(this.Form, this.AfterReject);
-                };
-                /**
-                 * Subscribes specified function to be invoked after pressing confirm button (or calling confirm method) but before processing
-                 * @param fn Function that consumes form data
-                 */
-                CommandConfirmation.prototype.onBeforeConfirm = function (fn) { this._beforeConfirm.push(fn); };
-                /**
-                 * Subscribes specified function to be invoked after pressing confirm button and client-side form processing (it is possible to add something to form)
-                 * but before sending data to server
-                 * @param fn Function that consumes form data
-                 */
-                CommandConfirmation.prototype.onAfterConfirm = function (fn) { this.AfterConfirm.push(fn); };
-                /**
-                 * Subscribes specified function to be invoked after pressing reject button (or calling reject method) but before processing
-                 * @param fn Function that consumes form data
-                 */
-                CommandConfirmation.prototype.onBeforeReject = function (fn) { this._beforeReject.push(fn); };
-                /**
-                 * Subscribes specified function to be invoked after pressing reject button (or calling reject method) but before processing
-                 * @param fn Function that consumes form data
-                 */
-                CommandConfirmation.prototype.onAfterReject = function (fn) { this.AfterReject.push(fn); };
-                CommandConfirmation.prototype.onAfterConfirmationResponse = function (fn) { this.AfterConfirmationResponse.push(fn); };
-                CommandConfirmation.prototype.onConfirmationResponseError = function (fn) { this.ConfirmationResponseError.push(fn); };
-                return CommandConfirmation;
-            }());
-            Toolbar.CommandConfirmation = CommandConfirmation;
-        })(Toolbar = Plugins.Toolbar || (Plugins.Toolbar = {}));
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
-        var Toolbar;
-        (function (Toolbar) {
-            /**
              * Client-side supply for Toolbar plugin
              */
             var ToolbarPlugin = (function (_super) {
@@ -3833,64 +3709,17 @@ var PowerTables;
                         btn.OnClick.call(this.MasterTable, this.MasterTable, this.AllButtons[btn.InternalId]);
                     }
                     if (btn.Command) {
-                        var _self = this;
-                        // ReSharper disable Lambda
-                        var f = function (queryModifier, success, error) {
-                            if (btn.BlackoutWhileCommand) {
-                                btn.IsDisabled = true;
-                                _self.redrawMe();
-                            }
-                            _self.MasterTable.Loader.requestServer(btn.Command, function (response) {
-                                if (btn.CommandCallbackFunction) {
-                                    btn.CommandCallbackFunction.apply(_self.MasterTable, [_self.MasterTable, response]);
-                                }
-                                else {
-                                    if (response.$isDeferred && response.$url) {
-                                        window.location.href = response.$url;
-                                    }
-                                }
-                                if (btn.BlackoutWhileCommand) {
-                                    btn.IsDisabled = false;
-                                    _self.redrawMe();
-                                }
-                                if (success)
-                                    success();
-                            }, queryModifier, function () {
-                                if (btn.BlackoutWhileCommand) {
-                                    btn.IsDisabled = false;
-                                    _self.redrawMe();
-                                }
-                                if (error)
-                                    error();
+                        if (btn.BlackoutWhileCommand) {
+                            btn.IsDisabled = true;
+                            this.redrawMe();
+                            this.MasterTable.Commands.triggerCommand(btn.Command, null, function (r) {
+                                btn.IsDisabled = false;
+                                _this.redrawMe();
                             });
-                        };
-                        // ReSharper restore Lambda
-                        if (btn.ConfirmationFunction)
-                            btn.ConfirmationFunction.apply(this.MasterTable, [f, this.MasterTable]);
-                        else if (btn.ConfirmationTemplateId) {
-                            var tc = new PowerTables.Plugins.Toolbar.CommandConfirmation(function (data) {
-                                f(function (q) {
-                                    q.AdditionalData['Confirmation'] = JSON.stringify(data);
-                                    return q;
-                                }, function () {
-                                    tc.fireEvents(tc.Form, tc.AfterConfirmationResponse);
-                                }, function () {
-                                    tc.fireEvents(tc.Form, tc.ConfirmationResponseError);
-                                });
-                                _this.MasterTable.Renderer.destroyObject(btn.ConfirmationTargetSelector);
-                            }, function () {
-                                _this.MasterTable.Renderer.destroyObject(btn.ConfirmationTargetSelector);
-                            }, this.MasterTable.Date, btn.ConfirmationFormConfiguration);
-                            try {
-                                tc.SelectedItems = this.MasterTable.Selection.getSelectedKeys();
-                                tc.SelectedObjects = this.MasterTable.Selection.getSelectedObjects();
-                            }
-                            catch (e) { }
-                            var r = this.MasterTable.Renderer.renderObject(btn.ConfirmationTemplateId, tc, btn.ConfirmationTargetSelector);
-                            tc.RootElement = r;
                         }
-                        else
-                            f();
+                        else {
+                            this.MasterTable.Commands.triggerCommand(btn.Command, null);
+                        }
                     }
                 };
                 /*
@@ -3928,15 +3757,11 @@ var PowerTables;
                  */
                 ToolbarPlugin.prototype.init = function (masterTable) {
                     _super.prototype.init.call(this, masterTable);
-                    try {
-                        var nothingSelected = this.MasterTable.Selection.getSelectedKeys().length === 0;
-                        for (var i = 0; i < this.Configuration.Buttons.length; i++) {
-                            if (this.Configuration.Buttons[i].DisableIfNothingChecked) {
-                                this.Configuration.Buttons[i].IsDisabled = nothingSelected;
-                            }
+                    var nothingSelected = this.MasterTable.Selection.getSelectedKeys().length === 0;
+                    for (var i = 0; i < this.Configuration.Buttons.length; i++) {
+                        if (this.Configuration.Buttons[i].DisableIfNothingChecked) {
+                            this.Configuration.Buttons[i].IsDisabled = nothingSelected;
                         }
-                    }
-                    catch (e) {
                     }
                     this.traverseButtons(this.Configuration.Buttons);
                     this.MasterTable.Events.SelectionChanged.subscribe(this.onSelectionChanged.bind(this), 'toolbar');
@@ -5999,11 +5824,26 @@ var PowerTables;
                 this._masterTable = masterTable;
                 this._commandsCache = this._masterTable.InstanceManager.Configuration.Commands;
             }
+            CommandsService.prototype.canExecute = function (commandName, subject) {
+                if (subject === void 0) { subject = null; }
+                if (!this._commandsCache.hasOwnProperty(commandName))
+                    return true;
+                var command = this._commandsCache[commandName];
+                if (command.CanExecute) {
+                    return command.CanExecute({ Subject: subject, Master: this._masterTable });
+                }
+                return true;
+            };
+            CommandsService.prototype.triggerCommandOnRow = function (commandName, rowIndex, callback) {
+                if (callback === void 0) { callback = null; }
+                this.triggerCommand(commandName, this._masterTable.DataHolder.DisplayedData[rowIndex], callback);
+            };
             CommandsService.prototype.triggerCommand = function (commandName, subject, callback) {
                 if (callback === void 0) { callback = null; }
                 var command = this._commandsCache[commandName];
                 if (command == null || command == undefined) {
-                    throw Error("Command " + commandName + " was not found");
+                    this.triggerCommandWithConfirmation(commandName, subject, null, callback);
+                    return;
                 }
                 if (command.CanExecute) {
                     if (!command.CanExecute({ Subject: subject, Master: this._masterTable }))
@@ -6016,25 +5856,57 @@ var PowerTables;
                     tc.RootElement = r;
                     tc.rendered();
                 }
+                else if (command.ConfirmationDataFunction != null && command.ConfirmationDataFunction != undefined) {
+                    var confirmationData = command.ConfirmationDataFunction({
+                        CommandDescription: this._commandsCache[commandName],
+                        Master: this._masterTable,
+                        Selection: this._masterTable.Selection.getSelectedObjects(),
+                        Subject: subject,
+                        Result: null,
+                        Confirmation: null
+                    });
+                    if (confirmationData != null) {
+                        this.triggerCommandWithConfirmation(commandName, subject, confirmationData, callback);
+                    }
+                }
                 else {
                     this.triggerCommandWithConfirmation(commandName, subject, null, callback);
                 }
             };
             CommandsService.prototype.triggerCommandWithConfirmation = function (commandName, subject, confirmation, callback) {
                 if (callback === void 0) { callback = null; }
-                var cmd = this._commandsCache[commandName];
-                if (cmd.CanExecute) {
-                    if (!cmd.CanExecute({ Subject: subject, Master: this._masterTable }))
-                        return;
-                }
                 var params = {
-                    CommandDescription: this._commandsCache[commandName],
+                    CommandDescription: null,
                     Master: this._masterTable,
                     Selection: this._masterTable.Selection.getSelectedObjects(),
                     Subject: subject,
                     Result: null,
                     Confirmation: confirmation
                 };
+                var cmd = this._commandsCache[commandName];
+                if (!cmd) {
+                    this._masterTable.Loader.requestServer(commandName, function (r) {
+                        if (r.$isDeferred && r.$url) {
+                            window.location.href = r.$url;
+                            return;
+                        }
+                        params.Result = r;
+                        if (callback)
+                            callback(params);
+                    }, function (q) {
+                        q.AdditionalData['CommandData'] = JSON.stringify({
+                            Confirmation: confirmation,
+                            Subject: subject
+                        });
+                        return q;
+                    });
+                    return;
+                }
+                params.CommandDescription = cmd;
+                if (cmd.CanExecute) {
+                    if (!cmd.CanExecute({ Subject: subject, Master: this._masterTable }))
+                        return;
+                }
                 if (cmd.Type === PowerTables.Commands.CommandType.Server) {
                     this._masterTable.Loader.requestServer(commandName, function (r) {
                         params.Result = r;
@@ -6057,14 +5929,7 @@ var PowerTables;
                     });
                 }
                 else {
-                    cmd.ClientFunction({
-                        CommandDescription: this._commandsCache[commandName],
-                        Master: this._masterTable,
-                        Selection: this._masterTable.Selection.getSelectedObjects(),
-                        Subject: subject,
-                        Result: null,
-                        Confirmation: confirmation
-                    });
+                    cmd.ClientFunction(params);
                 }
             };
             return CommandsService;
@@ -6075,6 +5940,7 @@ var PowerTables;
                 this.RootElement = null;
                 this.ContentPlaceholder = null;
                 this.DetailsPlaceholder = null;
+                this.TemplatePieces = {};
                 this.RecentDetails = { Data: null };
                 this._editorColumn = {};
                 this._originalCallback = null;
@@ -6092,6 +5958,7 @@ var PowerTables;
                 this.DataObject = {};
                 this._editorObjectModified = {};
                 this.Subject = subject;
+                this.Selection = this._masterTable.Selection.getSelectedObjects();
                 this._embedBound = this.embedConfirmation.bind(this);
                 if (commandDescription.Confirmation.Autoform != null) {
                     this.produceAutoformColumns(commandDescription.Confirmation.Autoform);
@@ -6107,6 +5974,20 @@ var PowerTables;
                 }
                 if (commandDescription.Confirmation.Autoform != null) {
                     this.initAutoform(commandDescription.Confirmation.Autoform);
+                }
+                var tplParams = {
+                    CommandDescription: this._commandDescription,
+                    Master: this._masterTable,
+                    Confirmation: this._editorObjectModified,
+                    Result: null,
+                    Selection: this.Selection,
+                    Subject: subject
+                };
+                var templatePieces = this._config.TemplatePieces;
+                for (var k in templatePieces) {
+                    if (templatePieces.hasOwnProperty(k)) {
+                        this.TemplatePieces[k] = templatePieces[k](tplParams);
+                    }
                 }
             }
             ConfirmationWindowViewModel.prototype.rendered = function () {
@@ -6264,7 +6145,7 @@ var PowerTables;
                 var result = {
                     CommandDescription: this._commandDescription,
                     Master: this._masterTable,
-                    Selection: this._masterTable.Selection.getSelectedObjects(),
+                    Selection: this.Selection,
                     Subject: this.Subject,
                     Result: null,
                     Confirmation: this.getConfirmation()
@@ -6351,7 +6232,7 @@ var PowerTables;
                 return this.editor(editor);
             };
             ConfirmationWindowViewModel.prototype.createEditor = function (fieldName, column) {
-                var editorConf = this._commandDescription.Confirmation.Autoform.Autoform.Fields[fieldName];
+                var editorConf = this._commandDescription.Confirmation.Autoform.Autoform[fieldName];
                 var editor = PowerTables.ComponentsContainer.resolveComponent(editorConf.PluginId);
                 editor.DataObject = this.DataObject;
                 editor.ModifiedDataObject = this._editorObjectModified;
@@ -6384,17 +6265,17 @@ var PowerTables;
             };
             ConfirmationWindowViewModel.prototype.produceAutoformColumns = function (autoform) {
                 var fields = autoform.Autoform;
-                for (var j = 0; j < fields.Fields.length; j++) {
-                    this._editorColumn[fields.Fields[j].FieldName] = PowerTables.Services.InstanceManagerService.createColumn(fields.Fields[j].FakeColumn, this._masterTable);
-                    this.DataObject[fields.Fields[j].FieldName] = this
-                        .defaultValue(this._editorColumn[fields.Fields[j].FieldName]);
-                    this._editorObjectModified[fields.Fields[j].FieldName] = this.DataObject[fields.Fields[j].FieldName];
+                for (var j = 0; j < fields.length; j++) {
+                    this._editorColumn[fields[j].FieldName] = PowerTables.Services.InstanceManagerService.createColumn(fields[j].FakeColumn, this._masterTable);
+                    this.DataObject[fields[j].FieldName] = this
+                        .defaultValue(this._editorColumn[fields[j].FieldName]);
+                    this._editorObjectModified[fields[j].FieldName] = this.DataObject[fields[j].FieldName];
                 }
             };
             ConfirmationWindowViewModel.prototype.initAutoform = function (autoform) {
                 var fields = autoform.Autoform;
-                for (var i = 0; i < fields.Fields.length; i++) {
-                    var editorConf = fields.Fields[i];
+                for (var i = 0; i < fields.length; i++) {
+                    var editorConf = fields[i];
                     var column = this._editorColumn[editorConf.FieldName];
                     var editor = this.createEditor(editorConf.FieldName, column);
                     this.EditorsSet[editorConf.FieldName] = editor;
@@ -6406,6 +6287,7 @@ var PowerTables;
                 for (var i = 0; i < this.ActiveEditors.length; i++) {
                     this.ActiveEditors[i].notifyObjectChanged();
                 }
+                this.loadDetails();
             };
             ConfirmationWindowViewModel.prototype.reject = function (editor) {
                 this._editorObjectModified[editor.FieldName] = this.DataObject[editor.FieldName];
@@ -7616,8 +7498,8 @@ var PowerTables;
                     var cellInArgs = {
                         Master: this._masterTable,
                         OriginalEvent: e,
-                        DisplayingRowIndex: cellLocation.RowIndex,
-                        ColumnIndex: cellLocation.ColumnIndex,
+                        Row: cellLocation.RowIndex,
+                        Column: cellLocation.ColumnIndex,
                         Stop: false
                     };
                     if (this._previousMousePos.row !== cellLocation.RowIndex ||
@@ -7625,8 +7507,8 @@ var PowerTables;
                         var cellOutArgs = {
                             Master: this._masterTable,
                             OriginalEvent: e,
-                            DisplayingRowIndex: this._previousMousePos.row,
-                            ColumnIndex: this._previousMousePos.column,
+                            Row: this._previousMousePos.row,
+                            Column: this._previousMousePos.column,
                             Stop: false
                         };
                         this.traverseAndFire(cellEvents["mouseleave"], pathToCell, cellOutArgs);
@@ -7646,14 +7528,14 @@ var PowerTables;
                         var rowInArgs = {
                             Master: this._masterTable,
                             OriginalEvent: e,
-                            DisplayingRowIndex: rowIndex,
+                            Row: rowIndex,
                             Stop: false
                         };
                         if (this._previousMousePos.row !== rowIndex) {
                             var rowOutArgs = {
                                 Master: this._masterTable,
                                 OriginalEvent: e,
-                                DisplayingRowIndex: this._previousMousePos.row,
+                                Row: this._previousMousePos.row,
                                 Stop: false
                             };
                             this.traverseAndFire(rowEvents["mouseleave"], pathToCell, rowOutArgs);
@@ -7697,8 +7579,8 @@ var PowerTables;
                     var cellArgs = {
                         Master: this._masterTable,
                         OriginalEvent: e,
-                        DisplayingRowIndex: cellLocation.RowIndex,
-                        ColumnIndex: cellLocation.ColumnIndex,
+                        Row: cellLocation.RowIndex,
+                        Column: cellLocation.ColumnIndex,
                         Stop: false
                     };
                     this.traverseAndFire(forCell, pathToCell, cellArgs);
@@ -7709,7 +7591,7 @@ var PowerTables;
                         var rowArgs = {
                             Master: this._masterTable,
                             OriginalEvent: e,
-                            DisplayingRowIndex: rowIndex,
+                            Row: rowIndex,
                             Stop: false
                         };
                         this.traverseAndFire(forRow, pathToRow, rowArgs);
@@ -8193,7 +8075,7 @@ var PowerTables;
                         var h2 = (sub.ColumnName == null) ? sub.Handler :
                             (function (hndlr, im, colName) {
                                 return function (e) {
-                                    if (im.getColumnNames().indexOf(colName) !== e.ColumnIndex)
+                                    if (im.getColumnNames().indexOf(colName) !== e.Column)
                                         return;
                                     hndlr(e);
                                 };

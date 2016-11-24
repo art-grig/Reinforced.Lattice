@@ -81,20 +81,5 @@ namespace PowerTables.Plugins.Toolbar
             _configuration.IsDisabled = disabled;
             return this;
         }
-
-        public ToolbarItemBuilder Confirmation(string confirmationTemplateId,string targetElementSelector)
-        {
-            _configuration.ConfirmationTemplateId = confirmationTemplateId;
-            _configuration.ConfirmationTargetSelector = targetElementSelector;
-            return this;
-        }
-
-        public ToolbarItemBuilder ConfirmationForm<TForm>(Action<FormWatchBuilder<TForm>> formWatchBuilder)
-        {
-            FormWatchBuilder<TForm> bld = new FormWatchBuilder<TForm>();
-            formWatchBuilder(bld);
-            _configuration.ConfirmationFormConfiguration = bld.ClientConfig.FieldsConfiguration;
-            return this;
-        }
     }
 }

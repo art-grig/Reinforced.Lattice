@@ -19,7 +19,7 @@ namespace PowerTables.Plugins.SimpeSelect
         public static T SimpleSelectRow<T>(this T conf, string selector = null) where T : IConfigurator
         {
             conf.SubscribeRowEvent(a =>
-                a.Handle("click", "function(c) { c.Master.Selection.toggleDisplayingRow(c.DisplayingRowIndex); }").Selector(selector));
+                a.Handle("click", "function(c) { c.Master.Selection.toggleDisplayingRow(c.Row); }").Selector(selector));
             return conf;
         }
 
@@ -32,7 +32,7 @@ namespace PowerTables.Plugins.SimpeSelect
         /// <returns>Fluent</returns>
         public static T SimpleSelectCell<T>(this T conf,string selector = null) where T : IConfigurator
         {
-            conf.SubscribeRowEvent(a => a.Handle("click", "function(c) { c.Master.Selection.toggleCellsByDisplayIndex(c.DisplayingRowIndex,[c.Master.InstanceManager.getColumnNames()[c.ColumnIndex]]); }").Selector(selector));
+            conf.SubscribeRowEvent(a => a.Handle("click", "function(c) { c.Master.Selection.toggleCellsByDisplayIndex(c.Row,[c.Master.InstanceManager.getColumnNames()[c.Column]]); }").Selector(selector));
             return conf;
         }
     }

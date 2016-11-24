@@ -14,7 +14,7 @@
          * 
          * @param e Template bound event for triggering button action
          */
-        public buttonHandleEvent(e: Rendering.ITemplateBoundEvent):void {
+        public buttonHandleEvent(e: Rendering.ITemplateBoundEvent): void {
             var btnId = e.EventArguments[0];
             this.handleButtonAction(this._buttonsConfig[btnId]);
         }
@@ -28,69 +28,24 @@
                 btn.OnClick.call(this.MasterTable, this.MasterTable, this.AllButtons[btn.InternalId]);
             }
             if (btn.Command) {
-                var _self: ToolbarPlugin = this;
-
-                // ReSharper disable Lambda
-                var f: (queryModifier?: (a: IQuery) => IQuery, success?: () => void, error?: () => void) => void
-                    =
-                    function (queryModifier?: (a: IQuery) => IQuery, success?: () => void, error?: () => void) {
-                        if (btn.BlackoutWhileCommand) {
-                            btn.IsDisabled = true;
-                            _self.redrawMe();
-                        }
-
-                        _self.MasterTable.Loader.requestServer(btn.Command, function (response) {
-                            if (btn.CommandCallbackFunction) {
-                                btn.CommandCallbackFunction.apply(_self.MasterTable, [_self.MasterTable, response]);
-                            } else {
-                                if (response.$isDeferred && response.$url) {
-                                    window.location.href = response.$url;
-                                }
-                            }
-                            if (btn.BlackoutWhileCommand) {
-                                btn.IsDisabled = false;
-                                _self.redrawMe();
-                            }
-                            if (success) success();
-
-                        }, queryModifier, function () {
-                            if (btn.BlackoutWhileCommand) {
-                                btn.IsDisabled = false;
-                                _self.redrawMe();
-                            }
-                            if (error) error();
+                if (btn.BlackoutWhileCommand) {
+                    btn.IsDisabled = true;
+                    this.redrawMe();
+                    this.MasterTable.Commands.triggerCommand(btn.Command,
+                        null,
+                        r => {
+                            btn.IsDisabled = false;
+                            this.redrawMe();
                         });
-                    }
-                // ReSharper restore Lambda
-                if (btn.ConfirmationFunction) btn.ConfirmationFunction.apply(this.MasterTable, [f, this.MasterTable]);
-                else if (btn.ConfirmationTemplateId) {
-                    var tc = new PowerTables.Plugins.Toolbar.CommandConfirmation((data) => {
-                        f((q) => {
-                            q.AdditionalData['Confirmation'] = JSON.stringify(data);
-                            return q;
-                        }, () => {
-                            tc.fireEvents(tc.Form, tc.AfterConfirmationResponse);
-                        }, () => {
-                            tc.fireEvents(tc.Form, tc.ConfirmationResponseError);
-                        });
-                        this.MasterTable.Renderer.destroyObject(btn.ConfirmationTargetSelector);
-                    }, () => {
-                        this.MasterTable.Renderer.destroyObject(btn.ConfirmationTargetSelector);
-                    }, this.MasterTable.Date, btn.ConfirmationFormConfiguration);
-
-                    try {
-                        tc.SelectedItems = this.MasterTable.Selection.getSelectedKeys();
-                        tc.SelectedObjects = this.MasterTable.Selection.getSelectedObjects();
-                    } catch (e) { }
-                    var r = this.MasterTable.Renderer.renderObject(btn.ConfirmationTemplateId, tc, btn.ConfirmationTargetSelector);
-                    tc.RootElement = r;
+                } else {
+                    this.MasterTable.Commands.triggerCommand(btn.Command, null);
                 }
-                else f();
+
             }
         }
-/*
- * @internal
- */
+        /*
+         * @internal
+         */
         public renderContent(templatesProvider: ITemplatesProvider): string {
             return this.defaultRender(templatesProvider);
         }
@@ -120,21 +75,19 @@
             }
             if (atleastOne) this.MasterTable.Renderer.Modifier.redrawPlugin(this);
         }
-/*
- * @internal
- */
+        /*
+         * @internal
+         */
         public init(masterTable: IMasterTable): void {
             super.init(masterTable);
-            try {
-                
-                var nothingSelected: boolean = this.MasterTable.Selection.getSelectedKeys().length === 0;
-                for (var i: number = 0; i < this.Configuration.Buttons.length; i++) {
-                    if (this.Configuration.Buttons[i].DisableIfNothingChecked) {
-                        this.Configuration.Buttons[i].IsDisabled = nothingSelected;
-                    }
+
+            var nothingSelected: boolean = this.MasterTable.Selection.getSelectedKeys().length === 0;
+            for (var i: number = 0; i < this.Configuration.Buttons.length; i++) {
+                if (this.Configuration.Buttons[i].DisableIfNothingChecked) {
+                    this.Configuration.Buttons[i].IsDisabled = nothingSelected;
                 }
-            } catch (e) {
             }
+
             this.traverseButtons(this.Configuration.Buttons);
             this.MasterTable.Events.SelectionChanged.subscribe(this.onSelectionChanged.bind(this), 'toolbar');
         }
