@@ -61,6 +61,20 @@ namespace PowerTables.Configuration
         }
 
         /// <summary>
+        /// Configures table event subscription to handle specified event
+        /// </summary>
+        /// <param name="conf">Table event subscription configurator</param>
+        /// <param name="eventId">DOM event ID. You can use clas DomEvent here</param>
+        /// <param name="commandName">Command to invoke</param>
+        /// <returns>Fluent</returns>        
+        public static TableEventSubscription Command(this TableEventSubscription conf, DOMEvent eventId, string commandName)
+        {
+            conf.SubscriptionInfo.DomEvent = eventId;
+            conf.SubscriptionInfo.Handler = new JRaw(string.Format("function(e) {{ e.Master.Commands.triggerCommandOnRow('{0}',e.Row); }}",commandName));
+            return conf;
+        }
+
+        /// <summary>
         /// Configures table event subscription to handle event on specified selector
         /// </summary>
         /// <param name="conf">Table event subscription configurator</param>

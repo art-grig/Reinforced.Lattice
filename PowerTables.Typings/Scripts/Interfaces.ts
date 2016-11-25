@@ -24,6 +24,7 @@ module PowerTables.Configuration.Json {
 		QueryConfirmation: (query:IPowerTableRequest,scope:QueryScope,continueFn:any) => void;
 		SelectionConfiguration: PowerTables.Configuration.Json.ISelectionConfiguration;
 		PrefetchedData: any[];
+		Commands: { [key:string]: PowerTables.Commands.ICommandDescription };
 	}
 	export interface IColumnConfiguration
 	{
@@ -136,7 +137,7 @@ module PowerTables {
 		IsUpdateResult: boolean;
 		UpdatedData: any[];
 		RemoveKeys: string[];
-		OtherTableAdjustments: { [key:string]: PowerTables.ITableAdjustment };
+		OtherTablesAdjustments: { [key:string]: PowerTables.ITableAdjustment };
 		AdditionalData: any;
 	}
 	export enum MessageType { 
@@ -296,8 +297,6 @@ module PowerTables.Plugins.Toolbar {
 		BlackoutWhileCommand: boolean;
 		DisableIfNothingChecked: boolean;
 		Title: string;
-		CommandCallbackFunction: (table:any /*PowerTables.PowerTable*/,response:IPowerTablesResponse)=>void;
-		ConfirmationFunction: (continuation:(queryModifier?:(a:IQuery)=>void)=>void)=>void;
 		OnClick: (table:any /*PowerTables.PowerTable*/,menuElement:any)=>void;
 		Submenu: PowerTables.Plugins.Toolbar.IToolbarButtonClientConfiguration[];
 		HasSubmenu: boolean;
@@ -305,9 +304,6 @@ module PowerTables.Plugins.Toolbar {
 		Separator: boolean;
 		InternalId: number;
 		IsDisabled: boolean;
-		ConfirmationTemplateId: string;
-		ConfirmationTargetSelector: string;
-		ConfirmationFormConfiguration: PowerTables.Plugins.Formwatch.IFormwatchFieldData[];
 	}
 }
 module PowerTables.Plugins.Total {
@@ -476,5 +472,53 @@ module PowerTables.Plugins.RegularSelect {
 	export enum RegularSelectMode { 
 		Rows = 0, 
 		Cells = 1, 
+	}
+}
+module PowerTables.Commands {
+	export interface ICommandDescription
+	{
+		Name: string;
+		ServerName: string;
+		ClientFunction: (param:ICommandExecutionParameters)=>any;
+		ConfirmationDataFunction: (param:ICommandExecutionParameters)=>any;
+		CanExecute: (data:{Subject:any,Master:IMasterTable})=>boolean;
+		Type: PowerTables.Commands.CommandType;
+		Confirmation: PowerTables.Commands.IConfirmationConfiguration;
+		OnSuccess: (param:ICommandExecutionParameters)=>void;
+		OnFailure: (param:ICommandExecutionParameters)=>void;
+	}
+	export interface IConfirmationConfiguration
+	{
+		TemplateId: string;
+		TemplatePieces: {[_:string]:(param:ICommandExecutionParameters)=>string};
+		TargetSelector: string;
+		Formwatch: PowerTables.Plugins.Formwatch.IFormwatchFieldData[];
+		Autoform: PowerTables.Commands.ICommandAutoformConfiguration;
+		Details: PowerTables.Commands.IDetailLoadingConfiguration;
+		ContentLoadingUrl: (subject:any)=>string;
+		ContentLoadingMethod: string;
+		ContentLoadingCommand: string;
+		InitConfirmationObject: (confirmationObject:any)=>void;
+		OnDismiss: (param:ICommandExecutionParameters)=>void;
+		OnCommit: (param:ICommandExecutionParameters)=>void;
+	}
+	export interface ICommandAutoformConfiguration
+	{
+		Autoform: PowerTables.Editing.IEditFieldUiConfigBase[];
+		DisableWhenContentLoading: boolean;
+		DisableWhileDetailsLoading: boolean;
+	}
+	export interface IDetailLoadingConfiguration
+	{
+		CommandName: string;
+		TempalteId: string;
+		LoadImmediately: boolean;
+		ValidateToLoad: (param:ICommandExecutionParameters)=>boolean;
+		DetailsFunction: (param:ICommandExecutionParameters)=>any;
+		LoadDelay: number;
+	}
+	export enum CommandType { 
+		Client = 0, 
+		Server = 1, 
 	}
 }

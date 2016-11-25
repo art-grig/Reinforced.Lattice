@@ -16,8 +16,7 @@ namespace PowerTables.Mvc.Models.Tutorial
             conf.Toolbar("toolbar-rt", a =>
             {
                 a.AddCommandButton("remove".GlyphIcon() + "Remove selected", Remove)
-                    .DisableIfNothingChecked()
-                    .ShowMessageResponseCallback();
+                    .DisableIfNothingChecked();
 
                 a.AddCommandButton("download".GlyphIcon() + "Download", Download);
 

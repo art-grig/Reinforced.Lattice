@@ -85,6 +85,9 @@
     <Compile Include="CellTemplating\SwitchBuilder.cs" />
     <Compile Include="CellTemplating\Template.cs" />
     <Compile Include="CellTemplating\TemplatesExtensions.cs" />
+    <Compile Include="Commands\CommandDescription.cs" />
+    <Compile Include="Commands\CommandDescriptionConfigurator.cs" />
+    <Compile Include="Commands\CommandsExtensions.cs" />
     <Compile Include="Configuration\ConfiguratorExtensions.cs" />
     <Compile Include="Configuration\DatepickerOptions.cs" />
     <Compile Include="Configuration\EventSubscriptionWrapper.cs" />
@@ -211,7 +214,6 @@
     <Compile Include="Plugins\ResponseInfo\ResponseInfoClientConfiguration.cs" />
     <Compile Include="Plugins\ResponseInfo\ResponseInfoTemplateRegion.cs" />
     <Compile Include="Plugins\SimpeSelect\SimpleSelectExtensions.cs" />
-    <Compile Include="Plugins\Toolbar\ConfirmationTemplateRegion.cs" />
     <Compile Include="Plugins\Toolbar\ToolbarBuilder.cs" />
     <Compile Include="Plugins\Toolbar\ToolbarButtonClientConfiguration.cs" />
     <Compile Include="Plugins\Toolbar\ToolbarButtonsClientConfiguration.cs" />
@@ -251,6 +253,8 @@
     <Compile Include="Templating\AdditionalTemplatesScope.cs" />
     <Compile Include="Templating\BuiltIn\CellTemplateRegion.cs" />
     <Compile Include="Templating\BuiltIn\CellWrapperTemplateRegion.cs" />
+    <Compile Include="Templating\BuiltIn\CommandConfirmationTemplateRegion.cs" />
+    <Compile Include="Templating\BuiltIn\CommandDetailsTemplate.cs" />
     <Compile Include="Templating\BuiltIn\MessageWrapperTemplateRegion.cs" />
     <Compile Include="Templating\BuiltIn\HeaderWrapperTemplateRegion.cs" />
     <Compile Include="Templating\DOMEvent.cs" />

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using System.Web.Mvc;
 using PowerTables.Adjustments;
+using PowerTables.Commands;
 using PowerTables.Configuration;
 using PowerTables.Configuration.Json;
 using PowerTables.Editing;
@@ -127,10 +128,6 @@ namespace PowerTables.Typings
             builder.ExportAsInterface<ToolbarButtonsClientConfiguration>().WithPublicProperties();
             builder.ExportAsInterface<ToolbarButtonClientConfiguration>()
                 .WithProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                .WithProperty(c => c.CommandCallbackFunction,
-                    c => c.Type("(table:any /*PowerTables.PowerTable*/,response:IPowerTablesResponse)=>void"))
-                .WithProperty(c => c.ConfirmationFunction,
-                    c => c.Type("(continuation:(queryModifier?:(a:IQuery)=>void)=>void)=>void"))
                 .WithProperty(c => c.OnClick,
                     c => c.Type("(table:any /*PowerTables.PowerTable*/,menuElement:any)=>void"));
 
@@ -190,8 +187,30 @@ namespace PowerTables.Typings
 
             builder.ExportAsInterface<RegularSelectUiConfig>().WithPublicProperties();
             builder.ExportAsEnum<RegularSelectMode>();
-            
 
+            builder.ExportAsEnum<CommandType>();
+            builder.ExportAsInterface<CommandDescription>()
+                .WithPublicProperties()
+                .WithProperty(c => c.CanExecute, x => x.Type("(data:{Subject:any,Master:IMasterTable})=>boolean"))
+                
+                .WithProperty(c => c.OnSuccess, x => x.Type("(param:ICommandExecutionParameters)=>void"))
+                .WithProperty(c => c.OnFailure, x => x.Type("(param:ICommandExecutionParameters)=>void"))
+                .WithProperty(x => x.ClientFunction, x => x.Type("(param:ICommandExecutionParameters)=>any"))
+                .WithProperty(x => x.ConfirmationDataFunction, x => x.Type("(param:ICommandExecutionParameters)=>any"))
+                ;
+
+            builder.ExportAsInterface<ConfirmationConfiguration>().WithPublicProperties()
+                .WithProperty(x => x.InitConfirmationObject, x => x.Type("(confirmationObject:any)=>void"))
+                .WithProperty(x => x.ContentLoadingUrl, x => x.Type("(subject:any)=>string"))
+                .WithProperty(c => c.OnCommit, x => x.Type("(param:ICommandExecutionParameters)=>void"))
+                .WithProperty(c => c.OnDismiss, x => x.Type("(param:ICommandExecutionParameters)=>void"))
+                .WithProperty(c => c.TemplatePieces, x => x.Type("{[_:string]:(param:ICommandExecutionParameters)=>string}"))
+                ;
+            builder.ExportAsInterface<CommandAutoformConfiguration>().WithPublicProperties();
+            builder.ExportAsInterface<DetailLoadingConfiguration>()
+                .WithPublicProperties()
+                .WithProperty(x => x.ValidateToLoad, x => x.Type("(param:ICommandExecutionParameters)=>boolean"))
+                .WithProperty(x => x.DetailsFunction, x => x.Type("(param:ICommandExecutionParameters)=>any"));
         }
 
     }

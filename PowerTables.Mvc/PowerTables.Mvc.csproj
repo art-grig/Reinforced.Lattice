@@ -300,6 +300,7 @@
     <Content Include="Views\Shared\Datepicker.cshtml" />
     <Content Include="Views\Shared\ClientEvents.cshtml" />
     <Content Include="Views\Shared\PowerTables_Horis.cshtml" />
+    <Content Include="Views\Tutorial\CommentsPartial.cshtml" />
     <None Include="Views\Tutorial\Index.cshtml" />
     <Content Include="Views\Tutorial\TimePk.cshtml" />
   </ItemGroup>

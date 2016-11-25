@@ -107,6 +107,11 @@
         */
         MessageService: PowerTables.Services.MessagesService;
 
+        /**
+         * API for commands
+         */
+        Commands:PowerTables.Services.CommandsService;
+
         getStaticData(): any;
 
         setStaticData(obj: any): void;
@@ -518,7 +523,7 @@
          * Row index. 
          * Data object can be restored using Table.DataHolderService.localLookupDisplayedData(RowIndex)
          */
-        DisplayingRowIndex: number;
+        Row: number;
 
         /**
          * Stops event propagation
@@ -534,7 +539,7 @@
          * Column index related to particular cell. 
          * Column object can be restored using Table.InstanceManagerService.getUiColumns()[ColumnIndex]
          */
-        ColumnIndex: number;
+        Column: number;
     }
 
     export interface ISubscription {
@@ -613,5 +618,43 @@
          * @returns {} 
          */
         handleAdditionalData(additionalData: any): void;
+    }
+
+    /**
+     * Command execution parameters
+     */
+    export interface ICommandExecutionParameters {
+
+        /**
+         * Reference to command description
+         */
+        CommandDescription: PowerTables.Commands.ICommandDescription;
+
+        /**
+         * Reference to master table
+         */
+        Master: IMasterTable,
+
+        /**
+         * Command subject (if any)
+         * Object that command was triggered on
+         */
+        Subject: any;
+
+        /**
+         * Selection objects
+         */
+        Selection: any[];
+
+        /**
+         * Confirmation object (if any)
+         * This field might be null when command confirmation has not been obtained yet
+         */
+        Confirmation: any;
+
+        /**
+         * Command execution result
+         */
+        Result:any;
     }
 }

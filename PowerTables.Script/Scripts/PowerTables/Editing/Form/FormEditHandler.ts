@@ -50,12 +50,12 @@
 
         public beginFormEditHandler(e: IRowEventArgs) {
             if (this._isEditing) {
-                var lookup = this.MasterTable.DataHolder.localLookupDisplayedData(e.DisplayingRowIndex);
+                var lookup = this.MasterTable.DataHolder.localLookupDisplayedData(e.Row);
                 if (this.DataObject !== lookup.DataObject) {
                     this.rejectAll();
                 }
             }
-            this.ensureEditing(e.DisplayingRowIndex);
+            this.ensureEditing(e.Row);
             this.startupForm();
         }
 
@@ -161,6 +161,7 @@
             this.CurrentDataObjectModified[editor.FieldName] = this.DataObject[editor.FieldName];
             this.setEditorValue(editor);
         }
+
     }
 
     export class FormEditFormModel {

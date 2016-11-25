@@ -19,6 +19,9 @@ declare module PowerTables.Configuration.Json {
         QueryConfirmation: (query: IPowerTableRequest, scope: QueryScope, continueFn: any) => void;
         SelectionConfiguration: PowerTables.Configuration.Json.ISelectionConfiguration;
         PrefetchedData: any[];
+        Commands: {
+            [key: string]: PowerTables.Commands.ICommandDescription;
+        };
     }
     interface IColumnConfiguration {
         Title: string;
@@ -127,7 +130,7 @@ declare module PowerTables {
         IsUpdateResult: boolean;
         UpdatedData: any[];
         RemoveKeys: string[];
-        OtherTableAdjustments: {
+        OtherTablesAdjustments: {
             [key: string]: PowerTables.ITableAdjustment;
         };
         AdditionalData: any;
@@ -285,8 +288,6 @@ declare module PowerTables.Plugins.Toolbar {
         BlackoutWhileCommand: boolean;
         DisableIfNothingChecked: boolean;
         Title: string;
-        CommandCallbackFunction: (table: any, response: IPowerTablesResponse) => void;
-        ConfirmationFunction: (continuation: (queryModifier?: (a: IQuery) => void) => void) => void;
         OnClick: (table: any, menuElement: any) => void;
         Submenu: PowerTables.Plugins.Toolbar.IToolbarButtonClientConfiguration[];
         HasSubmenu: boolean;
@@ -294,9 +295,6 @@ declare module PowerTables.Plugins.Toolbar {
         Separator: boolean;
         InternalId: number;
         IsDisabled: boolean;
-        ConfirmationTemplateId: string;
-        ConfirmationTargetSelector: string;
-        ConfirmationFormConfiguration: PowerTables.Plugins.Formwatch.IFormwatchFieldData[];
     }
 }
 declare module PowerTables.Plugins.Total {
@@ -462,6 +460,55 @@ declare module PowerTables.Plugins.RegularSelect {
         Cells = 1,
     }
 }
+declare module PowerTables.Commands {
+    interface ICommandDescription {
+        Name: string;
+        ServerName: string;
+        ClientFunction: (param: ICommandExecutionParameters) => any;
+        ConfirmationDataFunction: (param: ICommandExecutionParameters) => any;
+        CanExecute: (data: {
+            Subject: any;
+            Master: IMasterTable;
+        }) => boolean;
+        Type: PowerTables.Commands.CommandType;
+        Confirmation: PowerTables.Commands.IConfirmationConfiguration;
+        OnSuccess: (param: ICommandExecutionParameters) => void;
+        OnFailure: (param: ICommandExecutionParameters) => void;
+    }
+    interface IConfirmationConfiguration {
+        TemplateId: string;
+        TemplatePieces: {
+            [_: string]: (param: ICommandExecutionParameters) => string;
+        };
+        TargetSelector: string;
+        Formwatch: PowerTables.Plugins.Formwatch.IFormwatchFieldData[];
+        Autoform: PowerTables.Commands.ICommandAutoformConfiguration;
+        Details: PowerTables.Commands.IDetailLoadingConfiguration;
+        ContentLoadingUrl: (subject: any) => string;
+        ContentLoadingMethod: string;
+        ContentLoadingCommand: string;
+        InitConfirmationObject: (confirmationObject: any) => void;
+        OnDismiss: (param: ICommandExecutionParameters) => void;
+        OnCommit: (param: ICommandExecutionParameters) => void;
+    }
+    interface ICommandAutoformConfiguration {
+        Autoform: PowerTables.Editing.IEditFieldUiConfigBase[];
+        DisableWhenContentLoading: boolean;
+        DisableWhileDetailsLoading: boolean;
+    }
+    interface IDetailLoadingConfiguration {
+        CommandName: string;
+        TempalteId: string;
+        LoadImmediately: boolean;
+        ValidateToLoad: (param: ICommandExecutionParameters) => boolean;
+        DetailsFunction: (param: ICommandExecutionParameters) => any;
+        LoadDelay: number;
+    }
+    enum CommandType {
+        Client = 0,
+        Server = 1,
+    }
+}
 declare module PowerTables {
     /**
      * Wrapper for table event with ability to subscribe/unsubscribe
@@ -524,42 +571,6 @@ declare module PowerTables {
          * @param subscriber Subscriber key associated with handler
          */
         unsubscribe(subscriber: string): void;
-    }
-}
-declare module PowerTables.Services {
-    class SelectionService implements IQueryPartProvider, IAdditionalDataReceiver {
-        constructor(masterTable: IMasterTable);
-        private _configuration;
-        private _masterTable;
-        private _selectionData;
-        private _isAllSelected;
-        isSelected(dataObject: any): boolean;
-        isAllSelected(): boolean;
-        canSelect(dataObject: any): boolean;
-        canSelectAll(): boolean;
-        resetSelection(): void;
-        toggleAll(selected?: boolean): void;
-        isCellSelected(dataObject: any, column: IColumn): boolean;
-        hasSelectedCells(dataObject: any): boolean;
-        getSelectedCells(dataObject: any): number[];
-        getSelectedCellsByPrimaryKey(dataObject: any): boolean;
-        isSelectedPrimaryKey(primaryKey: string): boolean;
-        toggleRow(primaryKey: string, selected?: boolean): void;
-        toggleDisplayingRow(displayIndex: number, selected?: boolean): void;
-        toggleObjectSelected(dataObject: any, selected?: boolean): void;
-        handleAdjustments(added: any[], removeKeys: string[]): void;
-        modifyQuery(query: IQuery, scope: QueryScope): void;
-        getSelectedKeys(): string[];
-        getSelectedObjects(): any[];
-        getSelectedColumns(primaryKey: string): IColumn[];
-        getSelectedColumnsByObject(dataObject: any): IColumn[];
-        toggleCellsByDisplayIndex(displayIndex: number, columnNames: string[], select?: boolean): void;
-        toggleCellsByObject(dataObject: any, columnNames: string[], select?: boolean): void;
-        toggleCells(primaryKey: string, columnNames: string[], select?: boolean): void;
-        setCellsByDisplayIndex(displayIndex: number, columnNames: string[]): void;
-        setCellsByObject(dataObject: any, columnNames: string[]): void;
-        setCells(primaryKey: string, columnNames: string[]): void;
-        handleAdditionalData(additionalData: any): void;
     }
 }
 declare module PowerTables {
@@ -754,6 +765,10 @@ declare module PowerTables {
         * API for table messages
         */
         MessageService: PowerTables.Services.MessagesService;
+        /**
+         * API for commands
+         */
+        Commands: PowerTables.Services.CommandsService;
         getStaticData(): any;
         setStaticData(obj: any): void;
     }
@@ -1116,7 +1131,7 @@ declare module PowerTables {
          * Row index.
          * Data object can be restored using Table.DataHolderService.localLookupDisplayedData(RowIndex)
          */
-        DisplayingRowIndex: number;
+        Row: number;
         /**
          * Stops event propagation
          */
@@ -1130,7 +1145,7 @@ declare module PowerTables {
          * Column index related to particular cell.
          * Column object can be restored using Table.InstanceManagerService.getUiColumns()[ColumnIndex]
          */
-        ColumnIndex: number;
+        Column: number;
     }
     interface ISubscription {
         /**
@@ -1201,6 +1216,37 @@ declare module PowerTables {
          * @returns {}
          */
         handleAdditionalData(additionalData: any): void;
+    }
+    /**
+     * Command execution parameters
+     */
+    interface ICommandExecutionParameters {
+        /**
+         * Reference to command description
+         */
+        CommandDescription: PowerTables.Commands.ICommandDescription;
+        /**
+         * Reference to master table
+         */
+        Master: IMasterTable;
+        /**
+         * Command subject (if any)
+         * Object that command was triggered on
+         */
+        Subject: any;
+        /**
+         * Selection objects
+         */
+        Selection: any[];
+        /**
+         * Confirmation object (if any)
+         * This field might be null when command confirmation has not been obtained yet
+         */
+        Confirmation: any;
+        /**
+         * Command execution result
+         */
+        Result: any;
     }
 }
 declare module PowerTables.Services {
@@ -1795,6 +1841,7 @@ declare module PowerTables.Services {
         registerAdditionalDataReceiver(dataKey: string, receiver: IAdditionalDataReceiver): void;
         prefetchData(data: any[]): void;
         gatherQuery(queryScope: QueryScope): IQuery;
+        createXmlHttp(): any;
         private getXmlHttp();
         private _previousQueryString;
         private checkError(json, data, req);
@@ -1817,6 +1864,114 @@ declare module PowerTables.Services {
          * @param errorCallback Will be called if error occures
          */
         requestServer(command: string, callback: (data: any) => void, queryModifier?: (a: IQuery) => IQuery, errorCallback?: (data: any) => void, force?: boolean): void;
+    }
+}
+declare module PowerTables.Services {
+    class CommandsService {
+        constructor(masterTable: IMasterTable);
+        private _masterTable;
+        private _commandsCache;
+        canExecute(commandName: string, subject?: any): boolean;
+        triggerCommandOnRow(commandName: string, rowIndex: number, callback?: ((params: ICommandExecutionParameters) => void)): void;
+        triggerCommand(commandName: string, subject: any, callback?: ((params: ICommandExecutionParameters) => void)): void;
+        triggerCommandWithConfirmation(commandName: string, subject: any, confirmation: any, callback?: ((params: ICommandExecutionParameters) => void)): void;
+    }
+    class ConfirmationWindowViewModel implements PowerTables.Editing.IEditHandler {
+        constructor(masterTable: IMasterTable, commandDescription: PowerTables.Commands.ICommandDescription, subject: any, originalCallback: ((params: ICommandExecutionParameters) => void));
+        RootElement: HTMLElement;
+        ContentPlaceholder: HTMLElement;
+        DetailsPlaceholder: HTMLElement;
+        TemplatePieces: {
+            [_: string]: string;
+        };
+        VisualStates: PowerTables.Rendering.VisualState;
+        Subject: any;
+        Selection: any[];
+        RecentDetails: {
+            Data: any;
+        };
+        private _commandDescription;
+        private _config;
+        private _embedBound;
+        private _editorObjectModified;
+        private _editorColumn;
+        private _originalCallback;
+        private _autoformFields;
+        rendered(): void;
+        private loadContent();
+        private contentLoaded();
+        private loadContentByUrl(url, method);
+        private _loadDetailsTimeout;
+        private loadDetails();
+        private loadDetailsInternal();
+        private detailsLoaded(detailsResult);
+        private embedConfirmation(q);
+        private collectCommandParameters();
+        private _isloadingContent;
+        private getConfirmation();
+        private initFormWatchDatepickers(parent);
+        confirm(): void;
+        dismiss(): void;
+        EditorsSet: {
+            [key: string]: PowerTables.Editing.IEditor;
+        };
+        ActiveEditors: PowerTables.Editing.IEditor[];
+        Editors(): string;
+        private editor(editor);
+        Editor(fieldName: string): string;
+        private createEditor(fieldName, column);
+        defaultValue(col: IColumn): any;
+        private produceAutoformColumns(autoform);
+        private initAutoform(autoform);
+        DataObject: any;
+        Index: number;
+        MasterTable: IMasterTable;
+        Cells: {
+            [index: string]: ICell;
+        };
+        ValidationMessages: PowerTables.Editing.IValidationMessage[];
+        notifyChanged(editor: PowerTables.Editing.IEditor): void;
+        reject(editor: PowerTables.Editing.IEditor): void;
+        commit(editor: PowerTables.Editing.IEditor): void;
+        private retrieveEditorData(editor, errors?);
+        protected setEditorValue(editor: PowerTables.Editing.IEditor): void;
+        private collectAutoForm();
+    }
+}
+declare module PowerTables.Services {
+    class SelectionService implements IQueryPartProvider, IAdditionalDataReceiver {
+        constructor(masterTable: IMasterTable);
+        private _configuration;
+        private _masterTable;
+        private _selectionData;
+        private _isAllSelected;
+        isSelected(dataObject: any): boolean;
+        isAllSelected(): boolean;
+        canSelect(dataObject: any): boolean;
+        canSelectAll(): boolean;
+        resetSelection(): void;
+        toggleAll(selected?: boolean): void;
+        isCellSelected(dataObject: any, column: IColumn): boolean;
+        hasSelectedCells(dataObject: any): boolean;
+        getSelectedCells(dataObject: any): number[];
+        getSelectedCellsByPrimaryKey(dataObject: any): boolean;
+        isSelectedPrimaryKey(primaryKey: string): boolean;
+        toggleRow(primaryKey: string, selected?: boolean): void;
+        toggleDisplayingRow(displayIndex: number, selected?: boolean): void;
+        toggleObjectSelected(dataObject: any, selected?: boolean): void;
+        handleAdjustments(added: any[], removeKeys: string[]): void;
+        modifyQuery(query: IQuery, scope: QueryScope): void;
+        getSelectedKeys(): string[];
+        getSelectedObjects(): any[];
+        getSelectedColumns(primaryKey: string): IColumn[];
+        getSelectedColumnsByObject(dataObject: any): IColumn[];
+        toggleCellsByDisplayIndex(displayIndex: number, columnNames: string[], select?: boolean): void;
+        toggleCellsByObject(dataObject: any, columnNames: string[], select?: boolean): void;
+        toggleCells(primaryKey: string, columnNames: string[], select?: boolean): void;
+        setCellsByDisplayIndex(displayIndex: number, columnNames: string[]): void;
+        setCellsByObject(dataObject: any, columnNames: string[]): void;
+        setCells(primaryKey: string, columnNames: string[]): void;
+        handleAdditionalData(additionalData: any): void;
     }
 }
 declare module PowerTables.Rendering {
@@ -2404,6 +2559,7 @@ declare module PowerTables.Rendering {
         body(rows: IRow[]): void;
         renderObjectContent(renderable: IRenderable): string;
         renderObject(templateId: string, viewModelBehind: any, targetSelector: string): HTMLElement;
+        renderObjectTo(templateId: string, viewModelBehind: any, target: HTMLElement): HTMLElement;
         destroyAtElement(parent: HTMLElement): void;
         destroyObject(targetSelector: string): void;
         /**
@@ -2541,6 +2697,10 @@ declare module PowerTables {
          * API for table messages
          */
         MessageService: PowerTables.Services.MessagesService;
+        /**
+         * API for table messages
+         */
+        Commands: PowerTables.Services.CommandsService;
         /**
          * Fires specified DOM event on specified element
          *
@@ -2956,95 +3116,6 @@ declare module PowerTables.Plugins.LoadingOverlap {
         private deoverlap();
         private onBeforeLoading(e);
         afterDrawn: (e: ITableEventArgs<any>) => void;
-    }
-}
-declare module PowerTables.Plugins.Toolbar {
-    /**
-     * Backing class for confirmation panel created as part of button action
-     */
-    class CommandConfirmation {
-        /**
-         * @internal
-         */
-        constructor(confirm: (form: any) => void, reject: () => void, date: PowerTables.Services.DateService, autoform: PowerTables.Plugins.Formwatch.IFormwatchFieldData[]);
-        private _autoform;
-        private _confirm;
-        private _reject;
-        private _date;
-        private _beforeConfirm;
-        /**
-         * @internal
-         */
-        AfterConfirm: ((form: any) => void)[];
-        private _beforeReject;
-        /**
-         * @internal
-         */
-        AfterReject: ((form: any) => void)[];
-        /**
-         * @internal
-         */
-        AfterConfirmationResponse: ((form: any) => void)[];
-        /**
-         * @internal
-         */
-        ConfirmationResponseError: ((form: any) => void)[];
-        /**
-         * Set of form values (available only after window is commited or dismissed)
-         */
-        Form: any;
-        /**
-         * Reference to root element of confirmation window
-         */
-        RootElement: HTMLElement;
-        /**
-         * Set of selected item keys defined in corresponding Checboxify plugin
-         */
-        SelectedItems: string[];
-        /**
-         * Set of selected corresponding objects selected by checkboxify plugin
-         */
-        SelectedObjects: any[];
-        /**
-         * @internal
-         */
-        onRender(parent: HTMLElement): void;
-        /**
-         * @internal
-         */
-        fireEvents(form: any, array: ((form: any) => void)[]): void;
-        private collectFormData();
-        /**
-         * Commits confirmation form, collects form, destroys confirmation panel element and proceeds server command, fires corresponding events
-         */
-        confirm(): void;
-        /**
-         * Destroys confirmation panel element, collects form, does not send anything to server, fires corresponding events
-         */
-        dismiss(): void;
-        /**
-         * Subscribes specified function to be invoked after pressing confirm button (or calling confirm method) but before processing
-         * @param fn Function that consumes form data
-         */
-        onBeforeConfirm(fn: (form: any) => void): void;
-        /**
-         * Subscribes specified function to be invoked after pressing confirm button and client-side form processing (it is possible to add something to form)
-         * but before sending data to server
-         * @param fn Function that consumes form data
-         */
-        onAfterConfirm(fn: (form: any) => void): void;
-        /**
-         * Subscribes specified function to be invoked after pressing reject button (or calling reject method) but before processing
-         * @param fn Function that consumes form data
-         */
-        onBeforeReject(fn: (form: any) => void): void;
-        /**
-         * Subscribes specified function to be invoked after pressing reject button (or calling reject method) but before processing
-         * @param fn Function that consumes form data
-         */
-        onAfterReject(fn: (form: any) => void): void;
-        onAfterConfirmationResponse(fn: (form: any) => void): void;
-        onConfirmationResponseError(fn: (form: any) => void): void;
     }
 }
 declare module PowerTables.Plugins.RegularSelect {

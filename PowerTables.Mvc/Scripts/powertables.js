@@ -104,6 +104,17 @@ var PowerTables;
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
+    var Commands;
+    (function (Commands) {
+        (function (CommandType) {
+            CommandType[CommandType["Client"] = 0] = "Client";
+            CommandType[CommandType["Server"] = 1] = "Server";
+        })(Commands.CommandType || (Commands.CommandType = {}));
+        var CommandType = Commands.CommandType;
+    })(Commands = PowerTables.Commands || (PowerTables.Commands = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
     /**
      * Wrapper for table event with ability to subscribe/unsubscribe
      */
@@ -223,396 +234,6 @@ var PowerTables;
         return TableEvent;
     }());
     PowerTables.TableEvent = TableEvent;
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var Services;
-    (function (Services) {
-        var SelectionService = (function () {
-            function SelectionService(masterTable) {
-                var _this = this;
-                this._selectionData = {};
-                this._isAllSelected = false;
-                this._masterTable = masterTable;
-                this._configuration = this._masterTable.InstanceManager.Configuration.SelectionConfiguration;
-                if (this._configuration.SelectSingle) {
-                    this._configuration.SelectAllBehavior = PowerTables.Configuration.Json.SelectAllBehavior.Disabled;
-                }
-                if (this._configuration.ResetSelectionBehavior ===
-                    PowerTables.Configuration.Json.ResetSelectionBehavior.ClientReload) {
-                    masterTable.Events.ClientDataProcessing.subscribeAfter(function (x) { return _this.toggleAll(false); }, 'selection');
-                }
-                if (this._configuration.ResetSelectionBehavior ===
-                    PowerTables.Configuration.Json.ResetSelectionBehavior.ServerReload) {
-                    masterTable.Events.DataReceived.subscribe(function (x) { return _this.toggleAll(false); }, 'selection');
-                }
-                masterTable.Loader.registerAdditionalDataReceiver('Selection', this);
-            }
-            SelectionService.prototype.isSelected = function (dataObject) {
-                return this.isSelectedPrimaryKey(dataObject['__key']);
-            };
-            SelectionService.prototype.isAllSelected = function () {
-                //if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.Disabled) {
-                //    return false;
-                //}
-                //if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.OnlyIfAllDataVisible) {
-                //    return this._isAllSelected;
-                //}
-                // extremely stupid - will be changed later
-                for (var i = 0; i < this._masterTable.DataHolder.DisplayedData.length; i++) {
-                    if (this.canSelect(this._masterTable.DataHolder.DisplayedData[i])) {
-                        if (!this._selectionData.hasOwnProperty(this._masterTable.DataHolder.DisplayedData[i]['__key']))
-                            return false;
-                    }
-                }
-                return true;
-            };
-            SelectionService.prototype.canSelect = function (dataObject) {
-                if (this._configuration.CanSelectRowFunction == null)
-                    return true;
-                return this._configuration.CanSelectRowFunction(dataObject);
-            };
-            SelectionService.prototype.canSelectAll = function () {
-                if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.Disabled) {
-                    return false;
-                }
-                if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.OnlyIfAllDataVisible) {
-                    return this._masterTable.DataHolder.StoredData.length === this._masterTable.DataHolder.DisplayedData.length;
-                }
-                return true;
-            };
-            SelectionService.prototype.resetSelection = function () {
-                this._masterTable.Events.SelectionChanged.invokeBefore(this, this._selectionData);
-                var objectsToRedraw = [];
-                for (var k in this._selectionData) {
-                    var sd = this._selectionData[k];
-                    if (this._masterTable.DataHolder.DisplayedData.indexOf(sd) >= 0)
-                        objectsToRedraw.push(sd);
-                    delete this._selectionData[k];
-                }
-                if (objectsToRedraw.length > this._masterTable.DataHolder.DisplayedData.length / 2) {
-                    this._masterTable.Controller.redrawVisibleData();
-                }
-                else {
-                    for (var j = 0; j < objectsToRedraw.length; j++) {
-                        this._masterTable.Controller.redrawVisibleDataObject(objectsToRedraw[j]); //todo    
-                    }
-                }
-                this._masterTable.Events.SelectionChanged.invokeAfter(this, this._selectionData);
-            };
-            SelectionService.prototype.toggleAll = function (selected) {
-                if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.Disabled) {
-                    return;
-                }
-                if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.OnlyIfAllDataVisible) {
-                    if (this._masterTable.DataHolder.StoredData.length !==
-                        this._masterTable.DataHolder.DisplayedData.length)
-                        return;
-                }
-                this._masterTable.Events.SelectionChanged.invokeBefore(this, this._selectionData);
-                if (selected == null) {
-                    selected = !this.isAllSelected();
-                }
-                var redrawAll = false;
-                var objectsToRedraw = [];
-                var objSet = null;
-                if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.AllVisible ||
-                    this._configuration.SelectAllBehavior ===
-                        PowerTables.Configuration.Json.SelectAllBehavior.OnlyIfAllDataVisible) {
-                    objSet = this._masterTable.DataHolder.DisplayedData;
-                }
-                else {
-                    objSet = this._masterTable.DataHolder.StoredData;
-                }
-                if (selected) {
-                    for (var i = 0; i < objSet.length; i++) {
-                        var sd = objSet[i];
-                        if (this.canSelect(sd)) {
-                            if (!this._selectionData.hasOwnProperty(sd["__key"])) {
-                                objectsToRedraw.push(sd);
-                                this._selectionData[sd["__key"]] = [];
-                            }
-                        }
-                    }
-                }
-                else {
-                    for (var i = 0; i < objSet.length; i++) {
-                        var sd = objSet[i];
-                        if (this.canSelect(sd)) {
-                            if (this._selectionData.hasOwnProperty(sd["__key"])) {
-                                objectsToRedraw.push(sd);
-                                delete this._selectionData[sd["__key"]];
-                            }
-                        }
-                    }
-                }
-                this._isAllSelected = selected;
-                if (objectsToRedraw.length > this._masterTable.DataHolder.DisplayedData.length / 2) {
-                    this._masterTable.Controller.redrawVisibleData();
-                }
-                else {
-                    for (var j = 0; j < objectsToRedraw.length; j++) {
-                        this._masterTable.Controller.redrawVisibleDataObject(objectsToRedraw[j]); //todo    
-                    }
-                }
-                this._masterTable.Events.SelectionChanged.invokeAfter(this, this._selectionData);
-            };
-            SelectionService.prototype.isCellSelected = function (dataObject, column) {
-                var sd = this._selectionData[dataObject['__key']];
-                if (!sd)
-                    return false;
-                return sd.indexOf(column.Order) >= 0;
-            };
-            SelectionService.prototype.hasSelectedCells = function (dataObject) {
-                var sd = this._selectionData[dataObject['__key']];
-                if (!sd)
-                    return false;
-                return sd.length > 0;
-            };
-            SelectionService.prototype.getSelectedCells = function (dataObject) {
-                var sd = this._selectionData[dataObject['__key']];
-                if (!sd)
-                    return null;
-                return sd;
-            };
-            SelectionService.prototype.getSelectedCellsByPrimaryKey = function (dataObject) {
-                var sd = this._selectionData[dataObject['__key']];
-                if (!sd)
-                    return false;
-                return sd.length > 0;
-            };
-            SelectionService.prototype.isSelectedPrimaryKey = function (primaryKey) {
-                var sd = this._selectionData[primaryKey];
-                if (!sd)
-                    return false;
-                return sd.length === 0;
-            };
-            SelectionService.prototype.toggleRow = function (primaryKey, selected) {
-                this._masterTable.Events.SelectionChanged.invokeBefore(this, this._selectionData);
-                if (selected == undefined || selected == null) {
-                    selected = !this.isSelectedPrimaryKey(primaryKey);
-                }
-                if (selected) {
-                    if (!this._selectionData.hasOwnProperty(primaryKey)) {
-                        if (this._configuration.SelectSingle) {
-                            var rk = [];
-                            for (var sk in this._selectionData) {
-                                rk.push(sk);
-                            }
-                            for (var i = 0; i < rk.length; i++) {
-                                delete this._selectionData[rk[i]];
-                                this._masterTable.Controller
-                                    .redrawVisibleDataObject(this._masterTable.DataHolder.getByPrimaryKey(rk[i]));
-                            }
-                        }
-                        this._selectionData[primaryKey] = [];
-                        this._masterTable.Controller.redrawVisibleDataObject(this._masterTable.DataHolder.getByPrimaryKey(primaryKey));
-                        this._masterTable.Events.SelectionChanged.invokeAfter(this, this._selectionData);
-                    }
-                }
-                else {
-                    if (this._selectionData.hasOwnProperty(primaryKey)) {
-                        if (this._configuration.SelectSingle) {
-                            var rk = [];
-                            for (var sk in this._selectionData) {
-                                rk.push(sk);
-                            }
-                            for (var i = 0; i < rk.length; i++) {
-                                delete this._selectionData[rk[i]];
-                                this._masterTable.Controller
-                                    .redrawVisibleDataObject(this._masterTable.DataHolder.getByPrimaryKey(rk[i]));
-                            }
-                        }
-                        else {
-                            delete this._selectionData[primaryKey];
-                            this._masterTable.Controller.redrawVisibleDataObject(this._masterTable.DataHolder.getByPrimaryKey(primaryKey));
-                        }
-                        this._masterTable.Events.SelectionChanged.invokeAfter(this, this._selectionData);
-                    }
-                }
-            };
-            SelectionService.prototype.toggleDisplayingRow = function (displayIndex, selected) {
-                if (displayIndex < 0 || displayIndex >= this._masterTable.DataHolder.DisplayedData.length)
-                    return;
-                this.toggleRow(this._masterTable.DataHolder.DisplayedData[displayIndex]['__key'], selected);
-            };
-            SelectionService.prototype.toggleObjectSelected = function (dataObject, selected) {
-                this.toggleRow(dataObject['__key'], selected);
-            };
-            SelectionService.prototype.handleAdjustments = function (added, removeKeys) {
-                for (var i = 0; i < removeKeys.length; i++) {
-                    if (this._selectionData.hasOwnProperty(removeKeys[i])) {
-                        delete this._selectionData[removeKeys[i]];
-                    }
-                }
-            };
-            SelectionService.prototype.modifyQuery = function (query, scope) {
-                query.Selection = this._selectionData;
-            };
-            SelectionService.prototype.getSelectedKeys = function () {
-                var keys = [];
-                for (var k in this._selectionData) {
-                    keys.push(k);
-                }
-                return keys;
-            };
-            SelectionService.prototype.getSelectedObjects = function () {
-                var objects = [];
-                for (var k in this._selectionData) {
-                    objects.push(this._masterTable.DataHolder.getByPrimaryKey(k));
-                }
-                return objects;
-            };
-            SelectionService.prototype.getSelectedColumns = function (primaryKey) {
-                var cols = this._masterTable.InstanceManager.Columns;
-                if (!this.isSelectedPrimaryKey(primaryKey))
-                    return [];
-                var selObject = this._selectionData[primaryKey];
-                var result = [];
-                for (var i = 0; i < selObject.length; i++) {
-                    for (var k in cols) {
-                        if (cols[k].Order === selObject[i]) {
-                            result.push(cols[k]);
-                        }
-                    }
-                }
-                return result;
-            };
-            SelectionService.prototype.getSelectedColumnsByObject = function (dataObject) {
-                return this.getSelectedColumns(dataObject['__key']);
-            };
-            //#region Cells selection
-            SelectionService.prototype.toggleCellsByDisplayIndex = function (displayIndex, columnNames, select) {
-                if (displayIndex < 0 || displayIndex >= this._masterTable.DataHolder.DisplayedData.length)
-                    return;
-                this.toggleCells(this._masterTable.DataHolder.DisplayedData[displayIndex]['__key'], columnNames, select);
-            };
-            SelectionService.prototype.toggleCellsByObject = function (dataObject, columnNames, select) {
-                this.toggleCells(dataObject['__key'], columnNames, select);
-            };
-            SelectionService.prototype.toggleCells = function (primaryKey, columnNames, select) {
-                this._masterTable.Events.SelectionChanged.invokeBefore(this, this._selectionData);
-                var arr = null;
-                if (this._selectionData.hasOwnProperty(primaryKey)) {
-                    arr = this._selectionData[primaryKey];
-                }
-                else {
-                    arr = [];
-                    this._selectionData[primaryKey] = arr;
-                }
-                var cols = this._masterTable.InstanceManager.Columns;
-                var columnsToRedraw = [];
-                var data = this._masterTable.DataHolder.getByPrimaryKey(primaryKey);
-                for (var i = 0; i < columnNames.length; i++) {
-                    var idx = cols[columnNames[i]].Order;
-                    var colIdx = arr.indexOf(idx);
-                    var srcLen = arr.length;
-                    var selectIt = select;
-                    if ((this._configuration.NonselectableColumns.indexOf(columnNames[i]) < 0))
-                        continue;
-                    if (selectIt == null || selectIt == undefined) {
-                        if (colIdx > -1)
-                            selectIt = false;
-                        else
-                            selectIt = true;
-                    }
-                    if (this._configuration.CanSelectCellFunction != null && !this._configuration.CanSelectCellFunction(data, columnNames[i], selectIt))
-                        continue;
-                    if (selectIt && colIdx < 0)
-                        arr.push(idx);
-                    if ((!selectIt) && colIdx > -1)
-                        arr.splice(colIdx, 1);
-                    if (srcLen !== arr.length)
-                        columnsToRedraw.push(cols[columnNames[i]]);
-                }
-                if (arr.length === 0) {
-                    delete this._selectionData[primaryKey];
-                }
-                this._masterTable.Controller.redrawVisibleCells(data, columnsToRedraw);
-                this._masterTable.Events.SelectionChanged.invokeAfter(this, this._selectionData);
-            };
-            SelectionService.prototype.setCellsByDisplayIndex = function (displayIndex, columnNames) {
-                if (displayIndex < 0 || displayIndex >= this._masterTable.DataHolder.DisplayedData.length)
-                    return;
-                this.setCells(this._masterTable.DataHolder.DisplayedData[displayIndex]['__key'], columnNames);
-            };
-            SelectionService.prototype.setCellsByObject = function (dataObject, columnNames) {
-                this.setCells(dataObject['__key'], columnNames);
-            };
-            SelectionService.prototype.setCells = function (primaryKey, columnNames) {
-                this._masterTable.Events.SelectionChanged.invokeBefore(this, this._selectionData);
-                var arr = null;
-                if (this._selectionData.hasOwnProperty(primaryKey)) {
-                    arr = this._selectionData[primaryKey];
-                }
-                else {
-                    arr = [];
-                }
-                var cols = this._masterTable.InstanceManager.Columns;
-                var columnsToRedraw = [];
-                var data = this._masterTable.DataHolder.getByPrimaryKey(primaryKey);
-                var newArr = [];
-                var allColsNames = this._masterTable.InstanceManager.getColumnNames();
-                for (var j = 0; j < columnNames.length; j++) {
-                    if (this._configuration.NonselectableColumns) {
-                        if ((this._configuration.NonselectableColumns.indexOf(columnNames[j]) < 0))
-                            continue;
-                    }
-                    if (this._configuration.CanSelectCellFunction != null && !this._configuration.CanSelectCellFunction(data, columnNames[j], true))
-                        continue;
-                    newArr.push(cols[columnNames[j]].Order);
-                }
-                var maxArr = newArr.length > arr.length ? newArr : arr;
-                for (var k = 0; k < maxArr.length; k++) {
-                    var colNum = maxArr[k];
-                    var nw = newArr.indexOf(colNum) > -1;
-                    var old = arr.indexOf(colNum) > -1;
-                    if (nw && !old)
-                        columnsToRedraw.push(cols[allColsNames[colNum]]);
-                    if (old && !nw)
-                        columnsToRedraw.push(cols[allColsNames[colNum]]);
-                }
-                if (newArr.length === 0) {
-                    delete this._selectionData[primaryKey];
-                }
-                else {
-                    this._selectionData[primaryKey] = newArr;
-                }
-                this._masterTable.Controller.redrawVisibleCells(data, columnsToRedraw);
-                this._masterTable.Events.SelectionChanged.invokeAfter(this, this._selectionData);
-            };
-            //#endregion
-            SelectionService.prototype.handleAdditionalData = function (additionalData) {
-                var ad = additionalData;
-                if (ad.SelectionToggle === PowerTables.Adjustments.SelectionToggle.All) {
-                    this.toggleAll(true);
-                }
-                else if (ad.SelectionToggle === PowerTables.Adjustments.SelectionToggle.Nothing) {
-                    this.resetSelection();
-                }
-                else {
-                    for (var ok in ad.Select) {
-                        if (ad.Select[ok] == null || ad.Select[ok].length === 0) {
-                            this.toggleRow(ok, true);
-                        }
-                        else {
-                            this.setCells(ok, ad.Select[ok]);
-                        }
-                    }
-                    for (var ok2 in ad.Unselect) {
-                        if (ad.Unselect[ok2] == null || ad.Unselect[ok2].length === 0) {
-                            this.toggleRow(ok2, true);
-                        }
-                        else {
-                            this.toggleCells(ok2, ad.Unselect[ok2], false);
-                        }
-                    }
-                }
-            };
-            return SelectionService;
-        }());
-        Services.SelectionService = SelectionService;
-    })(Services = PowerTables.Services || (PowerTables.Services = {}));
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
@@ -1119,8 +740,8 @@ var PowerTables;
                     var cellInArgs = {
                         Master: this._masterTable,
                         OriginalEvent: e,
-                        DisplayingRowIndex: cellLocation.RowIndex,
-                        ColumnIndex: cellLocation.ColumnIndex,
+                        Row: cellLocation.RowIndex,
+                        Column: cellLocation.ColumnIndex,
                         Stop: false
                     };
                     if (this._previousMousePos.row !== cellLocation.RowIndex ||
@@ -1128,8 +749,8 @@ var PowerTables;
                         var cellOutArgs = {
                             Master: this._masterTable,
                             OriginalEvent: e,
-                            DisplayingRowIndex: this._previousMousePos.row,
-                            ColumnIndex: this._previousMousePos.column,
+                            Row: this._previousMousePos.row,
+                            Column: this._previousMousePos.column,
                             Stop: false
                         };
                         this.traverseAndFire(cellEvents["mouseleave"], pathToCell, cellOutArgs);
@@ -1149,14 +770,14 @@ var PowerTables;
                         var rowInArgs = {
                             Master: this._masterTable,
                             OriginalEvent: e,
-                            DisplayingRowIndex: rowIndex,
+                            Row: rowIndex,
                             Stop: false
                         };
                         if (this._previousMousePos.row !== rowIndex) {
                             var rowOutArgs = {
                                 Master: this._masterTable,
                                 OriginalEvent: e,
-                                DisplayingRowIndex: this._previousMousePos.row,
+                                Row: this._previousMousePos.row,
                                 Stop: false
                             };
                             this.traverseAndFire(rowEvents["mouseleave"], pathToCell, rowOutArgs);
@@ -1200,8 +821,8 @@ var PowerTables;
                     var cellArgs = {
                         Master: this._masterTable,
                         OriginalEvent: e,
-                        DisplayingRowIndex: cellLocation.RowIndex,
-                        ColumnIndex: cellLocation.ColumnIndex,
+                        Row: cellLocation.RowIndex,
+                        Column: cellLocation.ColumnIndex,
                         Stop: false
                     };
                     this.traverseAndFire(forCell, pathToCell, cellArgs);
@@ -1212,7 +833,7 @@ var PowerTables;
                         var rowArgs = {
                             Master: this._masterTable,
                             OriginalEvent: e,
-                            DisplayingRowIndex: rowIndex,
+                            Row: rowIndex,
                             Stop: false
                         };
                         this.traverseAndFire(forRow, pathToRow, rowArgs);
@@ -2526,7 +2147,7 @@ var PowerTables;
                         var h2 = (sub.ColumnName == null) ? sub.Handler :
                             (function (hndlr, im, colName) {
                                 return function (e) {
-                                    if (im.getColumnNames().indexOf(colName) !== e.ColumnIndex)
+                                    if (im.getColumnNames().indexOf(colName) !== e.Column)
                                         return;
                                     hndlr(e);
                                 };
@@ -2747,11 +2368,7 @@ var PowerTables;
                 }
                 return a;
             };
-            LoaderService.prototype.getXmlHttp = function () {
-                if (this._previousRequest) {
-                    this._previousRequest.abort();
-                    this._previousRequest = null;
-                }
+            LoaderService.prototype.createXmlHttp = function () {
                 var xmlhttp;
                 try {
                     xmlhttp = new ActiveXObject('Msxml2.XMLHTTP');
@@ -2767,10 +2384,20 @@ var PowerTables;
                 if (!xmlhttp && typeof XMLHttpRequest != 'undefined') {
                     xmlhttp = new XMLHttpRequest();
                 }
-                this._previousRequest = xmlhttp;
                 return xmlhttp;
             };
+            LoaderService.prototype.getXmlHttp = function () {
+                if (this._previousRequest) {
+                    this._previousRequest.abort();
+                    this._previousRequest = null;
+                }
+                var req = this.createXmlHttp();
+                this._previousRequest = req;
+                return req;
+            };
             LoaderService.prototype.checkError = function (json, data, req) {
+                if (json == null)
+                    return false;
                 if (json['__ZBnpwvibZm'] && json['Success'] != undefined && !json.Success) {
                     this._masterTable.MessageService.showMessage(json['Message']);
                     this._events.LoadingError.invoke(this, {
@@ -2783,6 +2410,8 @@ var PowerTables;
                 return false;
             };
             LoaderService.prototype.checkMessage = function (json) {
+                if (json == null)
+                    return false;
                 if (json.Message && json.Message['__Go7XIV13OA']) {
                     var msg = json.Message;
                     this._masterTable.MessageService.showMessage(msg);
@@ -2793,6 +2422,8 @@ var PowerTables;
                 return false;
             };
             LoaderService.prototype.checkAdditionalData = function (json) {
+                if (json == null)
+                    return;
                 if (json.AdditionalData && json.AdditionalData['__TxQeah2p']) {
                     var data = json.AdditionalData['Data'];
                     for (var adk in data) {
@@ -2806,6 +2437,8 @@ var PowerTables;
                 }
             };
             LoaderService.prototype.checkEditResult = function (json, data, req) {
+                if (json == null)
+                    return false;
                 if (json['__XqTFFhTxSu']) {
                     this._events.DataReceived.invoke(this, {
                         Request: data,
@@ -2909,6 +2542,10 @@ var PowerTables;
                         else if (ctype && ctype.indexOf('lattice/service') >= 0) {
                             _this.handleDeferredResponse(req, data, callback);
                         }
+                        else {
+                            if (callback)
+                                callback(req.responseText);
+                        }
                     }
                     else {
                         if (req.status === 0)
@@ -2918,6 +2555,8 @@ var PowerTables;
                             XMLHttp: req,
                             Reason: 'Network error'
                         });
+                        if (errorCallback)
+                            errorCallback(req.responseText);
                     }
                     _this._isLoading = false;
                     _this._events.Loading.invokeAfter(_this, {
@@ -2989,6 +2628,952 @@ var PowerTables;
             return LoaderService;
         }());
         Services.LoaderService = LoaderService;
+    })(Services = PowerTables.Services || (PowerTables.Services = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Services;
+    (function (Services) {
+        var CommandsService = (function () {
+            function CommandsService(masterTable) {
+                this._masterTable = masterTable;
+                this._commandsCache = this._masterTable.InstanceManager.Configuration.Commands;
+            }
+            CommandsService.prototype.canExecute = function (commandName, subject) {
+                if (subject === void 0) { subject = null; }
+                if (!this._commandsCache.hasOwnProperty(commandName))
+                    return true;
+                var command = this._commandsCache[commandName];
+                if (command.CanExecute) {
+                    return command.CanExecute({ Subject: subject, Master: this._masterTable });
+                }
+                return true;
+            };
+            CommandsService.prototype.triggerCommandOnRow = function (commandName, rowIndex, callback) {
+                if (callback === void 0) { callback = null; }
+                this.triggerCommand(commandName, this._masterTable.DataHolder.DisplayedData[rowIndex], callback);
+            };
+            CommandsService.prototype.triggerCommand = function (commandName, subject, callback) {
+                if (callback === void 0) { callback = null; }
+                var command = this._commandsCache[commandName];
+                if (command == null || command == undefined) {
+                    this.triggerCommandWithConfirmation(commandName, subject, null, callback);
+                    return;
+                }
+                if (command.CanExecute) {
+                    if (!command.CanExecute({ Subject: subject, Master: this._masterTable }))
+                        return;
+                }
+                if (command.Confirmation != null && command.Confirmation != undefined) {
+                    var tc = new ConfirmationWindowViewModel(this._masterTable, command, subject, callback);
+                    var r = this._masterTable.Renderer
+                        .renderObject(command.Confirmation.TemplateId, tc, command.Confirmation.TargetSelector);
+                    tc.RootElement = r;
+                    tc.rendered();
+                }
+                else if (command.ConfirmationDataFunction != null && command.ConfirmationDataFunction != undefined) {
+                    var confirmationData = command.ConfirmationDataFunction({
+                        CommandDescription: this._commandsCache[commandName],
+                        Master: this._masterTable,
+                        Selection: this._masterTable.Selection.getSelectedObjects(),
+                        Subject: subject,
+                        Result: null,
+                        Confirmation: null
+                    });
+                    if (confirmationData != null) {
+                        this.triggerCommandWithConfirmation(commandName, subject, confirmationData, callback);
+                    }
+                }
+                else {
+                    this.triggerCommandWithConfirmation(commandName, subject, null, callback);
+                }
+            };
+            CommandsService.prototype.triggerCommandWithConfirmation = function (commandName, subject, confirmation, callback) {
+                if (callback === void 0) { callback = null; }
+                var params = {
+                    CommandDescription: null,
+                    Master: this._masterTable,
+                    Selection: this._masterTable.Selection.getSelectedObjects(),
+                    Subject: subject,
+                    Result: null,
+                    Confirmation: confirmation
+                };
+                var cmd = this._commandsCache[commandName];
+                if (!cmd) {
+                    this._masterTable.Loader.requestServer(commandName, function (r) {
+                        if (r.$isDeferred && r.$url) {
+                            window.location.href = r.$url;
+                            return;
+                        }
+                        params.Result = r;
+                        if (callback)
+                            callback(params);
+                    }, function (q) {
+                        q.AdditionalData['CommandConfirmation'] = JSON.stringify(confirmation);
+                        q.AdditionalData['CommandSubject'] = JSON.stringify(subject);
+                        return q;
+                    });
+                    return;
+                }
+                params.CommandDescription = cmd;
+                if (cmd.CanExecute) {
+                    if (!cmd.CanExecute({ Subject: subject, Master: this._masterTable }))
+                        return;
+                }
+                if (cmd.Type === PowerTables.Commands.CommandType.Server) {
+                    this._masterTable.Loader.requestServer(cmd.ServerName, function (r) {
+                        params.Result = r;
+                        if (callback)
+                            callback(params);
+                        if (cmd.OnSuccess)
+                            cmd.OnSuccess(params);
+                    }, function (q) {
+                        q.AdditionalData['CommandConfirmation'] = JSON.stringify(confirmation);
+                        q.AdditionalData['CommandSubject'] = JSON.stringify(subject);
+                        return q;
+                    }, function (r) {
+                        params.Result = r;
+                        if (callback)
+                            callback(params);
+                        if (cmd.OnFailure)
+                            cmd.OnFailure(params);
+                    });
+                }
+                else {
+                    cmd.ClientFunction(params);
+                }
+            };
+            return CommandsService;
+        }());
+        Services.CommandsService = CommandsService;
+        var ConfirmationWindowViewModel = (function () {
+            function ConfirmationWindowViewModel(masterTable, commandDescription, subject, originalCallback) {
+                this.RootElement = null;
+                this.ContentPlaceholder = null;
+                this.DetailsPlaceholder = null;
+                this.TemplatePieces = {};
+                this.RecentDetails = { Data: null };
+                this._editorColumn = {};
+                this._originalCallback = null;
+                this._autoformFields = {};
+                //#endregion
+                //#region Details loading
+                this._loadDetailsTimeout = null;
+                this._isloadingContent = false;
+                //#region Autoform
+                this.EditorsSet = {};
+                this.ActiveEditors = [];
+                this.ValidationMessages = [];
+                this.MasterTable = masterTable;
+                this._commandDescription = commandDescription;
+                this._config = commandDescription.Confirmation;
+                this._originalCallback = originalCallback;
+                this.DataObject = {};
+                this._editorObjectModified = {};
+                this.Subject = subject;
+                this.Selection = this.MasterTable.Selection.getSelectedObjects();
+                this._embedBound = this.embedConfirmation.bind(this);
+                if (commandDescription.Confirmation.Autoform != null) {
+                    this.produceAutoformColumns(commandDescription.Confirmation.Autoform);
+                }
+                if (commandDescription.Confirmation.InitConfirmationObject) {
+                    commandDescription.Confirmation.InitConfirmationObject(this.DataObject);
+                    var confirmationObject = this.DataObject;
+                    for (var eo in confirmationObject) {
+                        if (confirmationObject.hasOwnProperty(eo)) {
+                            this._editorObjectModified[eo] = confirmationObject[eo];
+                        }
+                    }
+                }
+                if (commandDescription.Confirmation.Autoform != null) {
+                    this.initAutoform(commandDescription.Confirmation.Autoform);
+                }
+                var tplParams = {
+                    CommandDescription: this._commandDescription,
+                    Master: this.MasterTable,
+                    Confirmation: this._editorObjectModified,
+                    Result: null,
+                    Selection: this.Selection,
+                    Subject: subject
+                };
+                var templatePieces = this._config.TemplatePieces;
+                for (var k in templatePieces) {
+                    if (templatePieces.hasOwnProperty(k)) {
+                        this.TemplatePieces[k] = templatePieces[k](tplParams);
+                    }
+                }
+            }
+            ConfirmationWindowViewModel.prototype.rendered = function () {
+                this.initFormWatchDatepickers(this.RootElement);
+                this.loadContent();
+                if (this._config.Details != null && this._config.Details != undefined) {
+                    if (this._config.Details.LoadImmediately)
+                        this.loadDetailsInternal();
+                }
+            };
+            //#region Content loading
+            ConfirmationWindowViewModel.prototype.loadContent = function () {
+                var _this = this;
+                if (this.ContentPlaceholder == null)
+                    return;
+                if ((!this._config.ContentLoadingUrl) && (!this._config.ContentLoadingCommand))
+                    return;
+                if (this.VisualStates != null)
+                    this.VisualStates.mixinState('contentLoading');
+                if (this._config.Autoform != null && this._config.Autoform.DisableWhenContentLoading) {
+                    for (var i = 0; i < this.ActiveEditors.length; i++) {
+                        if (this.ActiveEditors[i].VisualStates != null)
+                            this.ActiveEditors[i].VisualStates.mixinState('loading');
+                    }
+                }
+                this._isloadingContent = true;
+                if (this._config.ContentLoadingUrl != null && this._config.ContentLoadingUrl != undefined) {
+                    var url = this._config.ContentLoadingUrl(this.Subject);
+                    this.loadContentByUrl(url, this._config.ContentLoadingMethod);
+                }
+                else {
+                    this.MasterTable.Loader.requestServer(this._config.ContentLoadingCommand, function (r) {
+                        _this.ContentPlaceholder.innerHTML = r;
+                        _this.initFormWatchDatepickers(_this.ContentPlaceholder);
+                        _this.contentLoaded();
+                    }, this._embedBound, function (r) {
+                        _this.ContentPlaceholder.innerHTML = r;
+                        _this.contentLoaded();
+                    });
+                }
+            };
+            ConfirmationWindowViewModel.prototype.contentLoaded = function () {
+                this._isloadingContent = false;
+                if (this.VisualStates != null)
+                    this.VisualStates.unmixinState('contentLoading');
+                if (this._config.Autoform != null && this._config.Autoform.DisableWhenContentLoading) {
+                    for (var i = 0; i < this.ActiveEditors.length; i++) {
+                        if (this.ActiveEditors[i].VisualStates != null)
+                            this.ActiveEditors[i].VisualStates.unmixinState('loading');
+                    }
+                }
+            };
+            ConfirmationWindowViewModel.prototype.loadContentByUrl = function (url, method) {
+                var _this = this;
+                var req = this.MasterTable.Loader.createXmlHttp();
+                req.open(method, url, true);
+                req.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                var reqEvent = req.onload ? 'onload' : 'onreadystatechange';
+                req[reqEvent] = (function () {
+                    if (req.readyState !== 4)
+                        return false;
+                    _this.ContentPlaceholder.innerHTML = req.responseText;
+                    _this.contentLoaded();
+                });
+                if (method === 'GET' || this.Subject === null)
+                    req.send();
+                else
+                    req.send(JSON.stringify(this.Subject));
+            };
+            ConfirmationWindowViewModel.prototype.loadDetails = function () {
+                var _this = this;
+                if (this.DetailsPlaceholder == null)
+                    return;
+                if (this._config.Details == null || this._config.Details == undefined)
+                    return;
+                if (this._config.Details.LoadDelay <= 0) {
+                    this.loadDetailsInternal();
+                }
+                else {
+                    clearTimeout(this._loadDetailsTimeout);
+                    this._loadDetailsTimeout = setTimeout(function () {
+                        _this.loadDetailsInternal();
+                    }, this._config.Details.LoadDelay);
+                }
+            };
+            ConfirmationWindowViewModel.prototype.loadDetailsInternal = function () {
+                var _this = this;
+                var parameters = this.collectCommandParameters();
+                if (this._config.Details.ValidateToLoad != null) {
+                    if (!this._config.Details.ValidateToLoad(parameters))
+                        return;
+                }
+                if (this.VisualStates != null)
+                    this.VisualStates.mixinState('detailsLoading');
+                if (this._config.Autoform != null && this._config.Autoform.DisableWhileDetailsLoading) {
+                    for (var i = 0; i < this.ActiveEditors.length; i++) {
+                        if (this.ActiveEditors[i].VisualStates != null)
+                            this.ActiveEditors[i].VisualStates.mixinState('loading');
+                    }
+                }
+                if (this._config.Details.CommandName != null && this._config.Details.CommandName != undefined) {
+                    this.MasterTable.Loader.requestServer(this._config.Details.CommandName, function (r) {
+                        _this.detailsLoaded(r);
+                    }, this._embedBound, function (r) {
+                        _this.detailsLoaded(r);
+                    });
+                }
+                else if (this._config.Details.DetailsFunction != null && this._config.Details.DetailsFunction != undefined) {
+                    this.detailsLoaded(this._config.Details.DetailsFunction(parameters));
+                }
+                else {
+                    this.detailsLoaded(this.getConfirmation());
+                }
+            };
+            ConfirmationWindowViewModel.prototype.detailsLoaded = function (detailsResult) {
+                if (detailsResult != null && detailsResult != undefined) {
+                    if (typeof detailsResult == 'string') {
+                        this.DetailsPlaceholder.innerHTML = detailsResult;
+                        this.initFormWatchDatepickers(this.DetailsPlaceholder);
+                    }
+                    else {
+                        if (this._config.Details.TempalteId != null && this._config.Details.TempalteId != undefined) {
+                            if (this.RecentDetails.Data != null) {
+                                this.MasterTable.Renderer.destroyAtElement(this.DetailsPlaceholder);
+                            }
+                            var param = {
+                                Subject: this.Subject,
+                                Details: detailsResult,
+                                Confirmation: this.getConfirmation()
+                            };
+                            this.MasterTable.Renderer
+                                .renderObjectTo(this._config.Details.TempalteId, param, this.DetailsPlaceholder);
+                            this.initFormWatchDatepickers(this.DetailsPlaceholder);
+                        }
+                        else {
+                            this.DetailsPlaceholder.innerHTML = detailsResult.toString();
+                            this.initFormWatchDatepickers(this.DetailsPlaceholder);
+                        }
+                    }
+                }
+                this.RecentDetails.Data = detailsResult;
+                if (this.VisualStates != null)
+                    this.VisualStates.unmixinState('detailsLoading');
+                if (this._config.Autoform != null && this._config.Autoform.DisableWhileDetailsLoading) {
+                    for (var i = 0; i < this.ActiveEditors.length; i++) {
+                        if (this.ActiveEditors[i].VisualStates != null)
+                            this.ActiveEditors[i].VisualStates.unmixinState('loading');
+                    }
+                }
+            };
+            //#endregion
+            ConfirmationWindowViewModel.prototype.embedConfirmation = function (q) {
+                q.AdditionalData['CommandConfirmation'] = JSON.stringify(this.getConfirmation());
+                q.AdditionalData['CommandSubject'] = JSON.stringify(this.Subject);
+                return q;
+            };
+            ConfirmationWindowViewModel.prototype.collectCommandParameters = function () {
+                var result = {
+                    CommandDescription: this._commandDescription,
+                    Master: this.MasterTable,
+                    Selection: this.Selection,
+                    Subject: this.Subject,
+                    Result: null,
+                    Confirmation: this.getConfirmation()
+                };
+                return result;
+            };
+            ConfirmationWindowViewModel.prototype.getConfirmation = function () {
+                var confirmation = null;
+                if (this._config.Formwatch != null) {
+                    confirmation = PowerTables.Plugins.Formwatch.FormwatchPlugin.extractFormData(this._config.Formwatch, this.RootElement, this.MasterTable.Date);
+                }
+                if (this._config.Autoform != null) {
+                    if (!this._isloadingContent)
+                        this.collectAutoForm();
+                    if (confirmation == null)
+                        confirmation = {};
+                    var confirmationObject = this._editorObjectModified;
+                    for (var eo in confirmationObject) {
+                        if (confirmationObject.hasOwnProperty(eo)) {
+                            confirmation[eo] = confirmationObject[eo];
+                        }
+                    }
+                }
+                return confirmation;
+            };
+            ConfirmationWindowViewModel.prototype.initFormWatchDatepickers = function (parent) {
+                var formWatch = this._commandDescription.Confirmation.Formwatch;
+                if (formWatch != null) {
+                    for (var i = 0; i < formWatch.length; i++) {
+                        var conf = formWatch[i];
+                        if (conf.TriggerSearchOnEvents && conf.TriggerSearchOnEvents.length > 0) {
+                            var element = parent.querySelector(conf.FieldSelector);
+                            if (conf.AutomaticallyAttachDatepicker) {
+                                this.MasterTable.Date.createDatePicker(element);
+                            }
+                        }
+                    }
+                }
+            };
+            ConfirmationWindowViewModel.prototype.confirm = function () {
+                var _this = this;
+                var params = this.collectCommandParameters();
+                if (this.ValidationMessages.length > 0)
+                    return;
+                if (this.VisualStates != null)
+                    this.VisualStates.mixinState('saving');
+                if (this._config.Autoform != null && this._config.Autoform.DisableWhenContentLoading) {
+                    for (var i = 0; i < this.ActiveEditors.length; i++) {
+                        if (this.ActiveEditors[i].VisualStates != null)
+                            this.ActiveEditors[i].VisualStates.mixinState('saving');
+                    }
+                }
+                if (this._config.OnCommit)
+                    this._config.OnCommit(params);
+                this.MasterTable.Commands.triggerCommandWithConfirmation(this._commandDescription.Name, this.Subject, this.getConfirmation(), function (r) {
+                    params.Result = r;
+                    _this.RootElement = null;
+                    _this.ContentPlaceholder = null;
+                    _this.DetailsPlaceholder = null;
+                    _this.MasterTable.Renderer.destroyObject(_this._commandDescription.Confirmation.TargetSelector);
+                    if (_this._originalCallback)
+                        _this._originalCallback(params);
+                });
+            };
+            ConfirmationWindowViewModel.prototype.dismiss = function () {
+                this.RootElement = null;
+                this.ContentPlaceholder = null;
+                this.DetailsPlaceholder = null;
+                this.MasterTable.Renderer.destroyObject(this._commandDescription.Confirmation.TargetSelector);
+                var params = this.collectCommandParameters();
+                if (this._config.OnDismiss)
+                    this._config.OnDismiss(params);
+                if (this._originalCallback)
+                    this._originalCallback(params);
+            };
+            ConfirmationWindowViewModel.prototype.Editors = function () {
+                var s = '';
+                for (var i = 0; i < this.ActiveEditors.length; i++) {
+                    s += this.editor(this.ActiveEditors[i]);
+                }
+                return s;
+            };
+            ConfirmationWindowViewModel.prototype.editor = function (editor) {
+                return this.MasterTable.Renderer.renderObjectContent(editor);
+            };
+            ConfirmationWindowViewModel.prototype.Editor = function (fieldName) {
+                var editor = this.EditorsSet[fieldName];
+                if (editor == null || editor == undefined)
+                    return '';
+                return this.editor(editor);
+            };
+            ConfirmationWindowViewModel.prototype.createEditor = function (fieldName, column) {
+                var editorConf = this._autoformFields[fieldName];
+                var editor = PowerTables.ComponentsContainer.resolveComponent(editorConf.PluginId);
+                editor.DataObject = this.DataObject;
+                editor.ModifiedDataObject = this._editorObjectModified;
+                editor.Data = this.DataObject[fieldName];
+                editor.FieldName = fieldName;
+                editor.Column = column;
+                editor.CanComplete = false;
+                editor.IsFormEdit = true;
+                editor.IsRowEdit = false;
+                editor.IsCellEdit = !(editor.IsFormEdit || editor.IsRowEdit);
+                editor.Row = this;
+                editor.RawConfig = { Configuration: editorConf, Order: 0, PluginId: editorConf.PluginId, Placement: '', TemplateId: editorConf.TemplateId };
+                editor.init(this.MasterTable);
+                return editor;
+            };
+            ConfirmationWindowViewModel.prototype.defaultValue = function (col) {
+                if (col.IsInteger || col.IsFloat)
+                    return 0;
+                if (col.IsBoolean)
+                    return false;
+                if (col.IsDateTime)
+                    return new Date();
+                if (col.IsString)
+                    return '';
+                if (col.IsEnum)
+                    return 0;
+                if (col.Configuration.IsNullable)
+                    return null;
+                return null;
+            };
+            ConfirmationWindowViewModel.prototype.produceAutoformColumns = function (autoform) {
+                var fields = autoform.Autoform;
+                for (var i = 0; i < fields.length; i++) {
+                    this._autoformFields[fields[i].FieldName] = fields[i];
+                }
+                for (var j = 0; j < fields.length; j++) {
+                    this._editorColumn[fields[j].FieldName] = PowerTables.Services.InstanceManagerService.createColumn(fields[j].FakeColumn, this.MasterTable);
+                    this.DataObject[fields[j].FieldName] = this
+                        .defaultValue(this._editorColumn[fields[j].FieldName]);
+                    this._editorObjectModified[fields[j].FieldName] = this.DataObject[fields[j].FieldName];
+                }
+            };
+            ConfirmationWindowViewModel.prototype.initAutoform = function (autoform) {
+                var fields = autoform.Autoform;
+                for (var i = 0; i < fields.length; i++) {
+                    var editorConf = fields[i];
+                    var column = this._editorColumn[editorConf.FieldName];
+                    var editor = this.createEditor(editorConf.FieldName, column);
+                    this.EditorsSet[editorConf.FieldName] = editor;
+                    this.ActiveEditors.push(editor);
+                }
+            };
+            ConfirmationWindowViewModel.prototype.notifyChanged = function (editor) {
+                this.retrieveEditorData(editor);
+                for (var i = 0; i < this.ActiveEditors.length; i++) {
+                    this.ActiveEditors[i].notifyObjectChanged();
+                }
+                this.loadDetails();
+            };
+            ConfirmationWindowViewModel.prototype.reject = function (editor) {
+                this._editorObjectModified[editor.FieldName] = this.DataObject[editor.FieldName];
+                this.setEditorValue(editor);
+            };
+            ConfirmationWindowViewModel.prototype.commit = function (editor) {
+                var idx = this.ActiveEditors.indexOf(editor);
+                if (this.ActiveEditors.length > idx + 1) {
+                    idx = -1;
+                    for (var i = 0; i < this.ActiveEditors.length; i++) {
+                        if (!this.ActiveEditors[i].IsValid) {
+                            idx = i;
+                            break;
+                        }
+                    }
+                    if (idx !== -1)
+                        this.ActiveEditors[idx].focus();
+                }
+            };
+            ConfirmationWindowViewModel.prototype.retrieveEditorData = function (editor, errors) {
+                var errorsArrayPresent = (!(!errors));
+                errors = errors || [];
+                var thisErrors = [];
+                this._editorObjectModified[editor.FieldName] = editor.getValue(thisErrors);
+                for (var j = 0; j < thisErrors.length; j++) {
+                    thisErrors[j].Message = editor.getErrorMessage(thisErrors[j].Code);
+                }
+                editor.Data = this._editorObjectModified[editor.FieldName];
+                editor.ValidationMessages = thisErrors;
+                for (var i = 0; i < thisErrors.length; i++) {
+                    errors.push(thisErrors[i]);
+                }
+                if (thisErrors.length > 0) {
+                    editor.IsValid = false;
+                    if (editor.VisualStates != null)
+                        editor.VisualStates.changeState('invalid');
+                }
+                else {
+                    editor.IsValid = true;
+                    if (editor.VisualStates != null)
+                        editor.VisualStates.normalState();
+                }
+                if (!errorsArrayPresent) {
+                    this.ValidationMessages.concat(errors);
+                }
+            };
+            ConfirmationWindowViewModel.prototype.setEditorValue = function (editor) {
+                editor.IsInitialValueSetting = true;
+                editor.setValue(this._editorObjectModified[editor.FieldName]);
+                editor.IsInitialValueSetting = false;
+            };
+            ConfirmationWindowViewModel.prototype.collectAutoForm = function () {
+                this.ValidationMessages = [];
+                var errors = [];
+                for (var i = 0; i < this.ActiveEditors.length; i++) {
+                    this.retrieveEditorData(this.ActiveEditors[i], errors);
+                }
+                this.ValidationMessages = errors; //todo draw validation errors
+                if (this.ValidationMessages.length > 0) {
+                    this.MasterTable.Events.EditValidationFailed.invokeAfter(this, {
+                        OriginalDataObject: this.DataObject,
+                        ModifiedDataObject: this._editorObjectModified,
+                        Messages: this.ValidationMessages
+                    });
+                    return false;
+                }
+                return true;
+            };
+            return ConfirmationWindowViewModel;
+        }());
+        Services.ConfirmationWindowViewModel = ConfirmationWindowViewModel;
+    })(Services = PowerTables.Services || (PowerTables.Services = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Services;
+    (function (Services) {
+        var SelectionService = (function () {
+            function SelectionService(masterTable) {
+                var _this = this;
+                this._selectionData = {};
+                this._isAllSelected = false;
+                this._masterTable = masterTable;
+                this._configuration = this._masterTable.InstanceManager.Configuration.SelectionConfiguration;
+                if (this._configuration.SelectSingle) {
+                    this._configuration.SelectAllBehavior = PowerTables.Configuration.Json.SelectAllBehavior.Disabled;
+                }
+                if (this._configuration.ResetSelectionBehavior ===
+                    PowerTables.Configuration.Json.ResetSelectionBehavior.ClientReload) {
+                    masterTable.Events.ClientDataProcessing.subscribeAfter(function (x) { return _this.toggleAll(false); }, 'selection');
+                }
+                if (this._configuration.ResetSelectionBehavior ===
+                    PowerTables.Configuration.Json.ResetSelectionBehavior.ServerReload) {
+                    masterTable.Events.DataReceived.subscribe(function (x) { return _this.toggleAll(false); }, 'selection');
+                }
+                masterTable.Loader.registerAdditionalDataReceiver('Selection', this);
+            }
+            SelectionService.prototype.isSelected = function (dataObject) {
+                return this.isSelectedPrimaryKey(dataObject['__key']);
+            };
+            SelectionService.prototype.isAllSelected = function () {
+                //if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.Disabled) {
+                //    return false;
+                //}
+                //if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.OnlyIfAllDataVisible) {
+                //    return this._isAllSelected;
+                //}
+                // extremely stupid - will be changed later
+                for (var i = 0; i < this._masterTable.DataHolder.DisplayedData.length; i++) {
+                    if (this.canSelect(this._masterTable.DataHolder.DisplayedData[i])) {
+                        if (!this._selectionData.hasOwnProperty(this._masterTable.DataHolder.DisplayedData[i]['__key']))
+                            return false;
+                    }
+                }
+                return true;
+            };
+            SelectionService.prototype.canSelect = function (dataObject) {
+                if (this._configuration.CanSelectRowFunction == null)
+                    return true;
+                return this._configuration.CanSelectRowFunction(dataObject);
+            };
+            SelectionService.prototype.canSelectAll = function () {
+                if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.Disabled) {
+                    return false;
+                }
+                if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.OnlyIfAllDataVisible) {
+                    return this._masterTable.DataHolder.StoredData.length === this._masterTable.DataHolder.DisplayedData.length;
+                }
+                return true;
+            };
+            SelectionService.prototype.resetSelection = function () {
+                this._masterTable.Events.SelectionChanged.invokeBefore(this, this._selectionData);
+                var objectsToRedraw = [];
+                for (var k in this._selectionData) {
+                    var sd = this._selectionData[k];
+                    if (this._masterTable.DataHolder.DisplayedData.indexOf(sd) >= 0)
+                        objectsToRedraw.push(sd);
+                    delete this._selectionData[k];
+                }
+                if (objectsToRedraw.length > this._masterTable.DataHolder.DisplayedData.length / 2) {
+                    this._masterTable.Controller.redrawVisibleData();
+                }
+                else {
+                    for (var j = 0; j < objectsToRedraw.length; j++) {
+                        this._masterTable.Controller.redrawVisibleDataObject(objectsToRedraw[j]); //todo    
+                    }
+                }
+                this._masterTable.Events.SelectionChanged.invokeAfter(this, this._selectionData);
+            };
+            SelectionService.prototype.toggleAll = function (selected) {
+                if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.Disabled) {
+                    return;
+                }
+                if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.OnlyIfAllDataVisible) {
+                    if (this._masterTable.DataHolder.StoredData.length !==
+                        this._masterTable.DataHolder.DisplayedData.length)
+                        return;
+                }
+                this._masterTable.Events.SelectionChanged.invokeBefore(this, this._selectionData);
+                if (selected == null) {
+                    selected = !this.isAllSelected();
+                }
+                var redrawAll = false;
+                var objectsToRedraw = [];
+                var objSet = null;
+                if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.AllVisible ||
+                    this._configuration.SelectAllBehavior ===
+                        PowerTables.Configuration.Json.SelectAllBehavior.OnlyIfAllDataVisible) {
+                    objSet = this._masterTable.DataHolder.DisplayedData;
+                }
+                else {
+                    objSet = this._masterTable.DataHolder.StoredData;
+                }
+                if (selected) {
+                    for (var i = 0; i < objSet.length; i++) {
+                        var sd = objSet[i];
+                        if (this.canSelect(sd)) {
+                            if (!this._selectionData.hasOwnProperty(sd["__key"])) {
+                                objectsToRedraw.push(sd);
+                                this._selectionData[sd["__key"]] = [];
+                            }
+                        }
+                    }
+                }
+                else {
+                    for (var i = 0; i < objSet.length; i++) {
+                        var sd = objSet[i];
+                        if (this.canSelect(sd)) {
+                            if (this._selectionData.hasOwnProperty(sd["__key"])) {
+                                objectsToRedraw.push(sd);
+                                delete this._selectionData[sd["__key"]];
+                            }
+                        }
+                    }
+                }
+                this._isAllSelected = selected;
+                if (objectsToRedraw.length > this._masterTable.DataHolder.DisplayedData.length / 2) {
+                    this._masterTable.Controller.redrawVisibleData();
+                }
+                else {
+                    for (var j = 0; j < objectsToRedraw.length; j++) {
+                        this._masterTable.Controller.redrawVisibleDataObject(objectsToRedraw[j]); //todo    
+                    }
+                }
+                this._masterTable.Events.SelectionChanged.invokeAfter(this, this._selectionData);
+            };
+            SelectionService.prototype.isCellSelected = function (dataObject, column) {
+                var sd = this._selectionData[dataObject['__key']];
+                if (!sd)
+                    return false;
+                return sd.indexOf(column.Order) >= 0;
+            };
+            SelectionService.prototype.hasSelectedCells = function (dataObject) {
+                var sd = this._selectionData[dataObject['__key']];
+                if (!sd)
+                    return false;
+                return sd.length > 0;
+            };
+            SelectionService.prototype.getSelectedCells = function (dataObject) {
+                var sd = this._selectionData[dataObject['__key']];
+                if (!sd)
+                    return null;
+                return sd;
+            };
+            SelectionService.prototype.getSelectedCellsByPrimaryKey = function (dataObject) {
+                var sd = this._selectionData[dataObject['__key']];
+                if (!sd)
+                    return false;
+                return sd.length > 0;
+            };
+            SelectionService.prototype.isSelectedPrimaryKey = function (primaryKey) {
+                var sd = this._selectionData[primaryKey];
+                if (!sd)
+                    return false;
+                return sd.length === 0;
+            };
+            SelectionService.prototype.toggleRow = function (primaryKey, selected) {
+                this._masterTable.Events.SelectionChanged.invokeBefore(this, this._selectionData);
+                if (selected == undefined || selected == null) {
+                    selected = !this.isSelectedPrimaryKey(primaryKey);
+                }
+                if (selected) {
+                    if (!this._selectionData.hasOwnProperty(primaryKey)) {
+                        if (this._configuration.SelectSingle) {
+                            var rk = [];
+                            for (var sk in this._selectionData) {
+                                rk.push(sk);
+                            }
+                            for (var i = 0; i < rk.length; i++) {
+                                delete this._selectionData[rk[i]];
+                                this._masterTable.Controller
+                                    .redrawVisibleDataObject(this._masterTable.DataHolder.getByPrimaryKey(rk[i]));
+                            }
+                        }
+                        this._selectionData[primaryKey] = [];
+                        this._masterTable.Controller.redrawVisibleDataObject(this._masterTable.DataHolder.getByPrimaryKey(primaryKey));
+                        this._masterTable.Events.SelectionChanged.invokeAfter(this, this._selectionData);
+                    }
+                }
+                else {
+                    if (this._selectionData.hasOwnProperty(primaryKey)) {
+                        if (this._configuration.SelectSingle) {
+                            var rk = [];
+                            for (var sk in this._selectionData) {
+                                rk.push(sk);
+                            }
+                            for (var i = 0; i < rk.length; i++) {
+                                delete this._selectionData[rk[i]];
+                                this._masterTable.Controller
+                                    .redrawVisibleDataObject(this._masterTable.DataHolder.getByPrimaryKey(rk[i]));
+                            }
+                        }
+                        else {
+                            delete this._selectionData[primaryKey];
+                            this._masterTable.Controller.redrawVisibleDataObject(this._masterTable.DataHolder.getByPrimaryKey(primaryKey));
+                        }
+                        this._masterTable.Events.SelectionChanged.invokeAfter(this, this._selectionData);
+                    }
+                }
+            };
+            SelectionService.prototype.toggleDisplayingRow = function (displayIndex, selected) {
+                if (displayIndex < 0 || displayIndex >= this._masterTable.DataHolder.DisplayedData.length)
+                    return;
+                this.toggleRow(this._masterTable.DataHolder.DisplayedData[displayIndex]['__key'], selected);
+            };
+            SelectionService.prototype.toggleObjectSelected = function (dataObject, selected) {
+                this.toggleRow(dataObject['__key'], selected);
+            };
+            SelectionService.prototype.handleAdjustments = function (added, removeKeys) {
+                for (var i = 0; i < removeKeys.length; i++) {
+                    if (this._selectionData.hasOwnProperty(removeKeys[i])) {
+                        delete this._selectionData[removeKeys[i]];
+                    }
+                }
+            };
+            SelectionService.prototype.modifyQuery = function (query, scope) {
+                query.Selection = this._selectionData;
+            };
+            SelectionService.prototype.getSelectedKeys = function () {
+                var keys = [];
+                for (var k in this._selectionData) {
+                    keys.push(k);
+                }
+                return keys;
+            };
+            SelectionService.prototype.getSelectedObjects = function () {
+                var objects = [];
+                for (var k in this._selectionData) {
+                    objects.push(this._masterTable.DataHolder.getByPrimaryKey(k));
+                }
+                return objects;
+            };
+            SelectionService.prototype.getSelectedColumns = function (primaryKey) {
+                var cols = this._masterTable.InstanceManager.Columns;
+                if (!this.isSelectedPrimaryKey(primaryKey))
+                    return [];
+                var selObject = this._selectionData[primaryKey];
+                var result = [];
+                for (var i = 0; i < selObject.length; i++) {
+                    for (var k in cols) {
+                        if (cols[k].Order === selObject[i]) {
+                            result.push(cols[k]);
+                        }
+                    }
+                }
+                return result;
+            };
+            SelectionService.prototype.getSelectedColumnsByObject = function (dataObject) {
+                return this.getSelectedColumns(dataObject['__key']);
+            };
+            //#region Cells selection
+            SelectionService.prototype.toggleCellsByDisplayIndex = function (displayIndex, columnNames, select) {
+                if (displayIndex < 0 || displayIndex >= this._masterTable.DataHolder.DisplayedData.length)
+                    return;
+                this.toggleCells(this._masterTable.DataHolder.DisplayedData[displayIndex]['__key'], columnNames, select);
+            };
+            SelectionService.prototype.toggleCellsByObject = function (dataObject, columnNames, select) {
+                this.toggleCells(dataObject['__key'], columnNames, select);
+            };
+            SelectionService.prototype.toggleCells = function (primaryKey, columnNames, select) {
+                this._masterTable.Events.SelectionChanged.invokeBefore(this, this._selectionData);
+                var arr = null;
+                if (this._selectionData.hasOwnProperty(primaryKey)) {
+                    arr = this._selectionData[primaryKey];
+                }
+                else {
+                    arr = [];
+                    this._selectionData[primaryKey] = arr;
+                }
+                var cols = this._masterTable.InstanceManager.Columns;
+                var columnsToRedraw = [];
+                var data = this._masterTable.DataHolder.getByPrimaryKey(primaryKey);
+                for (var i = 0; i < columnNames.length; i++) {
+                    var idx = cols[columnNames[i]].Order;
+                    var colIdx = arr.indexOf(idx);
+                    var srcLen = arr.length;
+                    var selectIt = select;
+                    if ((this._configuration.NonselectableColumns.indexOf(columnNames[i]) < 0))
+                        continue;
+                    if (selectIt == null || selectIt == undefined) {
+                        if (colIdx > -1)
+                            selectIt = false;
+                        else
+                            selectIt = true;
+                    }
+                    if (this._configuration.CanSelectCellFunction != null && !this._configuration.CanSelectCellFunction(data, columnNames[i], selectIt))
+                        continue;
+                    if (selectIt && colIdx < 0)
+                        arr.push(idx);
+                    if ((!selectIt) && colIdx > -1)
+                        arr.splice(colIdx, 1);
+                    if (srcLen !== arr.length)
+                        columnsToRedraw.push(cols[columnNames[i]]);
+                }
+                if (arr.length === 0) {
+                    delete this._selectionData[primaryKey];
+                }
+                this._masterTable.Controller.redrawVisibleCells(data, columnsToRedraw);
+                this._masterTable.Events.SelectionChanged.invokeAfter(this, this._selectionData);
+            };
+            SelectionService.prototype.setCellsByDisplayIndex = function (displayIndex, columnNames) {
+                if (displayIndex < 0 || displayIndex >= this._masterTable.DataHolder.DisplayedData.length)
+                    return;
+                this.setCells(this._masterTable.DataHolder.DisplayedData[displayIndex]['__key'], columnNames);
+            };
+            SelectionService.prototype.setCellsByObject = function (dataObject, columnNames) {
+                this.setCells(dataObject['__key'], columnNames);
+            };
+            SelectionService.prototype.setCells = function (primaryKey, columnNames) {
+                this._masterTable.Events.SelectionChanged.invokeBefore(this, this._selectionData);
+                var arr = null;
+                if (this._selectionData.hasOwnProperty(primaryKey)) {
+                    arr = this._selectionData[primaryKey];
+                }
+                else {
+                    arr = [];
+                }
+                var cols = this._masterTable.InstanceManager.Columns;
+                var columnsToRedraw = [];
+                var data = this._masterTable.DataHolder.getByPrimaryKey(primaryKey);
+                var newArr = [];
+                var allColsNames = this._masterTable.InstanceManager.getColumnNames();
+                for (var j = 0; j < columnNames.length; j++) {
+                    if (this._configuration.NonselectableColumns) {
+                        if ((this._configuration.NonselectableColumns.indexOf(columnNames[j]) < 0))
+                            continue;
+                    }
+                    if (this._configuration.CanSelectCellFunction != null && !this._configuration.CanSelectCellFunction(data, columnNames[j], true))
+                        continue;
+                    newArr.push(cols[columnNames[j]].Order);
+                }
+                var maxArr = newArr.length > arr.length ? newArr : arr;
+                for (var k = 0; k < maxArr.length; k++) {
+                    var colNum = maxArr[k];
+                    var nw = newArr.indexOf(colNum) > -1;
+                    var old = arr.indexOf(colNum) > -1;
+                    if (nw && !old)
+                        columnsToRedraw.push(cols[allColsNames[colNum]]);
+                    if (old && !nw)
+                        columnsToRedraw.push(cols[allColsNames[colNum]]);
+                }
+                if (newArr.length === 0) {
+                    delete this._selectionData[primaryKey];
+                }
+                else {
+                    this._selectionData[primaryKey] = newArr;
+                }
+                this._masterTable.Controller.redrawVisibleCells(data, columnsToRedraw);
+                this._masterTable.Events.SelectionChanged.invokeAfter(this, this._selectionData);
+            };
+            //#endregion
+            SelectionService.prototype.handleAdditionalData = function (additionalData) {
+                var ad = additionalData;
+                if (ad.SelectionToggle === PowerTables.Adjustments.SelectionToggle.All) {
+                    this.toggleAll(true);
+                }
+                else if (ad.SelectionToggle === PowerTables.Adjustments.SelectionToggle.Nothing) {
+                    this.resetSelection();
+                }
+                else {
+                    for (var ok in ad.Select) {
+                        if (ad.Select[ok] == null || ad.Select[ok].length === 0) {
+                            this.toggleRow(ok, true);
+                        }
+                        else {
+                            this.setCells(ok, ad.Select[ok]);
+                        }
+                    }
+                    for (var ok2 in ad.Unselect) {
+                        if (ad.Unselect[ok2] == null || ad.Unselect[ok2].length === 0) {
+                            this.toggleRow(ok2, true);
+                        }
+                        else {
+                            this.toggleCells(ok2, ad.Unselect[ok2], false);
+                        }
+                    }
+                }
+            };
+            return SelectionService;
+        }());
+        Services.SelectionService = SelectionService;
     })(Services = PowerTables.Services || (PowerTables.Services = {}));
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
@@ -4508,17 +5093,20 @@ var PowerTables;
             };
             Renderer.prototype.renderObject = function (templateId, viewModelBehind, targetSelector) {
                 var parent = document.querySelector(targetSelector);
+                return this.renderObjectTo(templateId, viewModelBehind, parent);
+            };
+            Renderer.prototype.renderObjectTo = function (templateId, viewModelBehind, target) {
                 this._stack.clear();
                 this._stack.push(Rendering.RenderingContextType.Custom, viewModelBehind);
                 var html = this.getCachedTemplate(templateId)(viewModelBehind);
                 var parser = new Rendering.Html2Dom.HtmlParser();
                 var element = parser.html2DomElements(html);
-                parent.innerHTML = '';
+                target.innerHTML = '';
                 for (var i = 0; i < element.length; i++) {
-                    parent.appendChild(element[i]);
+                    target.appendChild(element[i]);
                 }
-                this.BackBinder.backBind(parent);
-                return parent;
+                this.BackBinder.backBind(target);
+                return target;
             };
             Renderer.prototype.destroyAtElement = function (parent) {
                 this.Delegator.handleElementDestroy(parent);
@@ -4850,6 +5438,7 @@ var PowerTables;
             this.Renderer = new PowerTables.Rendering.Renderer(this._configuration.TableRootId, this._configuration.Prefix, this);
             this.Controller = new PowerTables.Services.Controller(this);
             this.Selection = new PowerTables.Services.SelectionService(this);
+            this.Commands = new PowerTables.Services.CommandsService(this);
             this.MessageService = new PowerTables.Services.MessagesService(this._configuration.MessageFunction, this.InstanceManager, this.DataHolder, this.Controller, this.Renderer);
             this.InstanceManager.initPlugins();
             this.Renderer.layout();
@@ -6383,64 +6972,17 @@ var PowerTables;
                         btn.OnClick.call(this.MasterTable, this.MasterTable, this.AllButtons[btn.InternalId]);
                     }
                     if (btn.Command) {
-                        var _self = this;
-                        // ReSharper disable Lambda
-                        var f = function (queryModifier, success, error) {
-                            if (btn.BlackoutWhileCommand) {
-                                btn.IsDisabled = true;
-                                _self.redrawMe();
-                            }
-                            _self.MasterTable.Loader.requestServer(btn.Command, function (response) {
-                                if (btn.CommandCallbackFunction) {
-                                    btn.CommandCallbackFunction.apply(_self.MasterTable, [_self.MasterTable, response]);
-                                }
-                                else {
-                                    if (response.$isDeferred && response.$url) {
-                                        window.location.href = response.$url;
-                                    }
-                                }
-                                if (btn.BlackoutWhileCommand) {
-                                    btn.IsDisabled = false;
-                                    _self.redrawMe();
-                                }
-                                if (success)
-                                    success();
-                            }, queryModifier, function () {
-                                if (btn.BlackoutWhileCommand) {
-                                    btn.IsDisabled = false;
-                                    _self.redrawMe();
-                                }
-                                if (error)
-                                    error();
+                        if (btn.BlackoutWhileCommand) {
+                            btn.IsDisabled = true;
+                            this.redrawMe();
+                            this.MasterTable.Commands.triggerCommand(btn.Command, null, function (r) {
+                                btn.IsDisabled = false;
+                                _this.redrawMe();
                             });
-                        };
-                        // ReSharper restore Lambda
-                        if (btn.ConfirmationFunction)
-                            btn.ConfirmationFunction.apply(this.MasterTable, [f, this.MasterTable]);
-                        else if (btn.ConfirmationTemplateId) {
-                            var tc = new PowerTables.Plugins.Toolbar.CommandConfirmation(function (data) {
-                                f(function (q) {
-                                    q.AdditionalData['Confirmation'] = JSON.stringify(data);
-                                    return q;
-                                }, function () {
-                                    tc.fireEvents(tc.Form, tc.AfterConfirmationResponse);
-                                }, function () {
-                                    tc.fireEvents(tc.Form, tc.ConfirmationResponseError);
-                                });
-                                _this.MasterTable.Renderer.destroyObject(btn.ConfirmationTargetSelector);
-                            }, function () {
-                                _this.MasterTable.Renderer.destroyObject(btn.ConfirmationTargetSelector);
-                            }, this.MasterTable.Date, btn.ConfirmationFormConfiguration);
-                            try {
-                                tc.SelectedItems = this.MasterTable.Selection.getSelectedKeys();
-                                tc.SelectedObjects = this.MasterTable.Selection.getSelectedObjects();
-                            }
-                            catch (e) { }
-                            var r = this.MasterTable.Renderer.renderObject(btn.ConfirmationTemplateId, tc, btn.ConfirmationTargetSelector);
-                            tc.RootElement = r;
                         }
-                        else
-                            f();
+                        else {
+                            this.MasterTable.Commands.triggerCommand(btn.Command, null);
+                        }
                     }
                 };
                 /*
@@ -6459,7 +7001,11 @@ var PowerTables;
                 };
                 ToolbarPlugin.prototype.onSelectionChanged = function (e) {
                     var atleastOne = false;
-                    var disabled = e.EventArgs.length === 0;
+                    var disabled = true;
+                    for (var d in e.EventArgs) {
+                        disabled = false;
+                        break;
+                    }
                     for (var bc in this._buttonsConfig) {
                         if (this._buttonsConfig.hasOwnProperty(bc)) {
                             if (this._buttonsConfig[bc].DisableIfNothingChecked) {
@@ -6478,15 +7024,11 @@ var PowerTables;
                  */
                 ToolbarPlugin.prototype.init = function (masterTable) {
                     _super.prototype.init.call(this, masterTable);
-                    try {
-                        var nothingSelected = this.MasterTable.Selection.getSelectedKeys().length === 0;
-                        for (var i = 0; i < this.Configuration.Buttons.length; i++) {
-                            if (this.Configuration.Buttons[i].DisableIfNothingChecked) {
-                                this.Configuration.Buttons[i].IsDisabled = nothingSelected;
-                            }
+                    var nothingSelected = this.MasterTable.Selection.getSelectedKeys().length === 0;
+                    for (var i = 0; i < this.Configuration.Buttons.length; i++) {
+                        if (this.Configuration.Buttons[i].DisableIfNothingChecked) {
+                            this.Configuration.Buttons[i].IsDisabled = nothingSelected;
                         }
-                    }
-                    catch (e) {
                     }
                     this.traverseButtons(this.Configuration.Buttons);
                     this.MasterTable.Events.SelectionChanged.subscribe(this.onSelectionChanged.bind(this), 'toolbar');
@@ -6821,128 +7363,6 @@ var PowerTables;
 (function (PowerTables) {
     var Plugins;
     (function (Plugins) {
-        var Toolbar;
-        (function (Toolbar) {
-            /**
-             * Backing class for confirmation panel created as part of button action
-             */
-            var CommandConfirmation = (function () {
-                /**
-                 * @internal
-                 */
-                function CommandConfirmation(confirm, reject, date, autoform) {
-                    this._beforeConfirm = [];
-                    /**
-                     * @internal
-                     */
-                    this.AfterConfirm = [];
-                    this._beforeReject = [];
-                    /**
-                     * @internal
-                     */
-                    this.AfterReject = [];
-                    /**
-                     * @internal
-                     */
-                    this.AfterConfirmationResponse = [];
-                    /**
-                     * @internal
-                     */
-                    this.ConfirmationResponseError = [];
-                    /**
-                     * Set of form values (available only after window is commited or dismissed)
-                     */
-                    this.Form = null;
-                    this._confirm = confirm;
-                    this._reject = reject;
-                    this._date = date;
-                    this._autoform = autoform;
-                }
-                /**
-                 * @internal
-                 */
-                CommandConfirmation.prototype.onRender = function (parent) {
-                    this.RootElement = parent;
-                    if (this._autoform != null) {
-                        for (var i = 0; i < this._autoform.length; i++) {
-                            var conf = this._autoform[i];
-                            if (conf.TriggerSearchOnEvents && conf.TriggerSearchOnEvents.length > 0) {
-                                var element = document.querySelector(conf.FieldSelector);
-                                if (conf.AutomaticallyAttachDatepicker) {
-                                    this._date.createDatePicker(element);
-                                }
-                            }
-                        }
-                    }
-                };
-                /**
-                 * @internal
-                 */
-                CommandConfirmation.prototype.fireEvents = function (form, array) {
-                    for (var i = 0; i < array.length; i++) {
-                        array[i](form);
-                    }
-                };
-                CommandConfirmation.prototype.collectFormData = function () {
-                    if (this.Form != null)
-                        return;
-                    var form = {};
-                    if (this._autoform != null) {
-                        form = PowerTables.Plugins.Formwatch.FormwatchPlugin.extractFormData(this._autoform, this.RootElement, this._date);
-                    }
-                    this.Form = form;
-                };
-                /**
-                 * Commits confirmation form, collects form, destroys confirmation panel element and proceeds server command, fires corresponding events
-                 */
-                CommandConfirmation.prototype.confirm = function () {
-                    this.collectFormData();
-                    this.fireEvents(this.Form, this._beforeConfirm);
-                    this._confirm(this.Form);
-                    this.fireEvents(this.Form, this.AfterConfirm);
-                };
-                /**
-                 * Destroys confirmation panel element, collects form, does not send anything to server, fires corresponding events
-                 */
-                CommandConfirmation.prototype.dismiss = function () {
-                    this.collectFormData();
-                    this.fireEvents(this.Form, this._beforeReject);
-                    this._reject();
-                    this.fireEvents(this.Form, this.AfterReject);
-                };
-                /**
-                 * Subscribes specified function to be invoked after pressing confirm button (or calling confirm method) but before processing
-                 * @param fn Function that consumes form data
-                 */
-                CommandConfirmation.prototype.onBeforeConfirm = function (fn) { this._beforeConfirm.push(fn); };
-                /**
-                 * Subscribes specified function to be invoked after pressing confirm button and client-side form processing (it is possible to add something to form)
-                 * but before sending data to server
-                 * @param fn Function that consumes form data
-                 */
-                CommandConfirmation.prototype.onAfterConfirm = function (fn) { this.AfterConfirm.push(fn); };
-                /**
-                 * Subscribes specified function to be invoked after pressing reject button (or calling reject method) but before processing
-                 * @param fn Function that consumes form data
-                 */
-                CommandConfirmation.prototype.onBeforeReject = function (fn) { this._beforeReject.push(fn); };
-                /**
-                 * Subscribes specified function to be invoked after pressing reject button (or calling reject method) but before processing
-                 * @param fn Function that consumes form data
-                 */
-                CommandConfirmation.prototype.onAfterReject = function (fn) { this.AfterReject.push(fn); };
-                CommandConfirmation.prototype.onAfterConfirmationResponse = function (fn) { this.AfterConfirmationResponse.push(fn); };
-                CommandConfirmation.prototype.onConfirmationResponseError = function (fn) { this.ConfirmationResponseError.push(fn); };
-                return CommandConfirmation;
-            }());
-            Toolbar.CommandConfirmation = CommandConfirmation;
-        })(Toolbar = Plugins.Toolbar || (Plugins.Toolbar = {}));
-    })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var Plugins;
-    (function (Plugins) {
         var RegularSelect;
         (function (RegularSelect) {
             var RegularSelectPlugin = (function (_super) {
@@ -6958,10 +7378,10 @@ var PowerTables;
                 };
                 RegularSelectPlugin.prototype.startSelection = function (e) {
                     this._isSelecting = true;
-                    this._startRow = e.DisplayingRowIndex;
-                    this._startColumn = e.ColumnIndex;
-                    this._endRow = e.DisplayingRowIndex;
-                    this._endColumn = this.MasterTable.InstanceManager.getColumnByOrder(e.ColumnIndex).UiOrder;
+                    this._startRow = e.Row;
+                    this._startColumn = e.Column;
+                    this._endRow = e.Row;
+                    this._endColumn = this.MasterTable.InstanceManager.getColumnByOrder(e.Column).UiOrder;
                     this._reset = false;
                     e.OriginalEvent.preventDefault();
                 };
@@ -7018,7 +7438,7 @@ var PowerTables;
                         this.MasterTable.Selection.resetSelection();
                         this._reset = true;
                     }
-                    this.diff(e.DisplayingRowIndex, e.ColumnIndex);
+                    this.diff(e.Row, e.Column);
                     e.OriginalEvent.preventDefault();
                 };
                 return RegularSelectPlugin;
@@ -7213,13 +7633,13 @@ var PowerTables;
                     this._stolenFilterFunctions = [];
                 }
                 HierarchyPlugin.prototype.expandSubtree = function (args) {
-                    this.toggleSubtreeByObject(this.MasterTable.DataHolder.localLookupDisplayedData(args.DisplayingRowIndex).DataObject, true, args.DisplayingRowIndex);
+                    this.toggleSubtreeByObject(this.MasterTable.DataHolder.localLookupDisplayedData(args.Row).DataObject, true, args.Row);
                 };
                 HierarchyPlugin.prototype.collapseSubtree = function (args) {
-                    this.toggleSubtreeByObject(this.MasterTable.DataHolder.localLookupDisplayedData(args.DisplayingRowIndex).DataObject, false, args.DisplayingRowIndex);
+                    this.toggleSubtreeByObject(this.MasterTable.DataHolder.localLookupDisplayedData(args.Row).DataObject, false, args.Row);
                 };
                 HierarchyPlugin.prototype.toggleSubtree = function (args) {
-                    this.toggleSubtreeByObject(this.MasterTable.DataHolder.localLookupDisplayedData(args.DisplayingRowIndex).DataObject, null, args.DisplayingRowIndex);
+                    this.toggleSubtreeByObject(this.MasterTable.DataHolder.localLookupDisplayedData(args.Row).DataObject, null, args.Row);
                 };
                 HierarchyPlugin.prototype.toggleSubtreeByObject = function (dataObject, turnOpen, index) {
                     if (dataObject == null || dataObject == undefined)
@@ -7715,8 +8135,8 @@ var PowerTables;
                     CellsEditHandler.prototype.beginCellEditHandle = function (e) {
                         if (this._isEditing)
                             return;
-                        var col = this.MasterTable.InstanceManager.getColumnByOrder(e.ColumnIndex);
-                        this.beginCellEdit(col, e.DisplayingRowIndex);
+                        var col = this.MasterTable.InstanceManager.getColumnByOrder(e.Column);
+                        this.beginCellEdit(col, e.Row);
                         e.Stop = true;
                     };
                     CellsEditHandler.prototype.onBeforeClientRowsRendering = function (e) {
@@ -7966,7 +8386,7 @@ var PowerTables;
                     };
                     RowsEditHandler.prototype.beginRowEditHandle = function (e) {
                         //if (this._isEditing) return;
-                        this.beginRowEdit(e.DisplayingRowIndex);
+                        this.beginRowEdit(e.Row);
                     };
                     RowsEditHandler.prototype.commitRowEditHandle = function (e) {
                         if (!this._isEditing)
@@ -8037,12 +8457,12 @@ var PowerTables;
                 };
                 FormEditHandler.prototype.beginFormEditHandler = function (e) {
                     if (this._isEditing) {
-                        var lookup = this.MasterTable.DataHolder.localLookupDisplayedData(e.DisplayingRowIndex);
+                        var lookup = this.MasterTable.DataHolder.localLookupDisplayedData(e.Row);
                         if (this.DataObject !== lookup.DataObject) {
                             this.rejectAll();
                         }
                     }
-                    this.ensureEditing(e.DisplayingRowIndex);
+                    this.ensureEditing(e.Row);
                     this.startupForm();
                 };
                 FormEditHandler.prototype.startupForm = function () {

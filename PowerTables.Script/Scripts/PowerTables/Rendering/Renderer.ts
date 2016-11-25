@@ -155,17 +155,21 @@
 
         public renderObject(templateId: string, viewModelBehind: any, targetSelector: string): HTMLElement {
             var parent = <HTMLElement>document.querySelector(targetSelector);
+            return this.renderObjectTo(templateId, viewModelBehind, parent);
+        }
+
+        public renderObjectTo(templateId: string, viewModelBehind: any, target: HTMLElement): HTMLElement {
             this._stack.clear();
             this._stack.push(RenderingContextType.Custom, viewModelBehind);
             var html = this.getCachedTemplate(templateId)(viewModelBehind);
             var parser: Rendering.Html2Dom.HtmlParser = new Rendering.Html2Dom.HtmlParser();
             var element = parser.html2DomElements(html);
-            parent.innerHTML = '';
+            target.innerHTML = '';
             for (var i = 0; i < element.length; i++) {
-                parent.appendChild(element[i]);
+                target.appendChild(element[i]);
             }
-            this.BackBinder.backBind(parent);
-            return parent;
+            this.BackBinder.backBind(target);
+            return target;
         }
 
         public destroyAtElement(parent: HTMLElement) {

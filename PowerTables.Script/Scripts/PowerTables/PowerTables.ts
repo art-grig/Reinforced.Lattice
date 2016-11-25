@@ -63,6 +63,7 @@ module PowerTables {
             this.Renderer = new Rendering.Renderer(this._configuration.TableRootId, this._configuration.Prefix, this);
             this.Controller = new PowerTables.Services.Controller(this);
             this.Selection = new PowerTables.Services.SelectionService(this);
+            this.Commands = new PowerTables.Services.CommandsService(this);
 
             this.MessageService = new PowerTables.Services.MessagesService(this._configuration.MessageFunction, this.InstanceManager, this.DataHolder, this.Controller, this.Renderer);
 
@@ -138,6 +139,11 @@ module PowerTables {
          * API for table messages
          */
         public MessageService: PowerTables.Services.MessagesService;
+
+        /**
+         * API for table messages
+         */
+        public Commands: PowerTables.Services.CommandsService;
 
         /**
          * Fires specified DOM event on specified element

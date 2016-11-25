@@ -17,10 +17,10 @@
 
         public startSelection(e: ICellEventArgs) {
             this._isSelecting = true;
-            this._startRow = e.DisplayingRowIndex;
-            this._startColumn = e.ColumnIndex;
-            this._endRow = e.DisplayingRowIndex;
-            this._endColumn = this.MasterTable.InstanceManager.getColumnByOrder(e.ColumnIndex).UiOrder;
+            this._startRow = e.Row;
+            this._startColumn = e.Column;
+            this._endRow = e.Row;
+            this._endColumn = this.MasterTable.InstanceManager.getColumnByOrder(e.Column).UiOrder;
             this._reset = false;
             e.OriginalEvent.preventDefault();
         }
@@ -86,7 +86,7 @@
                 this.MasterTable.Selection.resetSelection();
                 this._reset = true;
             }
-            this.diff(e.DisplayingRowIndex, e.ColumnIndex);
+            this.diff(e.Row, e.Column);
             e.OriginalEvent.preventDefault();
         }
     }

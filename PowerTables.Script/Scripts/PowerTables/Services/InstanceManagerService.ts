@@ -206,7 +206,7 @@
                     var h2 = (sub.ColumnName==null)?sub.Handler:
                         (function (hndlr, im: InstanceManagerService, colName) {
                         return function (e: ICellEventArgs) {
-                            if (im.getColumnNames().indexOf(colName) !== e.ColumnIndex) return;
+                            if (im.getColumnNames().indexOf(colName) !== e.Column) return;
                             hndlr(e);
                         }
                         })(sub.Handler, this._masterTable.InstanceManager, sub.ColumnName);

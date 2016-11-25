@@ -63,19 +63,14 @@ namespace PowerTables.Plugins.Toolbar
         /// <param name="htmlContent">HTML button content</param>
         /// <param name="command">Command that button initiates</param>
         /// <param name="disableWhileCommand">When true, button will be disabled while command is executing</param>
-        /// <param name="callbackFunction">Javascript function containing callback after command execution</param>
-        /// <param name="confirmationFunction">Javascript function that is being called before command execution</param>
         /// <returns></returns>
-        public ToolbarItemBuilder AddCommandButton(string htmlContent, string command,
-            bool disableWhileCommand = true, string callbackFunction = null,string confirmationFunction = null)
+        public ToolbarItemBuilder AddCommandButton(string htmlContent, string command, bool disableWhileCommand = true)
         {
             var conf = new ToolbarButtonClientConfiguration()
             {
                 HtmlContent = htmlContent,
                 BlackoutWhileCommand = disableWhileCommand,
-                Command = command,
-                CommandCallbackFunction = callbackFunction != null ? new JRaw(callbackFunction) : null,
-                ConfirmationFunction = confirmationFunction!=null? new JRaw(confirmationFunction) : null
+                Command = command
             };
             _buttons.Add(conf);
             return new ToolbarItemBuilder(conf);
@@ -108,21 +103,16 @@ namespace PowerTables.Plugins.Toolbar
         /// <param name="command">Command that is being executed by pressing button</param>
         /// <param name="submenu">Submenu builder</param>
         /// <param name="disableWhileCommand">When true, button will be disabled while command is executing</param>
-        /// <param name="callbackFunction">Javascript function containing callback after command execution</param>
-        /// <param name="confirmationFunction">Javascript function that is being called before command execution</param>
         /// <returns></returns>
         public ToolbarItemBuilder AddMenuButton(string htmlContent, string command,
             Action<ToolbarSubmenuBuilder> submenu,
-            bool disableWhileCommand = true, string callbackFunction = null,
-            string confirmationFunction = null)
+            bool disableWhileCommand = true)
         {
             var conf = new ToolbarButtonClientConfiguration()
             {
                 HtmlContent = htmlContent,
                 BlackoutWhileCommand = disableWhileCommand,
-                Command = command,
-                CommandCallbackFunction = callbackFunction != null ? new JRaw(callbackFunction) : null,
-                ConfirmationFunction = confirmationFunction != null ? new JRaw(confirmationFunction) : null
+                Command = command
             };
             var suBuilder = new ToolbarSubmenuBuilder(conf.Submenu);
             submenu(suBuilder);

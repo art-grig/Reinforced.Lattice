@@ -33,12 +33,6 @@ namespace PowerTables.Mvc.Models
         public const string ExportSelected = "export-selected";
         public const string ExportAll = "export-selected";
 
-        public static ToolbarItemBuilder ShowMessageResponseCallback(this ToolbarItemBuilder tib)
-        {
-            const string fun = "function(t,r) { if (r.Message) alert(r.Message); t.getPlugin('Checkboxify').resetSelection();  t.reload(); }";
-            tib.Configuration.CommandCallbackFunction = new JRaw(fun);
-            return tib;
-        }
         public static Configurator<Toy, Row> Configure(this Configurator<Toy, Row> conf)
         {
             conf.Url("/Home/HandleTable");

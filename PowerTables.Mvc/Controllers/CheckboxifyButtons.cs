@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Data.Entity.Core.Metadata.Edm;
 using System.Linq;
+using System.Threading;
 using System.Web;
 using System.Web.Mvc;
+using PowerTables.Adjustments;
+using PowerTables.Commands;
 using PowerTables.Defaults;
 using PowerTables.Editing;
 using PowerTables.Mvc.Models;
@@ -28,7 +31,38 @@ namespace PowerTables.Mvc.Controllers
             var handler = new PowerTablesHandler<Toy, Row>(t);
             handler.AddCommandHandler(Tutorial.Remove,RemoveSelected);
             handler.AddCommandHandler(Tutorial.Update, UpdateSelected);
+            handler.AddCommandHandler("LeaveComment",LeaveComment);
+            handler.AddCommandHandler("LoadComments",LoadComments);
+            handler.AddCommandHandler("PricesDetails", PricesDetails);
             return handler.Handle(Data.SourceData.AsQueryable(), ControllerContext);            
+        }
+
+        private PartialViewResult LoadComments(PowerTablesData<Toy, Row> powerTablesData)
+        {
+            Thread.Sleep(2000);
+            var subject = powerTablesData.CommandSubject();
+            return PartialView("CommentsPartial", subject);
+        }
+
+        private TableAdjustment LeaveComment(PowerTablesData<Toy, Row> powerTablesData)
+        {
+            var subject = powerTablesData.CommandSubject();
+            var comment = powerTablesData.CommandConfirmation<CommentForm>();
+
+            return powerTablesData.Adjust(x => x.Message(TableMessage.User("success", "Comment saved")));
+        }
+
+        public ActionResult PricesDetails(PowerTablesData<Toy, Row> powerTablesData)
+        {
+            var confirmation = powerTablesData.CommandConfirmation<PriceRange>();
+            var toys = Data.SourceData.Where(c => (confirmation.StartPrice.HasValue?c.Price > (double) confirmation.StartPrice.Value:true)
+                && (confirmation.EndPrice.HasValue ? c.Price < (double)confirmation.EndPrice.Value : true));
+            var details = new DetailsModel()
+            {
+                AveragePrice = (decimal) toys.Select(c=>c.Price).DefaultIfEmpty().Average(),
+                ItemsCount = toys.Count()
+            };
+            return Content("Avg price: " + details.AveragePrice);
         }
 
         private TableAdjustment RemoveSelected(PowerTablesData<Toy, Row> arg)

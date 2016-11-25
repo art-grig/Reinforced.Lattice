@@ -4,6 +4,7 @@
 @using PowerTables.Templating
 @using PowerTables.Templating.Handlebars
 @using PowerTables.Mvc.Models
+@using PowerTables.Templating.BuiltIn
 
 <!DOCTYPE html>
 @{
@@ -156,7 +157,7 @@
                 </div>
             </div>
         }
-        using (var conf1 = t.Plugin.Toolbar_ConfirmationWindow("simpleConfirmation"))
+        using (var conf1 = t.Plugin.Confirmation("simpleConfirmation"))
         {
             <div class="modal-content" @t.Callback("showModal") @t.DestroyCallback("hideModal")>
                 <div class="modal-header">
@@ -175,7 +176,7 @@
             </div>
         }
 
-        using (var conf1 = t.Plugin.Toolbar_ConfirmationWindow<Row>("confirmationSelection"))
+        using (var conf1 = t.Plugin.Confirmation<Row>("confirmationSelection"))
         {
             <div class="modal-content" @t.Callback("showModal") @t.DestroyCallback("hideModal")>
                 <div class="modal-header">
@@ -184,10 +185,10 @@
                 </div>
                 <div class="modal-body" @t.Callback("windowObj.callback", ".")>
                     <p>
-                        Are you sure want to perform action 1 on @conf1.Value(c => c.SelectedObjects.Length) items?
+                        Are you sure want to perform action 1 on @conf1.Value(c => c.Selection.Length) items?
                         <br />
                         Selected Items: <br />
-                        @using (var item = @conf1.Each(c => c.SelectedObjects))
+                        @using (var item = conf1.Each(c => c.Selection))
                         {
                             @item.Value(c => c.Name)
                             <br />
@@ -201,7 +202,7 @@
             </div>
         }
 
-        using (var conf1 = t.Plugin.Toolbar_ConfirmationWindow<Row, SimpleConfirmationModel>("confirmationSelectionForm"))
+        using (var conf1 = t.Plugin.Confirmation<Row, SimpleConfirmationModel>("confirmationSelectionForm"))
         {
             <div class="modal-content" @t.Callback("showModal") @t.DestroyCallback("hideModal")>
                 <div class="modal-header">
@@ -210,7 +211,7 @@
                 </div>
                 <div class="modal-body">
                     <p>
-                        Are you sure want to perform action 1 on @conf1.Value(c => c.SelectedObjects.Length) items?
+                        Are you sure want to perform action 1 on @conf1.Value(c => c.Selection.Length) items?
                         <br /><br />
                         <fieldset class="form-horizontal">
                             <div class="form-group">
@@ -227,7 +228,7 @@
                             </div>
                         </fieldset>
                         <script type="text/javascript">
-                            alert('o hai!');
+                            alert('Javascript supported!');
                         </script>
                     </p>
                 </div>
@@ -236,6 +237,119 @@
                     <button type="button" class="btn btn-primary" @conf1.BindConfirm("click")>Yes</button>
                 </div>
             </div>
+        }
+
+        using (var conf1 = t.Plugin.Confirmation<Row>("removalConfirmation"))
+        {
+            <div class="modal-content" @t.Callback("showModal") @t.DestroyCallback("hideModal")>
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">@conf1.TemplatePiece("Name") removal</h4>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        Are you sure want to remove @conf1.Value(c => c.Selection.Length) @conf1.TemplatePiece("NamePlural")?
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" @conf1.BindDismiss("click")>Nope</button>
+                    <button type="button" class="btn btn-primary" @conf1.BindConfirm("click")>Yes</button>
+                </div>
+            </div>
+        }
+
+        using (var conf1 = t.Plugin.Confirmation<Row>("commentConfirmation"))
+        {
+            <div class="modal-content" @t.Callback("showModal") @t.DestroyCallback("hideModal")>
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Leave comment for @conf1.Value(c=>c.Subject.Name)</h4>
+                </div>
+                <div class="modal-body">
+                    <fieldset class="form-horizontal">
+                        @conf1.Editors()
+                    </fieldset>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" @conf1.BindDismiss("click")>Nope</button>
+                    <button type="button" class="btn btn-primary" @conf1.BindConfirm("click")>Yes</button>
+                </div>
+            </div>
+        }
+
+        using (var conf1 = t.Plugin.Confirmation<Row>("commentsView"))
+        {
+            <div class="modal-content" @t.Callback("showModal") @t.DestroyCallback("hideModal")>
+                <div class="modal-body">
+                    <p class="text-center" style="display: none" @conf1.WhenContentLoading(c => c.Style("display", "inline"))>
+                        <h1><span class="glyphicon glyphicon-refresh"></span> Loading...</h1>
+                    </p>
+                    <div @conf1.WhenContentLoading(c=>c.Style("display","none")) @conf1.ThisIsContentContainer()></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" @conf1.BindDismiss("click")>Ok</button>
+                </div>
+            </div>
+        }
+
+        using (var conf1 = t.Plugin.Confirmation<Row>("commentsAndFeedback"))
+        {
+            <div class="modal-content" @t.Callback("showModal") @t.DestroyCallback("hideModal")>
+                <div class="modal-body">
+                    <fieldset class="form-horizontal">
+                        @conf1.Editors()
+                    </fieldset>
+                    <p class="text-center" style="display: none" @conf1.WhenContentLoading(c => c.Style("display", "inline"))>
+                        <h1><span class="glyphicon glyphicon-refresh"></span> Loading...
+                        </h1>
+                    </p>
+                    <div @conf1.WhenContentLoading(c => c.Style("display", "none")) @conf1.ThisIsContentContainer()></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" @conf1.BindDismiss("click")>Cancel</button>
+                    <button type="button" class="btn btn-primary" @conf1.BindConfirm("click")>Confirm</button>
+                </div>
+            </div>
+        }
+
+        using (var conf1 = t.Plugin.Confirmation<Row>("detailsTest"))
+        {
+            <div class="modal-content" @t.Callback("showModal") @t.DestroyCallback("hideModal")>
+                <div class="modal-body">
+                    <fieldset class="form-horizontal">
+                        @conf1.Editors()
+                    </fieldset>
+                    <p class="text-center" style="display: none" @conf1.WhenContentLoading(c => c.Style("display", "inline"))>
+                        <h1>
+                            <span class="glyphicon glyphicon-refresh"></span> Loading...
+                        </h1>
+                    </p>
+                    <div @conf1.WhenContentLoading(c => c.Style("display", "none")) @conf1.ThisIsDetailsContainer()>
+                        <p class="text-center"><i>Please change price limits to get results</i></p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" @conf1.BindDismiss("click")>Cancel</button>
+                    <button type="button" class="btn btn-primary" @conf1.BindConfirm("click")>Confirm</button>
+                </div>
+            </div>
+        }
+
+        using (var w = t.Plugin.Details<Row, DetailsModel, PriceRange>("toysDetails"))
+        {
+            <table class="table table-striped table-bordered">
+                <tbody>
+                    <tr>
+                        <td><b>Toy Name</b></td>
+                        <td>@w.Value(c => c.Subject.Name)</td>
+                    </tr>
+                    <tr>
+                        <td><b>Average Price</b></td>
+                        <td>@w.Value(c => c.Details.AveragePrice)</td>
+                    </tr>
+                    <tr><td><b>Items Count</b></td><td>@w.Value(c => c.Details.ItemsCount)</td></tr>
+                </tbody>
+            </table>
         }
     }
 
