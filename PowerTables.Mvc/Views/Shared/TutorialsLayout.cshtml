@@ -311,6 +311,46 @@
                 </div>
             </div>
         }
+
+        using (var conf1 = t.Plugin.Confirmation<Row>("detailsTest"))
+        {
+            <div class="modal-content" @t.Callback("showModal") @t.DestroyCallback("hideModal")>
+                <div class="modal-body">
+                    <fieldset class="form-horizontal">
+                        @conf1.Editors()
+                    </fieldset>
+                    <p class="text-center" style="display: none" @conf1.WhenContentLoading(c => c.Style("display", "inline"))>
+                        <h1>
+                            <span class="glyphicon glyphicon-refresh"></span> Loading...
+                        </h1>
+                    </p>
+                    <div @conf1.WhenContentLoading(c => c.Style("display", "none")) @conf1.ThisIsDetailsContainer()>
+                        <p class="text-center"><i>Please change price limits to get results</i></p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" @conf1.BindDismiss("click")>Cancel</button>
+                    <button type="button" class="btn btn-primary" @conf1.BindConfirm("click")>Confirm</button>
+                </div>
+            </div>
+        }
+
+        using (var w = t.Plugin.Details<Row, DetailsModel, PriceRange>("toysDetails"))
+        {
+            <table class="table table-striped table-bordered">
+                <tbody>
+                    <tr>
+                        <td><b>Toy Name</b></td>
+                        <td>@w.Value(c => c.Subject.Name)</td>
+                    </tr>
+                    <tr>
+                        <td><b>Average Price</b></td>
+                        <td>@w.Value(c => c.Details.AveragePrice)</td>
+                    </tr>
+                    <tr><td><b>Items Count</b></td><td>@w.Value(c => c.Details.ItemsCount)</td></tr>
+                </tbody>
+            </table>
+        }
     }
 
 </body>

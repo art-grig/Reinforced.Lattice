@@ -32,6 +32,20 @@ namespace PowerTables.Mvc.Models.Tutorial
 
         public DateTime CommentDate { get; set; }
     }
+
+    public class PriceRange
+    {
+        public decimal? StartPrice { get; set; }
+
+        public decimal? EndPrice { get; set; }
+    }
+
+    public class DetailsModel
+    {
+        public decimal AveragePrice { get; set; }
+        public int ItemsCount { get; set; }
+
+    }
     public static partial class Tutorial
     {
         public const string Remove = "remove";
@@ -46,7 +60,7 @@ namespace PowerTables.Mvc.Models.Tutorial
 
             conf.Checkboxify();
 
-            var rateItems = Enumerable.Range(1, 5).OrderByDescending(c=>c).Select(c => new SelectListItem()
+            var rateItems = Enumerable.Range(1, 5).OrderByDescending(c => c).Select(c => new SelectListItem()
             {
                 Text = c + " stars",
                 Value = c.ToString()
@@ -55,11 +69,15 @@ namespace PowerTables.Mvc.Models.Tutorial
             conf
                 .Command(Remove, x => x.Window("simpleConfirmation", "#confirmationContent"))
                 .Command("Remove2", x => x.Server(Remove).Window("simpleConfirmation", "#confirmationContent"))
-                .Command(Update, x => x.Window<SimpleConfirmationModel>("confirmationSelectionForm", "#confirmationContent", c => c.WatchForm(d => d.WatchAllFields())))
+                .Command(Update,
+                    x =>
+                        x.Window<SimpleConfirmationModel>("confirmationSelectionForm", "#confirmationContent",
+                            c => c.WatchForm(d => d.WatchAllFields())))
                 .Command("Remove3", x =>
                 {
                     x.Server(Remove)
-                     .Window("removalConfirmation", "#confirmationContent", d => d.Part("Name", "Toy").Part("NamePlural", "toys"));
+                        .Window("removalConfirmation", "#confirmationContent",
+                            d => d.Part("Name", "Toy").Part("NamePlural", "toys"));
 
                 })
                 .Command("LeaveComment", x =>
@@ -70,9 +88,10 @@ namespace PowerTables.Mvc.Models.Tutorial
                         {
                             c.EditMemo(v => v.CommentText).FakeColumn(n => n.Title("Comment"));
                             c.EditPlainText(v => v.Email)
-                                .OverrideErrorMessage(PlainTextEditorConfigurationExtensions.Validation_Emptystring,"Email is required")
+                                .OverrideErrorMessage(PlainTextEditorConfigurationExtensions.Validation_Emptystring,
+                                    "Email is required")
                                 .FakeColumn(n => n.Title("Your Email"));
-                            c.EditSelectList(v => v.Rate).FakeColumn(n=>n.Title("Rate")).Items(rateItems);
+                            c.EditSelectList(v => v.Rate).FakeColumn(n => n.Title("Rate")).Items(rateItems);
                             c.EditCheck(v => v.ShowMyEmail).FakeColumn(n => n.Title("Show My Email"));
                         });
                     });
@@ -89,7 +108,8 @@ namespace PowerTables.Mvc.Models.Tutorial
                         {
                             c.EditCheck(v => v.Validated)
                                 .FakeColumn(n => n.Title("Validated"))
-                                .OverrideErrorMessage(CheckEditorConfigurationExtensions.Validation_Mandatory,"You must validate comments")
+                                .OverrideErrorMessage(CheckEditorConfigurationExtensions.Validation_Mandatory,
+                                    "You must validate comments")
                                 .Mandatory()
                                 ;
                             c.EditPlainText(v => v.CommentDate)
@@ -99,8 +119,31 @@ namespace PowerTables.Mvc.Models.Tutorial
                         d.ContentCommand("LoadComments");
                     });
                 })
-                
-            ;
+                .Command("CommentDetails", x =>
+                {
+                    x.Window<PriceRange>("detailsTest", "#confirmationContent", d =>
+                    {
+                        d.AutoForm(c =>
+                        {
+                            c.EditPlainText(v => v.StartPrice)
+                                .FakeColumn(n => n.Title("Start"))
+                                .CanTypeEmpty()
+                                ;
+                            c.EditPlainText(v => v.EndPrice)
+                                .FakeColumn(n => n.Title("End"))
+                                .CanTypeEmpty()
+                                ;
+                        });
+                        d.Details(c =>
+                        {
+                            c.Debounce(100);
+                            c.TemplateId("toysDetails");
+                            c.FromCommand("PricesDetails");
+                        });
+                    });
+                });
+
+
 
             conf.Column(c => c.TypeOfToy).Template(x => x.Returns("<a class='btn btn-sm btn-default'>Leave comment</a>"))
                 .SubscribeCellEvent(a => a.Command("click", "LeaveComment").Selector("a"));
@@ -108,13 +151,14 @@ namespace PowerTables.Mvc.Models.Tutorial
                .SubscribeCellEvent(a => a.Command("click", "ViewComments").Selector("a"));
             conf.Column(c => c.ItemsSold).Template(x => x.Returns("<a class='btn btn-sm btn-default'>Feedback</a>"))
                .SubscribeCellEvent(a => a.Command("click", "CommentFeedback").Selector("a"));
-
+            conf.Column(c => c.Preorders).Template(x => x.Returns("<a class='btn btn-sm btn-default'>Details</a>"))
+               .SubscribeCellEvent(a => a.Command("click", "CommentDetails").Selector("a"));
             conf.Toolbar("toolbar-rt", a =>
             {
 
                 a.AddCommandButton(Remove.GlyphIcon() + " Remove selected", Remove)
                     .DisableIfNothingChecked();
-                
+
 
                 a.AddCommandButton(Download.GlyphIcon() + " Download", Download);
 

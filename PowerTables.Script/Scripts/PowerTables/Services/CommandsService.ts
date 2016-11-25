@@ -297,6 +297,9 @@
                     this.initFormWatchDatepickers(this.DetailsPlaceholder);
                 } else {
                     if (this._config.Details.TempalteId != null && this._config.Details.TempalteId != undefined) {
+                        if (this.RecentDetails.Data != null) {
+                            this.MasterTable.Renderer.destroyAtElement(this.DetailsPlaceholder);
+                        }
                         var param = {
                             Subject: this.Subject,
                             Details: detailsResult,
@@ -517,9 +520,6 @@
                     }
                 }
                 if (idx !== -1) this.ActiveEditors[idx].focus();
-                //else {
-                //    this.commitAll(); not sure that majority of users will value such kind of solution
-                //}
             }
         }
         private retrieveEditorData(editor: PowerTables.Editing.IEditor, errors?: PowerTables.Editing.IValidationMessage[]) {

@@ -2923,6 +2923,9 @@ var PowerTables;
                     }
                     else {
                         if (this._config.Details.TempalteId != null && this._config.Details.TempalteId != undefined) {
+                            if (this.RecentDetails.Data != null) {
+                                this.MasterTable.Renderer.destroyAtElement(this.DetailsPlaceholder);
+                            }
                             var param = {
                                 Subject: this.Subject,
                                 Details: detailsResult,

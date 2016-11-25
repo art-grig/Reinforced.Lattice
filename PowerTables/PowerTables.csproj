@@ -254,6 +254,7 @@
     <Compile Include="Templating\BuiltIn\CellTemplateRegion.cs" />
     <Compile Include="Templating\BuiltIn\CellWrapperTemplateRegion.cs" />
     <Compile Include="Templating\BuiltIn\CommandConfirmationTemplateRegion.cs" />
+    <Compile Include="Templating\BuiltIn\CommandDetailsTemplate.cs" />
     <Compile Include="Templating\BuiltIn\MessageWrapperTemplateRegion.cs" />
     <Compile Include="Templating\BuiltIn\HeaderWrapperTemplateRegion.cs" />
     <Compile Include="Templating\DOMEvent.cs" />

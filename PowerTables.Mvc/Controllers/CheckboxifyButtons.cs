@@ -33,6 +33,7 @@ namespace PowerTables.Mvc.Controllers
             handler.AddCommandHandler(Tutorial.Update, UpdateSelected);
             handler.AddCommandHandler("LeaveComment",LeaveComment);
             handler.AddCommandHandler("LoadComments",LoadComments);
+            handler.AddCommandHandler("PricesDetails", PricesDetails);
             return handler.Handle(Data.SourceData.AsQueryable(), ControllerContext);            
         }
 
@@ -49,6 +50,19 @@ namespace PowerTables.Mvc.Controllers
             var comment = powerTablesData.CommandConfirmation<CommentForm>();
 
             return powerTablesData.Adjust(x => x.Message(TableMessage.User("success", "Comment saved")));
+        }
+
+        public ActionResult PricesDetails(PowerTablesData<Toy, Row> powerTablesData)
+        {
+            var confirmation = powerTablesData.CommandConfirmation<PriceRange>();
+            var toys = Data.SourceData.Where(c => (confirmation.StartPrice.HasValue?c.Price > (double) confirmation.StartPrice.Value:true)
+                && (confirmation.EndPrice.HasValue ? c.Price < (double)confirmation.EndPrice.Value : true));
+            var details = new DetailsModel()
+            {
+                AveragePrice = (decimal) toys.Select(c=>c.Price).DefaultIfEmpty().Average(),
+                ItemsCount = toys.Count()
+            };
+            return Json(details);
         }
 
         private TableAdjustment RemoveSelected(PowerTablesData<Toy, Row> arg)
