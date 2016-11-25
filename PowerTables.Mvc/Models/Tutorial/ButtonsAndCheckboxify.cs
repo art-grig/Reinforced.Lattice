@@ -137,7 +137,7 @@ namespace PowerTables.Mvc.Models.Tutorial
                         d.Details(c =>
                         {
                             c.Debounce(100);
-                            c.TemplateId("toysDetails");
+                            //c.TemplateId("toysDetails");
                             c.FromCommand("PricesDetails");
                         });
                     });

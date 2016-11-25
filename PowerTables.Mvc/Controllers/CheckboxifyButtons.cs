@@ -62,7 +62,7 @@ namespace PowerTables.Mvc.Controllers
                 AveragePrice = (decimal) toys.Select(c=>c.Price).DefaultIfEmpty().Average(),
                 ItemsCount = toys.Count()
             };
-            return Json(details);
+            return Content("Avg price: " + details.AveragePrice);
         }
 
         private TableAdjustment RemoveSelected(PowerTablesData<Toy, Row> arg)
