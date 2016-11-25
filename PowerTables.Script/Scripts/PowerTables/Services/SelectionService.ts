@@ -64,7 +64,21 @@
         }
 
         public resetSelection() {
-            this.toggleAll(false);
+            this._masterTable.Events.SelectionChanged.invokeBefore(this, this._selectionData);
+            var objectsToRedraw = [];
+            for (var k in this._selectionData) {
+                var sd = this._selectionData[k];
+                objectsToRedraw.push(sd);
+                delete this._selectionData[k];
+            }
+            if (objectsToRedraw.length > this._masterTable.DataHolder.DisplayedData.length / 2) {
+                this._masterTable.Controller.redrawVisibleData();
+            } else {
+                for (var j = 0; j < objectsToRedraw.length; j++) {
+                    this._masterTable.Controller.redrawVisibleDataObject(objectsToRedraw[j]); //todo    
+                }
+            }
+            this._masterTable.Events.SelectionChanged.invokeAfter(this, this._selectionData);
         }
 
         public toggleAll(selected?: boolean) {
@@ -367,7 +381,7 @@
             if (ad.SelectionToggle === PowerTables.Adjustments.SelectionToggle.All) {
                 this.toggleAll(true);
             } else if (ad.SelectionToggle === PowerTables.Adjustments.SelectionToggle.Nothing) {
-                this.toggleAll(false);
+                this.resetSelection();
             } else {
                 for (var ok in ad.Select) {
                     if (ad.Select[ok] == null || ad.Select[ok].length === 0) {
