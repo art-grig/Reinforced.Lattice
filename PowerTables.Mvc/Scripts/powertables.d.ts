@@ -3883,6 +3883,7 @@ declare module PowerTables.Editing.Editors.Display {
         notifyObjectChanged(): void;
         getValue(errors: PowerTables.Editing.IValidationMessage[]): any;
         setValue(value: any): void;
+        init(masterTable: IMasterTable): void;
     }
 }
 declare module PowerTables.Plugins.MouseSelect {

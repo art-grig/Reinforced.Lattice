@@ -4574,8 +4574,8 @@ var PowerTables;
                     this._curParentNode = this._elems[this._elems.length - 1];
                 };
                 HtmlParser.prototype.chars = function (text) {
-                    text = text.trim();
-                    if (text.length === 0)
+                    var tx = text.trim();
+                    if (tx.length === 0)
                         return;
                     if (text.indexOf('&') > -1) {
                         var node = document.createElement('div');
@@ -9051,6 +9051,14 @@ var PowerTables;
                         return this.DataObject[this.Column.RawName];
                     };
                     DisplayEditor.prototype.setValue = function (value) { };
+                    DisplayEditor.prototype.init = function (masterTable) {
+                        _super.prototype.init.call(this, masterTable);
+                        if (this.Configuration.Template == null || this.Configuration.Template == undefined) {
+                            this.Configuration.Template = function (x) {
+                                return x.Data.toString();
+                            };
+                        }
+                    };
                     return DisplayEditor;
                 }(PowerTables.Editing.EditorBase));
                 Display.DisplayEditor = DisplayEditor;

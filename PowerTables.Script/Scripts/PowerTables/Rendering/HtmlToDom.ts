@@ -203,8 +203,8 @@
         }
 
         private chars(text: string) {
-            text = text.trim();
-            if (text.length === 0) return;
+            var tx = text.trim();
+            if (tx.length === 0) return;
             
             if (text.indexOf('&') > -1) {
                 var node = document.createElement('div');

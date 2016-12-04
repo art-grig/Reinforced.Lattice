@@ -26,7 +26,16 @@
             return this.DataObject[this.Column.RawName];
         }
 
-        setValue(value): void {}
+        setValue(value): void { }
+
+        public init(masterTable: IMasterTable): void {
+            super.init(masterTable);
+            if (this.Configuration.Template == null || this.Configuration.Template == undefined) {
+                this.Configuration.Template = (x) => {
+                    return x.Data.toString();
+                };
+            }
+        }
     }
     ComponentsContainer.registerComponent('DisplayEditor', DisplayEditor);
 } 
