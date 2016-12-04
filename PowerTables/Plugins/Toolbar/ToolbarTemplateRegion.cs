@@ -69,8 +69,8 @@ namespace PowerTables.Plugins.Toolbar
         /// <returns></returns>
         public static MvcHtmlString BindButton(this ButtonsSetTemplateRegion m, string eventId)
         {
-            var mark = m.Mark("AllButtons", m.CleanValue(c => c.InternalId));
-            var events = m.BindEvent("buttonHandleEvent", eventId, m.CleanValue(c => c.InternalId));
+            var mark = m.Mark("AllButtons", m.Property(c => c.InternalId));
+            var events = m.BindEvent("buttonHandleEvent", eventId, m.Property(c => c.InternalId));
             return MvcHtmlString.Create(mark + " " + events);
         }
     }

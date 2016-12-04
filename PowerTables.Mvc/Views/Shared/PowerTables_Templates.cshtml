@@ -115,6 +115,10 @@
 @using (var t = this.RowWrapper())
 { <tr class="@t.If(c => c.IsSelected, "success") @t.If(c=>c.IsUpdated,"touched") @t.If(c=>c.IsAdded,"touched")" @t.Track()>@t.Content()</tr> }
 
+
+@using (var t = this.RowWrapper("alternateRow"))
+{ <tr class="@t.If(c => c.IsSelected, "success") @t.If(c=>c.IsUpdated,"touched") @t.If(c=>c.IsAdded,"touched")" @t.Track()>@t.Content()</tr> }
+
 @*
     Cell wrapper template.
     Following HTML is being wrapped around each data cell

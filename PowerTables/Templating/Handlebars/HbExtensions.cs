@@ -20,6 +20,18 @@ namespace PowerTables.Templating.Handlebars
             var expr = ex.Build();
             return string.IsNullOrEmpty(existing) ? expr : existing + "." + ex.Build();
         }
+        /// <summary>
+        /// This-field helper
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="t"></param>
+        /// <returns>{{else}} keyword</returns>
+        public static MvcHtmlString This<T>(this IModelProvider<T> t)
+        {
+            return MvcHtmlString.Create("{{this}}");
+        }
+
+        #region IfElse
 
         /// <summary>
         /// Renders handlebars "if" directive in region
@@ -64,6 +76,21 @@ namespace PowerTables.Templating.Handlebars
         }
 
         /// <summary>
+        /// Else helper
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="t"></param>
+        /// <returns>{{else}} keyword</returns>
+        public static MvcHtmlString Else<T>(this IModelProvider<T> t)
+        {
+            return MvcHtmlString.Create("{{else}}");
+        }
+        
+        #endregion
+
+        #region Unless
+
+        /// <summary>
         /// Renders handlebars "if" directive in region
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -92,28 +119,22 @@ namespace PowerTables.Templating.Handlebars
             return tr.Render(textUnless);
         }
 
-
         /// <summary>
-        /// Else helper
+        /// Renders handlebars "unless" directive in region
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="t"></param>
-        /// <returns>{{else}} keyword</returns>
-        public static MvcHtmlString Else<T>(this IModelProvider<T> t)
+        /// <param name="condition"></param>
+        /// <returns></returns>
+        public static HbTagRegion Unless<T>(this IModelProvider<T> t, Expression<Func<T, bool>> condition)
         {
-            return MvcHtmlString.Create("{{else}}");
+            var proname = TraversePropertyLambda(condition, t.ExistingModel);
+            return new HbTagRegion("unless", proname, t.Writer);
         }
+        
+        #endregion
 
-        /// <summary>
-        /// Else helper
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="t"></param>
-        /// <returns>{{else}} keyword</returns>
-        public static MvcHtmlString This<T>(this IModelProvider<T> t)
-        {
-            return MvcHtmlString.Create("{{this}}");
-        }
+        #region IfEquals
 
         /// <summary>
         /// Renders handlebars "if" directive in region
@@ -134,13 +155,40 @@ namespace PowerTables.Templating.Handlebars
         /// <typeparam name="T"></typeparam>
         /// <param name="t"></param>
         /// <param name="field"></param>
+        /// <returns></returns>
+        public static HbTagRegion IfEquals<T, TData>(this IModelProvider<T> t, Expression<Func<T, TData>> field, Expression<Func<T, TData>> field2)
+        {
+            var proname2 = TraversePropertyLambda(field2, t.ExistingModel);
+            return t.IfEquals(field, proname2);
+        }
+
+        /// <summary>
+        /// Renders handlebars "if" directive in region
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="t"></param>
+        /// <param name="field"></param>
         /// <param name="ifText"></param>
         /// <returns></returns>
-        public static MvcHtmlString IfEquals<T, TData>(this IModelProvider<T> t, Expression<Func<T, TData>> field, string comparisonConstant,string ifText)
+        public static MvcHtmlString IfEquals<T, TData>(this IModelProvider<T> t, Expression<Func<T, TData>> field, string comparisonConstant, string ifText)
         {
             var proname = TraversePropertyLambda(field, t.ExistingModel);
             var tr = new HbTagRegion("ifq", string.Format("{0} {1}", proname, comparisonConstant));
             return tr.Render(ifText);
+        }
+
+        /// <summary>
+        /// Renders handlebars "if" directive in region
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="t"></param>
+        /// <param name="field"></param>
+        /// <param name="ifText"></param>
+        /// <returns></returns>
+        public static MvcHtmlString IfEquals<T, TData>(this IModelProvider<T> t, Expression<Func<T, TData>> field, Expression<Func<T, TData>> field2, string ifText)
+        {
+            var proname2 = TraversePropertyLambda(field2, t.ExistingModel);
+            return t.IfEquals(field, proname2, ifText);
         }
 
         /// <summary>
@@ -173,6 +221,10 @@ namespace PowerTables.Templating.Handlebars
             return tr.Render(ifText);
         }
 
+        #endregion
+
+        #region IfGt
+
         /// <summary>
         /// Renders handlebars "if" directive in region
         /// </summary>
@@ -193,11 +245,37 @@ namespace PowerTables.Templating.Handlebars
         /// <param name="t"></param>
         /// <param name="field"></param>
         /// <returns></returns>
+        public static HbTagRegion IfGt<T, TData>(this IModelProvider<T> t, Expression<Func<T, TData>> field, Expression<Func<T, TData>> field2, bool inclusive = false)
+        {
+            var proname2 = TraversePropertyLambda(field2, t.ExistingModel);
+            return t.IfGt(field, proname2, inclusive);
+        }
+
+        /// <summary>
+        /// Renders handlebars "if" directive in region
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="t"></param>
+        /// <param name="field"></param>
+        /// <returns></returns>
         public static MvcHtmlString IfGt<T, TData>(this IModelProvider<T> t, Expression<Func<T, TData>> field, string comparisonConstant, string ifText, bool inclusive = false)
         {
             var proname = TraversePropertyLambda(field, t.ExistingModel);
             var tr = new HbTagRegion("ifcmp", string.Format("{0} {1} \"{2}\"", proname, comparisonConstant, inclusive ? "a>=b" : "a>b"));
             return tr.Render(ifText);
+        }
+
+        /// <summary>
+        /// Renders handlebars "if" directive in region
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="t"></param>
+        /// <param name="field"></param>
+        /// <returns></returns>
+        public static MvcHtmlString IfGt<T, TData>(this IModelProvider<T> t, Expression<Func<T, TData>> field, Expression<Func<T, TData>> field2, string ifText, bool inclusive = false)
+        {
+            var proname2 = TraversePropertyLambda(field2, t.ExistingModel);
+            return t.IfGt(field, proname2, ifText, inclusive);
         }
 
         /// <summary>
@@ -225,6 +303,10 @@ namespace PowerTables.Templating.Handlebars
             return tr.Render(ifText);
         }
 
+        #endregion
+
+        #region IfLt
+        
         /// <summary>
         /// Renders handlebars "if" directive in region
         /// </summary>
@@ -245,11 +327,37 @@ namespace PowerTables.Templating.Handlebars
         /// <param name="t"></param>
         /// <param name="field"></param>
         /// <returns></returns>
+        public static HbTagRegion IfLt<T, TData>(this IModelProvider<T> t, Expression<Func<T, TData>> field, Expression<Func<T, TData>> field2, bool inclusive = false)
+        {
+            var proname2 = TraversePropertyLambda(field2, t.ExistingModel);
+            return t.IfLt(field, proname2, inclusive);
+        }
+
+        /// <summary>
+        /// Renders handlebars "if" directive in region
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="t"></param>
+        /// <param name="field"></param>
+        /// <returns></returns>
         public static MvcHtmlString IfLt<T, TData>(this IModelProvider<T> t, Expression<Func<T, TData>> field, string comparisonConstant, string ifText, bool inclusive = false)
         {
             var proname = TraversePropertyLambda(field, t.ExistingModel);
             var tr = new HbTagRegion("ifcmp", string.Format("{0} {1} \"{2}\"", proname, comparisonConstant, inclusive ? "a<=b" : "a<b"));
             return tr.Render(ifText);
+        }
+
+        /// <summary>
+        /// Renders handlebars "if" directive in region
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="t"></param>
+        /// <param name="field"></param>
+        /// <returns></returns>
+        public static MvcHtmlString IfLt<T, TData>(this IModelProvider<T> t, Expression<Func<T, TData>> field, Expression<Func<T, TData>> field2, string ifText, bool inclusive = false)
+        {
+            var proname2 = TraversePropertyLambda(field2, t.ExistingModel);
+            return t.IfLt(field, proname2, ifText, inclusive);
         }
 
         /// <summary>
@@ -276,6 +384,9 @@ namespace PowerTables.Templating.Handlebars
             var tr = new HbTagRegion("ifcmp", string.Format("{0} {1} \"{2}\"", fieldName, comparisonConstant, inclusive ? "a<=b" : "a<b"));
             return tr.Render(ifText);
         }
+        #endregion
+
+        #region IfStrEquals
 
         /// <summary>
         /// Renders custom Lattice handlebars "if" helper that compares property and string
@@ -325,34 +436,23 @@ namespace PowerTables.Templating.Handlebars
         /// <returns></returns>
         public static MvcHtmlString IfStrEquals<T>(this IModelProvider<T> t, string fieldName, string comparisonConstant, string ifText)
         {
-            var tr =  new HbTagRegion("ifq", string.Format("{0} \"{1}\"", fieldName, comparisonConstant));
+            var tr = new HbTagRegion("ifq", string.Format("{0} \"{1}\"", fieldName, comparisonConstant));
             return tr.Render(ifText);
         }
+        #endregion
 
-
-        /// <summary>
-        /// Renders handlebars "unless" directive in region
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="t"></param>
-        /// <param name="condition"></param>
-        /// <returns></returns>
-        public static HbTagRegion Unless<T>(this IModelProvider<T> t, Expression<Func<T, bool>> condition)
-        {
-            var proname = TraversePropertyLambda(condition, t.ExistingModel);
-            return new HbTagRegion("unless", proname, t.Writer);
-        }
-
+        #region Each
+        
         /// <summary>
         /// Renders handlebars "each" directive in region
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="t"></param>
-        /// <param name="condition"></param>
+        /// <param name="collection"></param>
         /// <returns></returns>
-        public static ParametrizedHbTagRegion<TElement> Each<T, TElement>(this IModelProvider<T> t, Expression<Func<T, IEnumerable<TElement>>> condition)
+        public static ParametrizedHbTagRegion<TElement> Each<T, TElement>(this IModelProvider<T> t, Expression<Func<T, IEnumerable<TElement>>> collection)
         {
-            var proname = TraversePropertyLambda(condition, t.ExistingModel);
+            var proname = TraversePropertyLambda(collection, t.ExistingModel);
             return new ParametrizedHbTagRegion<TElement>("each", proname, t.Writer);
         }
 
@@ -361,13 +461,17 @@ namespace PowerTables.Templating.Handlebars
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="t"></param>
-        /// <param name="condition"></param>
+        /// <param name="collection"></param>
         /// <returns></returns>
-        public static ParametrizedHbTagRegion<TElement> Each<T, TElement>(this IModelProvider<T> t, Expression<Func<T, IHbArray<TElement>>> condition)
+        public static ParametrizedHbTagRegion<TElement> Each<T, TElement>(this IModelProvider<T> t, Expression<Func<T, IHbArray<TElement>>> collection)
         {
-            var proname = TraversePropertyLambda(condition, t.ExistingModel);
+            var proname = TraversePropertyLambda(collection, t.ExistingModel);
             return new ParametrizedHbTagRegion<TElement>("each", proname, t.Writer);
         }
+
+        #endregion
+
+        #region Value output
 
         /// <summary>
         /// Outputs placeholder for handlebars value
@@ -379,7 +483,7 @@ namespace PowerTables.Templating.Handlebars
         /// <returns></returns>
         public static MvcHtmlString Value<T, TData>(this IModelProvider<T> t, Expression<Func<T, TData>> valueField)
         {
-            return MvcHtmlString.Create(string.Concat("{{", CleanValue(t, valueField), "}}"));
+            return MvcHtmlString.Create(string.Concat("{{", Property(t, valueField), "}}"));
         }
 
         /// <summary>
@@ -402,7 +506,7 @@ namespace PowerTables.Templating.Handlebars
         /// <param name="t"></param>
         /// <param name="valueField">Value expression</param>
         /// <returns></returns>
-        public static string CleanValue<T, TData>(this IModelProvider<T> t, Expression<Func<T, TData>> valueField)
+        public static string Property<T, TData>(this IModelProvider<T> t, Expression<Func<T, TData>> valueField)
         {
             var proname = TraversePropertyLambda(valueField, t.ExistingModel);
             return proname;
@@ -446,6 +550,8 @@ namespace PowerTables.Templating.Handlebars
         {
             return MvcHtmlString.Create(string.Format("{{{{{{Content {0}}}}}}}", TraversePropertyLambda(parameter, t.ExistingModel)));
         }
+        
+        #endregion
 
         /// <summary>
         /// Binds event at specified element

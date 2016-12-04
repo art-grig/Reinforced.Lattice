@@ -43,8 +43,12 @@
                 if (this.length === 0) return null;
                 return this[this.length - 1];
             };
+            this._parseStartBound = this.parseStartTag.bind(this);
+            this._parseEndBound = this.parseEndTag.bind(this);
         }
 
+        private _parseStartBound;
+        private _parseEndBound;
         private _stack: IStack<string>;
 
         //#region parsering
@@ -73,7 +77,7 @@
 
                         if (match) {
                             html = html.substring(match[0].length);
-                            match[0].replace(HtmlParserDefinitions.endTag, this.parseEndTag.bind(this));
+                            match[0].replace(HtmlParserDefinitions.endTag, this._parseEndBound);
                             chars = false;
                         }
 
@@ -83,7 +87,7 @@
 
                         if (match) {
                             html = html.substring(match[0].length);
-                            match[0].replace(HtmlParserDefinitions.startTag, this.parseStartTag.bind(this));
+                            match[0].replace(HtmlParserDefinitions.startTag, this._parseStartBound);
                             chars = false;
                         }
                     }
@@ -174,7 +178,7 @@
         //#region DOM creation
         private _curParentNode: HTMLElement;
         private _elems: HTMLElement[] = [];
-        private _topNodes: HTMLElement[] = [];
+        private _topNodes: Node[] = [];
 
         private start(tagName: string, attrs: IAttr[], unary: boolean) {
             var elem: HTMLElement = document.createElement(tagName);
@@ -183,7 +187,7 @@
             }
             if (this._curParentNode && this._curParentNode.appendChild) {
                 this._curParentNode.appendChild(elem);
-            }
+            } 
             if (!unary) {
                 this._elems.push(elem);
                 this._curParentNode = elem;
@@ -191,25 +195,28 @@
         }
 
         private end(tag: any) {
-            this._elems.length -= 1;
-            if (this._elems.length === 0) {
-                this._topNodes.push(this._curParentNode);
+            if (this._elems.length === 1) {
+                this._topNodes.push(this._elems[0]);
             }
+            this._elems.length -= 1;
             this._curParentNode = this._elems[this._elems.length - 1];
         }
 
         private chars(text: string) {
+            text = text.trim();
             if (text.length === 0) return;
-            if (!this._curParentNode) {
-                throw new Error('Html2Dom error');
-            }
+            
             if (text.indexOf('&') > -1) {
                 var node = document.createElement('div');
                 node.innerHTML = text;
                 text = node.textContent;
                 node.textContent = '';
             }
-            this._curParentNode.appendChild(document.createTextNode(text));
+            if (this._elems.length === 0) {
+                this._topNodes.push(document.createTextNode(text));
+            } else {
+                this._curParentNode.appendChild(document.createTextNode(text));
+            }
         }
 
 //#endregion
@@ -226,7 +233,7 @@
             if (this._topNodes.length > 1) {
                 throw new Error('Wrapper must have root element. Templates with multiple root elements are not supported yet');
             }
-            return this._topNodes.length ? this._topNodes[0] : null;
+            return <HTMLElement>(this._topNodes.length ? this._topNodes[0] : null);
         }
 
          /**
@@ -236,7 +243,7 @@
          * 
          * @param html HTML string to convert to HTML element
          */
-        public html2DomElements(html: string): HTMLElement[] {
+        public html2DomElements(html: string): Node[] {
             this.parse(html.trim());
             return this._topNodes;
         }

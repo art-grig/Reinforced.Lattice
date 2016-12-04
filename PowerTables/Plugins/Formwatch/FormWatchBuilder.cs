@@ -81,7 +81,11 @@ namespace PowerTables.Plugins.Formwatch
                 SearchTriggerDelay = 500,
                 Key = prop.Name,
                 IsDateTime = typeof(DateTime) == prop.PropertyType || typeof(DateTime?) == prop.PropertyType,
-                IsArray = IsEnumerable(prop.PropertyType)
+                IsArray = IsEnumerable(prop.PropertyType),
+                IsBoolean = typeof(bool)==prop.PropertyType||typeof(bool?)==prop.PropertyType,
+                IsString = typeof(string) == prop.PropertyType,
+                IsInteger = prop.PropertyType.IsInteger(),
+                IsFloating = prop.PropertyType.IsFloating()
             };
             return fld;
         }

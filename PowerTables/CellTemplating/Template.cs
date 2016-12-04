@@ -416,7 +416,7 @@ namespace PowerTables.CellTemplating
         private static int CrunchFieldReference(string tpl, string modelName, string objectProperty, string defaultProperty, StringBuilder sb, int i)
         {
             sb.Append(modelName);
-            if (tpl[i] == '@' && tpl[i + 1] == '}')
+            if ((tpl[i] == '@'||tpl[i]=='#'||tpl[i]=='$'||tpl[i]=='%'||tpl[i]=='*') && tpl[i + 1] == '}')
             {
                 if (!string.IsNullOrEmpty(defaultProperty)) sb.AppendFormat(".{0}", defaultProperty);
                 return i + 1;

@@ -244,5 +244,7 @@ namespace PowerTables
             var cachedSelect = GetCachedMethod(SelectMethod, enumerableType, targetType);
             return (IQueryable)cachedSelect.Invoke(null, new object[] { source, lambdaExpr });
         }
+
+        
     }
 }

@@ -66,15 +66,15 @@
                 Confirmation: confirmation
             };
             var cmd = this._commandsCache[commandName];
-            if (!cmd) {
+            if (cmd == null || cmd == undefined) {
                 this._masterTable.Loader.requestServer(commandName,
                     r => {
+                        params.Result = r;
+                        if (callback) callback(params);
                         if (r.$isDeferred && r.$url) {
                             window.location.href = r.$url;
                             return;
                         }
-                        params.Result = r;
-                        if (callback) callback(params);
                     },
                     q => {
                         q.AdditionalData['CommandConfirmation'] = JSON.stringify(confirmation);
@@ -93,9 +93,14 @@
 
                 this._masterTable.Loader.requestServer(cmd.ServerName,
                     r => {
+
                         params.Result = r;
                         if (callback) callback(params);
                         if (cmd.OnSuccess) cmd.OnSuccess(params);
+                        if (r.$isDeferred && r.$url) {
+                            window.location.href = r.$url;
+                            return;
+                        }
                     },
                     q => {
                         q.AdditionalData['CommandConfirmation'] = JSON.stringify(confirmation);
@@ -123,7 +128,7 @@
             this._editorObjectModified = {};
             this.Subject = subject;
             this.Selection = this.MasterTable.Selection.getSelectedObjects();
-            
+
             this._embedBound = this.embedConfirmation.bind(this);
 
             if (commandDescription.Confirmation.Autoform != null) {
@@ -192,7 +197,7 @@
 
         //#region Content loading
         private loadContent() {
-            
+
             if (this.ContentPlaceholder == null) return;
             if ((!this._config.ContentLoadingUrl) && (!this._config.ContentLoadingCommand)) return;
             if (this.VisualStates != null) this.VisualStates.mixinState('contentLoading');
@@ -204,13 +209,13 @@
             this._isloadingContent = true;
             if (this._config.ContentLoadingUrl != null && this._config.ContentLoadingUrl != undefined) {
                 var url = this._config.ContentLoadingUrl(this.Subject);
-                this.loadContentByUrl(url, this._config.ContentLoadingMethod);
+                this.loadContentByUrl(url, this._config.ContentLoadingMethod || 'GET');
             } else {
                 this.MasterTable.Loader.requestServer(this._config.ContentLoadingCommand, r => {
                     this.ContentPlaceholder.innerHTML = r;
                     this.initFormWatchDatepickers(this.ContentPlaceholder);
                     this.contentLoaded();
-                    
+
                 }, this._embedBound, r => {
                     this.ContentPlaceholder.innerHTML = r;
                     this.contentLoaded();
@@ -229,6 +234,7 @@
         }
 
         private loadContentByUrl(url: string, method: string) {
+            url = encodeURI(url);
             var req = this.MasterTable.Loader.createXmlHttp();
             req.open(method, url, true);
             req.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
@@ -344,7 +350,6 @@
                 Result: null,
                 Confirmation: this.getConfirmation()
             };
-
 
             return result;
         }

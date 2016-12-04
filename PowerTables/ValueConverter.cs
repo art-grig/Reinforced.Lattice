@@ -24,6 +24,25 @@ namespace PowerTables
             return (t.IsGenericType && (t.GetGenericTypeDefinition() == typeof(Nullable<>)));
         }
 
+        internal static bool IsInteger(this Type t)
+        {
+            if (t.IsNullable()) t = t.GetArg();
+            return (t == typeof(int))
+                   || (t == typeof(uint))
+                   || (t == typeof(long))
+                   || (t == typeof(ulong))
+                   || (t == typeof(byte))
+                   || (t == typeof(char));
+        }
+
+        internal static bool IsFloating(this Type t)
+        {
+            if (t.IsNullable()) t = t.GetArg();
+            return (t == typeof(float))
+                   || (t == typeof(decimal))
+                   || (t == typeof(double));
+        }
+
         /// <summary>
         /// Retrieves first type argument of type
         /// </summary>

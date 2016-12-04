@@ -17,18 +17,18 @@
         public startLoading() {
             if (this._renderedExternally) {
                 if (!this._ready) return;
-                this._externalReloadBtn.VisualStates.mixinState('loading');
+                if (this._externalReloadBtn.VisualStates) this._externalReloadBtn.VisualStates.mixinState('loading');
             } else {
-                this.VisualStates.mixinState('loading');
+                if (this.VisualStates) this.VisualStates.mixinState('loading');
             }
         }
 
         public stopLoading() {
             if (this._renderedExternally) {
                 if (!this._ready) return;
-                this._externalReloadBtn.VisualStates.unmixinState('loading');
+                if (this._externalReloadBtn.VisualStates) this._externalReloadBtn.VisualStates.unmixinState('loading');
             } else {
-                this.VisualStates.unmixinState('loading');
+                if (this.VisualStates) this.VisualStates.unmixinState('loading');
             }
         }
 

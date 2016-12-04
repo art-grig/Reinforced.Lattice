@@ -33,22 +33,7 @@ namespace PowerTables.Configuration
             _keyColumns = pd.ToArray();
         }
 
-        private static bool IsInteger(Type t)
-        {
-            return (t == typeof(int))
-                   || (t == typeof(uint))
-                   || (t == typeof(long))
-                   || (t == typeof(ulong))
-                   || (t == typeof(byte))
-                   || (t == typeof(char));
-        }
-
-        private static bool IsFloating(Type t)
-        {
-            return (t == typeof(float))
-                   || (t == typeof(decimal))
-                   || (t == typeof(double));
-        }
+        
 
 
         #region Obtaining key
@@ -69,9 +54,9 @@ namespace PowerTables.Configuration
 
             if (value == null) return string.Empty;
             if (type.IsNullable()) type = type.GetArg();
-            if (IsInteger(type)) return ConvertInteger(value);
+            if (type.IsInteger()) return ConvertInteger(value);
             if (type.IsEnum) return ConvertInteger(value);
-            if (IsFloating(type)) return ConvertFloating(value);
+            if (type.IsFloating()) return ConvertFloating(value);
             if (type == typeof(bool)) return ConvertBoolean(value);
             if (type == typeof(string)) return ConvertString(value);
             if (type == typeof(DateTime)) return ConvertDate(value);
@@ -172,9 +157,9 @@ namespace PowerTables.Configuration
             if (nlbl && string.IsNullOrEmpty(value)) return null;
             if (nlbl) type = type.GetArg();
 
-            if (IsInteger(type)) return DecryptInteger(value, type);
+            if (type.IsInteger()) return DecryptInteger(value, type);
             if (type.IsEnum) return DecryptEnum(value, type);
-            if (IsFloating(type)) return DecryptFloating(value, type);
+            if (type.IsFloating()) return DecryptFloating(value, type);
             if (type == typeof(bool)) return DecryptBoolean(value);
             if (type == typeof(string)) return DecryptString(value);
             if (type == typeof(DateTime)) return DecryptDate(value);

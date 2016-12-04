@@ -37,6 +37,11 @@
                     value = element.value;
                 }
             }
+            if (value != null && value != undefined) {
+                if ((typeof value === 'string') && fieldConf.IsBoolean) {
+                    value = (value.toUpperCase() === 'TRUE' || value === '1' || value === 'YES');
+                }
+            }
             return value;
         }
 
@@ -63,6 +68,7 @@
                     for (var j = 0; j < elements.length; j++) {
                         var v = FormwatchPlugin.extractInputValue(<any>elements.item(j), fieldConf, dateService);    
                         if (v != null && v != undefined) {
+                            
                             value = v;
                             break;
                         }

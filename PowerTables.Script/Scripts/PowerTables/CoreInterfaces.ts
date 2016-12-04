@@ -655,6 +655,6 @@
         /**
          * Command execution result
          */
-        Result:any;
+        Result: any;
     }
 }

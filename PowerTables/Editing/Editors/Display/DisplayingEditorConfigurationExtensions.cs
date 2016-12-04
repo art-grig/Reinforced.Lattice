@@ -14,7 +14,9 @@ namespace PowerTables.Editing.Editors.Display
         /// <param name="t">Column configurator</param>
         /// <param name="field">Field selector</param>
         /// <returns>Fluent</returns>
-        public static EditFieldUsage<TForm, TData, DisplayingEditorUiConfig> Display<TForm, TData>(this EditHandlerConfiguration<TForm, FormEditUiConfig> t, Expression<Func<TForm, TData>> field)
+        public static EditFieldUsage<TForm, TData, DisplayingEditorUiConfig> Display<TForm, TClientConfig, TData>(this EditHandlerConfiguration<TForm, TClientConfig> t, Expression<Func<TForm, TData>> field)
+                        where TClientConfig : EditFormUiConfigBase, new()
+
         {
             return t.GetFieldConfiguration<TData, DisplayingEditorUiConfig>(LambdaHelpers.ParsePropertyLambda(field));
         }
