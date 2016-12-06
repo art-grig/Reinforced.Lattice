@@ -135,8 +135,17 @@
                 this.produceAutoformColumns(commandDescription.Confirmation.Autoform);
             }
 
+            var tplParams: ICommandExecutionParameters = {
+                CommandDescription: this._commandDescription,
+                Master: this.MasterTable,
+                Confirmation: this._editorObjectModified,
+                Result: null,
+                Selection: this.Selection,
+                Subject: subject
+            };
+
             if (commandDescription.Confirmation.InitConfirmationObject) {
-                commandDescription.Confirmation.InitConfirmationObject(this.DataObject);
+                commandDescription.Confirmation.InitConfirmationObject(this.DataObject, tplParams);
                 let confirmationObject = this.DataObject;
                 for (var eo in confirmationObject) {
                     if (confirmationObject.hasOwnProperty(eo)) {
@@ -148,15 +157,6 @@
             if (commandDescription.Confirmation.Autoform != null) {
                 this.initAutoform(commandDescription.Confirmation.Autoform);
             }
-
-            var tplParams: ICommandExecutionParameters = {
-                CommandDescription: this._commandDescription,
-                Master: this.MasterTable,
-                Confirmation: this._editorObjectModified,
-                Result: null,
-                Selection: this.Selection,
-                Subject: subject
-            };
 
             var templatePieces = this._config.TemplatePieces;
             for (var k in templatePieces) {
@@ -188,6 +188,10 @@
         private _autoformFields: { [_: string]: PowerTables.Editing.IEditFieldUiConfigBase } = {};
 
         public rendered() {
+            for (var ae in this.ActiveEditors) {
+                var k = this.ActiveEditors[ae].FieldName;
+                this.ActiveEditors[ae].setValue(this.DataObject[k]);
+            }
             this.initFormWatchDatepickers(this.RootElement);
             this.loadContent();
             if (this._config.Details != null && this._config.Details != undefined) {
@@ -416,8 +420,9 @@
             this.RootElement = null;
             this.ContentPlaceholder = null;
             this.DetailsPlaceholder = null;
-            this.MasterTable.Renderer.destroyObject(this._commandDescription.Confirmation.TargetSelector);
             var params = this.collectCommandParameters();
+            this.MasterTable.Renderer.destroyObject(this._commandDescription.Confirmation.TargetSelector);
+            
             if (this._config.OnDismiss) this._config.OnDismiss(params);
             if (this._originalCallback) this._originalCallback(params);
         }

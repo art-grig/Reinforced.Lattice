@@ -9,11 +9,13 @@
             }
             if (this._configuration.ResetSelectionBehavior ===
                 PowerTables.Configuration.Json.ResetSelectionBehavior.ClientReload) {
-                masterTable.Events.ClientDataProcessing.subscribeAfter(x => this.toggleAll(false), 'selection');
+                masterTable.Events.ClientDataProcessing.subscribeAfter(x => this.resetSelection(), 'selection');
             }
             if (this._configuration.ResetSelectionBehavior ===
                 PowerTables.Configuration.Json.ResetSelectionBehavior.ServerReload) {
-                masterTable.Events.DataReceived.subscribe(x => this.toggleAll(false), 'selection');
+                masterTable.Events.DataReceived.subscribe(x => {
+                    if (x.EventArgs.Request.Command === 'query') this.resetSelection();
+                }, 'selection');
             }
             masterTable.Loader.registerAdditionalDataReceiver('Selection', this);
         }

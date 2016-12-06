@@ -200,7 +200,7 @@ namespace PowerTables.Typings
                 ;
 
             builder.ExportAsInterface<ConfirmationConfiguration>().WithPublicProperties()
-                .WithProperty(x => x.InitConfirmationObject, x => x.Type("(confirmationObject:any)=>void"))
+                .WithProperty(x => x.InitConfirmationObject, x => x.Type("(confirmationObject:any,param:ICommandExecutionParameters)=>void"))
                 .WithProperty(x => x.ContentLoadingUrl, x => x.Type("(subject:any)=>string"))
                 .WithProperty(c => c.OnCommit, x => x.Type("(param:ICommandExecutionParameters)=>void"))
                 .WithProperty(c => c.OnDismiss, x => x.Type("(param:ICommandExecutionParameters)=>void"))
