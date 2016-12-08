@@ -85,13 +85,12 @@ namespace PowerTables.Adjustments
         /// <param name="w">Adjustmet wrapper</param>
         /// <param name="src">Set of entries of source type to be added/updated on client side</param>
         /// <returns>Fluent</returns>
-        public static AdjustmentWrapper<T, T> UpdateExact<T>(this AdjustmentWrapper<T, T> w,
+        public static AdjustmentWrapper<T, T> UpdateRow<T>(this AdjustmentWrapper<T, T> w,
             IEnumerable<T> src) where T : new()
         {
-            w.AdjustmentsSource.Add(src);
+            w.AdjustmentsData.Add(src);
             return w;
         }
-
 
         /// <summary>
         /// Specified table row that will be added or updated on client side
@@ -99,12 +98,41 @@ namespace PowerTables.Adjustments
         /// <param name="w">Adjustmet wrapper</param>
         /// <param name="src">Table row to be added/updated on client side</param>
         /// <returns>Fluent</returns>
-        public static AdjustmentWrapper<T, T> UpdateExact<T>(this AdjustmentWrapper<T, T> w,
+        public static AdjustmentWrapper<T, T> UpdateRow<T>(this AdjustmentWrapper<T, T> w,
             T src) where T : new()
         {
             w.AdjustmentsData.Add(new[] { src });
             return w;
         }
+
+        /// <summary>
+        /// Specified table row that will be added or updated on client side
+        /// </summary>
+        /// <param name="w">Adjustmet wrapper</param>
+        /// <param name="src">Table row to be added/updated on client side</param>
+        /// <returns>Fluent</returns>
+        public static AdjustmentWrapper<T, T> UpdateSource<T>(this AdjustmentWrapper<T, T> w,
+            T src) where T : new()
+        {
+            w.AdjustmentsSource.Add(new[] { src });
+            return w;
+        }
+
+        /// <summary>
+        /// Specified source entities set, corresponding rows of which will be added or updated on client side
+        /// </summary>
+        /// <param name="w">Adjustmet wrapper</param>
+        /// <param name="src">Set of entries of source type to be added/updated on client side</param>
+        /// <returns>Fluent</returns>
+        public static AdjustmentWrapper<T, T> UpdateSource<T>(this AdjustmentWrapper<T, T> w,
+            IEnumerable<T> src) where T : new()
+        {
+            w.AdjustmentsSource.Add(src);
+            return w;
+        }
+
+
+        
 
         /// <summary>
         /// Specified table rows set that will be added or updated on client side

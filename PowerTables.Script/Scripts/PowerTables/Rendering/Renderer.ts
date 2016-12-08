@@ -124,7 +124,7 @@
             this.Locator = new DOMLocator(this.BodyElement, this.RootElement, this._rootId);
             this.Delegator = new PowerTables.Services.EventsDelegatorService(this.Locator, this.BodyElement, this.RootElement, this._rootId, this._masterTable);
             this.BackBinder.Delegator = this.Delegator;
-            this.Modifier = new DOMModifier(this._stack, this.Locator, this.BackBinder, this, this.LayoutRenderer, this._instances, this.Delegator);
+            this.Modifier = new DOMModifier(this._stack, this.Locator, this.BackBinder, this, this.LayoutRenderer, this._instances, this.Delegator,this.ContentRenderer);
 
 
             this.BackBinder.backBind(this.RootElement);

@@ -92,7 +92,7 @@
             return result;
         }
 
-        private renderCellAsPartOfRow(cell: ICell, cellWrapper: (arg: any) => string): string {
+        public renderCellAsPartOfRow(cell: ICell, cellWrapper: (arg: any) => string): string {
             this._stack.push(RenderingContextType.Cell, cell, cell.Column.RawName);
             var result = '';
             if (cell.renderElement) result = cell.renderElement(this._templatesProvider);

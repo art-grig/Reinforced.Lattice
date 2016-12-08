@@ -367,6 +367,8 @@
 
             if (this._config.Autoform != null) {
                 if (!this._isloadingContent) this.collectAutoForm();
+            }
+            if (this._editorObjectModified != null) {
                 if (confirmation == null) confirmation = {};
                 let confirmationObject = this._editorObjectModified;
                 for (var eo in confirmationObject) {

@@ -368,6 +368,9 @@ namespace PowerTables.CellTemplating
                         switch (hx.ToLower())
                         {
                             case "40": sb.Append("@"); i += 2; break;
+                            case "24": sb.Append("$"); i += 2; break;
+                            case "25": sb.Append("%"); i += 2; break;
+                            case "23": sb.Append("#"); i += 2; break;
                             case "60": sb.Append("`"); i += 2; break;
                             case "7b": sb.Append("{"); i += 2; break;
                             case "7d": sb.Append("}"); i += 2; break;
@@ -416,7 +419,7 @@ namespace PowerTables.CellTemplating
         private static int CrunchFieldReference(string tpl, string modelName, string objectProperty, string defaultProperty, StringBuilder sb, int i)
         {
             sb.Append(modelName);
-            if ((tpl[i] == '@'||tpl[i]=='#'||tpl[i]=='$'||tpl[i]=='%'||tpl[i]=='*') && tpl[i + 1] == '}')
+            if (IsValidSelfReference(tpl[i]) && tpl[i + 1] == '}')
             {
                 if (!string.IsNullOrEmpty(defaultProperty)) sb.AppendFormat(".{0}", defaultProperty);
                 return i + 1;
@@ -440,9 +443,14 @@ namespace PowerTables.CellTemplating
             }
             return i;
         }
+
+        private static bool IsValidSelfReference(char token)
+        {
+            return token == '@' || token == '$' || token == '#' || token == '%' || token == '*';
+        }
         private static bool IsValidToken(char token)
         {
-            return char.IsLetter(token) || token == '@' || token == '^';
+            return char.IsLetter(token) || token == '^' || IsValidSelfReference(token);
         }
 
         /// <summary>

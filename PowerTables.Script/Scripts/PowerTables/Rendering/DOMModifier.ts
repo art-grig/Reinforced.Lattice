@@ -6,7 +6,8 @@
         /*
         * @internal
         */
-        constructor(stack: RenderingStack, locator: DOMLocator, backBinder: BackBinder, templatesProvider: ITemplatesProvider, layoutRenderer: LayoutRenderer, instances: PowerTables.Services.InstanceManagerService, ed: PowerTables.Services.EventsDelegatorService) {
+        constructor(stack: RenderingStack, locator: DOMLocator, backBinder: BackBinder, templatesProvider: ITemplatesProvider, layoutRenderer: LayoutRenderer, instances: PowerTables.Services.InstanceManagerService, ed: PowerTables.Services.EventsDelegatorService,
+            contentRenderer:ContentRenderer        ) {
             this._stack = stack;
             this._locator = locator;
             this._backBinder = backBinder;
@@ -14,6 +15,7 @@
             this._layoutRenderer = layoutRenderer;
             this._instances = instances;
             this._ed = ed;
+            this._contentRenderer = contentRenderer;
         }
 
         private _ed: PowerTables.Services.EventsDelegatorService;
@@ -22,6 +24,7 @@
         private _backBinder: BackBinder;
         private _templatesProvider: ITemplatesProvider;
         private _layoutRenderer: LayoutRenderer;
+        private _contentRenderer: ContentRenderer;
         private _instances: PowerTables.Services.InstanceManagerService;
 
         
@@ -259,16 +262,8 @@
 
         //#region Cells
         public redrawCell(cell: ICell): HTMLElement {
-            this._stack.clear();
-            this._stack.push(RenderingContextType.Cell, cell);
             var wrapper: (arg: any) => string = this._templatesProvider.getCachedTemplate('cellWrapper');
-            var html: string;
-            if (cell.renderElement) {
-                html = cell.renderElement(this._templatesProvider);
-            } else {
-                html = wrapper(cell);
-            }
-            this._stack.popContext();
+            var html = this._contentRenderer.renderCellAsPartOfRow(cell, wrapper);
             var oldElement: HTMLElement = this._locator.getCellElement(cell);
             var newElem = this.replaceElement(oldElement, html);
             this._backBinder.backBind(newElem);

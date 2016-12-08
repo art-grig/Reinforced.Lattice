@@ -374,7 +374,7 @@ namespace PowerTables.Configuration
         /// </summary>
         public LambdaExpression GetOrderingExpression(string columnName)
         {
-            this.CheckTableColum(columnName);
+            if (!this.CheckTableColumNoThrow(columnName)) return null;
             if (!_orderingExpressions.ContainsKey(_tableColumnsDictionary[columnName])) return null;
             return _orderingExpressions[_tableColumnsDictionary[columnName]];
         }

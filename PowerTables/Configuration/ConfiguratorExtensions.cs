@@ -64,6 +64,17 @@ namespace PowerTables.Configuration
 
         }
 
+        /// <summary>
+        /// Checks that specified column belongs to target table data
+        /// </summary>
+        /// <param name="c">Table configurator</param>
+        /// <param name="column">Column name</param>
+        public static bool CheckTableColumNoThrow(this IConfigurator c, string column)
+        {
+            return c.TableColumnsDictionary.ContainsKey(column);
+
+        }
+
 
         /// <summary>
         /// Instructs Lattice to append empty filters when column filter is missing. 
