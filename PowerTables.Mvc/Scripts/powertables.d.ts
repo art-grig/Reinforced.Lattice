@@ -478,6 +478,7 @@ declare module PowerTables.Commands {
         Confirmation: PowerTables.Commands.IConfirmationConfiguration;
         OnSuccess: (param: ICommandExecutionParameters) => void;
         OnFailure: (param: ICommandExecutionParameters) => void;
+        OnBeforeExecute: (param: ICommandExecutionParameters) => any;
     }
     interface IConfirmationConfiguration {
         TemplateId: string;
@@ -3521,16 +3522,6 @@ declare module PowerTables.Services {
          */
         showMessage(message: ITableMessage): void;
         private showTableMessage(tableMessage);
-    }
-}
-declare module PowerTables.Services {
-    class PartitionService {
-        Skip: number;
-        Take: number;
-        IsAllDataRetrieved: boolean;
-        IsTotalCountKnown: boolean;
-        setSkip(skip: number): void;
-        setTake(take?: number): void;
     }
 }
 declare module PowerTables.Services {

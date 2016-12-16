@@ -88,9 +88,10 @@
             if (cmd.CanExecute) {
                 if (!cmd.CanExecute({ Subject: subject, Master: this._masterTable })) return;
             }
-
+            if (cmd.OnBeforeExecute != null && cmd.OnBeforeExecute != undefined) {
+                params.Confirmation = cmd.OnBeforeExecute(params);
+            }
             if (cmd.Type === PowerTables.Commands.CommandType.Server) {
-
                 this._masterTable.Loader.requestServer(cmd.ServerName,
                     r => {
 
@@ -424,7 +425,7 @@
             this.DetailsPlaceholder = null;
             var params = this.collectCommandParameters();
             this.MasterTable.Renderer.destroyObject(this._commandDescription.Confirmation.TargetSelector);
-            
+
             if (this._config.OnDismiss) this._config.OnDismiss(params);
             if (this._originalCallback) this._originalCallback(params);
         }

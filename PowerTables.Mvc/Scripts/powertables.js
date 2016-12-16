@@ -5925,6 +5925,9 @@ var PowerTables;
                     if (!cmd.CanExecute({ Subject: subject, Master: this._masterTable }))
                         return;
                 }
+                if (cmd.OnBeforeExecute != null && cmd.OnBeforeExecute != undefined) {
+                    params.Confirmation = cmd.OnBeforeExecute(params);
+                }
                 if (cmd.Type === PowerTables.Commands.CommandType.Server) {
                     this._masterTable.Loader.requestServer(cmd.ServerName, function (r) {
                         params.Result = r;
@@ -8654,22 +8657,6 @@ var PowerTables;
             return MessagesService;
         }());
         Services.MessagesService = MessagesService;
-    })(Services = PowerTables.Services || (PowerTables.Services = {}));
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
-    var Services;
-    (function (Services) {
-        var PartitionService = (function () {
-            function PartitionService() {
-            }
-            PartitionService.prototype.setSkip = function (skip) {
-            };
-            PartitionService.prototype.setTake = function (take) {
-            };
-            return PartitionService;
-        }());
-        Services.PartitionService = PartitionService;
     })(Services = PowerTables.Services || (PowerTables.Services = {}));
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
