@@ -490,6 +490,7 @@ module PowerTables.Commands {
 		Confirmation: PowerTables.Commands.IConfirmationConfiguration;
 		OnSuccess: (param:ICommandExecutionParameters)=>void;
 		OnFailure: (param:ICommandExecutionParameters)=>void;
+		OnBeforeExecute: (param:ICommandExecutionParameters)=>any;
 	}
 	export interface IConfirmationConfiguration
 	{

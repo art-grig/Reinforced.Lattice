@@ -26,6 +26,7 @@ namespace PowerTables.Commands
 
         public JRaw OnSuccess { get; set; }
         public JRaw OnFailure { get; set; }
+        public JRaw OnBeforeExecute { get; set; }
         
     }
 

@@ -195,6 +195,7 @@ namespace PowerTables.Typings
                 
                 .WithProperty(c => c.OnSuccess, x => x.Type("(param:ICommandExecutionParameters)=>void"))
                 .WithProperty(c => c.OnFailure, x => x.Type("(param:ICommandExecutionParameters)=>void"))
+                .WithProperty(c => c.OnBeforeExecute, x => x.Type("(param:ICommandExecutionParameters)=>any"))
                 .WithProperty(x => x.ClientFunction, x => x.Type("(param:ICommandExecutionParameters)=>any"))
                 .WithProperty(x => x.ConfirmationDataFunction, x => x.Type("(param:ICommandExecutionParameters)=>any"))
                 ;

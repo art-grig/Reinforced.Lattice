@@ -56,6 +56,12 @@ namespace PowerTables.Commands
             return cmd;
         }
 
+        public static CommandDescriptionConfigurator OnBeforeExecute(this CommandDescriptionConfigurator cmd, string function)
+        {
+            cmd.Description.OnBeforeExecute = new JRaw(function);
+            return cmd;
+        }
+
         public static CommandDescriptionConfigurator CanExecute(this CommandDescriptionConfigurator cmd, string function)
         {
             cmd.Description.CanExecute = new JRaw(function);
