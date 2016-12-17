@@ -3525,6 +3525,18 @@ declare module PowerTables.Services {
     }
 }
 declare module PowerTables.Services {
+    class PartitionService {
+        Skip: number;
+        Take: number;
+        IsAllDataRetrieved: boolean;
+        IsTotalCountKnown: boolean;
+        setSkip(skip: number): void;
+        setTake(take?: number): void;
+        partitionBefore(serverQuery: IQuery, cllientQuery: IQuery): void;
+        partitionAfter(ordered: any[], serverQuery: IQuery, cllientQuery: IQuery): void;
+    }
+}
+declare module PowerTables.Services {
     class SelectionService implements IQueryPartProvider, IAdditionalDataReceiver {
         constructor(masterTable: IMasterTable);
         private _configuration;

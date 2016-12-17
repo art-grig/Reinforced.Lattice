@@ -549,5 +549,15 @@ namespace PowerTables.Configuration
             config(wr);
             return conf;
         }
+
+
+        public static T PrettifyTitles<T>(this T conf,bool firstCapitals = false) where T: IConfigurator
+        {
+            foreach (var col in conf.TableConfiguration.Columns)
+            {
+                col.Title = col.Title.PrettifyTitle(firstCapitals);
+            }
+            return conf;
+        }
     }
 }

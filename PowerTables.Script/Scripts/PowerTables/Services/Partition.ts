@@ -7,11 +7,19 @@
         public IsTotalCountKnown: boolean;
 
         public setSkip(skip: number) {
-            
+
         }
 
         public setTake(take?: number) {
-            
+
+        }
+
+        public partitionBefore(serverQuery: IQuery, cllientQuery: IQuery) {
+
+        }
+
+        public partitionAfter(ordered: any[], serverQuery: IQuery, cllientQuery: IQuery) {
+
         }
     }
 }

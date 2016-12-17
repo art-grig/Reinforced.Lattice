@@ -43,7 +43,8 @@ namespace PowerTables
         /// </summary>
         public PropertyInfo Property { get; private set; }
 
-        internal PropertyDescription(string propertyName, Type propertyType, string title, Func<object, object> getValue, Action<object, object> setFunc, PropertyInfo property)
+        internal PropertyDescription(
+            string propertyName, Type propertyType, string title, Func<object, object> getValue, Action<object, object> setFunc, PropertyInfo property)
             : this()
         {
             Name = propertyName;
@@ -62,15 +63,40 @@ namespace PowerTables
 
     internal static class PropertyDescriptionExtensions
     {
-        public static PropertyDescription Description(this PropertyInfo pi)
+        public static PropertyDescription Description(this PropertyInfo pi, bool autoTitle = false, bool firstCapitals = false)
         {
             var title = pi.Name;
             var attr = pi.GetCustomAttribute<DisplayAttribute>();
             if (attr != null)
             {
                 if (!string.IsNullOrEmpty(attr.Name)) title = attr.Name;
+            }else if (autoTitle)
+            {
+                
             }
             return new PropertyDescription(pi.Name, pi.PropertyType, title, pi.GetValue, pi.SetValue, pi);
+        }
+
+        public static string PrettifyTitle(this string title, bool firstCapitals)
+        {
+            if (title.Contains(' ')) return title;
+            
+            StringBuilder sb = new StringBuilder();
+            sb.Append(title[0]);
+            bool prevCapital = char.IsUpper(title[0]);
+            for (int i = 1; i < title.Length; i++)
+            {
+                if (char.IsUpper(title[i]) && !prevCapital)
+                {
+                    sb.Append(' ');
+                    sb.Append(firstCapitals ? title[i] : char.ToLower(title[i]));
+                    continue;
+                }
+
+                prevCapital = char.IsUpper(title[i]);
+                sb.Append(title[i]);
+            }
+            return sb.ToString();
         }
     }
 }

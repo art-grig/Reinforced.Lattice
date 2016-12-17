@@ -178,6 +178,7 @@ namespace PowerTables.Configuration
             return conf;
         }
 
+        
         protected void InitializeColumnsConfiguration()
         {
             int order = 0;
