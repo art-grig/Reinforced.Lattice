@@ -15,6 +15,7 @@ module PowerTables.Services {
         }
 
         private _masterTable: IMasterTable;
+        private _prevRows: IRow[];
 
         /**
          * Initializes full reloading cycle
@@ -37,16 +38,11 @@ module PowerTables.Services {
          * Redraws row containing currently visible data object
          * 
          * @param dataObject Data object
-         * @param idx 
          * @returns {} 
          */
-        public redrawVisibleDataObject(dataObject: any, idx?: number): HTMLElement {
-            if (idx == null || idx == undefined) {
-                var dispIndex: ILocalLookupResult = this._masterTable.DataHolder.localLookupDisplayedDataObject(dataObject);
-                if (dispIndex == null) return null;
-                idx = dispIndex.DisplayedIndex;
-            }
-            var row: IRow = this.produceRow(dataObject, idx);
+        public redrawVisibleDataObject(dataObject: any): HTMLElement {
+            if (this._masterTable.DataHolder.DisplayedData.indexOf(dataObject) < 0) return null;
+            var row: IRow = this.produceRow(dataObject);
             return this._masterTable.Renderer.Modifier.redrawRow(row);
         }
 
@@ -56,6 +52,7 @@ module PowerTables.Services {
         public redrawVisibleData(): void {
             var rows: IRow[] = this.produceRows();
             if (rows.length === 0) {
+                this._prevRows = null;
                 this._masterTable.MessageService.showMessage({
                     Class: 'noresults',
                     Title: 'No data found',
@@ -64,21 +61,24 @@ module PowerTables.Services {
                 });
             } else {
                 this._masterTable.Renderer.body(rows);
+                this._prevRows = rows;
             }
         }
 
+        
 
         /**
          * Redraws locally visible data
          */
         public replaceVisibleData(rows: IRow[]): void {
+            this._prevRows = rows;
             this._masterTable.Renderer.body(rows);
         }
 
         public redrawVisibleCells(dataObject: any, columns: IColumn[]) {
             var dispIndex: ILocalLookupResult = this._masterTable.DataHolder.localLookupDisplayedDataObject(dataObject);
             if (dispIndex == null) throw new Error('Cannot redraw cells because proposed object it is not displaying currently');
-            var row = this.produceRow(dataObject, dispIndex.DisplayedIndex);
+            var row = this.produceRow(dataObject);
             for (var i = 0; i < columns.length; i++) {
                 if (row.Cells.hasOwnProperty(columns[i].RawName)) {
                     this._masterTable.Renderer.Modifier.redrawCell(row.Cells[columns[i].RawName]);
@@ -141,9 +141,10 @@ module PowerTables.Services {
                 else this._masterTable.Renderer.body(rows);
             }
             this._masterTable.Events.Adjustment.invokeAfter(this, adjustmentResult);
-
+            this._prevRows = rows;
         }
 
+        //#region Produce methods
         /**
          * Converts data object,row and column to cell
          * 
@@ -173,13 +174,13 @@ module PowerTables.Services {
          * @param columns Optional displaying columns set
          * @returns {IRow} Row representing displayed object
          */
-        public produceRow(dataObject: any, idx: number, columns?: IColumn[]): IRow {
+        public produceRow(dataObject: any, columns?: IColumn[]): IRow {
             if (!dataObject) return null;
             if (!columns) columns = this._masterTable.InstanceManager.getUiColumns();
 
             var rw: IRow = <IRow>{
                 DataObject: dataObject,
-                Index: idx,
+                Index: dataObject['__i'],
                 MasterTable: this._masterTable,
                 IsSelected: this._masterTable.Selection.isSelected(dataObject),
                 CanBeSelected: this._masterTable.Selection.canSelect(dataObject),
@@ -211,7 +212,8 @@ module PowerTables.Services {
             var columns: IColumn[] = this._masterTable.InstanceManager.getUiColumns();
 
             for (var i: number = 0; i < this._masterTable.DataHolder.DisplayedData.length; i++) {
-                var row: IRow = this.produceRow(this._masterTable.DataHolder.DisplayedData[i], i, columns);
+                var obj = this._masterTable.DataHolder.DisplayedData[i];
+                var row: IRow = this.produceRow(obj, columns);
                 if (!row) continue;
                 result.push(row);
             }
@@ -219,6 +221,6 @@ module PowerTables.Services {
             return result;
         }
 
-
+        //#endregion
     }
 }

@@ -2,36 +2,33 @@
     export class HierarchyPlugin extends PluginBase<IHierarchyUiConfiguration> implements IClientFilter {
 
         public expandSubtree(args: IRowEventArgs): void {
-            this.toggleSubtreeByObject(this.MasterTable.DataHolder.localLookupDisplayedData(args.Row).DataObject, true, args.Row);
+            this.toggleSubtreeByObject(this.MasterTable.DataHolder.localLookupDisplayedData(args.Row).DataObject, true);
         }
 
         public collapseSubtree(args: IRowEventArgs): void {
-            this.toggleSubtreeByObject(this.MasterTable.DataHolder.localLookupDisplayedData(args.Row).DataObject, false, args.Row);
+            this.toggleSubtreeByObject(this.MasterTable.DataHolder.localLookupDisplayedData(args.Row).DataObject, false);
         }
 
         public toggleSubtree(args: IRowEventArgs): void {
-            this.toggleSubtreeByObject(this.MasterTable.DataHolder.localLookupDisplayedData(args.Row).DataObject, null, args.Row);
+            this.toggleSubtreeByObject(this.MasterTable.DataHolder.localLookupDisplayedData(args.Row).DataObject, null);
         }
 
-        public toggleSubtreeByObject(dataObject: any, turnOpen?: boolean, index?: number) {
+        public toggleSubtreeByObject(dataObject: any, turnOpen?: boolean) {
             if (dataObject == null || dataObject == undefined) return;
-            if (index == null || index == undefined) {
-                var lookup = this.MasterTable.DataHolder.localLookupDisplayedDataObject(dataObject);
-                index = lookup.DisplayedIndex;
-            }
+            
             if (turnOpen == null || turnOpen == undefined) turnOpen = !dataObject.IsVisible;
             if (dataObject.IsExpanded === turnOpen) return;
-            if (turnOpen) this.expand(dataObject, index);
-            else this.collapse(dataObject, index);
+            if (turnOpen) this.expand(dataObject);
+            else this.collapse(dataObject);
         }
 
-        private expand(dataObject: any, index: number) {
+        private expand(dataObject: any) {
             dataObject.IsExpanded = true;
 
             if (this.Configuration.ExpandBehavior === NodeExpandBehavior.AlwaysLoadRemotely ||
                 ((dataObject.ChildrenCount > 0) && (!dataObject._subtree) || (dataObject._subtree.length === 0))) {
                 dataObject.IsLoading = true;
-                if (index >= 0) this.MasterTable.Controller.redrawVisibleDataObject(dataObject, index);
+                this.MasterTable.Controller.redrawVisibleDataObject(dataObject);
 
                 this.MasterTable.Loader.requestServer('GetHierarchyChildren', d => {
                     var children = <any[]>d.HierarchyItems;
@@ -67,12 +64,10 @@
             }
         }
 
-        private collapse(dataObject: any, index: number) {
+        private collapse(dataObject: any) {
             this.collapseChildren(dataObject);
             dataObject.IsExpanded = false;
-            if (index >= 0) {
-                this.MasterTable.Controller.redrawVisibleDataObject(dataObject, index);
-            }
+            this.MasterTable.Controller.redrawVisibleDataObject(dataObject);
         }
 
         private collapseChildren(dataObject: any) {

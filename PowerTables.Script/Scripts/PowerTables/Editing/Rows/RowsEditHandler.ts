@@ -23,12 +23,11 @@
             }
         }
 
-        private ensureEditing(rowDisplayIndex: number) {
+        private ensureEditing(rowIndex: number) {
             if (this._isEditing) return;
-            if (rowDisplayIndex >= 0) {
+            if (rowIndex >= 0) {
                 this._isAddingNewRow = false;
-                var lookup = this.MasterTable.DataHolder.localLookupDisplayedData(rowDisplayIndex);
-                this.DataObject = lookup.DataObject;
+                this.DataObject = this.MasterTable.DataHolder.StoredData[rowIndex];
                 this.CurrentDataObjectModified = {};
                 for (var cd in this.DataObject) {
                     if (this.DataObject.hasOwnProperty(cd)) {
@@ -47,9 +46,9 @@
                 }
             }
             this.MasterTable.Events.Edit.invokeBefore(this, this.CurrentDataObjectModified);
-            var row = this.MasterTable.Controller.produceRow(this.DataObject, rowDisplayIndex < 0 ? -1 : rowDisplayIndex);
+            var row = this.MasterTable.Controller.produceRow(this.DataObject);
             this.Cells = row.Cells;
-            this.Index = rowDisplayIndex < 0 ? -1 : rowDisplayIndex;
+            this.Index = rowIndex < 0 ? -1 : rowIndex;
             this._isEditing = true;
         }
 

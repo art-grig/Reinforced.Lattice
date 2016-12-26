@@ -174,6 +174,12 @@
                     data.push(obj);
                     if (this._hasPrimaryKey) {
                         obj['__key'] = this.PrimaryKeyFunction(obj);
+                        if (this._storedDataCache.hasOwnProperty(obj['__key'])) {
+                            obj['__i'] = this._storedDataCache[obj['__key']]['__i'];
+                        }
+                    }
+                    if (!obj.hasOwnProperty('__i')) {
+                        obj['__i'] = this.StoredData.length - 1;
                     }
                     obj = {};
                 }
@@ -224,6 +230,7 @@
                         obj['__key'] = this.PrimaryKeyFunction(obj);
                         this._storedDataCache[obj['__key']] = obj; // line that makes difference
                     }
+                    obj['__i'] = data.length - 1;
                     obj = {};
                 }
                 currentCol = this._rawColumnNames[currentColIndex];
@@ -400,7 +407,7 @@
                     result.push({
                         DataObject: setToLookup[i],
                         IsCurrentlyDisplaying: false,
-                        LoadedIndex: i,
+                        LoadedIndex: setToLookup[i]['__i'],
                         DisplayedIndex: -1
                     });
                 }
@@ -430,7 +437,7 @@
                 DataObject: dataObject,
                 IsCurrentlyDisplaying: true,
                 DisplayedIndex: index,
-                LoadedIndex: this.StoredData.indexOf(dataObject)
+                LoadedIndex: dataObject['__i']
             };
 
             return result;
@@ -470,7 +477,7 @@
                 DataObject: this.DisplayedData[index],
                 IsCurrentlyDisplaying: true,
                 DisplayedIndex: index,
-                LoadedIndex: this.StoredData.indexOf(this.DisplayedData[index])
+                LoadedIndex: this.DisplayedData[index]['__i']
             };
 
             return result;
@@ -514,33 +521,25 @@
          */
         public localLookupPrimaryKey(dataObject: any, setToLookup: any[] = this.StoredData): ILocalLookupResult {
             var found = null;
-            var foundIdx = 0;
+            
+            var nullResult = {
+                DataObject: null,
+                IsCurrentlyDisplaying: false,
+                DisplayedIndex: -1,
+                LoadedIndex: -1
+            };
+            if (!this._hasPrimaryKey) return nullResult;
+            var pk = this.PrimaryKeyFunction(dataObject);
+            if (!this._storedDataCache.hasOwnProperty(pk)) return nullResult;
 
-            for (var i = 0; i < setToLookup.length; i++) {
-                if (this.DataObjectComparisonFunction(dataObject, setToLookup[i])) {
-                    found = setToLookup[i];
-                    foundIdx = i;
-                    break;
-                }
-            }
-            var result: ILocalLookupResult;
-            if (found == null) {
-                result = {
-                    DataObject: null,
-                    IsCurrentlyDisplaying: false,
-                    DisplayedIndex: -1,
-                    LoadedIndex: -1
-                };
-            } else {
-                var cdisp = this.DisplayedData.indexOf(found);
-                result = {
-                    DataObject: found,
-                    IsCurrentlyDisplaying: cdisp > -1,
-                    DisplayedIndex: cdisp,
-                    LoadedIndex: foundIdx
-                };
-            }
-            return result;
+            found = this._storedDataCache[pk];
+            var cdisp = this.DisplayedData.indexOf(found);
+            return {
+                DataObject: found,
+                IsCurrentlyDisplaying: cdisp > -1,
+                DisplayedIndex: cdisp,
+                LoadedIndex: found['__i']
+            };
         }
 
         //#endregion
@@ -584,6 +583,7 @@
             if (this._hasPrimaryKey) {
                 def['__key'] = this.PrimaryKeyFunction(def);
             }
+            def['__i'] = this.StoredData.length - 1;
             return def;
         }
 

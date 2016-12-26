@@ -5,10 +5,10 @@
         private _isEditing: boolean = false;
         private _activeEditor: IEditor;
 
-        private ensureEditing(rowDisplayIndex: number) {
+        private ensureEditing(loadIndex: number) {
             if (this._isEditing) return;
-            var lookup = this.MasterTable.DataHolder.localLookupDisplayedData(rowDisplayIndex);
-            this.DataObject = lookup.DataObject;
+
+            this.DataObject = this.MasterTable.DataHolder.StoredData[loadIndex];
             this.CurrentDataObjectModified = {};
             for (var cd in this.DataObject) {
                 if (this.DataObject.hasOwnProperty(cd)) {
@@ -16,9 +16,9 @@
                 }
             }
             this.MasterTable.Events.Edit.invokeBefore(this, this.CurrentDataObjectModified);
-            var row = this.MasterTable.Controller.produceRow(lookup.DataObject, lookup.DisplayedIndex);
+            var row = this.MasterTable.Controller.produceRow(this.DataObject);
             this.Cells = row.Cells;
-            this.Index = lookup.DisplayedIndex;
+            this.Index = loadIndex;
             this._isEditing = true;
         }
 
@@ -63,14 +63,14 @@
         }
 
         commit(editor: PowerTables.Editing.IEditor): void {
-            var msgs:IValidationMessage[] = [];
+            var msgs: IValidationMessage[] = [];
             this.retrieveEditorData(editor, msgs);
             if (msgs.length !== 0) {
                 this.MasterTable.Events.EditValidationFailed.invokeAfter(this,
                     <any>{
-                            OriginalDataObject: this.DataObject,
-                            ModifiedDataObject: this.CurrentDataObjectModified,
-                            Messages: msgs
+                        OriginalDataObject: this.DataObject,
+                        ModifiedDataObject: this.CurrentDataObjectModified,
+                        Messages: msgs
                     });
                 return;
             }
@@ -78,10 +78,10 @@
             this.finishEditing(editor, false);
             this.sendDataObjectToServer(() => {
                 if (!this._isEditing) {
-                    this.MasterTable.Events.Edit.invokeAfter(this,this.CurrentDataObjectModified);
+                    this.MasterTable.Events.Edit.invokeAfter(this, this.CurrentDataObjectModified);
                     this.CurrentDataObjectModified = null;
                 }
-                
+
             });
 
         }
