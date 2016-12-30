@@ -205,6 +205,8 @@ namespace PowerTables.Typings
                 .WithProperty(x => x.ContentLoadingUrl, x => x.Type("(subject:any)=>string"))
                 .WithProperty(c => c.OnCommit, x => x.Type("(param:ICommandExecutionParameters)=>void"))
                 .WithProperty(c => c.OnDismiss, x => x.Type("(param:ICommandExecutionParameters)=>void"))
+                .WithProperty(c => c.OnContentLoaded, x => x.Type("(param:ICommandExecutionParameters)=>void"))
+                .WithProperty(c => c.OnDetailsLoaded, x => x.Type("(param:ICommandExecutionParameters)=>void"))
                 .WithProperty(c => c.TemplatePieces, x => x.Type("{[_:string]:(param:ICommandExecutionParameters)=>string}"))
                 ;
             builder.ExportAsInterface<CommandAutoformConfiguration>().WithPublicProperties();

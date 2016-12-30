@@ -56,6 +56,8 @@ namespace PowerTables.Commands
         public JRaw InitConfirmationObject { get; set; }
         public JRaw OnDismiss { get; set; }
         public JRaw OnCommit { get; set; }
+        public JRaw OnContentLoaded { get; set; }
+        public JRaw OnDetailsLoaded { get; set; }
 
         public ConfirmationConfiguration()
         {

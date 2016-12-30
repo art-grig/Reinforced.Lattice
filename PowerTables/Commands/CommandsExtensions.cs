@@ -159,6 +159,19 @@ namespace PowerTables.Commands
             return cmd;
         }
 
+        public static T OnContentLoaded<T>(this T cmd, string function) where T : CommandConfirmationConfigurator
+        {
+            cmd.Configuration.OnContentLoaded = new JRaw(function);
+            return cmd;
+        }
+
+        public static T OnDetailsLoaded<T>(this T cmd, string function) where T : CommandConfirmationConfigurator
+        {
+            cmd.Configuration.OnDetailsLoaded = new JRaw(function);
+            return cmd;
+        }
+
+
 
         public static CommandConfirmationConfigurator<T> WatchForm<T>(this CommandConfirmationConfigurator<T> cmd, Action<FormWatchBuilder<T>> formWatchConfig)
         {

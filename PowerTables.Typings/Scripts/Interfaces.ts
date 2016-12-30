@@ -506,6 +506,8 @@ module PowerTables.Commands {
 		InitConfirmationObject: (confirmationObject:any,param:ICommandExecutionParameters)=>void;
 		OnDismiss: (param:ICommandExecutionParameters)=>void;
 		OnCommit: (param:ICommandExecutionParameters)=>void;
+		OnContentLoaded: (param:ICommandExecutionParameters)=>void;
+		OnDetailsLoaded: (param:ICommandExecutionParameters)=>void;
 	}
 	export interface ICommandAutoformConfiguration
 	{

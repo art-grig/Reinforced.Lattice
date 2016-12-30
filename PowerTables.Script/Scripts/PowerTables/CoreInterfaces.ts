@@ -110,7 +110,7 @@
         /**
          * API for commands
          */
-        Commands:PowerTables.Services.CommandsService;
+        Commands: PowerTables.Services.CommandsService;
 
         getStaticData(): any;
 
@@ -656,5 +656,10 @@
          * Command execution result
          */
         Result: any;
+
+        confirm: () => void;
+        dismiss: () => void;
+
+        Details: any;
     }
 }

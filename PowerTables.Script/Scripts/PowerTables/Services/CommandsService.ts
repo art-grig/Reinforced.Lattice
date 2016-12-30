@@ -46,7 +46,10 @@
                     Selection: this._masterTable.Selection.getSelectedObjects(),
                     Subject: subject,
                     Result: null,
-                    Confirmation: null
+                    Confirmation: null,
+                    confirm: null,
+                    dismiss: null,
+                    Details: null
                 });
                 if (confirmationData != null) {
                     this.triggerCommandWithConfirmation(commandName, subject, confirmationData, callback);
@@ -63,7 +66,10 @@
                 Selection: this._masterTable.Selection.getSelectedObjects(),
                 Subject: subject,
                 Result: null,
-                Confirmation: confirmation
+                Confirmation: confirmation,
+                confirm: null,
+                dismiss: null,
+                Details: null
             };
             var cmd = this._commandsCache[commandName];
             if (cmd == null || cmd == undefined) {
@@ -142,7 +148,10 @@
                 Confirmation: this._editorObjectModified,
                 Result: null,
                 Selection: this.Selection,
-                Subject: subject
+                Subject: subject,
+                confirm: null,
+                dismiss: null,
+                Details: null
             };
 
             if (commandDescription.Confirmation.InitConfirmationObject) {
@@ -236,6 +245,7 @@
                     if (this.ActiveEditors[i].VisualStates != null) this.ActiveEditors[i].VisualStates.unmixinState('loading');
                 }
             }
+            if (this._config.OnContentLoaded) this._config.OnContentLoaded(this.collectCommandParameters());
         }
 
         private loadContentByUrl(url: string, method: string) {
@@ -328,13 +338,15 @@
             }
 
             this.RecentDetails.Data = detailsResult;
-
+            
             if (this.VisualStates != null) this.VisualStates.unmixinState('detailsLoading');
             if (this._config.Autoform != null && this._config.Autoform.DisableWhileDetailsLoading) {
                 for (var i = 0; i < this.ActiveEditors.length; i++) {
                     if (this.ActiveEditors[i].VisualStates != null) this.ActiveEditors[i].VisualStates.unmixinState('loading');
                 }
             }
+
+            if (this._config.OnDetailsLoaded) this._config.OnDetailsLoaded(this.collectCommandParameters());
         }
 
         //#endregion
@@ -353,7 +365,10 @@
                 Selection: this.Selection,
                 Subject: this.Subject,
                 Result: null,
-                Confirmation: this.getConfirmation()
+                Confirmation: this.getConfirmation(),
+                confirm: this.confirm.bind(this),
+                dismiss: this.dismiss.bind(this),
+                Details: this.RecentDetails.Data
             };
 
             return result;

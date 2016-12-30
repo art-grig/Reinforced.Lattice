@@ -19,7 +19,7 @@ namespace PowerTables.FrequentlyUsed
         /// </summary>
         /// <param name="column">Colum to apply formatting</param>
         /// <returns>Fluent</returns>
-        public static T FormatEnumWithDisplayAttribute<T>(this T column) where T: IColumnConfigurator
+        public static T FormatEnumWithDisplayAttribute<T>(this T column, Action<Template> ifNotPresent = null) where T : IColumnConfigurator
         {
             var enumType = column.ColumnType;
             if (enumType.IsNullable())
@@ -35,13 +35,16 @@ namespace PowerTables.FrequentlyUsed
             }
             var items = EnumHelper.GetSelectList(enumType);
 
-            column.Template(a => a.EmptyIfNotPresent("{" + column.ColumnConfiguration.RawColumnName + "}")
-                .Switch("{" + column.ColumnConfiguration.RawColumnName + "}",
+            column.Template(a =>
+            {
+                if (ifNotPresent != null) a.IfNotPresent("{" + column.ColumnConfiguration.RawColumnName + "}", ifNotPresent);
+                else a.EmptyIfNotPresent("{" + column.ColumnConfiguration.RawColumnName + "}");
+                a.Switch("{" + column.ColumnConfiguration.RawColumnName + "}",
                     swtch =>
                         swtch
-                        .Cases(items, c => c.Value, (tpl, v) => tpl.Content(v.Text))
-                        .DefaultEmpty()
-                        )
+                            .Cases(items, c => c.Value, (tpl, v) => tpl.Content(v.Text))
+                            .DefaultEmpty());
+            }
 
                 );
             return column;
@@ -53,11 +56,12 @@ namespace PowerTables.FrequentlyUsed
         /// </summary>
         /// <param name="column">Colum to apply formatting</param>
         /// <param name="content">Content for particular select list item</param>
+        /// <param name="empty">Template for empty element</param>
         /// <returns>Fluent</returns>
-        public static T FormatEnumWithDisplayAttribute<T>(this T column,Action<Template, SelectListItem> content) where T: IColumnConfigurator
+        public static T FormatEnumWithDisplayAttribute<T>(this T column, Action<Template, SelectListItem> content, Action<Template> ifNotPresent = null) where T : IColumnConfigurator
         {
             var enumType = column.ColumnType;
-            if (typeof(Nullable<>).IsAssignableFrom(enumType))
+            if (enumType.IsNullable())
             {
                 enumType = enumType.GetGenericArguments()[0];
             }
@@ -70,13 +74,17 @@ namespace PowerTables.FrequentlyUsed
             }
             var items = EnumHelper.GetSelectList(enumType);
 
-            column.Template(a => a.EmptyIfNotPresent("{" + column.ColumnConfiguration.RawColumnName + "}")
-                .Switch("{" + column.ColumnConfiguration.RawColumnName + "}",
-                    swtch =>
-                        swtch
-                        .Cases(items, c => c.Value, (tpl, v) => content(tpl.Content(v.Text), v))
-                        .DefaultEmpty()
-                        )
+            column.Template(a =>
+                {
+                    if (ifNotPresent != null) a.IfNotPresent("{" + column.ColumnConfiguration.RawColumnName + "}", ifNotPresent);
+                    else a.EmptyIfNotPresent("{" + column.ColumnConfiguration.RawColumnName + "}");
+                    a.Switch("{" + column.ColumnConfiguration.RawColumnName + "}",
+                        swtch =>
+                            swtch
+                                .Cases(items, c => c.Value, (tpl, v) => content(tpl.Content(v.Text), v))
+                                .DefaultEmpty()
+                    );
+                }
 
                 );
             return column;
@@ -89,7 +97,7 @@ namespace PowerTables.FrequentlyUsed
         /// <param name="trueText">Text when value is TRUE</param>
         /// <param name="falseText">Text when value is FALSE</param>
         /// <returns>Fluent</returns>
-        public static T TextForBoolean<T>(this T column, string trueText, string falseText) where T:IColumnTargetProperty<bool>
+        public static T TextForBoolean<T>(this T column, string trueText, string falseText) where T : IColumnTargetProperty<bool>
         {
             column.Template(
                 tpl =>
@@ -153,7 +161,7 @@ namespace PowerTables.FrequentlyUsed
             FilterBooleanBy
             <TSourceData, TTableData>(
             this ColumnUsage<TSourceData, TTableData, bool> column,
-            Func<IQueryable<TSourceData>, bool, IQueryable<TSourceData>> filterDelegate, 
+            Func<IQueryable<TSourceData>, bool, IQueryable<TSourceData>> filterDelegate,
             string trueText, string falseText, string bothText = null, bool allowBoth = true,
             Action<ColumnPluginConfigurationWrapper<SelectFilterUiConfig, bool>> ui = null
             ) where TTableData : new()
