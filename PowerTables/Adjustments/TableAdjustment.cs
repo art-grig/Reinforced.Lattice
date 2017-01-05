@@ -14,7 +14,7 @@ namespace PowerTables
         /// Table message associated with this response
         /// </summary>
         [JsonProperty]
-        internal TableMessage Message { get; set; }
+        public TableMessage Message { get; set; }
 
         /// <summary>
         /// Special mark to disctinguish Edition result from others on client side

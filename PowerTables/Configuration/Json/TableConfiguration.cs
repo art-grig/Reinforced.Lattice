@@ -330,6 +330,8 @@ namespace PowerTables.Configuration.Json
         public string[] NonselectableColumns { get; set; }
 
         public bool SelectSingle { get; set; }
+
+        public Dictionary<string,string[]> InitialSelected { get; set; }
     }
 
     public enum SelectAllBehavior

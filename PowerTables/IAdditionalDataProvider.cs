@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using PowerTables.Configuration;
 using PowerTables.ResponseProcessing;
 
 namespace PowerTables
@@ -14,6 +15,16 @@ namespace PowerTables
         /// See <see cref="IResponseModifier"/> 
         /// </summary>
         AdditionalDataContainer AdditionalData { get; }
+
+        /// <summary>
+        /// Message to show
+        /// </summary>
+        TableMessage Message { get; set; }
+    }
+
+    public interface IGenericAdditionalDataProvider<TSource, TData> : IAdditionalDataProvider where TData : new()
+    {
+        Configurator<TSource, TData> Configurator { get; }
     }
 
     public static class AdditionalDataExtensions

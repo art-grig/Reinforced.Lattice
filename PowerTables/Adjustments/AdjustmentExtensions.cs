@@ -32,8 +32,7 @@ namespace PowerTables.Adjustments
         }
 
 
-        public static AdjustmentWrapper<TSource, TData> Message<TSource, TData>(
-            this AdjustmentWrapper<TSource, TData> w, TableMessage message) where TData : new()
+        public static T Message<T>(this T w, TableMessage message) where T : IAdditionalDataProvider
         {
             w.Message = message;
             return w;
@@ -130,9 +129,6 @@ namespace PowerTables.Adjustments
             w.AdjustmentsSource.Add(src);
             return w;
         }
-
-
-        
 
         /// <summary>
         /// Specified table rows set that will be added or updated on client side

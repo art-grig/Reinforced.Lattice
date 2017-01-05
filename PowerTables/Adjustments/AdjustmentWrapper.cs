@@ -7,7 +7,7 @@ using PowerTables.Configuration;
 
 namespace PowerTables.Adjustments
 {
-    public class AdjustmentWrapper<TSource, TData> : IAdditionalDataProvider where TData : new()
+    public class AdjustmentWrapper<TSource, TData> : IGenericAdditionalDataProvider<TSource, TData> where TData : new()
     {
         private readonly Configurator<TSource, TData> _configurator;
 
@@ -52,7 +52,7 @@ namespace PowerTables.Adjustments
         internal List<IEnumerable<TData>> RemovalsData = new List<IEnumerable<TData>>();
         internal List<IEnumerable<TSource>> RemovalsSource = new List<IEnumerable<TSource>>();
 
-        internal TableMessage Message;
+        public TableMessage Message { get; set; }
 
         internal AdjustmentWrapper(Configurator<TSource, TData> configurator)
         {
