@@ -76,9 +76,13 @@
             }
             if (editor.VisualStates != null) editor.VisualStates.changeState('saving');
             this.finishEditing(editor, false);
+            var col = editor.Column;
+
             this.sendDataObjectToServer(() => {
                 if (!this._isEditing) {
-                    this.MasterTable.Events.Edit.invokeAfter(this,this.CurrentDataObjectModified);
+                    this.MasterTable.Events.Edit.invokeAfter(this, this.CurrentDataObjectModified);
+                    this.Cells[col.RawName] = this.MasterTable.Controller.produceCell(this.DataObject, col, this);
+                    this.MasterTable.Renderer.Modifier.redrawCell(this.Cells[col.RawName]);
                     this.CurrentDataObjectModified = null;
                 }
                 

@@ -8209,9 +8209,12 @@ var PowerTables;
                         if (editor.VisualStates != null)
                             editor.VisualStates.changeState('saving');
                         this.finishEditing(editor, false);
+                        var col = editor.Column;
                         this.sendDataObjectToServer(function () {
                             if (!_this._isEditing) {
                                 _this.MasterTable.Events.Edit.invokeAfter(_this, _this.CurrentDataObjectModified);
+                                _this.Cells[col.RawName] = _this.MasterTable.Controller.produceCell(_this.DataObject, col, _this);
+                                _this.MasterTable.Renderer.Modifier.redrawCell(_this.Cells[col.RawName]);
                                 _this.CurrentDataObjectModified = null;
                             }
                         });
