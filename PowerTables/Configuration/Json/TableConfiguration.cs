@@ -332,6 +332,8 @@ namespace PowerTables.Configuration.Json
         public bool SelectSingle { get; set; }
     }
 
+    
+
     public enum SelectAllBehavior
     {
         AllVisible,

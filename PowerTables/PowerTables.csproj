@@ -97,6 +97,7 @@
     <Compile Include="Configuration\IColumnTargetProperty.cs" />
     <Compile Include="Configuration\IConfigurator.cs" />
     <Compile Include="Configuration\Json\JsonConfigurationExtensions.cs" />
+    <Compile Include="Configuration\Json\PartitionConfiguration.cs" />
     <Compile Include="Configuration\NongenericConfigurator.cs" />
     <Compile Include="Configuration\PrimaryKeyExtensions.cs" />
     <Compile Include="Configuration\SelectionConfigurationWrapper.cs" />

@@ -122,7 +122,7 @@ namespace PowerTables.Typings
                 ;
 
             builder.ExportAsInterface<Query>().WithPublicProperties();
-            builder.ExportAsInterface<Paging>().WithPublicProperties();
+            builder.ExportAsInterface<Partition>().WithPublicProperties();
             builder.ExportAsEnum<Ordering>();
 
             builder.ExportAsInterface<ToolbarButtonsClientConfiguration>().WithPublicProperties();

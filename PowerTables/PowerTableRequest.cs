@@ -39,9 +39,9 @@ namespace PowerTables
     public class Query
     {
         /// <summary>
-        /// Paging information
+        /// Partition information
         /// </summary>
-        public Paging Paging { get; set; }
+        public Partition Partition { get; set; }
         
         /// <summary>
         /// Ordering information. Key = column name, Ordering = ordering
@@ -74,17 +74,13 @@ namespace PowerTables
     /// <summary>
     /// Paging information
     /// </summary>
-    public class Paging
+    public class Partition
     {
-        /// <summary>
-        /// Required page index
-        /// </summary>
-        public int PageIndex { get; set; }
+        public int Skip { get; set; }
 
-        /// <summary>
-        /// Required page size
-        /// </summary>
-        public int PageSize { get; set; }
+        public int Take { get; set; }
+
+        public bool NoCount { get; set; }
     }
 
     /// <summary>
