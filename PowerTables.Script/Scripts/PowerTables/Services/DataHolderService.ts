@@ -287,8 +287,6 @@
                 var sortFn: string = '';
                 var comparersArg: string = '';
                 var orderFns: any[] = [];
-
-
                 for (var i: number = 0; i < this._rawColumnNames.length; i++) {
                     var orderingKey: string = this._rawColumnNames[i];
                     if (query.Orderings.hasOwnProperty(orderingKey) || (this._manadatoryOrderings.indexOf(orderingKey) >= 0)) {
@@ -314,26 +312,7 @@
             return objects;
         }
 
-        private skipTakeSet(ordered: any[], query: IQuery): any[] {
-            var selected = ordered;
-
-            var startingIndex: number = query.Paging.PageIndex * query.Paging.PageSize;
-            if (startingIndex > ordered.length) startingIndex = 0;
-            var take: number = query.Paging.PageSize;
-            if (this.EnableClientSkip && this.EnableClientTake) {
-                if (take === 0) selected = ordered.slice(startingIndex);
-                else selected = ordered.slice(startingIndex, startingIndex + take);
-            } else {
-                if (this.EnableClientSkip) {
-                    selected = ordered.slice(startingIndex);
-                } else if (this.EnableClientTake) {
-                    if (take !== 0) {
-                        selected = ordered.slice(0, query.Paging.PageSize);
-                    }
-                }
-            }
-            return selected;
-        }
+        
 
         /**
          * Part of data currently displayed without ordering and paging
@@ -364,10 +343,12 @@
                 var copy: any[] = this.StoredData.slice();
                 var filtered: any[] = this.filterSet(copy, query);
                 var ordered: any[] = this.orderSet(filtered, query);
-                var selected: any[] = this.skipTakeSet(ordered, query);
-
                 this.Filtered = filtered;
                 this.Ordered = ordered;
+                this._masterTable.Partition.partitionAfter();
+                var selected: any[] = this.skipTakeSet(ordered, query);
+
+                
                 this.DisplayedData = selected;
                 
             }

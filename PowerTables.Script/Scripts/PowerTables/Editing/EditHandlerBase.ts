@@ -29,7 +29,7 @@ module PowerTables.Editing {
         }
 
         protected sendDataObjectToServer(then: () => void) {
-            this.MasterTable.Loader.requestServer('Edit', (r) => this.dispatchEditResponse(r, then), (q) => {
+            this.MasterTable.Loader.command('Edit', (r) => this.dispatchEditResponse(r, then), (q) => {
                 q.AdditionalData['Edit'] = JSON.stringify(this.CurrentDataObjectModified);
                 return q;
             });

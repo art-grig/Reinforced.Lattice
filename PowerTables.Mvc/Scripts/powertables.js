@@ -371,7 +371,7 @@ var PowerTables;
             };
             EditHandlerBase.prototype.sendDataObjectToServer = function (then) {
                 var _this = this;
-                this.MasterTable.Loader.requestServer('Edit', function (r) { return _this.dispatchEditResponse(r, then); }, function (q) {
+                this.MasterTable.Loader.command('Edit', function (r) { return _this.dispatchEditResponse(r, then); }, function (q) {
                     q.AdditionalData['Edit'] = JSON.stringify(_this.CurrentDataObjectModified);
                     return q;
                 });
@@ -2503,7 +2503,7 @@ var PowerTables;
                         ((dataObject.ChildrenCount > 0) && (!dataObject._subtree) || (dataObject._subtree.length === 0))) {
                         dataObject.IsLoading = true;
                         this.MasterTable.Controller.redrawVisibleDataObject(dataObject);
-                        this.MasterTable.Loader.requestServer('GetHierarchyChildren', function (d) {
+                        this.MasterTable.Loader.command('GetHierarchyChildren', function (d) {
                             var children = d.HierarchyItems;
                             for (var i = 0; i < children.length; i++) {
                                 children[i].IsVisible = true;
@@ -3966,6 +3966,7 @@ var PowerTables;
             this.Controller = new PowerTables.Services.Controller(this);
             this.Selection = new PowerTables.Services.SelectionService(this);
             this.Commands = new PowerTables.Services.CommandsService(this);
+            this.Partition = new PowerTables.Services.PartitionService(this);
             this.MessageService = new PowerTables.Services.MessagesService(this._configuration.MessageFunction, this.InstanceManager, this.DataHolder, this.Controller, this.Renderer);
             this.InstanceManager.initPlugins();
             this.Renderer.layout();
@@ -5896,7 +5897,7 @@ var PowerTables;
                 };
                 var cmd = this._commandsCache[commandName];
                 if (cmd == null || cmd == undefined) {
-                    this._masterTable.Loader.requestServer(commandName, function (r) {
+                    this._masterTable.Loader.command(commandName, function (r) {
                         params.Result = r;
                         if (callback)
                             callback(params);
@@ -5920,7 +5921,7 @@ var PowerTables;
                     params.Confirmation = cmd.OnBeforeExecute(params);
                 }
                 if (cmd.Type === PowerTables.Commands.CommandType.Server) {
-                    this._masterTable.Loader.requestServer(cmd.ServerName, function (r) {
+                    this._masterTable.Loader.command(cmd.ServerName, function (r) {
                         params.Result = r;
                         if (callback)
                             callback(params);
@@ -6039,7 +6040,7 @@ var PowerTables;
                     this.loadContentByUrl(url, this._config.ContentLoadingMethod || 'GET');
                 }
                 else {
-                    this.MasterTable.Loader.requestServer(this._config.ContentLoadingCommand, function (r) {
+                    this.MasterTable.Loader.command(this._config.ContentLoadingCommand, function (r) {
                         _this.ContentPlaceholder.innerHTML = r;
                         _this.initFormWatchDatepickers(_this.ContentPlaceholder);
                         _this.contentLoaded();
@@ -6110,7 +6111,7 @@ var PowerTables;
                     }
                 }
                 if (this._config.Details.CommandName != null && this._config.Details.CommandName != undefined) {
-                    this.MasterTable.Loader.requestServer(this._config.Details.CommandName, function (r) {
+                    this.MasterTable.Loader.command(this._config.Details.CommandName, function (r) {
                         _this.detailsLoaded(r);
                     }, this._embedBound, function (r) {
                         _this.detailsLoaded(r);
@@ -6891,30 +6892,6 @@ var PowerTables;
                 }
                 return objects;
             };
-            DataHolderService.prototype.skipTakeSet = function (ordered, query) {
-                var selected = ordered;
-                var startingIndex = query.Paging.PageIndex * query.Paging.PageSize;
-                if (startingIndex > ordered.length)
-                    startingIndex = 0;
-                var take = query.Paging.PageSize;
-                if (this.EnableClientSkip && this.EnableClientTake) {
-                    if (take === 0)
-                        selected = ordered.slice(startingIndex);
-                    else
-                        selected = ordered.slice(startingIndex, startingIndex + take);
-                }
-                else {
-                    if (this.EnableClientSkip) {
-                        selected = ordered.slice(startingIndex);
-                    }
-                    else if (this.EnableClientTake) {
-                        if (take !== 0) {
-                            selected = ordered.slice(0, query.Paging.PageSize);
-                        }
-                    }
-                }
-                return selected;
-            };
             /**
              * Filter recent data and store it to currently displaying data
              *
@@ -6931,9 +6908,10 @@ var PowerTables;
                     var copy = this.StoredData.slice();
                     var filtered = this.filterSet(copy, query);
                     var ordered = this.orderSet(filtered, query);
-                    var selected = this.skipTakeSet(ordered, query);
                     this.Filtered = filtered;
                     this.Ordered = ordered;
+                    this._masterTable.Partition.partitionAfter();
+                    var selected = this.skipTakeSet(ordered, query);
                     this.DisplayedData = selected;
                 }
                 this.updateStats();
@@ -8305,10 +8283,6 @@ var PowerTables;
             };
             LoaderService.prototype.gatherQuery = function (queryScope) {
                 var a = {
-                    Paging: {
-                        PageSize: 0,
-                        PageIndex: 0
-                    },
                     Orderings: {},
                     Filterings: {},
                     AdditionalData: {},
@@ -8359,6 +8333,7 @@ var PowerTables;
                 this._previousRequest = req;
                 return req;
             };
+            //#region Checks and handles
             LoaderService.prototype.checkError = function (json, data, req) {
                 if (json == null)
                     return false;
@@ -8447,6 +8422,7 @@ var PowerTables;
                         this.checkAdditionalData(json);
                         callback(json);
                         data.Query.Selection = null; // selection must not affect query results
+                        data.Query.Partition = null; // partition also
                         this._previousQueryString = JSON.stringify(data.Query);
                     }
                     else {
@@ -8477,6 +8453,7 @@ var PowerTables;
                     });
                 }
             };
+            //#endregion
             LoaderService.prototype.isLoading = function () {
                 return this._isLoading;
             };
@@ -8534,6 +8511,43 @@ var PowerTables;
                 //failTimeout = setTimeout(() => { req.abort(); this.Renderer.showError('Network error: network unreacheable'); }, 10000);
                 req.send(dataText);
             };
+            LoaderService.prototype.query = function (callback, queryModifier, errorCallback, force) {
+                var _this = this;
+                var serverQuery = this.gatherQuery(PowerTables.QueryScope.Server);
+                var clientQuery = this.gatherQuery(PowerTables.QueryScope.Client);
+                if (queryModifier) {
+                    queryModifier(serverQuery);
+                    queryModifier(clientQuery);
+                }
+                var queriesEqual = (JSON.stringify(serverQuery) === this._previousQueryString);
+                this._masterTable.Selection.modifyQuery(serverQuery, PowerTables.QueryScope.Server);
+                this._masterTable.Partition.partitionBefore(serverQuery, clientQuery);
+                var server = force || !queriesEqual;
+                var data = {
+                    Command: 'Query',
+                    Query: server ? serverQuery : clientQuery
+                };
+                if (this._masterTable.InstanceManager.Configuration.QueryConfirmation) {
+                    this._masterTable.InstanceManager.Configuration.QueryConfirmation(data, server ? PowerTables.QueryScope.Server : PowerTables.QueryScope.Client, function () {
+                        if (server)
+                            _this.doServerQuery(data, clientQuery, callback, errorCallback);
+                        else
+                            _this.doClientQuery(clientQuery, callback);
+                    });
+                }
+                else {
+                    if (server)
+                        this.doServerQuery(data, clientQuery, callback, errorCallback);
+                    else
+                        this.doClientQuery(clientQuery, callback);
+                }
+            };
+            LoaderService.prototype.doClientQuery = function (clientQuery, callback) {
+                this._isLoading = true;
+                this._dataHolder.filterStoredData(clientQuery);
+                callback(null);
+                this._isLoading = false;
+            };
             /**
              * Sends specified request to server and lets table handle it.
              * Always use this method to invoke table's server functionality because this method
@@ -8544,49 +8558,26 @@ var PowerTables;
              * @param queryModifier Inline query modifier for in-place query modification
              * @param errorCallback Will be called if error occures
              */
-            LoaderService.prototype.requestServer = function (command, callback, queryModifier, errorCallback, force) {
+            LoaderService.prototype.command = function (command, callback, queryModifier, errorCallback, force) {
                 var _this = this;
-                var scope = PowerTables.QueryScope.Transboundary;
-                if (command === 'query')
-                    scope = PowerTables.QueryScope.Server;
-                var serverQuery = this.gatherQuery(scope);
-                var clientQuery = null;
-                if (command === 'query')
-                    clientQuery = this.gatherQuery(PowerTables.QueryScope.Client);
+                if (command === 'query') {
+                    this.query(callback, queryModifier, errorCallback, force);
+                    return;
+                }
+                var serverQuery = this.gatherQuery(PowerTables.QueryScope.Transboundary);
                 if (queryModifier) {
                     queryModifier(serverQuery);
-                    if (command === 'query')
-                        queryModifier(clientQuery);
                 }
-                var queriesEqual = (command === 'query') && (JSON.stringify(serverQuery) === this._previousQueryString);
-                this._masterTable.Selection.modifyQuery(serverQuery, scope);
-                if (force || !queriesEqual) {
-                    var data = {
-                        Command: command,
-                        Query: serverQuery
-                    };
-                    if (this._masterTable.InstanceManager.Configuration.QueryConfirmation) {
-                        this._masterTable.InstanceManager.Configuration.QueryConfirmation(data, scope, function () { return _this.doServerQuery(data, clientQuery, callback, errorCallback); });
-                    }
-                    else {
-                        this.doServerQuery(data, clientQuery, callback, errorCallback);
-                    }
+                this._masterTable.Selection.modifyQuery(serverQuery, PowerTables.QueryScope.Transboundary);
+                var data = {
+                    Command: command,
+                    Query: serverQuery
+                };
+                if (this._masterTable.InstanceManager.Configuration.QueryConfirmation) {
+                    this._masterTable.InstanceManager.Configuration.QueryConfirmation(data, PowerTables.QueryScope.Transboundary, function () { return _this.doServerQuery(data, null, callback, errorCallback); });
                 }
                 else {
-                    if (this._masterTable.InstanceManager.Configuration.QueryConfirmation) {
-                        this._masterTable.InstanceManager.Configuration.QueryConfirmation({ Command: 'Query', Query: clientQuery }, PowerTables.QueryScope.Client, function () {
-                            _this._isLoading = true;
-                            _this._dataHolder.filterStoredData(clientQuery);
-                            callback(null);
-                            _this._isLoading = false;
-                        });
-                    }
-                    else {
-                        this._isLoading = true;
-                        this._dataHolder.filterStoredData(clientQuery);
-                        callback(null);
-                        this._isLoading = false;
-                    }
+                    this.doServerQuery(data, null, callback, errorCallback);
                 }
             };
             return LoaderService;
@@ -8656,7 +8647,8 @@ var PowerTables;
     var Services;
     (function (Services) {
         var PartitionService = (function () {
-            function PartitionService() {
+            function PartitionService(masterTable) {
+                this._masterTable = masterTable;
             }
             PartitionService.prototype.setSkip = function (skip) {
             };
@@ -8664,7 +8656,33 @@ var PowerTables;
             };
             PartitionService.prototype.partitionBefore = function (serverQuery, cllientQuery) {
             };
-            PartitionService.prototype.partitionAfter = function (ordered, serverQuery, cllientQuery) {
+            PartitionService.prototype.partitionAfter = function (serverQuery, cllientQuery) {
+            };
+            PartitionService.prototype.skipTakeSet = function (ordered, query) {
+                var selected = ordered;
+                if (query.Partition == null) {
+                }
+                var startingIndex = query.Paging.PageIndex * query.Paging.PageSize;
+                if (startingIndex > ordered.length)
+                    startingIndex = 0;
+                var take = query.Paging.PageSize;
+                if (this.EnableClientSkip && this.EnableClientTake) {
+                    if (take === 0)
+                        selected = ordered.slice(startingIndex);
+                    else
+                        selected = ordered.slice(startingIndex, startingIndex + take);
+                }
+                else {
+                    if (this.EnableClientSkip) {
+                        selected = ordered.slice(startingIndex);
+                    }
+                    else if (this.EnableClientTake) {
+                        if (take !== 0) {
+                            selected = ordered.slice(0, query.Paging.PageSize);
+                        }
+                    }
+                }
+                return selected;
             };
             return PartitionService;
         }());

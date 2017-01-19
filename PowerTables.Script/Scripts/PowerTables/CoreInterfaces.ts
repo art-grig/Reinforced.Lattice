@@ -112,6 +112,8 @@
          */
         Commands:PowerTables.Services.CommandsService;
 
+        Partition: PowerTables.Services.PartitionService;
+
         getStaticData(): any;
 
         setStaticData(obj: any): void;

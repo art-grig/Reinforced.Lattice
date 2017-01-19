@@ -64,6 +64,7 @@ module PowerTables {
             this.Controller = new PowerTables.Services.Controller(this);
             this.Selection = new PowerTables.Services.SelectionService(this);
             this.Commands = new PowerTables.Services.CommandsService(this);
+            this.Partition = new PowerTables.Services.PartitionService(this);
 
             this.MessageService = new PowerTables.Services.MessagesService(this._configuration.MessageFunction, this.InstanceManager, this.DataHolder, this.Controller, this.Renderer);
 
@@ -144,6 +145,8 @@ module PowerTables {
          * API for table messages
          */
         public Commands: PowerTables.Services.CommandsService;
+
+        public Partition: PowerTables.Services.PartitionService;
 
         /**
          * Fires specified DOM event on specified element

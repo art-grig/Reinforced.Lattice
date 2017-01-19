@@ -121,7 +121,8 @@ namespace PowerTables.Typings
                 .WithProperty(c => c.IsDeferred, c => c.Ignore())
                 ;
 
-            builder.ExportAsInterface<Query>().WithPublicProperties();
+            builder.ExportAsInterface<Query>().WithPublicProperties()
+                .WithProperty(c=>c.Partition,x=>x.ForceNullable(true));
             builder.ExportAsInterface<Partition>().WithPublicProperties();
             builder.ExportAsEnum<Ordering>();
 

@@ -67,7 +67,7 @@
             };
             var cmd = this._commandsCache[commandName];
             if (cmd == null || cmd == undefined) {
-                this._masterTable.Loader.requestServer(commandName,
+                this._masterTable.Loader.command(commandName,
                     r => {
                         params.Result = r;
                         if (callback) callback(params);
@@ -92,7 +92,7 @@
                 params.Confirmation = cmd.OnBeforeExecute(params);
             }
             if (cmd.Type === PowerTables.Commands.CommandType.Server) {
-                this._masterTable.Loader.requestServer(cmd.ServerName,
+                this._masterTable.Loader.command(cmd.ServerName,
                     r => {
 
                         params.Result = r;
@@ -216,7 +216,7 @@
                 var url = this._config.ContentLoadingUrl(this.Subject);
                 this.loadContentByUrl(url, this._config.ContentLoadingMethod || 'GET');
             } else {
-                this.MasterTable.Loader.requestServer(this._config.ContentLoadingCommand, r => {
+                this.MasterTable.Loader.command(this._config.ContentLoadingCommand, r => {
                     this.ContentPlaceholder.innerHTML = r;
                     this.initFormWatchDatepickers(this.ContentPlaceholder);
                     this.contentLoaded();
@@ -285,7 +285,7 @@
 
 
             if (this._config.Details.CommandName != null && this._config.Details.CommandName != undefined) {
-                this.MasterTable.Loader.requestServer(this._config.Details.CommandName,
+                this.MasterTable.Loader.command(this._config.Details.CommandName,
                     r => {
                         this.detailsLoaded(r);
                     },

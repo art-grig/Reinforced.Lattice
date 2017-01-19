@@ -19,7 +19,7 @@
         private _queryPartProviders: IQueryPartProvider[] = [];
         private _additionalDataReceivers: { [_: string]: IAdditionalDataReceiver[] } = {};
 
-        private _previousRequest: any;
+
         private _staticData: any; // from ctor
         private _operationalAjaxUrl: string; // from ctor
         private _events: PowerTables.Services.EventsService; // from ctor
@@ -62,17 +62,13 @@
 
         public gatherQuery(queryScope: QueryScope): IQuery {
             var a: IQuery = {
-                Paging: {
-                    PageSize: 0,
-                    PageIndex: 0
-                },
                 Orderings: {},
                 Filterings: {},
                 AdditionalData: {},
                 StaticDataJson: this._masterTable.InstanceManager.Configuration.StaticData,
                 Selection: null
-
             };
+
             if (queryScope === QueryScope.Client) {
                 this._events.ClientQueryGathering.invokeBefore(this, { Query: a, Scope: queryScope });
             } else {
@@ -91,6 +87,8 @@
             return a;
         }
 
+        //#region XMLHTTP
+        private _previousRequest: any;
         public createXmlHttp(): any {
             var xmlhttp: boolean | XMLHttpRequest;
             try {
@@ -118,9 +116,11 @@
             this._previousRequest = req;
             return req;
         }
+        //#endregion
 
         private _previousQueryString: string;
 
+        //#region Checks and handles
         private checkError(json: any, data: IPowerTableRequest, req: XMLHttpRequest): boolean {
             if (json == null) return false;
             if (json['__ZBnpwvibZm'] && json['Success'] != undefined && !json.Success) {
@@ -191,14 +191,14 @@
                 callback(json);
                 return;
             }
+
             var edit: boolean = this.checkEditResult(json, data, req);
-
-
             if (edit) {
                 this.checkAdditionalData(json);
                 callback(json);
                 return;
             }
+
             if (!error) {
                 this._events.DataReceived.invoke(this, {
                     Request: data,
@@ -210,6 +210,7 @@
                     this.checkAdditionalData(json);
                     callback(json);
                     data.Query.Selection = null; // selection must not affect query results
+                    data.Query.Partition = null; // partition also
                     this._previousQueryString = JSON.stringify(data.Query);
                 } else {
                     this.checkAdditionalData(json);
@@ -238,6 +239,8 @@
                 });
             }
         }
+        //#endregion
+
         public isLoading() {
             return this._isLoading;
         }
@@ -298,6 +301,49 @@
 
         private _isLoading = false;
 
+        public query(callback: (data: any) => void,
+            queryModifier?: (a: IQuery) => IQuery,
+            errorCallback?: (data: any) => void,
+            force?: boolean): void {
+
+            var serverQuery: IQuery = this.gatherQuery(QueryScope.Server);
+            var clientQuery: IQuery = this.gatherQuery(QueryScope.Client);
+
+            if (queryModifier) {
+                queryModifier(serverQuery);
+                queryModifier(clientQuery);
+            }
+
+            var queriesEqual: boolean = (JSON.stringify(serverQuery) === this._previousQueryString);
+
+            this._masterTable.Selection.modifyQuery(serverQuery, QueryScope.Server);
+            this._masterTable.Partition.partitionBefore(serverQuery, clientQuery);
+
+            var server = force || !queriesEqual;
+
+            var data: IPowerTableRequest = {
+                Command: 'Query',
+                Query: server?serverQuery:clientQuery
+            };
+
+            if (this._masterTable.InstanceManager.Configuration.QueryConfirmation) {
+                this._masterTable.InstanceManager.Configuration.QueryConfirmation(data, server?QueryScope.Server:QueryScope.Client, () => {
+                    if (server) this.doServerQuery(data, clientQuery, callback, errorCallback);
+                    else this.doClientQuery(clientQuery, callback);
+                });
+            } else {
+                if (server) this.doServerQuery(data, clientQuery, callback, errorCallback);
+                else this.doClientQuery(clientQuery, callback);
+            }
+        }
+
+        private doClientQuery(clientQuery: IQuery, callback: (data: any) => void) {
+            this._isLoading = true;
+            this._dataHolder.filterStoredData(clientQuery);
+            callback(null);
+            this._isLoading = false; 
+        }
+
         /**
          * Sends specified request to server and lets table handle it. 
          * Always use this method to invoke table's server functionality because this method 
@@ -308,48 +354,26 @@
          * @param queryModifier Inline query modifier for in-place query modification
          * @param errorCallback Will be called if error occures
          */
-        public requestServer(command: string, callback: (data: any) => void, queryModifier?: (a: IQuery) => IQuery, errorCallback?: (data: any) => void, force?: boolean): void {
-
-            var scope: QueryScope = QueryScope.Transboundary;
-            if (command === 'query') scope = QueryScope.Server;
-
-            var serverQuery: IQuery = this.gatherQuery(scope);
-
-            var clientQuery: IQuery = null;
-            if (command === 'query') clientQuery = this.gatherQuery(QueryScope.Client);
-
-            if (queryModifier) {
-                queryModifier(serverQuery);
-                if (command === 'query') queryModifier(clientQuery);
+        public command(command: string, callback: (data: any) => void, queryModifier?: (a: IQuery) => IQuery, errorCallback?: (data: any) => void, force?: boolean): void {
+            if (command === 'query') {
+                this.query(callback, queryModifier, errorCallback, force);
+                return;
             }
 
-            var queriesEqual: boolean = (command === 'query') && (JSON.stringify(serverQuery) === this._previousQueryString);
-            this._masterTable.Selection.modifyQuery(serverQuery, scope);
-            if (force || !queriesEqual) {
+            var serverQuery: IQuery = this.gatherQuery(QueryScope.Transboundary);
+            if (queryModifier) {
+                queryModifier(serverQuery);
+            }
+            this._masterTable.Selection.modifyQuery(serverQuery, QueryScope.Transboundary);
 
-                var data: IPowerTableRequest = {
-                    Command: command,
-                    Query: serverQuery
-                };
-                if (this._masterTable.InstanceManager.Configuration.QueryConfirmation) {
-                    this._masterTable.InstanceManager.Configuration.QueryConfirmation(data, scope, () => this.doServerQuery(data, clientQuery, callback, errorCallback));
-                } else {
-                    this.doServerQuery(data, clientQuery, callback, errorCallback);
-                }
+            var data: IPowerTableRequest = {
+                Command: command,
+                Query: serverQuery
+            };
+            if (this._masterTable.InstanceManager.Configuration.QueryConfirmation) {
+                this._masterTable.InstanceManager.Configuration.QueryConfirmation(data, QueryScope.Transboundary, () => this.doServerQuery(data, null, callback, errorCallback));
             } else {
-                if (this._masterTable.InstanceManager.Configuration.QueryConfirmation) {
-                    this._masterTable.InstanceManager.Configuration.QueryConfirmation({ Command: 'Query', Query: clientQuery }, QueryScope.Client, () => {
-                        this._isLoading = true;
-                        this._dataHolder.filterStoredData(clientQuery);
-                        callback(null);
-                        this._isLoading = false;
-                    });
-                } else {
-                    this._isLoading = true;
-                    this._dataHolder.filterStoredData(clientQuery);
-                    callback(null);
-                    this._isLoading = false;
-                }
+                this.doServerQuery(data, null, callback, errorCallback);
             }
         }
     }

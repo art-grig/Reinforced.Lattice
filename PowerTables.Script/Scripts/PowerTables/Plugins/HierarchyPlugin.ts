@@ -30,7 +30,7 @@
                 dataObject.IsLoading = true;
                 this.MasterTable.Controller.redrawVisibleDataObject(dataObject);
 
-                this.MasterTable.Loader.requestServer('GetHierarchyChildren', d => {
+                this.MasterTable.Loader.command('GetHierarchyChildren', d => {
                     var children = <any[]>d.HierarchyItems;
                     for (var i = 0; i < children.length; i++) {
                         children[i].IsVisible = true;

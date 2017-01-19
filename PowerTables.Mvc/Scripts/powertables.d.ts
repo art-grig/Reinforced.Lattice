@@ -106,7 +106,7 @@ declare module PowerTables {
         Query: PowerTables.IQuery;
     }
     interface IQuery {
-        Paging: PowerTables.IPaging;
+        Partition?: PowerTables.IPartition;
         Orderings: {
             [key: string]: PowerTables.Ordering;
         };
@@ -121,9 +121,10 @@ declare module PowerTables {
             [key: string]: number[];
         };
     }
-    interface IPaging {
-        PageIndex: number;
-        PageSize: number;
+    interface IPartition {
+        Skip: number;
+        Take: number;
+        NoCount: boolean;
     }
     interface ITableAdjustment {
         Message: PowerTables.ITableMessage;
@@ -643,6 +644,7 @@ declare module PowerTables {
          * API for commands
          */
         Commands: PowerTables.Services.CommandsService;
+        Partition: PowerTables.Services.PartitionService;
         getStaticData(): any;
         setStaticData(obj: any): void;
     }
@@ -2131,6 +2133,7 @@ declare module PowerTables {
          * API for table messages
          */
         Commands: PowerTables.Services.CommandsService;
+        Partition: PowerTables.Services.PartitionService;
         /**
          * Fires specified DOM event on specified element
          *
@@ -3034,7 +3037,6 @@ declare module PowerTables.Services {
         * @returns {Array} Array of ordered items
         */
         orderSet(objects: any[], query: IQuery): any[];
-        private skipTakeSet(ordered, query);
         /**
          * Part of data currently displayed without ordering and paging
          */
@@ -3453,7 +3455,6 @@ declare module PowerTables.Services {
         constructor(staticData: any, operationalAjaxUrl: string, masterTable: IMasterTable);
         private _queryPartProviders;
         private _additionalDataReceivers;
-        private _previousRequest;
         private _staticData;
         private _operationalAjaxUrl;
         private _events;
@@ -3478,6 +3479,7 @@ declare module PowerTables.Services {
         registerAdditionalDataReceiver(dataKey: string, receiver: IAdditionalDataReceiver): void;
         prefetchData(data: any[]): void;
         gatherQuery(queryScope: QueryScope): IQuery;
+        private _previousRequest;
         createXmlHttp(): any;
         private getXmlHttp();
         private _previousQueryString;
@@ -3490,6 +3492,8 @@ declare module PowerTables.Services {
         isLoading(): boolean;
         private doServerQuery(data, clientQuery, callback, errorCallback?);
         private _isLoading;
+        query(callback: (data: any) => void, queryModifier?: (a: IQuery) => IQuery, errorCallback?: (data: any) => void, force?: boolean): void;
+        private doClientQuery(clientQuery, callback);
         /**
          * Sends specified request to server and lets table handle it.
          * Always use this method to invoke table's server functionality because this method
@@ -3500,7 +3504,7 @@ declare module PowerTables.Services {
          * @param queryModifier Inline query modifier for in-place query modification
          * @param errorCallback Will be called if error occures
          */
-        requestServer(command: string, callback: (data: any) => void, queryModifier?: (a: IQuery) => IQuery, errorCallback?: (data: any) => void, force?: boolean): void;
+        command(command: string, callback: (data: any) => void, queryModifier?: (a: IQuery) => IQuery, errorCallback?: (data: any) => void, force?: boolean): void;
     }
 }
 declare module PowerTables.Services {
@@ -3526,6 +3530,8 @@ declare module PowerTables.Services {
 }
 declare module PowerTables.Services {
     class PartitionService {
+        constructor(masterTable: IMasterTable);
+        private _masterTable;
         Skip: number;
         Take: number;
         IsAllDataRetrieved: boolean;
@@ -3533,7 +3539,8 @@ declare module PowerTables.Services {
         setSkip(skip: number): void;
         setTake(take?: number): void;
         partitionBefore(serverQuery: IQuery, cllientQuery: IQuery): void;
-        partitionAfter(ordered: any[], serverQuery: IQuery, cllientQuery: IQuery): void;
+        partitionAfter(serverQuery: IQuery, cllientQuery: IQuery): void;
+        private skipTakeSet(ordered, query);
     }
 }
 declare module PowerTables.Services {

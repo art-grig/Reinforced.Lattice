@@ -119,17 +119,18 @@ module PowerTables {
 	}
 	export interface IQuery
 	{
-		Paging: PowerTables.IPaging;
+		Partition?: PowerTables.IPartition;
 		Orderings: { [key:string]: PowerTables.Ordering };
 		Filterings: { [key:string]: string };
 		AdditionalData: { [key:string]: string };
 		StaticDataJson: string;
 		Selection: { [key:string]: number[] };
 	}
-	export interface IPaging
+	export interface IPartition
 	{
-		PageIndex: number;
-		PageSize: number;
+		Skip: number;
+		Take: number;
+		NoCount: boolean;
 	}
 	export interface ITableAdjustment
 	{
