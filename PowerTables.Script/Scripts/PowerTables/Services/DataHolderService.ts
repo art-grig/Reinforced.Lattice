@@ -612,7 +612,7 @@
                 } else {
                     touchedColumns.push(this.copyData(adjustedObjects[i], update));
                     touchedData.push(update);
-                    if (update.DisplayedIndex > 0) {
+                    if (this.DisplayedData.indexOf(update) > -1) {
                         redrawVisibles.push(update);
                     }
                     needRefilter = true;

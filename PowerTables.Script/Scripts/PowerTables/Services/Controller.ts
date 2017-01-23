@@ -125,12 +125,14 @@ module PowerTables.Services {
                         }
                     }
                 }
-                if (needRedrawRow && !adjustmentResult.NeedRedrawAllVisible) {
-                    this._masterTable.Renderer.Modifier.redrawRow(rows[i]);
-                } else {
-                    if (cellsToRedraw.length > 0) {
-                        for (var k = 0; k < cellsToRedraw.length; k++) {
-                            this._masterTable.Renderer.Modifier.redrawCell(cellsToRedraw[k]);
+                if (!adjustmentResult.NeedRedrawAllVisible) {
+                    if (needRedrawRow) {
+                        this._masterTable.Renderer.Modifier.redrawRow(rows[i]);
+                    } else {
+                        if (cellsToRedraw.length > 0) {
+                            for (var k = 0; k < cellsToRedraw.length; k++) {
+                                this._masterTable.Renderer.Modifier.redrawCell(cellsToRedraw[k]);
+                            }
                         }
                     }
                 }
