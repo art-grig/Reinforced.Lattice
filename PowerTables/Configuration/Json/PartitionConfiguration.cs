@@ -15,8 +15,6 @@ namespace PowerTables.Configuration.Json
         public int InitialSkip { get; set; }
 
         public int InitialTake { get; set; }
-
-        public bool NoCount { get; set; }
     }
 
     //todo: do not use client ordering with mixed partition
@@ -25,6 +23,8 @@ namespace PowerTables.Configuration.Json
         public int LoadAhead { get; set; }
 
         public bool Rebuy { get; set; }
+
+        public bool NoCount { get; set; }
     }
 
     public enum PartitionType

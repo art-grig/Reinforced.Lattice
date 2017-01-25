@@ -213,6 +213,11 @@ namespace PowerTables.Typings
                 .WithPublicProperties()
                 .WithProperty(x => x.ValidateToLoad, x => x.Type("(param:ICommandExecutionParameters)=>boolean"))
                 .WithProperty(x => x.DetailsFunction, x => x.Type("(param:ICommandExecutionParameters)=>any"));
+
+
+            builder.ExportAsInterface<PartitionConfiguration>().WithPublicProperties();
+            builder.ExportAsInterface<MixedPartitionConfiguration>().WithPublicProperties();
+            builder.ExportAsEnum<PartitionType>();
         }
 
     }

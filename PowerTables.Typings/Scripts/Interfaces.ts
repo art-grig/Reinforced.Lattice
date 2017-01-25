@@ -25,6 +25,7 @@ module PowerTables.Configuration.Json {
 		SelectionConfiguration: PowerTables.Configuration.Json.ISelectionConfiguration;
 		PrefetchedData: any[];
 		Commands: { [key:string]: PowerTables.Commands.ICommandDescription };
+		Partition: PowerTables.Configuration.Json.IPartitionConfiguration;
 	}
 	export interface IColumnConfiguration
 	{
@@ -68,6 +69,19 @@ module PowerTables.Configuration.Json {
 		NonselectableColumns: string[];
 		SelectSingle: boolean;
 	}
+	export interface IPartitionConfiguration
+	{
+		Type: PowerTables.Configuration.Json.PartitionType;
+		Mixed: PowerTables.Configuration.Json.IMixedPartitionConfiguration;
+		InitialSkip: number;
+		InitialTake: number;
+	}
+	export interface IMixedPartitionConfiguration
+	{
+		LoadAhead: number;
+		Rebuy: boolean;
+		NoCount: boolean;
+	}
 	export enum SelectAllBehavior { 
 		AllVisible = 0, 
 		OnlyIfAllDataVisible = 1, 
@@ -78,6 +92,11 @@ module PowerTables.Configuration.Json {
 		DontReset = 0, 
 		ServerReload = 1, 
 		ClientReload = 2, 
+	}
+	export enum PartitionType { 
+		Client = 0, 
+		Server = 1, 
+		Mixed = 2, 
 	}
 }
 module PowerTables {

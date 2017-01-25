@@ -25,6 +25,12 @@ var PowerTables;
                 ResetSelectionBehavior[ResetSelectionBehavior["ClientReload"] = 2] = "ClientReload";
             })(Json.ResetSelectionBehavior || (Json.ResetSelectionBehavior = {}));
             var ResetSelectionBehavior = Json.ResetSelectionBehavior;
+            (function (PartitionType) {
+                PartitionType[PartitionType["Client"] = 0] = "Client";
+                PartitionType[PartitionType["Server"] = 1] = "Server";
+                PartitionType[PartitionType["Mixed"] = 2] = "Mixed";
+            })(Json.PartitionType || (Json.PartitionType = {}));
+            var PartitionType = Json.PartitionType;
         })(Json = Configuration.Json || (Configuration.Json = {}));
     })(Configuration = PowerTables.Configuration || (PowerTables.Configuration = {}));
 })(PowerTables || (PowerTables = {}));
@@ -3966,7 +3972,16 @@ var PowerTables;
             this.Controller = new PowerTables.Services.Controller(this);
             this.Selection = new PowerTables.Services.SelectionService(this);
             this.Commands = new PowerTables.Services.CommandsService(this);
-            this.Partition = new PowerTables.Services.PartitionService(this);
+            switch (this._configuration.Partition.Type) {
+                case PowerTables.Configuration.Json.PartitionType.Client:
+                    this.Partition = new PowerTables.Services.Partition.ClientPartitionService(this);
+                    break;
+                case PowerTables.Configuration.Json.PartitionType.Server:
+                    this.Partition = new PowerTables.Services.Partition.ServerPartitionService(this);
+                    break;
+                default:
+                    this.Partition = new PowerTables.Services.Partition.MixedPartitionService(this);
+            }
             this.MessageService = new PowerTables.Services.MessagesService(this._configuration.MessageFunction, this.InstanceManager, this.DataHolder, this.Controller, this.Renderer);
             this.InstanceManager.initPlugins();
             this.Renderer.layout();
@@ -6419,7 +6434,7 @@ var PowerTables;
              */
             Controller.prototype.reload = function (forceServer) {
                 var _this = this;
-                this._masterTable.Loader.requestServer('query', function (e) {
+                this._masterTable.Loader.query(function (e) {
                     if (e == null) {
                         _this.redrawVisibleData();
                         return;
@@ -6819,7 +6834,7 @@ var PowerTables;
                             obj['__key'] = this.PrimaryKeyFunction(obj);
                             this._storedDataCache[obj['__key']] = obj; // line that makes difference
                         }
-                        obj['__i'] = data.length - 1;
+                        obj['__i'] = clientQuery.Partition.Skip + data.length - 1;
                         obj = {};
                     }
                     currentCol = this._rawColumnNames[currentColIndex];
@@ -6910,9 +6925,7 @@ var PowerTables;
                     var ordered = this.orderSet(filtered, query);
                     this.Filtered = filtered;
                     this.Ordered = ordered;
-                    this._masterTable.Partition.partitionAfter();
-                    var selected = this.skipTakeSet(ordered, query);
-                    this.DisplayedData = selected;
+                    this.DisplayedData = this._masterTable.Partition.partitionAfterQuery(ordered, query);
                 }
                 this.updateStats();
                 this._events.ClientDataProcessing.invokeAfter(this, {
@@ -8520,9 +8533,9 @@ var PowerTables;
                     queryModifier(clientQuery);
                 }
                 var queriesEqual = (JSON.stringify(serverQuery) === this._previousQueryString);
-                this._masterTable.Selection.modifyQuery(serverQuery, PowerTables.QueryScope.Server);
-                this._masterTable.Partition.partitionBefore(serverQuery, clientQuery);
                 var server = force || !queriesEqual;
+                this._masterTable.Partition.partitionBeforeQuery(server ? serverQuery : clientQuery, server ? PowerTables.QueryScope.Server : PowerTables.QueryScope.Client);
+                this._masterTable.Selection.modifyQuery(serverQuery, PowerTables.QueryScope.Server);
                 var data = {
                     Command: 'Query',
                     Query: server ? serverQuery : clientQuery
@@ -8646,47 +8659,126 @@ var PowerTables;
 (function (PowerTables) {
     var Services;
     (function (Services) {
-        var PartitionService = (function () {
-            function PartitionService(masterTable) {
-                this._masterTable = masterTable;
-            }
-            PartitionService.prototype.setSkip = function (skip) {
-            };
-            PartitionService.prototype.setTake = function (take) {
-            };
-            PartitionService.prototype.partitionBefore = function (serverQuery, cllientQuery) {
-            };
-            PartitionService.prototype.partitionAfter = function (serverQuery, cllientQuery) {
-            };
-            PartitionService.prototype.skipTakeSet = function (ordered, query) {
-                var selected = ordered;
-                if (query.Partition == null) {
+        var Partition;
+        (function (Partition) {
+            var ClientPartitionService = (function () {
+                function ClientPartitionService(masterTable) {
+                    this._masterTable = masterTable;
                 }
-                var startingIndex = query.Paging.PageIndex * query.Paging.PageSize;
-                if (startingIndex > ordered.length)
-                    startingIndex = 0;
-                var take = query.Paging.PageSize;
-                if (this.EnableClientSkip && this.EnableClientTake) {
-                    if (take === 0)
-                        selected = ordered.slice(startingIndex);
-                    else
-                        selected = ordered.slice(startingIndex, startingIndex + take);
-                }
-                else {
-                    if (this.EnableClientSkip) {
-                        selected = ordered.slice(startingIndex);
-                    }
-                    else if (this.EnableClientTake) {
-                        if (take !== 0) {
-                            selected = ordered.slice(0, query.Paging.PageSize);
+                ClientPartitionService.prototype.setSkip = function (skip) {
+                    if (skip < 0)
+                        skip = 0;
+                    var prevSkip = this.Skip;
+                    if (prevSkip === skip)
+                        return;
+                    this._masterTable.DataHolder.DisplayedData = this
+                        .cut(this._masterTable.DataHolder.Ordered, skip, this.Take);
+                    if (this.Take > 0) {
+                        if (skip >= prevSkip + this.Take || skip <= prevSkip - this.Take) {
+                            this._masterTable.Controller.redrawVisibleData();
+                        }
+                        else {
                         }
                     }
+                    else {
+                    }
+                };
+                ClientPartitionService.prototype.setTake = function (take) {
+                    if (take == null)
+                        take = 0;
+                    if (take === 0) {
+                    }
+                    var prevTake = this.Take;
+                    if (take < prevTake) {
+                        var dd = this._masterTable.DataHolder.DisplayedData;
+                        for (var i = take; i < prevTake; i++) {
+                            this._masterTable.Renderer.Modifier.destroyRowByIndex(dd[i]['__i']);
+                        }
+                    }
+                    else {
+                    }
+                    this.Take = take;
+                };
+                ClientPartitionService.prototype.partitionBeforeQuery = function (serverQuery, scope) {
+                    serverQuery.Partition = {
+                        NoCount: true,
+                        Take: 0,
+                        Skip: 0
+                    };
+                    return scope;
+                };
+                ClientPartitionService.prototype.partitionBeforeCommand = function (serverQuery) {
+                    serverQuery.Partition = {
+                        NoCount: true,
+                        Take: this.Take,
+                        Skip: this.Skip
+                    };
+                };
+                ClientPartitionService.prototype.partitionAfterQuery = function (initialSet, query) {
+                    this.IsAllDataRetrieved = true;
+                    this.IsTotalCountKnown = true;
+                    this.TotalCount = this._masterTable.DataHolder.StoredData.length;
+                    return this.skipTakeSet(initialSet, query);
+                };
+                ClientPartitionService.prototype.skipTakeSet = function (ordered, query) {
+                    return this.cut(ordered, this.Skip, this.Take);
+                };
+                ClientPartitionService.prototype.cut = function (ordered, skip, take) {
+                    var selected = ordered;
+                    if (skip > ordered.length)
+                        skip = 0;
+                    if (take === 0)
+                        selected = ordered.slice(skip);
+                    else
+                        selected = ordered.slice(skip, skip + take);
+                    return selected;
+                };
+                return ClientPartitionService;
+            }());
+            Partition.ClientPartitionService = ClientPartitionService;
+        })(Partition = Services.Partition || (Services.Partition = {}));
+    })(Services = PowerTables.Services || (PowerTables.Services = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Services;
+    (function (Services) {
+        var Partition;
+        (function (Partition) {
+            var MixedPartitionService = (function () {
+                function MixedPartitionService(masterTable) {
+                    this._masterTable = masterTable;
                 }
-                return selected;
-            };
-            return PartitionService;
-        }());
-        Services.PartitionService = PartitionService;
+                MixedPartitionService.prototype.setSkip = function (skip) { };
+                MixedPartitionService.prototype.setTake = function (take) { };
+                MixedPartitionService.prototype.partitionBeforeQuery = function (serverQuery, scope) { };
+                MixedPartitionService.prototype.partitionBeforeCommand = function (serverQuery) { };
+                MixedPartitionService.prototype.partitionAfterQuery = function (query) { };
+                return MixedPartitionService;
+            }());
+            Partition.MixedPartitionService = MixedPartitionService;
+        })(Partition = Services.Partition || (Services.Partition = {}));
+    })(Services = PowerTables.Services || (PowerTables.Services = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Services;
+    (function (Services) {
+        var Partition;
+        (function (Partition) {
+            var ServerPartitionService = (function () {
+                function ServerPartitionService(masterTable) {
+                    this._masterTable = masterTable;
+                }
+                ServerPartitionService.prototype.setSkip = function (skip) { };
+                ServerPartitionService.prototype.setTake = function (take) { };
+                ServerPartitionService.prototype.partitionBeforeQuery = function (serverQuery, scope) { };
+                ServerPartitionService.prototype.partitionBeforeCommand = function (serverQuery) { };
+                ServerPartitionService.prototype.partitionAfterQuery = function (query) { };
+                return ServerPartitionService;
+            }());
+            Partition.ServerPartitionService = ServerPartitionService;
+        })(Partition = Services.Partition || (Services.Partition = {}));
     })(Services = PowerTables.Services || (PowerTables.Services = {}));
 })(PowerTables || (PowerTables = {}));
 var PowerTables;

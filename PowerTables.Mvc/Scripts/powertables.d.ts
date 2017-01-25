@@ -22,6 +22,7 @@ declare module PowerTables.Configuration.Json {
         Commands: {
             [key: string]: PowerTables.Commands.ICommandDescription;
         };
+        Partition: PowerTables.Configuration.Json.IPartitionConfiguration;
     }
     interface IColumnConfiguration {
         Title: string;
@@ -61,6 +62,17 @@ declare module PowerTables.Configuration.Json {
         NonselectableColumns: string[];
         SelectSingle: boolean;
     }
+    interface IPartitionConfiguration {
+        Type: PowerTables.Configuration.Json.PartitionType;
+        Mixed: PowerTables.Configuration.Json.IMixedPartitionConfiguration;
+        InitialSkip: number;
+        InitialTake: number;
+    }
+    interface IMixedPartitionConfiguration {
+        LoadAhead: number;
+        Rebuy: boolean;
+        NoCount: boolean;
+    }
     enum SelectAllBehavior {
         AllVisible = 0,
         OnlyIfAllDataVisible = 1,
@@ -71,6 +83,11 @@ declare module PowerTables.Configuration.Json {
         DontReset = 0,
         ServerReload = 1,
         ClientReload = 2,
+    }
+    enum PartitionType {
+        Client = 0,
+        Server = 1,
+        Mixed = 2,
     }
 }
 declare module PowerTables {
@@ -644,7 +661,7 @@ declare module PowerTables {
          * API for commands
          */
         Commands: PowerTables.Services.CommandsService;
-        Partition: PowerTables.Services.PartitionService;
+        Partition: PowerTables.Services.Partition.IPartitionService;
         getStaticData(): any;
         setStaticData(obj: any): void;
     }
@@ -2133,7 +2150,7 @@ declare module PowerTables {
          * API for table messages
          */
         Commands: PowerTables.Services.CommandsService;
-        Partition: PowerTables.Services.PartitionService;
+        Partition: PowerTables.Services.Partition.IPartitionService;
         /**
          * Fires specified DOM event on specified element
          *
@@ -3528,19 +3545,65 @@ declare module PowerTables.Services {
         private showTableMessage(tableMessage);
     }
 }
-declare module PowerTables.Services {
-    class PartitionService {
+declare module PowerTables.Services.Partition {
+    class ClientPartitionService implements IPartitionService {
         constructor(masterTable: IMasterTable);
         private _masterTable;
+        setSkip(skip: number): void;
+        setTake(take?: number): void;
+        partitionBeforeQuery(serverQuery: IQuery, scope: QueryScope): QueryScope;
+        partitionBeforeCommand(serverQuery: IQuery): void;
+        partitionAfterQuery(initialSet: any[], query: IQuery): any[];
+        private skipTakeSet(ordered, query);
+        private cut(ordered, skip, take);
+        Skip: number;
+        Take: number;
+        TotalCount: number;
+        IsAllDataRetrieved: boolean;
+        IsTotalCountKnown: boolean;
+    }
+}
+declare module PowerTables.Services.Partition {
+    interface IPartitionService {
         Skip: number;
         Take: number;
         IsAllDataRetrieved: boolean;
         IsTotalCountKnown: boolean;
         setSkip(skip: number): void;
         setTake(take?: number): void;
-        partitionBefore(serverQuery: IQuery, cllientQuery: IQuery): void;
-        partitionAfter(serverQuery: IQuery, cllientQuery: IQuery): void;
-        private skipTakeSet(ordered, query);
+        partitionBeforeQuery(serverQuery: IQuery, scope: QueryScope): QueryScope;
+        partitionBeforeCommand(serverQuery: IQuery): void;
+        partitionAfterQuery(initialSet: any[], query: IQuery): any[];
+    }
+}
+declare module PowerTables.Services.Partition {
+    class MixedPartitionService implements IPartitionService {
+        constructor(masterTable: IMasterTable);
+        private _masterTable;
+        setSkip(skip: number): void;
+        setTake(take?: number): void;
+        partitionBeforeQuery(serverQuery: IQuery, scope: QueryScope): void;
+        partitionBeforeCommand(serverQuery: IQuery): void;
+        partitionAfterQuery(query: IQuery): any;
+        Skip: number;
+        Take: number;
+        IsAllDataRetrieved: boolean;
+        IsTotalCountKnown: boolean;
+    }
+}
+declare module PowerTables.Services.Partition {
+    class ServerPartitionService implements IPartitionService {
+        constructor(masterTable: IMasterTable);
+        private _masterTable;
+        setSkip(skip: number): void;
+        setTake(take?: number): void;
+        partitionBeforeQuery(serverQuery: IQuery, scope: QueryScope): void;
+        partitionBeforeCommand(serverQuery: IQuery): void;
+        partitionAfterQuery(query: IQuery): any;
+        Skip: number;
+        Take: number;
+        IsAllDataRetrieved: boolean;
+        IsTotalCountKnown: boolean;
     }
 }
 declare module PowerTables.Services {

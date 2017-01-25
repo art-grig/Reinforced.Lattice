@@ -316,18 +316,17 @@
 
             var queriesEqual: boolean = (JSON.stringify(serverQuery) === this._previousQueryString);
 
-            this._masterTable.Selection.modifyQuery(serverQuery, QueryScope.Server);
-            this._masterTable.Partition.partitionBefore(serverQuery, clientQuery);
-
             var server = force || !queriesEqual;
 
+            this._masterTable.Partition.partitionBeforeQuery(server ? serverQuery : clientQuery, server ? QueryScope.Server : QueryScope.Client);
+            this._masterTable.Selection.modifyQuery(serverQuery, QueryScope.Server);
             var data: IPowerTableRequest = {
                 Command: 'Query',
-                Query: server?serverQuery:clientQuery
+                Query: server ? serverQuery : clientQuery
             };
 
             if (this._masterTable.InstanceManager.Configuration.QueryConfirmation) {
-                this._masterTable.InstanceManager.Configuration.QueryConfirmation(data, server?QueryScope.Server:QueryScope.Client, () => {
+                this._masterTable.InstanceManager.Configuration.QueryConfirmation(data, server ? QueryScope.Server : QueryScope.Client, () => {
                     if (server) this.doServerQuery(data, clientQuery, callback, errorCallback);
                     else this.doClientQuery(clientQuery, callback);
                 });
@@ -341,7 +340,7 @@
             this._isLoading = true;
             this._dataHolder.filterStoredData(clientQuery);
             callback(null);
-            this._isLoading = false; 
+            this._isLoading = false;
         }
 
         /**

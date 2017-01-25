@@ -230,7 +230,7 @@
                         obj['__key'] = this.PrimaryKeyFunction(obj);
                         this._storedDataCache[obj['__key']] = obj; // line that makes difference
                     }
-                    obj['__i'] = data.length - 1;
+                    obj['__i'] = clientQuery.Partition.Skip + data.length - 1;
                     obj = {};
                 }
                 currentCol = this._rawColumnNames[currentColIndex];
@@ -345,12 +345,7 @@
                 var ordered: any[] = this.orderSet(filtered, query);
                 this.Filtered = filtered;
                 this.Ordered = ordered;
-                this._masterTable.Partition.partitionAfter();
-                var selected: any[] = this.skipTakeSet(ordered, query);
-
-                
-                this.DisplayedData = selected;
-                
+                this.DisplayedData = this._masterTable.Partition.partitionAfterQuery(ordered,query);
             }
             this.updateStats();
 

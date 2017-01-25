@@ -22,7 +22,7 @@ module PowerTables.Services {
          * @returns {} 
          */
         public reload(forceServer?: boolean): void {
-            this._masterTable.Loader.requestServer('query', (e: IPowerTablesResponse) => {
+            this._masterTable.Loader.query((e: IPowerTablesResponse) => {
                 if (e == null) {
                     this.redrawVisibleData();
                     return;

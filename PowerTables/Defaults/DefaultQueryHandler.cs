@@ -58,10 +58,11 @@ namespace PowerTables.Defaults
             totalCount = -1;
 
             if (partition == null) return source;
-
             if (!partition.NoCount) totalCount = TotalCount(source);
-            
-            var result = source.Skip(partition.Skip).Take(partition.Take);
+            var result = source;
+            if (partition.Skip != 0) result = result.Skip(partition.Skip);
+            if (partition.Take != 0) result = result.Take(partition.Take);
+
             return result;
         }
 

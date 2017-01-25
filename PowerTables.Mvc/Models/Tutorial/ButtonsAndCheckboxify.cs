@@ -104,6 +104,7 @@ namespace PowerTables.Mvc.Models.Tutorial
                 {
                     x.Window<CommentsValidationForm>("commentsAndFeedback", "#confirmationContent", d =>
                     {
+                        
                         d.AutoForm(c =>
                         {
                             c.EditCheck(v => v.Validated)

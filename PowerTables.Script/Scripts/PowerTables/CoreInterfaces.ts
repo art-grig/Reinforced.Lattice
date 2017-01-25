@@ -112,7 +112,7 @@
          */
         Commands:PowerTables.Services.CommandsService;
 
-        Partition: PowerTables.Services.PartitionService;
+        Partition: PowerTables.Services.Partition.IPartitionService;
 
         getStaticData(): any;
 

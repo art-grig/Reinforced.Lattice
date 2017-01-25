@@ -64,7 +64,17 @@ module PowerTables {
             this.Controller = new PowerTables.Services.Controller(this);
             this.Selection = new PowerTables.Services.SelectionService(this);
             this.Commands = new PowerTables.Services.CommandsService(this);
-            this.Partition = new PowerTables.Services.PartitionService(this);
+            switch (this._configuration.Partition.Type) {
+                case PowerTables.Configuration.Json.PartitionType.Client:
+                    this.Partition = new PowerTables.Services.Partition.ClientPartitionService(this);  
+                    break;
+                case PowerTables.Configuration.Json.PartitionType.Server:
+                    this.Partition = new PowerTables.Services.Partition.ServerPartitionService(this);  
+                    break;
+                default:
+                    this.Partition = new PowerTables.Services.Partition.MixedPartitionService(this);  
+            }
+            
 
             this.MessageService = new PowerTables.Services.MessagesService(this._configuration.MessageFunction, this.InstanceManager, this.DataHolder, this.Controller, this.Renderer);
 
@@ -146,7 +156,7 @@ module PowerTables {
          */
         public Commands: PowerTables.Services.CommandsService;
 
-        public Partition: PowerTables.Services.PartitionService;
+        public Partition: PowerTables.Services.Partition.IPartitionService;
 
         /**
          * Fires specified DOM event on specified element

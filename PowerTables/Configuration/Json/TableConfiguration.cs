@@ -121,6 +121,8 @@ namespace PowerTables.Configuration.Json
 
         public Dictionary<string, CommandDescription> Commands { get; set; }
 
+        public PartitionConfiguration Partition { get; set; }
+
     }
 
     /// <summary>
