@@ -435,12 +435,11 @@
         }
 
         public dismiss() {
+           var params = this.collectCommandParameters();
+            this.MasterTable.Renderer.destroyObject(this._commandDescription.Confirmation.TargetSelector);
             this.RootElement = null;
             this.ContentPlaceholder = null;
             this.DetailsPlaceholder = null;
-            var params = this.collectCommandParameters();
-            this.MasterTable.Renderer.destroyObject(this._commandDescription.Confirmation.TargetSelector);
-
             if (this._config.OnDismiss) this._config.OnDismiss(params);
             if (this._originalCallback) this._originalCallback(params);
         }

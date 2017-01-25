@@ -60,7 +60,16 @@
                         } else {
                             value = [];
                             for (var i = 0; i < elements.length; i++) {
-                                value.push(FormwatchPlugin.extractInputValue(<any>elements.item(i), fieldConf, dateService));
+                                var el = <HTMLInputElement>elements.item(i);
+                                var exv = FormwatchPlugin.extractInputValue(el, fieldConf, dateService);
+                                if (el.type === 'checkbox') {
+                                    if (exv === true) {
+                                        exv = el.value;
+                                    } else {
+                                        continue;
+                                    }
+                                }
+                                value.push(exv);
                             }
                         }
                     }
