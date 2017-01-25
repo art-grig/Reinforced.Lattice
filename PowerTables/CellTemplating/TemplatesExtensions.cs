@@ -437,10 +437,7 @@ namespace PowerTables.CellTemplating
         /// <returns></returns>
         public static T RazorSwitch<T>(this T x, string expression, Action<RazorSwitchBuilder> swtch) where T : IColumnConfigurator
         {
-            
             return x.Template(c => c.RazorSwitch(expression, swtch));
-
-            
         }
 
         /// <summary>
@@ -476,6 +473,7 @@ namespace PowerTables.CellTemplating
         {
             SwitchBuilder swb = new SwitchBuilder(switchExpression, x._objectProperty, x._defaultProperty);
             swtch(swb);
+            expression = CellTemplating.Template.CompileExpression(expression, "v", x._objectProperty, x._defaultProperty);
             var line = string.Format("if ({0}) {{ {1} }} ", expression, swb.Build());
             x.Line(line);
             return x;
@@ -492,6 +490,7 @@ namespace PowerTables.CellTemplating
         {
             RazorSwitchBuilder swb = new RazorSwitchBuilder(switchExpression, x._objectProperty, x._defaultProperty);
             swtch(swb);
+            expression = CellTemplating.Template.CompileExpression(expression, "v", x._objectProperty, x._defaultProperty);
             var line = string.Format("if ({0}) {{ {1} }} ", expression, swb.Build());
             x.Line(line);
             return x;
