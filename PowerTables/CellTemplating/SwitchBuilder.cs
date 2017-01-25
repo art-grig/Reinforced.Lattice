@@ -18,9 +18,26 @@ namespace PowerTables.CellTemplating
             _defaultProperty = defaultProperty;
         }
 
-        private readonly string _expression;
+        internal SwitchBuilder(string objectProperty, string defaultProperty)
+        {
+            _objectProperty = objectProperty;
+            _defaultProperty = defaultProperty;
+        }
+
+        private string _expression;
         private readonly List<string> _lines = new List<string>();
         private string _default;
+
+        /// <summary>
+        /// Specifies expression under switch
+        /// </summary>
+        /// <param name="expression">Expression to switch by</param>
+        /// <returns>Fluent</returns>
+        public SwitchBuilder By(string expression)
+        {
+            _expression = expression;
+            return this;
+        }
 
         /// <summary>
         /// Specifies template for single condition
@@ -61,6 +78,7 @@ namespace PowerTables.CellTemplating
         /// <returns>JS code for embedding into template function</returns>
         public string Build()
         {
+            if (string.IsNullOrEmpty(_expression)) throw new Exception("Switch needs expression. Please call .By() to obtain correct switch");
             StringBuilder sb = new StringBuilder();
             sb.AppendFormat("switch ({0}) {{", Template.CompileExpression(_expression, "v", _objectProperty, _defaultProperty));
             foreach (var line in _lines)

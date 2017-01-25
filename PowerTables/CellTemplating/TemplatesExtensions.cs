@@ -443,6 +443,59 @@ namespace PowerTables.CellTemplating
             
         }
 
+        /// <summary>
+        /// Template will return specified content if specified column is null or undefined
+        /// </summary>
+        /// <param name="expression">Expression to check</param>
+        /// <param name="swtch">Switch to return</param>
+        /// <returns></returns>
+        public static CellTemplateBuilder SwitchIfNotPresent(this CellTemplateBuilder x, string expression, string switchExpression, Action<SwitchBuilder> swtch)
+        {
+            return x.SwitchIf(string.Format("(({0})==null)||(({0})==undefined)", expression),switchExpression, swtch);
+        }
+
+        /// <summary>
+        /// Template will return specified content if specified column is null or undefined
+        /// </summary>
+        /// <param name="expression">Expression to check</param>
+        /// <param name="swtch">Switch to return</param>
+        /// <returns></returns>
+        public static CellTemplateBuilder RazorSwitchIfNotPresent(this CellTemplateBuilder x, string expression, string switchExpression, Action<RazorSwitchBuilder> swtch)
+        {
+            return x.RazorSwitchIf(string.Format("(({0})==null)||(({0})==undefined)", expression),switchExpression, swtch);
+        }
+
+        /// <summary>
+        /// Template will return specified content if specified column is null or undefined
+        /// </summary>
+        /// <param name="expression">Expression to check</param>
+        /// <param name="switchExpression">Switch expression</param>
+        /// <param name="swtch">Switch to return</param>
+        /// <returns></returns>
+        public static CellTemplateBuilder SwitchIf(this CellTemplateBuilder x, string expression, string switchExpression, Action<SwitchBuilder> swtch)
+        {
+            SwitchBuilder swb = new SwitchBuilder(switchExpression, x._objectProperty, x._defaultProperty);
+            swtch(swb);
+            var line = string.Format("if ({0}) {{ {1} }} ", expression, swb.Build());
+            x.Line(line);
+            return x;
+        }
+
+        /// <summary>
+        /// Template will return specified content if specified column is null or undefined
+        /// </summary>
+        /// <param name="expression">Expression to check</param>
+        /// <param name="switchExpression">Switch expression</param>
+        /// <param name="swtch">Switch to return</param>
+        /// <returns></returns>
+        public static CellTemplateBuilder RazorSwitchIf(this CellTemplateBuilder x, string expression, string switchExpression, Action<RazorSwitchBuilder> swtch)
+        {
+            RazorSwitchBuilder swb = new RazorSwitchBuilder(switchExpression, x._objectProperty, x._defaultProperty);
+            swtch(swb);
+            var line = string.Format("if ({0}) {{ {1} }} ", expression, swb.Build());
+            x.Line(line);
+            return x;
+        }
 
     }
 }

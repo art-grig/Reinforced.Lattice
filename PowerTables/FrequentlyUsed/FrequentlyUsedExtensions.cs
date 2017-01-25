@@ -19,7 +19,7 @@ namespace PowerTables.FrequentlyUsed
         /// </summary>
         /// <param name="column">Colum to apply formatting</param>
         /// <returns>Fluent</returns>
-        public static T FormatEnumWithDisplayAttribute<T>(this T column, Action<Template> ifNotPresent = null) where T : IColumnConfigurator
+        public static T TemplateEnum<T>(this T column, Action<Template> ifNotPresent = null) where T : IColumnConfigurator
         {
             var enumType = column.ColumnType;
             if (enumType.IsNullable())
@@ -58,7 +58,7 @@ namespace PowerTables.FrequentlyUsed
         /// <param name="content">Content for particular select list item</param>
         /// <param name="empty">Template for empty element</param>
         /// <returns>Fluent</returns>
-        public static T FormatEnumWithDisplayAttribute<T>(this T column, Action<Template, SelectListItem> content, Action<Template> ifNotPresent = null) where T : IColumnConfigurator
+        public static T TemplateEnum<T>(this T column, Action<Template, SelectListItem> content, Action<Template> ifNotPresent = null) where T : IColumnConfigurator
         {
             var enumType = column.ColumnType;
             if (enumType.IsNullable())
@@ -88,6 +88,36 @@ namespace PowerTables.FrequentlyUsed
 
                 );
             return column;
+        }
+
+        /// <summary>
+        /// Shortcut for creating JS function that formats enum-typed column values to specified text specified using enum's fields [Display] attribute.
+        /// This method uses MVC GetSelectList function to retrieve enum values.
+        /// </summary>
+        /// <param name="expression">If - expression</param>
+        /// <param name="switchExpression">Expression to trean as enum</param>
+        /// <param name="content">Template for empty element</param>
+        /// <returns>Fluent</returns>
+        public static CellTemplateBuilder TemplateEnumIf<TEnum>(this CellTemplateBuilder x, string expression, string switchExpression, Action<Template, SelectListItem> content)
+        {
+            var enumType = typeof(TEnum);
+            if (enumType.IsNullable())
+            {
+                enumType = enumType.GetGenericArguments()[0];
+            }
+            if (!typeof(Enum).IsAssignableFrom(enumType))
+            {
+                throw new Exception("This method is only applicable for enums.");
+            }
+            var items = EnumHelper.GetSelectList(enumType);
+
+            x.SwitchIf(expression, switchExpression, swtch =>
+                swtch
+                    .Cases(items, c => c.Value, (tpl, v) => content(tpl.Content(v.Text), v))
+                    .DefaultEmpty());
+
+            
+            return x;
         }
 
         /// <summary>
