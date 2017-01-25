@@ -3847,19 +3847,6 @@ var PowerTables;
                 /**
                 * @internal
                 */
-                TotalsPlugin.prototype.onClientRowsRendering = function (e) {
-                    if (this._totalsForColumns) {
-                        if (this.Configuration.ShowOnTop) {
-                            e.EventArgs.splice(0, 0, this.makeTotalsRow());
-                        }
-                        else {
-                            e.EventArgs.push(this.makeTotalsRow());
-                        }
-                    }
-                };
-                /**
-                * @internal
-                */
                 TotalsPlugin.prototype.onAdjustments = function (e) {
                     var adjustments = e.EventArgs;
                     if (adjustments.NeedRedrawAllVisible)
@@ -3883,9 +3870,9 @@ var PowerTables;
                 * @internal
                 */
                 TotalsPlugin.prototype.subscribe = function (e) {
-                    e.ClientRowsRendering.subscribeBefore(this.onClientRowsRendering.bind(this), 'totals');
                     e.ClientDataProcessing.subscribeAfter(this.onClientDataProcessed.bind(this), 'totals');
                     e.AdjustmentResult.subscribe(this.onAdjustments.bind(this), 'totals');
+                    this.MasterTable.Controller.registerAdditionalRowsProvider(this);
                 };
                 TotalsPlugin.prototype.handleAdditionalData = function (additionalData) {
                     var total = additionalData;
@@ -3898,6 +3885,16 @@ var PowerTables;
                 TotalsPlugin.prototype.init = function (masterTable) {
                     _super.prototype.init.call(this, masterTable);
                     this.MasterTable.Loader.registerAdditionalDataReceiver('Total', this);
+                };
+                TotalsPlugin.prototype.provide = function (rows) {
+                    if (this._totalsForColumns) {
+                        if (this.Configuration.ShowOnTop) {
+                            rows.splice(0, 0, this.makeTotalsRow());
+                        }
+                        else {
+                            rows.push(this.makeTotalsRow());
+                        }
+                    }
                 };
                 return TotalsPlugin;
             }(Plugins.PluginBase));
@@ -4047,6 +4044,18 @@ var PowerTables;
         return PowerTable;
     }());
     PowerTables.PowerTable = PowerTable;
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Q = (function () {
+        function Q() {
+        }
+        Q.contains = function (arr, element) {
+            return arr.indexOf(element) >= 0;
+        };
+        return Q;
+    }());
+    PowerTables.Q = Q;
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
@@ -6426,8 +6435,12 @@ var PowerTables;
              * @internal
              */
             function Controller(masterTable) {
+                this._additionalRowsProviders = [];
                 this._masterTable = masterTable;
             }
+            Controller.prototype.registerAdditionalRowsProvider = function (provider) {
+                this._additionalRowsProviders.push(provider);
+            };
             /**
              * Initializes full reloading cycle
              * @returns {}
@@ -6462,25 +6475,12 @@ var PowerTables;
              */
             Controller.prototype.redrawVisibleData = function () {
                 var rows = this.produceRows();
-                if (rows.length === 0) {
-                    this._prevRows = null;
-                    this._masterTable.MessageService.showMessage({
-                        Class: 'noresults',
-                        Title: 'No data found',
-                        Details: 'Try specifying different filter settings',
-                        Type: PowerTables.MessageType.Banner
-                    });
-                }
-                else {
-                    this._masterTable.Renderer.body(rows);
-                    this._prevRows = rows;
-                }
+                this._masterTable.Renderer.body(rows);
             };
             /**
              * Redraws locally visible data
              */
             Controller.prototype.replaceVisibleData = function (rows) {
-                this._prevRows = rows;
                 this._masterTable.Renderer.body(rows);
             };
             Controller.prototype.redrawVisibleCells = function (dataObject, columns) {
@@ -6548,7 +6548,6 @@ var PowerTables;
                         this._masterTable.Renderer.body(rows);
                 }
                 this._masterTable.Events.Adjustment.invokeAfter(this, adjustmentResult);
-                this._prevRows = rows;
             };
             //#region Produce methods
             /**
@@ -6607,6 +6606,9 @@ var PowerTables;
                 rw.Cells = cells;
                 return rw;
             };
+            /**
+             * @internal
+             */
             Controller.prototype.produceRows = function () {
                 this._masterTable.Events.DataRendered.invokeBefore(this, null);
                 var result = [];
@@ -6617,6 +6619,9 @@ var PowerTables;
                     if (!row)
                         continue;
                     result.push(row);
+                }
+                for (var j = 0; j < this._additionalRowsProviders.length; j++) {
+                    this._additionalRowsProviders[j].provide(result);
                 }
                 return result;
             };
@@ -8619,6 +8624,7 @@ var PowerTables;
                 if (!usersMessageFn) {
                     this._usersMessageFn = function (m) { alert(m.Title + '\r\n' + m.Details); };
                 }
+                this._controller.registerAdditionalRowsProvider(this);
             }
             /**
              * Shows table message according to its settings
@@ -8650,6 +8656,27 @@ var PowerTables;
                 tableMessage.IsMessageObject = true;
                 this._controller.replaceVisibleData([msgRow]);
             };
+            MessagesService.prototype.provide = function (rows) {
+                if (rows.length === 0) {
+                    var message = {
+                        Class: 'noresults',
+                        Title: 'No data found',
+                        Details: 'Try specifying different filter settings',
+                        Type: PowerTables.MessageType.Banner,
+                        UiColumnsCount: this._instances.getUiColumns().length,
+                        IsMessageObject: true
+                    };
+                    var msgRow = {
+                        DataObject: message,
+                        IsSpecial: true,
+                        TemplateIdOverride: "ltmsg-" + message.Class,
+                        MasterTable: null,
+                        Index: 0,
+                        Cells: {}
+                    };
+                    rows.push(msgRow);
+                }
+            };
             return MessagesService;
         }());
         Services.MessagesService = MessagesService;
@@ -8671,17 +8698,43 @@ var PowerTables;
                     var prevSkip = this.Skip;
                     if (prevSkip === skip)
                         return;
-                    this._masterTable.DataHolder.DisplayedData = this
-                        .cut(this._masterTable.DataHolder.Ordered, skip, this.Take);
                     if (this.Take > 0) {
                         if (skip >= prevSkip + this.Take || skip <= prevSkip - this.Take) {
+                            this.cutDisplayed(skip, this.Take);
                             this._masterTable.Controller.redrawVisibleData();
                         }
                         else {
+                            var prevIdx = this.displayedIndexes();
+                            this.cutDisplayed(skip, this.Take);
+                            var curIdx = this.displayedIndexes();
+                            var diff = Math.abs(prevSkip - skip);
+                            var rows = this._masterTable.Controller.produceRows();
+                            for (var i = 0; i < diff; i++) {
+                                if (skip > prevSkip) {
+                                }
+                                else {
+                                }
+                            }
+                            for (var j = 0; j < rows.length; j++) {
+                                if (rows[j].IsSpecial)
+                                    this._masterTable.Renderer.Modifier.redrawRow(rows[j]);
+                                else {
+                                    var di = rows[j].Index;
+                                    if (!PowerTables.Q.contains(prevIdx, di))
+                                        ;
+                                }
+                            }
                         }
                     }
                     else {
                     }
+                };
+                ClientPartitionService.prototype.displayedIndexes = function () {
+                    var currentIndexes = [];
+                    for (var i = 0; i < this._masterTable.DataHolder.DisplayedData.length; i++) {
+                        currentIndexes.push(this._masterTable.DataHolder.DisplayedData[i]['__i']);
+                    }
+                    return currentIndexes;
                 };
                 ClientPartitionService.prototype.setTake = function (take) {
                     if (take == null)
@@ -8732,6 +8785,9 @@ var PowerTables;
                     else
                         selected = ordered.slice(skip, skip + take);
                     return selected;
+                };
+                ClientPartitionService.prototype.cutDisplayed = function (skip, take) {
+                    this._masterTable.DataHolder.DisplayedData = this.cut(this._masterTable.DataHolder.Ordered, skip, take);
                 };
                 return ClientPartitionService;
             }());

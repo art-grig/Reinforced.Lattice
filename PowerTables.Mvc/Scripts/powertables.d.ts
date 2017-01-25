@@ -1141,6 +1141,9 @@ declare module PowerTables {
          */
         Result: any;
     }
+    interface IAdditionalRowsProvider {
+        provide(rows: IRow[]): void;
+    }
 }
 declare module PowerTables.Editing.Editors.Cells {
     class CellsEditHandler extends EditHandlerBase<PowerTables.Editing.Cells.ICellsEditUiConfig> {
@@ -2067,13 +2070,9 @@ declare module PowerTables.Plugins.Total {
     /**
      * Client-side implementation of totals plugin
      */
-    class TotalsPlugin extends PluginBase<Plugins.Total.ITotalClientConfiguration> implements PowerTables.IAdditionalDataReceiver {
+    class TotalsPlugin extends PluginBase<Plugins.Total.ITotalClientConfiguration> implements PowerTables.IAdditionalDataReceiver, PowerTables.IAdditionalRowsProvider {
         private _totalsForColumns;
         private makeTotalsRow();
-        /**
-        * @internal
-        */
-        onClientRowsRendering(e: ITableEventArgs<IRow[]>): void;
         /**
         * @internal
         */
@@ -2088,6 +2087,7 @@ declare module PowerTables.Plugins.Total {
         subscribe(e: PowerTables.Services.EventsService): void;
         handleAdditionalData(additionalData: any): void;
         init(masterTable: IMasterTable): void;
+        provide(rows: IRow[]): void;
     }
 }
 declare module PowerTables {
@@ -2162,6 +2162,11 @@ declare module PowerTables {
         getStaticData(): any;
         setStaticData(obj: any): void;
         Selection: PowerTables.Services.SelectionService;
+    }
+}
+declare module PowerTables {
+    class Q {
+        static contains<T>(arr: T[], element: T): boolean;
     }
 }
 declare module PowerTables.Rendering {
@@ -2918,7 +2923,8 @@ declare module PowerTables.Services {
          */
         constructor(masterTable: IMasterTable);
         private _masterTable;
-        private _prevRows;
+        private _additionalRowsProviders;
+        registerAdditionalRowsProvider(provider: IAdditionalRowsProvider): void;
         /**
          * Initializes full reloading cycle
          * @returns {}
@@ -2964,7 +2970,10 @@ declare module PowerTables.Services {
          * @returns {IRow} Row representing displayed object
          */
         produceRow(dataObject: any, columns?: IColumn[]): IRow;
-        private produceRows();
+        /**
+         * @internal
+         */
+        produceRows(): IRow[];
     }
 }
 declare module PowerTables.Services {
@@ -3529,7 +3538,7 @@ declare module PowerTables.Services {
      * Class responsible for handling of table messages. It handles internally thrown messages as well as
      * user's ones
      */
-    class MessagesService {
+    class MessagesService implements IAdditionalRowsProvider {
         constructor(usersMessageFn: (msg: ITableMessage) => void, instances: PowerTables.Services.InstanceManagerService, dataHolder: PowerTables.Services.DataHolderService, controller: Controller, templatesProvider: ITemplatesProvider);
         private _usersMessageFn;
         private _instances;
@@ -3543,6 +3552,7 @@ declare module PowerTables.Services {
          */
         showMessage(message: ITableMessage): void;
         private showTableMessage(tableMessage);
+        provide(rows: IRow[]): void;
     }
 }
 declare module PowerTables.Services.Partition {
@@ -3550,12 +3560,14 @@ declare module PowerTables.Services.Partition {
         constructor(masterTable: IMasterTable);
         private _masterTable;
         setSkip(skip: number): void;
+        private displayedIndexes();
         setTake(take?: number): void;
         partitionBeforeQuery(serverQuery: IQuery, scope: QueryScope): QueryScope;
         partitionBeforeCommand(serverQuery: IQuery): void;
         partitionAfterQuery(initialSet: any[], query: IQuery): any[];
         private skipTakeSet(ordered, query);
         private cut(ordered, skip, take);
+        private cutDisplayed(skip, take);
         Skip: number;
         Take: number;
         TotalCount: number;

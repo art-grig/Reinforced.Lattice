@@ -15,7 +15,11 @@ module PowerTables.Services {
         }
 
         private _masterTable: IMasterTable;
-        private _prevRows: IRow[];
+        private _additionalRowsProviders: IAdditionalRowsProvider[] = [];
+
+        public registerAdditionalRowsProvider(provider: IAdditionalRowsProvider) {
+            this._additionalRowsProviders.push(provider);
+        }
 
         /**
          * Initializes full reloading cycle
@@ -51,18 +55,7 @@ module PowerTables.Services {
          */
         public redrawVisibleData(): void {
             var rows: IRow[] = this.produceRows();
-            if (rows.length === 0) {
-                this._prevRows = null;
-                this._masterTable.MessageService.showMessage({
-                    Class: 'noresults',
-                    Title: 'No data found',
-                    Details: 'Try specifying different filter settings',
-                    Type: MessageType.Banner
-                });
-            } else {
-                this._masterTable.Renderer.body(rows);
-                this._prevRows = rows;
-            }
+            this._masterTable.Renderer.body(rows);
         }
 
         
@@ -71,7 +64,6 @@ module PowerTables.Services {
          * Redraws locally visible data
          */
         public replaceVisibleData(rows: IRow[]): void {
-            this._prevRows = rows;
             this._masterTable.Renderer.body(rows);
         }
 
@@ -141,7 +133,6 @@ module PowerTables.Services {
                 else this._masterTable.Renderer.body(rows);
             }
             this._masterTable.Events.Adjustment.invokeAfter(this, adjustmentResult);
-            this._prevRows = rows;
         }
 
         //#region Produce methods
@@ -205,7 +196,10 @@ module PowerTables.Services {
             return rw;
         }
 
-        private produceRows(): IRow[] {
+        /**
+         * @internal
+         */
+        public produceRows(): IRow[] {
             this._masterTable.Events.DataRendered.invokeBefore(this, null);
 
             var result: IRow[] = [];
@@ -217,7 +211,9 @@ module PowerTables.Services {
                 if (!row) continue;
                 result.push(row);
             }
-
+            for (var j = 0; j < this._additionalRowsProviders.length; j++) {
+                this._additionalRowsProviders[j].provide(result);
+            }
             return result;
         }
 

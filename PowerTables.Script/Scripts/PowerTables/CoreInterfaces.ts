@@ -659,4 +659,8 @@
          */
         Result: any;
     }
+
+    export interface IAdditionalRowsProvider {
+        provide(rows:IRow[]):void;
+    }
 }

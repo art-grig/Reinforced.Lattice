@@ -9,18 +9,47 @@
             if (skip < 0) skip = 0;
             var prevSkip = this.Skip;
             if (prevSkip === skip) return;
-
-            this._masterTable.DataHolder.DisplayedData = this
-                .cut(this._masterTable.DataHolder.Ordered, skip, this.Take);
+            
+            
             if (this.Take > 0) {
                 if (skip >= prevSkip + this.Take || skip <= prevSkip - this.Take) {
+                    this.cutDisplayed(skip, this.Take);
                     this._masterTable.Controller.redrawVisibleData();
                 } else {
+                    var prevIdx = this.displayedIndexes();
+                    this.cutDisplayed(skip, this.Take);
+                    var curIdx = this.displayedIndexes();
+                    var diff = Math.abs(prevSkip - skip);
+
+                    var rows = this._masterTable.Controller.produceRows();
+                    for (var i = 0; i < diff; i++) {
+                        if (skip > prevSkip) {
+
+                        } else {
+
+                        }
+                    }
                     
+
+                    
+                    for (var j = 0; j < rows.length; j++) {
+                        if (rows[j].IsSpecial) this._masterTable.Renderer.Modifier.redrawRow(rows[j]);
+                        else {
+                            var di = rows[j].Index;
+                            if (!Q.contains(prevIdx,di))
+                        }
+                    }
                 }
             } else {
                 
             }
+        }
+        private displayedIndexes(): number[] {
+            var currentIndexes = [];
+            for (var i = 0; i < this._masterTable.DataHolder.DisplayedData.length; i++) {
+                currentIndexes.push(this._masterTable.DataHolder.DisplayedData[i]['__i']);
+            }
+            return currentIndexes;
         }
 
         public setTake(take?: number): void {
@@ -75,6 +104,10 @@
             if (take === 0) selected = ordered.slice(skip);
             else selected = ordered.slice(skip, skip + take);
             return selected;
+        }
+
+        private cutDisplayed(skip: number, take: number) {
+            this._masterTable.DataHolder.DisplayedData = this.cut(this._masterTable.DataHolder.Ordered, skip, take);
         }
 
         public Skip: number;
