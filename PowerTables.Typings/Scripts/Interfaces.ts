@@ -299,7 +299,6 @@ module PowerTables.Plugins.Paging {
 		PagesToHideUnderPeriod: number;
 		UseFirstLastPage: boolean;
 		UseGotoPage: boolean;
-		EnableClientPaging: boolean;
 		DefaultTemplateId: string;
 	}
 }

@@ -290,7 +290,6 @@ declare module PowerTables.Plugins.Paging {
         PagesToHideUnderPeriod: number;
         UseFirstLastPage: boolean;
         UseGotoPage: boolean;
-        EnableClientPaging: boolean;
         DefaultTemplateId: string;
     }
 }
@@ -1891,7 +1890,7 @@ declare module PowerTables.Plugins.Ordering {
     }
 }
 declare module PowerTables.Plugins.Paging {
-    class PagingPlugin extends PowerTables.Filters.FilterBase<Plugins.Paging.IPagingClientConfiguration> {
+    class PagingPlugin extends PowerTables.Plugins.PluginBase<Plugins.Paging.IPagingClientConfiguration> {
         Pages: IPagesElement[];
         Shown: boolean;
         NextArrow: boolean;
@@ -1906,8 +1905,6 @@ declare module PowerTables.Plugins.Paging {
         getCurrentPage(): number;
         getTotalPages(): number;
         getPageSize(): number;
-        private onFilterGathered(e);
-        private onColumnsCreation();
         private onResponse(e);
         private onClientDataProcessing(e);
         goToPage(page: string): void;
@@ -1918,7 +1915,6 @@ declare module PowerTables.Plugins.Paging {
         private constructPagesElements();
         renderContent(templatesProvider: ITemplatesProvider): string;
         validateGotopage(): void;
-        modifyQuery(query: IQuery, scope: QueryScope): void;
         init(masterTable: IMasterTable): void;
     }
     interface IPagesElement {

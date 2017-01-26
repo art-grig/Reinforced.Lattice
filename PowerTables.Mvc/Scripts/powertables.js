@@ -1541,19 +1541,20 @@ var PowerTables;
             var RangeFilterPlugin = (function (_super) {
                 __extends(RangeFilterPlugin, _super);
                 function RangeFilterPlugin() {
+                    var _this = this;
                     _super.apply(this, arguments);
                     this._filteringIsBeingExecuted = false;
                     this._isInitializing = true;
                     this.afterDrawn = function (e) {
-                        if (this.Configuration.Hidden)
+                        if (_this.Configuration.Hidden)
                             return;
-                        if (this.AssociatedColumn.IsDateTime) {
-                            var fromDate = this.MasterTable.Date.parse(this.Configuration.FromValue);
-                            var toDate = this.MasterTable.Date.parse(this.Configuration.ToValue);
-                            this.MasterTable.Date.putDateToDatePicker(this.FromValueProvider, fromDate);
-                            this.MasterTable.Date.putDateToDatePicker(this.ToValueProvider, toDate);
+                        if (_this.AssociatedColumn.IsDateTime) {
+                            var fromDate = _this.MasterTable.Date.parse(_this.Configuration.FromValue);
+                            var toDate = _this.MasterTable.Date.parse(_this.Configuration.ToValue);
+                            _this.MasterTable.Date.putDateToDatePicker(_this.FromValueProvider, fromDate);
+                            _this.MasterTable.Date.putDateToDatePicker(_this.ToValueProvider, toDate);
                         }
-                        this._isInitializing = false;
+                        _this._isInitializing = false;
                     };
                 }
                 RangeFilterPlugin.prototype.getFromValue = function () {
@@ -1862,6 +1863,7 @@ var PowerTables;
             var ValueFilterPlugin = (function (_super) {
                 __extends(ValueFilterPlugin, _super);
                 function ValueFilterPlugin() {
+                    var _this = this;
                     _super.apply(this, arguments);
                     this._filteringIsBeingExecuted = false;
                     this._isInitializing = true;
@@ -1869,13 +1871,13 @@ var PowerTables;
                     * @internal
                     */
                     this.afterDrawn = function (e) {
-                        if (this.Configuration.Hidden)
+                        if (_this.Configuration.Hidden)
                             return;
-                        if (this.AssociatedColumn.IsDateTime) {
-                            var date = this.MasterTable.Date.parse(this.Configuration.DefaultValue);
-                            this.MasterTable.Date.putDateToDatePicker(this.FilterValueProvider, date);
+                        if (_this.AssociatedColumn.IsDateTime) {
+                            var date = _this.MasterTable.Date.parse(_this.Configuration.DefaultValue);
+                            _this.MasterTable.Date.putDateToDatePicker(_this.FilterValueProvider, date);
                         }
-                        this._isInitializing = false;
+                        _this._isInitializing = false;
                     };
                 }
                 /**
@@ -3196,20 +3198,6 @@ var PowerTables;
                 PagingPlugin.prototype.getPageSize = function () {
                     return this._pageSize;
                 };
-                PagingPlugin.prototype.onFilterGathered = function (e) {
-                    this._pageSize = e.EventArgs.Query.Paging.PageSize;
-                };
-                PagingPlugin.prototype.onColumnsCreation = function () {
-                    if (this.Configuration.EnableClientPaging && !this.MasterTable.DataHolder.EnableClientTake) {
-                        var limit = null;
-                        try {
-                            limit = this.MasterTable.InstanceManager.getPlugin('Limit');
-                        }
-                        catch (a) { }
-                        if (limit != null)
-                            throw new Error('Paging ang Limit plugins must both work locally or both remote. Please enable client limiting');
-                    }
-                };
                 PagingPlugin.prototype.onResponse = function (e) {
                     this._selectedPage = e.EventArgs.Data.PageIndex;
                     var tp = e.EventArgs.Data.ResultsCount / this._pageSize;
@@ -3319,35 +3307,20 @@ var PowerTables;
                         this.VisualStates.changeState('invalid');
                     }
                 };
-                PagingPlugin.prototype.modifyQuery = function (query, scope) {
-                    if (this.Configuration.EnableClientPaging && scope === PowerTables.QueryScope.Client) {
-                        query.Paging.PageIndex = this._selectedPage;
-                    }
-                    if ((!this.Configuration.EnableClientPaging) && scope !== PowerTables.QueryScope.Client) {
-                        query.Paging.PageIndex = this._selectedPage;
-                    }
-                };
                 PagingPlugin.prototype.init = function (masterTable) {
                     _super.prototype.init.call(this, masterTable);
-                    if (!this.Configuration.EnableClientPaging) {
-                        this.MasterTable.Events.QueryGathering.subscribeAfter(this.onFilterGathered.bind(this), 'paging');
-                    }
-                    else {
-                        this.MasterTable.Events.ClientQueryGathering.subscribeAfter(this.onFilterGathered.bind(this), 'paging');
-                    }
-                    if (!this.Configuration.EnableClientPaging) {
-                        this.MasterTable.Events.DataReceived.subscribe(this.onResponse.bind(this), 'paging');
-                    }
-                    else {
-                        this.MasterTable.Events.ClientDataProcessing.subscribeAfter(this.onClientDataProcessing.bind(this), 'paging');
-                    }
-                    this.MasterTable.Events.ColumnsCreation.subscribe(this.onColumnsCreation.bind(this), 'paging');
-                    if (this.Configuration.EnableClientPaging) {
-                        this.MasterTable.DataHolder.EnableClientSkip = true;
-                    }
+                    //if (!this.Configuration.EnableClientPaging) {
+                    //    this.MasterTable.Events.DataReceived.subscribe(this.onResponse.bind(this), 'paging');
+                    //} else {
+                    //    this.MasterTable.Events.ClientDataProcessing.subscribeAfter(this.onClientDataProcessing.bind(this), 'paging');
+                    //}
+                    //this.MasterTable.Events.ColumnsCreation.subscribe(this.onColumnsCreation.bind(this), 'paging');
+                    //if (this.Configuration.EnableClientPaging) {
+                    //    this.MasterTable.DataHolder.EnableClientSkip = true;
+                    //}
                 };
                 return PagingPlugin;
-            }(PowerTables.Filters.FilterBase));
+            }(PowerTables.Plugins.PluginBase));
             Paging.PagingPlugin = PagingPlugin;
             PowerTables.ComponentsContainer.registerComponent('Paging', PagingPlugin);
         })(Paging = Plugins.Paging || (Plugins.Paging = {}));
