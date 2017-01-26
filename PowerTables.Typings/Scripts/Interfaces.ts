@@ -280,8 +280,6 @@ module PowerTables.Plugins.Limit {
 		DefaultValue: string;
 		LimitValues: number[];
 		LimitLabels: string[];
-		ReloadTableOnLimitChange: boolean;
-		EnableClientLimiting: boolean;
 		DefaultTemplateId: string;
 	}
 }

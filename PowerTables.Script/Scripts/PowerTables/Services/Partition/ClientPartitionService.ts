@@ -5,45 +5,76 @@
         }
 
         private _masterTable: IMasterTable;
+
         public setSkip(skip: number): void {
             if (skip < 0) skip = 0;
+            var take = this.Take;
+            if (take > 0) {
+                if (skip + take > this.TotalCount) skip = this.TotalCount - take;
+            } else {
+                take = this.TotalCount - skip;
+            }
             var prevSkip = this.Skip;
             if (prevSkip === skip) return;
-            
-            
-            if (this.Take > 0) {
-                if (skip >= prevSkip + this.Take || skip <= prevSkip - this.Take) {
-                    this.cutDisplayed(skip, this.Take);
-                    this._masterTable.Controller.redrawVisibleData();
-                } else {
-                    var prevIdx = this.displayedIndexes();
-                    this.cutDisplayed(skip, this.Take);
-                    var curIdx = this.displayedIndexes();
-                    var diff = Math.abs(prevSkip - skip);
 
-                    var rows = this._masterTable.Controller.produceRows();
-                    for (var i = 0; i < diff; i++) {
-                        if (skip > prevSkip) {
+            this._masterTable.Events.PartitionChanged.invokeBefore(this,
+            {
+                PreviousSkip: prevSkip,
+                Skip: skip,
+                PreviousTake: this.Take,
+                Take: this.Take
+            });
 
-                        } else {
+            if (skip >= prevSkip + take || skip <= prevSkip - take) {
+                this.cutDisplayed(skip, take);
+                this._masterTable.Controller.redrawVisibleData();
+            } else {
+                var prevIdx = this.displayedIndexes();
+                this.cutDisplayed(skip, take);
+                var diff = Math.abs(prevSkip - skip);
+                var down = skip > prevSkip;
+                var rows = this._masterTable.Controller.produceRows();
 
-                        }
+                for (var i = 0; i < diff; i++) {
+                    var toDestroy = down ? prevIdx[i] : prevIdx[prevIdx.length - 1 - i];
+                    this._masterTable.Renderer.Modifier.destroyRowByIndex(toDestroy);
+                }
+                if (down) {
+                    var li = this.lastNonSpecialIndex(rows) - diff;
+                    for (var j = 0; j < diff; j++) {
+                        this._masterTable.Renderer.Modifier.appendRow(rows[li + j]);
                     }
-                    
-
-                    
-                    for (var j = 0; j < rows.length; j++) {
-                        if (rows[j].IsSpecial) this._masterTable.Renderer.Modifier.redrawRow(rows[j]);
-                        else {
-                            var di = rows[j].Index;
-                            if (!Q.contains(prevIdx,di))
-                        }
+                } else {
+                    var fi = this.firstNonSpecialIndex(rows) + diff;
+                    for (var k = 0; k < diff; k++) {
+                        this._masterTable.Renderer.Modifier.appendRow(rows[fi - k], 0);
                     }
                 }
-            } else {
-                
             }
+
+            this._masterTable.Events.PartitionChanged.invokeAfter(this,
+            {
+                PreviousSkip: prevSkip,
+                Skip: skip,
+                PreviousTake: this.Take,
+                Take: this.Take
+            });
         }
+
+        private firstNonSpecialIndex(rows: IRow[]): number {
+            for (var i = 0; i < rows.length; i++) {
+                if (!rows[i].IsSpecial) return i;
+            }
+            return 0;
+        }
+
+        private lastNonSpecialIndex(rows: IRow[]): number {
+            for (var i = rows.length - 1; i >= 0; i--) {
+                if (!rows[i].IsSpecial) return i;
+            }
+            return 0;
+        }
+
         private displayedIndexes(): number[] {
             var currentIndexes = [];
             for (var i = 0; i < this._masterTable.DataHolder.DisplayedData.length; i++) {
@@ -52,8 +83,7 @@
             return currentIndexes;
         }
 
-        public setTake(take?: number): void {
-            if (take == null) take = 0;
+        public setTake(take: number): void {
             if (take === 0) {
 
             }

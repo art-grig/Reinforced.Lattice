@@ -7,7 +7,7 @@
         * @internal
         */
         constructor(stack: RenderingStack, locator: DOMLocator, backBinder: BackBinder, templatesProvider: ITemplatesProvider, layoutRenderer: LayoutRenderer, instances: PowerTables.Services.InstanceManagerService, ed: PowerTables.Services.EventsDelegatorService,
-            contentRenderer:ContentRenderer        ) {
+            contentRenderer:ContentRenderer,bodyElement:HTMLElement) {
             this._stack = stack;
             this._locator = locator;
             this._backBinder = backBinder;
@@ -16,6 +16,7 @@
             this._instances = instances;
             this._ed = ed;
             this._contentRenderer = contentRenderer;
+            this._bodyElement = bodyElement;
         }
 
         private _ed: PowerTables.Services.EventsDelegatorService;
@@ -26,7 +27,7 @@
         private _layoutRenderer: LayoutRenderer;
         private _contentRenderer: ContentRenderer;
         private _instances: PowerTables.Services.InstanceManagerService;
-
+        private _bodyElement:HTMLElement;
         
 
         //#region Show/hide infrastructure
@@ -218,7 +219,7 @@
          * @param row 
          * @returns {} 
          */
-        public appendRow(row: IRow, beforeRowAtIndex: number): HTMLElement {
+        public appendRow(row: IRow, beforeRowAtIndex?: number): HTMLElement {
             this._stack.clear();
             this._stack.push(RenderingContextType.Row, row);
             var wrapper: (arg: any) => string = this._templatesProvider.getCachedTemplate('rowWrapper');
@@ -228,9 +229,14 @@
             } else {
                 html = wrapper(row);
             }
-            var referenceNode: HTMLElement = this._locator.getRowElementByIndex(beforeRowAtIndex);
             var newRowElement: HTMLElement = this.createElement(html);
-            referenceNode.parentNode.insertBefore(newRowElement, referenceNode);
+
+            if (beforeRowAtIndex != null && beforeRowAtIndex != undefined) {
+                var referenceNode: HTMLElement = this._locator.getRowElementByIndex(beforeRowAtIndex);
+                referenceNode.parentNode.insertBefore(newRowElement, referenceNode);
+            } else {
+                this._bodyElement.appendChild(newRowElement);
+            }
             this._backBinder.backBind(newRowElement);
             this._stack.popContext();
             this._stack.clear();

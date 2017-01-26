@@ -269,8 +269,6 @@ declare module PowerTables.Plugins.Limit {
         DefaultValue: string;
         LimitValues: number[];
         LimitLabels: string[];
-        ReloadTableOnLimitChange: boolean;
-        EnableClientLimiting: boolean;
         DefaultTemplateId: string;
     }
 }
@@ -1144,6 +1142,12 @@ declare module PowerTables {
     interface IAdditionalRowsProvider {
         provide(rows: IRow[]): void;
     }
+    interface IPartitionChangeEventArgs {
+        PreviousSkip: number;
+        PreviousTake: number;
+        Skip: number;
+        Take: number;
+    }
 }
 declare module PowerTables.Editing.Editors.Cells {
     class CellsEditHandler extends EditHandlerBase<PowerTables.Editing.Cells.ICellsEditUiConfig> {
@@ -1796,16 +1800,15 @@ declare module PowerTables.Plugins.Hierarchy {
     }
 }
 declare module PowerTables.Plugins.Limit {
-    class LimitPlugin extends PowerTables.Filters.FilterBase<Plugins.Limit.ILimitClientConfiguration> {
+    class LimitPlugin extends PowerTables.Plugins.PluginBase<Plugins.Limit.ILimitClientConfiguration> {
         SelectedValue: ILimitSize;
         private _limitSize;
         Sizes: ILimitSize[];
-        renderContent(templatesProvider: ITemplatesProvider): string;
         changeLimitHandler(e: Rendering.ITemplateBoundEvent): void;
-        changeLimit(limit: number): void;
-        modifyQuery(query: IQuery, scope: QueryScope): void;
+        changeLimit(): void;
+        private onPartitionChange(e);
         init(masterTable: IMasterTable): void;
-        private onColumnsCreation();
+        subscribe(e: PowerTables.Services.EventsService): void;
     }
     /**
      * Size entry for limit plugin
@@ -2415,7 +2418,7 @@ declare module PowerTables.Rendering {
      * Class that is responsible for particular HTML elements redrawing/addition/removal
      */
     class DOMModifier {
-        constructor(stack: RenderingStack, locator: DOMLocator, backBinder: BackBinder, templatesProvider: ITemplatesProvider, layoutRenderer: LayoutRenderer, instances: PowerTables.Services.InstanceManagerService, ed: PowerTables.Services.EventsDelegatorService, contentRenderer: ContentRenderer);
+        constructor(stack: RenderingStack, locator: DOMLocator, backBinder: BackBinder, templatesProvider: ITemplatesProvider, layoutRenderer: LayoutRenderer, instances: PowerTables.Services.InstanceManagerService, ed: PowerTables.Services.EventsDelegatorService, contentRenderer: ContentRenderer, bodyElement: HTMLElement);
         private _ed;
         private _stack;
         private _locator;
@@ -2424,6 +2427,7 @@ declare module PowerTables.Rendering {
         private _layoutRenderer;
         private _contentRenderer;
         private _instances;
+        private _bodyElement;
         private getRealDisplay(elem);
         private displayCache;
         hideElement(el: HTMLElement): void;
@@ -2469,7 +2473,7 @@ declare module PowerTables.Rendering {
          * @param row
          * @returns {}
          */
-        appendRow(row: IRow, beforeRowAtIndex: number): HTMLElement;
+        appendRow(row: IRow, beforeRowAtIndex?: number): HTMLElement;
         /**
          * Removes referenced row by its index
          *
@@ -3001,18 +3005,10 @@ declare module PowerTables.Services {
          */
         StoredData: any[];
         /**
-         * Enable query truncation from beginning during executing client queries
-         */
-        EnableClientSkip: boolean;
-        /**
-         * Enable query truncation by data cound during executing client queries
-         */
-        EnableClientTake: boolean;
-        /**
-         * Registers client filter
-         *
-         * @param filter Client filter
-         */
+ * Registers client filter
+ *
+ * @param filter Client filter
+ */
         registerClientFilter(filter: IClientFilter): void;
         getClientFilters(): IClientFilter[];
         clearClientFilters(): void;
@@ -3362,6 +3358,7 @@ declare module PowerTables.Services {
         }>;
         Adjustment: TableEvent<PowerTables.ITableAdjustment, IAdjustmentResult>;
         AdjustmentResult: TableEvent<IAdjustmentResult, any>;
+        PartitionChanged: TableEvent<IPartitionChangeEventArgs, IPartitionChangeEventArgs>;
         /**
          * Event that occurs when editing entry.
          * Event parameter is object that is being edited
@@ -3560,8 +3557,10 @@ declare module PowerTables.Services.Partition {
         constructor(masterTable: IMasterTable);
         private _masterTable;
         setSkip(skip: number): void;
+        private firstNonSpecialIndex(rows);
+        private lastNonSpecialIndex(rows);
         private displayedIndexes();
-        setTake(take?: number): void;
+        setTake(take: number): void;
         partitionBeforeQuery(serverQuery: IQuery, scope: QueryScope): QueryScope;
         partitionBeforeCommand(serverQuery: IQuery): void;
         partitionAfterQuery(initialSet: any[], query: IQuery): any[];

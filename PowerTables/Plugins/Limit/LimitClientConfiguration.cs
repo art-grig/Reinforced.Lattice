@@ -24,22 +24,10 @@ namespace PowerTables.Plugins.Limit
         /// </summary>
         public List<string> LimitLabels { get; private set; }
 
-        /// <summary>
-        /// When true, data will be re-queried on table change
-        /// </summary>
-        public bool ReloadTableOnLimitChange { get; set; }
-
-        /// <summary>
-        /// When true, limiting will not be passed to server. 
-        /// All the limiting will be performed on client-side
-        /// </summary>
-        public bool EnableClientLimiting { get; set; }
-
         public LimitClientConfiguration()
         {
             LimitLabels = new List<string>() { "All", "10", "50", "100" };
             LimitValues = new List<int>() { 0, 10, 50, 100 };
-            ReloadTableOnLimitChange = true;
         }
 
         /// <summary>

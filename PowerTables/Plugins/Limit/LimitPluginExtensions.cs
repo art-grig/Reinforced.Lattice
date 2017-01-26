@@ -65,30 +65,6 @@ namespace PowerTables.Plugins.Limit
         }
 
         /// <summary>
-        /// Enables or disables client limiting
-        /// </summary>
-        /// <param name="c"></param>
-        /// <param name="enable">When true, client limiting will be enabled. Disabled when false</param>
-        /// <returns></returns>
-        public static PluginConfigurationWrapper<LimitClientConfiguration> EnableClientLimiting(this PluginConfigurationWrapper<LimitClientConfiguration> c, bool enable = true)
-        {
-            c.Configuration.EnableClientLimiting = enable;
-            return c;
-        }
-
-        /// <summary>
-        /// Enables or disables client limiting
-        /// </summary>
-        /// <param name="c"></param>
-        /// <param name="dont">Disables reloadint page on changing limit settings</param>
-        /// <returns></returns>
-        public static PluginConfigurationWrapper<LimitClientConfiguration> DontReloadOnChange(this PluginConfigurationWrapper<LimitClientConfiguration> c, bool dont = false)
-        {
-            c.Configuration.ReloadTableOnLimitChange = !dont;
-            return c;
-        }
-
-        /// <summary>
         /// Adds limit value
         /// </summary>
         /// <param name="limitLabel">Label</param>

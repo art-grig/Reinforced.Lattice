@@ -41,17 +41,7 @@
          */
         public StoredData: any[] = [];
 
-        /**
-         * Enable query truncation from beginning during executing client queries
-         */
-        public EnableClientSkip: boolean;
-
-        /**
-         * Enable query truncation by data cound during executing client queries
-         */
-        public EnableClientTake: boolean;
-
-        /**
+                /**
          * Registers client filter
          * 
          * @param filter Client filter
@@ -145,7 +135,7 @@
         private _manadatoryOrderings: string[] = [];
 
         private isClientFiltrationPending(): boolean {
-            return (this.EnableClientSkip || this.EnableClientTake || this._anyClientFiltration);
+            return this._anyClientFiltration;
         }
 
         public deserializeData(source: any[]): any[] {
@@ -649,8 +639,8 @@
         };
 
         private updateStats(totalItems?:number) {
-            this.Stats.CurrentPage = this.RecentClientQuery.Paging.PageIndex;
-            this.Stats.CurrentPageSize = this.RecentClientQuery.Paging.PageSize;
+            //this.Stats.CurrentPage = this.RecentClientQuery.Paging.PageIndex;
+            this.Stats.CurrentPageSize = this._masterTable.Partition.Take;
             this.Stats.TotalLoadedItems = this.StoredData.length;
             this.Stats.CurrentlyDisplayingItems = this.DisplayedData.length;
             if (totalItems != null) {

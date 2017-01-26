@@ -663,4 +663,11 @@
     export interface IAdditionalRowsProvider {
         provide(rows:IRow[]):void;
     }
+
+    export interface IPartitionChangeEventArgs {
+        PreviousSkip: number;
+        PreviousTake: number;
+        Skip: number;
+        Take:number;
+    }
 }

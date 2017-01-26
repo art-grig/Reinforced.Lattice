@@ -28,6 +28,7 @@
             this.EditValidationFailed = new TableEvent(masterTable);
 
             this.SelectionChanged = new TableEvent(masterTable);
+            this.PartitionChanged = new TableEvent(masterTable);
         }
 
         /**
@@ -120,6 +121,7 @@
 
         public Adjustment: TableEvent<PowerTables.ITableAdjustment, IAdjustmentResult>;
         public AdjustmentResult: TableEvent<IAdjustmentResult, any>;
+        public PartitionChanged: TableEvent<IPartitionChangeEventArgs, IPartitionChangeEventArgs>;
 
         /**
          * Event that occurs when editing entry. 
