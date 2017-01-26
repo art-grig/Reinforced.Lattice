@@ -24,7 +24,7 @@ namespace PowerTables.Plugins.Loading
         {
             conf.TableConfiguration.UpdatePluginConfig<LoadingUiConfig>(PluginId, cc =>
             {
-                cc.TemplateId(templateId);
+                cc.Template(templateId);
                 cc.Order = order;
             }, where);
             return conf;
