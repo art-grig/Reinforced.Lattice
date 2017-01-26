@@ -67,6 +67,7 @@ module PowerTables.Configuration.Json {
 		CanSelectCellFunction: (dataObject:any,column:string,select:boolean)=>boolean;
 		NonselectableColumns: string[];
 		SelectSingle: boolean;
+		InitialSelected: { [key:string]: string[] };
 	}
 	export enum SelectAllBehavior { 
 		AllVisible = 0, 
@@ -523,6 +524,7 @@ module PowerTables.Commands {
 		ValidateToLoad: (param:ICommandExecutionParameters)=>boolean;
 		DetailsFunction: (param:ICommandExecutionParameters)=>any;
 		LoadDelay: number;
+		LoadOnce: boolean;
 	}
 	export enum CommandType { 
 		Client = 0, 

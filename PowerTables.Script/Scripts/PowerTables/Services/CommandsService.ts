@@ -187,6 +187,7 @@
         public Selection: any[];
 
         public RecentDetails: { Data: any } = { Data: null };
+        private _detailsLoaded: boolean = false;
 
         private _commandDescription: PowerTables.Commands.ICommandDescription;
         private _config: PowerTables.Commands.IConfirmationConfiguration;
@@ -336,7 +337,7 @@
                 }
 
             }
-
+            this._detailsLoaded = true;
             this.RecentDetails.Data = detailsResult;
             
             if (this.VisualStates != null) this.VisualStates.unmixinState('detailsLoading');
@@ -530,7 +531,11 @@
             for (var i = 0; i < this.ActiveEditors.length; i++) {
                 this.ActiveEditors[i].notifyObjectChanged();
             }
-            this.loadDetails();
+            if (this._config.Details != null && this._config.Details != undefined) {
+                if ((!this._config.Details.LoadOnce) || (!this._detailsLoaded)) {
+                    this.loadDetails();        
+                }
+            }
         }
         reject(editor: PowerTables.Editing.IEditor): void {
             this._editorObjectModified[editor.FieldName] = this.DataObject[editor.FieldName];

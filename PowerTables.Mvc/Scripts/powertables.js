@@ -2768,6 +2768,7 @@ var PowerTables;
                 this.DetailsPlaceholder = null;
                 this.TemplatePieces = {};
                 this.RecentDetails = { Data: null };
+                this._detailsLoaded = false;
                 this._editorColumn = {};
                 this._originalCallback = null;
                 this._autoformFields = {};
@@ -2966,6 +2967,7 @@ var PowerTables;
                         }
                     }
                 }
+                this._detailsLoaded = true;
                 this.RecentDetails.Data = detailsResult;
                 if (this.VisualStates != null)
                     this.VisualStates.unmixinState('detailsLoading');
@@ -3144,7 +3146,11 @@ var PowerTables;
                 for (var i = 0; i < this.ActiveEditors.length; i++) {
                     this.ActiveEditors[i].notifyObjectChanged();
                 }
-                this.loadDetails();
+                if (this._config.Details != null && this._config.Details != undefined) {
+                    if ((!this._config.Details.LoadOnce) || (!this._detailsLoaded)) {
+                        this.loadDetails();
+                    }
+                }
             };
             ConfirmationWindowViewModel.prototype.reject = function (editor) {
                 this._editorObjectModified[editor.FieldName] = this.DataObject[editor.FieldName];

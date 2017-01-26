@@ -88,6 +88,8 @@ namespace PowerTables.Commands
 
         public int LoadDelay { get; set; }
 
+        public bool LoadOnce { get; set; }
+
     }
 
     public enum CommandType

@@ -229,6 +229,12 @@ namespace PowerTables.Commands
             return c;
         }
 
+        public static ConfirmationDetailsConfigurator Once(this ConfirmationDetailsConfigurator c, bool once = true)
+        {
+            c.Configuration.LoadOnce = once;
+            return c;
+        }
+
         public static ConfirmationDetailsConfigurator FromCommand(this ConfirmationDetailsConfigurator c, string commandName)
         {
             c.Configuration.DetailsFunction = null;

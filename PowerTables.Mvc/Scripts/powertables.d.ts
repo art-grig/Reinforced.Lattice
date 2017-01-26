@@ -60,6 +60,9 @@ declare module PowerTables.Configuration.Json {
         CanSelectCellFunction: (dataObject: any, column: string, select: boolean) => boolean;
         NonselectableColumns: string[];
         SelectSingle: boolean;
+        InitialSelected: {
+            [key: string]: string[];
+        };
     }
     enum SelectAllBehavior {
         AllVisible = 0,
@@ -510,6 +513,7 @@ declare module PowerTables.Commands {
         ValidateToLoad: (param: ICommandExecutionParameters) => boolean;
         DetailsFunction: (param: ICommandExecutionParameters) => any;
         LoadDelay: number;
+        LoadOnce: boolean;
     }
     enum CommandType {
         Client = 0,
@@ -1900,6 +1904,7 @@ declare module PowerTables.Services {
         RecentDetails: {
             Data: any;
         };
+        private _detailsLoaded;
         private _commandDescription;
         private _config;
         private _embedBound;
