@@ -5,14 +5,16 @@
         }
 
         private _masterTable: IMasterTable;
-        public setSkip(skip: number): void { }
 
-        public setTake(take?: number): void { }
+        public setSkip(skip: number): void {}
 
-        public partitionBeforeQuery(serverQuery: IQuery, scope: QueryScope): void { }
-        public partitionBeforeCommand(serverQuery: IQuery): void { }
+        public setTake(take?: number): void {}
 
-        public partitionAfterQuery(query: IQuery): any { }
+        public partitionBeforeQuery(serverQuery: IQuery, scope: QueryScope): QueryScope { throw new Error("Not implemented"); }
+
+        public partitionBeforeCommand(serverQuery: IQuery): void {}
+
+        public partitionAfterQuery(initialSet: any[], query: IQuery): any[] { throw new Error("Not implemented"); }
 
         public Skip: number;
         public Take: number;

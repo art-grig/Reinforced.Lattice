@@ -2163,11 +2163,6 @@ declare module PowerTables {
         Selection: PowerTables.Services.SelectionService;
     }
 }
-declare module PowerTables {
-    class Q {
-        static contains<T>(arr: T[], element: T): boolean;
-    }
-}
 declare module PowerTables.Rendering {
     /**
      * Internal component that is not supposed to be used directly.
@@ -3589,9 +3584,9 @@ declare module PowerTables.Services.Partition {
         private _masterTable;
         setSkip(skip: number): void;
         setTake(take?: number): void;
-        partitionBeforeQuery(serverQuery: IQuery, scope: QueryScope): void;
+        partitionBeforeQuery(serverQuery: IQuery, scope: QueryScope): QueryScope;
         partitionBeforeCommand(serverQuery: IQuery): void;
-        partitionAfterQuery(query: IQuery): any;
+        partitionAfterQuery(initialSet: any[], query: IQuery): any[];
         Skip: number;
         Take: number;
         IsAllDataRetrieved: boolean;
@@ -3604,9 +3599,9 @@ declare module PowerTables.Services.Partition {
         private _masterTable;
         setSkip(skip: number): void;
         setTake(take?: number): void;
-        partitionBeforeQuery(serverQuery: IQuery, scope: QueryScope): void;
+        partitionBeforeQuery(serverQuery: IQuery, scope: QueryScope): QueryScope;
         partitionBeforeCommand(serverQuery: IQuery): void;
-        partitionAfterQuery(query: IQuery): any;
+        partitionAfterQuery(initialSet: any[], query: IQuery): any[];
         Skip: number;
         Take: number;
         IsAllDataRetrieved: boolean;

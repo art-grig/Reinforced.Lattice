@@ -3998,18 +3998,6 @@ var PowerTables;
 })(PowerTables || (PowerTables = {}));
 var PowerTables;
 (function (PowerTables) {
-    var Q = (function () {
-        function Q() {
-        }
-        Q.contains = function (arr, element) {
-            return arr.indexOf(element) >= 0;
-        };
-        return Q;
-    }());
-    PowerTables.Q = Q;
-})(PowerTables || (PowerTables = {}));
-var PowerTables;
-(function (PowerTables) {
     var Rendering;
     (function (Rendering) {
         /**
@@ -8794,9 +8782,9 @@ var PowerTables;
                 }
                 MixedPartitionService.prototype.setSkip = function (skip) { };
                 MixedPartitionService.prototype.setTake = function (take) { };
-                MixedPartitionService.prototype.partitionBeforeQuery = function (serverQuery, scope) { };
+                MixedPartitionService.prototype.partitionBeforeQuery = function (serverQuery, scope) { throw new Error("Not implemented"); };
                 MixedPartitionService.prototype.partitionBeforeCommand = function (serverQuery) { };
-                MixedPartitionService.prototype.partitionAfterQuery = function (query) { };
+                MixedPartitionService.prototype.partitionAfterQuery = function (initialSet, query) { throw new Error("Not implemented"); };
                 return MixedPartitionService;
             }());
             Partition.MixedPartitionService = MixedPartitionService;
@@ -8815,9 +8803,9 @@ var PowerTables;
                 }
                 ServerPartitionService.prototype.setSkip = function (skip) { };
                 ServerPartitionService.prototype.setTake = function (take) { };
-                ServerPartitionService.prototype.partitionBeforeQuery = function (serverQuery, scope) { };
+                ServerPartitionService.prototype.partitionBeforeQuery = function (serverQuery, scope) { throw new Error("Not implemented"); };
                 ServerPartitionService.prototype.partitionBeforeCommand = function (serverQuery) { };
-                ServerPartitionService.prototype.partitionAfterQuery = function (query) { };
+                ServerPartitionService.prototype.partitionAfterQuery = function (initialSet, query) { throw new Error("Not implemented"); };
                 return ServerPartitionService;
             }());
             Partition.ServerPartitionService = ServerPartitionService;
