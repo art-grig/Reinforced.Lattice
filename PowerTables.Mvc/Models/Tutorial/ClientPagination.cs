@@ -1,7 +1,6 @@
 ﻿using PowerTables.Configuration;
 using PowerTables.Plugins;
 using PowerTables.Plugins.Limit;
-using PowerTables.Plugins.MouseSelect;
 using PowerTables.Plugins.Paging;
 
 namespace PowerTables.Mvc.Models.Tutorial

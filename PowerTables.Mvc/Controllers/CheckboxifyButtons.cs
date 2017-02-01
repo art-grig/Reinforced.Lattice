@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Entity.Core.Metadata.Edm;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading;
-using System.Web;
 using System.Web.Mvc;
 using PowerTables.Adjustments;
 using PowerTables.Commands;
-using PowerTables.Defaults;
-using PowerTables.Editing;
 using PowerTables.Mvc.Models;
 using PowerTables.Mvc.Models.Tutorial;
-using PowerTables.Plugins.Checkboxify;
-using PowerTables.Plugins.Toolbar;
+using PowerTables.Processing;
 
 namespace PowerTables.Mvc.Controllers
 {
@@ -28,13 +21,13 @@ namespace PowerTables.Mvc.Controllers
         {
             var t = Table();
             t.ButtonsAndCheckboxify();
-            var handler = new PowerTablesHandler<Toy, Row>(t);
+            var handler = t.CreateMvcHandler(ControllerContext);
             handler.AddCommandHandler(Tutorial.Remove,RemoveSelected);
             handler.AddCommandHandler(Tutorial.Update, UpdateSelected);
             handler.AddCommandHandler("LeaveComment",LeaveComment);
             handler.AddCommandHandler("LoadComments",LoadComments);
             handler.AddCommandHandler("PricesDetails", PricesDetails);
-            return handler.Handle(Data.SourceData.AsQueryable(), ControllerContext);            
+            return handler.Handle(Data.SourceData.AsQueryable());            
         }
 
         private PartialViewResult LoadComments(PowerTablesData<Toy, Row> powerTablesData)

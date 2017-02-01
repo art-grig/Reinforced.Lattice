@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using PowerTables.Configuration.Json;
 using PowerTables.Filters;
-using PowerTables.ResponseProcessing;
+using PowerTables.Processing;
 
 namespace PowerTables.Configuration
 {
@@ -50,14 +50,6 @@ namespace PowerTables.Configuration
         /// <param name="resultRows">Existing data array</param>
         /// <param name="resultsCount">Count of results in enumerable</param>
         object[] EncodeResults(IEnumerable resultRows, int resultsCount);
-
-        /// <summary>
-        /// Registeres a command handler that will be called to produce needed ActionResult for selected data
-        /// </summary>
-        /// <typeparam name="THandler">Type of command handler</typeparam>
-        /// <param name="command">Command that should be handled</param>
-        /// <returns>Fluent</returns>
-        void RegisterCommandHandler<THandler>(string command) where THandler : ICommandHandler;
 
         /// <summary>
         /// Registers an response modifier that will modify PowerTableResponse before sending. 
@@ -107,13 +99,10 @@ namespace PowerTables.Configuration
         /// You are not able to change it during request handling but can use it to store any payload 
         /// that is known before table construction.
         /// </summary>
-        /// <typeparam name="TStaticData">Static data type</typeparam>
         /// <param name="rootId">Id of an HTML element that will contain table</param>
-        /// <param name="staticData">Static data instance</param>
         /// <param name="prefix">Templates prefix. It is used to distinguish several templates sets on single page from each other</param>
         /// <returns>String containing javascript initialization code</returns>
-        string JsonConfig<TStaticData>(string rootId, TStaticData staticData = null, string prefix = "lt")
-            where TStaticData : class;
+        string JsonConfig(string rootId, string prefix = "lt");
 
         /// <summary>
         /// Creates new column and retrieves its configurator

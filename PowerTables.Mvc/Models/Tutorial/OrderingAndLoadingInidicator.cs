@@ -1,5 +1,4 @@
 ﻿using PowerTables.Configuration;
-using PowerTables.Plugins;
 using PowerTables.Plugins.Loading;
 using PowerTables.Plugins.Ordering;
 

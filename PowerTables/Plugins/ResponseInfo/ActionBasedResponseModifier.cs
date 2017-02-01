@@ -1,6 +1,6 @@
 ﻿using System;
 using PowerTables.Configuration;
-using PowerTables.ResponseProcessing;
+using PowerTables.Processing;
 
 namespace PowerTables.Plugins.ResponseInfo
 {

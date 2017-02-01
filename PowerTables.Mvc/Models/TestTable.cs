@@ -1,28 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc.Html;
-using Newtonsoft.Json.Linq;
-using PowerTables.Configuration;
-using PowerTables.Filters;
-using PowerTables.Filters.Multi;
-using PowerTables.Filters.Range;
-using PowerTables.Filters.Select;
-using PowerTables.Filters.Value;
-using PowerTables.FrequentlyUsed;
+﻿using PowerTables.Configuration;
 using PowerTables.Mvc.Models.Tutorial;
-using PowerTables.Plugins;
-using PowerTables.Plugins.Checkboxify;
-using PowerTables.Plugins.Formwatch;
-using PowerTables.Plugins.Hideout;
-using PowerTables.Plugins.Limit;
-using PowerTables.Plugins.Loading;
-using PowerTables.Plugins.Ordering;
-using PowerTables.Plugins.Paging;
-using PowerTables.Plugins.ResponseInfo;
-using PowerTables.Plugins.Toolbar;
-using PowerTables.Plugins.Total;
 
 namespace PowerTables.Mvc.Models
 {

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.Linq;
 using System.Web.Mvc;
 using System.Web.Mvc.Html;
 using PowerTables.Configuration;
@@ -33,9 +30,9 @@ namespace PowerTables.Mvc.Controllers
         public ActionResult FormWatchForAdditionalDataHandle()
         {
             var table = new Configurator<Toy, Row>().FormWatchForAdditionalData();
-            var handler = new PowerTablesHandler<Toy, Row>(table);
+            var handler = table.CreateMvcHandler(ControllerContext);
 
-            var request = handler.ExtractRequest(ControllerContext);
+            var request = handler.ExtractRequest();
             var formValues = request.Form<FormWatchTutorialModel>();
             var id = formValues.IdFrom;
 
@@ -46,7 +43,7 @@ namespace PowerTables.Mvc.Controllers
             //    q = q.Where(c => c.VeryName.StartsWith(formValues.GroupNamePart));
             //}
 
-            return handler.Handle(q, ControllerContext);
+            return handler.Handle(q);
         }
     }
 }

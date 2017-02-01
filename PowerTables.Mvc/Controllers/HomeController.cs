@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Web.Mvc;
 using PowerTables.Configuration;
-using PowerTables.Defaults;
 using PowerTables.Mvc.Models;
 using PowerTables.Mvc.Models.Tutorial;
-using PowerTables.Plugins.Checkboxify;
 using PowerTables.Plugins.Formwatch;
 using PowerTables.Plugins.Hideout;
+using PowerTables.Processing;
 
 namespace PowerTables.Mvc.Controllers
 {
@@ -29,10 +26,10 @@ namespace PowerTables.Mvc.Controllers
 
         public ActionResult HandleTable()
         {
-            var handler = new PowerTablesHandler<Toy, Row>(new Configurator<Toy, Row>().Configure());
-            var statData = handler.ExtractStaticData<RequestStaticData>(ControllerContext);
+            var handler = new Configurator<Toy, Row>().Configure().CreateMvcHandler(ControllerContext);
+            var statData = handler.ExtractStaticData<RequestStaticData>();
 
-            var req = handler.ExtractRequest(ControllerContext);
+            var req = handler.ExtractRequest();
             var shown = req.GetShownColumns();
             var hidden = req.GetHiddenColumns();
             var form = req.Form<AdditionalSearchData>();
@@ -40,7 +37,7 @@ namespace PowerTables.Mvc.Controllers
             handler.AddCommandHandler("remove", Delete);
             handler.AddCommandHandler("download", DownloadSome);
             Thread.Sleep(1000);
-            return handler.Handle(Data.SourceData.AsQueryable(), ControllerContext);
+            return handler.Handle(Data.SourceData.AsQueryable());
         }
 
         public FileResult DownloadSome(PowerTablesData<Toy, Row> request)

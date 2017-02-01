@@ -10,11 +10,9 @@ using PowerTables.Editing.Editors.PlainText;
 using PowerTables.Editing.Editors.SelectList;
 using PowerTables.Editing.Form;
 using PowerTables.Editing.Rows;
-using PowerTables.FrequentlyUsed;
 using PowerTables.Plugins.Checkboxify;
 using PowerTables.Plugins.LoadingOverlap;
 using PowerTables.Plugins.Ordering;
-using PowerTables.Plugins.SimpeSelect;
 using PowerTables.Plugins.Toolbar;
 
 namespace PowerTables.Mvc.Models.Tutorial
