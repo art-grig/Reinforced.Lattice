@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using PowerTables.Configuration.Json;
-using PowerTables.Defaults;
+using PowerTables.Mvc;
+using PowerTables.Processing;
 
 namespace PowerTables.Configuration
 {
@@ -60,7 +61,6 @@ namespace PowerTables.Configuration
 
             _tableConfiguration = new TableConfiguration();
             InitializeColumnsConfiguration();
-            RegisterCommandHandler<DefaultCommandHandler>(DefaultCommandHandler.CommandId);
         }
 
         /// <summary>

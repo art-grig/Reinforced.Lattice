@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using PowerTables.ResponseProcessing;
+using PowerTables.Processing;
 
 namespace PowerTables.Plugins.Total
 {

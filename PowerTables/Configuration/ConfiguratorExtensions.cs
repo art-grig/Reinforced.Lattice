@@ -528,12 +528,7 @@ namespace PowerTables.Configuration
             return configurator;
         }
 
-        public static PowerTablesHandler<TSourceData, TTableData> CreateHandler<TSourceData, TTableData>(
-            this Configurator<TSourceData, TTableData> configurator, IQueryHandler<TSourceData, TTableData> queryHandler = null,
-            ITokenStorage tokenStorage = null) where TTableData : new()
-        {
-            return new PowerTablesHandler<TSourceData, TTableData>(configurator, queryHandler, tokenStorage);
-        }
+        
 
         public static Configurator<TSource, TTarget> Selection<TSource, TTarget>(
             this Configurator<TSource, TTarget> conf, Action<GenericSelectionConfigurationWrapper<TTarget>> config) where TTarget : new()
@@ -557,6 +552,20 @@ namespace PowerTables.Configuration
             {
                 col.Title = col.Title.PrettifyTitle(firstCapitals);
             }
+            return conf;
+        }
+
+        public static T OnInitialized<T>(this T conf, string callbackFunction) where T : IConfigurator
+        {
+            conf.TableConfiguration.CallbackFunction = string.IsNullOrEmpty(callbackFunction)
+                ? null
+                : new JRaw(callbackFunction);
+            return conf;
+        }
+
+        public static IConfigurator StaticData<TStaticData>(this IConfigurator conf, TStaticData staticData) where TStaticData : class
+        {
+            conf.TableConfiguration.StaticData = JsonConvert.SerializeObject(staticData);
             return conf;
         }
     }

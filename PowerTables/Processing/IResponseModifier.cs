@@ -1,4 +1,4 @@
-﻿namespace PowerTables.ResponseProcessing
+﻿namespace PowerTables.Processing
 {
     /// <summary>
     /// Response modifier interface exposes PowerTables extension point 

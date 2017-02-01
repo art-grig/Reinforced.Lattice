@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.Linq;
 using System.Web.Mvc;
 using PowerTables.Adjustments;
-using PowerTables.Defaults;
 using PowerTables.Editing;
 using PowerTables.Mvc.Models;
 using PowerTables.Mvc.Models.Tutorial;
+using PowerTables.Processing;
 
 namespace PowerTables.Mvc.Controllers
 {
@@ -23,10 +20,10 @@ namespace PowerTables.Mvc.Controllers
         {
             var t = Table();
             t.Editor();
-            var handler = new PowerTablesHandler<Toy, Row>(t);
+            var handler = t.CreateMvcHandler(ControllerContext);
             handler.AddEditHandler(EditData);
             handler.AddCommandHandler("Test", TestSelection);
-            return handler.Handle(Data.SourceData.AsQueryable(), ControllerContext);
+            return handler.Handle(Data.SourceData.AsQueryable());
         }
 
         private TableAdjustment TestSelection(PowerTablesData<Toy, Row> data)

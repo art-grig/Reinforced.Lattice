@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using PowerTables.Configuration;
-using PowerTables.Editing;
+﻿using PowerTables.Configuration;
 using PowerTables.Editing.Cells;
 using PowerTables.Editing.Editors.Check;
 using PowerTables.Editing.Editors.PlainText;

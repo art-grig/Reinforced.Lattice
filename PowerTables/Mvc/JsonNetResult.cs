@@ -2,7 +2,7 @@
 using System.Web.Mvc;
 using Newtonsoft.Json;
 
-namespace PowerTables.ResponseProcessing
+namespace PowerTables.Mvc
 {
     /// <summary>
     /// ActionResult used for Lattise's Default client responses
