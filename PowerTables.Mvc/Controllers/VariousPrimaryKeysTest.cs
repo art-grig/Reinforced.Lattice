@@ -1,18 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 using PowerTables.Adjustments;
 using PowerTables.Configuration;
 using PowerTables.Configuration.Json;
-using PowerTables.Defaults;
-using PowerTables.Plugins.Checkboxify;
 using PowerTables.Plugins.Limit;
 using PowerTables.Plugins.Paging;
 using PowerTables.Plugins.RegularSelect;
-using PowerTables.Plugins.SimpeSelect;
 using PowerTables.Plugins.Toolbar;
+using PowerTables.Processing;
 
 namespace PowerTables.Mvc.Controllers
 {
@@ -113,9 +110,9 @@ namespace PowerTables.Mvc.Controllers
 
         public ActionResult HandleTimePk()
         {
-            var conf = new Configurator<DateTime, PlanningRow>().Configure().CreateHandler();
+            var conf = new Configurator<DateTime, PlanningRow>().Configure().CreateMvcHandler(ControllerContext);
             conf.AddCommandHandler("Add", SomethingCmd);
-            return conf.Handle(GetDates().AsQueryable(), ControllerContext);
+            return conf.Handle(GetDates().AsQueryable());
         }
 
         public TableAdjustment SomethingCmd(PowerTablesData<DateTime, PlanningRow> powerTablesData)

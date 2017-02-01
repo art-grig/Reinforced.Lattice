@@ -33,7 +33,7 @@
         /// <param name="ui">Plugin configuration</param>
         /// <param name="templateId">Template ID being used by plugin</param>
         /// <returns></returns>
-        public static PluginConfigurationWrapper<T> TemplateId<T>(this PluginConfigurationWrapper<T> ui, string templateId) where T : IProvidesTemplate,new()
+        public static PluginConfigurationWrapper<T> Template<T>(this PluginConfigurationWrapper<T> ui, string templateId) where T : IProvidesTemplate,new()
         {
             ui.TemplateId = templateId;
             return ui;

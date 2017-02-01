@@ -110,7 +110,7 @@
         /**
          * API for commands
          */
-        Commands:PowerTables.Services.CommandsService;
+        Commands: PowerTables.Services.CommandsService;
 
         Partition: PowerTables.Services.Partition.IPartitionService;
 
@@ -658,6 +658,11 @@
          * Command execution result
          */
         Result: any;
+
+        confirm: () => void;
+        dismiss: () => void;
+
+        Details: any;
     }
 
     export interface IAdditionalRowsProvider {

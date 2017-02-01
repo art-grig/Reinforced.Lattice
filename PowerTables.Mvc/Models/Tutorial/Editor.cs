@@ -10,11 +10,9 @@ using PowerTables.Editing.Editors.PlainText;
 using PowerTables.Editing.Editors.SelectList;
 using PowerTables.Editing.Form;
 using PowerTables.Editing.Rows;
-using PowerTables.FrequentlyUsed;
 using PowerTables.Plugins.Checkboxify;
 using PowerTables.Plugins.LoadingOverlap;
 using PowerTables.Plugins.Ordering;
-using PowerTables.Plugins.SimpeSelect;
 using PowerTables.Plugins.Toolbar;
 
 namespace PowerTables.Mvc.Models.Tutorial
@@ -76,7 +74,7 @@ namespace PowerTables.Mvc.Models.Tutorial
                             ;
 
             conf.Column(c => c.TypeOfToy)
-                .FormatEnumWithDisplayAttribute((tpl, v) => tpl.Content(v.Text).EditPencil())
+                .TemplateEnum(content: (t, v) => t.Content(v.Text).EditPencil())
                 ;
 
             conf.Column(c => c.Edit).Template(c =>

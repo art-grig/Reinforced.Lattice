@@ -1,6 +1,5 @@
 ﻿using PowerTables.Configuration;
-using PowerTables.FrequentlyUsed;
-using PowerTables.Plugins.Checkboxify;
+using PowerTables.Mvc.Extensions;
 using PowerTables.Plugins.Toolbar;
 
 namespace PowerTables.Mvc.Models.Tutorial

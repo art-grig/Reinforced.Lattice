@@ -56,6 +56,8 @@ namespace PowerTables.Commands
         public JRaw InitConfirmationObject { get; set; }
         public JRaw OnDismiss { get; set; }
         public JRaw OnCommit { get; set; }
+        public JRaw OnContentLoaded { get; set; }
+        public JRaw OnDetailsLoaded { get; set; }
 
         public ConfirmationConfiguration()
         {
@@ -85,6 +87,8 @@ namespace PowerTables.Commands
         public JRaw DetailsFunction { get; set; }
 
         public int LoadDelay { get; set; }
+
+        public bool LoadOnce { get; set; }
 
     }
 

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using PowerTables.CellTemplating;
 using PowerTables.Configuration;
 using PowerTables.Configuration.Json;
-using PowerTables.Defaults;
+using PowerTables.Processing;
 
 namespace PowerTables.Plugins.Hierarchy
 {
@@ -73,8 +73,8 @@ namespace PowerTables.Plugins.Hierarchy
         }
 
 
-        public static void AddGetChildrenHandler<TSourceData, TTargetData>(
-            this PowerTablesHandler<TSourceData, TTargetData> handler,
+        public static void AddGetChildrenHandler<TSourceData, TTargetData,TResponse>(
+            this RequestHandlerBase<TSourceData, TTargetData, TResponse> handler,
             Func<PowerTablesData<TSourceData, TTargetData>, string,HierarchyChildrenResult> method)
             where TTargetData : new()
         {
@@ -86,8 +86,8 @@ namespace PowerTables.Plugins.Hierarchy
             
         }
 
-        public static void AddGetChildrenAsyncHandler<TSourceData, TTargetData>(
-            this PowerTablesHandler<TSourceData, TTargetData> handler,
+        public static void AddGetChildrenAsyncHandler<TSourceData, TTargetData, TResponse>(
+            this RequestHandlerBase<TSourceData, TTargetData, TResponse> handler,
             Func<PowerTablesData<TSourceData, TTargetData>, string, Task<HierarchyChildrenResult>> method)
             where TTargetData : new()
         {

@@ -26,7 +26,7 @@ namespace PowerTables.Plugins.Toolbar
                 ToolbarBuilder tb = new ToolbarBuilder(c.Configuration.Buttons);
                 toolbar(tb);
                 tb.AssignIds();
-                c.TemplateId(templateId);
+                c.Template(templateId);
                 c.Order = order;
             }, where);
             return conf;

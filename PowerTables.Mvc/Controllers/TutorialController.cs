@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using System.Web.Mvc;
-using PowerTables.CellTemplating;
 using PowerTables.Configuration;
 using PowerTables.Mvc.Models;
 using PowerTables.Mvc.Models.Tutorial;
@@ -237,7 +235,7 @@ namespace PowerTables.Mvc.Controllers
         public ActionResult HierarchyTableHandle()
         {
             var t = new Configurator<HierarchySource, SampleHierarchyItem>().HierarchyTable();
-            var handler = new PowerTablesHandler<HierarchySource, SampleHierarchyItem>(t);
+            var handler = t.CreateMvcHandler(ControllerContext);
             Random r = new Random();
 
             var data = new List<HierarchySource>()
@@ -262,7 +260,7 @@ namespace PowerTables.Mvc.Controllers
             {
                 hierarchySource.Order = r.Next(25);
             }
-            return handler.Handle(data.OrderBy(c => r.Next(10) > 5).AsQueryable(), ControllerContext);
+            return handler.Handle(data.OrderBy(c => r.Next(10) > 5).AsQueryable());
         }
 
 
@@ -279,9 +277,9 @@ namespace PowerTables.Mvc.Controllers
         {
             var t = Table();
             config(t);
-            var handler = new PowerTablesHandler<Toy, Row>(t);
+            var handler = t.CreateMvcHandler(ControllerContext);
             //Thread.Sleep(1500); // simulate working
-            return handler.Handle(Data.SourceData.AsQueryable(), ControllerContext);
+            return handler.Handle(Data.SourceData.AsQueryable());
         }
         #endregion
     }

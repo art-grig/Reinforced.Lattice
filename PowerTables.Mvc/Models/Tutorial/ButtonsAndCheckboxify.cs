@@ -9,7 +9,7 @@ using PowerTables.Editing.Editors.Check;
 using PowerTables.Editing.Editors.Memo;
 using PowerTables.Editing.Editors.PlainText;
 using PowerTables.Editing.Editors.SelectList;
-using PowerTables.FrequentlyUsed;
+using PowerTables.Mvc.Extensions;
 using PowerTables.Plugins.Checkboxify;
 using PowerTables.Plugins.Toolbar;
 

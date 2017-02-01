@@ -76,6 +76,8 @@
             }
             if (editor.VisualStates != null) editor.VisualStates.changeState('saving');
             this.finishEditing(editor, false);
+            var col = editor.Column;
+
             this.sendDataObjectToServer(() => {
                 if (!this._isEditing) {
                     this.MasterTable.Events.Edit.invokeAfter(this, this.CurrentDataObjectModified);

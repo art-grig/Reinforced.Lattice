@@ -49,13 +49,5 @@ namespace PowerTables
         /// <param name="request">Request</param>
         /// <returns>Table rows set</returns>
         TTableData[] ApplyMapping(IQueryable<TSourceData> source, Query request);
-
-        /// <summary>
-        /// Extracts request from controller context. 
-        /// Beware of handling deferred tokens when overriding this method. 
-        /// </summary>
-        /// <param name="context">Controller context</param>
-        /// <returns>Request instance</returns>
-        PowerTableRequest ExtractRequest(ControllerContext context);
     }
 }

@@ -159,6 +159,19 @@ namespace PowerTables.Commands
             return cmd;
         }
 
+        public static T OnContentLoaded<T>(this T cmd, string function) where T : CommandConfirmationConfigurator
+        {
+            cmd.Configuration.OnContentLoaded = new JRaw(function);
+            return cmd;
+        }
+
+        public static T OnDetailsLoaded<T>(this T cmd, string function) where T : CommandConfirmationConfigurator
+        {
+            cmd.Configuration.OnDetailsLoaded = new JRaw(function);
+            return cmd;
+        }
+
+
 
         public static CommandConfirmationConfigurator<T> WatchForm<T>(this CommandConfirmationConfigurator<T> cmd, Action<FormWatchBuilder<T>> formWatchConfig)
         {
@@ -213,6 +226,12 @@ namespace PowerTables.Commands
         public static ConfirmationDetailsConfigurator Debounce(this ConfirmationDetailsConfigurator c, int delay)
         {
             c.Configuration.LoadDelay = delay;
+            return c;
+        }
+
+        public static ConfirmationDetailsConfigurator Once(this ConfirmationDetailsConfigurator c, bool once = true)
+        {
+            c.Configuration.LoadOnce = once;
             return c;
         }
 

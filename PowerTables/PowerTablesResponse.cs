@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Newtonsoft.Json;
-using PowerTables.ResponseProcessing;
+using PowerTables.Processing;
 
 namespace PowerTables
 {

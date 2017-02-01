@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using PowerTables.Configuration;
-using PowerTables.FrequentlyUsed;
+using PowerTables.Mvc.Extensions;
 
 namespace PowerTables.Mvc.Models.Tutorial
 {

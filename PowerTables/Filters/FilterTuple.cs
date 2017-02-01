@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PowerTables
+namespace PowerTables.Filters
 {
     /// <summary>
     /// Helper and extension methods to generate Lattice-suitable Tuple for filters

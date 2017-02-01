@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Web.Mvc;
-using PowerTables.ResponseProcessing;
+using PowerTables.Processing;
 
 namespace PowerTables.Editing
 {
-    class EditorCommandHandler<TSourceData, TTargetData> : ICommandHandler where TTargetData : new()
+    class EditorCommandHandler<TSourceData, TTargetData> : CommandHandleBase<TableAdjustment> where TTargetData : new()
     {
         public const string EditAdditionalDataKey = "Edit";
 
@@ -28,7 +28,7 @@ namespace PowerTables.Editing
             _asynchandlerMethod = asynchandlerMethod;
         }
 
-        public ActionResult Handle(PowerTablesData data, IResponseModifiersApplier responseModifiers)
+        protected override TableAdjustment Handle(PowerTablesData data)
         {
             if (_handlerMethod == null)
             {
@@ -38,10 +38,10 @@ namespace PowerTables.Editing
             PowerTablesData<TSourceData, TTargetData> typedData = new PowerTablesData<TSourceData, TTargetData>(data);
 
             var update = _handlerMethod(typedData, data.Request.RetrieveAdditionalObject<TTargetData>(EditAdditionalDataKey));
-            return new JsonNetResult() { Data = update, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            return update;
         }
 
-        public async Task<ActionResult> HandleAsync(PowerTablesData data, IResponseModifiersApplier responseModifiers)
+        protected override async Task<TableAdjustment> HandleAsync(PowerTablesData data)
         {
             PowerTablesData<TSourceData, TTargetData> typedData = new PowerTablesData<TSourceData, TTargetData>(data);
             var edited = data.Request.RetrieveAdditionalObject<TTargetData>(EditAdditionalDataKey);
@@ -49,43 +49,7 @@ namespace PowerTables.Editing
 
             if (_asynchandlerMethod != null) result = await _asynchandlerMethod(typedData, edited).ConfigureAwait(false);
             else result = _handlerMethod(typedData, edited);
-            return new JsonNetResult() { Data = result, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            return result;
         }
-
-        public bool IsDeferable { get { return false; } }
-    }
-
-    public static class EditCommandHandlerExtensions
-    {
-        public const string EditCommand = "Edit";
-
-        public static void AddEditHandler<TSourceData, TTargetData>(
-            this PowerTablesHandler<TSourceData, TTargetData> handler,
-            Func<PowerTablesData<TSourceData, TTargetData>, TTargetData, TableAdjustment> method)
-            where TTargetData : new()
-        {
-            var del = new EditorCommandHandler<TSourceData, TTargetData>(method);
-            handler.RegisterCommandHandler(EditCommand, del);
-        }
-
-        public static void AddAsyncEditHandler<TSourceData, TTargetData>(
-            this PowerTablesHandler<TSourceData, TTargetData> handler,
-            Func<PowerTablesData<TSourceData, TTargetData>, TTargetData, Task<TableAdjustment>> method)
-            where TTargetData : new()
-        {
-            var del = new EditorCommandHandler<TSourceData, TTargetData>(method);
-            handler.RegisterCommandHandler(EditCommand, del);
-        }
-
-        public static void AddEditHandler<TSourceData, TTargetData>(
-           this PowerTablesHandler<TSourceData, TTargetData> handler,
-            Func<PowerTablesData<TSourceData, TTargetData>, TTargetData, Task<TableAdjustment>> asyncMethod,
-            Func<PowerTablesData<TSourceData, TTargetData>, TTargetData, TableAdjustment> syncmethod)
-            where TTargetData : new()
-        {
-            var del = new EditorCommandHandler<TSourceData, TTargetData>(syncmethod, asyncMethod);
-            handler.RegisterCommandHandler(EditCommand, del);
-        }
-
     }
 }

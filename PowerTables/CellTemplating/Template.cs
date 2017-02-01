@@ -17,7 +17,17 @@ namespace PowerTables.CellTemplating
         private readonly Dictionary<string, string> _styles = new Dictionary<string, string>();
         private string _content;
         private readonly List<string> _ahead = new List<string>();
+        private readonly string _overrideString;
 
+        public Template()
+        {
+        }
+
+        internal Template(string overrideString)
+        {
+            _overrideString = overrideString;
+        }
+        
         /// <summary>
         /// Specifies button tag
         /// </summary>
@@ -293,6 +303,8 @@ namespace PowerTables.CellTemplating
         /// <returns>Built template</returns>
         public string Build()
         {
+            if (!string.IsNullOrEmpty(_overrideString)) return _overrideString;
+
             StringBuilder sb = new StringBuilder();
             if (!string.IsNullOrEmpty(_tag))
             {

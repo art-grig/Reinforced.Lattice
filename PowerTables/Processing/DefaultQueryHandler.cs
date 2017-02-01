@@ -1,44 +1,14 @@
-﻿using System.IO;
-using System.Linq;
-using System.Web.Mvc;
-using Newtonsoft.Json;
+﻿using System.Linq;
 using PowerTables.Configuration;
 
-namespace PowerTables.Defaults
+namespace PowerTables.Processing
 {
     /// <summary>
     /// Default query handler implementation. Used if no IQueryHandler provided to tables handler
     /// </summary>
     public class DefaultQueryHandler<TSourceData, TTableData> : IQueryHandler<TSourceData, TTableData> where TTableData : new()
     {
-        private readonly ITokenStorage _tokenStorage;
-        private PowerTableRequest _request;
-        public virtual PowerTableRequest ExtractRequest(ControllerContext context)
-        {
-            if (_request != null) return _request;
-
-            if (context.HttpContext.Request.HttpMethod == "GET")
-            {
-                var token = context.HttpContext.Request.QueryString["q"];
-                _request = _tokenStorage.Lookup(token);
-                return _request;
-            }
-
-            var request = context.RequestContext.HttpContext.Request;
-            request.InputStream.Seek(0, SeekOrigin.Begin);
-            string jsonData = new StreamReader(request.InputStream).ReadToEnd();
-            _request = JsonConvert.DeserializeObject<PowerTableRequest>(jsonData);
-            _request.Configurator = _configuration;
-            return _request;
-        }
-
         private Configurator<TSourceData, TTableData> _configuration;
-
-        public DefaultQueryHandler(ITokenStorage tokenStorage)
-        {
-            _tokenStorage = tokenStorage;
-            if (_tokenStorage == null) _tokenStorage = InMemoryTokenStorage.Instance;
-        }
 
         public void SetConfigurator(Configurator<TSourceData, TTableData> configurator)
         {

@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.Linq;
 using PowerTables.CellTemplating;
 using PowerTables.Configuration;
 using PowerTables.Filters;
 using PowerTables.Filters.Value;
-using PowerTables.Plugins.Checkboxify;
 using PowerTables.Plugins.Hierarchy;
 using PowerTables.Plugins.Ordering;
 

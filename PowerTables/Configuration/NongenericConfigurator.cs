@@ -8,7 +8,7 @@ using System.Reflection;
 using Newtonsoft.Json;
 using PowerTables.Configuration.Json;
 using PowerTables.Filters;
-using PowerTables.ResponseProcessing;
+using PowerTables.Processing;
 
 namespace PowerTables.Configuration
 {
@@ -16,7 +16,7 @@ namespace PowerTables.Configuration
     {
         protected TableConfiguration _tableConfiguration;
         protected List<PropertyDescription> _tableColumns;
-        protected Dictionary<string, Type> _commandHandlersTypes = new Dictionary<string, Type>();
+        
         protected readonly Dictionary<PropertyDescription, LambdaExpression> _orderingExpressions = new Dictionary<PropertyDescription, LambdaExpression>();
         protected readonly Dictionary<PropertyDescription, IColumnConfigurator> _configurators = new Dictionary<PropertyDescription, IColumnConfigurator>();
         protected readonly Dictionary<PropertyDescription, ColumnConfiguration> _columnsConfiguration = new Dictionary<PropertyDescription, ColumnConfiguration>();
@@ -27,7 +27,7 @@ namespace PowerTables.Configuration
 
         public TableConfiguration TableConfiguration { get { return _tableConfiguration; } }
         public IReadOnlyDictionary<string, PropertyDescription> TableColumnsDictionary { get { return _tableColumnsDictionary; } }
-        internal IReadOnlyDictionary<string, Type> CommandHandlerTypes { get { return _commandHandlersTypes; } }
+        
         public IEnumerable<PropertyDescription> TableColumns { get { return _tableColumns; } }
         internal HashSet<IResponseModifier> ResponseModifiers { get { return _responseModifiers; } }
         public Type SourceType { get; protected set; }
@@ -330,36 +330,12 @@ namespace PowerTables.Configuration
             }
         }
 
-
-        public void RegisterCommandHandler<THandler>(string command)
-            where THandler : ICommandHandler
-        {
-            if (_commandHandlersTypes.ContainsKey(command))
-            {
-                var existingHandler = _commandHandlersTypes[command];
-
-                string error =
-                    String.Format(
-                        "Duplicate column handler specification for command '{0}'. This command is already handled by {1}"
-                        , command
-                        , existingHandler.FullName
-                        );
-
-                throw new Exception(error);
-            }
-            _commandHandlersTypes.Add(command, typeof(THandler));
-        }
-
-
-        public string JsonConfig<TStaticData>(string rootId, TStaticData staticData = null, string prefix = "lt") where TStaticData : class
+        
+        public string JsonConfig(string rootId, string prefix = "lt")
         {
             TableConfiguration tc = TableConfiguration;
             tc.TableRootId = rootId;
             tc.Prefix = prefix;
-            if (staticData != null)
-            {
-                tc.StaticData = JsonConvert.SerializeObject(staticData);
-            }
             string json = JsonConvert.SerializeObject(tc, SerializationSettings.ResponseSerializationSettings);
             return json;
         }
