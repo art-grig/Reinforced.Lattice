@@ -83,7 +83,11 @@
     <Compile Include="CellTemplating\DataWrapper.cs" />
     <Compile Include="CellTemplating\RazorSwitchBuilder.cs" />
     <Compile Include="CellTemplating\SwitchBuilder.cs" />
+    <Compile Include="CellTemplating\SwitchExtensions.cs" />
     <Compile Include="CellTemplating\Template.cs" />
+    <Compile Include="CellTemplating\TemplateBooleanExtensions.cs" />
+    <Compile Include="CellTemplating\TemplateEnumExtensions.cs" />
+    <Compile Include="CellTemplating\TemplateSelectListExtensions.cs" />
     <Compile Include="CellTemplating\TemplatesExtensions.cs" />
     <Compile Include="Commands\CommandDescription.cs" />
     <Compile Include="Commands\CommandDescriptionConfigurator.cs" />
@@ -137,6 +141,7 @@
     <Compile Include="Filters\CommonFiltersUiExtensions.cs" />
     <Compile Include="Filters\FilterBase.cs" />
     <Compile Include="Filters\FilterBaseExtensions.cs" />
+    <Compile Include="Filters\FilterBooleanExtensions.cs" />
     <Compile Include="Filters\FreeFilter.cs" />
     <Compile Include="Filters\FreeFilterExtensions.cs" />
     <Compile Include="Filters\IColumnFilter.cs" />
@@ -162,6 +167,7 @@
     <Compile Include="Filters\Value\ValueFilterExtensions.cs" />
     <Compile Include="FilterTuple.cs" />
     <Compile Include="FrequentlyUsed\FrequentlyUsedExtensions.cs" />
+    <Compile Include="CellTemplating\TemplateListExtensions.cs" />
     <Compile Include="IAdditionalDataProvider.cs" />
     <Compile Include="InitializationExtensions.cs" />
     <Compile Include="IQueryHandler.cs" />

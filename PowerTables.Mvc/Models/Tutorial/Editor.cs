@@ -76,7 +76,7 @@ namespace PowerTables.Mvc.Models.Tutorial
                             ;
 
             conf.Column(c => c.TypeOfToy)
-                .TemplateEnum((tpl, v) => tpl.Content(v.Text).EditPencil())
+                .TemplateEnum(content: (t, v) => t.Content(v.Text).EditPencil())
                 ;
 
             conf.Column(c => c.Edit).Template(c =>
