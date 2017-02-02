@@ -80,10 +80,21 @@
             this._currentForm = vm;
             this._currentFormElement = this.MasterTable.Renderer.renderObject(this.Configuration.FormTemplateId, vm, this.Configuration.FormTargetSelector);
             vm.RootElement = this._currentFormElement;
+            this.stripNotRenderedEditors();
             for (var j = 0; j < this._activeEditors.length; j++) {
                 this.setEditorValue(this._activeEditors[j]);
             }
         }
+
+        private stripNotRenderedEditors() {
+            var newEditors = [];
+            for (var i = 0; i < this._activeEditors.length; i++) {
+                if (this._activeEditors[i]["_IsRendered"]) newEditors.push(this._activeEditors[i]);
+            }
+            if (newEditors.length === this._activeEditors.length) return;
+            this._activeEditors = newEditors;
+        }
+
 
         public commitAll() {
             this.ValidationMessages = [];
@@ -181,6 +192,7 @@
         }
 
         private editor(editor: IEditor): string {
+            editor['_IsRendered'] = true;
             return this.Handler.MasterTable.Renderer.renderObjectContent(editor);
         }
 

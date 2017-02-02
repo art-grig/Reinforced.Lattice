@@ -199,14 +199,29 @@
         private _autoformFields: { [_: string]: PowerTables.Editing.IEditFieldUiConfigBase } = {};
 
         public rendered() {
-            for (var ae in this.ActiveEditors) {
-                var k = this.ActiveEditors[ae].FieldName;
-                this.ActiveEditors[ae].setValue(this.DataObject[k]);
+            this.stripNotRenderedEditors();
+            for (var i = 0; i < this.ActiveEditors.length; i++) {
+                var k = this.ActiveEditors[i].FieldName;
+                this.ActiveEditors[i].setValue(this.DataObject[k]);
             }
+
             this.initFormWatchDatepickers(this.RootElement);
             this.loadContent();
             if (this._config.Details != null && this._config.Details != undefined) {
                 if (this._config.Details.LoadImmediately) this.loadDetailsInternal();
+            }
+        }
+
+        private stripNotRenderedEditors() {
+            var newEditors = [];
+            for (var i = 0; i < this.ActiveEditors.length; i++) {
+                if (this.ActiveEditors[i]["_IsRendered"]) newEditors.push(this.ActiveEditors[i]);
+            }
+            if (newEditors.length === this.ActiveEditors.length) return;
+            this.ActiveEditors = newEditors;
+            this.EditorsSet = {};
+            for (var j = 0; j < newEditors.length; j++) {
+                this.EditorsSet[newEditors[j].FieldName] = newEditors[j];
             }
         }
 
@@ -339,7 +354,7 @@
             }
             this._detailsLoaded = true;
             this.RecentDetails.Data = detailsResult;
-            
+
             if (this.VisualStates != null) this.VisualStates.unmixinState('detailsLoading');
             if (this._config.Autoform != null && this._config.Autoform.DisableWhileDetailsLoading) {
                 for (var i = 0; i < this.ActiveEditors.length; i++) {
@@ -436,7 +451,7 @@
         }
 
         public dismiss() {
-           var params = this.collectCommandParameters();
+            var params = this.collectCommandParameters();
             this.MasterTable.Renderer.destroyObject(this._commandDescription.Confirmation.TargetSelector);
             this.RootElement = null;
             this.ContentPlaceholder = null;
@@ -458,6 +473,7 @@
         }
 
         private editor(editor: PowerTables.Editing.IEditor): string {
+            editor['_IsRendered'] = true;
             return this.MasterTable.Renderer.renderObjectContent(editor);
         }
 
@@ -533,7 +549,7 @@
             }
             if (this._config.Details != null && this._config.Details != undefined) {
                 if ((!this._config.Details.LoadOnce) || (!this._detailsLoaded)) {
-                    this.loadDetails();        
+                    this.loadDetails();
                 }
             }
         }

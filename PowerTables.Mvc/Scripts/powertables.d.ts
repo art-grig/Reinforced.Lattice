@@ -1913,6 +1913,7 @@ declare module PowerTables.Services {
         private _originalCallback;
         private _autoformFields;
         rendered(): void;
+        private stripNotRenderedEditors();
         private loadContent();
         private contentLoaded();
         private loadContentByUrl(url, method);
@@ -3516,6 +3517,7 @@ declare module PowerTables.Editing.Form {
         beginEdit(dataObject: any): void;
         beginFormEditHandler(e: IRowEventArgs): void;
         private startupForm();
+        private stripNotRenderedEditors();
         commitAll(): void;
         rejectAll(): void;
         notifyChanged(editor: PowerTables.Editing.IEditor): void;

@@ -20,12 +20,47 @@ namespace PowerTables.CellTemplating
         /// </summary>
         /// <param name="objectProperty"></param>
         /// <param name="defaultProperty"></param>
-        public CellTemplateBuilder(string objectProperty = "DataObject",string defaultProperty = "Data")
+        public CellTemplateBuilder(string objectProperty = "DataObject", string defaultProperty = "Data")
         {
             _result = "return '';";
             _objectProperty = objectProperty;
             _defaultProperty = defaultProperty;
         }
+
+        #region Flow control
+        public CellTemplateBuilder FlowIf(string expression, Action<CellTemplateBuilder> @if, Action<CellTemplateBuilder> @else = null)
+        {
+            _lines.Add(string.Format("if ({0}) {{ ", Template.CompileExpression(expression, "v", _objectProperty, _defaultProperty)));
+            @if(this);
+            if (@else != null)
+            {
+                _lines.Add("} else { ");
+                @else(this);
+            }
+            _lines.Add("}");
+            return this;
+        }
+
+        public CellTemplateBuilder FlowIfNotPresent(string expression, Action<CellTemplateBuilder> @if, Action<CellTemplateBuilder> @else = null)
+        {
+            _lines.Add(string.Format("if ((({0})==null)||(({0})==undefined)) {{ ", Template.CompileExpression(expression, "v", _objectProperty, _defaultProperty)));
+            @if(this);
+            if (@else != null)
+            {
+                _lines.Add("} else { ");
+                @else(this);
+            }
+            _lines.Add("}");
+            return this;
+        }
+
+        public CellTemplateBuilder FlowReturns(string content)
+        {
+            var text = Template.Compile(content, "v", _objectProperty, _defaultProperty);
+            _lines.Add(text);
+            return this;
+        }
+        #endregion
 
         /// <summary>
         /// Template will return empty cell is specified column is null or 0 or undefined
@@ -48,7 +83,7 @@ namespace PowerTables.CellTemplating
             expression = Template.CompileExpression(expression, "v", _objectProperty, _defaultProperty);
             _lines.Add(string.Format("if ((({0})==null)||(({0})==undefined)) return {1}; "
                 , expression
-                , Template.Compile(content, "v", _objectProperty,_defaultProperty)));
+                , Template.Compile(content, "v", _objectProperty, _defaultProperty)));
             return this;
         }
 
@@ -75,7 +110,7 @@ namespace PowerTables.CellTemplating
         /// <returns></returns>
         public CellTemplateBuilder EmptyIf(string expression)
         {
-            _lines.Add(string.Format("if ({0}) return ''; ", Template.CompileExpression(expression, "v", _objectProperty,_defaultProperty)));
+            _lines.Add(string.Format("if ({0}) return ''; ", Template.CompileExpression(expression, "v", _objectProperty, _defaultProperty)));
             return this;
         }
 
