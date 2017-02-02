@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PowerTables.CellTemplating;
+using PowerTables.Configuration.Json;
 using PowerTables.Plugins;
 
 namespace PowerTables.Configuration
@@ -566,6 +567,15 @@ namespace PowerTables.Configuration
         public static IConfigurator StaticData<TStaticData>(this IConfigurator conf, TStaticData staticData) where TStaticData : class
         {
             conf.TableConfiguration.StaticData = JsonConvert.SerializeObject(staticData);
+            return conf;
+        }
+
+        public static T ClientPartition<T>(this T conf) where T : IConfigurator
+        {
+            conf.TableConfiguration.Partition = new PartitionConfiguration()
+            {
+                Type = PartitionType.Client
+            };
             return conf;
         }
     }

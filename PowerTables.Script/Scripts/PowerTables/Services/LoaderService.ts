@@ -318,10 +318,11 @@
 
             var server = force || !queriesEqual;
 
-            this._masterTable.Partition.partitionBeforeQuery(server ? serverQuery : clientQuery, server ? QueryScope.Server : QueryScope.Client);
+            this._masterTable.Partition.partitionBeforeQuery(serverQuery, QueryScope.Server);
+            this._masterTable.Partition.partitionBeforeQuery(clientQuery, QueryScope.Client);
             this._masterTable.Selection.modifyQuery(serverQuery, QueryScope.Server);
             var data: IPowerTableRequest = {
-                Command: 'Query',
+                Command: 'query',
                 Query: server ? serverQuery : clientQuery
             };
 

@@ -14,7 +14,6 @@
       <Link>Scripts\Interfaces.ts</Link>
     </TypeScriptCompile>
     <TypeScriptCompile Include="Scripts\PowerTables\Event.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Services\PartitionService.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\TrackHelper.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\ComponentsContainer.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\CoreInterfaces.ts" />
@@ -54,6 +53,10 @@
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\ToolbarPlugin.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\FormwatchPlugin.ts" />
     <TypeScriptCompile Include="Scripts\Typings\HideoutPlugin.d.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Services\Partition\ClientPartitionService.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Services\Partition\IPartitionService.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Services\Partition\MixedPartitionService.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Services\Partition\ServerPartitionService.ts" />
     <TypeScriptCompile Include="Scripts\Typings\Limit.d.ts" />
     <TypeScriptCompile Include="Scripts\Typings\PagingPlugin.d.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\LoadingOverlapPlugin.ts" />

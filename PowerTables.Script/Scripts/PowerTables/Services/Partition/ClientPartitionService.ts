@@ -18,12 +18,12 @@
             if (prevSkip === skip) return;
 
             this._masterTable.Events.PartitionChanged.invokeBefore(this,
-            {
-                PreviousSkip: prevSkip,
-                Skip: skip,
-                PreviousTake: this.Take,
-                Take: this.Take
-            });
+                {
+                    PreviousSkip: prevSkip,
+                    Skip: skip,
+                    PreviousTake: this.Take,
+                    Take: this.Take
+                });
 
             if (skip >= prevSkip + take || skip <= prevSkip - take) {
                 this.cutDisplayed(skip, take);
@@ -34,31 +34,33 @@
                 var diff = Math.abs(prevSkip - skip);
                 var down = skip > prevSkip;
                 var rows = this._masterTable.Controller.produceRows();
-
+                this.destroySpecialRows(rows);
                 for (var i = 0; i < diff; i++) {
                     var toDestroy = down ? prevIdx[i] : prevIdx[prevIdx.length - 1 - i];
                     this._masterTable.Renderer.Modifier.destroyRowByIndex(toDestroy);
                 }
                 if (down) {
-                    var li = this.lastNonSpecialIndex(rows) - diff;
+                    var li = this.lastNonSpecialIndex(rows) - diff + 1;
                     for (var j = 0; j < diff; j++) {
                         this._masterTable.Renderer.Modifier.appendRow(rows[li + j]);
                     }
                 } else {
-                    var fi = this.firstNonSpecialIndex(rows) + diff;
+                    var fi = this.firstNonSpecialIndex(rows) + diff - 1;
                     for (var k = 0; k < diff; k++) {
-                        this._masterTable.Renderer.Modifier.appendRow(rows[fi - k], 0);
+                        this._masterTable.Renderer.Modifier.prependRow(rows[fi - k]);
                     }
                 }
+                this.restoreSpecialRows(rows);
             }
 
             this._masterTable.Events.PartitionChanged.invokeAfter(this,
-            {
-                PreviousSkip: prevSkip,
-                Skip: skip,
-                PreviousTake: this.Take,
-                Take: this.Take
-            });
+                {
+                    PreviousSkip: prevSkip,
+                    Skip: skip,
+                    PreviousTake: this.Take,
+                    Take: this.Take
+                });
+            this.Skip = skip;
         }
 
         private firstNonSpecialIndex(rows: IRow[]): number {
@@ -69,6 +71,8 @@
         }
 
         private lastNonSpecialIndex(rows: IRow[]): number {
+            if (rows.length === 0) return 0;
+            if (!rows[rows.length - 1].IsSpecial) return rows.length - 1;
             for (var i = rows.length - 1; i >= 0; i--) {
                 if (!rows[i].IsSpecial) return i;
             }
@@ -84,28 +88,82 @@
         }
 
         public setTake(take: number): void {
+            this._masterTable.Events.PartitionChanged.invokeBefore(this,
+                {
+                    PreviousSkip: this.Skip,
+                    Skip: this.Skip,
+                    PreviousTake: this.Take,
+                    Take: take
+                });
             if (take === 0) {
-
+                //todo
             }
             var prevTake = this.Take;
+
+
             if (take < prevTake) {
                 var dd = this._masterTable.DataHolder.DisplayedData;
+                this.cutDisplayed(this.Skip, take);
                 for (var i = take; i < prevTake; i++) {
                     this._masterTable.Renderer.Modifier.destroyRowByIndex(dd[i]['__i']);
                 }
-
             } else {
+                var prevIdx = this.displayedIndexes();
+                var rows = this._masterTable.Controller.produceRows();
+                this.destroySpecialRows(rows);
+                this.cutDisplayed(this.Skip, take);
+                rows = this._masterTable.Controller.produceRows();
 
+                for (var j = prevIdx.length; j < rows.length; j++) {
+                    this._masterTable.Renderer.Modifier.appendRow(rows[j]);
+                }
+                this.restoreSpecialRows(rows);
             }
+            this._masterTable.Events.PartitionChanged.invokeAfter(this,
+                {
+                    PreviousSkip: this.Skip,
+                    Skip: this.Skip,
+                    PreviousTake: prevTake,
+                    Take: take
+                });
             this.Take = take;
         }
 
-        public partitionBeforeQuery(serverQuery: IQuery, scope: QueryScope): QueryScope {
-            serverQuery.Partition = {
-                NoCount: true,
-                Take: 0,
-                Skip: 0
-            };
+        private restoreSpecialRows(rows: IRow[]) {
+            for (var i = 0; i < rows.length; i++) {
+                if (rows[i].IsSpecial) {
+                    if (i === 0) this._masterTable.Renderer.Modifier.prependRow(rows[i]);
+                    else if (i === rows.length - 1) {
+                        this._masterTable.Renderer.Modifier.appendRow(rows[i]);
+                    } else {
+                        if (rows[i + 1].IsSpecial) this._masterTable.Renderer.Modifier.appendRow(rows[i]);
+                        else this._masterTable.Renderer.Modifier.appendRow(rows[i], rows[i + 1].Index);
+                    }
+                }
+            }
+        }
+
+        private destroySpecialRows(rows: IRow[]) {
+            for (var i = 0; i < rows.length / 2; i++) {
+                if (rows[i].IsSpecial) this._masterTable.Renderer.Modifier.destroyRowByIndex(rows[i].Index);
+                if (rows[rows.length - i - 1].IsSpecial) this._masterTable.Renderer.Modifier.destroyRowByIndex(rows[rows.length - i - 1].Index);
+            }
+        }
+
+        public partitionBeforeQuery(query: IQuery, scope: QueryScope): QueryScope {
+            if (scope === QueryScope.Server) {
+                query.Partition = {
+                    NoCount: true,
+                    Take: 0,
+                    Skip: 0
+                };
+            } else {
+                query.Partition = {
+                    NoCount: true,
+                    Take: this.Take,
+                    Skip: this.Skip
+                };
+            }
             return scope;
         }
 
@@ -137,11 +195,25 @@
         }
 
         private cutDisplayed(skip: number, take: number) {
+            this._masterTable.DataHolder.RecentClientQuery.Partition = {
+                NoCount: true,
+                Skip: skip,
+                Take: take
+            };
+
+            this._masterTable.Events.ClientDataProcessing.invokeBefore(this, this._masterTable.DataHolder.RecentClientQuery);
             this._masterTable.DataHolder.DisplayedData = this.cut(this._masterTable.DataHolder.Ordered, skip, take);
+            this._masterTable.Events.ClientDataProcessing.invokeAfter(this,
+            {
+                Displaying: this._masterTable.DataHolder.DisplayedData,
+                Filtered: this._masterTable.DataHolder.Filtered,
+                Ordered: this._masterTable.DataHolder.Ordered,
+                Source: this._masterTable.DataHolder.StoredData
+            });
         }
 
-        public Skip: number;
-        public Take: number;
+        public Skip: number = 0;
+        public Take: number = 20;
         public TotalCount: number;
 
         public IsAllDataRetrieved: boolean;

@@ -335,8 +335,8 @@
                 var ordered: any[] = this.orderSet(filtered, query);
                 this.Filtered = filtered;
                 this.Ordered = ordered;
-                this.DisplayedData = this._masterTable.Partition.partitionAfterQuery(ordered,query);
             }
+            this.DisplayedData = this._masterTable.Partition.partitionAfterQuery(this.Ordered, query);
             this.updateStats();
 
             this._events.ClientDataProcessing.invokeAfter(this, {

@@ -93,7 +93,19 @@
                     }
 
                     if (chars) {
-                        index = html.indexOf('<');
+                        var pos = 0;
+                        var nxtchar;
+
+                        do {
+                            index = html.indexOf('<',pos);
+                            if (index >= 0 && index < html.length - 1) {
+                                nxtchar = html[index + 1];
+                                pos = index + 1;
+                            } else {
+                                break;
+                            }
+                        } while (!nxtchar.match(/[a-zA-Z\/]/));
+                        
                         var text: string = index < 0 ? html : html.substring(0, index);
                         html = index < 0 ? '' : html.substring(index);
                         this.chars(text);

@@ -112,6 +112,10 @@ namespace PowerTables.Configuration.Json
             Subscriptions = new List<ConfiguredSubscriptionInfo>();
             SelectionConfiguration = new SelectionConfiguration();
             Commands = new Dictionary<string, CommandDescription>();
+            Partition = new PartitionConfiguration()
+            {
+                Type = PartitionType.Client
+            };
         }
 
         /// <summary>

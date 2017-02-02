@@ -52,6 +52,16 @@
         }
 
         /**
+         * Retrieves row element (including wrapper)
+         * 
+         * @param row Row
+         * @returns HTML element
+         */
+        public getRowElements(): NodeList {
+            return this._bodyElement.querySelectorAll(`[data-track$="r-"]`);
+        }
+
+        /**
         * Retrieves row element (including wrapper) by specified row index
         * 
         * @param row Row

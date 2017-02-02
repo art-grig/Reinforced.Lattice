@@ -11,8 +11,8 @@ namespace PowerTables.Mvc.Models.Tutorial
         {
             conf.OrderingAndLoadingInidicator();
             conf.LoadImmediately(false);
+            
             conf.Limit(ui => ui.PlaceAt("lt")
-                .EnableClientLimiting() // lets enable client limiting
                 .Values(new[]
             {
                 "Everything",           // any text will be interpreted as "all records"
@@ -24,7 +24,6 @@ namespace PowerTables.Mvc.Models.Tutorial
             conf.Paging(
                 ui =>
                     ui.PlaceAt("rb")
-                    .EnableClientPaging()                       // Client limiting cannot work without client paging
                     .PagingWithPeriods(useFirstLasPage: true)   // lets pick most complex paging
                     .UseGotoPage()                              // and also enable "Go to page" functionality
                 );

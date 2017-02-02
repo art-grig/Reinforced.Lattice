@@ -7,7 +7,7 @@
         * @internal
         */
         constructor(stack: RenderingStack, locator: DOMLocator, backBinder: BackBinder, templatesProvider: ITemplatesProvider, layoutRenderer: LayoutRenderer, instances: PowerTables.Services.InstanceManagerService, ed: PowerTables.Services.EventsDelegatorService,
-            contentRenderer:ContentRenderer,bodyElement:HTMLElement) {
+            contentRenderer: ContentRenderer, bodyElement: HTMLElement) {
             this._stack = stack;
             this._locator = locator;
             this._backBinder = backBinder;
@@ -27,8 +27,8 @@
         private _layoutRenderer: LayoutRenderer;
         private _contentRenderer: ContentRenderer;
         private _instances: PowerTables.Services.InstanceManagerService;
-        private _bodyElement:HTMLElement;
-        
+        private _bodyElement: HTMLElement;
+
 
         //#region Show/hide infrastructure
         private getRealDisplay(elem): string {
@@ -181,6 +181,9 @@
          * @returns {} 
          */
         public redrawRow(row: IRow): HTMLElement {
+            var oldElement: HTMLElement = this._locator.getRowElement(row);
+            if (!oldElement) return null;
+
             this._stack.clear();
             this._stack.push(RenderingContextType.Row, row);
             var wrapper: (arg: any) => string = this._templatesProvider.getCachedTemplate('rowWrapper');
@@ -191,7 +194,7 @@
                 html = wrapper(row);
             }
             this._stack.popContext();
-            var oldElement: HTMLElement = this._locator.getRowElement(row);
+
             var newElem = this.replaceElement(oldElement, html);
             this._backBinder.backBind(newElem);
             return newElem;
@@ -199,16 +202,19 @@
 
         public destroyRow(row: IRow): void {
             var rowElement = this._locator.getRowElement(row);
+            if (!rowElement) return;
             this.destroyElement(rowElement);
         }
 
         public hideRow(row: IRow): void {
             var rowElement = this._locator.getRowElement(row);
+            if (!rowElement) return;
             this.hideElement(rowElement);
         }
 
         public showRow(row: IRow): void {
             var rowElement = this._locator.getRowElement(row);
+            if (!rowElement) return;
             this.showElement(rowElement);
         }
 
@@ -244,23 +250,57 @@
         }
 
         /**
+         * Redraws specified row refreshing all its graphical state
+         * 
+         * @param row 
+         * @returns {} 
+         */
+        public prependRow(row: IRow): HTMLElement {
+            this._stack.clear();
+            this._stack.push(RenderingContextType.Row, row);
+            var wrapper: (arg: any) => string = this._templatesProvider.getCachedTemplate('rowWrapper');
+            var html: string;
+            if (row.renderElement) {
+                html = row.renderElement(this._templatesProvider);
+            } else {
+                html = wrapper(row);
+            }
+            var newRowElement: HTMLElement = this.createElement(html);
+
+            if (this._bodyElement.childElementCount === 0) {
+                this._bodyElement.appendChild(newRowElement);
+            } else {
+                var referenceNode: HTMLElement = <HTMLElement>this._bodyElement.children.item(0);
+                referenceNode.parentNode.insertBefore(newRowElement, referenceNode);
+            }
+
+            this._backBinder.backBind(newRowElement);
+            this._stack.popContext();
+            this._stack.clear();
+            return newRowElement;
+        }
+
+        /**
          * Removes referenced row by its index
          * 
          * @param rowDisplayIndex 
          * @returns {} 
          */
         public destroyRowByIndex(rowDisplayIndex: number): void {
-            var referenceNode: HTMLElement = this._locator.getRowElementByIndex(rowDisplayIndex);
-            referenceNode.parentElement.removeChild(referenceNode);
+            var rowElement: HTMLElement = this._locator.getRowElementByIndex(rowDisplayIndex);
+            if (!rowElement) return;
+            rowElement.parentElement.removeChild(rowElement);
         }
 
         public hideRowByIndex(rowDisplayIndex: number): void {
             var rowElement = this._locator.getRowElementByIndex(rowDisplayIndex);
+            if (!rowElement) return;
             this.hideElement(rowElement);
         }
 
         public showRowByIndex(rowDisplayIndex: number): void {
             var rowElement = this._locator.getRowElementByIndex(rowDisplayIndex);
+            if (!rowElement) return;
             this.showElement(rowElement);
         }
 
@@ -268,9 +308,12 @@
 
         //#region Cells
         public redrawCell(cell: ICell): HTMLElement {
+            var oldElement: HTMLElement = this._locator.getCellElement(cell);
+            if (!oldElement) return null;
+
             var wrapper: (arg: any) => string = this._templatesProvider.getCachedTemplate('cellWrapper');
             var html = this._contentRenderer.renderCellAsPartOfRow(cell, wrapper);
-            var oldElement: HTMLElement = this._locator.getCellElement(cell);
+
             var newElem = this.replaceElement(oldElement, html);
             this._backBinder.backBind(newElem);
             return newElem;
@@ -278,16 +321,19 @@
 
         public destroyCell(cell: ICell): void {
             var e = this._locator.getCellElement(cell);
+            if (!e) return;
             e.parentElement.removeChild(e);
         }
 
         public hideCell(cell: ICell) {
             var e = this._locator.getCellElement(cell);
+            if (!e) return;
             this.hideElement(e);
         }
 
         public showCell(cell: ICell) {
             var e = this._locator.getCellElement(cell);
+            if (!e) return;
             this.hideElement(e);
         }
 
@@ -329,9 +375,12 @@
          * @param column Column which header is to be redrawn         
          */
         public redrawHeader(column: IColumn): HTMLElement {
+            var oldHeaderElement: HTMLElement = this._locator.getHeaderElement(column.Header);
+            if (!oldHeaderElement) return null;
+
             this._stack.clear();
             var html: string = this._layoutRenderer.renderHeader(column);
-            var oldHeaderElement: HTMLElement = this._locator.getHeaderElement(column.Header);
+
             var newElement: HTMLElement = this.replaceElement(oldHeaderElement, html);
             this._backBinder.backBind(newElement);
             return newElement;
@@ -339,16 +388,19 @@
 
         public destroyHeader(column: IColumn): void {
             var e = this._locator.getHeaderElement(column.Header);
+            if (!e) return;
             this.destroyElement(e);
         }
 
         public hideHeader(column: IColumn): void {
             var e = this._locator.getHeaderElement(column.Header);
+            if (!e) return;
             this.hideElement(e);
         }
 
         public showHeader(column: IColumn): void {
             var e = this._locator.getHeaderElement(column.Header);
+            if (!e) return;
             this.showElement(e);
         }
 
@@ -358,6 +410,7 @@
         }
 
         private replaceElement(element: HTMLElement, html: string): HTMLElement {
+            if (!element) return null;
             var node: HTMLElement = this.createElement(html);
             element.parentElement.replaceChild(node, element);
             this._ed.handleElementDestroy(element);
