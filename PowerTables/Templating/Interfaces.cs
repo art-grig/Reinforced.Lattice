@@ -1,11 +1,17 @@
 ﻿using System.IO;
+using System.Web.Mvc;
 
 namespace PowerTables.Templating
 {
+    public interface IRawProvider
+    {
+        void Raw(string tplCode);
+    }
+
     /// <summary>
     /// Common interface allowing to start describing Lattice's tempate regions
     /// </summary>
-    public interface ITemplateRegion
+    public interface ITemplateRegion : IRawProvider
     {
         /// <summary>
         /// TextWriter that should consume target document's HTML

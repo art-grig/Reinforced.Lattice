@@ -4,8 +4,8 @@ namespace PowerTables.Templating.BuiltIn
 {
     public class CellTemplateRegion<T> : ModeledTemplateRegion<ICellModel<T>>
     {
-        public CellTemplateRegion(string prefix, string id, TextWriter writer)
-            : base(prefix, id, writer)
+        public CellTemplateRegion(string prefix, string id, ITemplatesScope scope)
+            : base(prefix, id, scope)
         {
         }
     }
@@ -14,12 +14,12 @@ namespace PowerTables.Templating.BuiltIn
     {
         public static CellTemplateRegion<T> Cell<T>(this ITemplatesScope ts, string templateId)
         {
-            return new CellTemplateRegion<T>(ts.TemplatesPrefix, templateId,ts.Output);
+            return new CellTemplateRegion<T>(ts.TemplatesPrefix, templateId,ts);
         }
 
         public static CellTemplateRegion<object> Cell(this ITemplatesScope ts, string templateId)
         {
-            return new CellTemplateRegion<object>(ts.TemplatesPrefix, templateId, ts.Output);
+            return new CellTemplateRegion<object>(ts.TemplatesPrefix, templateId, ts);
         }
     }
 }

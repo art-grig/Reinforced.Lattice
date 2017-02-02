@@ -4,7 +4,7 @@
     {
         public override string Build()
         {
-            return "";
+            return "o";
         }
     }
 }

@@ -3,14 +3,14 @@ using PowerTables.Templating.Handlebars;
 
 namespace PowerTables.Templating.BuiltIn
 {
-    public class CellWrapperTemplateRegion<T> :ModeledTemplateRegion<ICellModel<T>>, 
+    public class CellWrapperTemplateRegion<T> : ModeledTemplateRegion<ICellModel<T>>,
         IProvidesContent,
         IProvidesTracking
 
     {
         public bool IsTrackSet { get; set; }
 
-        public CellWrapperTemplateRegion(string prefix, string id, TextWriter writer) : base(prefix, id, writer)
+        public CellWrapperTemplateRegion(string prefix, string id, ITemplatesScope writer) : base(prefix, id, writer)
         {
         }
     }
@@ -27,7 +27,7 @@ namespace PowerTables.Templating.BuiltIn
         /// </summary>
         object Data { get; }
 
-        IHbDictionary<string,string> DataObject { get; }
+        IHbDictionary<string, string> DataObject { get; }
 
         /// <summary>
         /// True when this cell is selected, false otherwise.
@@ -56,26 +56,26 @@ namespace PowerTables.Templating.BuiltIn
         /// Row related to cell
         /// </summary>
         IRowModel<T> Row { get; }
-        
+
 
         /// <summary>
         /// Data object
         /// </summary>
-        [OverrideHbFieldName("DataObject")]
+        [OverrideTplFieldName("DataObject")]
         T TypedDataObject { get; }
-        
+
     }
 
     public static class CellWrapperExtensions
     {
         public static CellWrapperTemplateRegion<T> CellWrapper<T>(this ITemplatesScope t, string templateId = "cellWrapper")
         {
-            return new CellWrapperTemplateRegion<T>(t.TemplatesPrefix,templateId,t.Output);
+            return new CellWrapperTemplateRegion<T>(t.TemplatesPrefix, templateId, t);
         }
 
         public static CellWrapperTemplateRegion<object> CellWrapper(this ITemplatesScope t, string templateId = "cellWrapper")
         {
-            return new CellWrapperTemplateRegion<object>(t.TemplatesPrefix, templateId, t.Output);
+            return new CellWrapperTemplateRegion<object>(t.TemplatesPrefix, templateId, t);
         }
     }
 }

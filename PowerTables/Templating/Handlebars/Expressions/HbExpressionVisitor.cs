@@ -37,7 +37,7 @@ namespace PowerTables.Templating.Handlebars.Expressions
 
             accessedExpression = Retrieve();
             var memberName = node.Member.Name;
-            var attr = node.Member.GetCustomAttribute<OverrideHbFieldNameAttribute>();
+            var attr = node.Member.GetCustomAttribute<OverrideTplFieldNameAttribute>();
             if (attr != null)
             {
                 memberName = attr.Name;

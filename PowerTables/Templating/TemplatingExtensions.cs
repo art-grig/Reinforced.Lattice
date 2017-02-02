@@ -32,9 +32,7 @@ namespace PowerTables.Templating
         /// <returns></returns>
         public static MvcHtmlString BindEvent(this IProvidesEventsBinding t, string commaSeparatedFunction, string commaSeparatedEvents, params string[] arguments)
         {
-            return
-                MvcHtmlString.Create(string.Format("{{{{{{BindEvent \"{0}\" \"{1}\" {2} }}}}}}", commaSeparatedFunction,
-                commaSeparatedEvents, arguments.Length == 0 ? null : string.Join(" ", arguments)));
+            return t._("d.evt(w,'{0}','{1}',{2});", commaSeparatedFunction, commaSeparatedEvents, arguments.Length == 0 ? null : string.Join(" ", arguments));
         }
 
         ///// <summary>
@@ -63,8 +61,7 @@ namespace PowerTables.Templating
         /// <returns></returns>
         public static MvcHtmlString DatepickerIf(this IProvidesDatepicker t, string condition, string nullableCondition)
         {
-            return
-                MvcHtmlString.Create(string.Format("{{{{{{Datepicker {0} {1} }}}}}}", condition, nullableCondition));
+            return t._("d.dp(w,({0}),({1}));", condition, nullableCondition);
         }
 
         private static string WrapQuotesOrNull(this string param)
@@ -85,10 +82,10 @@ namespace PowerTables.Templating
         public static MvcHtmlString Mark(this IProvidesMarking t, string fieldName, string key = null, string receiver = null)
         {
             return
-                MvcHtmlString.Create(string.Format("{{{{{{Mark \"{0}\" {1} {2}}}}}}}", fieldName, key.WrapQuotesOrNull(), receiver.WrapQuotesOrNull()));
+                t._("d.mark(w,'{0}',{1},{2});", fieldName, key.WrapQuotesOrNull(),
+                    receiver.WrapQuotesOrNull());
         }
 
-        private static readonly MvcHtmlString _track = MvcHtmlString.Create("{{{Track}}}");
 
         /// <summary>
         /// Placeholder for tracking ticket. It is necessary for some complonents
@@ -98,10 +95,8 @@ namespace PowerTables.Templating
         public static MvcHtmlString Track(this IProvidesTracking t)
         {
             t.IsTrackSet = true;
-            return _track;
+            return t._("d.track(w)");
         }
-
-        private static readonly MvcHtmlString _content = MvcHtmlString.Create("{{{Content}}}");
 
         /// <summary>
         /// Content of <paramref name="t"/> should be put here
@@ -110,7 +105,7 @@ namespace PowerTables.Templating
         /// <returns>Template placeholder for content</returns>
         public static MvcHtmlString Content(this IProvidesContent t)
         {
-            return _content;
+            return t._("d.content(w);");
         }
 
         /// <summary>
@@ -121,7 +116,7 @@ namespace PowerTables.Templating
         /// <returns>Template placeholder for content</returns>
         public static MvcHtmlString Content(this IProvidesColumnContent t, string columnName)
         {
-            return MvcHtmlString.Create(string.Format("{{{{{{Content \"{0}\"}}}}}}", columnName));
+            return t._("d.colContent(w,'{0}');", columnName);
         }
 
         /// <summary>
@@ -136,8 +131,7 @@ namespace PowerTables.Templating
             VisualState vs = new VisualState();
             visualState(vs);
             var json = JsonConvert.SerializeObject(vs.Description, Formatting.None);
-            return MvcHtmlString.Create(string.Format("{{{{{{VState \"{0}\" '{1}' }}}}}}", stateName, json));
-
+            return state._("d.vstate(w,'{0}',{1})", stateName, json);
         }
 
         /// <summary>
@@ -150,8 +144,7 @@ namespace PowerTables.Templating
         public static MvcHtmlString State(this IProvidesVisualState state, string stateName, VisualState visualState)
         {
             var json = JsonConvert.SerializeObject(visualState.Description, Formatting.None);
-            return MvcHtmlString.Create(string.Format("{{{{{{VState \"{0}\" '{1}' }}}}}}", stateName, json));
-
+            return state._("d.vstate(w,'{0}',{1})", state, json);
         }
 
         /// <summary>
@@ -165,7 +158,7 @@ namespace PowerTables.Templating
         public static MvcHtmlString Callback(this ITemplatesScope ts, string functionName, params string[] rawArgs)
         {
             var args = string.Join(" ", rawArgs);
-            return MvcHtmlString.Create(string.Format("{{{{{{RenderCallback \"{0}\" {1} }}}}}}", functionName, args));
+            return ts._("d.rc(w,'{0}',{1});", functionName, args);
         }
 
         /// <summary>
@@ -179,7 +172,7 @@ namespace PowerTables.Templating
         public static MvcHtmlString DestroyCallback(this ITemplatesScope ts, string functionName, params string[] rawArgs)
         {
             var args = string.Join(" ", rawArgs);
-            return MvcHtmlString.Create(string.Format("{{{{{{DestroyCallback \"{0}\" {1} }}}}}}", functionName, args));
+            return ts._("d.dc(w,'{0}',{1});", functionName, args);
         }
 
 

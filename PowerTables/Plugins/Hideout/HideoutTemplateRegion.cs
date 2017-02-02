@@ -41,7 +41,7 @@ namespace PowerTables.Plugins.Hideout
         /// Is column currently visible
         /// </summary>
         bool Visible { get; }
-        
+
         /// <summary>
         /// Raw column name
         /// </summary>
@@ -112,7 +112,7 @@ namespace PowerTables.Plugins.Hideout
         /// <param name="eventId">DOM event id</param>
         /// <param name="columnName">Column name to hide</param>
         /// <returns></returns>
-        public static MvcHtmlString BindHide<T>(this T t, string eventId,string columnName)
+        public static MvcHtmlString BindHide<T>(this T t, string eventId, string columnName)
             where T : IModelProvider<IHideoutViewModel>, IProvidesEventsBinding
         {
             return t.BindEvent("hideColumn", eventId, string.Format("\"{0}\"", columnName));
@@ -152,9 +152,9 @@ namespace PowerTables.Plugins.Hideout
         /// <param name="t"></param>
         /// <param name="columnName">Column name</param>
         /// <returns></returns>
-        public static HbTagRegion IfColumnVisible(this IModelProvider<IHideoutViewModel> t, string columnName)
+        public static CodeBlock IfColumnVisible(this IModelProvider<IHideoutViewModel> t, string columnName)
         {
-            return new HbTagRegion("ifColVisible",string.Format("\"{0}\"",columnName),t.Writer);
+            return new CodeBlock(string.Format("if (o.isColVisible('{0}')) {{ ", columnName), "}", t);
         }
     }
 }

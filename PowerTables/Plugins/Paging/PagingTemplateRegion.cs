@@ -20,32 +20,36 @@ namespace PowerTables.Plugins.Paging
         }
     }
 
-    public class PagingArrowsModeTemplate : HbTagRegion, IProvidesEventsBinding, IModelProvider<IArrowModeViewModel>
+    public class PagingArrowsModeTemplate : CodeBlock, IProvidesEventsBinding, IModelProvider<IArrowModeViewModel>
     {
-        public PagingArrowsModeTemplate(TextWriter writer)
-            : base("if", "Configuration.ArrowsMode", writer)
+        public PagingArrowsModeTemplate(IRawProvider writer)
+            : base("if(o.Configuration.ArrowsMode){","}", writer)
         {
         }
 
         public string ExistingModel { get; private set; }
+        public TextWriter Writer { get { return null; } }
     }
 
-    public class PagingPeriodsModeTemplate : HbTagRegion, IProvidesEventsBinding, IModelProvider<IPeriodsModeViewModel>
+    public class PagingPeriodsModeTemplate : CodeBlock, IProvidesEventsBinding, IModelProvider<IPeriodsModeViewModel>
     {
-        public PagingPeriodsModeTemplate(TextWriter writer)
-            : base("unless", "Configuration.ArrowsMode", writer)
+        public PagingPeriodsModeTemplate(IRawProvider writer)
+            : base("if(!o.Configuration.ArrowsMode){", "}", writer)
         {
         }
 
         public string ExistingModel { get; private set; }
+        public TextWriter Writer { get; }
     }
 
-    public class PagingGotoPageTemplate : HbTagRegion, IProvidesMarking, IProvidesEventsBinding, IProvidesVisualState
+    public class PagingGotoPageTemplate : CodeBlock, IProvidesMarking, IProvidesEventsBinding, IProvidesVisualState
     {
-        public PagingGotoPageTemplate(TextWriter writer)
-            : base("if", "Configuration.UseGotoPage", writer)
+        public PagingGotoPageTemplate(IRawProvider writer)
+            : base("if(o.Configuration.UseGotoPage)", "}", writer)
         {
         }
+
+        public TextWriter Writer { get; }
     }
 
     public interface IPagingViewModel
@@ -105,17 +109,17 @@ namespace PowerTables.Plugins.Paging
 
         public static PagingArrowsModeTemplate ArrowsMode(this PagingTemplateRegion pr)
         {
-            return new PagingArrowsModeTemplate(pr.Writer);
+            return new PagingArrowsModeTemplate(pr);
         }
 
         public static PagingPeriodsModeTemplate PeriodsMode(this PagingTemplateRegion pr)
         {
-            return new PagingPeriodsModeTemplate(pr.Writer);
+            return new PagingPeriodsModeTemplate(pr);
         }
 
         public static PagingGotoPageTemplate GotoPage(this PagingTemplateRegion pr)
         {
-            return new PagingGotoPageTemplate(pr.Writer);
+            return new PagingGotoPageTemplate(pr);
         }
 
         public static MvcHtmlString BindNextPage(this PagingTemplateRegion t, string eventId)

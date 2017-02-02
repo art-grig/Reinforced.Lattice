@@ -9,7 +9,7 @@ namespace PowerTables.Templating.BuiltIn
 
         public bool IsTrackSet { get; set; }
 
-        public MessageTemplateRegion(string prefix, string id, TextWriter writer)
+        public MessageTemplateRegion(string prefix, string id, ITemplatesScope writer)
             : base(prefix, id, writer)
         {
         }
@@ -45,7 +45,7 @@ namespace PowerTables.Templating.BuiltIn
     {
         public static MessageTemplateRegion Message(this ITemplatesScope t, string messageClass)
         {
-            return new MessageTemplateRegion(t.TemplatesPrefix, "ltmsg-" + messageClass, t.Output);
+            return new MessageTemplateRegion(t.TemplatesPrefix, "ltmsg-" + messageClass, t);
         }
     }
 }

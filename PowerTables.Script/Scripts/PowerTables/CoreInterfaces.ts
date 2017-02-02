@@ -48,6 +48,7 @@
          */
         init(masterTable: IMasterTable): void;
 
+        isLocation(loc:string):boolean;
 
     }
 

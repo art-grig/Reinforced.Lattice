@@ -3,24 +3,33 @@ using System.IO;
 
 namespace PowerTables.Templating
 {
-    public class TemplateRegion : IDisposable
+    public class TemplateRegion : IDisposable, ITemplateRegion
     {
-        private readonly TextWriter _writer;
+        private readonly ScopedWriter _writer;
+        private readonly ITemplatesScope _scope;
 
         public TextWriter Writer
         {
             get { return _writer; }
         }
 
-        internal TemplateRegion(string prefix, string id, TextWriter writer)
+        internal TemplateRegion(string prefix, string id, ITemplatesScope scope)
         {
-            _writer = writer;
-            _writer.Write(String.Format(@"<script id=""{0}-{1}"" type=""text/x-handlebars-template""><!--", prefix, id));
+            _writer = (ScopedWriter) scope.Out;
+            _scope = scope;
+            _writer.Write(string.Format(";_ltcTpl._('{0}','{1}',function(o,d,w) {{",prefix,id));
+            scope.CrunchingTemplate = true;
         }
 
         public virtual void Dispose()
         {
-            _writer.Write("--></script>");
+            _scope.CrunchingTemplate = false;
+            _writer.Write("});");
+        }
+
+        public virtual void Raw(string tplCode)
+        {
+            _writer.WriteRaw(tplCode);
         }
     }
 }

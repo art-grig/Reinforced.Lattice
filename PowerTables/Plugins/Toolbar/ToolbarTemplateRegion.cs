@@ -15,17 +15,16 @@ namespace PowerTables.Plugins.Toolbar
         }
     }
 
-    public class ButtonsSetTemplateRegion : HbTagRegion
-        , IModelProvider<ToolbarButtonClientConfiguration>
+    public class ButtonsSetTemplateRegion : ParametrizedCodeBlock<ToolbarButtonClientConfiguration>
         , IProvidesMarking
         , IProvidesEventsBinding
     {
-        public ButtonsSetTemplateRegion(TextWriter writer)
-            : base("each", "Configuration.Buttons", writer)
+        public ButtonsSetTemplateRegion(IRawProvider writer)
+            : base("for(var i=0;i<o.Configuration.Buttons.length;i++){var b=o.Configuration.Buttons[i];", "}", writer)
         {
         }
 
-        public string ExistingModel { get; private set; }
+        public override string ExistingModel { get { return "b"; } }
     }
 
     /// <summary>
@@ -58,7 +57,7 @@ namespace PowerTables.Plugins.Toolbar
         /// <returns></returns>
         public static ButtonsSetTemplateRegion Buttons(this ToolbarTemplateRegion t)
         {
-            return new ButtonsSetTemplateRegion(t.Writer);
+            return new ButtonsSetTemplateRegion(t);
         }
 
         /// <summary>

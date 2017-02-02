@@ -9,8 +9,8 @@ namespace PowerTables.Editing
     public class CellValidationMessagesTemplateRegion : TemplateRegion
         ,IModelProvider<IValidationMessagesViewModel>
     {
-        public CellValidationMessagesTemplateRegion(string prefix, string id, TextWriter writer)
-            : base(prefix, id, writer)
+        public CellValidationMessagesTemplateRegion(string prefix, string id, ITemplatesScope scope)
+            : base(prefix, id, scope)
         {
         }
 
@@ -35,7 +35,7 @@ namespace PowerTables.Editing
 
     public interface ISpecialInvalidStateViewModel
     {
-        [OverrideHbFieldName("renderedValidationMessages")]
+        [OverrideTplFieldName("renderedValidationMessages")]
         string ValidationMessages { get; }
     }
 
@@ -50,7 +50,7 @@ namespace PowerTables.Editing
         public static CellValidationMessagesTemplateRegion Editor_ValidationMessages(this IViewPlugins t,
             string templateId = "cellValidationMessages")
         {
-            return new CellValidationMessagesTemplateRegion(t.Model.Prefix, templateId, t.Writer);
+            return new CellValidationMessagesTemplateRegion(t.Model.Prefix, templateId, t.Scope);
         }
 
     }

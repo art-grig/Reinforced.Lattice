@@ -1,4 +1,6 @@
-﻿namespace PowerTables.Templating
+﻿using System.Web.Mvc;
+
+namespace PowerTables.Templating
 {
     /// <summary>
     /// Base template region for plugin
@@ -6,8 +8,10 @@
     public class PluginTemplateRegion : TemplateRegion, IProvidesEventsBinding, IProvidesMarking
     {
         public PluginTemplateRegion(IViewPlugins page, string id)
-            : base(page.Model.Prefix, id, page.Writer)
+            : base(page.Model.Prefix, id, page.Scope)
         {
         }
+
+        
     }
 }

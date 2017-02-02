@@ -11,7 +11,7 @@ namespace PowerTables.Templating.BuiltIn
 
         public bool IsTrackSet { get; set; }
 
-        public HeaderWrapperTemplateRegion(string prefix, string id, TextWriter writer) : base(prefix, id, writer)
+        public HeaderWrapperTemplateRegion(string prefix, string id, ITemplatesScope writer) : base(prefix, id, writer)
         {
         }
     }
@@ -87,7 +87,7 @@ namespace PowerTables.Templating.BuiltIn
     {
         public static HeaderWrapperTemplateRegion HeaderWrapper(this ITemplatesScope t, string templateId = "headerWrapper")
         {
-            return new HeaderWrapperTemplateRegion(t.TemplatesPrefix,templateId, t.Output);
+            return new HeaderWrapperTemplateRegion(t.TemplatesPrefix,templateId, t);
         }
     }
 }

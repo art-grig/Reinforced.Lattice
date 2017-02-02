@@ -6,22 +6,34 @@ namespace PowerTables.Templating
 {
     public class AdditionalTemplatesScope : ITemplatesScope, IDisposable
     {
-        public TextWriter Output { get { return _page.Output; } }
+        public TextWriter Out { get { return _page.Output; } }
         public string TemplatesPrefix { get { return _prefix; } }
         public IViewPlugins Plugin { get { return _classifier; } }
+        public bool CrunchingTemplate { get; set; }
+        public void Raw(string tplCode)
+        {
+            _hook.WriteRaw(tplCode);
+        }
+
         public void Dispose()
         {
-
+            _page.OutputStack.Pop();
+            _page.WriteLiteral("</script>");
         }
 
         private readonly WebViewPage _page;
         private readonly IViewPlugins _classifier;
         private readonly string _prefix;
+        private ScopedWriter _hook;
+
         public AdditionalTemplatesScope(WebViewPage page, string prefix)
         {
-            _classifier = new PluginsClassifier(page, new LatticeTemplatesViewModel() { Prefix = prefix });
+            _classifier = new PluginsClassifier(new LatticeTemplatesViewModel() { Prefix = prefix }, this);
             _page = page;
             _prefix = prefix;
+            _page.WriteLiteral("<script type=\"text/javascript\">");
+            _hook = new ScopedWriter(_page.Output, this);
+            _page.OutputStack.Push(_hook);
         }
     }
 }
