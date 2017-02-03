@@ -3,16 +3,20 @@
         private _ourColumn: IColumn;
 
         private redrawHeader() {
+            this._ourColumn.Header['IsAllSelected'] = this.MasterTable.Selection.isAllSelected();
+            this._ourColumn.Header['CanSelectAll'] = this.MasterTable.Selection.canSelectAll();
             this.MasterTable.Renderer.Modifier.redrawHeader(this._ourColumn);
         }
 
         public init(masterTable: IMasterTable): void {
             super.init(masterTable);
             this._ourColumn = this.MasterTable.InstanceManager.Columns['_checkboxify'];
+            var selectAll = (e) => this.MasterTable.Selection.toggleAll();
             var header: ISpecialHeader = {
                 Column: this._ourColumn,
                 renderContent: null,
-                renderElement: (tp) => tp.nest({ IsAllSelected: this.MasterTable.Selection.isAllSelected(), CanSelectAll: this.MasterTable.Selection.canSelectAll() }, this.Configuration.SelectAllTemplateId),
+                renderElement: null,
+                TemplateIdOverride: this.Configuration.SelectAllTemplateId,
                 selectAllEvent: (e) => this.MasterTable.Selection.toggleAll()
             }
             this._ourColumn.Header = header;
