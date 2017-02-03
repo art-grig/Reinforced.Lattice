@@ -12,6 +12,7 @@ module PowerTables.Templating {
                 MarkQueue: []
             };
             this.w = this.append.bind(this);
+            this.s = this.spaceW.bind(this);
             this.UiColumns = uiColumns();
             this.Executor = executor;
         }
@@ -19,6 +20,7 @@ module PowerTables.Templating {
         private _stack: PowerTables.Templating.RenderingStack;
         public Html: string = '';
         public w: IWriteFn;
+        public s: IWriteFn;
         public Model: any;
         public Type: RenderedObject;
         public BackInfo: PowerTables.Templating.IBackbindInfo;
@@ -28,14 +30,30 @@ module PowerTables.Templating {
         public ColumnRenderes: { [key: string]: (x: ICell) => string };
 
         private append(str: any): void {
-
             if (str == null || str == undefined) return;
-
             this.Html += str.toString();
         }
 
         public nest(data: any, templateId: string) {
             this.Executor.nest(data, templateId, this);
+        }
+
+        private static spc(num: number): string {
+            var r = '';
+            for (var i = 0; i < num; i++) {
+                r += ' ';
+            }
+            return r;
+        }
+
+        public spaceW() {
+            for (var i = 0; i < arguments.length; i++) {
+                if (typeof arguments[i] === "number") {
+                    this.w(TemplateProcess.spc(<number>arguments[i]));
+                } else {
+                    this.w(arguments[i]);
+                }
+            }
         }
 
         public nestElement(e: IRenderable, templateId: string, type: RenderedObject) {
@@ -79,7 +97,7 @@ module PowerTables.Templating {
             }
         }
 
-        public vstate(stateName: string, state: PowerTables.Templating.IState): void {
+        public vs(stateName: string, state: PowerTables.Templating.IState): void {
             state.Receiver = this.Model;
             if (!this.BackInfo.CachedVisualStates[stateName]) this.BackInfo.CachedVisualStates[stateName] = [];
             var index = this.BackInfo.CachedVisualStates[stateName].length;
@@ -88,7 +106,7 @@ module PowerTables.Templating {
             this.w(`data-state-${stateName}="${index}"`);
         }
 
-        public evt(commaSeparatedFunctions: string, commaSeparatedEvents: string, eventArgs: any[]): void {
+        public e(commaSeparatedFunctions: string, commaSeparatedEvents: string, eventArgs: any[]): void {
             var ed: PowerTables.Templating.IBackbindEvent = <PowerTables.Templating.IBackbindEvent>{
                 EventReceiver: this.Model,
                 Functions: commaSeparatedFunctions.split(','),
@@ -120,7 +138,7 @@ module PowerTables.Templating {
             this.w(`data-dcb="${index}"`);
         }
 
-        public mark(fieldName: string, key: string, receiverPath: string) {
+        public m(fieldName: string, key: string, receiverPath: string) {
             var index: number = this.BackInfo.MarkQueue.length;
             var receiver = this.Model;
             if (receiverPath != null) {
@@ -149,7 +167,7 @@ module PowerTables.Templating {
             }
         }
 
-        public track(): void {
+        public t(): void {
             var trk: string = this._stack.Current.CurrentTrack;
             if (trk.length === 0) return;
             this.w(`data-track="${trk}"`);

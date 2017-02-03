@@ -39,23 +39,76 @@ namespace PowerTables.Templating
         public static string Prettify(string str)
         {
             if (string.IsNullOrEmpty(str)) return String.Empty;
-            StringBuilder sb = new StringBuilder("w('");
+            StringBuilder sb = new StringBuilder("s(");
+            bool modeString = false;
+
             for (int i = 0; i < str.Length; i++)
             {
-                switch (str[i])
+                if (str[i] == ' ' && IsLongSpaces(str, i))
                 {
-                    case '\'': sb.Append("\\'"); break;
-                    case '\\': sb.Append("\\\\"); break;
-                    case '\r': sb.Append("\\r"); break;
-                    case '\n': sb.Append("\\n"); break;
-                    case '/': sb.Append("\\/"); break;
-                    default:
-                        sb.Append(str[i]);
-                        break;
+                    var spacesCnt = CrunchSpaces(str, i);
+                    if (modeString)
+                    {
+                        sb.Append("\',");
+                        modeString = false;
+                    }
+                    sb.Append(spacesCnt);
+                    i += spacesCnt;
+                }
+                else
+                {
+                    if (i == 0) sb.Append('\'');
+                    else if (!modeString) sb.Append(",\'");
+                    if (str[i] == '/')
+                    {
+                        if (IsScript(str, i)) sb.Append("\\/");
+                        else sb.Append('/');
+                    }
+                    else sb.SafeAppend(str[i]);
+                    modeString = true;
                 }
             }
-            sb.Append("');");
+            if (modeString) sb.Append('\'');
+            sb.Append(");");
             return sb.ToString();
+        }
+
+        private static void SafeAppend(this StringBuilder sb, char c)
+        {
+            switch (c)
+            {
+                case '\'': sb.Append("\\'"); break;
+                case '\\': sb.Append("\\\\"); break;
+                case '\r': sb.Append("\\r"); break;
+                case '\n': sb.Append("\\n"); break;
+                case '\t': sb.Append("\\t"); break;
+                default: sb.Append(c); break;
+            }
+        }
+
+        private static bool IsScript(string str, int idx)
+        {
+            return (str.IndexOf("/script", idx, StringComparison.OrdinalIgnoreCase) != -1);
+        }
+
+        private static bool IsLongSpaces(string str, int idx)
+        {
+            if (idx <= str.Length - 2)
+            {
+                return str[idx + 1] == ' ';
+            }
+            return false;
+        }
+        private static int CrunchSpaces(string str, int idx)
+        {
+            int result = 1;
+            idx++;
+            while (idx < str.Length && str[idx] == ' ')
+            {
+                result++;
+                idx++;
+            }
+            return result - 1;
         }
     }
 }

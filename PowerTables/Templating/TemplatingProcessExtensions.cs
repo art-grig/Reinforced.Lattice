@@ -28,7 +28,7 @@ namespace PowerTables.Templating
         public static SpecialString Mark(this IProvidesMarking t, string fieldName, string key = null, string receiver = null)
         {
             return
-                t._("p.mark('{0}',{1},{2});", fieldName, key.WrapQuotesOrNull(),
+                t._("p.m('{0}',{1},{2});", fieldName, key.WrapQuotesOrNull(),
                     receiver.WrapQuotesOrNull());
         }
 
@@ -45,7 +45,7 @@ namespace PowerTables.Templating
             visualState(vs);
             var json = JsonConvert.SerializeObject(vs.Description, Formatting.None);
             if (string.IsNullOrEmpty(json)) json = "null";
-            return state._("p.vstate('{0}',{1});", stateName, json);
+            return state._("p.vs('{0}',{1});", stateName, json);
         }
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace PowerTables.Templating
         {
             var json = JsonConvert.SerializeObject(visualState.Description, Formatting.None);
             if (string.IsNullOrEmpty(json)) json = "null";
-            return state._("p.vstate('{0}',{1});", stateName, json);
+            return state._("p.vs('{0}',{1});", stateName, json);
         }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace PowerTables.Templating
         /// <returns></returns>
         public static SpecialString BindEvent(this IProvidesEventsBinding t, string commaSeparatedFunction, string commaSeparatedEvents, params string[] arguments)
         {
-            return t._("p.evt('{0}','{1}',[{2}]);", commaSeparatedFunction, commaSeparatedEvents, arguments.Length == 0 ? "null" : string.Join(",", arguments));
+            return t._("p.e('{0}','{1}',[{2}]);", commaSeparatedFunction, commaSeparatedEvents, arguments.Length == 0 ? "null" : string.Join(",", arguments));
         }
 
         /// <summary>
@@ -125,7 +125,7 @@ namespace PowerTables.Templating
         public static SpecialString Track(this IProvidesTracking t)
         {
             t.IsTrackSet = true;
-            return t._("p.track();");
+            return t._("p.t();");
         }
 
     }

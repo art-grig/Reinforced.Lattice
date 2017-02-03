@@ -5,11 +5,11 @@
     }
 
     export interface ITemplateDel {
-        (data: any, driver: any, w: IWriteFn, p: TemplateProcess): void;
+        (data: any, driver: any, w: IWriteFn, p: TemplateProcess, s: IWriteFn): void;
     }
 
     export interface IWriteFn {
-        (str: string): void;
+        (str: string | number): void;
     }
 
     export interface ITemplateResult {
