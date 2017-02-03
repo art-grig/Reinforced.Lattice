@@ -321,7 +321,7 @@
                         </a>
                     </li>
                 }
-                using (itm.Unless(c => c.Visible))
+                using (itm.If(c => !c.Visible))
                 {
                     <li @itm.BindShow("click")>
                         <a style="cursor: pointer;">
@@ -390,7 +390,7 @@
     <div class="btn-group">
         @using (var btn = t.Buttons())
         {
-            using (btn.Unless(c => c.HasSubmenu))
+            using (btn.If(c => !c.HasSubmenu))
             {
                 using (btn.If(c => c.IsDisabled))
                 {

@@ -199,14 +199,29 @@
         private _autoformFields: { [_: string]: PowerTables.Editing.IEditFieldUiConfigBase } = {};
 
         public rendered() {
-            for (var ae in this.ActiveEditors) {
-                var k = this.ActiveEditors[ae].FieldName;
-                this.ActiveEditors[ae].setValue(this.DataObject[k]);
+            this.stripNotRenderedEditors();
+            for (var i = 0; i < this.ActiveEditors.length; i++) {
+                var k = this.ActiveEditors[i].FieldName;
+                this.ActiveEditors[i].setValue(this.DataObject[k]);
             }
+
             this.initFormWatchDatepickers(this.RootElement);
             this.loadContent();
             if (this._config.Details != null && this._config.Details != undefined) {
                 if (this._config.Details.LoadImmediately) this.loadDetailsInternal();
+            }
+        }
+
+        private stripNotRenderedEditors() {
+            var newEditors = [];
+            for (var i = 0; i < this.ActiveEditors.length; i++) {
+                if (this.ActiveEditors[i]["_IsRendered"]) newEditors.push(this.ActiveEditors[i]);
+            }
+            if (newEditors.length === this.ActiveEditors.length) return;
+            this.ActiveEditors = newEditors;
+            this.EditorsSet = {};
+            for (var j = 0; j < newEditors.length; j++) {
+                this.EditorsSet[newEditors[j].FieldName] = newEditors[j];
             }
         }
 
@@ -320,7 +335,7 @@
                 } else {
                     if (this._config.Details.TempalteId != null && this._config.Details.TempalteId != undefined) {
                         if (this.RecentDetails.Data != null) {
-                            this.MasterTable.Renderer.destroyAtElement(this.DetailsPlaceholder);
+                            this.MasterTable.Renderer.Modifier.destroyElement(this.DetailsPlaceholder);
                         }
                         var param = {
                             Subject: this.Subject,
@@ -339,7 +354,7 @@
             }
             this._detailsLoaded = true;
             this.RecentDetails.Data = detailsResult;
-            
+
             if (this.VisualStates != null) this.VisualStates.unmixinState('detailsLoading');
             if (this._config.Autoform != null && this._config.Autoform.DisableWhileDetailsLoading) {
                 for (var i = 0; i < this.ActiveEditors.length; i++) {
@@ -430,14 +445,14 @@
                     this.RootElement = null;
                     this.ContentPlaceholder = null;
                     this.DetailsPlaceholder = null;
-                    this.MasterTable.Renderer.destroyObject(this._commandDescription.Confirmation.TargetSelector);
+                    this.MasterTable.Renderer.Modifier.cleanSelector(this._commandDescription.Confirmation.TargetSelector);
                     if (this._originalCallback) this._originalCallback(params);
                 });
         }
 
         public dismiss() {
-           var params = this.collectCommandParameters();
-            this.MasterTable.Renderer.destroyObject(this._commandDescription.Confirmation.TargetSelector);
+            var params = this.collectCommandParameters();
+            this.MasterTable.Renderer.Modifier.cleanSelector(this._commandDescription.Confirmation.TargetSelector);
             this.RootElement = null;
             this.ContentPlaceholder = null;
             this.DetailsPlaceholder = null;
@@ -449,22 +464,21 @@
         public EditorsSet: { [key: string]: PowerTables.Editing.IEditor } = {};
         public ActiveEditors: PowerTables.Editing.IEditor[] = [];
 
-        public Editors(): string {
-            var s = '';
+        public Editors(p:PowerTables.Templating.TemplateProcess): void {
             for (var i = 0; i < this.ActiveEditors.length; i++) {
-                s += this.editor(this.ActiveEditors[i]);
+                this.editor(p,this.ActiveEditors[i]);
             }
-            return s;
         }
 
-        private editor(editor: PowerTables.Editing.IEditor): string {
-            return this.MasterTable.Renderer.renderObjectContent(editor);
+        private editor(p: PowerTables.Templating.TemplateProcess,editor: PowerTables.Editing.IEditor): void {
+            editor['_IsRendered'] = true;
+            editor.renderContent(p);
         }
 
-        public Editor(fieldName: string): string {
+        public Editor(p: PowerTables.Templating.TemplateProcess,fieldName: string): void {
             var editor = this.EditorsSet[fieldName];
-            if (editor == null || editor == undefined) return '';
-            return this.editor(editor);
+            if (editor == null || editor == undefined) return;
+            this.editor(p,editor);
         }
 
         private createEditor(fieldName: string, column: IColumn): PowerTables.Editing.IEditor {
@@ -533,7 +547,7 @@
             }
             if (this._config.Details != null && this._config.Details != undefined) {
                 if ((!this._config.Details.LoadOnce) || (!this._detailsLoaded)) {
-                    this.loadDetails();        
+                    this.loadDetails();
                 }
             }
         }

@@ -28,6 +28,7 @@ namespace PowerTables.Editing
 
         bool CanComplete { get; }
 
+        [OverrideTplFieldName("OriginalContent(p)")]
         object OriginalContent { get; }
     }
 
@@ -41,6 +42,7 @@ namespace PowerTables.Editing
 
         bool CanComplete { get; }
 
+        [OverrideTplFieldName("OriginalContent(p)")]
         object OriginalContent { get; }
     }
 
@@ -49,39 +51,39 @@ namespace PowerTables.Editing
     {
        
 
-        public static MvcHtmlString WhenSaving<T>(this CellEditorTemplateRegionBase<T> t, Action<VisualState> state) where T : ICellEditorViewModel
+        public static SpecialString WhenSaving<T>(this CellEditorTemplateRegionBase<T> t, Action<VisualState> state) where T : ICellEditorViewModel
         {
             return t.State("saving", state);
         }
 
-        public static MvcHtmlString WhenValidating<T>(this CellEditorTemplateRegionBase<T> t, Action<VisualState> state) where T : ICellEditorViewModel
+        public static SpecialString WhenValidating<T>(this CellEditorTemplateRegionBase<T> t, Action<VisualState> state) where T : ICellEditorViewModel
         {
             return t.State("validating", state);
         }
 
-        public static MvcHtmlString Datepicker<T>(this CellEditorTemplateRegionBase<T> t) where T : ICellEditorViewModel
+        public static SpecialString Datepicker<T>(this CellEditorTemplateRegionBase<T> t) where T : ICellEditorViewModel
         {
             return t.DatepickerIf(t.Property(c => c.Column.IsDateTime), t.Property(c => c.Column.Configuration.IsNullable));
         }
 
-        public static MvcHtmlString BindChanged<T>(this CellEditorTemplateRegionBase<T> t,string eventId) where T : ICellEditorViewModel
+        public static SpecialString BindChanged<T>(this CellEditorTemplateRegionBase<T> t,string eventId) where T : ICellEditorViewModel
         {
             return t.BindEvent("changedHandler", eventId);
         }
 
-        public static MvcHtmlString BindCommit<T>(this CellEditorTemplateRegionBase<T> t, string eventId) where T : ICellEditorViewModel
+        public static SpecialString BindCommit<T>(this CellEditorTemplateRegionBase<T> t, string eventId) where T : ICellEditorViewModel
         {
             return t.BindEvent("commitHandler", eventId);
         }
 
-        public static MvcHtmlString BindReject<T>(this CellEditorTemplateRegionBase<T> t, string eventId) where T : ICellEditorViewModel
+        public static SpecialString BindReject<T>(this CellEditorTemplateRegionBase<T> t, string eventId) where T : ICellEditorViewModel
         {
             return t.BindEvent("rejectHandler", eventId);
         }
 
-        public static MvcHtmlString OriginalContent<T>(this CellEditorTemplateRegionBase<T> t) where T : ICellEditorViewModel
+        public static SpecialString OriginalContent<T>(this CellEditorTemplateRegionBase<T> t) where T : ICellEditorViewModel
         {
-            return MvcHtmlString.Create("{{{OriginalContent}}}");
+            return t.Raw("o.OriginalContent(p);");
         }
     }
 }

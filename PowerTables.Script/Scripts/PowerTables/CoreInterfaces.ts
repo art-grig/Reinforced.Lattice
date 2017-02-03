@@ -48,7 +48,6 @@
          */
         init(masterTable: IMasterTable): void;
 
-
     }
 
     /**
@@ -176,14 +175,14 @@
 		* @param templatesProvider Cached templates provider
 		* @returns String containing HTML code for element
 		*/
-        renderElement?: (templatesProvider: ITemplatesProvider) => string;
+        renderElement?: (templateProcess: PowerTables.Templating.TemplateProcess) => void;
         /**
 		* Renders element to HTML string using templates provider
 		*
 		* @param templatesProvider Cached templates provider
 		* @returns String containing HTML code for element
 		*/
-        renderContent?: (templatesProvider: ITemplatesProvider) => string;
+        renderContent?: (templateProcess: PowerTables.Templating.TemplateProcess) => void;
     }
 
     /** 
@@ -298,25 +297,7 @@
     }
 
     export interface ITemplatesProvider {
-        /** 
-         * Current handlebars.js engine instance 
-         */
-        HandlebarsInstance: Handlebars.IHandlebars;
-        /**
-		* Retrieves cached template handlebars function
-		*
-		* @param templateId Template id
-		* @returns Handlebars function
-		*/
-        getCachedTemplate(templateId: string): (arg: any) => string;
-
-        /**
-         * Determines whether template id is present and cached
-         * 
-         * @param templateId 
-         * @returns {} 
-         */
-        hasCachedTemplate(templateId: string): boolean;
+        Executor: PowerTables.Templating.TemplatesExecutor;
     }
 
     export interface IColumn {
@@ -674,5 +655,29 @@
         PreviousTake: number;
         Skip: number;
         Take:number;
+    }
+    /**
+    * Event that was bound from template
+    */
+    export interface ITemplateBoundEvent {
+        /**
+         * Element triggered particular event
+         */
+        Element: HTMLElement;
+
+        /**
+         * Original DOM event
+         */
+        EventObject: Event;
+
+        /**
+         * Event received (to avoid using "this" in come cases)
+         */
+        Receiver: any;
+
+        /**
+         * Event argumetns
+         */
+        EventArguments: any[];
     }
 }

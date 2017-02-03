@@ -80,10 +80,21 @@
             this._currentForm = vm;
             this._currentFormElement = this.MasterTable.Renderer.renderObject(this.Configuration.FormTemplateId, vm, this.Configuration.FormTargetSelector);
             vm.RootElement = this._currentFormElement;
+            this.stripNotRenderedEditors();
             for (var j = 0; j < this._activeEditors.length; j++) {
                 this.setEditorValue(this._activeEditors[j]);
             }
         }
+
+        private stripNotRenderedEditors() {
+            var newEditors = [];
+            for (var i = 0; i < this._activeEditors.length; i++) {
+                if (this._activeEditors[i]["_IsRendered"]) newEditors.push(this._activeEditors[i]);
+            }
+            if (newEditors.length === this._activeEditors.length) return;
+            this._activeEditors = newEditors;
+        }
+
 
         public commitAll() {
             this.ValidationMessages = [];
@@ -115,7 +126,7 @@
                 if (!this._isEditing) {
                     this.MasterTable.Events.Edit.invokeAfter(this, this.CurrentDataObjectModified);
                     this.CurrentDataObjectModified = null;
-                    this.MasterTable.Renderer.destroyObject(this.Configuration.FormTargetSelector);
+                    this.MasterTable.Renderer.Modifier.cleanSelector(this.Configuration.FormTargetSelector);
                     this._currentFormElement = null;
                     this._currentForm = null;
                 }
@@ -128,7 +139,7 @@
             }
             this._isEditing = false;
             this.CurrentDataObjectModified = null;
-            this.MasterTable.Renderer.destroyObject(this.Configuration.FormTargetSelector);
+            this.MasterTable.Renderer.Modifier.cleanSelector(this.Configuration.FormTargetSelector);
             this._currentFormElement = null;
             this._currentForm = null;
         }
@@ -172,21 +183,20 @@
         public RootElement: HTMLElement;
         public DataObject: any;
 
-        public Editors(): string {
-            var s = '';
+        public Editors(p:PowerTables.Templating.TemplateProcess): void {
             for (var i = 0; i < this.ActiveEditors.length; i++) {
-                s += this.editor(this.ActiveEditors[i]);
+                this.editor(p,this.ActiveEditors[i]);
             }
-            return s;
         }
 
-        private editor(editor: IEditor): string {
-            return this.Handler.MasterTable.Renderer.renderObjectContent(editor);
+        private editor(p: PowerTables.Templating.TemplateProcess,editor: IEditor): void {
+            editor['_IsRendered'] = true;
+            editor.renderContent(p);
         }
 
-        public Editor(fieldName: string): string {
+        public Editor(p: PowerTables.Templating.TemplateProcess,fieldName: string): void {
             var editor = this.EditorsSet[fieldName];
-            return this.editor(editor);
+            this.editor(p,editor);
         }
 
         public commit() {

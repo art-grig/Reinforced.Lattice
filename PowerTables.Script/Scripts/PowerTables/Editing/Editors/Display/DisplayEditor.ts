@@ -5,13 +5,13 @@
 
         private _previousContent: string;
 
-        public renderContent(templatesProvider: ITemplatesProvider): string {
-            return this.defaultRender(templatesProvider);
+        public renderContent(p: PowerTables.Templating.TemplateProcess): void {
+            this.defaultRender(p);
         }
 
-        public Render(): string {
+        public Render(p:PowerTables.Templating.TemplateProcess): void {
             this._previousContent = this.Configuration.Template(this);
-            return this._previousContent;
+            p.w(this._previousContent);
         }
 
         notifyObjectChanged(): void {

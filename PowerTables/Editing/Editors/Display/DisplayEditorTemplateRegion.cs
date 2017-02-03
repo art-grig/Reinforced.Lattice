@@ -41,12 +41,12 @@ namespace PowerTables.Editing.Editors.Display
         }
 
 
-        public static MvcHtmlString Render<T>(this DisplayEditorTemplateRegion<T> c)
+        public static SpecialString Render<T>(this DisplayEditorTemplateRegion<T> c)
         {
-            return MvcHtmlString.Create("{{{Render}}}");
+            return c.Raw("o.Render(p);");
         }
 
-        public static MvcHtmlString ThisIsContentParent<T>(this DisplayEditorTemplateRegion<T> c)
+        public static SpecialString ThisIsContentParent<T>(this DisplayEditorTemplateRegion<T> c)
         {
             return c.Mark("ContentElement");
         }

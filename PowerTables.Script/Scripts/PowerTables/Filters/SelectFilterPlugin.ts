@@ -62,9 +62,9 @@
         /**
          * @internal
          */
-        public renderContent(templatesProvider: ITemplatesProvider): string {
-            if (this.Configuration.Hidden) return '';
-            return this.defaultRender(templatesProvider);
+        public renderContent(p: PowerTables.Templating.TemplateProcess): void {
+            if (this.Configuration.Hidden) return;
+            this.defaultRender(p);
         }
 
         /**

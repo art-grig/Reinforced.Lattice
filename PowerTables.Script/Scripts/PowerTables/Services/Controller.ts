@@ -180,12 +180,12 @@ module PowerTables.Services {
                 Cells: null
             };
 
-            if (dataObject.IsMessageObject) {
-                dataObject.UiColumnsCount = columns.length;
-                rw.renderElement = hb => hb.getCachedTemplate('messages')(dataObject);
-                rw.IsSpecial = true;
-                return rw;
-            }
+            //if (dataObject.IsMessageObject) {
+            //    dataObject.UiColumnsCount = columns.length;
+            //    rw.renderElement = hb => hb.getCachedTemplate('messages')(dataObject);
+            //    rw.IsSpecial = true;
+            //    return rw;
+            //}
             var cells: { [key: string]: ICell } = {};
 
 

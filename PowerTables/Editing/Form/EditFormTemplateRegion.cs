@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Web.Mvc;
 using PowerTables.Plugins.Toolbar;
 using PowerTables.Templating;
+using PowerTables.Templating.Handlebars;
 
 namespace PowerTables.Editing.Form
 {
@@ -31,9 +32,9 @@ namespace PowerTables.Editing.Form
 
     public static class EditFormExtensions
     {
-        public static EditFormTemplateRegion<dynamic> Edit_Form(this IViewPlugins p, string templateId = "editForm")
+        public static EditFormTemplateRegion<IJsObject> Edit_Form(this IViewPlugins p, string templateId = "editForm")
         {
-            return new EditFormTemplateRegion<dynamic>(p, templateId);
+            return new EditFormTemplateRegion<IJsObject>(p, templateId);
         }
 
         public static EditFormTemplateRegion<TRow> Edit_Form<TRow>(this IViewPlugins p, string templateId = "editForm")
@@ -41,30 +42,30 @@ namespace PowerTables.Editing.Form
             return new EditFormTemplateRegion<TRow>(p, templateId);
         }
 
-        public static MvcHtmlString BindCommit<TRow>(this  EditFormTemplateRegion<TRow> p, string eventId)
+        public static SpecialString BindCommit<TRow>(this  EditFormTemplateRegion<TRow> p, string eventId)
         {
             return p.BindEvent("commit", eventId);
         }
 
-        public static MvcHtmlString BindReject<TRow>(this  EditFormTemplateRegion<TRow> p, string eventId)
+        public static SpecialString BindReject<TRow>(this  EditFormTemplateRegion<TRow> p, string eventId)
         {
             return p.BindEvent("reject", eventId);
         }
 
-        public static MvcHtmlString Editors<TRow>(this  EditFormTemplateRegion<TRow> p)
+        public static SpecialString Editors<TRow>(this  EditFormTemplateRegion<TRow> p)
         {
-            return MvcHtmlString.Create("{{{ Editors }}}");
+            return p._("o.Editors(p);");
         }
 
-        public static MvcHtmlString EditorFor<TRow, TData>(this  EditFormTemplateRegion<TRow> p, Expression<Func<TRow, TData>> field)
+        public static SpecialString EditorFor<TRow, TData>(this  EditFormTemplateRegion<TRow> p, Expression<Func<TRow, TData>> field)
         {
             var name = LambdaHelpers.ParsePropertyLambda(field).Name;
             return EditorFor(p, name);
         }
 
-        public static MvcHtmlString EditorFor<TRow>(this  EditFormTemplateRegion<TRow> p, string fieldName)
+        public static SpecialString EditorFor<TRow>(this  EditFormTemplateRegion<TRow> p, string fieldName)
         {
-            return MvcHtmlString.Create(string.Format("{{{{{{Editor \"{0}\"}}}}}}", fieldName));
+            return p._("o.Editors(p,'{0}');",fieldName);
         }
     }
 }

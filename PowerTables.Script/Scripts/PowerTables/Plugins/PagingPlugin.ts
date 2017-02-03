@@ -58,7 +58,7 @@
             this.MasterTable.Controller.reload();
         }
 
-        public gotoPageClick(e: Rendering.ITemplateBoundEvent) {
+        public gotoPageClick(e: PowerTables.ITemplateBoundEvent) {
             if (this.GotoInput) {
                 var v: string = this.GotoInput.value;
                 v = (parseInt(v) - 1).toString();
@@ -66,15 +66,15 @@
             }
         }
 
-        public navigateToPage(e: Rendering.ITemplateBoundEvent) {
+        public navigateToPage(e: PowerTables.ITemplateBoundEvent) {
             this.goToPage(e.EventArguments[0]);
         }
 
-        public nextClick(e: Rendering.ITemplateBoundEvent) {
+        public nextClick(e: PowerTables.ITemplateBoundEvent) {
             if (this._selectedPage < this._totalPages) this.goToPage((this._selectedPage + 1).toString());
         }
 
-        public previousClick(e: Rendering.ITemplateBoundEvent) {
+        public previousClick(e: PowerTables.ITemplateBoundEvent) {
             if (this._selectedPage > 0) this.goToPage((this._selectedPage - 1).toString());
         }
 
@@ -125,9 +125,9 @@
             }
         }
 
-        public renderContent(templatesProvider: ITemplatesProvider): string {
+        public renderContent(p:PowerTables.Templating.TemplateProcess): void {
             this.constructPagesElements();
-            return templatesProvider.getCachedTemplate('paging')(this);
+            super.defaultRender(p);
         }
 
         public validateGotopage() {

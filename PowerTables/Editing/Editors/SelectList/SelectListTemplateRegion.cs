@@ -34,12 +34,12 @@ namespace PowerTables.Editing.Editors.SelectList
             return new SelectListTemplateRegion(t, templateId);
         }
 
-        public static MvcHtmlString ThisIsList(this SelectListTemplateRegion t)
+        public static SpecialString ThisIsList(this SelectListTemplateRegion t)
         {
             return t.Mark("List");
         }
 
-        public static MvcHtmlString WhenSelected(this SelectListTemplateRegion t, Action<SpecialVisualStateDescription<ISelectedStateViewModel>> action)
+        public static SpecialString WhenSelected(this SelectListTemplateRegion t, Action<SpecialVisualStateDescription<ISelectedStateViewModel>> action)
         {
             return t.State("selected", VisualState.FromSpecialDelegate(action));
         }

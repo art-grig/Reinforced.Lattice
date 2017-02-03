@@ -15,17 +15,16 @@ namespace PowerTables.Plugins.Toolbar
         }
     }
 
-    public class ButtonsSetTemplateRegion : HbTagRegion
-        , IModelProvider<ToolbarButtonClientConfiguration>
+    public class ButtonsSetTemplateRegion : ParametrizedCodeBlock<ToolbarButtonClientConfiguration>
         , IProvidesMarking
         , IProvidesEventsBinding
     {
-        public ButtonsSetTemplateRegion(TextWriter writer)
-            : base("each", "Configuration.Buttons", writer)
+        public ButtonsSetTemplateRegion(IRawProvider writer)
+            : base("for(var i=0;i<o.Configuration.Buttons.length;i++){var b=o.Configuration.Buttons[i];", "}", writer)
         {
         }
 
-        public string ExistingModel { get; private set; }
+        public override string ExistingModel { get { return "b"; } }
     }
 
     /// <summary>
@@ -58,7 +57,7 @@ namespace PowerTables.Plugins.Toolbar
         /// <returns></returns>
         public static ButtonsSetTemplateRegion Buttons(this ToolbarTemplateRegion t)
         {
-            return new ButtonsSetTemplateRegion(t.Writer);
+            return new ButtonsSetTemplateRegion(t);
         }
 
         /// <summary>
@@ -67,11 +66,11 @@ namespace PowerTables.Plugins.Toolbar
         /// <param name="m"></param>
         /// <param name="eventId">DOM event</param>
         /// <returns></returns>
-        public static MvcHtmlString BindButton(this ButtonsSetTemplateRegion m, string eventId)
+        public static SpecialString BindButton(this ButtonsSetTemplateRegion m, string eventId)
         {
             var mark = m.Mark("AllButtons", m.Property(c => c.InternalId));
             var events = m.BindEvent("buttonHandleEvent", eventId, m.Property(c => c.InternalId));
-            return MvcHtmlString.Create(mark + " " + events);
+            return m._(mark + " " + events);
         }
     }
 

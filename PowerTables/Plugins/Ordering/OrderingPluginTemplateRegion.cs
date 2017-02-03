@@ -15,8 +15,9 @@ namespace PowerTables.Plugins.Ordering
         public string ExistingModel { get; private set; }
 
         public OrderingPluginTemplateRegion(IViewPlugins page, string id)
-            : base(page, id)
+            : base(page, id,TemplateRegionType.Header)
         {
+            
         }
     }
 
@@ -66,7 +67,7 @@ namespace PowerTables.Plugins.Ordering
         /// <param name="p"></param>
         /// <param name="commaSeparatedEvents">DOM events</param>
         /// <returns></returns>
-        public static MvcHtmlString BindSwitchOrdering(this OrderingPluginTemplateRegion p, string commaSeparatedEvents)
+        public static SpecialString BindSwitchOrdering(this OrderingPluginTemplateRegion p, string commaSeparatedEvents)
         {
             return p.BindEvent("switchOrdering", commaSeparatedEvents);
         }

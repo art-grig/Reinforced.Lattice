@@ -6,28 +6,21 @@
         /*
         * @internal
         */
-        constructor(stack: RenderingStack, locator: DOMLocator, backBinder: BackBinder, templatesProvider: ITemplatesProvider, layoutRenderer: LayoutRenderer, instances: PowerTables.Services.InstanceManagerService, ed: PowerTables.Services.EventsDelegatorService,
-            contentRenderer: ContentRenderer, bodyElement: HTMLElement) {
-            this._stack = stack;
+        constructor(executor: PowerTables.Templating.TemplatesExecutor, locator: DOMLocator, backBinder: BackBinder, instances: PowerTables.Services.InstanceManagerService, ed: PowerTables.Services.EventsDelegatorService,bodyElement:HTMLElement) {
             this._locator = locator;
             this._backBinder = backBinder;
-            this._templatesProvider = templatesProvider;
-            this._layoutRenderer = layoutRenderer;
             this._instances = instances;
             this._ed = ed;
-            this._contentRenderer = contentRenderer;
+            this._tpl = executor;
             this._bodyElement = bodyElement;
         }
 
+        private _tpl: PowerTables.Templating.TemplatesExecutor;
         private _ed: PowerTables.Services.EventsDelegatorService;
-        private _stack: RenderingStack;
         private _locator: DOMLocator;
         private _backBinder: BackBinder;
-        private _templatesProvider: ITemplatesProvider;
-        private _layoutRenderer: LayoutRenderer;
-        private _contentRenderer: ContentRenderer;
         private _instances: PowerTables.Services.InstanceManagerService;
-        private _bodyElement: HTMLElement;
+        private _bodyElement:HTMLElement;
 
 
         //#region Show/hide infrastructure
@@ -72,8 +65,15 @@
                 el.style.display = display;
             }
         }
+        public cleanSelector(targetSelector: string) {
+            var parent = <HTMLElement>document.querySelector(targetSelector);
+            for (var i = 0; i < parent.children.length; i++) {
+                this._ed.handleElementDestroy(<HTMLElement>parent.children.item(i));
+            }
+            parent.innerHTML = '';
+        }
 
-        private destroyElement(element: HTMLElement) {
+        public destroyElement(element: HTMLElement) {
             element.parentElement.removeChild(element);
             this._ed.handleElementDestroy(element);
         }
@@ -107,18 +107,20 @@
          * @returns {} 
          */
         public redrawPlugin(plugin: IPlugin): HTMLElement {
-            this._stack.clear();
             var oldPluginElement: HTMLElement = this._locator.getPluginElement(plugin);
-            var html: string = this._layoutRenderer.renderPlugin(plugin);
-            var newPluginElement = this.replaceElement(oldPluginElement, html);;
-            this._backBinder.backBind(newPluginElement);
+            var t = this._tpl.beginProcess();
+            PowerTables.Templating.Driver.renderPlugin(t, plugin);
+            var result = this._tpl.endProcess(t);
+            var newPluginElement = this.replaceElement(oldPluginElement, result.Html);
+            this._backBinder.backBind(newPluginElement, result.BackbindInfo);
             return newPluginElement;
         }
 
         public renderPlugin(plugin: IPlugin): HTMLElement {
-            this._stack.clear();
-            var html: string = this._layoutRenderer.renderPlugin(plugin);
-            return this.createElement(html);
+            var t = this._tpl.beginProcess();
+            PowerTables.Templating.Driver.renderPlugin(t, plugin);
+            var result = this._tpl.endProcess(t);
+            return this.createElement(result.Html);
         }
 
         /**
@@ -181,22 +183,12 @@
          * @returns {} 
          */
         public redrawRow(row: IRow): HTMLElement {
+            var p = this._tpl.beginProcess();
+            PowerTables.Templating.Driver.row(p, row);
+            var result = this._tpl.endProcess(p);
             var oldElement: HTMLElement = this._locator.getRowElement(row);
-            if (!oldElement) return null;
-
-            this._stack.clear();
-            this._stack.push(RenderingContextType.Row, row);
-            var wrapper: (arg: any) => string = this._templatesProvider.getCachedTemplate('rowWrapper');
-            var html: string;
-            if (row.renderElement) {
-                html = row.renderElement(this._templatesProvider);
-            } else {
-                html = wrapper(row);
-            }
-            this._stack.popContext();
-
-            var newElem = this.replaceElement(oldElement, html);
-            this._backBinder.backBind(newElem);
+            var newElem = this.replaceElement(oldElement, result.Html);
+            this._backBinder.backBind(newElem, result.BackbindInfo);
             return newElem;
         }
 
@@ -226,16 +218,10 @@
          * @returns {} 
          */
         public appendRow(row: IRow, beforeRowAtIndex?: number): HTMLElement {
-            this._stack.clear();
-            this._stack.push(RenderingContextType.Row, row);
-            var wrapper: (arg: any) => string = this._templatesProvider.getCachedTemplate('rowWrapper');
-            var html: string;
-            if (row.renderElement) {
-                html = row.renderElement(this._templatesProvider);
-            } else {
-                html = wrapper(row);
-            }
-            var newRowElement: HTMLElement = this.createElement(html);
+            var p = this._tpl.beginProcess();
+            PowerTables.Templating.Driver.row(p, row);
+            var result = this._tpl.endProcess(p);
+            var newRowElement: HTMLElement = this.createElement(result.Html);
 
             if (beforeRowAtIndex != null && beforeRowAtIndex != undefined) {
                 var referenceNode: HTMLElement = this._locator.getRowElementByIndex(beforeRowAtIndex);
@@ -243,9 +229,7 @@
             } else {
                 this._bodyElement.appendChild(newRowElement);
             }
-            this._backBinder.backBind(newRowElement);
-            this._stack.popContext();
-            this._stack.clear();
+            this._backBinder.backBind(newRowElement,result.BackbindInfo);
             return newRowElement;
         }
 
@@ -256,27 +240,17 @@
          * @returns {} 
          */
         public prependRow(row: IRow): HTMLElement {
-            this._stack.clear();
-            this._stack.push(RenderingContextType.Row, row);
-            var wrapper: (arg: any) => string = this._templatesProvider.getCachedTemplate('rowWrapper');
-            var html: string;
-            if (row.renderElement) {
-                html = row.renderElement(this._templatesProvider);
-            } else {
-                html = wrapper(row);
-            }
-            var newRowElement: HTMLElement = this.createElement(html);
-
+            var p = this._tpl.beginProcess();
+            PowerTables.Templating.Driver.row(p, row);
+            var result = this._tpl.endProcess(p);
+            var newRowElement: HTMLElement = this.createElement(result.Html);
             if (this._bodyElement.childElementCount === 0) {
                 this._bodyElement.appendChild(newRowElement);
             } else {
                 var referenceNode: HTMLElement = <HTMLElement>this._bodyElement.children.item(0);
                 referenceNode.parentNode.insertBefore(newRowElement, referenceNode);
             }
-
-            this._backBinder.backBind(newRowElement);
-            this._stack.popContext();
-            this._stack.clear();
+            this._backBinder.backBind(newRowElement,result.BackbindInfo);
             return newRowElement;
         }
 
@@ -308,14 +282,12 @@
 
         //#region Cells
         public redrawCell(cell: ICell): HTMLElement {
+            var p = this._tpl.beginProcess();
+            PowerTables.Templating.Driver.cell(p, cell);
+            var result = this._tpl.endProcess(p);
             var oldElement: HTMLElement = this._locator.getCellElement(cell);
-            if (!oldElement) return null;
-
-            var wrapper: (arg: any) => string = this._templatesProvider.getCachedTemplate('cellWrapper');
-            var html = this._contentRenderer.renderCellAsPartOfRow(cell, wrapper);
-
-            var newElem = this.replaceElement(oldElement, html);
-            this._backBinder.backBind(newElem);
+            var newElem = this.replaceElement(oldElement, result.Html);
+            this._backBinder.backBind(newElem, result.BackbindInfo);
             return newElem;
         }
 
@@ -375,14 +347,13 @@
          * @param column Column which header is to be redrawn         
          */
         public redrawHeader(column: IColumn): HTMLElement {
+            var p = this._tpl.beginProcess();
+            PowerTables.Templating.Driver.header(p, column);
+            var result = this._tpl.endProcess(p);
+
             var oldHeaderElement: HTMLElement = this._locator.getHeaderElement(column.Header);
-            if (!oldHeaderElement) return null;
-
-            this._stack.clear();
-            var html: string = this._layoutRenderer.renderHeader(column);
-
-            var newElement: HTMLElement = this.replaceElement(oldHeaderElement, html);
-            this._backBinder.backBind(newElement);
+            var newElement: HTMLElement = this.replaceElement(oldHeaderElement, result.Html);
+            this._backBinder.backBind(newElement, result.BackbindInfo);
             return newElement;
         }
 

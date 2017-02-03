@@ -9,9 +9,9 @@
             this.MasterTable.Controller.reload(this.Configuration.ForceReload);
         }
 
-        public renderContent(templatesProvider: ITemplatesProvider): string {
-            if (this._renderedExternally) return '';
-            return this.defaultRender(templatesProvider);
+        public renderContent(p: PowerTables.Templating.TemplateProcess): void {
+            if (this._renderedExternally) return;
+            this.defaultRender(p);
         }
 
         public startLoading() {
