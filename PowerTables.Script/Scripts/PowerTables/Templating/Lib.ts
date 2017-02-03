@@ -9,12 +9,12 @@ module PowerTables.Templating {
             _ltcTpl._lib[prefix].Templates[id] = tpl;
         }
 
-        public static executor(prefix: string, coreTemplates: ICoreTemplateIds, columns: { [key: string]: IColumn }, uiColumns: () => IColumn[]): TemplatesExecutor {
+        public static executor(prefix: string, instances:PowerTables.Services.InstanceManagerService): TemplatesExecutor {
             if (!_ltcTpl._lib.hasOwnProperty(prefix)) {
                 throw new Error(`Cannot find templates set with prefix ${prefix}`); 
             }
             if (!_ltcTpl._executors[prefix]) {
-                _ltcTpl._executors[prefix] = new TemplatesExecutor(_ltcTpl._lib[prefix],coreTemplates,columns,uiColumns);
+                _ltcTpl._executors[prefix] = new TemplatesExecutor(_ltcTpl._lib[prefix], instances);
             }
             return _ltcTpl._executors[prefix];
         }

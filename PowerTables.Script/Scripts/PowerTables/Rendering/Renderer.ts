@@ -12,10 +12,7 @@
             this._events = masterTable.Events;
             this._templateIds = this._instances.Configuration.CoreTemplates;
             this._prefix = prefix;
-            this.Executor = PowerTables.Templating._ltcTpl.executor(prefix,
-                this._instances.Configuration.CoreTemplates,
-                this._instances.Columns,
-                () => this._instances.getUiColumns());
+            this.Executor = PowerTables.Templating._ltcTpl.executor(prefix, this._instances);
             this.BackBinder = new BackBinder(this._instances, this._masterTable.Date);
         }
 
@@ -99,7 +96,7 @@
             var process = this.Executor.beginProcess();
             for (var i: number = 0; i < rows.length; i++) {
                 var rw: IRow = rows[i];
-                process.nestElement(rw, this.obtainRowTemplate(rw));
+                process.nestElement(rw, this.Executor.obtainRowTemplate(rw));
             }
             var result = this.Executor.endProcess(process);
 
@@ -107,18 +104,6 @@
             this.BodyElement.innerHTML = result.Html;
             this.BackBinder.backBind(this.BodyElement, result.BackbindInfo);
             this._events.DataRendered.invokeAfter(this, null);
-        }
-
-        private obtainRowTemplate(rw: IRow): string {
-            var wrapper = this.Executor.CoreTemplateIds.RowWrapper;
-            if (this._instances.Configuration.TemplateSelector) {
-                var to = this._instances.Configuration.TemplateSelector(rw);
-                if (!(!to)) rw.TemplateIdOverride = to;
-            }
-            if (rw.TemplateIdOverride) {
-                return rw.TemplateIdOverride;
-            }
-            return wrapper;
         }
 
         public renderObjectContent(renderable: IRenderable): string {

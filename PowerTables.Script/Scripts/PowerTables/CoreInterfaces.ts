@@ -180,7 +180,7 @@
 		* @param templatesProvider Cached templates provider
 		* @returns String containing HTML code for element
 		*/
-        renderContent?: (templateProcess: PowerTables.Templating.TemplateProcess) => void ;
+        renderContent?: (templateProcess: PowerTables.Templating.TemplateProcess) => void;
     }
 
     /** 
@@ -295,25 +295,7 @@
     }
 
     export interface ITemplatesProvider {
-        /** 
-         * Current handlebars.js engine instance 
-         */
-        HandlebarsInstance: Handlebars.IHandlebars;
-        /**
-		* Retrieves cached template handlebars function
-		*
-		* @param templateId Template id
-		* @returns Handlebars function
-		*/
-        getCachedTemplate(templateId: string): (arg: any) => string;
-
-        /**
-         * Determines whether template id is present and cached
-         * 
-         * @param templateId 
-         * @returns {} 
-         */
-        hasCachedTemplate(templateId: string): boolean;
+        Executor: PowerTables.Templating.TemplatesExecutor;
     }
 
     export interface IColumn {

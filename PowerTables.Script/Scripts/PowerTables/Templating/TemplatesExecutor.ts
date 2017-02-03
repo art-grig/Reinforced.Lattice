@@ -3,12 +3,15 @@ module PowerTables.Templating {
         private _lib: ITemplatesLib;
         public ColumnRenderes: { [key: string]: (x: ICell) => string }
         public CoreTemplateIds: ICoreTemplateIds;
+        public Instances: PowerTables.Services.InstanceManagerService;
+
         private _uiColumns: () => IColumn[];
-        constructor(lib: ITemplatesLib, coreTemplates: ICoreTemplateIds, columns: { [key: string]: IColumn }, uiColumns: () => IColumn[]) {
+        constructor(lib: ITemplatesLib, instnaces: PowerTables.Services.InstanceManagerService) {
             this._lib = lib;
-            this.CoreTemplateIds = coreTemplates;
-            this.cacheColumnRenderers(columns);
-            this._uiColumns = uiColumns;
+            this.CoreTemplateIds = instnaces.Configuration.CoreTemplates;
+            this.cacheColumnRenderers(instnaces.Columns);
+            this._uiColumns = ()=>this.Instances.getUiColumns();
+            this.Instances = instnaces;
         }
 
         private cacheColumnRenderers(columns: { [key: string]: IColumn }) {
@@ -68,7 +71,17 @@ module PowerTables.Templating {
             return this._lib.Templates.hasOwnProperty(templateId);
         }
 
-
+        public obtainRowTemplate(rw: IRow): string {
+            var wrapper = this.CoreTemplateIds.RowWrapper;
+            if (this.Instances.Configuration.TemplateSelector) {
+                var to = this.Instances.Configuration.TemplateSelector(rw);
+                if (!(!to)) rw.TemplateIdOverride = to;
+            }
+            if (rw.TemplateIdOverride) {
+                return rw.TemplateIdOverride;
+            }
+            return wrapper;
+        }
 
     }
 }

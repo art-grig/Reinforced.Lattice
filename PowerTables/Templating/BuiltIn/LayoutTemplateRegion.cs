@@ -30,7 +30,7 @@ namespace PowerTables.Templating.BuiltIn
         public static MvcHtmlString Plugins(this LayoutTemplateRegion t, string position = null)
         {
             if (string.IsNullOrEmpty(position)) return t._("d.plugins(p);");
-            return t._("d.plugins(p,'{0}');", position);
+            return t._("d.plugin(p,'{0}');", position);
         }
 
         /// <summary>
