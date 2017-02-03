@@ -1225,10 +1225,10 @@ declare module PowerTables.Templating {
         };
     }
     interface ITemplateDel {
-        (data: any, driver: any, w: IWriteFn, p: TemplateProcess): void;
+        (data: any, driver: any, w: IWriteFn, p: TemplateProcess, s: IWriteFn): void;
     }
     interface IWriteFn {
-        (str: string): void;
+        (str: string | number): void;
     }
     interface ITemplateResult {
         Html: string;
@@ -1241,6 +1241,7 @@ declare module PowerTables.Templating {
         private _stack;
         Html: string;
         w: IWriteFn;
+        s: IWriteFn;
         Model: any;
         Type: RenderedObject;
         BackInfo: PowerTables.Templating.IBackbindInfo;
@@ -1251,17 +1252,19 @@ declare module PowerTables.Templating {
         };
         private append(str);
         nest(data: any, templateId: string): void;
+        private spc(num);
+        spaceW(): void;
         nestElement(e: IRenderable, templateId: string, type: RenderedObject): void;
         nestContent(e: IRenderable, templateId: string): void;
         d(model: any, type: RenderedObject): void;
         u(): void;
-        vstate(stateName: string, state: PowerTables.Templating.IState): void;
-        evt(commaSeparatedFunctions: string, commaSeparatedEvents: string, eventArgs: any[]): void;
+        vs(stateName: string, state: PowerTables.Templating.IState): void;
+        e(commaSeparatedFunctions: string, commaSeparatedEvents: string, eventArgs: any[]): void;
         rc(fn: any, args: any[]): void;
         dc(fn: any, args: any[]): void;
-        mark(fieldName: string, key: string, receiverPath: string): void;
+        m(fieldName: string, key: string, receiverPath: string): void;
         dp(condition: boolean, nullable: boolean): void;
-        track(): void;
+        t(): void;
         isLocation(location: string): boolean;
     }
     /**
@@ -1312,6 +1315,9 @@ declare module PowerTables.Templating {
         Instances: PowerTables.Services.InstanceManagerService;
         private _uiColumns;
         constructor(lib: ITemplatesLib, instnaces: PowerTables.Services.InstanceManagerService);
+        Spaces: {
+            [_: number]: string;
+        };
         private cacheColumnRenderers(columns);
         executeLayout(): ITemplateResult;
         beginProcess(): TemplateProcess;

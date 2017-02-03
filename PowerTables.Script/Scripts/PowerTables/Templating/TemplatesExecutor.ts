@@ -12,8 +12,13 @@ module PowerTables.Templating {
             this.cacheColumnRenderers(instnaces.Columns);
             this._uiColumns = ()=>this.Instances.getUiColumns();
             this.Instances = instnaces;
+            var s = ' ';
+            for (var i = 1; i <= 30; i++) {
+                this.Spaces[i] = s;
+                s += ' ';
+            }
         }
-
+        public Spaces:{[_:number]:string} = {};
         private cacheColumnRenderers(columns: { [key: string]: IColumn }) {
             for (var key in columns) {
                 if (columns.hasOwnProperty(key)) {
@@ -52,7 +57,7 @@ module PowerTables.Templating {
                 throw new Error(`Cannot find template ${templateId}`);
             }
             var tp = new TemplateProcess(this._uiColumns, this);
-            this._lib.Templates[templateId](data, PowerTables.Templating.Driver, tp.w, tp);
+            this._lib.Templates[templateId](data, PowerTables.Templating.Driver, tp.w, tp,tp.s);
             return {
                 Html: tp.Html,
                 BackbindInfo: tp.BackInfo
@@ -63,7 +68,7 @@ module PowerTables.Templating {
             if (!this._lib.Templates.hasOwnProperty(templateId)) {
                 throw new Error(`Cannot find template ${templateId}`);
             }
-            this._lib.Templates[templateId](data, PowerTables.Templating.Driver, p.w, p);
+            this._lib.Templates[templateId](data, PowerTables.Templating.Driver, p.w, p, p.s);
         }
 
 
@@ -91,6 +96,5 @@ module PowerTables.Templating {
             }
             return this.CoreTemplateIds.CellWrapper;
         }
-
     }
 }
