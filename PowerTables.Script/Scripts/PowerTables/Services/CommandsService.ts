@@ -464,23 +464,21 @@
         public EditorsSet: { [key: string]: PowerTables.Editing.IEditor } = {};
         public ActiveEditors: PowerTables.Editing.IEditor[] = [];
 
-        public Editors(): string {
-            var s = '';
+        public Editors(p:PowerTables.Templating.TemplateProcess): void {
             for (var i = 0; i < this.ActiveEditors.length; i++) {
-                s += this.editor(this.ActiveEditors[i]);
+                this.editor(p,this.ActiveEditors[i]);
             }
-            return s;
         }
 
-        private editor(editor: PowerTables.Editing.IEditor): string {
+        private editor(p: PowerTables.Templating.TemplateProcess,editor: PowerTables.Editing.IEditor): void {
             editor['_IsRendered'] = true;
-            return this.MasterTable.Renderer.renderObjectContent(editor);
+            editor.renderContent(p);
         }
 
-        public Editor(fieldName: string): string {
+        public Editor(p: PowerTables.Templating.TemplateProcess,fieldName: string): void {
             var editor = this.EditorsSet[fieldName];
-            if (editor == null || editor == undefined) return '';
-            return this.editor(editor);
+            if (editor == null || editor == undefined) return;
+            this.editor(p,editor);
         }
 
         private createEditor(fieldName: string, column: IColumn): PowerTables.Editing.IEditor {

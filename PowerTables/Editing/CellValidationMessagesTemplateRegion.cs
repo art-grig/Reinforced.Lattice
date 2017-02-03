@@ -35,7 +35,7 @@ namespace PowerTables.Editing
 
     public interface ISpecialInvalidStateViewModel
     {
-        [OverrideTplFieldName("renderedValidationMessages(p)")]
+        [OverrideTplFieldName("renderedValidationMessages")]
         string ValidationMessages { get; }
     }
 

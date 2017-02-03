@@ -59,7 +59,7 @@ namespace PowerTables.Templating
         {
             var json = JsonConvert.SerializeObject(visualState.Description, Formatting.None);
             if (string.IsNullOrEmpty(json)) json = "null";
-            return state._("p.vstate('{0}',{1});", state, json);
+            return state._("p.vstate('{0}',{1});", stateName, json);
         }
 
         /// <summary>

@@ -18,9 +18,9 @@ namespace PowerTables.Editing.Editors.PlainText
 
     public static class PlainTextEditorTemplateExtensions
     {
-        public static MvcHtmlString ThisIsInput(this PlainTextEditorTemplateRegion t)
+        public static SpecialString ThisIsInput(this PlainTextEditorTemplateRegion t)
         {
-            return MvcHtmlString.Create(t.Mark("Input") + " " + t.Datepicker());
+            return t._(t.Mark("Input") + " " + t.Datepicker());
         }
 
         public static PlainTextEditorTemplateRegion Editor_PlainText(this IViewPlugins t, string templateId = "plainTextEditor")

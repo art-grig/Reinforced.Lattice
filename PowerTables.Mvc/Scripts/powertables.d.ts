@@ -2141,9 +2141,9 @@ declare module PowerTables.Services {
             [key: string]: PowerTables.Editing.IEditor;
         };
         ActiveEditors: PowerTables.Editing.IEditor[];
-        Editors(): string;
-        private editor(editor);
-        Editor(fieldName: string): string;
+        Editors(p: PowerTables.Templating.TemplateProcess): void;
+        private editor(p, editor);
+        Editor(p: PowerTables.Templating.TemplateProcess, fieldName: string): void;
         private createEditor(fieldName, column);
         defaultValue(col: IColumn): any;
         private produceAutoformColumns(autoform);
@@ -3294,7 +3294,7 @@ declare module PowerTables.Editing {
          * Collection with editor's recent validation messages
          */
         ValidationMessages: IValidationMessage[];
-        renderedValidationMessages(p: PowerTables.Templating.TemplateProcess): void;
+        renderedValidationMessages(): string;
         /**
          * Retrieves original value for this particular cell editor
          *
@@ -3552,9 +3552,9 @@ declare module PowerTables.Editing.Form {
         Handler: FormEditHandler;
         RootElement: HTMLElement;
         DataObject: any;
-        Editors(): string;
-        private editor(editor);
-        Editor(fieldName: string): string;
+        Editors(p: PowerTables.Templating.TemplateProcess): void;
+        private editor(p, editor);
+        Editor(p: PowerTables.Templating.TemplateProcess, fieldName: string): void;
         commit(): void;
         reject(): void;
     }

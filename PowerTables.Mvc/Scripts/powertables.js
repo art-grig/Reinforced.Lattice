@@ -3536,22 +3536,20 @@ var PowerTables;
                 if (this._originalCallback)
                     this._originalCallback(params);
             };
-            ConfirmationWindowViewModel.prototype.Editors = function () {
-                var s = '';
+            ConfirmationWindowViewModel.prototype.Editors = function (p) {
                 for (var i = 0; i < this.ActiveEditors.length; i++) {
-                    s += this.editor(this.ActiveEditors[i]);
+                    this.editor(p, this.ActiveEditors[i]);
                 }
-                return s;
             };
-            ConfirmationWindowViewModel.prototype.editor = function (editor) {
+            ConfirmationWindowViewModel.prototype.editor = function (p, editor) {
                 editor['_IsRendered'] = true;
-                return this.MasterTable.Renderer.renderObjectContent(editor);
+                editor.renderContent(p);
             };
-            ConfirmationWindowViewModel.prototype.Editor = function (fieldName) {
+            ConfirmationWindowViewModel.prototype.Editor = function (p, fieldName) {
                 var editor = this.EditorsSet[fieldName];
                 if (editor == null || editor == undefined)
-                    return '';
-                return this.editor(editor);
+                    return;
+                this.editor(p, editor);
             };
             ConfirmationWindowViewModel.prototype.createEditor = function (fieldName, column) {
                 var editorConf = this._autoformFields[fieldName];
@@ -5341,10 +5339,12 @@ var PowerTables;
                 var path = contentLocation.split('.');
                 var co = receiver;
                 for (var i = 0; i < path.length; i++) {
+                    if (i === 0 && path[0] === 'o')
+                        continue;
                     co = co[path[i]];
-                }
-                if (co == undefined) {
-                    throw new Error("Visual state owner does not contain property or function " + contentLocation);
+                    if (co == null || co == undefined) {
+                        throw new Error("Visual state owner does not contain property or function " + contentLocation);
+                    }
                 }
                 var html = '';
                 if (typeof co === 'function') {
@@ -7912,12 +7912,12 @@ var PowerTables;
                  */
                 this.ValidationMessages = [];
             }
-            EditorBase.prototype.renderedValidationMessages = function (p) {
-                p.nest({
+            EditorBase.prototype.renderedValidationMessages = function () {
+                return this.MasterTable.Renderer.renderToString(this.Configuration.ValidationMessagesTemplateId, {
                     Messages: this.ValidationMessages,
                     IsRowEdit: this.IsRowEdit,
                     IsFormEdit: this.IsFormEdit
-                }, this.Configuration.ValidationMessagesTemplateId);
+                });
             };
             /**
              * Retrieves original value for this particular cell editor
@@ -8609,20 +8609,18 @@ var PowerTables;
                     this.EditorsSet = {};
                     this.ActiveEditors = [];
                 }
-                FormEditFormModel.prototype.Editors = function () {
-                    var s = '';
+                FormEditFormModel.prototype.Editors = function (p) {
                     for (var i = 0; i < this.ActiveEditors.length; i++) {
-                        s += this.editor(this.ActiveEditors[i]);
+                        this.editor(p, this.ActiveEditors[i]);
                     }
-                    return s;
                 };
-                FormEditFormModel.prototype.editor = function (editor) {
+                FormEditFormModel.prototype.editor = function (p, editor) {
                     editor['_IsRendered'] = true;
-                    return this.Handler.MasterTable.Renderer.renderObjectContent(editor);
+                    editor.renderContent(p);
                 };
-                FormEditFormModel.prototype.Editor = function (fieldName) {
+                FormEditFormModel.prototype.Editor = function (p, fieldName) {
                     var editor = this.EditorsSet[fieldName];
-                    return this.editor(editor);
+                    this.editor(p, editor);
                 };
                 FormEditFormModel.prototype.commit = function () {
                     this.Handler.commitAll();

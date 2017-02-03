@@ -66,11 +66,11 @@ namespace PowerTables.Plugins.Toolbar
         /// <param name="m"></param>
         /// <param name="eventId">DOM event</param>
         /// <returns></returns>
-        public static MvcHtmlString BindButton(this ButtonsSetTemplateRegion m, string eventId)
+        public static SpecialString BindButton(this ButtonsSetTemplateRegion m, string eventId)
         {
             var mark = m.Mark("AllButtons", m.Property(c => c.InternalId));
             var events = m.BindEvent("buttonHandleEvent", eventId, m.Property(c => c.InternalId));
-            return MvcHtmlString.Create(mark + " " + events);
+            return m._(mark + " " + events);
         }
     }
 

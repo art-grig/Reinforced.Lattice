@@ -41,12 +41,13 @@
          */
         public ValidationMessages: IValidationMessage[] = [];
 
-        public renderedValidationMessages(p: PowerTables.Templating.TemplateProcess): void {
-            p.nest({
+        public renderedValidationMessages(): string {
+            return this.MasterTable.Renderer.renderToString((<any>this.Configuration).ValidationMessagesTemplateId,
+            {
                 Messages: this.ValidationMessages,
                 IsRowEdit: this.IsRowEdit,
                 IsFormEdit: this.IsFormEdit
-            }, (<any>this.Configuration).ValidationMessagesTemplateId);
+            });
         }
 
         /**

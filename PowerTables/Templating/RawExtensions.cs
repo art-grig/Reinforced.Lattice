@@ -15,6 +15,12 @@ namespace PowerTables.Templating
             return r.Raw(code);
         }
 
+        public static SpecialString _(this IRawProvider r, SpecialString code)
+        {
+            //r.Raw(code);
+            return r.Raw(code.ToString());
+        }
+
         public static SpecialString _(this IRawProvider r, string code, object arg1)
         {
             return r.Raw(string.Format(code, arg1));

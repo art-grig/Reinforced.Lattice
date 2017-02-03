@@ -28,6 +28,21 @@ namespace PowerTables.Templating
         {
             return _internalString;
         }
+
+        public static SpecialString operator +(SpecialString x, SpecialString y)
+        {
+            return new SpecialString(x._internalString + y._internalString);
+        }
+
+        public static SpecialString operator +(SpecialString x, string y)
+        {
+            return new SpecialString(x._internalString + y);
+        }
+
+        public static SpecialString operator +(string x, SpecialString y)
+        {
+            return new SpecialString(x + y._internalString);
+        }
     }
     internal class ScopedWriter : TextWriter
     {

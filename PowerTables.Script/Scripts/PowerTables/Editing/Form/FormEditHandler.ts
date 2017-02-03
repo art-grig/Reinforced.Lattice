@@ -183,22 +183,20 @@
         public RootElement: HTMLElement;
         public DataObject: any;
 
-        public Editors(): string {
-            var s = '';
+        public Editors(p:PowerTables.Templating.TemplateProcess): void {
             for (var i = 0; i < this.ActiveEditors.length; i++) {
-                s += this.editor(this.ActiveEditors[i]);
+                this.editor(p,this.ActiveEditors[i]);
             }
-            return s;
         }
 
-        private editor(editor: IEditor): string {
+        private editor(p: PowerTables.Templating.TemplateProcess,editor: IEditor): void {
             editor['_IsRendered'] = true;
-            return this.Handler.MasterTable.Renderer.renderObjectContent(editor);
+            editor.renderContent(p);
         }
 
-        public Editor(fieldName: string): string {
+        public Editor(p: PowerTables.Templating.TemplateProcess,fieldName: string): void {
             var editor = this.EditorsSet[fieldName];
-            return this.editor(editor);
+            this.editor(p,editor);
         }
 
         public commit() {

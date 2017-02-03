@@ -138,10 +138,11 @@
             var path = contentLocation.split('.');
             var co = receiver;
             for (var i = 0; i < path.length; i++) {
+                if (i === 0 && path[0] === 'o') continue;
                 co = co[path[i]];
-            }
-            if (co == undefined) {
-                throw new Error(`Visual state owner does not contain property or function ${contentLocation}`);
+                if (co == null||co == undefined) {
+                    throw new Error(`Visual state owner does not contain property or function ${contentLocation}`);
+                }
             }
             var html = '';
             if (typeof co === 'function') {

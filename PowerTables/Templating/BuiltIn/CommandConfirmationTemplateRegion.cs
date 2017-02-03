@@ -64,7 +64,7 @@ namespace PowerTables.Templating.BuiltIn
 
         public static SpecialString Editors<TConfirmation>(this  IConfirmationWindow<TConfirmation> p)
         {
-            return p._("w(o.Editors());");
+            return p._("o.Editors(p);");
         }
 
         public static SpecialString EditorFor<TConfirmation, TData>(this  IConfirmationWindow<TConfirmation> p, Expression<Func<TConfirmation, TData>> field)
@@ -75,7 +75,7 @@ namespace PowerTables.Templating.BuiltIn
 
         public static SpecialString EditorFor<TConfirmation>(this IConfirmationWindow<TConfirmation> p, string fieldName)
         {
-            return p._("w(o.Editor('{0}'));", fieldName);
+            return p._("o.Editor(p,'{0}');", fieldName);
         }
 
         public static SpecialString ThisIsContentContainer<TConfirmation>(this IConfirmationWindow<TConfirmation> p)
