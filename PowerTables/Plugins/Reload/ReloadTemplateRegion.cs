@@ -41,7 +41,7 @@ namespace PowerTables.Plugins.Reload
         /// <param name="t"></param>
         /// <param name="eventId">DOM Event ID</param>
         /// <returns></returns>
-        public static MvcHtmlString BindTriggerReload(this ReloadTemplateRegion t, string eventId)
+        public static SpecialString BindTriggerReload(this ReloadTemplateRegion t, string eventId)
         {
             return t.BindEvent("triggerReload", eventId);
         }
@@ -52,7 +52,7 @@ namespace PowerTables.Plugins.Reload
         /// <param name="t"></param>
         /// <param name="state"></param>
         /// <returns></returns>
-        public static MvcHtmlString WhenLoading(this ReloadTemplateRegion t, Action<VisualState> state)
+        public static SpecialString WhenLoading(this ReloadTemplateRegion t, Action<VisualState> state)
         {
             return t.State("loading", state);
         }

@@ -62,16 +62,16 @@ namespace PowerTables.Templating.Handlebars.Expressions
 
         protected override Expression VisitMember(MemberExpression node)
         {
+            var memberName = node.Member.Name;
+
             var attr = node.Member.GetCustomAttribute<OverrideTplFieldNameAttribute>();
             if (attr != null)
             {
-                Return(new HbLiteralExpression() { Literal = attr.Name });
-                return node;
+                memberName = attr.Name;
             }
 
             Visit(node.Expression);
             var accessedExpression = Retrieve();
-            var memberName = node.Member.Name;
             if (node.Member.Name == "Length")
             {
                 if (node.Expression.Type.IsArray)

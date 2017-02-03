@@ -5,9 +5,30 @@ using System.Linq;
 using System.Runtime.Remoting;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
+using System.Web.Mvc;
 
 namespace PowerTables.Templating
 {
+    public class SpecialString : IHtmlString
+    {
+        private readonly string _internalString;
+
+        public SpecialString(string internalString)
+        {
+            _internalString = internalString;
+        }
+
+        public override string ToString()
+        {
+            return _internalString;
+        }
+
+        public string ToHtmlString()
+        {
+            return _internalString;
+        }
+    }
     internal class ScopedWriter : TextWriter
     {
         private readonly TextWriter _original;
@@ -17,6 +38,13 @@ namespace PowerTables.Templating
         {
             _original = original;
             _scope = scope;
+        }
+        private readonly List<string> _specialStrings = new List<string>();
+
+        public SpecialString CreateRaw(string value)
+        {
+            _specialStrings.Add(value);
+            return new SpecialString(value);
         }
 
         public void WriteRaw(string value)
@@ -28,7 +56,14 @@ namespace PowerTables.Templating
         {
             if (_scope.CrunchingTemplate)
             {
-                value = RawExtensions.Prettify(value);
+                if (!_specialStrings.Contains(value))
+                {
+                    value = RawExtensions.Prettify(value);
+                }
+                else
+                {
+                    _specialStrings.Remove(value);
+                }
             }
             _original.Write(value);
         }
@@ -106,6 +141,11 @@ namespace PowerTables.Templating
 
         public override void Write(object value)
         {
+            if (value != null && value is SpecialString)
+            {
+                throw new Exception("Works");
+            }
+
             if (value != null && value is string)
             {
                 if (_scope.CrunchingTemplate)

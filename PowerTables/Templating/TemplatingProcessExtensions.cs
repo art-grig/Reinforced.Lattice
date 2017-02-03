@@ -25,7 +25,7 @@ namespace PowerTables.Templating
         /// <param name="key">Key to place element to hash</param>
         /// <param name="receiver">Object (relative to window) that will receive element instance</param>
         /// <returns></returns>
-        public static MvcHtmlString Mark(this IProvidesMarking t, string fieldName, string key = null, string receiver = null)
+        public static SpecialString Mark(this IProvidesMarking t, string fieldName, string key = null, string receiver = null)
         {
             return
                 t._("p.mark('{0}',{1},{2});", fieldName, key.WrapQuotesOrNull(),
@@ -39,7 +39,7 @@ namespace PowerTables.Templating
         /// <param name="stateName">Visual state name</param>
         /// <param name="visualState">Visual state builder</param>
         /// <returns>Template instruction to cache Visual state for mentioned element</returns>
-        public static MvcHtmlString State(this IProvidesVisualState state, string stateName, Action<VisualState> visualState)
+        public static SpecialString State(this IProvidesVisualState state, string stateName, Action<VisualState> visualState)
         {
             VisualState vs = new VisualState();
             visualState(vs);
@@ -55,7 +55,7 @@ namespace PowerTables.Templating
         /// <param name="stateName">Visual state name</param>
         /// <param name="visualState">Visual state builder</param>
         /// <returns>Template instruction to cache Visual state for mentioned element</returns>
-        public static MvcHtmlString State(this IProvidesVisualState state, string stateName, VisualState visualState)
+        public static SpecialString State(this IProvidesVisualState state, string stateName, VisualState visualState)
         {
             var json = JsonConvert.SerializeObject(visualState.Description, Formatting.None);
             if (string.IsNullOrEmpty(json)) json = "null";
@@ -70,7 +70,7 @@ namespace PowerTables.Templating
         /// <param name="functionName">Callback function reference or literal function</param>
         /// <param name="rawArgs">Other arguments to provide. Remember that here should be not constant values but Handlebar's JS expression. Feel free to include references to teimplate's viewMdel here</param>
         /// <returns></returns>
-        public static MvcHtmlString Callback(this ITemplatesScope ts, string functionName, params string[] rawArgs)
+        public static SpecialString Callback(this ITemplatesScope ts, string functionName, params string[] rawArgs)
         {
             var args = string.Join(",", rawArgs);
             return ts._("p.rc('{0}',[{1}]);", functionName, args);
@@ -84,7 +84,7 @@ namespace PowerTables.Templating
         /// <param name="functionName">Callback function reference or literal function</param>
         /// <param name="rawArgs">Other arguments to provide. Remember that here should be not constant values but Handlebar's JS expression. Feel free to include references to teimplate's viewMdel here</param>
         /// <returns></returns>
-        public static MvcHtmlString DestroyCallback(this ITemplatesScope ts, string functionName, params string[] rawArgs)
+        public static SpecialString DestroyCallback(this ITemplatesScope ts, string functionName, params string[] rawArgs)
         {
             var args = string.Join(",", rawArgs);
             return ts._("p.dc('{0}',[{1}]);", functionName, args);
@@ -98,9 +98,9 @@ namespace PowerTables.Templating
         /// <param name="commaSeparatedEvents">Comma-separated events list to be bound</param>
         /// <param name="arguments">Event arguments</param>
         /// <returns></returns>
-        public static MvcHtmlString BindEvent(this IProvidesEventsBinding t, string commaSeparatedFunction, string commaSeparatedEvents, params string[] arguments)
+        public static SpecialString BindEvent(this IProvidesEventsBinding t, string commaSeparatedFunction, string commaSeparatedEvents, params string[] arguments)
         {
-            return t._("p.evt('{0}','{1}',{2});", commaSeparatedFunction, commaSeparatedEvents, arguments.Length == 0 ? "null" : string.Join(" ", arguments));
+            return t._("p.evt('{0}','{1}',[{2}]);", commaSeparatedFunction, commaSeparatedEvents, arguments.Length == 0 ? "null" : string.Join(",", arguments));
         }
 
         /// <summary>
@@ -112,7 +112,7 @@ namespace PowerTables.Templating
         /// <param name="condition">Condition of turning input into datepicker</param>
         /// <param name="nullableCondition">Condition of datepicker to provide nullable date</param>
         /// <returns></returns>
-        public static MvcHtmlString DatepickerIf(this IProvidesDatepicker t, string condition, string nullableCondition)
+        public static SpecialString DatepickerIf(this IProvidesDatepicker t, string condition, string nullableCondition)
         {
             return t._("p.dp(({0}),({1}));", condition, nullableCondition);
         }
@@ -122,7 +122,7 @@ namespace PowerTables.Templating
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
-        public static MvcHtmlString Track(this IProvidesTracking t)
+        public static SpecialString Track(this IProvidesTracking t)
         {
             t.IsTrackSet = true;
             return t._("p.track();");

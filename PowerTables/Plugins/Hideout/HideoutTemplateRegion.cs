@@ -72,7 +72,7 @@ namespace PowerTables.Plugins.Hideout
         /// <param name="t"></param>
         /// <param name="eventId">DOM event id</param>
         /// <returns></returns>
-        public static MvcHtmlString BindHide<T>(this T t, string eventId)
+        public static SpecialString BindHide<T>(this T t, string eventId)
             where T : IModelProvider<IHideoutColumnState>, IProvidesEventsBinding
         {
             return t.BindEvent("hideColumn", eventId, t.Property(c => c.RawName));
@@ -85,7 +85,7 @@ namespace PowerTables.Plugins.Hideout
         /// <param name="t"></param>
         /// <param name="eventId">DOM event id</param>
         /// <returns></returns>
-        public static MvcHtmlString BindShow<T>(this T t, string eventId)
+        public static SpecialString BindShow<T>(this T t, string eventId)
             where T : IModelProvider<IHideoutColumnState>, IProvidesEventsBinding
         {
             return t.BindEvent("showColumn", eventId, t.Property(c => c.RawName));
@@ -98,7 +98,7 @@ namespace PowerTables.Plugins.Hideout
         /// <param name="t"></param>
         /// <param name="eventId">DOM event id</param>
         /// <returns></returns>
-        public static MvcHtmlString BindToggle<T>(this T t, string eventId)
+        public static SpecialString BindToggle<T>(this T t, string eventId)
             where T : IModelProvider<IHideoutColumnState>, IProvidesEventsBinding
         {
             return t.BindEvent("toggleColumn", eventId, t.Property(c => c.RawName));
@@ -112,7 +112,7 @@ namespace PowerTables.Plugins.Hideout
         /// <param name="eventId">DOM event id</param>
         /// <param name="columnName">Column name to hide</param>
         /// <returns></returns>
-        public static MvcHtmlString BindHide<T>(this T t, string eventId, string columnName)
+        public static SpecialString BindHide<T>(this T t, string eventId, string columnName)
             where T : IModelProvider<IHideoutViewModel>, IProvidesEventsBinding
         {
             return t.BindEvent("hideColumn", eventId, string.Format("\"{0}\"", columnName));
@@ -126,7 +126,7 @@ namespace PowerTables.Plugins.Hideout
         /// <param name="eventId">DOM event id</param>
         /// <param name="columnName">Column name to show</param>
         /// <returns></returns>
-        public static MvcHtmlString BindShow<T>(this T t, string eventId, string columnName)
+        public static SpecialString BindShow<T>(this T t, string eventId, string columnName)
             where T : IModelProvider<IHideoutViewModel>, IProvidesEventsBinding
         {
             return t.BindEvent("showColumn", eventId, string.Format("\"{0}\"", columnName));
@@ -140,7 +140,7 @@ namespace PowerTables.Plugins.Hideout
         /// <param name="eventId">DOM event id</param>
         /// <param name="columnName">Column name to toggle</param>
         /// <returns></returns>
-        public static MvcHtmlString BindToggle<T>(this T t, string eventId, string columnName)
+        public static SpecialString BindToggle<T>(this T t, string eventId, string columnName)
             where T : IModelProvider<IHideoutViewModel>, IProvidesEventsBinding
         {
             return t.BindEvent("toggleColumn", eventId, string.Format("\"{0}\"", columnName));

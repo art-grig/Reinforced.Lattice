@@ -37,12 +37,12 @@ namespace PowerTables.Editing.Editors.Memo
             return new MemoEditorTemplateRegion(t, templateId);
         }
 
-        public static MvcHtmlString ThisIsInput(this MemoEditorTemplateRegion t)
+        public static SpecialString ThisIsInput(this MemoEditorTemplateRegion t)
         {
             return t.Mark("TextArea");
         }
 
-        public static MvcHtmlString WhenLengthWarning<T>(this MemoEditorTemplateRegion t, Action<SpecialVisualStateDescription<ISpecialWarningStateViewModel>> state) where T : IMemoEditorViewModel
+        public static SpecialString WhenLengthWarning<T>(this MemoEditorTemplateRegion t, Action<SpecialVisualStateDescription<ISpecialWarningStateViewModel>> state) where T : IMemoEditorViewModel
         {
             return t.State("warning", VisualState.FromSpecialDelegate(state));
         }

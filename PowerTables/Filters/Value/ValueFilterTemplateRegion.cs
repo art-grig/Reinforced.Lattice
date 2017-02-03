@@ -29,17 +29,17 @@ namespace PowerTables.Filters.Value
             return new ValueFilterTemplateRegion(t, templateId);
         }
 
-        public static MvcHtmlString BindValueChanged(this ValueFilterTemplateRegion t, string eventId)
+        public static SpecialString BindValueChanged(this ValueFilterTemplateRegion t, string eventId)
         {
             return t.BindEvent("handleValueChanged", eventId);
         }
 
-        public static MvcHtmlString ThisIsFilterValueProvider(this ValueFilterTemplateRegion t)
+        public static SpecialString ThisIsFilterValueProvider(this ValueFilterTemplateRegion t)
         {
             return t.Mark("FilterValueProvider");
         }
 
-        public static MvcHtmlString DatepickerCanBeHere(this ValueFilterTemplateRegion t)
+        public static SpecialString DatepickerCanBeHere(this ValueFilterTemplateRegion t)
         {
             return t.DatepickerIf(t.Property(c => c.AssociatedColumn.IsDateTime), t.Property(c => c.AssociatedColumn.Configuration.IsNullable));
         }

@@ -42,7 +42,7 @@ namespace PowerTables.Editing
 
     public static class CellValidationMessagesTemplateExtensions
     {
-        public static MvcHtmlString WhenInvalid<T>(this CellEditorTemplateRegionBase<T> t, Action<SpecialVisualStateDescription<ISpecialInvalidStateViewModel>> state) where T : ICellEditorViewModel
+        public static SpecialString WhenInvalid<T>(this CellEditorTemplateRegionBase<T> t, Action<SpecialVisualStateDescription<ISpecialInvalidStateViewModel>> state) where T : ICellEditorViewModel
         {
             return t.State("invalid", VisualState.FromSpecialDelegate(state));
         }

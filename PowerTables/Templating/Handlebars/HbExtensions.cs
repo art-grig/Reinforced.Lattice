@@ -27,7 +27,7 @@ namespace PowerTables.Templating.Handlebars
         /// <typeparam name="T"></typeparam>
         /// <param name="t"></param>
         /// <returns>{{else}} keyword</returns>
-        public static MvcHtmlString This<T>(this IModelProvider<T> t)
+        public static SpecialString This<T>(this IModelProvider<T> t)
         {
             return t._("w(o);");
         }
@@ -55,7 +55,7 @@ namespace PowerTables.Templating.Handlebars
         /// <param name="condition"></param>
         /// <param name="textIf">Text if condition met</param>
         /// <returns></returns>
-        public static MvcHtmlString If<T>(this IModelProvider<T> t, Expression<Func<T, bool>> condition, string textIf)
+        public static SpecialString If<T>(this IModelProvider<T> t, Expression<Func<T, bool>> condition, string textIf)
         {
             var expr = TraversePropertyLambda(condition, t.ExistingModel);
             return t._("if({0}){{ {1} }}", expr, RawExtensions.Prettify(textIf));
@@ -69,7 +69,7 @@ namespace PowerTables.Templating.Handlebars
         /// <param name="condition">Comparison condition. Use "o" as current viewmodel</param>
         /// <param name="textIf">Text if condition met</param>
         /// <returns></returns>
-        public static MvcHtmlString If<T>(this IModelProvider<T> t, string condition, string textIf)
+        public static SpecialString If<T>(this IModelProvider<T> t, string condition, string textIf)
         {
             return t._("if({0}){{{1} }}", condition, RawExtensions.Prettify(textIf));
         }
@@ -80,7 +80,7 @@ namespace PowerTables.Templating.Handlebars
         /// <typeparam name="T"></typeparam>
         /// <param name="t"></param>
         /// <returns>{{else}} keyword</returns>
-        public static MvcHtmlString Else<T>(this IModelProvider<T> t)
+        public static SpecialString Else<T>(this IModelProvider<T> t)
         {
             return t._("}else{ ");
         }
@@ -129,7 +129,7 @@ namespace PowerTables.Templating.Handlebars
         /// <param name="t"></param>
         /// <param name="valueField">Value expression</param>
         /// <returns></returns>
-        public static MvcHtmlString Value<T, TData>(this IModelProvider<T> t, Expression<Func<T, TData>> valueField)
+        public static SpecialString Value<T, TData>(this IModelProvider<T> t, Expression<Func<T, TData>> valueField)
         {
             return t._("w({0});", Property(t, valueField));
         }
@@ -141,7 +141,7 @@ namespace PowerTables.Templating.Handlebars
         /// <param name="t"></param>
         /// <param name="valueField">Value expression</param>
         /// <returns></returns>
-        public static MvcHtmlString Value<T>(this IModelProvider<T> t, string valueField)
+        public static SpecialString Value<T>(this IModelProvider<T> t, string valueField)
         {
             return t._("w({0});", valueField);
         }
@@ -168,7 +168,7 @@ namespace PowerTables.Templating.Handlebars
         /// <param name="t"></param>
         /// <param name="valueField">Value expression</param>
         /// <returns></returns>
-        public static MvcHtmlString HtmlValue<T, TData>(this IModelProvider<T> t, Expression<Func<T, TData>> valueField)
+        public static SpecialString HtmlValue<T, TData>(this IModelProvider<T> t, Expression<Func<T, TData>> valueField)
         {
             var proname = TraversePropertyLambda(valueField, t.ExistingModel);
             return t._("w({0});", proname);
@@ -182,7 +182,7 @@ namespace PowerTables.Templating.Handlebars
         /// <param name="t"></param>
         /// <param name="valueField">Value expression</param>
         /// <returns></returns>
-        public static MvcHtmlString HtmlValue<T, TData>(this IModelProvider<T> t, string valueField)
+        public static SpecialString HtmlValue<T, TData>(this IModelProvider<T> t, string valueField)
         {
             return t._("w({0});", valueField);
         }
@@ -197,7 +197,7 @@ namespace PowerTables.Templating.Handlebars
         /// <param name="commaSeparatedEvents">Comma-separated events list to be bound</param>
         /// <param name="eventArguments">Event arguments</param>
         /// <returns></returns>
-        public static MvcHtmlString BindEvent<T, TModel, TData>(this T t, string commaSeparatedFunction, string commaSeparatedEvents,
+        public static SpecialString BindEvent<T, TModel, TData>(this T t, string commaSeparatedFunction, string commaSeparatedEvents,
             params Expression<Func<TModel, TData>>[] eventArguments)
             where T : IProvidesEventsBinding, IModelProvider<TModel>
         {

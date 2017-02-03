@@ -54,7 +54,7 @@ namespace PowerTables.Plugins.Checkboxify
             return new CheckboxifiedCellTemplateRegion(t,templateId);
         }
 
-        public static MvcHtmlString BindSelectAll(this CheckboxifySelectAllTemplateRegion t, string eventId)
+        public static SpecialString BindSelectAll(this CheckboxifySelectAllTemplateRegion t, string eventId)
         {
             return t.BindEvent("selectAllEvent", eventId);
         }

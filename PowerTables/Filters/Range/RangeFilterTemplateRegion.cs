@@ -27,22 +27,22 @@ namespace PowerTables.Filters.Range
             return new RangeFilterTemplateRegion(t,templateId);
         }
 
-        public static MvcHtmlString BindValueChanged(this RangeFilterTemplateRegion t, string eventId)
+        public static SpecialString BindValueChanged(this RangeFilterTemplateRegion t, string eventId)
         {
             return t.BindEvent("handleValueChanged", eventId);
         }
 
-        public static MvcHtmlString ThisIsFromField(this RangeFilterTemplateRegion t)
+        public static SpecialString ThisIsFromField(this RangeFilterTemplateRegion t)
         {
             return t.Mark("FromValueProvider");
         }
 
-        public static MvcHtmlString ThisIsToField(this RangeFilterTemplateRegion t)
+        public static SpecialString ThisIsToField(this RangeFilterTemplateRegion t)
         {
             return t.Mark("ToValueProvider");
         }
 
-        public static MvcHtmlString DatepickerCanBeHere(this RangeFilterTemplateRegion t)
+        public static SpecialString DatepickerCanBeHere(this RangeFilterTemplateRegion t)
         {
             return t.DatepickerIf(t.Property(c => c.AssociatedColumn.IsDateTime), t.Property(c => c.AssociatedColumn.Configuration.IsNullable));
         }

@@ -30,7 +30,7 @@ namespace PowerTables.Templating
         /// <returns>template region</returns>
         public TemplateRegion Template(string id, TemplateRegionType type = TemplateRegionType.Custom)
         {
-            return new TemplateRegion(type,Model.Prefix, id, this);
+            return new TemplateRegion(type, Model.Prefix, id, this);
         }
 
         private IViewPlugins _plugins = null;
@@ -48,7 +48,12 @@ namespace PowerTables.Templating
         }
 
         public bool CrunchingTemplate { get; set; }
-        public void Raw(string tplCode)
+        public SpecialString Raw(string tplCode)
+        {
+            return _hook.CreateRaw(tplCode);
+        }
+
+        public void WriteRaw(string tplCode)
         {
             _hook.WriteRaw(tplCode);
         }
@@ -69,6 +74,6 @@ namespace PowerTables.Templating
         /// </summary>
         public string TemplatesPrefix { get { return Model.Prefix; } }
 
-        
+
     }
 }

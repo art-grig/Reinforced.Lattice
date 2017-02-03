@@ -10,7 +10,12 @@ namespace PowerTables.Templating
         public string TemplatesPrefix { get { return _prefix; } }
         public IViewPlugins Plugin { get { return _classifier; } }
         public bool CrunchingTemplate { get; set; }
-        public void Raw(string tplCode)
+        public SpecialString Raw(string tplCode)
+        {
+            return _hook.CreateRaw(tplCode);
+        }
+
+        public void WriteRaw(string tplCode)
         {
             _hook.WriteRaw(tplCode);
         }

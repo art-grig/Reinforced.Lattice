@@ -74,10 +74,9 @@
             Driver.renderPlugin(p, plugin);
         }
 
-        public static plugins(p: TemplateProcess, pluginPosition: string): string {
+        public static plugins(p: TemplateProcess, pluginPosition: string): void {
             var plugins: IPlugin[] = p.Executor.Instances.getPlugins(pluginPosition);
-            if (!plugins) return '';
-            var result: string = '';
+            if (!plugins) return;
 
             for (var a in plugins) {
                 if (plugins.hasOwnProperty(a)) {
@@ -85,7 +84,6 @@
                     Driver.renderPlugin(p, v);
                 }
             }
-            return result;
         }
 
         public static renderPlugin(p: TemplateProcess, plugin: IPlugin): void {
@@ -99,7 +97,7 @@
             p.nest(plugin, p.Executor.CoreTemplateIds.PluginWrapper);
         }
 
-        public static headerHelper(p: PowerTables.Templating.TemplateProcess, columnName: string): void {
+        public static colHeader(p: PowerTables.Templating.TemplateProcess, columnName: string): void {
             try {
                 Driver.header(p, p.Executor.Instances.getColumn(columnName));
             } catch (a) {

@@ -5,7 +5,9 @@ namespace PowerTables.Templating
 {
     public interface IRawProvider
     {
-        void Raw(string tplCode);
+        SpecialString Raw(string tplCode);
+
+        void WriteRaw(string tplCode);
     }
 
     /// <summary>

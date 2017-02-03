@@ -33,16 +33,16 @@
     <TypeScriptCompile Include="..\PowerTables.Typings\Scripts\Interfaces.ts">
       <Link>Scripts\Interfaces.ts</Link>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="Scripts\PowerTables\CoreInterfaces.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Templating\BackbindInfo.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Templating\Driver.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Templating\TemplateProcess.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Templating\Templates.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Event.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Templating\TemplateProcess.ts" />    
     <TypeScriptCompile Include="Scripts\PowerTables\Templating\Lib.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Templating\TemplatesExecutor.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Templating\Driver.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Event.ts" />    
     <TypeScriptCompile Include="Scripts\PowerTables\TrackHelper.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\ComponentsContainer.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\CoreInterfaces.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\ComponentsContainer.ts" />    
     <TypeScriptCompile Include="Scripts\PowerTables\Services\DateService.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Services\EventsDelegatorService.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Services\EventsService.ts" />

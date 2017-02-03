@@ -27,7 +27,7 @@ namespace PowerTables.Templating
         /// </summary>
         /// <param name="t">Content provider</param>
         /// <returns>Template placeholder for content</returns>
-        public static MvcHtmlString Content(this IProvidesContent t)
+        public static SpecialString Content(this IProvidesContent t)
         {
             return t._("d.content(p);");
         }
@@ -38,7 +38,7 @@ namespace PowerTables.Templating
         /// <param name="t">Content provider</param>
         /// <param name="columnName">Column name to output content for</param>
         /// <returns>Template placeholder for content</returns>
-        public static MvcHtmlString Content(this IProvidesColumnContent t, string columnName)
+        public static SpecialString Content(this IProvidesColumnContent t, string columnName)
         {
             return t._("d.content(p,'{0}');", columnName);
         }

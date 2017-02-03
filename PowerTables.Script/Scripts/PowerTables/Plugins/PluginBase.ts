@@ -70,12 +70,6 @@
             return p.nest(this,this.RawConfig.TemplateId);
         }
 
-        public isLocation(location: string): boolean {
-            var loc: string = this.PluginLocation;
-            if (loc.length < location.length) return false;
-            if (loc.length === location.length && loc === location) return true;
-            if (loc.substring(0, location.length) === location) return true;
-            return true;
-        }
+        
     }
 }

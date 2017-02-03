@@ -24,18 +24,23 @@ namespace PowerTables.Templating.Handlebars
         public CodeBlock(string header, string footer,IRawProvider raw)
         {
             _raw = raw;
-            _raw.Raw(header);
+            _raw.WriteRaw(header);
             _footer = footer;
         }
 
         public void Dispose()
         {
-            _raw.Raw(_footer);
+            _raw.WriteRaw(_footer);
         }
 
-        void IRawProvider.Raw(string tplCode)
+        SpecialString IRawProvider.Raw(string tplCode)
         {
-            _raw.Raw(tplCode);
+            return _raw.Raw(tplCode);
+        }
+
+        public void WriteRaw(string tplCode)
+        {
+            _raw.WriteRaw(tplCode);
         }
     }
 }

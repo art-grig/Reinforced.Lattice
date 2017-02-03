@@ -12,7 +12,7 @@ namespace PowerTables.Plugins.Loading
         /// element that will be shown when loading in progress
         /// </summary>
         /// <returns></returns>
-        public MvcHtmlString ThisElementWillBlink()
+        public SpecialString ThisElementWillBlink()
         {
             return this.Mark("BlinkElement");
         }

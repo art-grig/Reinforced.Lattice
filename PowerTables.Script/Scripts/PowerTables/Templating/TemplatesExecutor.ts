@@ -1,7 +1,7 @@
 module PowerTables.Templating {
     export class TemplatesExecutor {
         private _lib: ITemplatesLib;
-        public ColumnRenderes: { [key: string]: (x: ICell) => string }
+        public ColumnRenderes: { [key: string]: (x: ICell) => string } = {};
         public CoreTemplateIds: ICoreTemplateIds;
         public Instances: PowerTables.Services.InstanceManagerService;
 
@@ -37,7 +37,7 @@ module PowerTables.Templating {
         }
 
         public beginProcess(): TemplateProcess {
-            return new TemplateProcess(this._uiColumns);
+            return new TemplateProcess(this._uiColumns,this);
         }
 
         public endProcess(tp: TemplateProcess): ITemplateResult {
@@ -51,7 +51,7 @@ module PowerTables.Templating {
             if (!this._lib.Templates.hasOwnProperty(templateId)) {
                 throw new Error(`Cannot find template ${templateId}`);
             }
-            var tp = new TemplateProcess(this._uiColumns);
+            var tp = new TemplateProcess(this._uiColumns, this);
             this._lib.Templates[templateId](data, PowerTables.Templating.Driver, tp.w, tp);
             return {
                 Html: tp.Html,

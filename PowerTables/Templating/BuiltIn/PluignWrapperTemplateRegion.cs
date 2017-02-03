@@ -57,7 +57,7 @@ namespace PowerTables.Templating.BuiltIn
         /// <returns></returns>
         public static CodeBlock IfPlacement<T>(this PluignWrapperTemplateRegion<T> pw, string locationPart)
         {
-            return new CodeBlock(string.Format("if (d.isLocation({0})){{", locationPart), "}", pw);
+            return new CodeBlock(string.Format("if(p.isLocation('{0}')){{", locationPart), "}", pw);
         }
     }
 }

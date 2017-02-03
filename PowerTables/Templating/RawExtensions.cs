@@ -9,28 +9,25 @@ namespace PowerTables.Templating
 {
     public static class RawExtensions
     {
-        public static MvcHtmlString _(this IRawProvider r, string code)
+        public static SpecialString _(this IRawProvider r, string code)
         {
-            r.Raw(code);
-            return MvcHtmlString.Empty;
+            //r.Raw(code);
+            return r.Raw(code);
         }
 
-        public static MvcHtmlString _(this IRawProvider r, string code, object arg1)
+        public static SpecialString _(this IRawProvider r, string code, object arg1)
         {
-            r.Raw(string.Format(code, arg1));
-            return MvcHtmlString.Empty;
+            return r.Raw(string.Format(code, arg1));
         }
 
-        public static MvcHtmlString _(this IRawProvider r, string code, object arg1, object arg2)
+        public static SpecialString _(this IRawProvider r, string code, object arg1, object arg2)
         {
-            r.Raw(string.Format(code, arg1, arg2));
-            return MvcHtmlString.Empty;
+            return r.Raw(string.Format(code, arg1, arg2));
         }
 
-        public static MvcHtmlString _(this IRawProvider r, string code, object arg1, object arg2, object arg3)
+        public static SpecialString _(this IRawProvider r, string code, object arg1, object arg2, object arg3)
         {
-            r.Raw(string.Format(code, arg1, arg2, arg3));
-            return MvcHtmlString.Empty;
+            return r.Raw(string.Format(code, arg1, arg2, arg3));
         }
 
         public static string Prettify(string str)

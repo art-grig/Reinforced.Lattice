@@ -1,6 +1,6 @@
 module PowerTables.Templating {
     export class TemplateProcess {
-        constructor(uiColumns: () => IColumn[]) {
+        constructor(uiColumns: () => IColumn[], executor: PowerTables.Templating.TemplatesExecutor) {
             this._stack = new PowerTables.Templating.RenderingStack();
             this.BackInfo = {
                 CachedVisualStates: {},
@@ -13,6 +13,7 @@ module PowerTables.Templating {
             };
             this.w = this.append.bind(this);
             this.UiColumns = uiColumns();
+            this.Executor = executor;
         }
 
         private _stack: PowerTables.Templating.RenderingStack;
@@ -61,14 +62,19 @@ module PowerTables.Templating {
 
         public d(model: any, type: RenderedObject) {
             this._stack.push(type, model);
-            this.Model = this.Model;
+            this.Model = model;
             this.Type = this._stack.Current.Type;
         }
 
         public u() {
             this._stack.popContext();
-            this.Model = this.Model;
-            this.Type = this._stack.Current.Type;
+            if (!this._stack.Current) {
+                this.Model = null;
+                this.Type = null;
+            } else {
+                this.Model = this._stack.Current.Object;
+                this.Type = this._stack.Current.Type;
+            }
         }
 
         public vstate(stateName: string, state: PowerTables.Templating.IState): void {
@@ -80,15 +86,7 @@ module PowerTables.Templating {
             this.w(`data-state-${stateName}="${index}"`);
         }
 
-        public evt(): void {
-            var commaSeparatedFunctions = arguments[0];
-            var commaSeparatedEvents = arguments[1];
-            var eventArgs: any[] = [];
-            if (arguments.length > 3) {
-                for (var i: number = 2; i <= arguments.length - 2; i++) {
-                    eventArgs.push(arguments[i]);
-                }
-            }
+        public evt(commaSeparatedFunctions: string, commaSeparatedEvents: string, eventArgs: any[]): void {
             var ed: IEventDescriptor = <IEventDescriptor>{
                 EventReceiver: this.Model,
                 Functions: commaSeparatedFunctions.split(','),
@@ -165,7 +163,15 @@ module PowerTables.Templating {
             this.w(`data-track="${trk}"`);
         }
 
-
+        public isLocation(location: string): boolean {
+            if (this.Type === RenderedObject.Plugin) {
+                var loc: string = this.Model.PluginLocation;
+                if (loc.length < location.length) return false;
+                if (loc.length === location.length && loc === location) return true;
+                if (loc.substring(0, location.length) === location) return true;
+            }
+            return false;
+        }
     }
 
 
