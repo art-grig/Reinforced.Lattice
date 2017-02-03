@@ -1,10 +1,10 @@
 ﻿module PowerTables.Templating {
     export interface IBackbindInfo {
-        EventsQueue: IEventDescriptor[];
-        MarkQueue: IMarkDescriptor[];
-        DatepickersQueue: IDatepickerDescriptor[];
-        CallbacksQueue: ICallbackDescriptor[];
-        DestroyCallbacksQueue: ICallbackDescriptor[];
+        EventsQueue: IBackbindEvent[];
+        MarkQueue: IBackbindMark[];
+        DatepickersQueue: IBackbindDatepicker[];
+        CallbacksQueue: IBackbindCallback[];
+        DestroyCallbacksQueue: IBackbindCallback[];
         CachedVisualStates: { [key: string]: IState[] };
         HasVisualStates:boolean;
     }
@@ -12,7 +12,7 @@
     /**
     * @internal
     */
-    export interface IMarkDescriptor {
+    export interface IBackbindMark {
         ElementReceiver: any;
         FieldName: string;
         Key: any;
@@ -21,7 +21,7 @@
     /**
    * @internal
    */
-    export interface IDatepickerDescriptor {
+    export interface IBackbindDatepicker {
         ElementReceiver: any;
         IsNullable: boolean;
     }
@@ -29,7 +29,7 @@
     /**
    * @internal
    */
-    export interface ICallbackDescriptor {
+    export interface IBackbindCallback {
         Element?: HTMLElement;
         Callback: any; // function or function name
         CallbackArguments: any[];
@@ -39,7 +39,7 @@
     /**
      * Descriptor for event from events queue
      */
-    export interface IEventDescriptor {
+    export interface IBackbindEvent {
         /**
          * Event target. 
          * Plugin, cell, header etc. Table entity that will receive event

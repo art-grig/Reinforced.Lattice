@@ -643,4 +643,28 @@
 
         Details: any;
     }
+    /**
+    * Event that was bound from template
+    */
+    export interface ITemplateBoundEvent {
+        /**
+         * Element triggered particular event
+         */
+        Element: HTMLElement;
+
+        /**
+         * Original DOM event
+         */
+        EventObject: Event;
+
+        /**
+         * Event received (to avoid using "this" in come cases)
+         */
+        Receiver: any;
+
+        /**
+         * Event argumetns
+         */
+        EventArguments: any[];
+    }
 }

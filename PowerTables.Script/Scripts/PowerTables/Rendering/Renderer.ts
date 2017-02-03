@@ -10,7 +10,6 @@
             this.RootElement = document.getElementById(rootId);
             this._rootId = rootId;
             this._events = masterTable.Events;
-            this._templateIds = this._instances.Configuration.CoreTemplates;
             this._prefix = prefix;
             this.Executor = PowerTables.Templating._ltcTpl.executor(prefix, this._instances);
             this.BackBinder = new BackBinder(this._instances, this._masterTable.Date);
@@ -52,10 +51,8 @@
 
         private _masterTable: IMasterTable;
         private _instances: PowerTables.Services.InstanceManagerService;
-        private _datepickerFunction: (e: HTMLElement) => void;
         private _rootId: string;
         private _events: PowerTables.Services.EventsService;
-        private _templateIds: ICoreTemplateIds;
         private _prefix: string;
 
         //#region Public methods
@@ -108,6 +105,7 @@
             p.nestContent(renderable, null);
             return this.Executor.endProcess(p).Html;
         }
+
         public renderToString(templateId: string, viewModelBehind: any): string {
             var result = this.Executor.execute(viewModelBehind, templateId);
             return result.Html;
@@ -129,17 +127,7 @@
             return target;
         }
 
-        public destroyAtElement(parent: HTMLElement) {
-            this.Delegator.handleElementDestroy(parent);
-            parent.innerHTML = '';
-        }
-
-        public destroyObject(targetSelector: string) {
-            var parent = <HTMLElement>document.querySelector(targetSelector);
-            this.destroyAtElement(parent);
-        }
-
-        /**
+       /**
          * Removes all dynamically loaded content in table
          * 
          * @returns {} 

@@ -5,7 +5,6 @@
     export class BackBinder {
         private _instances: PowerTables.Services.InstanceManagerService;
         private _dateService: PowerTables.Services.DateService;
-        private _stealer: any;
         public Delegator: PowerTables.Services.EventsDelegatorService;
 
         /**
@@ -15,7 +14,23 @@
             this._instances = instances;
             this._dateService = dateService;
         }
+        
+        /**
+         * Applies binding of events left in events queue
+         * 
+         * @param parentElement Parent element to lookup for event binding attributes
+         * @returns {} 
+         */
+        public backBind(parentElement: HTMLElement, info: PowerTables.Templating.IBackbindInfo): void {
+            this.backbindDatepickers(parentElement,info);
+            this.backbindMark(parentElement,info);
+            this.backbindEvents(parentElement,info);
+            this.backbindVisualStates(parentElement, info);
+            this.backbindCallbacks(parentElement,info);
+            
+        }
 
+        //#region Common backbinder traversal routine
         private traverseBackbind<T>(elements: HTMLElement[], parentElement: HTMLElement, backbindCollection: T[], attribute: string, fn: (backbind: T, element: HTMLElement) => void) {
             for (var i: number = 0; i < elements.length; i++) {
                 var element: HTMLElement = elements[i];
@@ -45,17 +60,13 @@
             if (parent.hasAttribute(attr)) result.push(parent);
             return result;
         }
-        /**
-         * Applies binding of events left in events queue
-         * 
-         * @param parentElement Parent element to lookup for event binding attributes
-         * @returns {} 
-         */
-        public backBind(parentElement: HTMLElement,info:PowerTables.Templating.IBackbindInfo): void {
+        //#endregion
 
+        //#region Datepickers
+        private backbindDatepickers(parentElement: HTMLElement, info: PowerTables.Templating.IBackbindInfo) {
             var elements = this.getMatchingElements(parentElement, 'data-dp');
             // back binding of datepickers
-            this.traverseBackbind<PowerTables.Templating.IDatepickerDescriptor>(elements, parentElement, info.DatepickersQueue, 'data-dp', (b, e) => {
+            this.traverseBackbind<PowerTables.Templating.IBackbindDatepicker>(elements, parentElement, info.DatepickersQueue, 'data-dp', (b, e) => {
                 this._dateService.createDatePicker(e, b.IsNullable);
                 this.Delegator.subscribeDestroy(e, {
                     Callback: this._dateService.destroyDatePicker,
@@ -64,10 +75,16 @@
                 });
             });
 
-            elements = this.getMatchingElements(parentElement, 'data-mrk');
+
+        }
+        //#endregion
+
+        //#region Marks
+        private backbindMark(parentElement: HTMLElement, info: PowerTables.Templating.IBackbindInfo) {
+            var elements = this.getMatchingElements(parentElement, 'data-mrk');
             // back binding of componens needed HTML elements
-            this.traverseBackbind<PowerTables.Templating.IMarkDescriptor>(elements, parentElement, info.MarkQueue, 'data-mrk', (b, e) => {
-                var target = this._stealer || b.ElementReceiver;
+            this.traverseBackbind<PowerTables.Templating.IBackbindMark>(elements, parentElement, info.MarkQueue, 'data-mrk', (b, e) => {
+                var target = b.ElementReceiver;
                 if (Object.prototype.toString.call(b.ElementReceiver[b.FieldName]) === '[object Array]') {
                     target[b.FieldName].push(e);
                 } else if (b.Key != null && b.Key != undefined) {
@@ -79,13 +96,39 @@
                 }
             });
 
-            elements = this.getMatchingElements(parentElement, `data-evb`);
+        }
+        //#endregion
+
+        //#region Callbacks
+        private backbindCallbacks(parentElement: HTMLElement, info: PowerTables.Templating.IBackbindInfo) {
+            var elements = this.getMatchingElements(parentElement, `data-cb`);
+            this.traverseBackbind<PowerTables.Templating.IBackbindCallback>(elements, parentElement, info.CallbacksQueue, 'data-cb', (b, e) => {
+                var t = this.evalCallback(b.Callback);
+                (t.fn).apply(t.target, [e].concat(b.CallbackArguments));
+            });
+
+            elements = this.getMatchingElements(parentElement, `data-dcb`);
+            this.traverseBackbind<PowerTables.Templating.IBackbindCallback>(elements, parentElement, info.DestroyCallbacksQueue, 'data-dcb', (b, e) => {
+                var tp = this.evalCallback(b.Callback);
+                this.Delegator.subscribeDestroy(e, {
+                    CallbackArguments: b.CallbackArguments,
+                    Target: tp.target,
+                    Callback: tp.fn
+                });
+            });
+        }
+
+        //#endregion
+
+        //#region Events
+        private backbindEvents(parentElement: HTMLElement, info: PowerTables.Templating.IBackbindInfo) {
+            var elements = this.getMatchingElements(parentElement, `data-evb`);
             // backbinding of events
-            this.traverseBackbind<PowerTables.Templating.IEventDescriptor>(elements, parentElement, info.EventsQueue, 'data-be', (subscription, element) => {
+            this.traverseBackbind<PowerTables.Templating.IBackbindEvent>(elements, parentElement, info.EventsQueue, 'data-be', (subscription, element) => {
                 for (var j: number = 0; j < subscription.Functions.length; j++) {
                     var bindFn: string = subscription.Functions[j];
                     var handler: void | Object = null;
-                    var target = this._stealer || subscription.EventReceiver;
+                    var target = subscription.EventReceiver;
 
                     if (target[bindFn] && (typeof target[bindFn] === 'function')) handler = subscription.EventReceiver[bindFn];
                     else {
@@ -104,51 +147,7 @@
 
                 }
             });
-
-            if (info.HasVisualStates) {
-                var targetPendingNormal: any[] = [];
-                for (var vsk in info.CachedVisualStates) {
-                    if (info.CachedVisualStates.hasOwnProperty(vsk)) {
-                        var state = info.CachedVisualStates[vsk];
-                        elements = this.getMatchingElements(parentElement, `data-state-${vsk}`);
-                        for (var i = 0; i < elements.length; i++) {
-                            var element = elements[i];
-                            state[i].Element = element;
-                            element.removeAttribute(`data-state-${vsk}`);
-
-                            var target = <{ VisualStates: VisualState }>this._stealer || state[i].Receiver;
-                            if (targetPendingNormal.indexOf(target) < 0) {
-                                targetPendingNormal.push(target);
-                                target.VisualStates = new VisualState();
-                            }
-                            if (!target.VisualStates) target.VisualStates = new VisualState();
-                            if (!target.VisualStates.States.hasOwnProperty(vsk)) target.VisualStates.States[vsk] = [];
-                            target.VisualStates.States[vsk].push(state[i]);
-                        }
-                    }
-                }
-                info.HasVisualStates = false;
-                this.resolveNormalStates(targetPendingNormal);
-                info.CachedVisualStates = {};
-            }
-
-            elements = this.getMatchingElements(parentElement, `data-cb`);
-            this.traverseBackbind<PowerTables.Templating.ICallbackDescriptor>(elements, parentElement, info.CallbacksQueue, 'data-cb', (b, e) => {
-                var t = this.evalCallback(b.Callback);
-                (t.fn).apply(t.target, [e].concat(b.CallbackArguments));
-            });
-
-            elements = this.getMatchingElements(parentElement, `data-dcb`);
-            this.traverseBackbind<PowerTables.Templating.ICallbackDescriptor>(elements, parentElement, info.DestroyCallbacksQueue, 'data-dcb', (b, e) => {
-                var tp = this.evalCallback(b.Callback);
-                this.Delegator.subscribeDestroy(e, {
-                    CallbackArguments: b.CallbackArguments,
-                    Target: tp.target,
-                    Callback: tp.fn
-                });
-            });
         }
-
 
         private evalCallback(calbackString: any): { fn: any, target: any } {
             if (typeof calbackString === "function") return { fn: calbackString, target: window };
@@ -177,12 +176,46 @@
                 return { target: window[path], parent: window };
             }
         }
+        //#endregion
+
+        //#region Visual States
+        private backbindVisualStates(parentElement: HTMLElement, info: PowerTables.Templating.IBackbindInfo) {
+            if (info.HasVisualStates) {
+                var targetPendingNormal: any[] = [];
+                for (var vsk in info.CachedVisualStates) {
+                    if (info.CachedVisualStates.hasOwnProperty(vsk)) {
+                        var state = info.CachedVisualStates[vsk];
+                        var elements = this.getMatchingElements(parentElement, `data-state-${vsk}`);
+                        for (var i = 0; i < elements.length; i++) {
+                            var element = elements[i];
+                            state[i].Element = element;
+                            element.removeAttribute(`data-state-${vsk}`);
+
+                            var target = <{ VisualStates: VisualState }>state[i].Receiver;
+                            if (targetPendingNormal.indexOf(target) < 0) {
+                                targetPendingNormal.push(target);
+                                target.VisualStates = new VisualState();
+                            }
+                            if (!target.VisualStates) target.VisualStates = new VisualState();
+                            if (!target.VisualStates.States.hasOwnProperty(vsk)) target.VisualStates.States[vsk] = [];
+                            target.VisualStates.States[vsk].push(state[i]);
+                        }
+                    }
+                }
+                info.HasVisualStates = false;
+                this.resolveNormalStates(targetPendingNormal);
+                info.CachedVisualStates = {};
+            }
+        }
+
+
         private resolveNormalStates(targets: { VisualStates: VisualState }[]) {
             for (var i = 0; i < targets.length; i++) {
                 this.addNormalState(targets[i].VisualStates.States, targets[i]);
             }
         }
 
+        
         private addNormalState(states: { [key: string]: PowerTables.Templating.IState[] }, target: any) {
             var normalState: PowerTables.Templating.IState[] = [];
             var trackedElements: HTMLElement[] = [];
@@ -235,30 +268,8 @@
                 }
             }
         }
+        //#endregion
     }
 
-    /**
-    * Event that was bound from template
-    */
-    export interface ITemplateBoundEvent {
-        /**
-         * Element triggered particular event
-         */
-        Element: HTMLElement;
-
-        /**
-         * Original DOM event
-         */
-        EventObject: Event;
-
-        /**
-         * Event received (to avoid using "this" in come cases)
-         */
-        Receiver: any;
-
-        /**
-         * Event argumetns
-         */
-        EventArguments: any[];
-    }
+    
 }

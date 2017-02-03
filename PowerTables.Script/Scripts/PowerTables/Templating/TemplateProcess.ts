@@ -87,7 +87,7 @@ module PowerTables.Templating {
         }
 
         public evt(commaSeparatedFunctions: string, commaSeparatedEvents: string, eventArgs: any[]): void {
-            var ed: IEventDescriptor = <IEventDescriptor>{
+            var ed: PowerTables.Templating.IBackbindEvent = <PowerTables.Templating.IBackbindEvent>{
                 EventReceiver: this.Model,
                 Functions: commaSeparatedFunctions.split(','),
                 Events: commaSeparatedEvents.split(','),
@@ -135,7 +135,7 @@ module PowerTables.Templating {
                 var tp = PowerTables.Rendering.BackBinder.traverseWindowPath(receiverPath);
                 receiver = tp.target || tp.parent;
             }
-            var md: IMarkDescriptor = <IMarkDescriptor>{
+            var md: PowerTables.Templating.IBackbindMark = <PowerTables.Templating.IBackbindMark>{
                 ElementReceiver: receiver,
                 FieldName: fieldName,
                 Key: key
@@ -148,7 +148,7 @@ module PowerTables.Templating {
             var index: number = this.BackInfo.DatepickersQueue.length;
 
             if (condition) {
-                var md: IDatepickerDescriptor = <IDatepickerDescriptor>{
+                var md: PowerTables.Templating.IBackbindDatepicker = <PowerTables.Templating.IBackbindDatepicker>{
                     ElementReceiver: this._stack.Current.Object,
                     IsNullable: nullable
                 };

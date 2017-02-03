@@ -63,12 +63,17 @@
             }
         }
 
-        private destroyElement(element: HTMLElement) {
+        public destroySelector(targetSelector: string) {
+            var parent = <HTMLElement>document.querySelector(targetSelector);
+            this.destroyElement(parent);
+        }
+
+        public destroyElement(element: HTMLElement) {
             element.parentElement.removeChild(element);
             this._ed.handleElementDestroy(element);
         }
 
-        private destroyElements(elements: NodeList) {
+        public destroyElements(elements: NodeList) {
             for (var i = 0; i < elements.length; i++) {
                 this.destroyElement(<HTMLElement>elements.item(i));
             }

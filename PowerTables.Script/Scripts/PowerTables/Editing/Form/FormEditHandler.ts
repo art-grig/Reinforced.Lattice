@@ -126,7 +126,7 @@
                 if (!this._isEditing) {
                     this.MasterTable.Events.Edit.invokeAfter(this, this.CurrentDataObjectModified);
                     this.CurrentDataObjectModified = null;
-                    this.MasterTable.Renderer.destroyObject(this.Configuration.FormTargetSelector);
+                    this.MasterTable.Renderer.Modifier.destroySelector(this.Configuration.FormTargetSelector);
                     this._currentFormElement = null;
                     this._currentForm = null;
                 }
@@ -139,7 +139,7 @@
             }
             this._isEditing = false;
             this.CurrentDataObjectModified = null;
-            this.MasterTable.Renderer.destroyObject(this.Configuration.FormTargetSelector);
+            this.MasterTable.Renderer.Modifier.destroySelector(this.Configuration.FormTargetSelector);
             this._currentFormElement = null;
             this._currentForm = null;
         }

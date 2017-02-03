@@ -335,7 +335,7 @@
                 } else {
                     if (this._config.Details.TempalteId != null && this._config.Details.TempalteId != undefined) {
                         if (this.RecentDetails.Data != null) {
-                            this.MasterTable.Renderer.destroyAtElement(this.DetailsPlaceholder);
+                            this.MasterTable.Renderer.Modifier.destroyElement(this.DetailsPlaceholder);
                         }
                         var param = {
                             Subject: this.Subject,
@@ -445,14 +445,14 @@
                     this.RootElement = null;
                     this.ContentPlaceholder = null;
                     this.DetailsPlaceholder = null;
-                    this.MasterTable.Renderer.destroyObject(this._commandDescription.Confirmation.TargetSelector);
+                    this.MasterTable.Renderer.Modifier.destroySelector(this._commandDescription.Confirmation.TargetSelector);
                     if (this._originalCallback) this._originalCallback(params);
                 });
         }
 
         public dismiss() {
             var params = this.collectCommandParameters();
-            this.MasterTable.Renderer.destroyObject(this._commandDescription.Confirmation.TargetSelector);
+            this.MasterTable.Renderer.Modifier.destroySelector(this._commandDescription.Confirmation.TargetSelector);
             this.RootElement = null;
             this.ContentPlaceholder = null;
             this.DetailsPlaceholder = null;
