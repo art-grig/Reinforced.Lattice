@@ -222,7 +222,10 @@ namespace PowerTables.Typings
             builder.ExportAsInterface<MixedPartitionConfiguration>().WithPublicProperties();
             builder.ExportAsEnum<PartitionType>();
 
-            builder.ExportAsInterface<ScrollbarPluginUiConfig>().WithPublicProperties();
+            builder.ExportAsInterface<ScrollbarPluginUiConfig>().WithPublicProperties()
+                .WithProperty(c=>c.PositionCorrector,c=>c.Type("any"));
+            builder.ExportAsInterface<ScrollbarKeyMappings>().WithPublicProperties();
+            builder.ExportAsInterface<ScrollbarForces>().WithPublicProperties();
             builder.ExportAsEnum<StickDirection>();
             builder.ExportAsEnum<StickHollow>();
 

@@ -380,6 +380,14 @@
             return parser.html2Dom(html);
         }
 
+        public createElementFromTemplate(templateId: string, viewModelBehind: any): HTMLElement {
+            var p = this._tpl.execute(viewModelBehind,templateId);
+            var parser: Rendering.Html2Dom.HtmlParser = new Rendering.Html2Dom.HtmlParser();
+            var element = parser.html2Dom(p.Html);
+            this._backBinder.backBind(element, p.BackbindInfo);
+            return element;
+        }
+
         private replaceElement(element: HTMLElement, html: string): HTMLElement {
             if (!element) return null;
             var node: HTMLElement = this.createElement(html);

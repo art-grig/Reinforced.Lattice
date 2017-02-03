@@ -558,6 +558,25 @@ module PowerTables.Plugins.Scrollbar {
 		StickDirection: PowerTables.Plugins.Scrollbar.StickDirection;
 		StickHollow: PowerTables.Plugins.Scrollbar.StickHollow;
 		DefaultTemplateId: string;
+		Keys: PowerTables.Plugins.Scrollbar.IScrollbarKeyMappings;
+		Forces: PowerTables.Plugins.Scrollbar.IScrollbarForces;
+		PositionCorrector: any;
+		UseTakeAsPageForce: boolean;
+	}
+	export interface IScrollbarKeyMappings
+	{
+		SingleUp: number[];
+		SingleDown: number[];
+		PageUp: number[];
+		PageDown: number[];
+		Home: number[];
+		End: number[];
+	}
+	export interface IScrollbarForces
+	{
+		WheelForce: number;
+		SingleForce: number;
+		PageForce: number;
 	}
 	export enum StickDirection { 
 		Right = 0, 

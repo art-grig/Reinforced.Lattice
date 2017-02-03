@@ -108,6 +108,7 @@
     <Compile Include="Editing\EditCommandHandlerExtensions.cs" />
     <Compile Include="Mvc\MvcRequestHandler.cs" />
     <Compile Include="Plugins\Scrollbar\ScrollbarExtensions.cs" />
+    <Compile Include="Plugins\Scrollbar\ScrollbarKeyMappingsWrapper.cs" />
     <Compile Include="Plugins\Scrollbar\ScrollbarPluginTemplateRegion.cs" />
     <Compile Include="Plugins\Scrollbar\ScrollbarPluginUiConfig.cs" />
     <Compile Include="Processing\DefaultCommandHandler.cs" />

@@ -145,6 +145,7 @@
     <Compile Include="Models\Tutorial\NewEditing.cs" />
     <Compile Include="Models\Tutorial\PermanentQueryPartProvider.cs" />
     <Compile Include="Models\Tutorial\ClientReloadingWithQueryPartProvider.cs" />
+    <Compile Include="Models\Tutorial\ScrollbarTest.cs" />
     <Compile Include="Models\Tutorial\SubscribingCellAndRowEvents.cs" />
     <Compile Include="Models\Tutorial\TableAdvancedTemplating.cs" />
     <Compile Include="Models\Tutorial\ClientTotals.cs" />

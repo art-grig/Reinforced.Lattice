@@ -224,6 +224,17 @@ namespace PowerTables.Mvc.Controllers
             return Handle(c => c.ClientTotals());
         }
 
+        [Tutorial("Scrollbar Test")]
+        public ActionResult ScrollbarTest()
+        {
+            return TutPage(c => c.ScrollbarTest());
+        }
+
+        public ActionResult ScrollbarTestHandle()
+        {
+            return Handle(c => c.ScrollbarTest());
+        }
+
 
         [Tutorial("Table with hierarchy")]
         public ActionResult HierarchyTable()

@@ -10,6 +10,7 @@
         private _scrollWidth: number;
         private _scrollHeight: number;
         private _scollbar: HTMLElement;
+        private _availableSpace: number;
 
         public init(masterTable: IMasterTable): void {
             super.init(masterTable);
@@ -41,8 +42,58 @@
         //#region Coords calculation
 
         private updateCoords() {
-            var newCoords = this.getCoords();
+            if (!this._scollbar) return;
+            if (!this._stickElement) return;
+            if (this.MasterTable.DataHolder.DisplayedData.length === 0) {
+                this.MasterTable.Renderer.Modifier.hideElement(this._scollbar);
+                return;
+            } else {
+                this.MasterTable.Renderer.Modifier.showElement(this._scollbar);
+            }
 
+            var newCoords = this.getCoords();
+            if (newCoords.height != undefined) this._scollbar.style.height = newCoords.height + 'px';
+            if (newCoords.width != undefined) this._scollbar.style.width = newCoords.width + 'px';
+            if (newCoords.left != undefined) this._scollbar.style.left = newCoords.left + 'px';
+            if (newCoords.top != undefined) this._scollbar.style.top = newCoords.top + 'px';
+            this.calculateAvailableSpace();
+            this.adjustScrollerHeight();
+            this.adjustScrollerPosition();
+        }
+
+        private adjustScrollerPosition() {
+            if (!this.Scroller) return;
+            var total = this.MasterTable.Partition.IsTotalCountKnown
+                ? this.MasterTable.Partition.TotalCount
+                : this.MasterTable.DataHolder.StoredData.length;
+            var d = this._availableSpace / total;
+            var h = d * this.MasterTable.Partition.Skip;
+            if (this.Configuration.IsHorizontal) this.Scroller.style.left = h + 'px';
+            else this.Scroller.style.top = h + 'px';
+        }
+
+        private adjustScrollerHeight() {
+            if (!this.Scroller) return;
+            var total = this.MasterTable.Partition.IsTotalCountKnown
+                ? this.MasterTable.Partition.TotalCount
+                : this.MasterTable.DataHolder.StoredData.length;
+            var sz = (this.MasterTable.Partition.Take * this._availableSpace) / total;
+            if (this.Configuration.IsHorizontal) this.Scroller.style.width = sz + 'px';
+            else this.Scroller.style.height = sz + 'px';
+        }
+
+        private calculateAvailableSpace() {
+            var box = this._scollbar.getBoundingClientRect();
+            var aspace = this.Configuration.IsHorizontal ? box.width : box.height;
+            if (this.UpArrow) {
+                box = this.UpArrow.getBoundingClientRect();
+                aspace -= this.Configuration.IsHorizontal ? box.width : box.height;
+            }
+            if (this.DownArrow) {
+                box = this.DownArrow.getBoundingClientRect();
+                aspace -= this.Configuration.IsHorizontal ? box.width : box.height;
+            }
+            this._availableSpace = aspace;
         }
 
         private getCoords(): Coords {
@@ -119,13 +170,41 @@
                     break;
             }
 
-            this._scollbar = this.MasterTable.Renderer.renderObjectTo(this.RawConfig.TemplateId, this, document.body);
-            
+            this._scollbar = this.MasterTable.Renderer.Modifier.createElementFromTemplate(this.RawConfig.TemplateId, this);
+            document.body.appendChild(this._scollbar);
+            this._scollbar.style.position = 'absolute';
+            var style = this._scollbar.style;
+            var coord = this._scollbar.getBoundingClientRect();
+
+            if (this.Configuration.IsHorizontal) {
+                if (style.height) this._scrollHeight = parseInt(style.height);
+                else this._scrollHeight = coord.height;
+            }else
+            {
+                if (style.width) this._scrollWidth = parseInt(style.width);
+                else this._scrollWidth = coord.width;
+            }
             this.updateCoords();
+        }
+
+        private onDataRendered(e: ITableEventArgs<any>) {
+            this.updateCoords();
+        }
+
+        private onPartitionChange(e: ITableEventArgs<IPartitionChangeEventArgs>) {
+            if (e.EventArgs.Take !== e.EventArgs.PreviousTake) {
+                this.adjustScrollerHeight();
+                this.adjustScrollerPosition();
+            } else if (e.EventArgs.PreviousSkip !== e.EventArgs.Skip) {
+                this.adjustScrollerPosition();
+            }
         }
 
         public subscribe(e: PowerTables.Services.EventsService): void {
             e.LayoutRendered.subscribeAfter(this.onLayoutRendered.bind(this), 'scrollbar');
+            e.DataRendered.subscribe(this.onDataRendered.bind(this), 'scrollbar');
+            e.PartitionChanged.subscribeAfter(this.onPartitionChange.bind(this),'scrollbar');
+            PowerTables.Services.EventsDelegatorService.addHandler(<any>window, 'resize', this.updateCoords.bind(this));
         }
      
     }

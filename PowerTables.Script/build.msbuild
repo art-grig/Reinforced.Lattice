@@ -13,13 +13,19 @@
     <TypeScriptCompile Include="..\PowerTables.Typings\Scripts\Interfaces.ts">
       <Link>Scripts\Interfaces.ts</Link>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="Scripts\PowerTables\CoreInterfaces.ts" />
+    
+    <TypeScriptCompile Include="Scripts\PowerTables\Templating\BackbindInfo.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Templating\Templates.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Templating\TemplateProcess.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Templating\Lib.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Templating\TemplatesExecutor.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Templating\Driver.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Event.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\TrackHelper.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\ComponentsContainer.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\CoreInterfaces.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Services\DateService.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Services\EventsDelegatorService.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\ExternalTypings.d.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Services\EventsService.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Services\Controller.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Services\DataHolderService.ts" />
@@ -28,13 +34,11 @@
     <TypeScriptCompile Include="Scripts\PowerTables\Services\CommandsService.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Services\SelectionService.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\BackBinder.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Rendering\ContentRenderer.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\DOMModifier.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\HtmlToDom.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Rendering\LayoutRenderer.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\DOMLocator.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\Renderer.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Rendering\RenderingStack.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Templating\RenderingStack.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\VisualState.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\PowerTables.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\PluginBase.ts" />
@@ -51,6 +55,7 @@
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\CheckboxifyPlugin.ts" />
     <TypeScriptCompile Include="Scripts\Typings\CheckboxifyPlugin.d.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\ToolbarPlugin.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\ScrollbarPlugin.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\FormwatchPlugin.ts" />
     <TypeScriptCompile Include="Scripts\Typings\HideoutPlugin.d.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Services\Partition\ClientPartitionService.ts" />
@@ -64,7 +69,6 @@
     <TypeScriptCompile Include="Scripts\PowerTables\Services\MessagesService.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\ReloadPlugin.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\LoadingPlugin.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\RowActionPlugin.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\HierarchyPlugin.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Editing\EditorBase.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Editing\EditHandlerBase.ts" />

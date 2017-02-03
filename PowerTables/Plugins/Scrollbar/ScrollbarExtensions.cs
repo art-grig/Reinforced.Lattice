@@ -11,7 +11,7 @@ namespace PowerTables.Plugins.Scrollbar
         public static T Scrollbar<T>(this T conf, Action<PluginConfigurationWrapper<ScrollbarPluginUiConfig>> ui = null)
             where T : IConfigurator
         {
-            conf.TableConfiguration.UpdatePluginConfig(PluginId,ui);
+            conf.TableConfiguration.UpdatePluginConfig(PluginId, ui);
             return conf;
         }
 
@@ -20,7 +20,7 @@ namespace PowerTables.Plugins.Scrollbar
             StickHollow hollow = StickHollow.Internal)
         {
             v.Configuration.IsHorizontal = false;
-            v.Configuration.StickDirection = (StickDirection) stick;
+            v.Configuration.StickDirection = (StickDirection)stick;
             v.Configuration.StickHollow = hollow;
             return v;
         }
@@ -111,7 +111,31 @@ namespace PowerTables.Plugins.Scrollbar
             v.Configuration.KeyboardEventsCatcher = null;
             return v;
         }
+
+        public static PluginConfigurationWrapper<ScrollbarPluginUiConfig> KeyMappings(
+            this PluginConfigurationWrapper<ScrollbarPluginUiConfig> v, Action<ScrollbarKeyMappingsWrapper> mappings)
+        {
+            ScrollbarKeyMappingsWrapper w = new ScrollbarKeyMappingsWrapper(v.Configuration.Keys);
+            mappings(w);
+            return v;
+        }
         #endregion
+
+        public static PluginConfigurationWrapper<ScrollbarPluginUiConfig> Forces(
+            this PluginConfigurationWrapper<ScrollbarPluginUiConfig> v, double? pageForce = null, double? wheelForce = null, double? singleForce = null)
+        {
+            if (pageForce.HasValue) v.Configuration.Forces.PageForce = pageForce.Value;
+            if (wheelForce.HasValue) v.Configuration.Forces.WheelForce = wheelForce.Value;
+            if (singleForce.HasValue) v.Configuration.Forces.SingleForce = singleForce.Value;
+            return v;
+        }
+
+        public static PluginConfigurationWrapper<ScrollbarPluginUiConfig> TakeAsPageForce(
+            this PluginConfigurationWrapper<ScrollbarPluginUiConfig> v, bool takeAsPageForce = true)
+        {
+            v.Configuration.UseTakeAsPageForce = takeAsPageForce;
+            return v;
+        }
     }
 
     public enum TableElement

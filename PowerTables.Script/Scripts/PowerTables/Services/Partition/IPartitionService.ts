@@ -5,6 +5,7 @@
 
         IsAllDataRetrieved: boolean;
         IsTotalCountKnown: boolean;
+        TotalCount: number;
 
         setSkip(skip: number): void;
         setTake(take?: number): void;

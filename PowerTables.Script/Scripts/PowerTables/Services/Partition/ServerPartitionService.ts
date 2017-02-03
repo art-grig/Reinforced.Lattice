@@ -20,5 +20,6 @@
         public Take: number;
         public IsAllDataRetrieved: boolean;
         public IsTotalCountKnown: boolean;
+        public TotalCount: number;
     }
 }

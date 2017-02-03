@@ -21,7 +21,7 @@ namespace PowerTables.Plugins.Scrollbar
         /// </summary>
         /// <param name="t"></param>
         /// <param name="templateId">Template ID</param>
-        public static ScrollbarPluginTemplateRegion Scrollbar(this IViewPlugins t, string templateId = "scrollbar")
+        public static ScrollbarPluginTemplateRegion Scroll(this IViewPlugins t, string templateId = "scrollbar")
         {
             return new ScrollbarPluginTemplateRegion(t, templateId);
         }
