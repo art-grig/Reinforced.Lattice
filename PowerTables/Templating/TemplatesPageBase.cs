@@ -10,12 +10,12 @@ namespace PowerTables.Templating
     {
         public override void ExecutePageHierarchy()
         {
-            this.WriteLiteral("<script type=\"text/javascript\">");
+            if (Model.RenderScriptTags) this.WriteLiteral("<script type=\"text/javascript\">");
             _hook = new ScopedWriter(base.GetOutputWriter(), this);
             OutputStack.Push(_hook);
             base.ExecutePageHierarchy();
             OutputStack.Pop();
-            this.WriteLiteral("</script>");
+            if (Model.RenderScriptTags) this.WriteLiteral("</script>");
         }
 
         /// <summary>
