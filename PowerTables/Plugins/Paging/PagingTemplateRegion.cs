@@ -45,7 +45,7 @@ namespace PowerTables.Plugins.Paging
     public class PagingGotoPageTemplate : CodeBlock, IProvidesMarking, IProvidesEventsBinding, IProvidesVisualState
     {
         public PagingGotoPageTemplate(IRawProvider writer)
-            : base("if(o.Configuration.UseGotoPage)", "}", writer)
+            : base("if(o.Configuration.UseGotoPage){", "}", writer)
         {
         }
 

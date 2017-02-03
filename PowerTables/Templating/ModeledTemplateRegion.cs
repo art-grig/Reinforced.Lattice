@@ -4,7 +4,7 @@ namespace PowerTables.Templating
 {
     public class ModeledTemplateRegion<T> : TemplateRegion, IModelProvider<T>
     {
-        public ModeledTemplateRegion(string prefix, string id, ITemplatesScope scope) : base(prefix, id, scope)
+        public ModeledTemplateRegion(TemplateRegionType type, string prefix, string id, ITemplatesScope scope) : base(type, prefix, id, scope)
         {
         }
 

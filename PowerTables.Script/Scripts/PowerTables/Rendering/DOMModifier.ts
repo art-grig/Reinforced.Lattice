@@ -6,28 +6,19 @@
         /*
         * @internal
         */
-        constructor(stack: RenderingStack, locator: DOMLocator, backBinder: BackBinder, templatesProvider: ITemplatesProvider, layoutRenderer: LayoutRenderer, instances: PowerTables.Services.InstanceManagerService, ed: PowerTables.Services.EventsDelegatorService,
-            contentRenderer:ContentRenderer        ) {
-            this._stack = stack;
+        constructor(executor: PowerTables.Templating.TemplatesExecutor, locator: DOMLocator, backBinder: BackBinder, instances: PowerTables.Services.InstanceManagerService, ed: PowerTables.Services.EventsDelegatorService) {
             this._locator = locator;
             this._backBinder = backBinder;
-            this._templatesProvider = templatesProvider;
-            this._layoutRenderer = layoutRenderer;
             this._instances = instances;
             this._ed = ed;
-            this._contentRenderer = contentRenderer;
+            this._tpl = executor;
         }
 
+        private _tpl: PowerTables.Templating.TemplatesExecutor;
         private _ed: PowerTables.Services.EventsDelegatorService;
-        private _stack: RenderingStack;
         private _locator: DOMLocator;
         private _backBinder: BackBinder;
-        private _templatesProvider: ITemplatesProvider;
-        private _layoutRenderer: LayoutRenderer;
-        private _contentRenderer: ContentRenderer;
         private _instances: PowerTables.Services.InstanceManagerService;
-
-        
 
         //#region Show/hide infrastructure
         private getRealDisplay(elem): string {
@@ -106,7 +97,6 @@
          * @returns {} 
          */
         public redrawPlugin(plugin: IPlugin): HTMLElement {
-            this._stack.clear();
             var oldPluginElement: HTMLElement = this._locator.getPluginElement(plugin);
             var html: string = this._layoutRenderer.renderPlugin(plugin);
             var newPluginElement = this.replaceElement(oldPluginElement, html);;
@@ -115,7 +105,6 @@
         }
 
         public renderPlugin(plugin: IPlugin): HTMLElement {
-            this._stack.clear();
             var html: string = this._layoutRenderer.renderPlugin(plugin);
             return this.createElement(html);
         }
@@ -180,8 +169,6 @@
          * @returns {} 
          */
         public redrawRow(row: IRow): HTMLElement {
-            this._stack.clear();
-            this._stack.push(RenderingContextType.Row, row);
             var wrapper: (arg: any) => string = this._templatesProvider.getCachedTemplate('rowWrapper');
             var html: string;
             if (row.renderElement) {
@@ -219,8 +206,7 @@
          * @returns {} 
          */
         public appendRow(row: IRow, beforeRowAtIndex: number): HTMLElement {
-            this._stack.clear();
-            this._stack.push(RenderingContextType.Row, row);
+            
             var wrapper: (arg: any) => string = this._templatesProvider.getCachedTemplate('rowWrapper');
             var html: string;
             if (row.renderElement) {
@@ -232,8 +218,7 @@
             var newRowElement: HTMLElement = this.createElement(html);
             referenceNode.parentNode.insertBefore(newRowElement, referenceNode);
             this._backBinder.backBind(newRowElement);
-            this._stack.popContext();
-            this._stack.clear();
+            
             return newRowElement;
         }
 
@@ -323,7 +308,6 @@
          * @param column Column which header is to be redrawn         
          */
         public redrawHeader(column: IColumn): HTMLElement {
-            this._stack.clear();
             var html: string = this._layoutRenderer.renderHeader(column);
             var oldHeaderElement: HTMLElement = this._locator.getHeaderElement(column.Header);
             var newElement: HTMLElement = this.replaceElement(oldHeaderElement, html);

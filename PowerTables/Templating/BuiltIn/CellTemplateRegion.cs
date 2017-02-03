@@ -5,7 +5,7 @@ namespace PowerTables.Templating.BuiltIn
     public class CellTemplateRegion<T> : ModeledTemplateRegion<ICellModel<T>>
     {
         public CellTemplateRegion(string prefix, string id, ITemplatesScope scope)
-            : base(prefix, id, scope)
+            : base(TemplateRegionType.Custom, prefix, id, scope)
         {
         }
     }

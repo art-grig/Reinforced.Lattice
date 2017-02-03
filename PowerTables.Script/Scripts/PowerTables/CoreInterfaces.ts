@@ -48,8 +48,6 @@
          */
         init(masterTable: IMasterTable): void;
 
-        isLocation(loc:string):boolean;
-
     }
 
     /**
@@ -175,14 +173,14 @@
 		* @param templatesProvider Cached templates provider
 		* @returns String containing HTML code for element
 		*/
-        renderElement?: (templatesProvider: ITemplatesProvider) => string;
+        renderElement?: (templateProcess: PowerTables.Templating.TemplateProcess) => void;
         /**
 		* Renders element to HTML string using templates provider
 		*
 		* @param templatesProvider Cached templates provider
 		* @returns String containing HTML code for element
 		*/
-        renderContent?: (templatesProvider: ITemplatesProvider) => string;
+        renderContent?: (templateProcess: PowerTables.Templating.TemplateProcess) => void ;
     }
 
     /** 

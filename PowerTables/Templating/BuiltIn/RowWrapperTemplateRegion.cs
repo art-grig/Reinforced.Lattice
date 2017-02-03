@@ -11,7 +11,7 @@ namespace PowerTables.Templating.BuiltIn
         
         public bool IsTrackSet { get; set; }
 
-        public RowWrapperTemplateRegion(string prefix, string id, ITemplatesScope writer) : base(prefix, id, writer)
+        public RowWrapperTemplateRegion(string prefix, string id, ITemplatesScope writer) : base(TemplateRegionType.Row, prefix, id, writer)
         {
         }
     }

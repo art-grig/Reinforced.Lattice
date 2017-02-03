@@ -7,10 +7,10 @@ using PowerTables.Templating.Handlebars;
 namespace PowerTables.Editing
 {
     public class CellValidationMessagesTemplateRegion : TemplateRegion
-        ,IModelProvider<IValidationMessagesViewModel>
+        , IModelProvider<IValidationMessagesViewModel>
     {
         public CellValidationMessagesTemplateRegion(string prefix, string id, ITemplatesScope scope)
-            : base(prefix, id, scope)
+            : base(TemplateRegionType.Custom, prefix, id, scope)
         {
         }
 

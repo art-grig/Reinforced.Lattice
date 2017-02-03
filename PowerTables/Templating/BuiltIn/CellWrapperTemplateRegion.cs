@@ -10,7 +10,7 @@ namespace PowerTables.Templating.BuiltIn
     {
         public bool IsTrackSet { get; set; }
 
-        public CellWrapperTemplateRegion(string prefix, string id, ITemplatesScope writer) : base(prefix, id, writer)
+        public CellWrapperTemplateRegion(string prefix, string id, ITemplatesScope writer) : base(TemplateRegionType.Cell, prefix, id, writer)
         {
         }
     }

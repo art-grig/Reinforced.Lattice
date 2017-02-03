@@ -10,7 +10,7 @@ namespace PowerTables.Templating.BuiltIn
         public bool IsTrackSet { get; set; }
 
         public MessageTemplateRegion(string prefix, string id, ITemplatesScope writer)
-            : base(prefix, id, writer)
+            : base(TemplateRegionType.Message, prefix, id, writer)
         {
         }
     }

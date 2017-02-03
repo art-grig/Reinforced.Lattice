@@ -6,7 +6,7 @@ namespace PowerTables.Templating.BuiltIn
     public class LayoutTemplateRegion : TemplateRegion, IProvidesEventsBinding
     {
         public LayoutTemplateRegion(string prefix, string templateId, ITemplatesScope scope)
-            : base(prefix, templateId, scope)
+            : base(TemplateRegionType.Custom,prefix, templateId, scope)
         {
         }
     }
@@ -29,19 +29,16 @@ namespace PowerTables.Templating.BuiltIn
         /// <returns>Placeholder template entry</returns>
         public static MvcHtmlString Plugins(this LayoutTemplateRegion t, string position = null)
         {
-            return MvcHtmlString.Create(string.Format("{{{{{{Plugins \"{0}\"}}}}}}", position));
+            if (string.IsNullOrEmpty(position)) return t._("d.plugins(p);");
+            return t._("d.plugins(p,'{0}');", position);
         }
-
-        private static readonly MvcHtmlString _body = MvcHtmlString.Create("{{{Body}}}");
-        private static readonly MvcHtmlString _headers = MvcHtmlString.Create("{{{Headers}}}");
-        private static readonly MvcHtmlString _filters = MvcHtmlString.Create("{{{Plugins \"filter\"}}}");
 
         /// <summary>
         /// Placeholder for table body (cells and rows)
         /// </summary>
         public static MvcHtmlString Body(this LayoutTemplateRegion t)
         {
-            return _body;
+            return t._("d.body(p);");
         }
 
         /// <summary>
@@ -49,7 +46,7 @@ namespace PowerTables.Templating.BuiltIn
         /// </summary>
         public static MvcHtmlString Headers(this LayoutTemplateRegion t)
         {
-            return _headers;
+            return t._("d.headers(p);");
         }
 
         /// <summary>
@@ -57,7 +54,7 @@ namespace PowerTables.Templating.BuiltIn
         /// </summary>
         public static MvcHtmlString Filters(this LayoutTemplateRegion t)
         {
-            return _filters;
+            return t._("d.filters(p);");
         }
 
         /// <summary>
@@ -67,7 +64,7 @@ namespace PowerTables.Templating.BuiltIn
         /// <returns>Placeholder template entry</returns>
         public static MvcHtmlString Header(this LayoutTemplateRegion t, string columnName)
         {
-            return MvcHtmlString.Create(string.Format("{{{{Header \"{0}\"}}}}", columnName));
+            return t._("d.header(p,'{0}');", columnName);
         }
 
         /// <summary>
@@ -77,7 +74,7 @@ namespace PowerTables.Templating.BuiltIn
         /// <returns>Placeholder template entry</returns>
         public static MvcHtmlString Filter(this LayoutTemplateRegion t, string columnName)
         {
-            return MvcHtmlString.Create(string.Format("{{{{Plugin \"filter-{0}\"}}}}", columnName));
+            return t._("d.filter(p,'filter-{0}');", columnName);
         }
 
         

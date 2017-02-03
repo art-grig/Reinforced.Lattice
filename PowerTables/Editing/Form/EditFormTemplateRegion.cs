@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Web.Mvc;
 using PowerTables.Plugins.Toolbar;
 using PowerTables.Templating;
+using PowerTables.Templating.Handlebars;
 
 namespace PowerTables.Editing.Form
 {
@@ -31,9 +32,9 @@ namespace PowerTables.Editing.Form
 
     public static class EditFormExtensions
     {
-        public static EditFormTemplateRegion<dynamic> Edit_Form(this IViewPlugins p, string templateId = "editForm")
+        public static EditFormTemplateRegion<IJsObject> Edit_Form(this IViewPlugins p, string templateId = "editForm")
         {
-            return new EditFormTemplateRegion<dynamic>(p, templateId);
+            return new EditFormTemplateRegion<IJsObject>(p, templateId);
         }
 
         public static EditFormTemplateRegion<TRow> Edit_Form<TRow>(this IViewPlugins p, string templateId = "editForm")

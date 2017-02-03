@@ -8,7 +8,7 @@ namespace PowerTables.Templating
     public class PluginTemplateRegion : TemplateRegion, IProvidesEventsBinding, IProvidesMarking
     {
         public PluginTemplateRegion(IViewPlugins page, string id)
-            : base(page.Model.Prefix, id, page.Scope)
+            : base(TemplateRegionType.Custom, page.Model.Prefix, id, page.Scope)
         {
         }
 

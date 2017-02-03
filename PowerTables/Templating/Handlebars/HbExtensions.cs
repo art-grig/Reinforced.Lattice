@@ -16,9 +16,10 @@ namespace PowerTables.Templating.Handlebars
         {
             var visitor = new HbExpressionVisitor();
             visitor.Visit(lambda.Body);
+            visitor.BindModel(string.IsNullOrEmpty(existing) ? "o" : existing);
             var ex = visitor.Retrieve();
             var expr = ex.Build();
-            return string.IsNullOrEmpty(existing) ? expr : existing + "." + ex.Build();
+            return expr;
         }
         /// <summary>
         /// This-field helper
@@ -28,7 +29,7 @@ namespace PowerTables.Templating.Handlebars
         /// <returns>{{else}} keyword</returns>
         public static MvcHtmlString This<T>(this IModelProvider<T> t)
         {
-            return MvcHtmlString.Create("{{this}}");
+            return t._("w(o);");
         }
 
         #region IfElse
@@ -43,7 +44,7 @@ namespace PowerTables.Templating.Handlebars
         public static CodeBlock If<T>(this IModelProvider<T> t, Expression<Func<T, bool>> condition)
         {
             var expr = TraversePropertyLambda(condition, t.ExistingModel);
-            return new CodeBlock(string.Format("if ({0})", expr), "}", t);
+            return new CodeBlock(string.Format("if({0}){{", expr), "}", t);
         }
 
         /// <summary>
@@ -57,7 +58,7 @@ namespace PowerTables.Templating.Handlebars
         public static MvcHtmlString If<T>(this IModelProvider<T> t, Expression<Func<T, bool>> condition, string textIf)
         {
             var expr = TraversePropertyLambda(condition, t.ExistingModel);
-            return t._("if ({0}) {{ {1} }}", expr, RawExtensions.Prettify(textIf));
+            return t._("if({0}){{ {1} }}", expr, RawExtensions.Prettify(textIf));
         }
 
         /// <summary>
@@ -70,7 +71,7 @@ namespace PowerTables.Templating.Handlebars
         /// <returns></returns>
         public static MvcHtmlString If<T>(this IModelProvider<T> t, string condition, string textIf)
         {
-            return t._("if ({0}) {{ {1} }}", condition, RawExtensions.Prettify(textIf));
+            return t._("if({0}){{{1} }}", condition, RawExtensions.Prettify(textIf));
         }
 
         /// <summary>
@@ -81,7 +82,7 @@ namespace PowerTables.Templating.Handlebars
         /// <returns>{{else}} keyword</returns>
         public static MvcHtmlString Else<T>(this IModelProvider<T> t)
         {
-            return t._("} else { ");
+            return t._("}else{ ");
         }
 
         #endregion

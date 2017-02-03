@@ -598,7 +598,6 @@ declare module PowerTables {
          * @param configuration
          */
         init(masterTable: IMasterTable): void;
-        isLocation(loc: string): boolean;
     }
     /**
      * Main table interface for breaking additional dependencies
@@ -2489,6 +2488,25 @@ declare module PowerTables.Rendering {
         private replaceElement(element, html);
     }
 }
+declare module PowerTables.Rendering.Drivers {
+    class DriverBase {
+        track(w: IWriteFn): void;
+    }
+}
+declare module PowerTables.Rendering.Drivers {
+    class LayoutDriver extends DriverBase {
+        private _masterTable;
+        body(w: IWriteFn): void;
+        private plugins(w, pluginPosition, pluginId);
+        /**
+        * Renders specified plugin into string including its wrapper
+        *
+        * @param plugin Plugin interface
+        * @returns {}
+        */
+        renderPlugin(plugin: IPlugin): string;
+    }
+}
 declare module PowerTables.Rendering.Html2Dom {
     class HtmlParserDefinitions {
         static startTag: RegExp;
@@ -2759,32 +2777,6 @@ declare module PowerTables.Rendering {
         private ifcompHelper(a, b, comparison, opts);
         private iflocHelper(location, opts);
         hasCachedTemplate(templateId: string): boolean;
-    }
-}
-declare module "PowerTables.Script/Scripts/PowerTables/Rendering/Templates" {
-    export module PowerTables {
-        class TemplatesExecutor {
-            constructor(lib: ITemplatesLib);
-            private _lib;
-        }
-    }
-    export class _ltcTpl {
-        private static _lib;
-        private static _executors;
-        static _(prefix: string, id: string, tpl: ITemplateDel): void;
-        static executor(prefix: string): PowerTables.TemplatesExecutor;
-    }
-    export interface ITemplatesLib {
-        Prefix: string;
-        Templates: {
-            [_: string]: ITemplateDel;
-        };
-    }
-    export interface ITemplateDel {
-        (data: any, driver: any, w: IWriteFn): void;
-    }
-    export interface IWriteFn {
-        (str: string): void;
     }
 }
 declare module PowerTables.Rendering {
@@ -3599,6 +3591,28 @@ declare module PowerTables.Services {
         setCells(primaryKey: string, columnNames: string[]): void;
         handleAdditionalData(additionalData: any): void;
     }
+}
+declare class _ltcTpl {
+    private static _lib;
+    private static _executors;
+    static _(prefix: string, id: string, tpl: ITemplateDel): void;
+    static executor(prefix: string): TemplatesExecutor;
+}
+declare class TemplatesExecutor {
+    constructor(lib: ITemplatesLib);
+    private _lib;
+}
+interface ITemplatesLib {
+    Prefix: string;
+    Templates: {
+        [_: string]: ITemplateDel;
+    };
+}
+interface ITemplateDel {
+    (data: any, driver: any, w: IWriteFn): void;
+}
+interface IWriteFn {
+    (str: string): void;
 }
 declare module PowerTables {
     /**

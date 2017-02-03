@@ -266,12 +266,12 @@
     <Compile Include="Templating\BuiltIn\HeaderWrapperTemplateRegion.cs" />
     <Compile Include="Templating\DOMEvent.cs" />
     <Compile Include="Templating\Handlebars\CodeBlock.cs" />
+    <Compile Include="Templating\Handlebars\Expressions\CustomMethodCallTransaltion.cs" />
     <Compile Include="Templating\Handlebars\Expressions\HbExpression.cs" />
     <Compile Include="Templating\Handlebars\Expressions\HbExpressionVisitor.cs" />
     <Compile Include="Templating\Handlebars\Expressions\HbIndexExpression.cs" />
     <Compile Include="Templating\Handlebars\Expressions\HbLiteralExpression.cs" />
     <Compile Include="Templating\Handlebars\Expressions\HbMemberExpression.cs" />
-    <Compile Include="Templating\Handlebars\Expressions\HbParameterExpression.cs" />
     <Compile Include="Templating\Handlebars\IHbArray.cs" />
     <Compile Include="Templating\Handlebars\IHbDictionary.cs" />
     <Compile Include="Templating\BuiltIn\RowWrapperTemplateRegion.cs" />
@@ -283,6 +283,10 @@
     <Compile Include="Templating\LatticeTemplatesViewModel.cs" />
     <Compile Include="Templating\BuiltIn\LayoutTemplateRegion.cs" />
     <Compile Include="Templating\ModeledTemplateRegion.cs" />
+    <Compile Include="Templating\Handlebars\Expressions\HbBinaryExpression.cs" />
+    <Compile Include="Templating\Handlebars\Expressions\HbCallExpression.cs" />
+    <Compile Include="Templating\Handlebars\Expressions\HbUnaryExpression.cs" />
+    <Compile Include="Templating\Handlebars\Expressions\HbUnboundExpression.cs" />
     <Compile Include="Templating\OverrideTplFieldNameAttribute.cs" />
     <Compile Include="Templating\PluginsClassifier.cs" />
     <Compile Include="Templating\PluginTemplateRegion.cs" />
@@ -291,8 +295,10 @@
     <Compile Include="Templating\ResharperAnnotations.cs" />
     <Compile Include="Templating\ScopedWriter.cs" />
     <Compile Include="Templating\TemplateRegion.cs" />
+    <Compile Include="Templating\TemplateRegionType.cs" />
     <Compile Include="Templating\TemplatesPageBase.cs" />
     <Compile Include="Templating\TemplatingExtensions.cs" />
+    <Compile Include="Templating\TemplatingProcessExtensions.cs" />
     <Compile Include="Templating\VisualStateDescription.cs" />
     <Compile Include="InMemoryTokenStorage.cs" />
     <Compile Include="ValueConverter.cs" />

@@ -12,7 +12,7 @@ namespace PowerTables.Templating.BuiltIn
         IProvidesTracking
     {
         public PluignWrapperTemplateRegion(string prefix, string templateId, ITemplatesScope writer)
-            : base(prefix, templateId, writer)
+            : base(TemplateRegionType.Plugin, prefix, templateId, writer)
         {
         }
 
@@ -57,7 +57,7 @@ namespace PowerTables.Templating.BuiltIn
         /// <returns></returns>
         public static CodeBlock IfPlacement<T>(this PluignWrapperTemplateRegion<T> pw, string locationPart)
         {
-            return new CodeBlock(string.Format("if (o.isLocation({0})){{", locationPart), "}", pw);
+            return new CodeBlock(string.Format("if (d.isLocation({0})){{", locationPart), "}", pw);
         }
     }
 }

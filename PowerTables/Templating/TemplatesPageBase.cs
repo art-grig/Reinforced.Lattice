@@ -28,9 +28,9 @@ namespace PowerTables.Templating
         /// </summary>
         /// <param name="id">Template id</param>
         /// <returns>template region</returns>
-        public TemplateRegion Template(string id)
+        public TemplateRegion Template(string id, TemplateRegionType type = TemplateRegionType.Custom)
         {
-            return new TemplateRegion(Model.Prefix, id, this);
+            return new TemplateRegion(type,Model.Prefix, id, this);
         }
 
         private IViewPlugins _plugins = null;

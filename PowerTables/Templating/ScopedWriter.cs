@@ -26,7 +26,10 @@ namespace PowerTables.Templating
 
         public override void Write(string value)
         {
-            if (_scope.CrunchingTemplate) value = RawExtensions.Prettify(value);
+            if (_scope.CrunchingTemplate)
+            {
+                value = RawExtensions.Prettify(value);
+            }
             _original.Write(value);
         }
 

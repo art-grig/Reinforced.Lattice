@@ -64,7 +64,7 @@ namespace PowerTables.Templating.BuiltIn
 
         public static MvcHtmlString Editors<TConfirmation>(this  IConfirmationWindow<TConfirmation> p)
         {
-            return MvcHtmlString.Create("{{{ Editors }}}");
+            return p._("w(o.Editors());");
         }
 
         public static MvcHtmlString EditorFor<TConfirmation, TData>(this  IConfirmationWindow<TConfirmation> p, Expression<Func<TConfirmation, TData>> field)
@@ -75,7 +75,7 @@ namespace PowerTables.Templating.BuiltIn
 
         public static MvcHtmlString EditorFor<TConfirmation>(this IConfirmationWindow<TConfirmation> p, string fieldName)
         {
-            return MvcHtmlString.Create(string.Format("{{{{{{Editor \"{0}\"}}}}}}", fieldName));
+            return p._("w(o.Editor('{0}'));", fieldName);
         }
 
         public static MvcHtmlString ThisIsContentContainer<TConfirmation>(this IConfirmationWindow<TConfirmation> p)
@@ -90,7 +90,7 @@ namespace PowerTables.Templating.BuiltIn
 
         public static MvcHtmlString TemplatePiece<TConfirmation>(this IConfirmationWindow<TConfirmation> p, string pieceName)
         {
-            return MvcHtmlString.Create("{{{TemplatePieces." + pieceName + "}}}");
+            return p._("w(o.TemplatePieces['{0}']);", pieceName);
         }
 
         public static MvcHtmlString WhenContentLoading<TConfirmation>(this IConfirmationWindow<TConfirmation> t, Action<VisualState> state)

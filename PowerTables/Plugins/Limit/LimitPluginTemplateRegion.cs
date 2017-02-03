@@ -73,9 +73,9 @@ namespace PowerTables.Plugins.Limit
         /// <param name="tpl"></param>
         /// <param name="eventId">DOM event id</param>
         /// <returns></returns>
-        public static MvcHtmlString BindLimitChangeEvent(this ParametrizedHbTagRegion<ILimitSize> tpl, string eventId)
+        public static MvcHtmlString BindLimitChangeEvent(this ParametrizedCodeBlock<ILimitSize> tpl, string eventId)
         {
-            return tpl.BindEvent("changeLimitHandler", eventId, "Value");
+            return tpl.BindEvent("changeLimitHandler", eventId, "e.Value");
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace PowerTables.Plugins.Limit
         /// <returns></returns>
         public static MvcHtmlString BindLimitChangeEvent(this LimitPluginTemplateRegion tpl, string eventId, string value)
         {
-            return tpl.BindEvent("changeLimitHandler", eventId, "Value");
+            return tpl.BindEvent("changeLimitHandler", eventId, value);
         }
 
     }

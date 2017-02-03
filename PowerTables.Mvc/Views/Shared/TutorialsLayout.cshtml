@@ -137,11 +137,11 @@
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title">
-                        @using (editForm.IfEquals("DataObject.Id", "0"))
+                        @using (editForm.If(x => x.DataObject["Id"] == (object)1))
                         {
                             <text>Create new object</text>
                             @editForm.Else()
-                            <text>Edit object #@editForm.Value("DataObject.Id")</text>
+                            <text>Edit object #@editForm.Value(x=>x.DataObject["Id"])</text>
                         }
                     </h4>
                 </div>
@@ -182,7 +182,7 @@
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title">Confirmation</h4>
                 </div>
-                <div class="modal-body" @t.Callback("windowObj.callback", ".")>
+                <div class="modal-body" @t.Callback("windowObj.callback", "o")>
                     <p>
                         Are you sure want to perform action 1 on @conf1.Value(c => c.Selection.Length) items?
                         <br />
@@ -222,7 +222,7 @@
                             <div class="form-group">
                                 <label for="ToyType" class="col-sm-2 control-label">Toy type</label>
                                 <div class="col-sm-10">
-                                    @Html.DropDownList("ToyType", EnumHelper.GetSelectList(typeof (ToyType)), new {@class = "form-control"})
+                                    @Html.DropDownList("ToyType", EnumHelper.GetSelectList(typeof(ToyType)), new { @class = "form-control" })
                                 </div>
                             </div>
                         </fieldset>
@@ -262,7 +262,7 @@
             <div class="modal-content" @t.Callback("showModal") @t.DestroyCallback("hideModal")>
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Leave comment for @conf1.Value(c=>c.Subject.Name)</h4>
+                    <h4 class="modal-title">Leave comment for @conf1.Value(c => c.Subject.Name)</h4>
                 </div>
                 <div class="modal-body">
                     <fieldset class="form-horizontal">
@@ -283,7 +283,7 @@
                     <p class="text-center" style="display: none" @conf1.WhenContentLoading(c => c.Style("display", "inline"))>
                         <h1><span class="glyphicon glyphicon-refresh"></span> Loading...</h1>
                     </p>
-                    <div @conf1.WhenContentLoading(c=>c.Style("display","none")) @conf1.ThisIsContentContainer()></div>
+                    <div @conf1.WhenContentLoading(c => c.Style("display", "none")) @conf1.ThisIsContentContainer()></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal" @conf1.BindDismiss("click")>Ok</button>
@@ -299,7 +299,8 @@
                         @conf1.Editors()
                     </fieldset>
                     <p class="text-center" style="display: none" @conf1.WhenContentLoading(c => c.Style("display", "inline"))>
-                        <h1><span class="glyphicon glyphicon-refresh"></span> Loading...
+                        <h1>
+                            <span class="glyphicon glyphicon-refresh"></span> Loading...
                         </h1>
                     </p>
                     <div @conf1.WhenContentLoading(c => c.Style("display", "none")) @conf1.ThisIsContentContainer()></div>

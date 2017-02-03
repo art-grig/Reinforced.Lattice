@@ -1,5 +1,5 @@
 ﻿
-module PowerTables.Rendering {
+module PowerTables.Templating {
     /**
      * Rendering stack class. Provives common helper 
      * infrastructure for context-oriented rendering
@@ -40,34 +40,36 @@ module PowerTables.Rendering {
          * @param columnName Optional column name - for column-contexted rendering objects
          * @returns {} 
          */
-        public push(elementType: RenderingContextType, element: IRenderable, columnName: string = ''): void {
+        public push(elementType: RenderedObject, element: IRenderable): void {
             var ctx: IRenderingContext = <IRenderingContext>{
                 Type: elementType,
                 Object: element,
-                ColumnName: columnName,
                 CurrentTrack: this.getTrack(elementType, element)
             }
             this._contextStack.push(ctx);
             this.Current = ctx;
         }
 
-        private getTrack(elementType: RenderingContextType, element: IRenderable): string {
+        private getTrack(elementType: RenderedObject, element: IRenderable): string {
 
             var trk: string;
             switch (elementType) {
-            case RenderingContextType.Plugin:
+            case RenderedObject.Plugin:
                 trk = TrackHelper.getPluginTrack(<IPlugin>element);
                 break;
-            case RenderingContextType.Header:
+            case RenderedObject.Header:
                 trk = TrackHelper.getHeaderTrack((<IColumnHeader>element));
                 break;
-            case RenderingContextType.Cell:
+            case RenderedObject.Cell:
                 trk = TrackHelper.getCellTrack(<any>element);
                 break;
-            case RenderingContextType.Row:
+            case RenderedObject.Row:
                 trk = TrackHelper.getRowTrack(<any>element);
                 break;
-            case RenderingContextType.Custom:
+            case RenderedObject.Message:
+                trk = TrackHelper.getMessageTrack();
+                break;
+            case RenderedObject.Custom:
                 trk = 'custom';
                 break;
             default:
@@ -95,16 +97,11 @@ module PowerTables.Rendering {
         /**
          * What is being rendered (Object type)
          */
-        Type: RenderingContextType;
+        Type: RenderedObject;
         /**
          * Reference to object is being rendered
          */
         Object?: IRenderable;
-
-        /**
-         * Optional column name - for column-contexted rendering objects
-         */
-        ColumnName?: string;
 
         /**
          * Rendering object track attribute
@@ -112,31 +109,4 @@ module PowerTables.Rendering {
         CurrentTrack: string;
     }
 
-    /**
-     * What renders in current helper method
-     */
-    export enum RenderingContextType {
-        /**
-         * Plugin (0)
-         */
-        Plugin,
-        /**
-         * Column header (1)
-         */
-        Header,
-        /**
-         * Row (containing cells) (2)
-         */
-        Row,
-        /**
-         * Cell (belonging to row and column) (3)
-         */
-        Cell,
-        /**
-         * Custom rendering object. 
-         * Needed for rendering of random templates bound to random objects
-         */
-        Custom
-
-    }
 }

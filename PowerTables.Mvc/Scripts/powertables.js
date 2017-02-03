@@ -5036,6 +5036,62 @@ var PowerTables;
 (function (PowerTables) {
     var Rendering;
     (function (Rendering) {
+        var Drivers;
+        (function (Drivers) {
+            var DriverBase = (function () {
+                function DriverBase() {
+                }
+                DriverBase.prototype.track = function (w) { throw Error('Method track must be implemented'); };
+                return DriverBase;
+            }());
+            Drivers.DriverBase = DriverBase;
+        })(Drivers = Rendering.Drivers || (Rendering.Drivers = {}));
+    })(Rendering = PowerTables.Rendering || (PowerTables.Rendering = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Rendering;
+    (function (Rendering) {
+        var Drivers;
+        (function (Drivers) {
+            var LayoutDriver = (function (_super) {
+                __extends(LayoutDriver, _super);
+                function LayoutDriver() {
+                    _super.apply(this, arguments);
+                }
+                LayoutDriver.prototype.body = function (w) {
+                    w('<input type="hidden" data-track="tableBodyHere" style="display:none;"/>');
+                };
+                LayoutDriver.prototype.plugins = function (w, pluginPosition, pluginId) {
+                    var plugin = this._instances.getPlugin(pluginId, pluginPosition);
+                    return this.renderPlugin(plugin);
+                };
+                /**
+                * Renders specified plugin into string including its wrapper
+                *
+                * @param plugin Plugin interface
+                * @returns {}
+                */
+                LayoutDriver.prototype.renderPlugin = function (plugin) {
+                    if (plugin.renderElement)
+                        return plugin.renderElement(this._templatesProvider);
+                    if (!plugin.renderContent)
+                        return '';
+                    this._stack.push(Rendering.RenderingContextType.Plugin, plugin);
+                    var result = this._templatesProvider.getCachedTemplate(this._templateIds.PluginWrapper)(plugin);
+                    this._stack.popContext();
+                    return result;
+                };
+                return LayoutDriver;
+            }(Drivers.DriverBase));
+            Drivers.LayoutDriver = LayoutDriver;
+        })(Drivers = Rendering.Drivers || (Rendering.Drivers = {}));
+    })(Rendering = PowerTables.Rendering || (PowerTables.Rendering = {}));
+})(PowerTables || (PowerTables = {}));
+var PowerTables;
+(function (PowerTables) {
+    var Rendering;
+    (function (Rendering) {
         var Html2Dom;
         (function (Html2Dom) {
             var HtmlParserDefinitions = (function () {
@@ -9129,6 +9185,30 @@ var PowerTables;
         Services.SelectionService = SelectionService;
     })(Services = PowerTables.Services || (PowerTables.Services = {}));
 })(PowerTables || (PowerTables = {}));
+var _ltcTpl = (function () {
+    function _ltcTpl() {
+    }
+    _ltcTpl._ = function (prefix, id, tpl) {
+        if (!_ltcTpl._lib[prefix])
+            _ltcTpl._lib[prefix] = { Prefix: prefix, Templates: {} };
+        _ltcTpl._lib[prefix].Templates[id] = tpl;
+    };
+    _ltcTpl.executor = function (prefix) {
+        if (!_ltcTpl._executors[prefix]) {
+            _ltcTpl._executors[prefix] = new TemplatesExecutor(_ltcTpl._lib[prefix]);
+        }
+        return _ltcTpl._executors[prefix];
+    };
+    _ltcTpl._lib = {};
+    _ltcTpl._executors = {};
+    return _ltcTpl;
+}());
+var TemplatesExecutor = (function () {
+    function TemplatesExecutor(lib) {
+        this._lib = lib;
+    }
+    return TemplatesExecutor;
+}());
 var PowerTables;
 (function (PowerTables) {
     /**

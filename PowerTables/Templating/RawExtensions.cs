@@ -35,6 +35,7 @@ namespace PowerTables.Templating
 
         public static string Prettify(string str)
         {
+            if (string.IsNullOrEmpty(str)) return String.Empty;
             StringBuilder sb = new StringBuilder("w('");
             for (int i = 0; i < str.Length; i++)
             {
@@ -44,6 +45,7 @@ namespace PowerTables.Templating
                     case '\\': sb.Append("\\\\"); break;
                     case '\r': sb.Append("\\r"); break;
                     case '\n': sb.Append("\\n"); break;
+                    case '/': sb.Append("\\/"); break;
                     default:
                         sb.Append(str[i]);
                         break;
