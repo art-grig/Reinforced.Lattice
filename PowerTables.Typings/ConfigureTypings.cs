@@ -30,6 +30,7 @@ using PowerTables.Plugins.Paging;
 using PowerTables.Plugins.RegularSelect;
 using PowerTables.Plugins.Reload;
 using PowerTables.Plugins.ResponseInfo;
+using PowerTables.Plugins.Scrollbar;
 using PowerTables.Plugins.Toolbar;
 using PowerTables.Plugins.Total;
 using Reinforced.Typings.Fluent;
@@ -220,6 +221,11 @@ namespace PowerTables.Typings
             builder.ExportAsInterface<PartitionConfiguration>().WithPublicProperties();
             builder.ExportAsInterface<MixedPartitionConfiguration>().WithPublicProperties();
             builder.ExportAsEnum<PartitionType>();
+
+            builder.ExportAsInterface<ScrollbarPluginUiConfig>().WithPublicProperties();
+            builder.ExportAsEnum<StickDirection>();
+            builder.ExportAsEnum<StickHollow>();
+
         }
 
     }

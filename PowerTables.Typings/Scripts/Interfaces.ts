@@ -548,3 +548,25 @@ module PowerTables.Commands {
 		Server = 1, 
 	}
 }
+module PowerTables.Plugins.Scrollbar {
+	export interface IScrollbarPluginUiConfig
+	{
+		WheelEventsCatcher: string;
+		KeyboardEventsCatcher: string;
+		IsHorizontal: boolean;
+		StickToElementSelector: string;
+		StickDirection: PowerTables.Plugins.Scrollbar.StickDirection;
+		StickHollow: PowerTables.Plugins.Scrollbar.StickHollow;
+		DefaultTemplateId: string;
+	}
+	export enum StickDirection { 
+		Right = 0, 
+		Left = 1, 
+		Top = 2, 
+		Bottom = 3, 
+	}
+	export enum StickHollow { 
+		Internal = 0, 
+		External = 1, 
+	}
+}

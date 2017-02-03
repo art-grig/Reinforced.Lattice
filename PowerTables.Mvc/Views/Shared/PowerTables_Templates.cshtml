@@ -17,6 +17,7 @@
 @using PowerTables.Plugins.Paging
 @using PowerTables.Plugins.Reload
 @using PowerTables.Plugins.ResponseInfo
+@using PowerTables.Plugins.Scrollbar
 @using PowerTables.Plugins.Toolbar
 @using PowerTables.Templating
 @using PowerTables.Templating.BuiltIn
@@ -197,6 +198,22 @@
                 }
             }
         </ul>
+    </div>
+}
+
+@using (var t = Plugin.Scrollbar())
+{
+    <div style="opacity:.7;background:grey;border-radius:5px;width:24px;" @t.ThisIsScrollerActiveArea()>
+        <button @t.ThisIsUpArrow() type="button" class="btn btn-default btn-xs" >
+            <span class="glyphicon glyphicon-triangle-top"></span>
+        </button>
+        <button @t.ThisIsScroller() type="button" class="btn btn-default btn-xs" style="position: relative; display: block; height: 20px; width: 100%; top: 0px">
+            
+        </button>
+
+        <button @t.ThisIsDownArrow() type="button" class="btn btn-default btn-xs" style="bottom:0;position:absolute; top:auto;">
+            <span class="glyphicon glyphicon-triangle-bottom"></span>
+        </button>
     </div>
 }
 

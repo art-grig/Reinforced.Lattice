@@ -124,7 +124,8 @@
         private backbindEvents(parentElement: HTMLElement, info: PowerTables.Templating.IBackbindInfo) {
             var elements = this.getMatchingElements(parentElement, `data-evb`);
             // backbinding of events
-            this.traverseBackbind<PowerTables.Templating.IBackbindEvent>(elements, parentElement, info.EventsQueue, 'data-be', (subscription, element) => {
+            this.traverseBackbind<PowerTables.Templating.IBackbindEvent>(elements, parentElement, info.EventsQueue, 'data-be',
+                (subscription, element) => {
                 for (var j: number = 0; j < subscription.Functions.length; j++) {
                     var bindFn: string = subscription.Functions[j];
                     var handler: void | Object = null;
