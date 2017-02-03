@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace PowerTables.Templating.Handlebars.Expressions
 {
@@ -39,6 +41,20 @@ namespace PowerTables.Templating.Handlebars.Expressions
             }
         }
 
+        protected override Expression VisitConditional(ConditionalExpression node)
+        {
+            var result = new HbTernaryExpression();
+            Visit(node.Test);
+            result.Condition = Retrieve();
+            Visit(node.IfTrue);
+            result.IfTrue = Retrieve();
+            Visit(node.IfFalse);
+            result.IfFalse = Retrieve();
+            Return(result);
+            return node;
+        }
+
+
         public override Expression Visit(Expression node)
         {
             if (node.NodeType == ExpressionType.Convert)
@@ -62,6 +78,19 @@ namespace PowerTables.Templating.Handlebars.Expressions
 
         protected override Expression VisitMember(MemberExpression node)
         {
+            if (node.Expression.Type.IsDefined(typeof(CompilerGeneratedAttribute), false))
+            {
+                var fi = (FieldInfo)node.Member;
+                var constant = node.Expression as ConstantExpression;
+                if (constant != null)
+                {
+                    var inst = constant.Value;
+                    var val = fi.GetValue(inst);
+                    Return(WrapConstant(val,fi.FieldType));
+                    return node;
+                }
+            }
+
             var memberName = node.Member.Name;
 
             var attr = node.Member.GetCustomAttribute<OverrideTplFieldNameAttribute>();
@@ -69,7 +98,7 @@ namespace PowerTables.Templating.Handlebars.Expressions
             {
                 memberName = attr.Name;
             }
-
+            
             Visit(node.Expression);
             var accessedExpression = Retrieve();
             if (node.Member.Name == "Length")
@@ -154,6 +183,7 @@ namespace PowerTables.Templating.Handlebars.Expressions
             return node;
         }
 
+
         private string GetNodeSymbol(ExpressionType type)
         {
             switch (type)
@@ -182,6 +212,7 @@ namespace PowerTables.Templating.Handlebars.Expressions
                 case ExpressionType.LessThan: return "<";
                 case ExpressionType.LessThanOrEqual: return "<=";
                 case ExpressionType.GreaterThanOrEqual: return ">=";
+                case ExpressionType.Coalesce: return "||";
                 default:
                     throw new Exception("Invalid expression type");
             }
@@ -196,26 +227,28 @@ namespace PowerTables.Templating.Handlebars.Expressions
 
         protected override Expression VisitConstant(ConstantExpression node)
         {
-            if (node.Value == null)
+            Return(WrapConstant(node.Value, node.Type));
+            return node;
+        }
+
+        private HbLiteralExpression WrapConstant(object value,Type type)
+        {
+            if (value == null)
             {
-                Return(new HbLiteralExpression { Literal = "null" });
-                return node;
+                return new HbLiteralExpression { Literal = "null" };
             }
-            if (node.Type == typeof(string))
+            if (type == typeof(string))
             {
-                var s = "\'" + node.Value.ToString().Replace("\"", "\\\"") + "\'";
-                Return(new HbLiteralExpression { Literal = s });
-                return node;
+                var s = "\'" + value.ToString().Replace("\"", "\\\"") + "\'";
+                return new HbLiteralExpression { Literal = s };
             }
 
-            if (node.Type == typeof(bool))
+            if (type == typeof(bool))
             {
-                var b = (bool)node.Value;
-                Return(new HbLiteralExpression { Literal = b ? "true" : "false" });
-                return node;
+                var b = (bool)value;
+                return new HbLiteralExpression { Literal = b ? "true" : "false" };
             }
-            Return(new HbLiteralExpression { Literal = node.Value.ToString() });
-            return node;
+            return new HbLiteralExpression {Literal = value.ToString()};
         }
     }
 }

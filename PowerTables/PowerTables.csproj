@@ -272,6 +272,7 @@
     <Compile Include="Templating\Handlebars\Expressions\HbIndexExpression.cs" />
     <Compile Include="Templating\Handlebars\Expressions\HbLiteralExpression.cs" />
     <Compile Include="Templating\Handlebars\Expressions\HbMemberExpression.cs" />
+    <Compile Include="Templating\Handlebars\Expressions\HbTernaryExpression.cs" />
     <Compile Include="Templating\Handlebars\IHbArray.cs" />
     <Compile Include="Templating\Handlebars\IHbDictionary.cs" />
     <Compile Include="Templating\BuiltIn\RowWrapperTemplateRegion.cs" />
