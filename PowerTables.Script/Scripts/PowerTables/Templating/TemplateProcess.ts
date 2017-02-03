@@ -27,9 +27,11 @@ module PowerTables.Templating {
 
         public ColumnRenderes: { [key: string]: (x: ICell) => string };
 
-        private append(str: string): void {
-            if (!str) return;
-            this.Html += str;
+        private append(str: any): void {
+
+            if (str == null || str == undefined) return;
+
+            this.Html += str.toString();
         }
 
         public nest(data: any, templateId: string) {
@@ -98,12 +100,7 @@ module PowerTables.Templating {
             this.w(`data-be-${index}="${index}" data-evb="true"`);
         }
 
-        public rc() {
-            var fn = arguments[0];
-            var args = [];
-            for (var i = 1; i < arguments.length; i++) {
-                args.push(arguments[i]);
-            }
+        public rc(fn: any, args: any[]) {
             var index: number = this.BackInfo.CallbacksQueue.length;
             this.BackInfo.CallbacksQueue.push({
                 Callback: fn,
@@ -113,12 +110,7 @@ module PowerTables.Templating {
             this.w(`data-cb="${index}"`);
         }
 
-        public dc() {
-            var fn = arguments[0];
-            var args = [];
-            for (var i = 1; i < arguments.length; i++) {
-                args.push(arguments[i]);
-            }
+        public dc(fn: any, args: any[]) {
             var index: number = this.BackInfo.DestroyCallbacksQueue.length;
             this.BackInfo.DestroyCallbacksQueue.push({
                 Callback: fn,

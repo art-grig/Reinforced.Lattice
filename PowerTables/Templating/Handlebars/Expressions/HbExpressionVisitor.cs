@@ -178,6 +178,10 @@ namespace PowerTables.Templating.Handlebars.Expressions
                 case ExpressionType.Negate: return "-";
                 case ExpressionType.UnaryPlus: return "+";
                 case ExpressionType.Assign: return "=";
+                case ExpressionType.GreaterThan: return ">";
+                case ExpressionType.LessThan: return "<";
+                case ExpressionType.LessThanOrEqual: return "<=";
+                case ExpressionType.GreaterThanOrEqual: return ">=";
                 default:
                     throw new Exception("Invalid expression type");
             }
