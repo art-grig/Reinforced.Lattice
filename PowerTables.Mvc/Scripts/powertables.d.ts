@@ -1227,7 +1227,7 @@ declare module PowerTables.Templating {
         };
         private append(str);
         nest(data: any, templateId: string): void;
-        private static spc(num);
+        private spc(num);
         spaceW(): void;
         nestElement(e: IRenderable, templateId: string, type: RenderedObject): void;
         nestContent(e: IRenderable, templateId: string): void;
@@ -1290,6 +1290,9 @@ declare module PowerTables.Templating {
         Instances: PowerTables.Services.InstanceManagerService;
         private _uiColumns;
         constructor(lib: ITemplatesLib, instnaces: PowerTables.Services.InstanceManagerService);
+        Spaces: {
+            [_: number]: string;
+        };
         private cacheColumnRenderers(columns);
         executeLayout(): ITemplateResult;
         beginProcess(): TemplateProcess;

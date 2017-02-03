@@ -179,17 +179,20 @@ var PowerTables;
             TemplateProcess.prototype.nest = function (data, templateId) {
                 this.Executor.nest(data, templateId, this);
             };
-            TemplateProcess.spc = function (num) {
+            TemplateProcess.prototype.spc = function (num) {
+                if (this.Executor.Spaces[num])
+                    return this.Executor.Spaces[num];
                 var r = '';
                 for (var i = 0; i < num; i++) {
                     r += ' ';
                 }
+                this.Executor[num] = r;
                 return r;
             };
             TemplateProcess.prototype.spaceW = function () {
                 for (var i = 0; i < arguments.length; i++) {
                     if (typeof arguments[i] === "number") {
-                        this.w(TemplateProcess.spc(arguments[i]));
+                        this.w(this.spc(arguments[i]));
                     }
                     else {
                         this.w(arguments[i]);
@@ -384,11 +387,17 @@ var PowerTables;
             function TemplatesExecutor(lib, instnaces) {
                 var _this = this;
                 this.ColumnRenderes = {};
+                this.Spaces = {};
                 this._lib = lib;
                 this.CoreTemplateIds = instnaces.Configuration.CoreTemplates;
                 this.cacheColumnRenderers(instnaces.Columns);
                 this._uiColumns = function () { return _this.Instances.getUiColumns(); };
                 this.Instances = instnaces;
+                var s = ' ';
+                for (var i = 1; i <= 30; i++) {
+                    this.Spaces[i] = s;
+                    s += ' ';
+                }
             }
             TemplatesExecutor.prototype.cacheColumnRenderers = function (columns) {
                 for (var key in columns) {

@@ -12,8 +12,13 @@ module PowerTables.Templating {
             this.cacheColumnRenderers(instnaces.Columns);
             this._uiColumns = ()=>this.Instances.getUiColumns();
             this.Instances = instnaces;
+            var s = ' ';
+            for (var i = 1; i <= 30; i++) {
+                this.Spaces[i] = s;
+                s += ' ';
+            }
         }
-
+        public Spaces:{[_:number]:string} = {};
         private cacheColumnRenderers(columns: { [key: string]: IColumn }) {
             for (var key in columns) {
                 if (columns.hasOwnProperty(key)) {
@@ -91,6 +96,5 @@ module PowerTables.Templating {
             }
             return this.CoreTemplateIds.CellWrapper;
         }
-
     }
 }

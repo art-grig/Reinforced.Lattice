@@ -38,18 +38,21 @@ module PowerTables.Templating {
             this.Executor.nest(data, templateId, this);
         }
 
-        private static spc(num: number): string {
+        private spc(num: number): string {
+            if (this.Executor.Spaces[num])
+                return this.Executor.Spaces[num];
             var r = '';
             for (var i = 0; i < num; i++) {
                 r += ' ';
             }
+            this.Executor[num] = r;
             return r;
         }
 
         public spaceW() {
             for (var i = 0; i < arguments.length; i++) {
                 if (typeof arguments[i] === "number") {
-                    this.w(TemplateProcess.spc(<number>arguments[i]));
+                    this.w(this.spc(<number>arguments[i]));
                 } else {
                     this.w(arguments[i]);
                 }
