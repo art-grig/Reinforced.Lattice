@@ -7,25 +7,17 @@
         constructor(rootId: string, prefix: string, masterTable: IMasterTable) {
             this._masterTable = masterTable;
             this._instances = masterTable.InstanceManager;
-            this._stack = new RenderingStack();
             this.RootElement = document.getElementById(rootId);
             this._rootId = rootId;
             this._events = masterTable.Events;
-            this._templateIds = this._instances.Configuration.CoreTemplates;
-
-            this.HandlebarsInstance = Handlebars.create();
-            this.HandlebarsInstance.registerHelper('ifq', this.ifqHelper);
-            this.HandlebarsInstance.registerHelper('ifcmp', this.ifcompHelper);
-            this.HandlebarsInstance.registerHelper('ifloc', this.iflocHelper.bind(this));
-            this.HandlebarsInstance.registerHelper('Content', this.contentHelper.bind(this));
-            this.HandlebarsInstance.registerHelper('Track', this.trackHelper.bind(this));
-
             this._prefix = prefix;
-            this.cacheTemplates(this._prefix);
-            this.LayoutRenderer = new LayoutRenderer(this, this._stack, this._instances, this._templateIds);
-            this.ContentRenderer = new ContentRenderer(this, this._stack, this._instances, this._templateIds);
-            this.BackBinder = new BackBinder(this.HandlebarsInstance, this._instances, this._stack, this._masterTable.Date);
+            this.Executor = PowerTables.Templating._ltcTpl.executor(prefix, this._instances);
+            this.BackBinder = new BackBinder(this._instances, this._masterTable.Date);
         }
+
+        private _columnsRenderFunctions: { [key: string]: (x: ICell) => string } = {};
+
+        public Executor: PowerTables.Templating.TemplatesExecutor;
 
         /**
          * Parent element for whole table
@@ -38,11 +30,6 @@
         public BodyElement: HTMLElement;
 
         /**
-        * Current handlebars.js engine instance
-        */
-        public HandlebarsInstance: Handlebars.IHandlebars;
-
-        /**
          * Locator of particular table parts in DOM
          */
         public Locator: DOMLocator;
@@ -51,16 +38,6 @@
          * BackBinder instance
          */
         public BackBinder: BackBinder;
-
-        /**
-         * Renderer that is responsible for layout rendering
-         */
-        public LayoutRenderer: LayoutRenderer;
-
-        /**
-         * Entity that is responsible for content rendering
-         */
-        public ContentRenderer: ContentRenderer;
 
         /**
          * Entity that is responsible for existing DOM modifications
@@ -74,37 +51,9 @@
 
         private _masterTable: IMasterTable;
         private _instances: PowerTables.Services.InstanceManagerService;
-        private _stack: RenderingStack;
-        private _datepickerFunction: (e: HTMLElement) => void;
-        private _templatesCache: { [key: string]: HandlebarsTemplateDelegate } = {};
         private _rootId: string;
         private _events: PowerTables.Services.EventsService;
-        private _templateIds: ICoreTemplateIds;
         private _prefix: string;
-
-        //#region Templates caching
-        private cacheTemplates(templatesPrefix: string): void {
-            var selector: string = `script[type="text/x-handlebars-template"][id^="${templatesPrefix}-"]`;
-            var templates: NodeList = document.querySelectorAll(selector);
-            for (var i: number = 0; i < templates.length; i++) {
-                var item: HTMLElement = <HTMLElement>templates.item(i);
-                var key: string = item.id.substring(templatesPrefix.length + 1);
-                this._templatesCache[key] = this.HandlebarsInstance.compile(item.innerHTML.substring('<!--'.length, item.innerHTML.length - ('-->'.length)), { noEscape: true });
-            }
-        }
-
-        /**
-         * Retrieves cached template handlebars function
-         * @param Template Id 
-         * @returns Handlebars function
-         */
-        public getCachedTemplate(templateId: string): (arg: any) => string {
-            if (!this._templatesCache.hasOwnProperty(templateId))
-                throw new Error(`Cannot find template ${templateId}`);
-            return this._templatesCache[templateId];
-        }
-
-        //#endregion
 
         //#region Public methods
         /**
@@ -113,8 +62,8 @@
         public layout(): void {
             this._events.LayoutRendered.invokeBefore(this, null);
 
-            var rendered: string = this.getCachedTemplate(this._templateIds.Layout)(null);
-            this.RootElement.innerHTML = rendered;
+            var rendered = this.Executor.executeLayout();
+            this.RootElement.innerHTML = rendered.Html;
 
             var bodyMarker: Element = this.RootElement.querySelector('[data-track="tableBodyHere"]');
             if (!bodyMarker) throw new Error('{{Body}} placeholder is missing in table layout template');
@@ -124,10 +73,10 @@
             this.Locator = new DOMLocator(this.BodyElement, this.RootElement, this._rootId);
             this.Delegator = new PowerTables.Services.EventsDelegatorService(this.Locator, this.BodyElement, this.RootElement, this._rootId, this._masterTable);
             this.BackBinder.Delegator = this.Delegator;
-            this.Modifier = new DOMModifier(this._stack, this.Locator, this.BackBinder, this, this.LayoutRenderer, this._instances, this.Delegator,this.ContentRenderer);
+            this.Modifier = new DOMModifier(this.Executor, this.Locator, this.BackBinder, this._instances, this.Delegator);
 
 
-            this.BackBinder.backBind(this.RootElement);
+            this.BackBinder.backBind(this.RootElement, rendered.BackbindInfo);
             this._events.LayoutRendered.invokeAfter(this, null);
         }
 
@@ -138,51 +87,47 @@
          */
         public body(rows: IRow[]): void {
             this._events.ClientRowsRendering.invokeBefore(this, rows);
-            //this.clearBody();
-            var html: string = this.ContentRenderer.renderBody(rows);
+            var process = this.Executor.beginProcess();
+            for (var i: number = 0; i < rows.length; i++) {
+                var rw: IRow = rows[i];
+                PowerTables.Templating.Driver.row(process,rw);
+            }
+            var result = this.Executor.endProcess(process);
+
             this.Delegator.handleElementDestroy(this.BodyElement);
-            this.BodyElement.innerHTML = html;
-            this.BackBinder.backBind(this.BodyElement);
+            this.BodyElement.innerHTML = result.Html;
+            this.BackBinder.backBind(this.BodyElement, result.BackbindInfo);
             this._events.DataRendered.invokeAfter(this, null);
         }
 
         public renderObjectContent(renderable: IRenderable): string {
-            this._stack.push(RenderingContextType.Custom, renderable);
-            var html = renderable.renderContent(this);
-            this._stack.popContext();
-            return html;
+            var p = this.Executor.beginProcess();
+            p.nestContent(renderable, null);
+            return this.Executor.endProcess(p).Html;
         }
 
+        public renderToString(templateId: string, viewModelBehind: any): string {
+            var result = this.Executor.execute(viewModelBehind, templateId);
+            return result.Html;
+        }
         public renderObject(templateId: string, viewModelBehind: any, targetSelector: string): HTMLElement {
             var parent = <HTMLElement>document.querySelector(targetSelector);
             return this.renderObjectTo(templateId, viewModelBehind, parent);
         }
 
         public renderObjectTo(templateId: string, viewModelBehind: any, target: HTMLElement): HTMLElement {
-            this._stack.clear();
-            this._stack.push(RenderingContextType.Custom, viewModelBehind);
-            var html = this.getCachedTemplate(templateId)(viewModelBehind);
+            var result = this.Executor.execute(viewModelBehind, templateId);
             var parser: Rendering.Html2Dom.HtmlParser = new Rendering.Html2Dom.HtmlParser();
-            var element = parser.html2DomElements(html);
+            var element = parser.html2DomElements(result.Html);
             target.innerHTML = '';
             for (var i = 0; i < element.length; i++) {
                 target.appendChild(element[i]);
             }
-            this.BackBinder.backBind(target);
+            this.BackBinder.backBind(target, result.BackbindInfo);
             return target;
         }
 
-        public destroyAtElement(parent: HTMLElement) {
-            this.Delegator.handleElementDestroy(parent);
-            parent.innerHTML = '';
-        }
-
-        public destroyObject(targetSelector: string) {
-            var parent = <HTMLElement>document.querySelector(targetSelector);
-            this.destroyAtElement(parent);
-        }
-
-        /**
+       /**
          * Removes all dynamically loaded content in table
          * 
          * @returns {} 
@@ -195,58 +140,5 @@
         }
 
         //#endregion
-
-        //#region Helpers
-        public contentHelper(columnName?: string): string {
-            if (this._stack.Current.Object.renderContent) {
-                return this._stack.Current.Object.renderContent(this);
-            } else {
-                switch (this._stack.Current.Type) {
-                    case RenderingContextType.Header:
-                    case RenderingContextType.Plugin:
-                        return this.LayoutRenderer.renderContent(columnName);
-                    case RenderingContextType.Row:
-                    case RenderingContextType.Cell:
-                        return this.ContentRenderer.renderContent(columnName);
-                    default:
-                        throw new Error('Unknown rendering context type');
-
-                }
-            }
-        }
-
-        private trackHelper(): string {
-            var trk: string = this._stack.Current.CurrentTrack;
-            if (trk.length === 0) return '';
-            return `data-track="${trk}"`;
-        }
-
-        private ifqHelper(a: any, b: any, opts: any) {
-            if (a == b)
-                return opts.fn(this);
-            else
-                return opts.inverse(this);
-        }
-
-        private ifcompHelper(a: any, b: any, comparison: any, opts: any) {
-            var comp = eval(comparison);
-            if (comp)
-                return opts.fn(this);
-            else
-                return opts.inverse(this);
-        }
-
-        private iflocHelper(location: string, opts: any) {
-            if (this._stack.Current.Type === RenderingContextType.Plugin) {
-                var loc: string = (<IPlugin>this._stack.Current.Object).PluginLocation;
-                if (loc.length < location.length) return opts.inverse(this);
-                if (loc.length === location.length && loc === location) return opts.fn(this);
-                if (loc.substring(0, location.length) === location) return opts.fn(this);
-            }
-            return opts.inverse(this);
-        }
-
-        //#endregion
-        hasCachedTemplate(templateId: string): boolean { return this._templatesCache.hasOwnProperty(templateId); }
     }
 }

@@ -8,7 +8,7 @@
         /// <summary>
         /// Array length
         /// </summary>
-        [OverrideHbFieldName("length")]
+        [OverrideTplFieldName("length")]
         int Length { get; }
 
         /// <summary>

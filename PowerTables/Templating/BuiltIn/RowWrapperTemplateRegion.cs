@@ -11,7 +11,7 @@ namespace PowerTables.Templating.BuiltIn
         
         public bool IsTrackSet { get; set; }
 
-        public RowWrapperTemplateRegion(string prefix, string id, TextWriter writer) : base(prefix, id, writer)
+        public RowWrapperTemplateRegion(string prefix, string id, ITemplatesScope writer) : base(TemplateRegionType.Row, prefix, id, writer)
         {
         }
     }
@@ -65,12 +65,12 @@ namespace PowerTables.Templating.BuiltIn
     {
         public static RowWrapperTemplateRegion<object> RowWrapper(this ITemplatesScope tp, string templateId = "rowWrapper")
         {
-            return new RowWrapperTemplateRegion<object>(tp.TemplatesPrefix, templateId, tp.Output);
+            return new RowWrapperTemplateRegion<object>(tp.TemplatesPrefix, templateId, tp);
         }
 
         public static RowWrapperTemplateRegion<TRow> RowWrapper<TRow>(this ITemplatesScope tp, string templateId = "rowWrapper")
         {
-            return new RowWrapperTemplateRegion<TRow>(tp.TemplatesPrefix,templateId, tp.Output);
+            return new RowWrapperTemplateRegion<TRow>(tp.TemplatesPrefix,templateId, tp);
         }
     }
 }

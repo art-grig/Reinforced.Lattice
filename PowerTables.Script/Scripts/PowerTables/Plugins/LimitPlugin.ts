@@ -6,11 +6,11 @@ module PowerTables.Plugins.Limit {
         private _limitSize = 0;
         public Sizes: ILimitSize[] = [];
 
-        public renderContent(templatesProvider: ITemplatesProvider): string {
-            return this.defaultRender(templatesProvider);
+        public renderContent(p: PowerTables.Templating.TemplateProcess): void {
+            this.defaultRender(p);
         }
 
-        public changeLimitHandler(e: Rendering.ITemplateBoundEvent) {
+        public changeLimitHandler(e: PowerTables.ITemplateBoundEvent) {
             var limit = parseInt(e.EventArguments[0]);
             if (isNaN(limit)) limit = 0;
             this.changeLimit(limit);

@@ -9,7 +9,7 @@
         /*
          * @internal
          */
-        constructor(usersMessageFn: (msg: ITableMessage) => void, instances: PowerTables.Services.InstanceManagerService, dataHolder: PowerTables.Services.DataHolderService, controller: Controller,templatesProvider:ITemplatesProvider) {
+        constructor(usersMessageFn: (msg: ITableMessage) => void, instances: PowerTables.Services.InstanceManagerService, dataHolder: PowerTables.Services.DataHolderService, controller: Controller, templatesProvider: ITemplatesProvider) {
             this._usersMessageFn = usersMessageFn;
             this._instances = instances;
             this._dataHolder = dataHolder;
@@ -40,11 +40,11 @@
         }
 
         private showTableMessage(tableMessage: IUiMessage) {
-            if (!this._templatesProvider.hasCachedTemplate(`ltmsg-${tableMessage.Class}`)) {
+            if (!this._templatesProvider.Executor.hasTemplate(`ltmsg-${tableMessage.Class}`)) {
                 this._controller.replaceVisibleData([]);
                 return;
             }
-            
+
             var msgRow: IRow = {
                 DataObject: tableMessage,
                 IsSpecial: true,

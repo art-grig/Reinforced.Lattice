@@ -19,4 +19,9 @@
         /// <returns>Dictionary entry</returns>
         T this[TKey key] { get; }
     }
+
+    public interface IJsObject
+    {
+        object this[string key] { get; }
+    }
 }

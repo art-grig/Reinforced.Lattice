@@ -11,7 +11,7 @@ namespace PowerTables.Plugins.Checkboxify
         public string ExistingModel { get; private set; }
         public bool IsTrackSet { get; set; }
 
-        public CheckboxifySelectAllTemplateRegion(IViewPlugins page, string id) : base(page, id)
+        public CheckboxifySelectAllTemplateRegion(IViewPlugins page, string id) : base(page, id,TemplateRegionType.Header)
         {
         }
     }
@@ -54,14 +54,14 @@ namespace PowerTables.Plugins.Checkboxify
             return new CheckboxifiedCellTemplateRegion(t,templateId);
         }
 
-        public static MvcHtmlString BindSelectAll(this CheckboxifySelectAllTemplateRegion t, string eventId)
+        public static SpecialString BindSelectAll(this CheckboxifySelectAllTemplateRegion t, string eventId)
         {
             return t.BindEvent("selectAllEvent", eventId);
         }
 
-        public static MvcHtmlString ThisWillTriggerSelection(this CheckboxifiedCellTemplateRegion t)
+        public static SpecialString ThisWillTriggerSelection(this CheckboxifiedCellTemplateRegion t)
         {
-            return MvcHtmlString.Create("data-checkboxify=\"true\"");
+            return t._("w('data-checkboxify=\"true\"');");
         }
     }
 }

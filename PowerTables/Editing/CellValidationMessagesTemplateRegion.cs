@@ -7,10 +7,10 @@ using PowerTables.Templating.Handlebars;
 namespace PowerTables.Editing
 {
     public class CellValidationMessagesTemplateRegion : TemplateRegion
-        ,IModelProvider<IValidationMessagesViewModel>
+        , IModelProvider<IValidationMessagesViewModel>
     {
-        public CellValidationMessagesTemplateRegion(string prefix, string id, TextWriter writer)
-            : base(prefix, id, writer)
+        public CellValidationMessagesTemplateRegion(string prefix, string id, ITemplatesScope scope)
+            : base(TemplateRegionType.Custom, prefix, id, scope)
         {
         }
 
@@ -35,14 +35,14 @@ namespace PowerTables.Editing
 
     public interface ISpecialInvalidStateViewModel
     {
-        [OverrideHbFieldName("renderedValidationMessages")]
+        [OverrideTplFieldName("renderedValidationMessages")]
         string ValidationMessages { get; }
     }
 
 
     public static class CellValidationMessagesTemplateExtensions
     {
-        public static MvcHtmlString WhenInvalid<T>(this CellEditorTemplateRegionBase<T> t, Action<SpecialVisualStateDescription<ISpecialInvalidStateViewModel>> state) where T : ICellEditorViewModel
+        public static SpecialString WhenInvalid<T>(this CellEditorTemplateRegionBase<T> t, Action<SpecialVisualStateDescription<ISpecialInvalidStateViewModel>> state) where T : ICellEditorViewModel
         {
             return t.State("invalid", VisualState.FromSpecialDelegate(state));
         }
@@ -50,7 +50,7 @@ namespace PowerTables.Editing
         public static CellValidationMessagesTemplateRegion Editor_ValidationMessages(this IViewPlugins t,
             string templateId = "cellValidationMessages")
         {
-            return new CellValidationMessagesTemplateRegion(t.Model.Prefix, templateId, t.Writer);
+            return new CellValidationMessagesTemplateRegion(t.Model.Prefix, templateId, t.Scope);
         }
 
     }

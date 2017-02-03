@@ -37,7 +37,7 @@ namespace PowerTables.Filters.Select
         /// </summary>
         /// <param name="t"></param>
         /// <param name="eventId">DOM Event ID</param>
-        public static MvcHtmlString BindValueChanged(this SelectFilterTemplateRegion t, string eventId)
+        public static SpecialString BindValueChanged(this SelectFilterTemplateRegion t, string eventId)
         {
             return t.BindEvent("handleValueChanged", eventId);
         }
@@ -47,7 +47,7 @@ namespace PowerTables.Filters.Select
         /// It must have "value" property
         /// </summary>
         /// <param name="t"></param>
-        public static MvcHtmlString ThisIsFilterValueProvider(this SelectFilterTemplateRegion t)
+        public static SpecialString ThisIsFilterValueProvider(this SelectFilterTemplateRegion t)
         {
             return t.Mark("FilterValueProvider");
         }

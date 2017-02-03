@@ -37,7 +37,7 @@
                 var cell: ICell = {
                     DataObject: dataObject,
                     renderElement: null,
-                    renderContent: function (v) { return this.Data; },
+                    renderContent: function (v) { v.w(this.Data); },
                     Column: cols[i],
                     Row: result,
                     Data: dataObject[col.RawName]

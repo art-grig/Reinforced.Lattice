@@ -47,12 +47,12 @@ namespace PowerTables.Editing.Editors.Check
         /// <param name="t"></param>
         /// <param name="state">Visual state builder. See <see cref="VisualState"/> class for details</param>
         /// <returns></returns>
-        public static MvcHtmlString WhenChecked(this CheckEditorTemplateRegion t, Action<VisualState> state)
+        public static SpecialString WhenChecked(this CheckEditorTemplateRegion t, Action<VisualState> state)
         {
             return t.State("checked", state);
         }
 
-        public static MvcHtmlString FocusElement(this CheckEditorTemplateRegion t)
+        public static SpecialString FocusElement(this CheckEditorTemplateRegion t)
         {
             return t.Mark("FocusElement");
         }

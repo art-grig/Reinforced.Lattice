@@ -11,8 +11,8 @@ namespace PowerTables.Templating.BuiltIn
         IProvidesContent,
         IProvidesTracking
     {
-        public PluignWrapperTemplateRegion(string prefix,string templateId, TextWriter writer)
-            : base(prefix, templateId, writer)
+        public PluignWrapperTemplateRegion(string prefix, string templateId, ITemplatesScope writer)
+            : base(TemplateRegionType.Plugin, prefix, templateId, writer)
         {
         }
 
@@ -40,12 +40,12 @@ namespace PowerTables.Templating.BuiltIn
     {
         public static PluignWrapperTemplateRegion<dynamic> PluginWrapper(this ITemplatesScope t, string templateId = "pluginWrapper")
         {
-            return new PluignWrapperTemplateRegion<dynamic>(t.TemplatesPrefix, templateId, t.Output);
+            return new PluignWrapperTemplateRegion<dynamic>(t.TemplatesPrefix, templateId, t);
         }
 
         public static PluignWrapperTemplateRegion<T> PluginWrapper<T>(this ITemplatesScope t, string templateId = "pluginWrapper")
         {
-            return new PluignWrapperTemplateRegion<T>(t.TemplatesPrefix,templateId, t.Output);
+            return new PluignWrapperTemplateRegion<T>(t.TemplatesPrefix, templateId, t);
         }
 
         /// <summary>
@@ -55,9 +55,9 @@ namespace PowerTables.Templating.BuiltIn
         /// <param name="pw"></param>
         /// <param name="locationPart">Part of plugin location</param>
         /// <returns></returns>
-        public static HbTagRegion IfPlacement<T>(this PluignWrapperTemplateRegion<T> pw, string locationPart)
+        public static CodeBlock IfPlacement<T>(this PluignWrapperTemplateRegion<T> pw, string locationPart)
         {
-            return new HbTagRegion("ifloc", String.Concat("\"", locationPart, "\""), pw.Writer);
+            return new CodeBlock(string.Format("if(p.isLocation('{0}')){{", locationPart), "}", pw);
         }
     }
 }

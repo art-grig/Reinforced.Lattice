@@ -20,8 +20,8 @@ module PowerTables.Plugins.Loading {
 
         public static Id = 'Loading';
 
-        public renderContent(templatesProvider: ITemplatesProvider): string {
-            return this.defaultRender(templatesProvider);
+        public renderContent(p: PowerTables.Templating.TemplateProcess): void {
+            this.defaultRender(p);
         }
     }
     ComponentsContainer.registerComponent('Loading', LoadingPlugin);

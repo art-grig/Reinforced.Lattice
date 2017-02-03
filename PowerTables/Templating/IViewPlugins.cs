@@ -10,7 +10,7 @@ namespace PowerTables.Templating
         /// <summary>
         /// Output view text writer
         /// </summary>
-        TextWriter Writer { get; }
+        ITemplatesScope Scope { get; }
 
         /// <summary>
         /// Templates page model

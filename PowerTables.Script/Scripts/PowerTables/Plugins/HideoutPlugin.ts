@@ -30,15 +30,15 @@
         }
 
         //#region Events handling
-        public toggleColumn(e: PowerTables.Rendering.ITemplateBoundEvent) {
+        public toggleColumn(e: PowerTables.ITemplateBoundEvent) {
             this.toggleColumnByName(e.EventArguments[0]);
         }
 
-        public showColumn(e: PowerTables.Rendering.ITemplateBoundEvent) {
+        public showColumn(e: PowerTables.ITemplateBoundEvent) {
             this.showColumnByName(e.EventArguments[0]);
         }
 
-        public hideColumn(e: PowerTables.Rendering.ITemplateBoundEvent) {
+        public hideColumn(e: PowerTables.ITemplateBoundEvent) {
             this.hideColumnByName(e.EventArguments[0]);
         }
         //#endregion
@@ -168,8 +168,8 @@ included into hideable columns list.
 
         }
 
-        renderContent(templatesProvider: ITemplatesProvider): string {
-            return this.defaultRender(templatesProvider);
+        public renderContent(p: PowerTables.Templating.TemplateProcess): void {
+            this.defaultRender(p);
         }
 
         subscribe(e: PowerTables.Services.EventsService): void {
@@ -178,7 +178,7 @@ included into hideable columns list.
             e.LayoutRendered.subscribeAfter(this.onLayourRendered.bind(this), 'hideout');
         }
 
-        private ifColVisibleHelper(columnName: string, opts: any) {
+        public isColVisible(columnName: string) : boolean {
             var visible = false;
             if (this._isInitializing) {
                 visible = !this.Configuration.HiddenColumns.hasOwnProperty(columnName);
@@ -190,13 +190,10 @@ included into hideable columns list.
                     }
                 }
             }
-            if (visible) return opts.fn(this);
-            else return opts.inverse(this);
+            return visible;
         }
 
-        public registerAdditionalHelpers(hb: Handlebars.IHandlebars): void {
-            hb.registerHelper('ifColVisible', this.ifColVisibleHelper.bind(this));
-        }
+        
     }
 
     ComponentsContainer.registerComponent('Hideout', HideoutPlugin);
