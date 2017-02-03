@@ -94,7 +94,7 @@
             }
         }
 
-        public changedHandler(e: PowerTables.Rendering.ITemplateBoundEvent): void {
+        public changedHandler(e: PowerTables.ITemplateBoundEvent): void {
             super.changedHandler(e);
             var item = (<any>this.List.options.item(this.List.selectedIndex)).value;
             for (var i = 0; i < this.Items.length; i++) {

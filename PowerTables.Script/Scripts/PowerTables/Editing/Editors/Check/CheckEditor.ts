@@ -8,7 +8,7 @@
             this.defaultRender(p);
         }
 
-        public changedHandler(e: PowerTables.Rendering.ITemplateBoundEvent): void {
+        public changedHandler(e: PowerTables.ITemplateBoundEvent): void {
             this._value = !this._value;
             this.updateState();
             super.changedHandler(e);

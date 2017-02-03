@@ -10,11 +10,11 @@
         private _buttonsConfig: { [key: number]: Plugins.Toolbar.IToolbarButtonClientConfiguration } = {}
 
         /**
-         * Simulates event happened on particular button. Internal button id must be supplied as first member of @memberref PowerTables.Rendering.ITemplateBoundEvent.EventArguments
+         * Simulates event happened on particular button. Internal button id must be supplied as first member of @memberref PowerTables.ITemplateBoundEvent.EventArguments
          * 
          * @param e Template bound event for triggering button action
          */
-        public buttonHandleEvent(e: Rendering.ITemplateBoundEvent): void {
+        public buttonHandleEvent(e: PowerTables.ITemplateBoundEvent): void {
             var btnId = e.EventArguments[0];
             this.handleButtonAction(this._buttonsConfig[btnId]);
         }

@@ -30,15 +30,15 @@
         }
 
         //#region Events handling
-        public toggleColumn(e: PowerTables.Rendering.ITemplateBoundEvent) {
+        public toggleColumn(e: PowerTables.ITemplateBoundEvent) {
             this.toggleColumnByName(e.EventArguments[0]);
         }
 
-        public showColumn(e: PowerTables.Rendering.ITemplateBoundEvent) {
+        public showColumn(e: PowerTables.ITemplateBoundEvent) {
             this.showColumnByName(e.EventArguments[0]);
         }
 
-        public hideColumn(e: PowerTables.Rendering.ITemplateBoundEvent) {
+        public hideColumn(e: PowerTables.ITemplateBoundEvent) {
             this.hideColumnByName(e.EventArguments[0]);
         }
         //#endregion

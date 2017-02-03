@@ -58,7 +58,7 @@ namespace PowerTables.Templating.Handlebars
         public static SpecialString If<T>(this IModelProvider<T> t, Expression<Func<T, bool>> condition, string textIf)
         {
             var expr = TraversePropertyLambda(condition, t.ExistingModel);
-            return t._("if({0}){{ {1} }}", expr, RawExtensions.Prettify(textIf));
+            return t._("if({0}){{{1}}}", expr, RawExtensions.Prettify(textIf));
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace PowerTables.Templating.Handlebars
         /// <returns></returns>
         public static SpecialString If<T>(this IModelProvider<T> t, string condition, string textIf)
         {
-            return t._("if({0}){{{1} }}", condition, RawExtensions.Prettify(textIf));
+            return t._("if({0}){{{1}}}", condition, RawExtensions.Prettify(textIf));
         }
 
         /// <summary>
@@ -82,7 +82,7 @@ namespace PowerTables.Templating.Handlebars
         /// <returns>{{else}} keyword</returns>
         public static SpecialString Else<T>(this IModelProvider<T> t)
         {
-            return t._("}else{ ");
+            return t._("}else{");
         }
 
         #endregion

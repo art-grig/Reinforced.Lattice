@@ -63,9 +63,12 @@
             }
         }
 
-        public destroySelector(targetSelector: string) {
+        public cleanSelector(targetSelector: string) {
             var parent = <HTMLElement>document.querySelector(targetSelector);
-            this.destroyElement(parent);
+            for (var i = 0; i < parent.children.length; i++) {
+                this._ed.handleElementDestroy(<HTMLElement>parent.children.item(i));
+            }
+            parent.innerHTML = '';
         }
 
         public destroyElement(element: HTMLElement) {

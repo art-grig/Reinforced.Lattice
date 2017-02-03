@@ -1262,17 +1262,17 @@ declare module PowerTables.Editing {
         /**
          * Template-bound event raising on changing this editor's value
          */
-        changedHandler(e: PowerTables.Rendering.ITemplateBoundEvent): void;
+        changedHandler(e: PowerTables.ITemplateBoundEvent): void;
         /**
          * Event handler for commit (save edited, ok, submit etc) event raised from inside of CellEditor
          * Commit leads to validation. Cell editor should be notified
          */
-        commitHandler(e: PowerTables.Rendering.ITemplateBoundEvent): void;
+        commitHandler(e: PowerTables.ITemplateBoundEvent): void;
         /**
          * Event handler for reject (cancel editing) event raised from inside of CellEditor
          * Cell editor should be notified
          */
-        rejectHandler(e: PowerTables.Rendering.ITemplateBoundEvent): void;
+        rejectHandler(e: PowerTables.ITemplateBoundEvent): void;
         /**
          * Called when cell editor has been drawn
          *
@@ -1384,7 +1384,7 @@ declare module PowerTables.Editing.Editors.Check {
         FocusElement: HTMLElement;
         private _value;
         renderContent(p: PowerTables.Templating.TemplateProcess): void;
-        changedHandler(e: PowerTables.Rendering.ITemplateBoundEvent): void;
+        changedHandler(e: PowerTables.ITemplateBoundEvent): void;
         private updateState();
         getValue(errors: PowerTables.Editing.IValidationMessage[]): any;
         setValue(value: any): void;
@@ -1415,7 +1415,7 @@ declare module PowerTables.Editing.Editors.Memo {
         WarningChars: number;
         Columns: number;
         init(masterTable: IMasterTable): void;
-        changedHandler(e: PowerTables.Rendering.ITemplateBoundEvent): void;
+        changedHandler(e: PowerTables.ITemplateBoundEvent): void;
         setValue(value: any): void;
         getValue(errors: PowerTables.Editing.IValidationMessage[]): any;
         renderContent(p: PowerTables.Templating.TemplateProcess): void;
@@ -1439,7 +1439,7 @@ declare module PowerTables.Editing.Editors.PlainText {
         init(masterTable: IMasterTable): void;
         private defaultParse(value, column, errors);
         private defaultFormat(value, column);
-        changedHandler(e: PowerTables.Rendering.ITemplateBoundEvent): void;
+        changedHandler(e: PowerTables.ITemplateBoundEvent): void;
         renderContent(p: PowerTables.Templating.TemplateProcess): void;
         focus(): void;
         defineMessages(): {
@@ -1458,7 +1458,7 @@ declare module PowerTables.Editing.Editors.SelectList {
         init(masterTable: IMasterTable): void;
         renderContent(p: PowerTables.Templating.TemplateProcess): void;
         onAfterRender(e: HTMLElement): void;
-        changedHandler(e: PowerTables.Rendering.ITemplateBoundEvent): void;
+        changedHandler(e: PowerTables.ITemplateBoundEvent): void;
         focus(): void;
         defineMessages(): {
             [key: string]: string;
@@ -1743,9 +1743,9 @@ declare module PowerTables.Plugins.Hideout {
         isColumnInstanceVisible(col: IColumn): boolean;
         hideColumnByName(rawColname: string): void;
         showColumnByName(rawColname: string): void;
-        toggleColumn(e: PowerTables.Rendering.ITemplateBoundEvent): void;
-        showColumn(e: PowerTables.Rendering.ITemplateBoundEvent): void;
-        hideColumn(e: PowerTables.Rendering.ITemplateBoundEvent): void;
+        toggleColumn(e: PowerTables.ITemplateBoundEvent): void;
+        showColumn(e: PowerTables.ITemplateBoundEvent): void;
+        hideColumn(e: PowerTables.ITemplateBoundEvent): void;
         toggleColumnByName(columnName: string): boolean;
         modifyQuery(query: IQuery, scope: QueryScope): void;
         hideColumnInstance(c: IColumn): void;
@@ -1791,7 +1791,7 @@ declare module PowerTables.Plugins.Limit {
         private _limitSize;
         Sizes: ILimitSize[];
         renderContent(p: PowerTables.Templating.TemplateProcess): void;
-        changeLimitHandler(e: Rendering.ITemplateBoundEvent): void;
+        changeLimitHandler(e: PowerTables.ITemplateBoundEvent): void;
         changeLimit(limit: number): void;
         modifyQuery(query: IQuery, scope: QueryScope): void;
         init(masterTable: IMasterTable): void;
@@ -1898,10 +1898,10 @@ declare module PowerTables.Plugins.Paging {
         private onResponse(e);
         private onClientDataProcessing(e);
         goToPage(page: string): void;
-        gotoPageClick(e: Rendering.ITemplateBoundEvent): void;
-        navigateToPage(e: Rendering.ITemplateBoundEvent): void;
-        nextClick(e: Rendering.ITemplateBoundEvent): void;
-        previousClick(e: Rendering.ITemplateBoundEvent): void;
+        gotoPageClick(e: PowerTables.ITemplateBoundEvent): void;
+        navigateToPage(e: PowerTables.ITemplateBoundEvent): void;
+        nextClick(e: PowerTables.ITemplateBoundEvent): void;
+        previousClick(e: PowerTables.ITemplateBoundEvent): void;
         private constructPagesElements();
         renderContent(p: PowerTables.Templating.TemplateProcess): void;
         validateGotopage(): void;
@@ -2035,11 +2035,11 @@ declare module PowerTables.Plugins.Toolbar {
         };
         private _buttonsConfig;
         /**
-         * Simulates event happened on particular button. Internal button id must be supplied as first member of @memberref PowerTables.Rendering.ITemplateBoundEvent.EventArguments
+         * Simulates event happened on particular button. Internal button id must be supplied as first member of @memberref PowerTables.ITemplateBoundEvent.EventArguments
          *
          * @param e Template bound event for triggering button action
          */
-        buttonHandleEvent(e: Rendering.ITemplateBoundEvent): void;
+        buttonHandleEvent(e: PowerTables.ITemplateBoundEvent): void;
         private redrawMe();
         private handleButtonAction(btn);
         renderContent(p: PowerTables.Templating.TemplateProcess): void;
@@ -2301,7 +2301,7 @@ declare module PowerTables.Rendering {
         private displayCache;
         hideElement(el: HTMLElement): void;
         showElement(el: HTMLElement): void;
-        destroySelector(targetSelector: string): void;
+        cleanSelector(targetSelector: string): void;
         destroyElement(element: HTMLElement): void;
         destroyElements(elements: NodeList): void;
         hideElements(element: NodeList): void;

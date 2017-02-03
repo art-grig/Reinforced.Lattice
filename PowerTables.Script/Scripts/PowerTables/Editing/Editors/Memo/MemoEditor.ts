@@ -18,7 +18,7 @@
             this.CurrentChars = 0;
         }
 
-        public changedHandler(e: PowerTables.Rendering.ITemplateBoundEvent): void {
+        public changedHandler(e: PowerTables.ITemplateBoundEvent): void {
             this.CurrentChars = this.TextArea.value.length;
             if (this.WarningChars !== 0 && this.CurrentChars >= this.WarningChars && this.CurrentChars <= this.MaxChars) {
                 this.VisualStates.mixinState('warning');

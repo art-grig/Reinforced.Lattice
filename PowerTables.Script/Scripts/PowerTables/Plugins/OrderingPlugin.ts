@@ -139,7 +139,7 @@
     }
 
     interface ICustomHeader extends IColumnHeader {
-        switchOrdering: (e: Rendering.ITemplateBoundEvent) => void;
+        switchOrdering: (e: PowerTables.ITemplateBoundEvent) => void;
         IsNeutral?: boolean;
         IsAscending?: boolean;
         IsDescending?: boolean;

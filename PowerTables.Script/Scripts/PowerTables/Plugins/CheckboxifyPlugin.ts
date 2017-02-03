@@ -31,7 +31,7 @@
     }
 
     interface ISpecialHeader extends IColumnHeader {
-        selectAllEvent(e: PowerTables.Rendering.ITemplateBoundEvent): void;
+        selectAllEvent(e: PowerTables.ITemplateBoundEvent): void;
     }
     ComponentsContainer.registerComponent('Checkboxify', CheckboxifyPlugin);
 } 

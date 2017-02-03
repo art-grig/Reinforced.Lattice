@@ -445,14 +445,14 @@
                     this.RootElement = null;
                     this.ContentPlaceholder = null;
                     this.DetailsPlaceholder = null;
-                    this.MasterTable.Renderer.Modifier.destroySelector(this._commandDescription.Confirmation.TargetSelector);
+                    this.MasterTable.Renderer.Modifier.cleanSelector(this._commandDescription.Confirmation.TargetSelector);
                     if (this._originalCallback) this._originalCallback(params);
                 });
         }
 
         public dismiss() {
             var params = this.collectCommandParameters();
-            this.MasterTable.Renderer.Modifier.destroySelector(this._commandDescription.Confirmation.TargetSelector);
+            this.MasterTable.Renderer.Modifier.cleanSelector(this._commandDescription.Confirmation.TargetSelector);
             this.RootElement = null;
             this.ContentPlaceholder = null;
             this.DetailsPlaceholder = null;

@@ -10,7 +10,7 @@ module PowerTables.Plugins.Limit {
             this.defaultRender(p);
         }
 
-        public changeLimitHandler(e: Rendering.ITemplateBoundEvent) {
+        public changeLimitHandler(e: PowerTables.ITemplateBoundEvent) {
             var limit = parseInt(e.EventArguments[0]);
             if (isNaN(limit)) limit = 0;
             this.changeLimit(limit);

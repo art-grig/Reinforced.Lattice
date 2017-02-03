@@ -1115,7 +1115,7 @@ var PowerTables;
                         if (!_this._isEditing) {
                             _this.MasterTable.Events.Edit.invokeAfter(_this, _this.CurrentDataObjectModified);
                             _this.CurrentDataObjectModified = null;
-                            _this.MasterTable.Renderer.Modifier.destroySelector(_this.Configuration.FormTargetSelector);
+                            _this.MasterTable.Renderer.Modifier.cleanSelector(_this.Configuration.FormTargetSelector);
                             _this._currentFormElement = null;
                             _this._currentForm = null;
                         }
@@ -1127,7 +1127,7 @@ var PowerTables;
                     }
                     this._isEditing = false;
                     this.CurrentDataObjectModified = null;
-                    this.MasterTable.Renderer.Modifier.destroySelector(this.Configuration.FormTargetSelector);
+                    this.MasterTable.Renderer.Modifier.cleanSelector(this.Configuration.FormTargetSelector);
                     this._currentFormElement = null;
                     this._currentForm = null;
                 };
@@ -3723,7 +3723,7 @@ var PowerTables;
                     this._buttonsConfig = {};
                 }
                 /**
-                 * Simulates event happened on particular button. Internal button id must be supplied as first member of @memberref PowerTables.Rendering.ITemplateBoundEvent.EventArguments
+                 * Simulates event happened on particular button. Internal button id must be supplied as first member of @memberref PowerTables.ITemplateBoundEvent.EventArguments
                  *
                  * @param e Template bound event for triggering button action
                  */
@@ -4536,9 +4536,12 @@ var PowerTables;
                     el.style.display = display;
                 }
             };
-            DOMModifier.prototype.destroySelector = function (targetSelector) {
+            DOMModifier.prototype.cleanSelector = function (targetSelector) {
                 var parent = document.querySelector(targetSelector);
-                this.destroyElement(parent);
+                for (var i = 0; i < parent.children.length; i++) {
+                    this._ed.handleElementDestroy(parent.children.item(i));
+                }
+                parent.innerHTML = '';
             };
             DOMModifier.prototype.destroyElement = function (element) {
                 element.parentElement.removeChild(element);
@@ -5733,14 +5736,14 @@ var PowerTables;
                     _this.RootElement = null;
                     _this.ContentPlaceholder = null;
                     _this.DetailsPlaceholder = null;
-                    _this.MasterTable.Renderer.Modifier.destroySelector(_this._commandDescription.Confirmation.TargetSelector);
+                    _this.MasterTable.Renderer.Modifier.cleanSelector(_this._commandDescription.Confirmation.TargetSelector);
                     if (_this._originalCallback)
                         _this._originalCallback(params);
                 });
             };
             ConfirmationWindowViewModel.prototype.dismiss = function () {
                 var params = this.collectCommandParameters();
-                this.MasterTable.Renderer.Modifier.destroySelector(this._commandDescription.Confirmation.TargetSelector);
+                this.MasterTable.Renderer.Modifier.cleanSelector(this._commandDescription.Confirmation.TargetSelector);
                 this.RootElement = null;
                 this.ContentPlaceholder = null;
                 this.DetailsPlaceholder = null;

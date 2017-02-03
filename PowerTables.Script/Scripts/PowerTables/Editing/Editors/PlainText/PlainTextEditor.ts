@@ -117,7 +117,7 @@
             return value.toString();
         }
 
-        public changedHandler(e: PowerTables.Rendering.ITemplateBoundEvent): void {
+        public changedHandler(e: PowerTables.ITemplateBoundEvent): void {
             super.changedHandler(e);
         }
 

@@ -101,7 +101,7 @@
         /**
          * Template-bound event raising on changing this editor's value 
          */
-        public changedHandler(e: PowerTables.Rendering.ITemplateBoundEvent): void {
+        public changedHandler(e: PowerTables.ITemplateBoundEvent): void {
             if (this.IsInitialValueSetting) return;
             this.Row.notifyChanged(this);
         }
@@ -110,7 +110,7 @@
          * Event handler for commit (save edited, ok, submit etc) event raised from inside of CellEditor
          * Commit leads to validation. Cell editor should be notified
          */
-        public commitHandler(e: PowerTables.Rendering.ITemplateBoundEvent): void {
+        public commitHandler(e: PowerTables.ITemplateBoundEvent): void {
             this.Row.commit(this);
         }
 
@@ -118,7 +118,7 @@
          * Event handler for reject (cancel editing) event raised from inside of CellEditor
          * Cell editor should be notified
          */
-        public rejectHandler(e: PowerTables.Rendering.ITemplateBoundEvent): void {
+        public rejectHandler(e: PowerTables.ITemplateBoundEvent): void {
             this.Row.reject(this);
         }
 
