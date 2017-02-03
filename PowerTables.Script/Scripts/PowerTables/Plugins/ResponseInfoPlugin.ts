@@ -4,7 +4,7 @@
     {
         private _recentData: any = {};
         private _recentServerData: any;
-        private _recentTemplate: HandlebarsTemplateDelegate;
+        private _recentTemplate: string;
         private _pagingEnabled: boolean;
         private _pagingPlugin: IPagingPlugin;
         private _isServerRequest: boolean;
@@ -51,19 +51,19 @@
             this.MasterTable.Renderer.Modifier.redrawPlugin(this);
         }
 
-        public renderContent(templatesProvider: ITemplatesProvider): string {
-            if (!this._isReadyForRendering) return '';
+        public renderContent(p: PowerTables.Templating.TemplateProcess): void {
+            if (!this._isReadyForRendering) return;
             if (this.Configuration.ClientTemplateFunction) {
-                return this.Configuration.ClientTemplateFunction(this._recentData);
+                p.w(this.Configuration.ClientTemplateFunction(this._recentData));
             } else {
-                return this._recentTemplate(this._recentData);
+                p.nest(this._recentData,this._recentTemplate);
             }
         }
 
         public init(masterTable: IMasterTable): void {
             super.init(masterTable);
 
-            this._recentTemplate = this.MasterTable.Renderer.getCachedTemplate(this.RawConfig.TemplateId);
+            this._recentTemplate = this.RawConfig.TemplateId;
             if (this.Configuration.ResponseObjectOverriden) {
                 this.MasterTable.Loader.registerAdditionalDataReceiver('ResponseInfo', this);
             }

@@ -2,8 +2,8 @@
     export class LoadingOverlapPlugin extends PluginBase<PowerTables.Plugins.LoadingOverlap.ILoadingOverlapUiConfig>  {
         private _overlappingElement: HTMLElement[][] = [];
         private _overlapLayer: HTMLElement[][] = [];
-        private _isOverlapped:boolean = false;
-        
+        private _isOverlapped: boolean = false;
+
         private overlapAll() {
             if (this._isOverlapped) return;
             this._overlapLayer = [];
@@ -31,7 +31,7 @@
         }
 
         private createOverlap(efor: HTMLElement, templateId: string): HTMLElement {
-            var element = this.MasterTable.Renderer.Modifier.createElement(this.MasterTable.Renderer.getCachedTemplate(templateId)(null));
+            var element = this.MasterTable.Renderer.Modifier.createElement(this.MasterTable.Renderer.renderToString(templateId, null));
 
             var mezx = null;
             if ((<any>this._overlappingElement).currentStyle) mezx = (<any>this._overlappingElement).currentStyle.zIndex;
@@ -85,7 +85,7 @@
             this.overlapAll();
         }
 
-        public afterDrawn: (e: ITableEventArgs<any>) => void = e=> {
+        public afterDrawn: (e: ITableEventArgs<any>) => void = e => {
             this.MasterTable.Events.Loading.subscribeBefore((e) => this.onBeforeLoading(e), 'overlapLoading');
             this.MasterTable.Events.DataRendered.subscribeAfter(() => this.deoverlap(), 'overlapLoading');
             this.MasterTable.Events.Loading.subscribeAfter(() => this.deoverlap(), 'overlapLoading');

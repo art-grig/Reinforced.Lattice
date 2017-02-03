@@ -46,8 +46,8 @@
         /*
          * @internal
          */
-        public renderContent(templatesProvider: ITemplatesProvider): string {
-            return this.defaultRender(templatesProvider);
+        public renderContent(p: PowerTables.Templating.TemplateProcess): void {
+            this.defaultRender(p);
         }
 
         private traverseButtons(arr: Plugins.Toolbar.IToolbarButtonClientConfiguration[]) {

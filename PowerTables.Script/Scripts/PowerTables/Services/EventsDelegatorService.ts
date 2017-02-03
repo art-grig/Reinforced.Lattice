@@ -53,7 +53,7 @@
         private _matches: (e: HTMLElement) => boolean;
         private _domEvents: { [key: string]: any } = {};
         private _outEvents: { [key: string]: any } = {};
-        private _destroyCallbacks: PowerTables.Rendering.ICallbackDescriptor[] = [];
+        private _destroyCallbacks: PowerTables.Templating.ICallbackDescriptor[] = [];
 
         private ensureMouseOpSubscriptions() {
             if (this._domEvents.hasOwnProperty('mousemove')) return;
@@ -441,7 +441,7 @@
          * @param e HTML element destroying of which will fire event
          * @param callback Callback being called when element is destroyed        
          */
-        public subscribeDestroy(e: HTMLElement, callback: PowerTables.Rendering.ICallbackDescriptor): void {
+        public subscribeDestroy(e: HTMLElement, callback: PowerTables.Templating.ICallbackDescriptor): void {
             callback.Element = e;
             e.setAttribute("data-dstrycb", "true");
             this._destroyCallbacks.push(callback);

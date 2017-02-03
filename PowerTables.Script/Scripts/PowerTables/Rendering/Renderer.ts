@@ -50,12 +50,9 @@
          */
         public Delegator: PowerTables.Services.EventsDelegatorService;
 
-
-
         private _masterTable: IMasterTable;
         private _instances: PowerTables.Services.InstanceManagerService;
         private _datepickerFunction: (e: HTMLElement) => void;
-        private _templatesCache: { [key: string]: HandlebarsTemplateDelegate } = {};
         private _rootId: string;
         private _events: PowerTables.Services.EventsService;
         private _templateIds: ICoreTemplateIds;
@@ -96,7 +93,7 @@
             var process = this.Executor.beginProcess();
             for (var i: number = 0; i < rows.length; i++) {
                 var rw: IRow = rows[i];
-                process.nestElement(rw, this.Executor.obtainRowTemplate(rw));
+                PowerTables.Templating.Driver.row(process,rw);
             }
             var result = this.Executor.endProcess(process);
 
@@ -111,7 +108,10 @@
             p.nestContent(renderable, null);
             return this.Executor.endProcess(p).Html;
         }
-
+        public renderToString(templateId: string, viewModelBehind: any): string {
+            var result = this.Executor.execute(viewModelBehind, templateId);
+            return result.Html;
+        }
         public renderObject(templateId: string, viewModelBehind: any, targetSelector: string): HTMLElement {
             var parent = <HTMLElement>document.querySelector(targetSelector);
             return this.renderObjectTo(templateId, viewModelBehind, parent);

@@ -28,6 +28,7 @@ namespace PowerTables.Editing
 
         bool CanComplete { get; }
 
+        [OverrideTplFieldName("OriginalContent(p)")]
         object OriginalContent { get; }
     }
 
@@ -41,6 +42,7 @@ namespace PowerTables.Editing
 
         bool CanComplete { get; }
 
+        [OverrideTplFieldName("OriginalContent(p)")]
         object OriginalContent { get; }
     }
 

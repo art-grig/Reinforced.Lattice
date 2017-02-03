@@ -15,7 +15,7 @@
             }
 
             this.selectPane = this.MasterTable.Renderer.Modifier
-                .createElement(this.MasterTable.Renderer.getCachedTemplate(this.RawConfig.TemplateId)(null));
+                .createElement(this.MasterTable.Renderer.renderToString(this.RawConfig.TemplateId,null));
             this.selectPane.style.left = x + 'px';
             this.selectPane.style.top = y + 'px';
             this.selectPane.style.width = '0';

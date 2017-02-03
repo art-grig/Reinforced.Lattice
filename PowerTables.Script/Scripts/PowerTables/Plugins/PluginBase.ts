@@ -9,7 +9,6 @@
             this.MasterTable = masterTable;
             this.Configuration = this.RawConfig.Configuration;
             if (masterTable.Events != null) this.subscribe(masterTable.Events);
-            this.registerAdditionalHelpers(masterTable.Renderer.HandlebarsInstance);
         }
 
         /**
@@ -51,15 +50,6 @@
         }
 
         /**
-         * In this method you can register any additional Handlebars.js helpers in case of your 
-         * templates needs ones
-         * 
-         * @param hb Handlebars instance
-         * @returns {} 
-         */
-        protected registerAdditionalHelpers(hb: Handlebars.IHandlebars): void { }
-
-        /**
          * Function that is called after plugin is drawn
          * 
          * @param e Event arguments         
@@ -76,8 +66,8 @@
          * @param e Templates provider
          * @returns content string
          */
-        public defaultRender(e: ITemplatesProvider): string {
-            return e.getCachedTemplate(this.RawConfig.TemplateId)(this);
+        public defaultRender(p: PowerTables.Templating.TemplateProcess): void {
+            return p.nest(this,this.RawConfig.TemplateId);
         }
 
         public isLocation(location: string): boolean {

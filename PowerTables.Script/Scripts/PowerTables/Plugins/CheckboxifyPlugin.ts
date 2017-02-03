@@ -12,7 +12,7 @@
             var header: ISpecialHeader = {
                 Column: this._ourColumn,
                 renderContent: null,
-                renderElement: (tp) => tp.getCachedTemplate(this.Configuration.SelectAllTemplateId)({ IsAllSelected: this.MasterTable.Selection.isAllSelected(), CanSelectAll: this.MasterTable.Selection.canSelectAll() }),
+                renderElement: (tp) => tp.nest({ IsAllSelected: this.MasterTable.Selection.isAllSelected(), CanSelectAll: this.MasterTable.Selection.canSelectAll() }, this.Configuration.SelectAllTemplateId),
                 selectAllEvent: (e) => this.MasterTable.Selection.toggleAll()
             }
             this._ourColumn.Header = header;

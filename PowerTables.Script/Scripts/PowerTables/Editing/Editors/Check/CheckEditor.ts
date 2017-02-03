@@ -4,8 +4,8 @@
         FocusElement:HTMLElement;
         private _value: boolean;
 
-        public renderContent(templatesProvider: ITemplatesProvider): string {
-            return this.defaultRender(templatesProvider);
+        public renderContent(p: PowerTables.Templating.TemplateProcess): void {
+            this.defaultRender(p);
         }
 
         public changedHandler(e: PowerTables.Rendering.ITemplateBoundEvent): void {

@@ -11,7 +11,7 @@
             this.Current = '';
         }
 
-        public States: { [key: string]: IState[] } = {};
+        public States: { [key: string]: PowerTables.Templating.IState[] } = {};
 
         /**
          * Current visual state
@@ -90,9 +90,9 @@
             this.setNormal();
         }
 
-        private applyState(desired: IState[]) {
+        private applyState(desired: PowerTables.Templating.IState[]) {
             for (var i = 0; i < desired.length; i++) {
-                var ns: IState = desired[i];
+                var ns: PowerTables.Templating.IState = desired[i];
                 for (var k = 0; k < ns.classes.length; k++) {
                     var cls = ns.classes[k].substring(1);
                     if (ns.classes[k].charAt(0) === '+') {

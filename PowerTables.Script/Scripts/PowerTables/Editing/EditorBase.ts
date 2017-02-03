@@ -41,12 +41,12 @@
          */
         public ValidationMessages: IValidationMessage[] = [];
 
-        public renderedValidationMessages(): string {
-            return this.MasterTable.Renderer.getCachedTemplate((<any>this.Configuration).ValidationMessagesTemplateId)({
+        public renderedValidationMessages(p: PowerTables.Templating.TemplateProcess): void {
+            p.nest({
                 Messages: this.ValidationMessages,
                 IsRowEdit: this.IsRowEdit,
                 IsFormEdit: this.IsFormEdit
-            });
+            }, (<any>this.Configuration).ValidationMessagesTemplateId);
         }
 
         /**
@@ -136,8 +136,8 @@
          */
         public focus(): void { }
 
-        public OriginalContent(): string {
-            return this.MasterTable.Renderer.ContentRenderer.renderCell(this);
+        public OriginalContent(p: PowerTables.Templating.TemplateProcess): void {
+            PowerTables.Templating.Driver.cell(p, this);
         }
 
         FieldName: string;
@@ -150,7 +150,7 @@
             return {};
         }
 
-        public getErrorMessage(key: string):string {
+        public getErrorMessage(key: string): string {
             if (!this._errorMessages.hasOwnProperty(key)) return 'Error';
             return this._errorMessages[key];
         }

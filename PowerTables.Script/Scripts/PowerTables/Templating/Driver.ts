@@ -6,7 +6,7 @@
 
         public static content(p: PowerTables.Templating.TemplateProcess, columnName?: string) {
             if (p.Model.renderContent) {
-                return p.Model.renderContent(p);
+                p.Model.renderContent(p);
             } else {
                 switch (p.Type) {
                     case RenderedObject.Header:
@@ -29,6 +29,10 @@
             }
         }
 
+        public static row(p: PowerTables.Templating.TemplateProcess, row: IRow) {
+            p.nestElement(row, p.Executor.obtainRowTemplate(row), RenderedObject.Row);
+        }
+
         private static renderHeaderContent(p: PowerTables.Templating.TemplateProcess) {
             var head = <IColumnHeader>p.Model;
             var content = head.Column.Configuration.Title || head.Column.RawName;
@@ -40,38 +44,28 @@
             var columns: IColumn[] = p.UiColumns;
 
             for (var i: number = 0; i < columns.length; i++) {
-                var cell: ICell = row.Cells[columns[i].RawName];
+                var c: ICell = row.Cells[columns[i].RawName];
                 if (columnName != null && columnName != undefined && typeof columnName == 'string') {
-                    if (cell.Column.RawName === columnName) {
-                        Driver.renderCellAsPartOfRow(cell, p);
+                    if (c.Column.RawName === columnName) {
+                        Driver.cell(p,c);
                     }
                 } else {
-                    Driver.renderCellAsPartOfRow(cell, p);
+                    Driver.cell(p, c);
                 }
             }
         }
 
-        private static renderCellAsPartOfRow(cell: ICell, p: TemplateProcess): void {
-            if (cell.renderElement) cell.renderElement(p);
-            else {
-                if (cell.Column.Configuration.TemplateSelector) {
-                    cell.TemplateIdOverride = cell.Column.Configuration.TemplateSelector(cell);
-                }
-                if (cell.TemplateIdOverride) {
-                    p.nest(cell, cell.TemplateIdOverride);
-                } else {
-                    p.nest(cell, p.Executor.CoreTemplateIds.CellWrapper);
-                }
-            }
+        public static cell(p: TemplateProcess, cell: ICell): void {
+            p.nestElement(cell,p.Executor.obtainCellTemplate(cell),RenderedObject.Cell);
         }
 
         private static renderCellContent(p: TemplateProcess): void {
-            var cell = <ICell>p.Model;
-            var tpl = p.Executor.ColumnRenderes[cell.Column.RawName];
+            var c = <ICell>p.Model;
+            var tpl = p.Executor.ColumnRenderes[c.Column.RawName];
             if (typeof tpl === "string") {
-                p.nest(cell, cell.Column.Configuration.CellRenderingTemplateId);
+                p.nest(c, c.Column.Configuration.CellRenderingTemplateId);
             } else {
-                p.w(tpl(cell));
+                p.w(tpl(c));
             }
         }
 

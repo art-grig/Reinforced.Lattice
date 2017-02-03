@@ -121,8 +121,8 @@
             super.changedHandler(e);
         }
 
-        public renderContent(templatesProvider: ITemplatesProvider): string {
-            return this.defaultRender(templatesProvider);
+        public renderContent(p: PowerTables.Templating.TemplateProcess): void {
+            this.defaultRender(p);
         }
 
         public focus(): void {

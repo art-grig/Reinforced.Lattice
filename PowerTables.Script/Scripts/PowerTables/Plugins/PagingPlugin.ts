@@ -139,9 +139,9 @@
             }
         }
 
-        public renderContent(templatesProvider: ITemplatesProvider): string {
+        public renderContent(p:PowerTables.Templating.TemplateProcess): void {
             this.constructPagesElements();
-            return templatesProvider.getCachedTemplate('paging')(this);
+            super.defaultRender(p);
         }
 
         public validateGotopage() {

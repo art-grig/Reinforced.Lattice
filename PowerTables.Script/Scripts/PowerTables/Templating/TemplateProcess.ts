@@ -27,6 +27,7 @@ module PowerTables.Templating {
         public ColumnRenderes: { [key: string]: (x: ICell) => string };
 
         private append(str: string): void {
+            if (!str) return;
             this.Html += str;
         }
 
@@ -34,14 +35,16 @@ module PowerTables.Templating {
             this.Executor.nest(data, templateId, this);
         }
 
-        public nestElement(e: IRenderable, templateId: string) {
+        public nestElement(e: IRenderable, templateId: string, type: RenderedObject) {
             if (e.renderElement) {
+                this.d(e, type);
                 e.renderElement(this);
+                this.u();
             } else {
                 if (!templateId)
                     throw new
                         Error('Renderable object must have either .renderElement implemented or templateId specified');
-                this.nest(e,templateId);
+                this.nest(e, templateId);
             }
         }
 
