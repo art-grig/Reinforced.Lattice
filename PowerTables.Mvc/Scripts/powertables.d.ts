@@ -1283,10 +1283,10 @@ declare module PowerTables.Templating {
         static body(p: PowerTables.Templating.TemplateProcess): void;
         static content(p: PowerTables.Templating.TemplateProcess, columnName?: string): void;
         static row(p: PowerTables.Templating.TemplateProcess, row: IRow): void;
-        private static renderHeaderContent(p);
-        private static renderRowContent(p, columnName?);
+        static headerContent(head: IColumnHeader, p: PowerTables.Templating.TemplateProcess): void;
+        static rowContent(row: IRow, p: PowerTables.Templating.TemplateProcess, columnName?: string): void;
         static cell(p: TemplateProcess, cell: ICell): void;
-        private static renderCellContent(p);
+        static cellContent(c: ICell, p: TemplateProcess): void;
         static plugin(p: TemplateProcess, pluginPosition: string, pluginId: string): void;
         static plugins(p: TemplateProcess, pluginPosition: string): void;
         static renderPlugin(p: TemplateProcess, plugin: IPlugin): void;

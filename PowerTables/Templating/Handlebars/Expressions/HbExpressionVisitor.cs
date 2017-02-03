@@ -102,10 +102,22 @@ namespace PowerTables.Templating.Handlebars.Expressions
                 Return((HbExpression)result);
                 return node;
             }
-
+            
             Visit(node.Object);
             HbMemberExpression callee = new HbMemberExpression() { Accessed = Retrieve(), MemberName = node.Method.Name };
 
+            if (node.Method.Name == "get_Item")
+            {
+                Visit(node.Arguments[0]);
+                var arg = Retrieve();
+                var idx = new HbIndexerExpression()
+                {
+                    ExpressionToIndex = callee.Accessed,
+                    Index = arg
+                };
+                Return(idx);
+                return node;
+            }
             var methodCall = new HbCallExpression { ExpressionToCall = callee };
             foreach (var expression in node.Arguments)
             {

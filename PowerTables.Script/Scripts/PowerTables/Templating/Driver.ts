@@ -10,17 +10,17 @@
             } else {
                 switch (p.Type) {
                     case RenderedObject.Header:
-                        Driver.renderHeaderContent(p);
+                        Driver.headerContent(p.Model, p);
                         break;
                     case RenderedObject.Plugin:
                         // if we are here then plugin's renderContent is not 
                         // overriden
                         throw new Error('It is required to override renderContent for plugin');
                     case RenderedObject.Row:
-                        Driver.renderRowContent(p, columnName);
+                        Driver.rowContent(p.Model, p, columnName);
                         break;
                     case RenderedObject.Cell:
-                        Driver.renderCellContent(p);
+                        Driver.cellContent(p.Model, p);
                         break;
                     default:
                         throw new Error('Unknown rendering context type');
@@ -33,21 +33,19 @@
             p.nestElement(row, p.Executor.obtainRowTemplate(row), RenderedObject.Row);
         }
 
-        private static renderHeaderContent(p: PowerTables.Templating.TemplateProcess) {
-            var head = <IColumnHeader>p.Model;
+        public static headerContent(head: IColumnHeader, p: PowerTables.Templating.TemplateProcess) {
             var content = head.Column.Configuration.Title || head.Column.RawName;
             p.w(content);
         }
 
-        private static renderRowContent(p: PowerTables.Templating.TemplateProcess, columnName?: string) {
-            var row: IRow = <IRow>p.Model;
+        public static rowContent(row: IRow, p: PowerTables.Templating.TemplateProcess, columnName?: string) {
             var columns: IColumn[] = p.UiColumns;
 
             for (var i: number = 0; i < columns.length; i++) {
                 var c: ICell = row.Cells[columns[i].RawName];
                 if (columnName != null && columnName != undefined && typeof columnName == 'string') {
                     if (c.Column.RawName === columnName) {
-                        Driver.cell(p,c);
+                        Driver.cell(p, c);
                     }
                 } else {
                     Driver.cell(p, c);
@@ -56,11 +54,10 @@
         }
 
         public static cell(p: TemplateProcess, cell: ICell): void {
-            p.nestElement(cell,p.Executor.obtainCellTemplate(cell),RenderedObject.Cell);
+            p.nestElement(cell, p.Executor.obtainCellTemplate(cell), RenderedObject.Cell);
         }
 
-        private static renderCellContent(p: TemplateProcess): void {
-            var c = <ICell>p.Model;
+        public static cellContent(c: ICell, p: TemplateProcess): void {
             var tpl = p.Executor.ColumnRenderes[c.Column.RawName];
             if (typeof tpl === "string") {
                 p.nest(c, c.Column.Configuration.CellRenderingTemplateId);
@@ -121,7 +118,7 @@
             }
         }
 
-        public static headers(p:TemplateProcess): void {
+        public static headers(p: TemplateProcess): void {
             var columns: IColumn[] = p.UiColumns;
             for (var a in columns) {
                 if (columns.hasOwnProperty(a)) {

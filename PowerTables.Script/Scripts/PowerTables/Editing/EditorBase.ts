@@ -43,11 +43,11 @@
 
         public renderedValidationMessages(): string {
             return this.MasterTable.Renderer.renderToString((<any>this.Configuration).ValidationMessagesTemplateId,
-            {
-                Messages: this.ValidationMessages,
-                IsRowEdit: this.IsRowEdit,
-                IsFormEdit: this.IsFormEdit
-            });
+                {
+                    Messages: this.ValidationMessages,
+                    IsRowEdit: this.IsRowEdit,
+                    IsFormEdit: this.IsFormEdit
+                });
         }
 
         /**
@@ -138,7 +138,7 @@
         public focus(): void { }
 
         public OriginalContent(p: PowerTables.Templating.TemplateProcess): void {
-            PowerTables.Templating.Driver.cell(p, this);
+            PowerTables.Templating.Driver.cellContent(this, p);
         }
 
         FieldName: string;

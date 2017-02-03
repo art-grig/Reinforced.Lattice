@@ -478,17 +478,17 @@ var PowerTables;
                 else {
                     switch (p.Type) {
                         case Templating.RenderedObject.Header:
-                            Driver.renderHeaderContent(p);
+                            Driver.headerContent(p.Model, p);
                             break;
                         case Templating.RenderedObject.Plugin:
                             // if we are here then plugin's renderContent is not 
                             // overriden
                             throw new Error('It is required to override renderContent for plugin');
                         case Templating.RenderedObject.Row:
-                            Driver.renderRowContent(p, columnName);
+                            Driver.rowContent(p.Model, p, columnName);
                             break;
                         case Templating.RenderedObject.Cell:
-                            Driver.renderCellContent(p);
+                            Driver.cellContent(p.Model, p);
                             break;
                         default:
                             throw new Error('Unknown rendering context type');
@@ -498,13 +498,11 @@ var PowerTables;
             Driver.row = function (p, row) {
                 p.nestElement(row, p.Executor.obtainRowTemplate(row), Templating.RenderedObject.Row);
             };
-            Driver.renderHeaderContent = function (p) {
-                var head = p.Model;
+            Driver.headerContent = function (head, p) {
                 var content = head.Column.Configuration.Title || head.Column.RawName;
                 p.w(content);
             };
-            Driver.renderRowContent = function (p, columnName) {
-                var row = p.Model;
+            Driver.rowContent = function (row, p, columnName) {
                 var columns = p.UiColumns;
                 for (var i = 0; i < columns.length; i++) {
                     var c = row.Cells[columns[i].RawName];
@@ -521,8 +519,7 @@ var PowerTables;
             Driver.cell = function (p, cell) {
                 p.nestElement(cell, p.Executor.obtainCellTemplate(cell), Templating.RenderedObject.Cell);
             };
-            Driver.renderCellContent = function (p) {
-                var c = p.Model;
+            Driver.cellContent = function (c, p) {
                 var tpl = p.Executor.ColumnRenderes[c.Column.RawName];
                 if (typeof tpl === "string") {
                     p.nest(c, c.Column.Configuration.CellRenderingTemplateId);
@@ -7979,7 +7976,7 @@ var PowerTables;
              */
             EditorBase.prototype.focus = function () { };
             EditorBase.prototype.OriginalContent = function (p) {
-                PowerTables.Templating.Driver.cell(p, this);
+                PowerTables.Templating.Driver.cellContent(this, p);
             };
             EditorBase.prototype.notifyObjectChanged = function () { };
             EditorBase.prototype.defineMessages = function () {

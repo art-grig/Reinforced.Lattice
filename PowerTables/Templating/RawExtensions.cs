@@ -54,7 +54,7 @@ namespace PowerTables.Templating
                         break;
                 }
             }
-            sb.AppendLine("');");
+            sb.Append("');");
             return sb.ToString();
         }
     }
