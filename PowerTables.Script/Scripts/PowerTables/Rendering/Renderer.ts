@@ -77,16 +77,6 @@
             
             this.BackBinder.backBind(this.RootElement, rendered.BackbindInfo);
             this._events.LayoutRendered.invokeAfter(this, null);
-
-            PowerTables.Services.EventsDelegatorService.addHandler(this.RootElement, 'wheel', (e: WheelEvent) => {
-                if (e.deltaY != 0) {
-                    var d = e.deltaY / 100;
-                    console.log(d);
-                    this._masterTable.Partition.setSkip(this._masterTable.Partition.Skip + d);
-                }
-                e.preventDefault();
-                e.stopPropagation();
-            });
         }
 
         /**

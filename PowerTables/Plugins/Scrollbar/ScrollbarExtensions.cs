@@ -136,6 +136,20 @@ namespace PowerTables.Plugins.Scrollbar
             v.Configuration.UseTakeAsPageForce = takeAsPageForce;
             return v;
         }
+
+        public static PluginConfigurationWrapper<ScrollbarPluginUiConfig> ScrollerMinSize(
+            this PluginConfigurationWrapper<ScrollbarPluginUiConfig> v, int minSize = 20)
+        {
+            v.Configuration.ScrollerMinSize = minSize;
+            return v;
+        }
+
+        public static PluginConfigurationWrapper<ScrollbarPluginUiConfig> ArrowsDelay(
+            this PluginConfigurationWrapper<ScrollbarPluginUiConfig> v, int delay = 50)
+        {
+            v.Configuration.ArrowsDelayMs = 50;
+            return v;
+        }
     }
 
     public enum TableElement

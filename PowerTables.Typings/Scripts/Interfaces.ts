@@ -562,6 +562,8 @@ module PowerTables.Plugins.Scrollbar {
 		Forces: PowerTables.Plugins.Scrollbar.IScrollbarForces;
 		PositionCorrector: any;
 		UseTakeAsPageForce: boolean;
+		ScrollerMinSize: number;
+		ArrowsDelayMs: number;
 	}
 	export interface IScrollbarKeyMappings
 	{

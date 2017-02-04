@@ -547,6 +547,8 @@ declare module PowerTables.Plugins.Scrollbar {
         Forces: PowerTables.Plugins.Scrollbar.IScrollbarForces;
         PositionCorrector: any;
         UseTakeAsPageForce: boolean;
+        ScrollerMinSize: number;
+        ArrowsDelayMs: number;
     }
     interface IScrollbarKeyMappings {
         SingleUp: number[];
@@ -3217,18 +3219,34 @@ declare module PowerTables.Plugins.Scrollbar {
         private _scrollHeight;
         private _scollbar;
         private _availableSpace;
+        private _kbListener;
+        private _wheelListener;
         init(masterTable: IMasterTable): void;
         upArrowMouseDown(t: ITemplateBoundEvent): void;
         upArrowMouseUp(t: ITemplateBoundEvent): void;
         downArrowMouseDown(t: ITemplateBoundEvent): void;
         downArrowMouseUp(t: ITemplateBoundEvent): void;
         scrollerAreaClick(t: ITemplateBoundEvent): void;
+        private total();
         private updateCoords();
         private adjustScrollerPosition();
         private adjustScrollerHeight();
         private calculateAvailableSpace();
         private getCoords();
+        private getElement(configSelect);
         private onLayoutRendered(e);
+        private subscribeUiEvents();
+        private handleWheel(e);
+        private _upArrowActive;
+        private _upArrowInterval;
+        private upArrowStart();
+        private upArrow();
+        private upArrowEnd();
+        private _downArrowActive;
+        private _downArrowInterval;
+        private downArrowStart();
+        private downArrow();
+        private downArrowEnd();
         private onDataRendered(e);
         private onPartitionChange(e);
         subscribe(e: PowerTables.Services.EventsService): void;

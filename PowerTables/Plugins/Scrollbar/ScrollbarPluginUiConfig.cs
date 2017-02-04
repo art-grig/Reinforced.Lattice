@@ -30,7 +30,7 @@ namespace PowerTables.Plugins.Scrollbar
 
         public bool UseTakeAsPageForce { get; set; }
         public int ScrollerMinSize { get; set; }
-
+        public int ArrowsDelayMs { get; set; }
         public ScrollbarPluginUiConfig()
         {
             StickToElementSelector = "$Body";
@@ -51,6 +51,7 @@ namespace PowerTables.Plugins.Scrollbar
                 WheelForce = 1
             };
             ScrollerMinSize = 20;
+            ArrowsDelayMs = 50;
         }
     }
 

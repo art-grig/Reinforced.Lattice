@@ -5163,7 +5163,6 @@ var PowerTables;
              * Perform table layout inside specified root element
              */
             Renderer.prototype.layout = function () {
-                var _this = this;
                 this._events.LayoutRendered.invokeBefore(this, null);
                 var rendered = this.Executor.executeLayout();
                 this.RootElement.innerHTML = rendered.Html;
@@ -5178,15 +5177,6 @@ var PowerTables;
                 this.Modifier = new Rendering.DOMModifier(this.Executor, this.Locator, this.BackBinder, this._instances, this.Delegator, this.BodyElement);
                 this.BackBinder.backBind(this.RootElement, rendered.BackbindInfo);
                 this._events.LayoutRendered.invokeAfter(this, null);
-                PowerTables.Services.EventsDelegatorService.addHandler(this.RootElement, 'wheel', function (e) {
-                    if (e.deltaY != 0) {
-                        var d = e.deltaY / 100;
-                        console.log(d);
-                        _this._masterTable.Partition.setSkip(_this._masterTable.Partition.Skip + d);
-                    }
-                    e.preventDefault();
-                    e.stopPropagation();
-                });
             };
             /**
              * Clear dynamically loaded table content and replace it with new one
@@ -7163,6 +7153,13 @@ var PowerTables;
                 __extends(ScrollbarPlugin, _super);
                 function ScrollbarPlugin() {
                     _super.apply(this, arguments);
+                    //#endregion
+                    //#region Arrows handling
+                    //#region Up arrow
+                    this._upArrowActive = false;
+                    //#endregion
+                    //#region Down arrow
+                    this._downArrowActive = false;
                 }
                 ScrollbarPlugin.prototype.init = function (masterTable) {
                     _super.prototype.init.call(this, masterTable);
@@ -7179,6 +7176,11 @@ var PowerTables;
                 ScrollbarPlugin.prototype.scrollerAreaClick = function (t) {
                 };
                 //#endregion
+                ScrollbarPlugin.prototype.total = function () {
+                    return this.MasterTable.Partition.IsTotalCountKnown
+                        ? this.MasterTable.Partition.TotalCount
+                        : this.MasterTable.DataHolder.StoredData.length;
+                };
                 //#region Coords calculation
                 ScrollbarPlugin.prototype.updateCoords = function () {
                     if (!this._scollbar)
@@ -7208,9 +7210,7 @@ var PowerTables;
                 ScrollbarPlugin.prototype.adjustScrollerPosition = function () {
                     if (!this.Scroller)
                         return;
-                    var total = this.MasterTable.Partition.IsTotalCountKnown
-                        ? this.MasterTable.Partition.TotalCount
-                        : this.MasterTable.DataHolder.StoredData.length;
+                    var total = this.total();
                     var d = this._availableSpace / total;
                     var h = d * this.MasterTable.Partition.Skip;
                     if (this.Configuration.IsHorizontal)
@@ -7221,10 +7221,10 @@ var PowerTables;
                 ScrollbarPlugin.prototype.adjustScrollerHeight = function () {
                     if (!this.Scroller)
                         return;
-                    var total = this.MasterTable.Partition.IsTotalCountKnown
-                        ? this.MasterTable.Partition.TotalCount
-                        : this.MasterTable.DataHolder.StoredData.length;
+                    var total = this.total();
                     var sz = (this.MasterTable.Partition.Take * this._availableSpace) / total;
+                    if (sz < this.Configuration.ScrollerMinSize)
+                        sz = this.Configuration.ScrollerMinSize;
                     if (this.Configuration.IsHorizontal)
                         this.Scroller.style.width = sz + 'px';
                     else
@@ -7299,24 +7299,24 @@ var PowerTables;
                     return r;
                 };
                 //#endregion
-                ScrollbarPlugin.prototype.onLayoutRendered = function (e) {
-                    switch (this.Configuration.StickToElementSelector) {
-                        case '$Body':
-                            this._stickElement = this.MasterTable.Renderer.BodyElement;
-                            break;
-                        case '$Parent':
-                            this._stickElement = this.MasterTable.Renderer.BodyElement.parentElement;
-                            break;
-                        case '$All':
-                            this._stickElement = this.MasterTable.Renderer.RootElement;
-                            break;
-                        default:
-                            this._stickElement = document.querySelector(this.Configuration.StickToElementSelector);
-                            break;
+                ScrollbarPlugin.prototype.getElement = function (configSelect) {
+                    if (!configSelect)
+                        return null;
+                    switch (configSelect) {
+                        case '$Body': return this.MasterTable.Renderer.BodyElement;
+                        case '$Parent': return this.MasterTable.Renderer.BodyElement.parentElement;
+                        case '$All': return this.MasterTable.Renderer.RootElement;
                     }
+                    return document.querySelector(configSelect);
+                };
+                ScrollbarPlugin.prototype.onLayoutRendered = function (e) {
+                    this._stickElement = this.getElement(this.Configuration.StickToElementSelector);
+                    this._kbListener = this.getElement(this.Configuration.KeyboardEventsCatcher);
+                    this._wheelListener = this.getElement(this.Configuration.WheelEventsCatcher);
                     this._scollbar = this.MasterTable.Renderer.Modifier.createElementFromTemplate(this.RawConfig.TemplateId, this);
                     document.body.appendChild(this._scollbar);
                     this._scollbar.style.position = 'absolute';
+                    this.subscribeUiEvents();
                     var style = this._scollbar.style;
                     var coord = this._scollbar.getBoundingClientRect();
                     if (this.Configuration.IsHorizontal) {
@@ -7333,6 +7333,70 @@ var PowerTables;
                     }
                     this.updateCoords();
                 };
+                //#region UI events
+                ScrollbarPlugin.prototype.subscribeUiEvents = function () {
+                    if (this.UpArrow) {
+                        PowerTables.Services.EventsDelegatorService.addHandler(this.UpArrow, 'mousedown', this.upArrowStart.bind(this));
+                        PowerTables.Services.EventsDelegatorService.addHandler(this.UpArrow, 'mouseup', this.upArrowEnd.bind(this));
+                        PowerTables.Services.EventsDelegatorService.addHandler(this.UpArrow, 'click', this.upArrow.bind(this));
+                    }
+                    if (this.DownArrow) {
+                        PowerTables.Services.EventsDelegatorService.addHandler(this.DownArrow, 'mousedown', this.downArrowStart.bind(this));
+                        PowerTables.Services.EventsDelegatorService.addHandler(this.DownArrow, 'mouseup', this.downArrowEnd.bind(this));
+                        PowerTables.Services.EventsDelegatorService.addHandler(this.DownArrow, 'click', this.downArrow.bind(this));
+                    }
+                    if (this._wheelListener) {
+                        PowerTables.Services.EventsDelegatorService
+                            .addHandler(this._wheelListener, 'wheel', this.handleWheel.bind(this));
+                    }
+                };
+                //#region Wheel events
+                ScrollbarPlugin.prototype.handleWheel = function (e) {
+                    var range = 0;
+                    if (e.deltaMode === e.DOM_DELTA_PIXEL) {
+                        range = (e.deltaY > 0 ? 1 : -1) * this.Configuration.Forces.WheelForce;
+                    }
+                    if (e.deltaMode === e.DOM_DELTA_LINE) {
+                        range = e.deltaY * this.Configuration.Forces.WheelForce;
+                    }
+                    if (e.deltaMode === e.DOM_DELTA_PAGE) {
+                        range = e.deltaY * this.Configuration.Forces.PageForce;
+                    }
+                    if (range !== 0) {
+                        this.MasterTable.Partition.setSkip(this.MasterTable.Partition.Skip + range);
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                };
+                ScrollbarPlugin.prototype.upArrowStart = function () {
+                    this._upArrowActive = true;
+                    this._upArrowInterval = setInterval(this.upArrow.bind(this), this.Configuration.ArrowsDelayMs);
+                };
+                ScrollbarPlugin.prototype.upArrow = function () {
+                    if (this.MasterTable.Partition.Skip == 0)
+                        return;
+                    this.MasterTable.Partition.setSkip(this.MasterTable.Partition.Skip - this.Configuration.Forces.SingleForce); //todo force
+                };
+                ScrollbarPlugin.prototype.upArrowEnd = function () {
+                    this._upArrowActive = false;
+                    clearInterval(this._upArrowInterval);
+                };
+                ScrollbarPlugin.prototype.downArrowStart = function () {
+                    this._downArrowActive = true;
+                    this._downArrowInterval = setInterval(this.downArrow.bind(this), this.Configuration.ArrowsDelayMs);
+                };
+                ScrollbarPlugin.prototype.downArrow = function () {
+                    if (this.MasterTable.Partition.Skip + this.MasterTable.Partition.Take >= this.total())
+                        return;
+                    this.MasterTable.Partition.setSkip(this.MasterTable.Partition.Skip + this.Configuration.Forces.SingleForce); //todo force
+                };
+                ScrollbarPlugin.prototype.downArrowEnd = function () {
+                    this._downArrowActive = false;
+                    clearInterval(this._downArrowInterval);
+                };
+                //#endregion
+                //#endregion
+                //#endregion
                 ScrollbarPlugin.prototype.onDataRendered = function (e) {
                     this.updateCoords();
                 };
