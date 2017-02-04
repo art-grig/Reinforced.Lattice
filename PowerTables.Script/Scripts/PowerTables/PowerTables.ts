@@ -71,8 +71,6 @@ module PowerTables {
                 case PowerTables.Configuration.Json.PartitionType.Server:
                     this.Partition = new PowerTables.Services.Partition.ServerPartitionService(this);  
                     break;
-                default:
-                    this.Partition = new PowerTables.Services.Partition.MixedPartitionService(this);  
             }
             
 
@@ -84,6 +82,10 @@ module PowerTables {
                 this._configuration.CallbackFunction(this);
             }
             this.InstanceManager._subscribeConfiguredEvents();
+            this.Partition.initial(this._configuration.Partition
+                .InitialSkip,
+                this._configuration.Partition.InitialTake);
+
             if (this._configuration.PrefetchedData != null && this._configuration.PrefetchedData.length > 0) {
                 this.Loader.prefetchData(this._configuration.PrefetchedData);
                 this.Controller.redrawVisibleData();

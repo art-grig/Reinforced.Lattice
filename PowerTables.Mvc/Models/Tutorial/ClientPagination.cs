@@ -2,6 +2,7 @@
 using PowerTables.Plugins;
 using PowerTables.Plugins.Limit;
 using PowerTables.Plugins.Paging;
+using PowerTables.Plugins.Scrollbar;
 
 namespace PowerTables.Mvc.Models.Tutorial
 {
@@ -28,6 +29,7 @@ namespace PowerTables.Mvc.Models.Tutorial
                     .UseGotoPage()                              // and also enable "Go to page" functionality
                 );
             //conf.MouseSelect(ui => { });
+            conf.Scrollbar(x => x.Vertical().KeyboardScrollFocusMode(KeyboardScrollFocusMode.MouseClick));
             return conf;
         }
     }

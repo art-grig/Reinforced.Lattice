@@ -10,11 +10,6 @@ namespace PowerTables.Plugins.Limit
     public class LimitClientConfiguration : IProvidesTemplate
     {
         /// <summary>
-        /// Value selected by default
-        /// </summary>
-        public string DefaultValue { get; internal set; }
-
-        /// <summary>
         /// Integer values for limit menu. By default set is equal to Corresponding labels
         /// </summary>
         public List<int> LimitValues { get; private set; }

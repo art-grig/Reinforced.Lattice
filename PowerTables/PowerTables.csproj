@@ -103,6 +103,7 @@
     <Compile Include="Configuration\Json\JsonConfigurationExtensions.cs" />
     <Compile Include="Configuration\Json\PartitionConfiguration.cs" />
     <Compile Include="Configuration\NongenericConfigurator.cs" />
+    <Compile Include="Configuration\PartitionConfigurationWrapper.cs" />
     <Compile Include="Configuration\PrimaryKeyExtensions.cs" />
     <Compile Include="Configuration\SelectionConfigurationWrapper.cs" />
     <Compile Include="Editing\EditCommandHandlerExtensions.cs" />

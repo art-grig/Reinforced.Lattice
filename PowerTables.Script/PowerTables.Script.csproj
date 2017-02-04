@@ -80,7 +80,6 @@
     <TypeScriptCompile Include="Scripts\Typings\HideoutPlugin.d.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Services\Partition\ClientPartitionService.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Services\Partition\IPartitionService.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Services\Partition\MixedPartitionService.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Services\Partition\ServerPartitionService.ts" />
     <TypeScriptCompile Include="Scripts\Typings\Limit.d.ts" />
     <TypeScriptCompile Include="Scripts\Typings\PagingPlugin.d.ts" />

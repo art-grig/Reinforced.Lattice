@@ -49,24 +49,11 @@
         }
         //#endregion
 
-        private total(): number {
-            return this.MasterTable.Partition.IsTotalCountKnown
-                ? this.MasterTable.Partition.TotalCount
-                : this.MasterTable.DataHolder.StoredData.length;
-        }
-
         //#region Coords calculation
 
         private updateCoords() {
             if (!this._scollbar) return;
             if (!this._stickElement) return;
-            if (this.MasterTable.DataHolder.DisplayedData.length === 0) {
-                this.MasterTable.Renderer.Modifier.hideElement(this._scollbar);
-                return;
-            } else {
-                this.MasterTable.Renderer.Modifier.showElement(this._scollbar);
-            }
-
             var newCoords = this.getCoords();
             if (newCoords.height != undefined) this._scollbar.style.height = newCoords.height + 'px';
             if (newCoords.width != undefined) this._scollbar.style.width = newCoords.width + 'px';
@@ -79,7 +66,7 @@
 
         private adjustScrollerPosition(skip: number) {
             if (!this.Scroller) return;
-            var total = this.total();
+            var total = this.MasterTable.Partition.amount();
             var d = this._availableSpace / total;
             var h = d * skip;
             if (skip === 0) h = 0;
@@ -90,7 +77,7 @@
 
         private adjustScrollerHeight() {
             if (!this.Scroller) return;
-            var total = this.total();
+            var total = this.MasterTable.Partition.amount();
             var sz = (this.MasterTable.Partition.Take * this._availableSpace) / total;
             if (sz < this.Configuration.ScrollerMinSize) sz = this.Configuration.ScrollerMinSize;
             if (this.Configuration.IsHorizontal) this.Scroller.style.width = sz + 'px';
@@ -250,16 +237,16 @@
 
                 if (this.Configuration.FocusMode === PowerTables.Plugins.Scrollbar.KeyboardScrollFocusMode.MouseClick) {
                     PowerTables.Services.EventsDelegatorService.addHandler(<any>window, 'click', this.trackKbListenerClick.bind(this));
-                   
+
                 }
             }
         }
-        
+
         //#region Keyboard events
 
-        private trackKbListenerClick(e:MouseEvent) {
+        private trackKbListenerClick(e: MouseEvent) {
             var t = <HTMLElement>e.target;
-            while (t!=null) {
+            while (t != null) {
                 if (t === this._kbListener) {
                     this._kbActive = true;
                     return;
@@ -280,31 +267,40 @@
         private keydownHook(e: KeyboardEvent) {
             if (!this._kbActive) return;
             if (this.isKbListenerHidden()) return;
-            this.handleKey(e.keyCode);
-            e.preventDefault();
-            e.stopPropagation();
+            if (this.handleKey(e.keyCode)) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
         }
 
-        private handleKey(keyCode: number) {
+        private handleKey(keyCode: number): boolean {
+            var result = false;
             var mappings = this.Configuration.Keys;
             if (mappings.SingleDown.indexOf(keyCode) > -1) {
                 this.deferScroll(this.MasterTable.Partition.Skip + this.Configuration.Forces.SingleForce);
+                result = true;
             }
             if (mappings.SingleUp.indexOf(keyCode) > -1) {
                 this.deferScroll(this.MasterTable.Partition.Skip - this.Configuration.Forces.SingleForce);
+                result = true;
             }
             if (mappings.PageDown.indexOf(keyCode) > -1) {
-                this.deferScroll(this.MasterTable.Partition.Skip + (this.Configuration.UseTakeAsPageForce? this.MasterTable.Partition.Take: this.Configuration.Forces.PageForce));
+                this.deferScroll(this.MasterTable.Partition.Skip + (this.Configuration.UseTakeAsPageForce ? this.MasterTable.Partition.Take : this.Configuration.Forces.PageForce));
+                result = true;
             }
             if (mappings.PageUp.indexOf(keyCode) > -1) {
                 this.deferScroll(this.MasterTable.Partition.Skip - (this.Configuration.UseTakeAsPageForce ? this.MasterTable.Partition.Take : this.Configuration.Forces.PageForce));
+                result = true;
             }
             if (mappings.Home.indexOf(keyCode) > -1) {
                 this.deferScroll(0);
+                result = true;
             }
             if (mappings.End.indexOf(keyCode) > -1) {
-                this.deferScroll(this.total());
+                this.deferScroll(this.MasterTable.Partition.amount());
+                result = true;
             }
+            return result;
         }
 
         //#endregion
@@ -317,7 +313,7 @@
             var cs = this.Configuration.IsHorizontal ? scrollerPos.left : scrollerPos.top;
             var pos = this.Configuration.IsHorizontal ? e.clientX : e.clientY;
 
-            var rowsPerPixel = this.total() / this._availableSpace;
+            var rowsPerPixel = this.MasterTable.Partition.amount() / this._availableSpace;
             var diff = (pos - (cs + (this._scrollerSize / 2))) * rowsPerPixel;
             this.MasterTable.Partition.setSkip(this.MasterTable.Partition.Skip + Math.floor(diff));
 
@@ -349,7 +345,7 @@
                 this.scrollerEnd(e);
             }
             var cPos = this.Configuration.IsHorizontal ? e.clientX : e.clientY;
-            var rowsPerPixel = this.total() / this._availableSpace;
+            var rowsPerPixel = this.MasterTable.Partition.amount() / this._availableSpace;
             var diff = (cPos - this._mouseStartPos) * rowsPerPixel;
             this.deferScroll(this._startSkip + Math.floor(diff));
 
@@ -426,7 +422,7 @@
         }
 
         private downArrow() {
-            if (this.MasterTable.Partition.Skip + this.MasterTable.Partition.Take >= this.total()) return;
+            if (this.MasterTable.Partition.Skip + this.MasterTable.Partition.Take >= this.MasterTable.Partition.amount()) return;
             this.MasterTable.Partition.setSkip(this.MasterTable.Partition.Skip + this.Configuration.Forces.SingleForce);    //todo force
         }
 
@@ -474,9 +470,17 @@
             this.adjustScrollerPosition(e.EventArgs.Skip);
         }
 
+        private onClientDataProcessing(e: ITableEventArgs<PowerTables.IClientDataResults>) {
+            if (e.EventArgs.Ordered.length <= e.MasterTable.Partition.Take || e.EventArgs.Displaying.length === 0) {
+                this.MasterTable.Renderer.Modifier.hideElement(this._scollbar);
+            } else {
+                this.MasterTable.Renderer.Modifier.showElement(this._scollbar);
+            }
+        }
         public subscribe(e: PowerTables.Services.EventsService): void {
             e.LayoutRendered.subscribeAfter(this.onLayoutRendered.bind(this), 'scrollbar');
             e.PartitionChanged.subscribeAfter(this.onPartitionChange.bind(this), 'scrollbar');
+            e.ClientDataProcessing.subscribeAfter(this.onClientDataProcessing.bind(this), 'scrollbar');
         }
 
         private _sensor: PowerTables.Rendering.Resensor;

@@ -1,6 +1,6 @@
 ﻿
 module PowerTables.Plugins.Limit {
-    
+
     export class LimitPlugin extends PowerTables.Plugins.PluginBase<Plugins.Limit.ILimitClientConfiguration> {
         public SelectedValue: ILimitSize;
         private _limitSize = 0;
@@ -11,13 +11,13 @@ module PowerTables.Plugins.Limit {
         }
 
         public changeLimitHandler(e: PowerTables.ITemplateBoundEvent) {
-            var limit = parseInt(e.EventArguments[0]);
-            if (isNaN(limit)) limit = 0;
+            var limit = e.EventArguments[0];
+            if (typeof limit === "string") limit = 0;
             this.MasterTable.Partition.setTake(limit);
         }
 
-        public changeLimit() {
-            var limit = this.MasterTable.Partition.Take;
+        public changeLimit(take: number) {
+            var limit = take;
             var changed = this._limitSize !== limit;
             if (!changed) return;
             this._limitSize = limit;
@@ -34,15 +34,16 @@ module PowerTables.Plugins.Limit {
             }
         }
 
-        private onPartitionChange(e:ITableEventArgs<IPartitionChangeEventArgs>) {
+        private onPartitionChange(e: ITableEventArgs<IPartitionChangeEventArgs>) {
             if (e.EventArgs.Take !== e.EventArgs.PreviousTake) {
-                this.changeLimit();
+                this.changeLimit(e.EventArgs.Take);
             }
         }
 
         public init(masterTable: IMasterTable): void {
             super.init(masterTable);
             var def = null;
+            var initSkip = this.MasterTable.InstanceManager.Configuration.Partition.InitialTake.toString();
             for (var i = 0; i < this.Configuration.LimitValues.length; i++) {
                 var a = <ILimitSize>{
                     Value: this.Configuration.LimitValues[i],
@@ -50,7 +51,7 @@ module PowerTables.Plugins.Limit {
                     IsSeparator: this.Configuration.LimitLabels[i] === '-'
                 };
                 this.Sizes.push(a);
-                if (a.Label === this.Configuration.DefaultValue) {
+                if (a.Label == initSkip) {
                     def = a;
                 }
             }
@@ -64,7 +65,7 @@ module PowerTables.Plugins.Limit {
         }
 
         public subscribe(e: PowerTables.Services.EventsService): void {
-            e.PartitionChanged.subscribeAfter(this.onPartitionChange.bind(this),'limit');
+            e.PartitionChanged.subscribeAfter(this.onPartitionChange.bind(this), 'limit');
         }
     }
 

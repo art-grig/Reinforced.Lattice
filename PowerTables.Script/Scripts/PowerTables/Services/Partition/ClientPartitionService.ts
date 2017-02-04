@@ -4,15 +4,15 @@
             this._masterTable = masterTable;
         }
 
-        private _masterTable: IMasterTable;
+        protected  _masterTable: IMasterTable;
 
         public setSkip(skip: number): void {
             if (skip < 0) skip = 0;
             var take = this.Take;
             if (take > 0) {
-                if (skip + take > this.TotalCount) skip = this.TotalCount - take;
+                if (skip + take > this.amount()) skip = this.amount() - take;
             } else {
-                take = this.TotalCount - skip;
+                take = this.amount() - skip;
             }
             var prevSkip = this.Skip;
             if (prevSkip === skip) return;
@@ -52,7 +52,7 @@
                 }
                 this.restoreSpecialRows(rows);
             }
-
+            this.Skip = skip;
             this._masterTable.Events.PartitionChanged.invokeAfter(this,
                 {
                     PreviousSkip: prevSkip,
@@ -60,7 +60,7 @@
                     PreviousTake: this.Take,
                     Take: this.Take
                 });
-            this.Skip = skip;
+
         }
 
         private firstNonSpecialIndex(rows: IRow[]): number {
@@ -119,6 +119,7 @@
                 }
                 this.restoreSpecialRows(rows);
             }
+            this.Take = take;
             this._masterTable.Events.PartitionChanged.invokeAfter(this,
                 {
                     PreviousSkip: this.Skip,
@@ -126,7 +127,7 @@
                     PreviousTake: prevTake,
                     Take: take
                 });
-            this.Take = take;
+
         }
 
         private restoreSpecialRows(rows: IRow[]) {
@@ -176,9 +177,7 @@
         }
 
         public partitionAfterQuery(initialSet: any[], query: IQuery): any[] {
-            this.IsAllDataRetrieved = true;
-            this.IsTotalCountKnown = true;
-            this.TotalCount = this._masterTable.DataHolder.StoredData.length;
+
             return this.skipTakeSet(initialSet, query);
         }
 
@@ -204,19 +203,40 @@
             this._masterTable.Events.ClientDataProcessing.invokeBefore(this, this._masterTable.DataHolder.RecentClientQuery);
             this._masterTable.DataHolder.DisplayedData = this.cut(this._masterTable.DataHolder.Ordered, skip, take);
             this._masterTable.Events.ClientDataProcessing.invokeAfter(this,
-            {
-                Displaying: this._masterTable.DataHolder.DisplayedData,
-                Filtered: this._masterTable.DataHolder.Filtered,
-                Ordered: this._masterTable.DataHolder.Ordered,
-                Source: this._masterTable.DataHolder.StoredData
-            });
+                {
+                    Displaying: this._masterTable.DataHolder.DisplayedData,
+                    Filtered: this._masterTable.DataHolder.Filtered,
+                    Ordered: this._masterTable.DataHolder.Ordered,
+                    Source: this._masterTable.DataHolder.StoredData
+                });
         }
 
-        public Skip: number = 0;
-        public Take: number = 20;
-        public TotalCount: number;
+        public Skip: number;
+        public Take: number;
 
-        public IsAllDataRetrieved: boolean;
-        public IsTotalCountKnown: boolean;
+
+        public amount(): number {
+            return (!this._masterTable.DataHolder.Ordered) ? 0 : this._masterTable.DataHolder.Ordered.length;
+        }
+
+        public isAmountFinite(): boolean {
+            return true;
+        }
+
+        public totalAmount(): number {
+            return this._masterTable.DataHolder.StoredData.length;
+        }
+
+        public initial(skip: number, take: number): any {
+            this.Skip = skip;
+            this.Take = take;
+            this._masterTable.Events.PartitionChanged.invokeAfter(this,
+                {
+                    PreviousSkip: 0,
+                    Skip: skip,
+                    PreviousTake: 0,
+                    Take: take
+                });
+        }
     }
 }

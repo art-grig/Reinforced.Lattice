@@ -60,7 +60,6 @@ namespace PowerTables.Plugins.Limit
             
             if (defaultValue.Trim() == "-")
                 throw new Exception("Limit menu default selected value should not be a separator");
-            conf.Configuration.DefaultValue = defaultValue;
             return conf;
         }
 

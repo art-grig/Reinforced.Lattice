@@ -570,12 +570,10 @@ namespace PowerTables.Configuration
             return conf;
         }
 
-        public static T ClientPartition<T>(this T conf) where T : IConfigurator
+        public static T Partition<T>(this T conf, Action<PartitionConfigurationWrapper> p) where T : IConfigurator
         {
-            conf.TableConfiguration.Partition = new PartitionConfiguration()
-            {
-                Type = PartitionType.Client
-            };
+            PartitionConfigurationWrapper w = new PartitionConfigurationWrapper(conf.TableConfiguration.Partition);
+            p(w);
             return conf;
         }
     }

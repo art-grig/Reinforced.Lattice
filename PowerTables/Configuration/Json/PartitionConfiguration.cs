@@ -10,27 +10,21 @@ namespace PowerTables.Configuration.Json
     {
         public PartitionType Type { get; set; }
 
-        public MixedPartitionConfiguration Mixed { get; set; }
-
         public int InitialSkip { get; set; }
 
         public int InitialTake { get; set; }
-    }
 
-    //todo: do not use client ordering with mixed partition
-    public class MixedPartitionConfiguration
-    {
         public int LoadAhead { get; set; }
 
-        public bool Rebuy { get; set; }
-
         public bool NoCount { get; set; }
+
     }
+
+    
 
     public enum PartitionType
     {
         Client,
-        Server,
-        Mixed
+        Server
     }
 }

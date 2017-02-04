@@ -73,14 +73,9 @@ module PowerTables.Configuration.Json {
 	export interface IPartitionConfiguration
 	{
 		Type: PowerTables.Configuration.Json.PartitionType;
-		Mixed: PowerTables.Configuration.Json.IMixedPartitionConfiguration;
 		InitialSkip: number;
 		InitialTake: number;
-	}
-	export interface IMixedPartitionConfiguration
-	{
 		LoadAhead: number;
-		Rebuy: boolean;
 		NoCount: boolean;
 	}
 	export enum SelectAllBehavior { 
@@ -97,7 +92,6 @@ module PowerTables.Configuration.Json {
 	export enum PartitionType { 
 		Client = 0, 
 		Server = 1, 
-		Mixed = 2, 
 	}
 }
 module PowerTables {
@@ -278,7 +272,6 @@ module PowerTables.Filters.Select {
 module PowerTables.Plugins.Limit {
 	export interface ILimitClientConfiguration
 	{
-		DefaultValue: string;
 		LimitValues: number[];
 		LimitLabels: string[];
 		DefaultTemplateId: string;

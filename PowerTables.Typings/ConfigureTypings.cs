@@ -237,7 +237,6 @@ namespace PowerTables.Typings
 
             #region Partition
             builder.ExportAsInterface<PartitionConfiguration>().WithPublicProperties();
-            builder.ExportAsInterface<MixedPartitionConfiguration>().WithPublicProperties();
             builder.ExportAsEnum<PartitionType>();
             #endregion
 
