@@ -45,7 +45,8 @@ namespace PowerTables.Mvc.Controllers
             conf.PrimaryKey(c => new { c.DateTime });
             conf.ProjectDataWith(c => GetPlanned(c.AsEnumerable()).AsQueryable());
             conf.Paging(c => c.PagingSimple(), where: "rb");
-            conf.Limit(c => c.Values(new[] { "12", "24", "All" }, "12"), where: "lt");
+            conf.Limit(c => c.Values(new[] { "12", "24", "All" }), where: "lt");
+            conf.Partition(x => x.InitialSkipTake(take: 12));
             conf.RegularSelect(RegularSelectMode.Cells);
             conf.Selection(x => x.ResetSelectionOn(ResetSelectionBehavior.DontReset).SelectAllBehavior(SelectAllBehavior.AllLoadedData));
             conf.Toolbar("toolbar-rt", a =>

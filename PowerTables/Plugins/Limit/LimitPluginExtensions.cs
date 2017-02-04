@@ -37,9 +37,8 @@ namespace PowerTables.Plugins.Limit
         /// </summary>
         /// <param name="conf"></param>
         /// <param name="values">Limiting values</param>
-        /// <param name="defaultValue">Default value. Should be among supplied values. Can be omitted (first value will be taken)</param>
         /// <returns></returns>
-        public static PluginConfigurationWrapper<LimitClientConfiguration> Values(this PluginConfigurationWrapper<LimitClientConfiguration> conf, string[] values, string defaultValue = null)
+        public static PluginConfigurationWrapper<LimitClientConfiguration> Values(this PluginConfigurationWrapper<LimitClientConfiguration> conf, string[] values)
         {
             conf.Configuration.LimitLabels.Clear();
             conf.Configuration.LimitValues.Clear();
@@ -51,15 +50,6 @@ namespace PowerTables.Plugins.Limit
                 if (value == "-") v = -1;
                 conf.Configuration.AddValue(value, v);
             }
-            if (defaultValue == null)
-            {
-                defaultValue = values[0];
-            }
-            if (!values.Contains(defaultValue))
-                throw new Exception("Limit menu default selected value does not belong to menu values");
-            
-            if (defaultValue.Trim() == "-")
-                throw new Exception("Limit menu default selected value should not be a separator");
             return conf;
         }
 
