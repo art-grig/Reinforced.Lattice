@@ -20,11 +20,11 @@
             super.setSkip(skip);
         }
 
-        public setTake(take: number): void {
+        public setTake(take: number,preserveTake?:boolean): void {
             if (this.Skip + take > this.amount()) {
                 // todo trigger load data here
             }
-            super.setSkip(take);
+            super.setSkip(take,preserveTake);
         }
 
         public partitionBeforeQuery(query: IQuery, scope: QueryScope): QueryScope {

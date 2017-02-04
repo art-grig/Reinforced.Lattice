@@ -185,7 +185,7 @@
 {
     <div class="btn-group">
         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-            Results: <strong>@t.Value(c => c.SelectedValue.Label)</strong> <span class="caret"></span>
+            Results: <strong>@t.Value(c => c.SelectedValue == null ? "null" : c.SelectedValue.Label)</strong> <span class="caret"></span>
         </button>
         <ul class="dropdown-menu" role="menu">
             @using (var sz = t.Each(c => c.Sizes))
@@ -204,14 +204,13 @@
 @using (var t = Plugin.Scroll())
 {
     <div style="opacity:.7;background:grey;border-radius:5px;width:24px;" @t.ThisIsScrollerActiveArea()>
-        <button @t.ThisIsUpArrow() type="button" class="btn btn-default btn-xs" style="display:block; width: 100%;" >
+        <button @t.ThisIsUpArrow() type="button" class="btn btn-default btn-xs" style="display:block; width: 100%;">
             <span class="glyphicon glyphicon-chevron-up"></span>
         </button>
-        <button @t.ThisIsScroller() type="button" class="btn btn-default btn-xs" 
-                style="position: relative; display: block; height: 20px; width: 100%; top: 0px">
-        </button>
+        <button @t.ThisIsScroller() type="button" class="btn btn-default btn-xs"
+                style="position: relative; display: block; height: 20px; width: 100%; top: 0px"></button>
 
-        <button @t.ThisIsDownArrow() type="button" class="btn btn-default btn-xs" 
+        <button @t.ThisIsDownArrow() type="button" class="btn btn-default btn-xs"
                 style="bottom:0;position:absolute; top:auto;width: 100%;">
             <span class="glyphicon glyphicon-chevron-down"></span>
         </button>
@@ -389,7 +388,7 @@
 
 @using (var t = this.Cell("checkboxifyCell"))
 {
-    using (t.If(c=>c.Row.CanBeSelected))
+    using (t.If(c => c.Row.CanBeSelected))
     {
         <div data-checkboxify="true">
             @using (t.If(c => c.Row.IsSelected))

@@ -267,6 +267,7 @@
         private keydownHook(e: KeyboardEvent) {
             if (!this._kbActive) return;
             if (this.isKbListenerHidden()) return;
+            if (this._isHidden) return;
             if (this.handleKey(e.keyCode)) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -368,6 +369,7 @@
 
         //#region Wheel events
         private handleWheel(e: WheelEvent) {
+            if (this._isHidden) return;
             var range = 0;
             if (e.deltaMode === e.DOM_DELTA_PIXEL) {
                 range = (e.deltaY > 0 ? 1 : -1) * this.Configuration.Forces.WheelForce;
@@ -462,8 +464,29 @@
         //#endregion
 
         private _prevCount: number;
-
+        private _isHidden:boolean;
+        private hideScroll() {
+            this._isHidden = true;
+            this.MasterTable.Renderer.Modifier.hideElement(this._scollbar);
+        }
+        
+        private showScroll() {
+            this._isHidden = false;
+            this.MasterTable.Renderer.Modifier.showElement(this._scollbar);
+        }
         private onPartitionChange(e: ITableEventArgs<IPartitionChangeEventArgs>) {
+            if (e.EventArgs.Take === 0) {
+                this.hideScroll();
+                return;
+            } else {
+                this.showScroll();
+            }
+            if (this.MasterTable.DataHolder.Ordered.length <= e.MasterTable.Partition.Take || this.MasterTable.DataHolder.DisplayedData.length === 0) {
+                this.hideScroll();
+                return;
+            } else {
+                this.showScroll();
+            }
             if (e.EventArgs.Take !== e.EventArgs.PreviousTake) {
                 this.adjustScrollerHeight();
             }
@@ -471,10 +494,16 @@
         }
 
         private onClientDataProcessing(e: ITableEventArgs<PowerTables.IClientDataResults>) {
-            if (e.EventArgs.Ordered.length <= e.MasterTable.Partition.Take || e.EventArgs.Displaying.length === 0) {
-                this.MasterTable.Renderer.Modifier.hideElement(this._scollbar);
+            if (e.MasterTable.Partition.Take === 0) {
+                this.hideScroll();
+                return;
             } else {
-                this.MasterTable.Renderer.Modifier.showElement(this._scollbar);
+                this.showScroll();
+            }
+            if (e.EventArgs.Ordered.length <= e.MasterTable.Partition.Take || e.EventArgs.Displaying.length === 0) {
+                this.hideScroll();
+            } else {
+                this.showScroll();
             }
         }
         public subscribe(e: PowerTables.Services.EventsService): void {

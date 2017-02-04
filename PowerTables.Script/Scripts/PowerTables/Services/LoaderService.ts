@@ -66,7 +66,8 @@
                 Filterings: {},
                 AdditionalData: {},
                 StaticDataJson: this._masterTable.InstanceManager.Configuration.StaticData,
-                Selection: null
+                Selection: null,
+                Append:false
             };
 
             if (queryScope === QueryScope.Client) {

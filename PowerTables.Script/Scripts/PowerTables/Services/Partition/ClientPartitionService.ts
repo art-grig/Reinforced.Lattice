@@ -4,26 +4,29 @@
             this._masterTable = masterTable;
         }
 
-        protected  _masterTable: IMasterTable;
+        protected _masterTable: IMasterTable;
 
-        public setSkip(skip: number): void {
+        public setSkip(skip: number, preserveTake?: boolean): void {
+            if (preserveTake == null) preserveTake = true;
             if (skip < 0) skip = 0;
             var take = this.Take;
             if (take > 0) {
-                if (skip + take > this.amount()) skip = this.amount() - take;
+                if (skip + take > this.amount()) {
+                    if (preserveTake) skip = this.amount() - take;
+                    else take = this.amount() - skip;
+                }
             } else {
                 take = this.amount() - skip;
             }
             var prevSkip = this.Skip;
             if (prevSkip === skip) return;
-
-            this._masterTable.Events.PartitionChanged.invokeBefore(this,
-                {
-                    PreviousSkip: prevSkip,
-                    Skip: skip,
-                    PreviousTake: this.Take,
-                    Take: this.Take
-                });
+            var ea = {
+                PreviousSkip: prevSkip,
+                Skip: skip,
+                PreviousTake: this.Take,
+                Take: this.Take
+            };
+            this._masterTable.Events.PartitionChanged.invokeBefore(this,ea);
 
             if (skip >= prevSkip + take || skip <= prevSkip - take) {
                 this.cutDisplayed(skip, take);
@@ -53,13 +56,7 @@
                 this.restoreSpecialRows(rows);
             }
             this.Skip = skip;
-            this._masterTable.Events.PartitionChanged.invokeAfter(this,
-                {
-                    PreviousSkip: prevSkip,
-                    Skip: skip,
-                    PreviousTake: this.Take,
-                    Take: this.Take
-                });
+            this._masterTable.Events.PartitionChanged.invokeAfter(this, ea);
 
         }
 
@@ -88,24 +85,36 @@
         }
 
         public setTake(take: number): void {
-            this._masterTable.Events.PartitionChanged.invokeBefore(this,
-                {
-                    PreviousSkip: this.Skip,
-                    Skip: this.Skip,
-                    PreviousTake: this.Take,
-                    Take: take
-                });
+            var ea = {
+                PreviousSkip: this.Skip,
+                Skip: this.Skip,
+                PreviousTake: this.Take,
+                Take: take
+            };
+            this._masterTable.Events.PartitionChanged.invokeBefore(this, ea);
             if (take === 0) {
-                //todo
+                this.Skip = 0;
+                this.Take = 0;
+                ea.Skip = 0;
+                
+                this.cutDisplayed(this.Skip, take);
+                this._masterTable.Events.PartitionChanged.invokeAfter(this, ea);
+                this._masterTable.Controller.redrawVisibleData();
+                return;
             }
             var prevTake = this.Take;
 
-
-            if (take < prevTake) {
-                var dd = this._masterTable.DataHolder.DisplayedData;
+            if (prevTake === 0) {
+                var disp = this.displayedIndexes();
+                this.cutDisplayed(this.Skip, take);
+                for (var k = take; k < disp.length; k++) {
+                    this._masterTable.Renderer.Modifier.destroyRowByIndex(disp[k]);
+                }
+            }else if (take < prevTake) {
+                var dd = this.displayedIndexes();
                 this.cutDisplayed(this.Skip, take);
                 for (var i = take; i < prevTake; i++) {
-                    this._masterTable.Renderer.Modifier.destroyRowByIndex(dd[i]['__i']);
+                    this._masterTable.Renderer.Modifier.destroyRowByIndex(dd[i]);
                 }
             } else {
                 var prevIdx = this.displayedIndexes();
@@ -119,15 +128,9 @@
                 }
                 this.restoreSpecialRows(rows);
             }
-            this.Take = take;
-            this._masterTable.Events.PartitionChanged.invokeAfter(this,
-                {
-                    PreviousSkip: this.Skip,
-                    Skip: this.Skip,
-                    PreviousTake: prevTake,
-                    Take: take
-                });
 
+            this.Take = take;
+            this._masterTable.Events.PartitionChanged.invokeAfter(this,ea);
         }
 
         private restoreSpecialRows(rows: IRow[]) {

@@ -196,7 +196,7 @@
             var obj: {} = {};
             var currentColIndex: number = this.getNextNonSpecialColumn(-1);
             var currentCol: string = this._rawColumnNames[currentColIndex];
-            this._storedDataCache = {};
+            if (!clientQuery.Append) this._storedDataCache = {};
 
             for (var i: number = 0; i < response.Data.length; i++) {
                 if (this._instances.Columns[currentCol].IsDateTime) {
@@ -225,7 +225,9 @@
                 }
                 currentCol = this._rawColumnNames[currentColIndex];
             }
-            this.StoredData = data;
+            if (!clientQuery.Append) this.StoredData = data;
+            else this.StoredData.concat(data);
+
             this.filterStoredData(clientQuery);
             this.updateStats(response.ResultsCount);
         }

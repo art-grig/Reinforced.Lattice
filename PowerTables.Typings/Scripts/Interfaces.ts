@@ -139,6 +139,7 @@ module PowerTables {
 		AdditionalData: { [key:string]: string };
 		StaticDataJson: string;
 		Selection: { [key:string]: number[] };
+		Append: boolean;
 	}
 	export interface IPartition
 	{

@@ -16,7 +16,7 @@ namespace PowerTables.Mvc.Models.Tutorial
             {
                 "Everything",           // any text will be interpreted as "all records"
                 "-",                    // dash will be interpreted as separator
-                "5", "10", "-", "50", "100","250","1000","2000"
+                "5", "10", "25", "-", "50", "100","250","1000","2000"
             }, "10"));
 
 

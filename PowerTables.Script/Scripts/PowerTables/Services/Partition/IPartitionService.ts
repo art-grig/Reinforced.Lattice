@@ -3,7 +3,7 @@
         Skip: number;
         Take: number;
 
-        setSkip(skip: number): void;
+        setSkip(skip: number, preserveTake?: boolean): void;
         setTake(take?: number): void;
         partitionBeforeQuery(serverQuery: IQuery, scope: QueryScope): QueryScope;
         partitionBeforeCommand(serverQuery: IQuery): void;

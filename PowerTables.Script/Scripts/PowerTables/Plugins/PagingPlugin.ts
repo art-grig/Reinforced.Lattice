@@ -13,6 +13,10 @@
         public GotoInput: HTMLInputElement;
 
         public getCurrentPage() {
+
+            if (this.MasterTable.Partition.Skip + this.MasterTable.Partition.Take >= this.MasterTable.Partition.amount()) {
+                return this.getTotalPages() - 1;
+            }
             return PagingPlugin.selectedPage(this.MasterTable.Partition.Skip, this.MasterTable.Partition.Take);
         }
 
@@ -24,6 +28,7 @@
         }
 
         public getTotalPages() {
+            if (this.MasterTable.Partition.Take === 0) return 1;
             var tp: number = this.MasterTable.Partition.amount() / this.MasterTable.Partition.Take;
             if (tp !== Math.floor(tp)) {
                 tp = Math.floor(tp) + 1;
@@ -33,7 +38,7 @@
 
         public goToPage(page: string) {
             var pg = parseInt(page);
-            this.MasterTable.Partition.setSkip(pg * this.MasterTable.Partition.Take);
+            this.MasterTable.Partition.setSkip(pg * this.MasterTable.Partition.Take, false);
         }
 
         public gotoPageClick(e: PowerTables.ITemplateBoundEvent) {

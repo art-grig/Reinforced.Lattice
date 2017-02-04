@@ -67,6 +67,11 @@ namespace PowerTables
         /// Raw selection data (primary key to selected columns array)
         /// </summary>
         public Dictionary<string,int[]> Selection { get; set; }
+
+        /// <summary>
+        /// Will result of this query be appended to existing local data
+        /// </summary>
+        public bool Append { get; set; }
     }
 
     

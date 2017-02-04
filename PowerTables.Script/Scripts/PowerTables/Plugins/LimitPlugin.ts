@@ -43,7 +43,7 @@ module PowerTables.Plugins.Limit {
         public init(masterTable: IMasterTable): void {
             super.init(masterTable);
             var def = null;
-            var initSkip = this.MasterTable.InstanceManager.Configuration.Partition.InitialTake.toString();
+            var initTake = this.MasterTable.InstanceManager.Configuration.Partition.InitialTake.toString();
             for (var i = 0; i < this.Configuration.LimitValues.length; i++) {
                 var a = <ILimitSize>{
                     Value: this.Configuration.LimitValues[i],
@@ -51,17 +51,21 @@ module PowerTables.Plugins.Limit {
                     IsSeparator: this.Configuration.LimitLabels[i] === '-'
                 };
                 this.Sizes.push(a);
-                if (a.Label == initSkip) {
+                if (a.Label == initTake) {
                     def = a;
                 }
             }
+            if (def == null) {
+                def = <ILimitSize>{
+                    Value: this.MasterTable.InstanceManager.Configuration.Partition.InitialTake,
+                    Label: initTake,
+                    IsSeparator: false,
+                };
+                this.Sizes.push(a);
 
-            if (def) {
-                this.SelectedValue = def;
-                this._limitSize = def.Value;
-            } else {
-                this._limitSize = 0;
             }
+            this.SelectedValue = def;
+            this._limitSize = def.Value;
         }
 
         public subscribe(e: PowerTables.Services.EventsService): void {
