@@ -26,7 +26,7 @@
                 PreviousTake: this.Take,
                 Take: this.Take
             };
-            this._masterTable.Events.PartitionChanged.invokeBefore(this,ea);
+            this._masterTable.Events.PartitionChanged.invokeBefore(this, ea);
 
             if (skip >= prevSkip + take || skip <= prevSkip - take) {
                 this.cutDisplayed(skip, take);
@@ -76,7 +76,7 @@
             return 0;
         }
 
-        private displayedIndexes(): number[] {
+        protected displayedIndexes(): number[] {
             var currentIndexes = [];
             for (var i = 0; i < this._masterTable.DataHolder.DisplayedData.length; i++) {
                 currentIndexes.push(this._masterTable.DataHolder.DisplayedData[i]['__i']);
@@ -96,7 +96,7 @@
                 this.Skip = 0;
                 this.Take = 0;
                 ea.Skip = 0;
-                
+
                 this.cutDisplayed(this.Skip, take);
                 this._masterTable.Events.PartitionChanged.invokeAfter(this, ea);
                 this._masterTable.Controller.redrawVisibleData();
@@ -110,7 +110,7 @@
                 for (var k = take; k < disp.length; k++) {
                     this._masterTable.Renderer.Modifier.destroyRowByIndex(disp[k]);
                 }
-            }else if (take < prevTake) {
+            } else if (take < prevTake) {
                 var dd = this.displayedIndexes();
                 this.cutDisplayed(this.Skip, take);
                 for (var i = take; i < prevTake; i++) {
@@ -130,10 +130,10 @@
             }
 
             this.Take = take;
-            this._masterTable.Events.PartitionChanged.invokeAfter(this,ea);
+            this._masterTable.Events.PartitionChanged.invokeAfter(this, ea);
         }
 
-        private restoreSpecialRows(rows: IRow[]) {
+        protected restoreSpecialRows(rows: IRow[]) {
             for (var i = 0; i < rows.length; i++) {
                 if (rows[i].IsSpecial) {
                     if (i === 0) this._masterTable.Renderer.Modifier.prependRow(rows[i]);
@@ -147,28 +147,24 @@
             }
         }
 
-        private destroySpecialRows(rows: IRow[]) {
+        protected destroySpecialRows(rows: IRow[]) {
             for (var i = 0; i < rows.length / 2; i++) {
                 if (rows[i].IsSpecial) this._masterTable.Renderer.Modifier.destroyRowByIndex(rows[i].Index);
                 if (rows[rows.length - i - 1].IsSpecial) this._masterTable.Renderer.Modifier.destroyRowByIndex(rows[rows.length - i - 1].Index);
             }
         }
 
-        public partitionBeforeQuery(query: IQuery, scope: QueryScope): QueryScope {
-            if (scope === QueryScope.Server) {
-                query.Partition = {
-                    NoCount: true,
-                    Take: 0,
-                    Skip: 0
-                };
-            } else {
-                query.Partition = {
-                    NoCount: true,
-                    Take: this.Take,
-                    Skip: this.Skip
-                };
-            }
-            return scope;
+        public partitionBeforeQuery(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean): void {
+            serverQuery.Partition = {
+                NoCount: true,
+                Take: 0,
+                Skip: 0
+            };
+            clientQuery.Partition = {
+                NoCount: true,
+                Take: this.Take,
+                Skip: this.Skip
+            };
         }
 
         public partitionBeforeCommand(serverQuery: IQuery): void {
@@ -180,15 +176,14 @@
         }
 
         public partitionAfterQuery(initialSet: any[], query: IQuery): any[] {
-
             return this.skipTakeSet(initialSet, query);
         }
 
-        private skipTakeSet(ordered: any[], query: IQuery): any[] {
+        protected  skipTakeSet(ordered: any[], query: IQuery): any[] {
             return this.cut(ordered, this.Skip, this.Take);
         }
 
-        private cut(ordered: any[], skip: number, take: number) {
+        protected cut(ordered: any[], skip: number, take: number) {
             var selected = ordered;
             if (skip > ordered.length) skip = 0;
             if (take === 0) selected = ordered.slice(skip);
@@ -196,7 +191,7 @@
             return selected;
         }
 
-        private cutDisplayed(skip: number, take: number) {
+        protected cutDisplayed(skip: number, take: number) {
             this._masterTable.DataHolder.RecentClientQuery.Partition = {
                 NoCount: true,
                 Skip: skip,

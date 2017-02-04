@@ -429,7 +429,7 @@
         /**
          * Request object to be used while sending to server
          */
-        XMLHttp: XMLHttpRequest;
+        XMLHttp?: XMLHttpRequest;
     }
 
     export interface ILoadingResponseEventArgs extends ILoadingEventArgs {

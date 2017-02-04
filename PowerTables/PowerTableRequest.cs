@@ -71,7 +71,7 @@ namespace PowerTables
         /// <summary>
         /// Will result of this query be appended to existing local data
         /// </summary>
-        public bool Append { get; set; }
+        public bool IsBackgroundDataFetch { get; set; }
     }
 
     

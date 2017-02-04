@@ -37,7 +37,7 @@ namespace PowerTables.Configuration
             return conf;
         }
 
-        public static PartitionConfigurationWrapper Server(this PartitionConfigurationWrapper conf,int loadPagesAhead = 1, bool noCount = false)
+        public static PartitionConfigurationWrapper Server(this PartitionConfigurationWrapper conf,int loadPagesAhead = 2, bool noCount = false)
         {
             conf.Configuration.Type = PartitionType.Server;
             conf.Configuration.LoadAhead = loadPagesAhead;
