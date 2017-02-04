@@ -173,7 +173,6 @@ module PowerTables {
             else
                 element['fireEvent'](eventName);
         }
-
         public proceedAdjustments(adjustments: PowerTables.ITableAdjustment): void {
             var result = this.DataHolder.proceedAdjustments(adjustments);
             if (result != null) this.Controller.drawAdjustmentResult(result);

@@ -203,15 +203,16 @@
 
 @using (var t = Plugin.Scroll())
 {
-    <div style="opacity:.3;background:grey;border-radius:5px;width:24px;" @t.ThisIsScrollerActiveArea()>
+    <div style="opacity:.7;background:grey;border-radius:5px;width:24px;" @t.ThisIsScrollerActiveArea()>
         <button @t.ThisIsUpArrow() type="button" class="btn btn-default btn-xs" style="display:block; width: 100%;" >
             <span class="glyphicon glyphicon-chevron-up"></span>
         </button>
-        <button @t.ThisIsScroller() type="button" class="btn btn-default btn-xs" style="position: relative; display: block; height: 20px; width: 100%; top: 0px">
-            
+        <button @t.ThisIsScroller() type="button" class="btn btn-default btn-xs" 
+                style="position: relative; display: block; height: 20px; width: 100%; top: 0px">
         </button>
 
-        <button @t.ThisIsDownArrow() type="button" class="btn btn-default btn-xs" style="bottom:0;position:absolute; top:auto;width: 100%;">
+        <button @t.ThisIsDownArrow() type="button" class="btn btn-default btn-xs" 
+                style="bottom:0;position:absolute; top:auto;width: 100%;">
             <span class="glyphicon glyphicon-chevron-down"></span>
         </button>
     </div>

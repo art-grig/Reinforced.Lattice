@@ -22,7 +22,8 @@
         }
 
         //#region Subscription and unsibscription core methods
-        public static addHandler(element: HTMLElement, type: string, handler: any) {
+        public static addHandler(element: HTMLElement, type: string, handler: any, useCapture?: boolean) {
+            if (useCapture == null) useCapture = false;
             if (element.addEventListener) {
                 element.addEventListener(type, handler, false);
             } else if (element['attachEvent']) {
@@ -31,7 +32,8 @@
                 element["on" + type] = handler;
             }
         }
-        public static removeHandler(element: HTMLElement, type: string, handler: any) {
+        public static removeHandler(element: HTMLElement, type: string, handler: any, useCapture?: boolean) {
+            if (useCapture == null) useCapture = false;
             if (element.removeEventListener) {
                 element.removeEventListener(type, handler, false);
             } else if (element['detachEvent']) {
