@@ -11,12 +11,18 @@
         private _scrollHeight: number;
         private _scollbar: HTMLElement;
         private _availableSpace: number;
+        private _scrollerPos: number;
 
         private _kbListener: HTMLElement;
         private _wheelListener: HTMLElement;
 
+        private _boundScrollerMove: any;
+        private _boundScrollerEnd: any;
+
         public init(masterTable: IMasterTable): void {
             super.init(masterTable);
+            this._boundScrollerMove = this.scrollerMove.bind(this);
+            this._boundScrollerEnd = this.scrollerEnd.bind(this);
         }
 
         //#region Events
@@ -67,16 +73,18 @@
             if (newCoords.top != undefined) this._scollbar.style.top = newCoords.top + 'px';
             this.calculateAvailableSpace();
             this.adjustScrollerHeight();
-            this.adjustScrollerPosition();
+            this.adjustScrollerPosition(this.MasterTable.Partition.Skip);
         }
 
-        private adjustScrollerPosition() {
+        private adjustScrollerPosition(skip:number) {
             if (!this.Scroller) return;
             var total = this.total();
             var d = this._availableSpace / total;
             var h = d * this.MasterTable.Partition.Skip;
+            if (skip === 0) h = 0;
             if (this.Configuration.IsHorizontal) this.Scroller.style.left = h + 'px';
             else this.Scroller.style.top = h + 'px';
+            this._scrollerPos = h;
         }
 
         private adjustScrollerHeight() {
@@ -159,11 +167,11 @@
             return r;
         }
         //#endregion
-        private getElement(configSelect: string):HTMLElement {
+        private getElement(configSelect: string): HTMLElement {
             if (!configSelect) return null;
             switch (configSelect) {
-                case '$Body':return  this.MasterTable.Renderer.BodyElement;
-                case '$Parent':return this.MasterTable.Renderer.BodyElement.parentElement;
+                case '$Body': return this.MasterTable.Renderer.BodyElement;
+                case '$Parent': return this.MasterTable.Renderer.BodyElement.parentElement;
                 case '$All': return this.MasterTable.Renderer.RootElement;
             }
             return <HTMLElement>document.querySelector(configSelect);
@@ -208,7 +216,56 @@
                 PowerTables.Services.EventsDelegatorService
                     .addHandler(this._wheelListener, 'wheel', this.handleWheel.bind(this));
             }
+            if (this.Scroller) {
+                PowerTables.Services.EventsDelegatorService.addHandler(this.Scroller, 'mousedown', this.scrollerStart.bind(this));
+            }
         }
+
+        //#region Scroller drag
+        private _mouseStartPos: number;
+        private _startSkip: number;
+        private _moveCheckInterval:any;
+        private scrollerStart(e: MouseEvent) {
+            this._mouseStartPos = this.Configuration.IsHorizontal ? e.clientX : e.clientY;
+            this._startSkip = this.MasterTable.Partition.Skip;
+
+            PowerTables.Services.EventsDelegatorService.addHandler(document.body, 'mousemove', this._boundScrollerMove);
+            PowerTables.Services.EventsDelegatorService.addHandler(document.body, 'mouseup', this._boundScrollerEnd);
+            this._moveCheckInterval = setInterval(this.moveCheck.bind(this), 40);
+        }
+        private _needMoveTo: number;
+        private _movedTo:number;
+        private moveCheck() {
+            var nmt = this._needMoveTo;
+            if (nmt !== this._movedTo) {
+                this.MasterTable.Partition.setSkip(nmt);
+                this._movedTo = nmt;
+            }
+        }
+        private _isMoving:boolean;
+        private scrollerMove(e: MouseEvent) {
+            if (this._isMoving) return;
+            this._isMoving = true;
+            var cPos = this.Configuration.IsHorizontal ? e.clientX : e.clientY;
+            var rowsPerSpace = this.total() / this._availableSpace;
+            var diff = (cPos - this._mouseStartPos) * rowsPerSpace;
+            this._needMoveTo = this._startSkip + Math.floor(diff);
+            
+            e.stopPropagation();
+            e.preventDefault();
+            this._isMoving = false;
+        }
+
+        private scrollerEnd(e: MouseEvent) {
+            clearInterval(this._moveCheckInterval);
+            
+            PowerTables.Services.EventsDelegatorService.removeHandler(document.body, 'mousemove', this._boundScrollerMove);
+            PowerTables.Services.EventsDelegatorService.removeHandler(document.body, 'mouseup', this._boundScrollerEnd);
+            this.moveCheck();
+            e.stopPropagation();
+            e.preventDefault();
+        }
+        //#endregion
 
         //#region Wheel events
         private handleWheel(e: WheelEvent) {
@@ -217,10 +274,10 @@
                 range = (e.deltaY > 0 ? 1 : -1) * this.Configuration.Forces.WheelForce;
             }
             if (e.deltaMode === e.DOM_DELTA_LINE) {
-                range = e.deltaY*this.Configuration.Forces.WheelForce;
+                range = e.deltaY * this.Configuration.Forces.WheelForce;
             }
             if (e.deltaMode === e.DOM_DELTA_PAGE) {
-                range = e.deltaY*this.Configuration.Forces.PageForce;
+                range = e.deltaY * this.Configuration.Forces.PageForce;
             }
 
             if (range !== 0) {
@@ -283,10 +340,8 @@
         private onPartitionChange(e: ITableEventArgs<IPartitionChangeEventArgs>) {
             if (e.EventArgs.Take !== e.EventArgs.PreviousTake) {
                 this.adjustScrollerHeight();
-                this.adjustScrollerPosition();
-            } else if (e.EventArgs.PreviousSkip !== e.EventArgs.Skip) {
-                this.adjustScrollerPosition();
-            }
+            } 
+            this.adjustScrollerPosition(e.EventArgs.Skip);
         }
 
         public subscribe(e: PowerTables.Services.EventsService): void {

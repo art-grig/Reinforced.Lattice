@@ -7163,6 +7163,8 @@ var PowerTables;
                 }
                 ScrollbarPlugin.prototype.init = function (masterTable) {
                     _super.prototype.init.call(this, masterTable);
+                    this._boundScrollerMove = this.scrollerMove.bind(this);
+                    this._boundScrollerEnd = this.scrollerEnd.bind(this);
                 };
                 //#region Events
                 ScrollbarPlugin.prototype.upArrowMouseDown = function (t) {
@@ -7205,18 +7207,21 @@ var PowerTables;
                         this._scollbar.style.top = newCoords.top + 'px';
                     this.calculateAvailableSpace();
                     this.adjustScrollerHeight();
-                    this.adjustScrollerPosition();
+                    this.adjustScrollerPosition(this.MasterTable.Partition.Skip);
                 };
-                ScrollbarPlugin.prototype.adjustScrollerPosition = function () {
+                ScrollbarPlugin.prototype.adjustScrollerPosition = function (skip) {
                     if (!this.Scroller)
                         return;
                     var total = this.total();
                     var d = this._availableSpace / total;
                     var h = d * this.MasterTable.Partition.Skip;
+                    if (skip === 0)
+                        h = 0;
                     if (this.Configuration.IsHorizontal)
                         this.Scroller.style.left = h + 'px';
                     else
                         this.Scroller.style.top = h + 'px';
+                    this._scrollerPos = h;
                 };
                 ScrollbarPlugin.prototype.adjustScrollerHeight = function () {
                     if (!this.Scroller)
@@ -7349,7 +7354,45 @@ var PowerTables;
                         PowerTables.Services.EventsDelegatorService
                             .addHandler(this._wheelListener, 'wheel', this.handleWheel.bind(this));
                     }
+                    if (this.Scroller) {
+                        PowerTables.Services.EventsDelegatorService.addHandler(this.Scroller, 'mousedown', this.scrollerStart.bind(this));
+                    }
                 };
+                ScrollbarPlugin.prototype.scrollerStart = function (e) {
+                    this._mouseStartPos = this.Configuration.IsHorizontal ? e.clientX : e.clientY;
+                    this._startSkip = this.MasterTable.Partition.Skip;
+                    PowerTables.Services.EventsDelegatorService.addHandler(document.body, 'mousemove', this._boundScrollerMove);
+                    PowerTables.Services.EventsDelegatorService.addHandler(document.body, 'mouseup', this._boundScrollerEnd);
+                    this._moveCheckInterval = setInterval(this.moveCheck.bind(this), 40);
+                };
+                ScrollbarPlugin.prototype.moveCheck = function () {
+                    var nmt = this._needMoveTo;
+                    if (nmt !== this._movedTo) {
+                        this.MasterTable.Partition.setSkip(nmt);
+                        this._movedTo = nmt;
+                    }
+                };
+                ScrollbarPlugin.prototype.scrollerMove = function (e) {
+                    if (this._isMoving)
+                        return;
+                    this._isMoving = true;
+                    var cPos = this.Configuration.IsHorizontal ? e.clientX : e.clientY;
+                    var rowsPerSpace = this.total() / this._availableSpace;
+                    var diff = (cPos - this._mouseStartPos) * rowsPerSpace;
+                    this._needMoveTo = this._startSkip + Math.floor(diff);
+                    e.stopPropagation();
+                    e.preventDefault();
+                    this._isMoving = false;
+                };
+                ScrollbarPlugin.prototype.scrollerEnd = function (e) {
+                    clearInterval(this._moveCheckInterval);
+                    PowerTables.Services.EventsDelegatorService.removeHandler(document.body, 'mousemove', this._boundScrollerMove);
+                    PowerTables.Services.EventsDelegatorService.removeHandler(document.body, 'mouseup', this._boundScrollerEnd);
+                    this.moveCheck();
+                    e.stopPropagation();
+                    e.preventDefault();
+                };
+                //#endregion
                 //#region Wheel events
                 ScrollbarPlugin.prototype.handleWheel = function (e) {
                     var range = 0;
@@ -7403,11 +7446,8 @@ var PowerTables;
                 ScrollbarPlugin.prototype.onPartitionChange = function (e) {
                     if (e.EventArgs.Take !== e.EventArgs.PreviousTake) {
                         this.adjustScrollerHeight();
-                        this.adjustScrollerPosition();
                     }
-                    else if (e.EventArgs.PreviousSkip !== e.EventArgs.Skip) {
-                        this.adjustScrollerPosition();
-                    }
+                    this.adjustScrollerPosition(e.EventArgs.Skip);
                 };
                 ScrollbarPlugin.prototype.subscribe = function (e) {
                     e.LayoutRendered.subscribeAfter(this.onLayoutRendered.bind(this), 'scrollbar');
