@@ -11,7 +11,7 @@ namespace PowerTables.Mvc.Models.Tutorial
         {
             conf.ProjectionTitlesAndDataOnly();
 
-            conf.Scrollbar(x => x.Vertical());
+            conf.Scrollbar(x => x.Vertical().KeyboardScrollFocusMode(KeyboardScrollFocusMode.MouseClick));
             return conf;
         }
     }

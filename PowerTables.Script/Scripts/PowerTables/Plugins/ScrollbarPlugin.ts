@@ -238,24 +238,48 @@
             }
             if (this._kbListener) {
                 PowerTables.Services.EventsDelegatorService.addHandler(<any>window, 'keydown', this.keydownHook.bind(this));
-                PowerTables.Services.EventsDelegatorService.addHandler(this._kbListener, 'mouseenter', this.enableKb.bind(this));
-                PowerTables.Services.EventsDelegatorService.addHandler(this._kbListener, 'mouseleave', this.disableKb.bind(this));
+                this._kbListener['enableKeyboardScroll'] = this.enableKb.bind(this);
+                this._kbListener['disableKeyboardScroll'] = this.disableKb.bind(this);
+
+                if (this.Configuration.FocusMode === PowerTables.Plugins.Scrollbar.KeyboardScrollFocusMode.MouseOver) {
+                    PowerTables.Services.EventsDelegatorService
+                        .addHandler(this._kbListener, 'mouseenter', this._kbListener['enableKeyboardScroll']);
+                    PowerTables.Services.EventsDelegatorService
+                        .addHandler(this._kbListener, 'mouseleave', this._kbListener['disableKeyboardScroll']);
+                }
+
+                if (this.Configuration.FocusMode === PowerTables.Plugins.Scrollbar.KeyboardScrollFocusMode.MouseClick) {
+                    PowerTables.Services.EventsDelegatorService.addHandler(<any>window, 'click', this.trackKbListenerClick.bind(this));
+                   
+                }
             }
         }
-
         
         //#region Keyboard events
-        private _kbActive: boolean;
-        private enableKb(e: MouseEvent) {
-            this._kbActive = true;
-        }
 
-        private disableKb(e: MouseEvent) {
+        private trackKbListenerClick(e:MouseEvent) {
+            var t = <HTMLElement>e.target;
+            while (t!=null) {
+                if (t === this._kbListener) {
+                    this._kbActive = true;
+                    return;
+                }
+                t = t.parentElement;
+            }
             this._kbActive = false;
         }
 
+        private isKbListenerHidden() {
+            return this._kbListener.offsetParent == null;
+        }
+        private _kbActive: boolean;
+
+        private enableKb() { this._kbActive = true; }
+        private disableKb() { this._kbActive = false; }
+
         private keydownHook(e: KeyboardEvent) {
             if (!this._kbActive) return;
+            if (this.isKbListenerHidden()) return;
             this.handleKey(e.keyCode);
             e.preventDefault();
             e.stopPropagation();

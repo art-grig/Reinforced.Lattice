@@ -132,6 +132,12 @@ var PowerTables;
                 StickHollow[StickHollow["External"] = 1] = "External";
             })(Scrollbar.StickHollow || (Scrollbar.StickHollow = {}));
             var StickHollow = Scrollbar.StickHollow;
+            (function (KeyboardScrollFocusMode) {
+                KeyboardScrollFocusMode[KeyboardScrollFocusMode["Manual"] = 0] = "Manual";
+                KeyboardScrollFocusMode[KeyboardScrollFocusMode["MouseOver"] = 1] = "MouseOver";
+                KeyboardScrollFocusMode[KeyboardScrollFocusMode["MouseClick"] = 2] = "MouseClick";
+            })(Scrollbar.KeyboardScrollFocusMode || (Scrollbar.KeyboardScrollFocusMode = {}));
+            var KeyboardScrollFocusMode = Scrollbar.KeyboardScrollFocusMode;
         })(Scrollbar = Plugins.Scrollbar || (Plugins.Scrollbar = {}));
     })(Plugins = PowerTables.Plugins || (PowerTables.Plugins = {}));
 })(PowerTables || (PowerTables = {}));
@@ -7458,18 +7464,40 @@ var PowerTables;
                     }
                     if (this._kbListener) {
                         PowerTables.Services.EventsDelegatorService.addHandler(window, 'keydown', this.keydownHook.bind(this));
-                        PowerTables.Services.EventsDelegatorService.addHandler(this._kbListener, 'mouseenter', this.enableKb.bind(this));
-                        PowerTables.Services.EventsDelegatorService.addHandler(this._kbListener, 'mouseleave', this.disableKb.bind(this));
+                        this._kbListener['enableKeyboardScroll'] = this.enableKb.bind(this);
+                        this._kbListener['disableKeyboardScroll'] = this.disableKb.bind(this);
+                        if (this.Configuration.FocusMode === PowerTables.Plugins.Scrollbar.KeyboardScrollFocusMode.MouseOver) {
+                            PowerTables.Services.EventsDelegatorService
+                                .addHandler(this._kbListener, 'mouseenter', this._kbListener['enableKeyboardScroll']);
+                            PowerTables.Services.EventsDelegatorService
+                                .addHandler(this._kbListener, 'mouseleave', this._kbListener['disableKeyboardScroll']);
+                        }
+                        if (this.Configuration.FocusMode === PowerTables.Plugins.Scrollbar.KeyboardScrollFocusMode.MouseClick) {
+                            PowerTables.Services.EventsDelegatorService.addHandler(window, 'click', this.trackKbListenerClick.bind(this));
+                        }
                     }
                 };
-                ScrollbarPlugin.prototype.enableKb = function (e) {
-                    this._kbActive = true;
-                };
-                ScrollbarPlugin.prototype.disableKb = function (e) {
+                //#region Keyboard events
+                ScrollbarPlugin.prototype.trackKbListenerClick = function (e) {
+                    var t = e.target;
+                    while (t != null) {
+                        if (t === this._kbListener) {
+                            this._kbActive = true;
+                            return;
+                        }
+                        t = t.parentElement;
+                    }
                     this._kbActive = false;
                 };
+                ScrollbarPlugin.prototype.isKbListenerHidden = function () {
+                    return this._kbListener.offsetParent == null;
+                };
+                ScrollbarPlugin.prototype.enableKb = function () { this._kbActive = true; };
+                ScrollbarPlugin.prototype.disableKb = function () { this._kbActive = false; };
                 ScrollbarPlugin.prototype.keydownHook = function (e) {
                     if (!this._kbActive)
+                        return;
+                    if (this.isKbListenerHidden())
                         return;
                     this.handleKey(e.keyCode);
                     e.preventDefault();

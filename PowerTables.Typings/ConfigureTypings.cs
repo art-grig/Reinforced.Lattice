@@ -78,10 +78,6 @@ namespace PowerTables.Typings
                 ;
 
             builder.ExportAsInterface<PluginConfiguration>().WithPublicProperties();
-            //builder.ExportAsInterface<CheckboxifyClientConfig>().WithPublicProperties()
-            //    .WithProperty(c => c.CanSelectFunction, c => c.Type("(v:any)=>boolean"));
-
-            //builder.ExportAsInterface<SelectionAdditionalData>().WithPublicProperties();
 
             builder.ExportAsInterface<FormwatchClientConfiguration>().WithPublicProperties();
             builder.ExportAsInterface<FormwatchFieldData>().WithPublicProperties()
@@ -127,27 +123,35 @@ namespace PowerTables.Typings
             builder.ExportAsInterface<Partition>().WithPublicProperties();
             builder.ExportAsEnum<Ordering>();
 
+            #region Toolbar
             builder.ExportAsInterface<ToolbarButtonsClientConfiguration>().WithPublicProperties();
             builder.ExportAsInterface<ToolbarButtonClientConfiguration>()
                 .WithProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                 .WithProperty(c => c.OnClick,
                     c => c.Type("(table:any /*PowerTables.PowerTable*/,menuElement:any)=>void"));
+            #endregion
+
+            #region Totals
 
             builder.ExportAsInterface<TotalResponse>().WithPublicProperties();
             builder.ExportAsInterface<TotalClientConfiguration>().WithPublicProperties()
                 .WithProperty(c => c.ColumnsValueFunctions, c => c.Type("{ [key:string] : (a:any)=>string }"))
                 .WithProperty(c => c.ColumnsCalculatorFunctions, c => c.Type("{ [key:string] : (data:IClientDataResults) => any }"));
 
+
+            #endregion
+
+            #region Edit core
             builder.ExportAsInterface<EditFieldUiConfigBase>().WithPublicProperties();
             builder.ExportAsInterface<EditFormUiConfigBase>().WithPublicProperties();
             builder.ExportAsInterface<CellsEditUiConfig>().WithPublicProperties();
             builder.ExportAsInterface<FormEditUiConfig>().WithPublicProperties();
             builder.ExportAsInterface<RowsEditUiConfig>().WithPublicProperties();
+            #endregion
+            
+            #region Editors
             builder.ExportAsInterface<DisplayingEditorUiConfig>().WithPublicProperties()
                 .WithProperty(c => c.Template, c => c.Type("(cell:ICell) => string"));
-
-
-
             builder.ExportAsInterface<SelectListEditorUiConfig>().WithPublicProperties()
                 .WithProperty(c => c.MissingValueFunction, a => a.Type("(a:any)=>any"))
                 .WithProperty(c => c.MissingKeyFunction, a => a.Type("(a:any)=>any"))
@@ -161,10 +165,16 @@ namespace PowerTables.Typings
                 .WithProperty(c => c.ParseFunction, c => c.Type("(value:string,column:IColumn,errors:PowerTables.Editing.IValidationMessage[]) => any"))
                 ;
 
+            #endregion
+
+            #region Loading overlap
             builder.ExportAsInterface<LoadingOverlapUiConfig>().WithPublicProperties();
             builder.ExportAsEnums(new[] { typeof(OverlapMode) });
+            #endregion
+
 
             builder.ExportAsInterface<ReloadUiConfiguration>().WithPublicProperties();
+
             builder.ExportAsInterface<ConfiguredSubscriptionInfo>()
                 .WithPublicProperties()
                 .WithProperty(c => c.Handler, c => c.Type("(dataObject:any, originalEvent:any) => void"));
@@ -175,6 +185,9 @@ namespace PowerTables.Typings
 
             builder.ExportAsInterface<MouseSelectUiConfig>();
             builder.ExportAsInterface<CheckboxifyUiConfig>().WithPublicProperties();
+
+            #region Selection
+
             builder.ExportAsInterface<SelectionConfiguration>()
                 .WithPublicProperties()
                 .WithProperty(c => c.CanSelectRowFunction, c => c.Type("(dataObject:any)=>boolean"))
@@ -186,15 +199,18 @@ namespace PowerTables.Typings
             builder.ExportAsEnum<PowerTables.Configuration.Json.SelectAllBehavior>();
             builder.ExportAsEnum<PowerTables.Configuration.Json.ResetSelectionBehavior>();
 
+            #endregion
 
             builder.ExportAsInterface<RegularSelectUiConfig>().WithPublicProperties();
             builder.ExportAsEnum<RegularSelectMode>();
+
+            #region Commands
 
             builder.ExportAsEnum<CommandType>();
             builder.ExportAsInterface<CommandDescription>()
                 .WithPublicProperties()
                 .WithProperty(c => c.CanExecute, x => x.Type("(data:{Subject:any,Master:IMasterTable})=>boolean"))
-                
+
                 .WithProperty(c => c.OnSuccess, x => x.Type("(param:ICommandExecutionParameters)=>void"))
                 .WithProperty(c => c.OnFailure, x => x.Type("(param:ICommandExecutionParameters)=>void"))
                 .WithProperty(c => c.OnBeforeExecute, x => x.Type("(param:ICommandExecutionParameters)=>any"))
@@ -217,17 +233,24 @@ namespace PowerTables.Typings
                 .WithProperty(x => x.ValidateToLoad, x => x.Type("(param:ICommandExecutionParameters)=>boolean"))
                 .WithProperty(x => x.DetailsFunction, x => x.Type("(param:ICommandExecutionParameters)=>any"));
 
+            #endregion
 
+            #region Partition
             builder.ExportAsInterface<PartitionConfiguration>().WithPublicProperties();
             builder.ExportAsInterface<MixedPartitionConfiguration>().WithPublicProperties();
             builder.ExportAsEnum<PartitionType>();
+            #endregion
 
+
+            #region Scrollbar
             builder.ExportAsInterface<ScrollbarPluginUiConfig>().WithPublicProperties()
                 .WithProperty(c=>c.PositionCorrector,c=>c.Type("any"));
             builder.ExportAsInterface<ScrollbarKeyMappings>().WithPublicProperties();
             builder.ExportAsInterface<ScrollbarForces>().WithPublicProperties();
             builder.ExportAsEnum<StickDirection>();
             builder.ExportAsEnum<StickHollow>();
+            builder.ExportAsEnum<KeyboardScrollFocusMode>();
+            #endregion
 
         }
 

@@ -119,6 +119,13 @@ namespace PowerTables.Plugins.Scrollbar
             mappings(w);
             return v;
         }
+
+        public static PluginConfigurationWrapper<ScrollbarPluginUiConfig> KeyboardScrollFocusMode (
+            this PluginConfigurationWrapper<ScrollbarPluginUiConfig> v, KeyboardScrollFocusMode mode = Plugins.Scrollbar.KeyboardScrollFocusMode.MouseOver)
+        {
+            v.Configuration.FocusMode = mode;
+            return v;
+        }
         #endregion
 
         public static PluginConfigurationWrapper<ScrollbarPluginUiConfig> Forces(

@@ -31,6 +31,9 @@ namespace PowerTables.Plugins.Scrollbar
         public bool UseTakeAsPageForce { get; set; }
         public int ScrollerMinSize { get; set; }
         public int ArrowsDelayMs { get; set; }
+
+        public KeyboardScrollFocusMode FocusMode { get; set; }
+
         public ScrollbarPluginUiConfig()
         {
             StickToElementSelector = "$Body";
@@ -52,6 +55,7 @@ namespace PowerTables.Plugins.Scrollbar
             };
             ScrollerMinSize = 20;
             ArrowsDelayMs = 50;
+            FocusMode = KeyboardScrollFocusMode.MouseOver;
         }
     }
 
@@ -80,6 +84,13 @@ namespace PowerTables.Plugins.Scrollbar
     public enum VerticalStick { Right,Left }
 
     public enum HorizontalStick { Top = 2, Bottom}
+
+    public enum KeyboardScrollFocusMode
+    {
+        Manual,
+        MouseOver,
+        MouseClick
+    }
 
     public enum StickDirection
     {

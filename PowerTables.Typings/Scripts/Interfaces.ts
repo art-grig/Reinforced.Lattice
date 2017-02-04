@@ -564,6 +564,7 @@ module PowerTables.Plugins.Scrollbar {
 		UseTakeAsPageForce: boolean;
 		ScrollerMinSize: number;
 		ArrowsDelayMs: number;
+		FocusMode: PowerTables.Plugins.Scrollbar.KeyboardScrollFocusMode;
 	}
 	export interface IScrollbarKeyMappings
 	{
@@ -589,5 +590,10 @@ module PowerTables.Plugins.Scrollbar {
 	export enum StickHollow { 
 		Internal = 0, 
 		External = 1, 
+	}
+	export enum KeyboardScrollFocusMode { 
+		Manual = 0, 
+		MouseOver = 1, 
+		MouseClick = 2, 
 	}
 }

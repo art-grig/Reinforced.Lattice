@@ -549,6 +549,7 @@ declare module PowerTables.Plugins.Scrollbar {
         UseTakeAsPageForce: boolean;
         ScrollerMinSize: number;
         ArrowsDelayMs: number;
+        FocusMode: PowerTables.Plugins.Scrollbar.KeyboardScrollFocusMode;
     }
     interface IScrollbarKeyMappings {
         SingleUp: number[];
@@ -572,6 +573,11 @@ declare module PowerTables.Plugins.Scrollbar {
     enum StickHollow {
         Internal = 0,
         External = 1,
+    }
+    enum KeyboardScrollFocusMode {
+        Manual = 0,
+        MouseOver = 1,
+        MouseClick = 2,
     }
 }
 declare module PowerTables {
@@ -3264,9 +3270,11 @@ declare module PowerTables.Plugins.Scrollbar {
         private getElement(configSelect);
         private onLayoutRendered(e);
         private subscribeUiEvents();
+        private trackKbListenerClick(e);
+        private isKbListenerHidden();
         private _kbActive;
-        private enableKb(e);
-        private disableKb(e);
+        private enableKb();
+        private disableKb();
         private keydownHook(e);
         private handleKey(keyCode);
         activeAreaClick(e: MouseEvent): void;
