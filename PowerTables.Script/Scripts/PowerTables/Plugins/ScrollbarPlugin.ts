@@ -76,7 +76,7 @@
             this.adjustScrollerPosition(this.MasterTable.Partition.Skip);
         }
 
-        private adjustScrollerPosition(skip:number) {
+        private adjustScrollerPosition(skip: number) {
             if (!this.Scroller) return;
             var total = this.total();
             var d = this._availableSpace / total;
@@ -112,7 +112,14 @@
 
         private getCoords(): Coords {
             var r: Coords = {};
-            var c = this._stickElement.getBoundingClientRect();
+            var erect = this._stickElement.getBoundingClientRect();
+            var bodyrect = document.body.getBoundingClientRect();
+            var c = {
+                top: erect.top - bodyrect.top,
+                height: this._stickElement.clientHeight,
+                left: erect.left - bodyrect.left,
+                width: this._stickElement.clientWidth
+            };
 
             switch (this.Configuration.StickDirection) {
                 case PowerTables.Plugins.Scrollbar.StickDirection.Right:
@@ -196,7 +203,9 @@
                 if (style.width) this._scrollWidth = parseInt(style.width);
                 else this._scrollWidth = coord.width;
             }
+            this._sensor = new PowerTables.Rendering.Resensor(this._stickElement.parentElement, this.updateCoords.bind(this));
             this.updateCoords();
+            this._sensor.attach();
         }
 
         //#region UI events
@@ -224,17 +233,17 @@
         //#region Scroller drag
         private _mouseStartPos: number;
         private _startSkip: number;
-        private _moveCheckInterval:any;
+        private _moveCheckInterval: any;
         private scrollerStart(e: MouseEvent) {
             this._mouseStartPos = this.Configuration.IsHorizontal ? e.clientX : e.clientY;
             this._startSkip = this.MasterTable.Partition.Skip;
 
             PowerTables.Services.EventsDelegatorService.addHandler(document.body, 'mousemove', this._boundScrollerMove);
             PowerTables.Services.EventsDelegatorService.addHandler(document.body, 'mouseup', this._boundScrollerEnd);
-            this._moveCheckInterval = setInterval(this.moveCheck.bind(this), 40);
+            this._moveCheckInterval = setInterval(this.moveCheck.bind(this), 30);
         }
         private _needMoveTo: number;
-        private _movedTo:number;
+        private _movedTo: number;
         private moveCheck() {
             var nmt = this._needMoveTo;
             if (nmt !== this._movedTo) {
@@ -242,7 +251,7 @@
                 this._movedTo = nmt;
             }
         }
-        private _isMoving:boolean;
+        private _isMoving: boolean;
         private scrollerMove(e: MouseEvent) {
             if (this._isMoving) return;
             this._isMoving = true;
@@ -250,7 +259,7 @@
             var rowsPerSpace = this.total() / this._availableSpace;
             var diff = (cPos - this._mouseStartPos) * rowsPerSpace;
             this._needMoveTo = this._startSkip + Math.floor(diff);
-            
+
             e.stopPropagation();
             e.preventDefault();
             this._isMoving = false;
@@ -258,7 +267,7 @@
 
         private scrollerEnd(e: MouseEvent) {
             clearInterval(this._moveCheckInterval);
-            
+
             PowerTables.Services.EventsDelegatorService.removeHandler(document.body, 'mousemove', this._boundScrollerMove);
             PowerTables.Services.EventsDelegatorService.removeHandler(document.body, 'mouseup', this._boundScrollerEnd);
             this.moveCheck();
@@ -280,7 +289,7 @@
                 range = e.deltaY * this.Configuration.Forces.PageForce;
             }
 
-            if (range !== 0) {
+            if (range !== 0 && (this.MasterTable.Partition.Skip + range >= 0)) {
                 this.MasterTable.Partition.setSkip(this.MasterTable.Partition.Skip + range);
                 e.preventDefault();
                 e.stopPropagation();
@@ -333,25 +342,31 @@
         //#endregion
 
         //#endregion
-        private onDataRendered(e: ITableEventArgs<any>) {
-            this.updateCoords();
-        }
+
+        private _prevCount: number;
+        //private onDataRendered(e: ITableEventArgs<any>) {
+        //    this.updateCoords();
+        //}
 
         private onPartitionChange(e: ITableEventArgs<IPartitionChangeEventArgs>) {
             if (e.EventArgs.Take !== e.EventArgs.PreviousTake) {
                 this.adjustScrollerHeight();
-            } 
+            }
             this.adjustScrollerPosition(e.EventArgs.Skip);
         }
 
         public subscribe(e: PowerTables.Services.EventsService): void {
             e.LayoutRendered.subscribeAfter(this.onLayoutRendered.bind(this), 'scrollbar');
-            e.DataRendered.subscribe(this.onDataRendered.bind(this), 'scrollbar');
+            //e.DataRendered.subscribe(this.onDataRendered.bind(this), 'scrollbar');
             e.PartitionChanged.subscribeAfter(this.onPartitionChange.bind(this), 'scrollbar');
-            PowerTables.Services.EventsDelegatorService.addHandler(<any>window, 'resize', this.updateCoords.bind(this));
+            //PowerTables.Services.EventsDelegatorService.addHandler(<any>window, 'resize', this.updateCoords.bind(this));
+            
         }
 
+        private _sensor: PowerTables.Rendering.Resensor;
+
     }
+
     ComponentsContainer.registerComponent('Scrollbar', ScrollbarPlugin);
     interface Coords {
         top?: number;
