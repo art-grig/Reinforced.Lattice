@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using Newtonsoft.Json;
+using PowerTables.Templating.Expressions;
 
 namespace PowerTables.Templating
 {
@@ -88,6 +90,44 @@ namespace PowerTables.Templating
         {
             var args = string.Join(",", rawArgs);
             return ts._("p.dc('{0}',[{1}]);", functionName, args);
+        }
+
+        /// <summary>
+        /// Sets JavaScript function that will be called after mentioned element is rendered. 
+        /// Rendered element's HTMLElement object will be passed as 1st parameter to this function
+        /// </summary>
+        /// <param name="ts">Template scope </param>
+        /// <param name="functionName">Callback function reference or literal function</param>
+        /// <param name="args">Other arguments to provide. Remember that here should be not constant values but Handlebar's JS expression. Feel free to include references to teimplate's viewMdel here</param>
+        /// <returns></returns>
+        public static SpecialString Callback<T>(this IModelProvider<T> ts, string functionName, params Expression<Func<T,object>>[] args)
+        {
+            List<string> rawArgs = new List<string>();
+            foreach (var expression in args)
+            {
+                rawArgs.Add(JsExtensions.TraversePropertyLambda(expression,ts.ExistingModel));
+            }
+            var a = string.Join(",", rawArgs);
+            return ts._("p.rc('{0}',[{1}]);", functionName, a);
+        }
+
+        /// <summary>
+        /// Sets JavaScript function that will be called after mentioned element is prepared to be destroyed (removed from HTML document). 
+        /// Rendered element's HTMLElement object will be passed as 1st parameter to this function
+        /// </summary>
+        /// <param name="ts">Template scope </param>
+        /// <param name="functionName">Callback function reference or literal function</param>
+        /// <param name="args">Other arguments to provide. Remember that here should be not constant values but Handlebar's JS expression. Feel free to include references to teimplate's viewMdel here</param>
+        /// <returns></returns>
+        public static SpecialString DestroyCallback<T>(this IModelProvider<T> ts, string functionName, params Expression<Func<T, object>>[] args)
+        {
+            List<string> rawArgs = new List<string>();
+            foreach (var expression in args)
+            {
+                rawArgs.Add(JsExtensions.TraversePropertyLambda(expression, ts.ExistingModel));
+            }
+            var a = string.Join(",", rawArgs);
+            return ts._("p.dc('{0}',[{1}]);", functionName, a);
         }
 
         /// <summary>

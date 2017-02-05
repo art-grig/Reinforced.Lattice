@@ -7,11 +7,18 @@ using PowerTables.Templating;
 
 namespace PowerTables.Plugins.Scrollbar
 {
-    public class ScrollbarPluginTemplateRegion : PluginTemplateRegion
+    public class ScrollbarPluginTemplateRegion : PluginTemplateRegion, IModelProvider<IScrollbarModel>
     {
         public ScrollbarPluginTemplateRegion(IViewPlugins page, string id) : base(page, id)
         {
         }
+
+        public string ExistingModel { get; }
+    }
+
+    public interface IScrollbarModel
+    {
+        bool IsVertical { get; }
     }
 
     public static class ScrollbarPluginTemplateExtensions
