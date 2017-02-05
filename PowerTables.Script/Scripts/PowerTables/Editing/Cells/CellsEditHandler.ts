@@ -1,7 +1,7 @@
 ﻿module PowerTables.Editing.Editors.Cells {
-    export class CellsEditHandler extends EditHandlerBase<PowerTables.Editing.Cells.ICellsEditUiConfig> {
-
-
+    export class CellsEditHandler extends EditHandlerBase<PowerTables.Editing.Cells.ICellsEditUiConfig>
+        implements IAdditionalRowsProvider
+    {
         private _isEditing: boolean = false;
         private _activeEditor: IEditor;
 
@@ -42,24 +42,16 @@
             e.Stop = true;
         }
 
-        public onBeforeClientRowsRendering(e: ITableEventArgs<IRow[]>) {
+        public onAfterRender(e: any) {
             if (!this._isEditing) return;
-            for (var i = 0; i < e.EventArgs.length; i++) {
-                if (e.EventArgs[i].DataObject === this.DataObject) {
-                    e.EventArgs[i] = this;
-                    this.Index = i;
-                }
+            if (this._activeEditor != null) {
+                this._activeEditor.onAfterRender(null);
+                this.setEditorValue(this._activeEditor);
             }
         }
 
-        public onAfterDataRendered(e: any) {
-            if (!this._isEditing) return;
-            if (this._activeEditor != null) this._activeEditor.onAfterRender(null);
-        }
-
         public afterDrawn: (e: ITableEventArgs<any>) => void = (e) => {
-            this.MasterTable.Events.ClientRowsRendering.subscribeBefore(this.onBeforeClientRowsRendering.bind(this), 'editor');
-            this.MasterTable.Events.DataRendered.subscribeAfter(this.onAfterDataRendered.bind(this), 'editor');
+            this.MasterTable.Events.DataRendered.subscribeAfter(this.onAfterRender.bind(this), 'editor');
         }
 
         commit(editor: PowerTables.Editing.IEditor): void {
@@ -76,14 +68,12 @@
             }
             if (editor.VisualStates != null) editor.VisualStates.changeState('saving');
             this.finishEditing(editor, false);
-            var col = editor.Column;
 
             this.sendDataObjectToServer(() => {
                 if (!this._isEditing) {
                     this.MasterTable.Events.Edit.invokeAfter(this, this.CurrentDataObjectModified);
                     this.CurrentDataObjectModified = null;
                 }
-
             });
 
         }
@@ -110,6 +100,20 @@
 
         reject(editor: PowerTables.Editing.IEditor): void {
             this.finishEditing(editor, true);
+        }
+
+        public provide(rows: IRow[]): void {
+            if (!this._isEditing) return;
+            for (var i = 0; i < rows.length; i++) {
+                if (rows[i].DataObject === this.DataObject) {
+                    rows[i] = this;
+                }
+            }
+        }
+
+        public init(masterTable: IMasterTable): void {
+            super.init(masterTable);
+            masterTable.Controller.registerAdditionalRowsProvider(this);
         }
     }
     ComponentsContainer.registerComponent('CellsEditHandler', CellsEditHandler);

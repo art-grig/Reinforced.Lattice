@@ -2343,7 +2343,7 @@ declare module PowerTables.Services {
         getSelectedCellsByPrimaryKey(dataObject: any): boolean;
         isSelectedPrimaryKey(primaryKey: string): boolean;
         toggleRow(primaryKey: string, selected?: boolean): void;
-        toggleDisplayingRow(displayIndex: number, selected?: boolean): void;
+        toggleDisplayingRow(rowIndex: number, selected?: boolean): void;
         toggleObjectSelected(dataObject: any, selected?: boolean): void;
         handleAdjustments(added: any[], removeKeys: string[]): void;
         modifyQuery(query: IQuery, scope: QueryScope): void;
@@ -3288,6 +3288,7 @@ declare module PowerTables.Plugins.Toolbar {
 }
 declare module PowerTables.Plugins.Scrollbar {
     class ScrollbarPlugin extends PowerTables.Plugins.PluginBase<PowerTables.Plugins.Scrollbar.IScrollbarPluginUiConfig> {
+        IsVertical: boolean;
         UpArrow: HTMLElement;
         DownArrow: HTMLElement;
         Scroller: HTMLElement;
@@ -3871,29 +3872,29 @@ declare module PowerTables.Editing {
     }
 }
 declare module PowerTables.Editing.Editors.Cells {
-    class CellsEditHandler extends EditHandlerBase<PowerTables.Editing.Cells.ICellsEditUiConfig> {
+    class CellsEditHandler extends EditHandlerBase<PowerTables.Editing.Cells.ICellsEditUiConfig> implements IAdditionalRowsProvider {
         private _isEditing;
         private _activeEditor;
         private ensureEditing(loadIndex);
         private beginCellEdit(column, rowIndex);
         beginCellEditHandle(e: ICellEventArgs): void;
-        onBeforeClientRowsRendering(e: ITableEventArgs<IRow[]>): void;
-        onAfterDataRendered(e: any): void;
+        onAfterRender(e: any): void;
         afterDrawn: (e: ITableEventArgs<any>) => void;
         commit(editor: PowerTables.Editing.IEditor): void;
         private finishEditing(editor, redraw);
         private cleanupAfterEdit();
         notifyChanged(editor: PowerTables.Editing.IEditor): void;
         reject(editor: PowerTables.Editing.IEditor): void;
+        provide(rows: IRow[]): void;
+        init(masterTable: IMasterTable): void;
     }
 }
 declare module PowerTables.Editing.Editors.Cells {
-    class RowsEditHandler extends EditHandlerBase<PowerTables.Editing.Rows.IRowsEditUiConfig> {
+    class RowsEditHandler extends EditHandlerBase<PowerTables.Editing.Rows.IRowsEditUiConfig> implements IAdditionalRowsProvider {
         private _isEditing;
         private _activeEditors;
         private _isAddingNewRow;
-        onBeforeClientRowsRendering(e: ITableEventArgs<IRow[]>): void;
-        onAfterDataRendered(e: any): void;
+        onAfterRender(e: any): void;
         private ensureEditing(rowIndex);
         private beginRowEdit(rowIndex);
         afterDrawn: (e: ITableEventArgs<any>) => void;
@@ -3906,6 +3907,8 @@ declare module PowerTables.Editing.Editors.Cells {
         beginRowEditHandle(e: IRowEventArgs): void;
         commitRowEditHandle(e: IRowEventArgs): void;
         rejectRowEditHandle(e: IRowEventArgs): void;
+        provide(rows: IRow[]): void;
+        init(masterTable: IMasterTable): void;
     }
 }
 declare module PowerTables.Editing.Form {

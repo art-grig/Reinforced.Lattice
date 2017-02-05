@@ -1,21 +1,12 @@
 ﻿module PowerTables.Editing.Editors.Cells {
-    export class RowsEditHandler extends EditHandlerBase<PowerTables.Editing.Rows.IRowsEditUiConfig> {
+    export class RowsEditHandler extends EditHandlerBase<PowerTables.Editing.Rows.IRowsEditUiConfig>
+        implements IAdditionalRowsProvider {
 
         private _isEditing: boolean = false;
         private _activeEditors: IEditor[] = [];
         private _isAddingNewRow: boolean = false;
 
-        public onBeforeClientRowsRendering(e: ITableEventArgs<IRow[]>) {
-            if (!this._isEditing) return;
-            for (var i = 0; i < e.EventArgs.length; i++) {
-                if (e.EventArgs[i].DataObject === this.DataObject) {
-                    e.EventArgs[i] = this;
-                    this.Index = i;
-                }
-            }
-        }
-
-        public onAfterDataRendered(e: any) {
+        public onAfterRender(e: any) {
             if (!this._isEditing) return;
             for (var i = 0; i < this._activeEditors.length; i++) {
                 this._activeEditors[i].onAfterRender(null);
@@ -84,8 +75,7 @@
         }
 
         public afterDrawn: (e: ITableEventArgs<any>) => void = (e) => {
-            this.MasterTable.Events.ClientRowsRendering.subscribeBefore(this.onBeforeClientRowsRendering.bind(this), 'roweditor');
-            this.MasterTable.Events.DataRendered.subscribeAfter(this.onAfterDataRendered.bind(this), 'roweditor');
+            this.MasterTable.Events.DataRendered.subscribeAfter(this.onAfterRender.bind(this), 'roweditor');
         }
 
         public commitAll() {
@@ -113,7 +103,7 @@
             }
             this._isEditing = false;
             this._activeEditors = [];
-            
+
             this.sendDataObjectToServer(() => {
                 if (!this._isEditing) {
                     this.MasterTable.Events.Edit.invokeAfter(this, this.CurrentDataObjectModified);
@@ -189,6 +179,20 @@
         public rejectRowEditHandle(e: IRowEventArgs) {
             if (!this._isEditing) return;
             this.rejectAll();
+        }
+
+        public provide(rows: IRow[]): void {
+            if (!this._isEditing) return;
+            for (var i = 0; i < rows.length; i++) {
+                if (rows[i].DataObject === this.DataObject) {
+                    rows[i] = this;
+                }
+            }
+        }
+
+        public init(masterTable: IMasterTable): void {
+            super.init(masterTable);
+            masterTable.Controller.registerAdditionalRowsProvider(this);
         }
     }
     ComponentsContainer.registerComponent('RowsEditHandler', RowsEditHandler);

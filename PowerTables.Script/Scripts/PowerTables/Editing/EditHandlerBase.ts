@@ -3,7 +3,7 @@ module PowerTables.Editing {
         //#region IRow members
         public Cells: { [key: string]: ICell } = {};
         public DataObject: any;
-        public IsSpecial: boolean = true;
+        public IsSpecial: boolean = false;
         public Index: number;
         //#endregion
 

@@ -217,9 +217,15 @@
 
         }
 
-        public toggleDisplayingRow(displayIndex: number, selected?: boolean) {
-            if (displayIndex < 0 || displayIndex >= this._masterTable.DataHolder.DisplayedData.length) return;
-            this.toggleRow(this._masterTable.DataHolder.DisplayedData[displayIndex]['__key'], selected);
+        public toggleDisplayingRow(rowIndex: number, selected?: boolean) {
+            var rw = null;
+            for (var i = 0; i < this._masterTable.DataHolder.DisplayedData.length; i++) {
+                if (this._masterTable.DataHolder.DisplayedData[i]['__i'] === rowIndex) {
+                    rw = this._masterTable.DataHolder.DisplayedData[i];
+                    break;
+                }
+            }
+            this.toggleRow(rw['__key'], selected);
         }
 
         public toggleObjectSelected(dataObject: any, selected?: boolean) {

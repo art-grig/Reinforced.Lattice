@@ -4071,10 +4071,15 @@ var PowerTables;
                     }
                 }
             };
-            SelectionService.prototype.toggleDisplayingRow = function (displayIndex, selected) {
-                if (displayIndex < 0 || displayIndex >= this._masterTable.DataHolder.DisplayedData.length)
-                    return;
-                this.toggleRow(this._masterTable.DataHolder.DisplayedData[displayIndex]['__key'], selected);
+            SelectionService.prototype.toggleDisplayingRow = function (rowIndex, selected) {
+                var rw = null;
+                for (var i = 0; i < this._masterTable.DataHolder.DisplayedData.length; i++) {
+                    if (this._masterTable.DataHolder.DisplayedData[i]['__i'] === rowIndex) {
+                        rw = this._masterTable.DataHolder.DisplayedData[i];
+                        break;
+                    }
+                }
+                this.toggleRow(rw['__key'], selected);
             };
             SelectionService.prototype.toggleObjectSelected = function (dataObject, selected) {
                 this.toggleRow(dataObject['__key'], selected);
@@ -7358,6 +7363,7 @@ var PowerTables;
                 }
                 ScrollbarPlugin.prototype.init = function (masterTable) {
                     _super.prototype.init.call(this, masterTable);
+                    this.IsVertical = !this.Configuration.IsHorizontal;
                     this._boundScrollerMove = this.scrollerMove.bind(this);
                     this._boundScrollerEnd = this.scrollerEnd.bind(this);
                 };
@@ -7815,10 +7821,8 @@ var PowerTables;
                     else {
                         this.showScroll();
                     }
-                    if (this.MasterTable.Partition.Type === PowerTables.PartitionType.Sequential) {
-                        this.adjustScrollerHeight();
-                        this.adjustScrollerPosition(this.MasterTable.Partition.Skip);
-                    }
+                    this.adjustScrollerHeight();
+                    this.adjustScrollerPosition(this.MasterTable.Partition.Skip);
                 };
                 ScrollbarPlugin.prototype.subscribe = function (e) {
                     e.LayoutRendered.subscribeAfter(this.onLayoutRendered.bind(this), 'scrollbar');
@@ -8300,6 +8304,7 @@ var PowerTables;
                             }
                         }
                         this.restoreSpecialRows(rows);
+                        this._masterTable.Events.DataRendered.invokeAfter(this, null);
                     }
                     this.Skip = skip;
                     this._masterTable.Events.PartitionChanged.invokeAfter(this, ea);
@@ -8381,6 +8386,7 @@ var PowerTables;
                             this._masterTable.Renderer.Modifier.appendRow(rows[j]);
                         }
                         this.restoreSpecialRows(rows);
+                        this._masterTable.Events.DataRendered.invokeAfter(this, null);
                     }
                     this.Take = take;
                     this._masterTable.Events.PartitionChanged.invokeAfter(this, ea);
@@ -9535,7 +9541,7 @@ var PowerTables;
                 _super.apply(this, arguments);
                 //#region IRow members
                 this.Cells = {};
-                this.IsSpecial = true;
+                this.IsSpecial = false;
                 this.ValidationMessages = [];
                 this.EditorConfigurations = {};
             }
@@ -9655,8 +9661,7 @@ var PowerTables;
                         _super.apply(this, arguments);
                         this._isEditing = false;
                         this.afterDrawn = function (e) {
-                            _this.MasterTable.Events.ClientRowsRendering.subscribeBefore(_this.onBeforeClientRowsRendering.bind(_this), 'editor');
-                            _this.MasterTable.Events.DataRendered.subscribeAfter(_this.onAfterDataRendered.bind(_this), 'editor');
+                            _this.MasterTable.Events.DataRendered.subscribeAfter(_this.onAfterRender.bind(_this), 'editor');
                         };
                     }
                     CellsEditHandler.prototype.ensureEditing = function (loadIndex) {
@@ -9695,21 +9700,13 @@ var PowerTables;
                         this.beginCellEdit(col, e.Row);
                         e.Stop = true;
                     };
-                    CellsEditHandler.prototype.onBeforeClientRowsRendering = function (e) {
+                    CellsEditHandler.prototype.onAfterRender = function (e) {
                         if (!this._isEditing)
                             return;
-                        for (var i = 0; i < e.EventArgs.length; i++) {
-                            if (e.EventArgs[i].DataObject === this.DataObject) {
-                                e.EventArgs[i] = this;
-                                this.Index = i;
-                            }
-                        }
-                    };
-                    CellsEditHandler.prototype.onAfterDataRendered = function (e) {
-                        if (!this._isEditing)
-                            return;
-                        if (this._activeEditor != null)
+                        if (this._activeEditor != null) {
                             this._activeEditor.onAfterRender(null);
+                            this.setEditorValue(this._activeEditor);
+                        }
                     };
                     CellsEditHandler.prototype.commit = function (editor) {
                         var _this = this;
@@ -9726,7 +9723,6 @@ var PowerTables;
                         if (editor.VisualStates != null)
                             editor.VisualStates.changeState('saving');
                         this.finishEditing(editor, false);
-                        var col = editor.Column;
                         this.sendDataObjectToServer(function () {
                             if (!_this._isEditing) {
                                 _this.MasterTable.Events.Edit.invokeAfter(_this, _this.CurrentDataObjectModified);
@@ -9755,6 +9751,19 @@ var PowerTables;
                     CellsEditHandler.prototype.reject = function (editor) {
                         this.finishEditing(editor, true);
                     };
+                    CellsEditHandler.prototype.provide = function (rows) {
+                        if (!this._isEditing)
+                            return;
+                        for (var i = 0; i < rows.length; i++) {
+                            if (rows[i].DataObject === this.DataObject) {
+                                rows[i] = this;
+                            }
+                        }
+                    };
+                    CellsEditHandler.prototype.init = function (masterTable) {
+                        _super.prototype.init.call(this, masterTable);
+                        masterTable.Controller.registerAdditionalRowsProvider(this);
+                    };
                     return CellsEditHandler;
                 }(Editing.EditHandlerBase));
                 Cells.CellsEditHandler = CellsEditHandler;
@@ -9780,21 +9789,10 @@ var PowerTables;
                         this._activeEditors = [];
                         this._isAddingNewRow = false;
                         this.afterDrawn = function (e) {
-                            _this.MasterTable.Events.ClientRowsRendering.subscribeBefore(_this.onBeforeClientRowsRendering.bind(_this), 'roweditor');
-                            _this.MasterTable.Events.DataRendered.subscribeAfter(_this.onAfterDataRendered.bind(_this), 'roweditor');
+                            _this.MasterTable.Events.DataRendered.subscribeAfter(_this.onAfterRender.bind(_this), 'roweditor');
                         };
                     }
-                    RowsEditHandler.prototype.onBeforeClientRowsRendering = function (e) {
-                        if (!this._isEditing)
-                            return;
-                        for (var i = 0; i < e.EventArgs.length; i++) {
-                            if (e.EventArgs[i].DataObject === this.DataObject) {
-                                e.EventArgs[i] = this;
-                                this.Index = i;
-                            }
-                        }
-                    };
-                    RowsEditHandler.prototype.onAfterDataRendered = function (e) {
+                    RowsEditHandler.prototype.onAfterRender = function (e) {
                         if (!this._isEditing)
                             return;
                         for (var i = 0; i < this._activeEditors.length; i++) {
@@ -9953,6 +9951,19 @@ var PowerTables;
                         if (!this._isEditing)
                             return;
                         this.rejectAll();
+                    };
+                    RowsEditHandler.prototype.provide = function (rows) {
+                        if (!this._isEditing)
+                            return;
+                        for (var i = 0; i < rows.length; i++) {
+                            if (rows[i].DataObject === this.DataObject) {
+                                rows[i] = this;
+                            }
+                        }
+                    };
+                    RowsEditHandler.prototype.init = function (masterTable) {
+                        _super.prototype.init.call(this, masterTable);
+                        masterTable.Controller.registerAdditionalRowsProvider(this);
                     };
                     return RowsEditHandler;
                 }(Editing.EditHandlerBase));
@@ -10187,6 +10198,8 @@ var PowerTables;
                         }
                     };
                     PlainTextEditor.prototype.setValue = function (value) {
+                        if (!this.Input)
+                            return;
                         if (this.Column.IsDateTime) {
                             this.MasterTable.Date.putDateToDatePicker(this.Input, value);
                         }
@@ -10342,6 +10355,8 @@ var PowerTables;
                         return value;
                     };
                     SelectListEditor.prototype.setValue = function (value) {
+                        if (!this.List)
+                            return;
                         var strvalue = this.Column.IsDateTime ? this.MasterTable.Date.serialize(value) : (value == null ? null : value.toString());
                         var isSet = false;
                         for (var i = 0; i < this.List.options.length; i++) {
@@ -10466,6 +10481,8 @@ var PowerTables;
                     };
                     CheckEditor.prototype.setValue = function (value) {
                         this._value = (!(!value));
+                        if (!this.VisualStates)
+                            return;
                         this.updateState();
                     };
                     CheckEditor.prototype.focus = function () {
@@ -10517,6 +10534,8 @@ var PowerTables;
                         _super.prototype.changedHandler.call(this, e);
                     };
                     MemoEditor.prototype.setValue = function (value) {
+                        if (!this.TextArea)
+                            return;
                         this.TextArea.value = value;
                     };
                     MemoEditor.prototype.getValue = function (errors) {

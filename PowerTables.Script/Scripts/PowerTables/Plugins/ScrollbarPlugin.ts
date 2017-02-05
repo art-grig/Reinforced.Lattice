@@ -1,6 +1,6 @@
 ﻿module PowerTables.Plugins.Scrollbar {
     export class ScrollbarPlugin extends PowerTables.Plugins.PluginBase<PowerTables.Plugins.Scrollbar.IScrollbarPluginUiConfig> {
-
+        public IsVertical: boolean;
         public UpArrow: HTMLElement;
         public DownArrow: HTMLElement;
         public Scroller: HTMLElement;
@@ -22,6 +22,7 @@
 
         public init(masterTable: IMasterTable): void {
             super.init(masterTable);
+            this.IsVertical = !this.Configuration.IsHorizontal;
             this._boundScrollerMove = this.scrollerMove.bind(this);
             this._boundScrollerEnd = this.scrollerEnd.bind(this);
         }
@@ -528,10 +529,10 @@
                 this.showScroll();
             }
 
-            if (this.MasterTable.Partition.Type === PowerTables.PartitionType.Sequential) {
-                this.adjustScrollerHeight();
-                this.adjustScrollerPosition(this.MasterTable.Partition.Skip);
-            }
+
+            this.adjustScrollerHeight();
+            this.adjustScrollerPosition(this.MasterTable.Partition.Skip);
+
         }
         public subscribe(e: PowerTables.Services.EventsService): void {
             e.LayoutRendered.subscribeAfter(this.onLayoutRendered.bind(this), 'scrollbar');

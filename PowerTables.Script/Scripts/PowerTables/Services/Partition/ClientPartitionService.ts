@@ -55,6 +55,7 @@
                     }
                 }
                 this.restoreSpecialRows(rows);
+                this._masterTable.Events.DataRendered.invokeAfter(this,null);
             }
             this.Skip = skip;
             this._masterTable.Events.PartitionChanged.invokeAfter(this, ea);
@@ -137,6 +138,7 @@
                     this._masterTable.Renderer.Modifier.appendRow(rows[j]);
                 }
                 this.restoreSpecialRows(rows);
+                this._masterTable.Events.DataRendered.invokeAfter(this, null);
             }
 
             this.Take = take;
