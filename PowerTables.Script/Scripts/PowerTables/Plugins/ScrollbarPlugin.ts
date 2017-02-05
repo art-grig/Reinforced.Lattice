@@ -265,12 +265,19 @@
         private disableKb() { this._kbActive = false; }
 
         private keydownHook(e: KeyboardEvent) {
-            if (!this._kbActive) return;
-            if (this.isKbListenerHidden()) return;
-            if (this._isHidden) return;
+            if ((<HTMLElement>e.target).tagName === 'input'
+                || (<HTMLElement>e.target).tagName === 'textarea'
+                || (<HTMLElement>e.target).tagName === 'select'
+            ) return true;
+            if (!this._kbActive) return true;
+            if (this.isKbListenerHidden()) return true;
+            if (this._isHidden) return true;
             if (this.handleKey(e.keyCode)) {
                 e.preventDefault();
                 e.stopPropagation();
+                return false;
+            } else {
+                return true;
             }
         }
 
@@ -487,24 +494,26 @@
         private _isHidden: boolean;
         private hideScroll() {
             this._isHidden = true;
-            this.MasterTable.Renderer.Modifier.hideElement(this._scollbar);
+            this._scollbar.style.visibility = 'hidden';
         }
 
         private showScroll() {
             this._isHidden = false;
-            this.MasterTable.Renderer.Modifier.showElement(this._scollbar);
+            this._scollbar.style.visibility = 'visible';
         }
         private onPartitionChange(e: ITableEventArgs<IPartitionChangeEventArgs>) {
             if (!this.MasterTable.DataHolder.Ordered
                 || (this.MasterTable.Partition.isClient() && this.MasterTable.DataHolder.Ordered.length <= e.MasterTable.Partition.Take)
                 || this.MasterTable.DataHolder.DisplayedData.length === 0
-                || e.EventArgs.Take !== e.EventArgs.PreviousTake
                 || e.EventArgs.Take === 0
             ) {
                 this.hideScroll();
                 return;
             } else {
                 this.showScroll();
+            }
+            if (e.EventArgs.Take !== e.EventArgs.PreviousTake) {
+                this.adjustScrollerHeight();
             }
 
             this.adjustScrollerPosition(e.EventArgs.Skip);

@@ -89,6 +89,10 @@ namespace PowerTables.Mvc.Models
                         {
                             sd.PreviousStateCode = (State?) sd.StateCode;
                         }
+                        if (r.Next(10) > 5)
+                        {
+                            sd.ToyName += "searchme";
+                        }
                         _sourceData.Add(sd);
                     }
                 }

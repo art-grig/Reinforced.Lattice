@@ -1,4 +1,6 @@
 ﻿using PowerTables.Configuration;
+using PowerTables.Filters;
+using PowerTables.Filters.Value;
 using PowerTables.Plugins;
 using PowerTables.Plugins.Limit;
 using PowerTables.Plugins.Paging;
@@ -12,6 +14,7 @@ namespace PowerTables.Mvc.Models.Tutorial
         {
             conf.OrderingAndLoadingInidicator();
             conf.LoadImmediately(false);
+            conf.AppendEmptyFilters();
             conf.Limit(ui => ui.PlaceAt("lt")
                 .Values(new[]
                 {
@@ -26,6 +29,7 @@ namespace PowerTables.Mvc.Models.Tutorial
                     ui.PlaceAt("rb")
                     .PagingSimple(true)); // lets pick simple arrows left/right paging
             conf.Scrollbar(x => x.Vertical());
+            conf.Column(c => c.Name).FilterValueUi(x => x.ClientFiltering());
             conf.Partition(x => x.Server(noCount: true).InitialSkipTake(take: 14));
             return conf;
         }

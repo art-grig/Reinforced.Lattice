@@ -2902,7 +2902,8 @@ var PowerTables;
                     AdditionalData: {},
                     StaticDataJson: this._masterTable.InstanceManager.Configuration.StaticData,
                     Selection: null,
-                    IsBackgroundDataFetch: false
+                    IsBackgroundDataFetch: false,
+                    Partition: null
                 };
                 if (queryScope === PowerTables.QueryScope.Client) {
                     this._events.ClientQueryGathering.invokeBefore(this, { Query: a, Scope: queryScope });
@@ -3050,7 +3051,9 @@ var PowerTables;
                         callback(json);
                         data.Query.Selection = null; // selection must not affect query results
                         data.Query.Partition = null; // partition also
-                        this._previousQueryString = JSON.stringify(data.Query);
+                        if (!data.Query.IsBackgroundDataFetch) {
+                            this._previousQueryString = JSON.stringify(data.Query);
+                        }
                     }
                     else {
                         this.checkAdditionalData(json);
@@ -7501,15 +7504,23 @@ var PowerTables;
                 ScrollbarPlugin.prototype.enableKb = function () { this._kbActive = true; };
                 ScrollbarPlugin.prototype.disableKb = function () { this._kbActive = false; };
                 ScrollbarPlugin.prototype.keydownHook = function (e) {
+                    if (e.target.tagName === 'input'
+                        || e.target.tagName === 'textarea'
+                        || e.target.tagName === 'select')
+                        return true;
                     if (!this._kbActive)
-                        return;
+                        return true;
                     if (this.isKbListenerHidden())
-                        return;
+                        return true;
                     if (this._isHidden)
-                        return;
+                        return true;
                     if (this.handleKey(e.keyCode)) {
                         e.preventDefault();
                         e.stopPropagation();
+                        return false;
+                    }
+                    else {
+                        return true;
                     }
                 };
                 ScrollbarPlugin.prototype.handleKey = function (keyCode) {
@@ -7681,23 +7692,25 @@ var PowerTables;
                 };
                 ScrollbarPlugin.prototype.hideScroll = function () {
                     this._isHidden = true;
-                    this.MasterTable.Renderer.Modifier.hideElement(this._scollbar);
+                    this._scollbar.style.visibility = 'hidden';
                 };
                 ScrollbarPlugin.prototype.showScroll = function () {
                     this._isHidden = false;
-                    this.MasterTable.Renderer.Modifier.showElement(this._scollbar);
+                    this._scollbar.style.visibility = 'visible';
                 };
                 ScrollbarPlugin.prototype.onPartitionChange = function (e) {
                     if (!this.MasterTable.DataHolder.Ordered
                         || (this.MasterTable.Partition.isClient() && this.MasterTable.DataHolder.Ordered.length <= e.MasterTable.Partition.Take)
                         || this.MasterTable.DataHolder.DisplayedData.length === 0
-                        || e.EventArgs.Take !== e.EventArgs.PreviousTake
                         || e.EventArgs.Take === 0) {
                         this.hideScroll();
                         return;
                     }
                     else {
                         this.showScroll();
+                    }
+                    if (e.EventArgs.Take !== e.EventArgs.PreviousTake) {
+                        this.adjustScrollerHeight();
                     }
                     this.adjustScrollerPosition(e.EventArgs.Skip);
                 };
@@ -8258,15 +8271,17 @@ var PowerTables;
                         selected = ordered.slice(skip, skip + take);
                     return selected;
                 };
-                ServerPartitionService.prototype.setTake = function (take, preserveTake) {
+                ServerPartitionService.prototype.setTake = function (take) {
                     var iSkip = this.Skip - this._serverSkip;
-                    if (this.Skip + (take * 2) > this.amount()) {
+                    _super.prototype.setTake.call(this, take);
+                    if ((iSkip + (take * 2) > this._masterTable.DataHolder.Ordered.length)) {
                         this.loadNextDataPart();
                     }
-                    _super.prototype.setSkip.call(this, take, preserveTake);
                 };
                 //#region Data parts loading
                 ServerPartitionService.prototype.loadNextDataPart = function () {
+                    if (this._finishReached)
+                        return;
                     this._masterTable.Loader.query(this._dataAppendLoaded, this._modifyDataAppendQuery, this._dataAppendError, true);
                 };
                 ServerPartitionService.prototype.dataAppendError = function (data) {
@@ -8284,6 +8299,16 @@ var PowerTables;
                     return q;
                 };
                 //#endregion
+                ServerPartitionService.prototype.resetSkip = function () {
+                    var prevSkip = this.Skip;
+                    this.Skip = 0;
+                    this._masterTable.Events.PartitionChanged.invokeAfter(this, {
+                        PreviousSkip: prevSkip,
+                        Skip: this.Skip,
+                        PreviousTake: this.Take,
+                        Take: this.Take
+                    });
+                };
                 ServerPartitionService.prototype.partitionBeforeQuery = function (serverQuery, clientQuery, isServerQuery) {
                     // Check if it is pager's request. If true - nothing to do here. All necessary things are already done in queryModifier
                     if (serverQuery.IsBackgroundDataFetch)
@@ -8294,19 +8319,18 @@ var PowerTables;
                         this._activeClientFiltering = true;
                         // we will do append manually, so in  first N pages here
                         serverQuery.Partition = { NoCount: true, Take: this.Take * this._loadAhead, Skip: 0 };
-                        if (isServerQuery) {
-                            var prevSkip = this.Skip;
-                            this.Skip = 0;
-                            this._masterTable.Events.PartitionChanged.invokeAfter(this, {
-                                PreviousSkip: prevSkip,
-                                Skip: this.Skip,
-                                PreviousTake: this.Take,
-                                Take: this.Take
-                            });
+                        var pQ = JSON.stringify(clientQuery);
+                        var queriesEqual = (pQ === this._previousClientQuery);
+                        this._previousClientQuery = pQ;
+                        if (isServerQuery || !queriesEqual) {
+                            this.resetSkip();
                         }
-                    } // in case if not - well, it seems that it is honest paging request
+                    } // in case if not - well, it seems that it is honest data request
                     else {
-                        this._activeClientFiltering = false;
+                        if (this._activeClientFiltering) {
+                            this._activeClientFiltering = false;
+                            this.resetSkip();
+                        }
                         serverQuery.Partition = { NoCount: this._noCount, Take: this.Take * this._loadAhead, Skip: this.Skip };
                     }
                     // for client query we pass our regular parameters
@@ -8317,12 +8341,17 @@ var PowerTables;
                     };
                 };
                 ServerPartitionService.prototype.partitionAfterQuery = function (initialSet, query, serverCount) {
+                    var _this = this;
                     if (serverCount !== -1)
                         this._serverTotalCount = serverCount;
                     var result = this.skipTakeSet(initialSet, query);
-                    if (query.IsBackgroundDataFetch) {
-                        if (result.length < this.Take) {
-                            this.loadNextDataPart();
+                    if (this._activeClientFiltering) {
+                        if (initialSet.length < this.Take * this._loadAhead) {
+                            console.log("not enough data, loading");
+                            setTimeout(function () { return _this.loadNextDataPart(); }, 5);
+                        }
+                        else {
+                            console.log("enough data loaded");
                         }
                     }
                     return result;

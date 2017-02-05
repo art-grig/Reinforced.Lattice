@@ -3380,11 +3380,13 @@ declare module PowerTables.Services.Partition {
         private _serverSkip;
         setSkip(skip: number, preserveTake?: boolean): void;
         protected cut(ordered: any[], skip: number, take: number): any[];
-        setTake(take: number, preserveTake?: boolean): void;
+        setTake(take: number): void;
         private loadNextDataPart();
         private dataAppendError(data);
         private dataAppendLoaded(data);
         private modifyDataAppendQuery(q);
+        private resetSkip();
+        private _previousClientQuery;
         partitionBeforeQuery(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean): void;
         partitionAfterQuery(initialSet: any[], query: IQuery, serverCount: number): any[];
         private static any(o);

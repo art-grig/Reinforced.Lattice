@@ -49,16 +49,18 @@
             return selected;
         }
 
-        public setTake(take: number, preserveTake?: boolean): void {
+        public setTake(take: number): void {
             var iSkip = this.Skip - this._serverSkip;
-            if (this.Skip + (take * 2) > this.amount()) {
+            super.setTake(take);
+            if ((iSkip + (take * 2) > this._masterTable.DataHolder.Ordered.length)) {
                 this.loadNextDataPart();
             }
-            super.setSkip(take, preserveTake);
+            
         }
 
         //#region Data parts loading
         private loadNextDataPart() {
+            if (this._finishReached) return;
             this._masterTable.Loader.query(
                 this._dataAppendLoaded,
                 this._modifyDataAppendQuery,
@@ -84,6 +86,20 @@
         }
         //#endregion
 
+        private resetSkip() {
+            var prevSkip = this.Skip;
+            this.Skip = 0;
+            this._masterTable.Events.PartitionChanged.invokeAfter(this,
+                {
+                    PreviousSkip: prevSkip,
+                    Skip: this.Skip,
+                    PreviousTake: this.Take,
+                    Take: this.Take
+                });
+        }
+
+        private _previousClientQuery: string;
+
         public partitionBeforeQuery(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean): void {
             // Check if it is pager's request. If true - nothing to do here. All necessary things are already done in queryModifier
             if (serverQuery.IsBackgroundDataFetch) return;
@@ -95,20 +111,18 @@
                 this._activeClientFiltering = true;
                 // we will do append manually, so in  first N pages here
                 serverQuery.Partition = { NoCount: true, Take: this.Take * this._loadAhead, Skip: 0 };
-                if (isServerQuery) {
-                    var prevSkip = this.Skip;
-                    this.Skip = 0;
-                    this._masterTable.Events.PartitionChanged.invokeAfter(this,
-                        {
-                            PreviousSkip: prevSkip,
-                            Skip: this.Skip,
-                            PreviousTake: this.Take,
-                            Take: this.Take
-                        });
+                var pQ = JSON.stringify(clientQuery);
+                var queriesEqual = (pQ === this._previousClientQuery);
+                this._previousClientQuery = pQ;
+                if (isServerQuery || !queriesEqual) {
+                    this.resetSkip();
                 }
-            } // in case if not - well, it seems that it is honest paging request
+            } // in case if not - well, it seems that it is honest data request
             else {
-                this._activeClientFiltering = false;
+                if (this._activeClientFiltering) {
+                    this._activeClientFiltering = false;
+                    this.resetSkip();
+                }
                 serverQuery.Partition = { NoCount: this._noCount, Take: this.Take * this._loadAhead, Skip: this.Skip };
             }
 
@@ -125,9 +139,12 @@
         public partitionAfterQuery(initialSet: any[], query: IQuery, serverCount: number): any[] {
             if (serverCount !== -1) this._serverTotalCount = serverCount;
             var result = this.skipTakeSet(initialSet, query);
-            if (query.IsBackgroundDataFetch) {
-                if (result.length < this.Take) {
-                    this.loadNextDataPart();
+            if (this._activeClientFiltering) {
+                if (initialSet.length < this.Take * this._loadAhead) {
+                    console.log("not enough data, loading");
+                    setTimeout(() => this.loadNextDataPart(), 5);
+                } else {
+                    console.log("enough data loaded");
                 }
             }
             return result;

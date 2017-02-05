@@ -67,7 +67,8 @@
                 AdditionalData: {},
                 StaticDataJson: this._masterTable.InstanceManager.Configuration.StaticData,
                 Selection: null,
-                IsBackgroundDataFetch: false
+                IsBackgroundDataFetch: false,
+                Partition: null
             };
 
             if (queryScope === QueryScope.Client) {
@@ -224,7 +225,9 @@
                     callback(json);
                     data.Query.Selection = null; // selection must not affect query results
                     data.Query.Partition = null; // partition also
-                    this._previousQueryString = JSON.stringify(data.Query);
+                    if (!data.Query.IsBackgroundDataFetch) {
+                        this._previousQueryString = JSON.stringify(data.Query);
+                    }
                 } else {
                     this.checkAdditionalData(json);
                     callback(json);
