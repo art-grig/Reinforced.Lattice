@@ -9,6 +9,7 @@
             this._dataLoader = new PowerTables.Services.Partition.BackgroundDataLoader(masterTable);
             this._dataLoader.UseLoadMore = this._conf.UseLoadMore;
             this._dataLoader.AppendLoadingRow = this._conf.AppendLoadingRow;
+            this._dataLoader.Indicator.Show = false;
             this.Type = PowerTables.PartitionType.Server;
         }
         private _seq: PowerTables.Services.Partition.SequentialPartitionService;
@@ -36,7 +37,9 @@
                     this._masterTable.Controller.reload(true);
                     return;
                 } else {
+                    this._dataLoader.skipTake(skip, this.Take);
                     this._dataLoader.loadNextDataPart(this._conf.LoadAhead);
+                    return;
                 }
             }
             super.setSkip(skip, preserveTake);
@@ -57,6 +60,7 @@
             super.setTake(take);
             if (noData) return;
             if ((iSkip + (take * 2) > this._masterTable.DataHolder.Ordered.length)) {
+                this._dataLoader.skipTake(this.Skip, take);
                 this._dataLoader.loadNextDataPart(this._conf.LoadAhead);
             }
         }
@@ -64,7 +68,7 @@
         public partitionBeforeQuery(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean): void {
             // Check if it is pager's request. If true - nothing to do here. All necessary things are already done in queryModifier
             if (serverQuery.IsBackgroundDataFetch) return;
-
+            this._dataLoader.skipTake(this.Skip, this.Take);
             var hasClientFilters = this.any(clientQuery.Filterings);
             // in case if we have client filters we're switching to sequential partitioner
             if (hasClientFilters) {
@@ -83,26 +87,36 @@
                 Skip: this.Skip
             };
         }
-
+        private resetSkip() {
+            if (this.Skip === 0) return;
+            var prevSkip = this.Skip;
+            this._dataLoader.skipTake(0, this.Take);
+            this.Skip = 0;
+            this._masterTable.Events.PartitionChanged.invokeAfter(this,
+                {
+                    PreviousSkip: prevSkip,
+                    Skip: this.Skip,
+                    PreviousTake: this.Take,
+                    Take: this.Take
+                });
+        }
         private switchToSequential() {
             this._masterTable.Partition = this._seq;
             this._seq.Owner = this;
+            this._seq.Take = this.Take;
         }
 
         public switchBack(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean) {
             this._masterTable.Partition = this;
             this.partitionBeforeQuery(serverQuery, clientQuery, isServerQuery);
+            this.resetSkip();
         }
 
         private _provideIndication: boolean;
-        private _anything: boolean;
-        private _enough: boolean;
+
         public partitionAfterQuery(initialSet: any[], query: IQuery, serverCount: number): any[] {
             if (serverCount !== -1) this._serverTotalCount = serverCount;
             var result = this.skipTakeSet(initialSet, query);
-            this._anything = result.length > 0;
-            this._enough = initialSet.length >= this.Take * this._conf.LoadAhead;
-            
             return result;
         }
 

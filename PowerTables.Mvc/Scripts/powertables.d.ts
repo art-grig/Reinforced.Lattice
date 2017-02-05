@@ -3374,7 +3374,7 @@ declare module PowerTables.Services.Partition {
         constructor(masterTable: IMasterTable);
         private _masterTable;
         private _dataAppendError;
-        private _indicator;
+        Indicator: PartitionIndicatorRow;
         LoadAhead: number;
         AppendLoadingRow: boolean;
         FinishReached: boolean;
@@ -3395,7 +3395,7 @@ declare module PowerTables.Services.Partition {
         private _indicationShown;
         showIndication(): void;
         destroyIndication(): void;
-        loadMore(page?: number): void;
+        loadMore(show: boolean, page?: number): void;
     }
 }
 declare module PowerTables.Services.Partition {
@@ -3410,6 +3410,7 @@ declare module PowerTables.Services.Partition {
         Cells: {
             [index: string]: ICell;
         };
+        Show: boolean;
         PagesInput: HTMLInputElement;
         VisualState: PowerTables.Rendering.VisualState;
         loadMore(): void;
@@ -3487,11 +3488,10 @@ declare module PowerTables.Services.Partition {
         protected cut(ordered: any[], skip: number, take: number): any;
         setTake(take: number): void;
         partitionBeforeQuery(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean): void;
+        private resetSkip();
         private switchToSequential();
         switchBack(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean): void;
         private _provideIndication;
-        private _anything;
-        private _enough;
         partitionAfterQuery(initialSet: any[], query: IQuery, serverCount: number): any[];
         private _serverTotalCount;
         isAmountFinite(): boolean;
@@ -3506,7 +3506,7 @@ declare module PowerTables.Services.Partition {
     class SequentialPartitionService extends ClientPartitionService {
         constructor(masterTable: IMasterTable);
         Owner: ServerPartitionService;
-        private _dataLoader;
+        DataLoader: BackgroundDataLoader;
         private _conf;
         setSkip(skip: number, preserveTake?: boolean): void;
         private _takeDiff;

@@ -2,14 +2,14 @@
     export class BackgroundDataLoader {
         constructor(masterTable: IMasterTable) {
             this._masterTable = masterTable;
-            this._indicator = new PowerTables.Services.Partition.PartitionIndicatorRow(masterTable, this);
+            this.Indicator = new PowerTables.Services.Partition.PartitionIndicatorRow(masterTable, this);
             this.LoadAhead = masterTable.Configuration.Partition.Server.LoadAhead;
         }
 
         private _masterTable: IMasterTable;
         private _dataAppendError: any;
-        private _indicator: PartitionIndicatorRow;
-        public  LoadAhead: number;
+        public  Indicator: PartitionIndicatorRow;
+        public LoadAhead: number;
 
         public AppendLoadingRow: boolean;
         public FinishReached: boolean;
@@ -26,10 +26,10 @@
 
         public provideIndicator(rows: IRow[]) {
             this._indicationShown = true;
-            rows.push(this._indicator);
+            rows.push(this.Indicator);
         }
 
-        private _afterFn:any = null;
+        private _afterFn: any = null;
         public loadNextDataPart(pages?: number, after?: any) {
             if (this.FinishReached) {
                 if (after != null) after();
@@ -43,7 +43,7 @@
             this.loadNextCore(pages);
         }
 
-        private loadNextCore(pages?: number, show?:boolean) {
+        private loadNextCore(pages?: number, show?: boolean) {
             if (pages == null) pages = this.LoadAhead;
             if (show == null) show = false;
             this.ClientSearchParameters = BackgroundDataLoader.any(this._masterTable.DataHolder.RecentClientQuery.Filterings);
@@ -52,7 +52,7 @@
             if (this.AppendLoadingRow) this.showIndication();
 
             this._masterTable.Loader.query(
-                (d) => this.dataAppendLoaded(d, pages,show),
+                (d) => this.dataAppendLoaded(d, pages, show),
                 (q) => this.modifyDataAppendQuery(q, pages),
                 this._dataAppendError,
                 true
@@ -78,11 +78,11 @@
             for (var k in o) if (o.hasOwnProperty(k)) return true;
             return false;
         }
-        private dataAppendLoaded(data: IPowerTablesResponse, pagesRequested: number, show:boolean) {
+        private dataAppendLoaded(data: IPowerTablesResponse, pagesRequested: number, show: boolean) {
             this.IsLoadingNextPart = false;
             if (this.AppendLoadingRow) this.destroyIndication();
             this.FinishReached = (data.BatchSize < this.Take * pagesRequested);
-            this._masterTable.Controller.redrawVisibleData();
+            if (this._masterTable.DataHolder.DisplayedData.length > 0) this._masterTable.Controller.redrawVisibleData();
             if (this._masterTable.DataHolder.Ordered.length < this.Take * pagesRequested) {
                 //console.log("not enough data, loading");
                 if (this.UseLoadMore) {
@@ -109,7 +109,7 @@
         private _indicationShown: boolean = false;
         public showIndication() {
             if (this._indicationShown) return;
-            this._masterTable.Renderer.Modifier.appendRow(this._indicator);
+            this._masterTable.Renderer.Modifier.appendRow(this.Indicator);
             this._indicationShown = true;
         }
 
@@ -119,9 +119,9 @@
             this._indicationShown = false;
         }
 
-        public loadMore(page?: number) {
+        public loadMore(show:boolean,page?: number) {
             this.destroyIndication();
-            this.loadNextCore(page,true);
+            this.loadNextCore(page, show);
         }
     }
 }

@@ -8064,7 +8064,7 @@ var PowerTables;
                     this._afterFn = null;
                     this._indicationShown = false;
                     this._masterTable = masterTable;
-                    this._indicator = new PowerTables.Services.Partition.PartitionIndicatorRow(masterTable, this);
+                    this.Indicator = new PowerTables.Services.Partition.PartitionIndicatorRow(masterTable, this);
                     this.LoadAhead = masterTable.Configuration.Partition.Server.LoadAhead;
                 }
                 BackgroundDataLoader.prototype.skipTake = function (skip, take) {
@@ -8073,7 +8073,7 @@ var PowerTables;
                 };
                 BackgroundDataLoader.prototype.provideIndicator = function (rows) {
                     this._indicationShown = true;
-                    rows.push(this._indicator);
+                    rows.push(this.Indicator);
                 };
                 BackgroundDataLoader.prototype.loadNextDataPart = function (pages, after) {
                     if (this.FinishReached) {
@@ -8126,7 +8126,8 @@ var PowerTables;
                     if (this.AppendLoadingRow)
                         this.destroyIndication();
                     this.FinishReached = (data.BatchSize < this.Take * pagesRequested);
-                    this._masterTable.Controller.redrawVisibleData();
+                    if (this._masterTable.DataHolder.DisplayedData.length > 0)
+                        this._masterTable.Controller.redrawVisibleData();
                     if (this._masterTable.DataHolder.Ordered.length < this.Take * pagesRequested) {
                         //console.log("not enough data, loading");
                         if (this.UseLoadMore) {
@@ -8151,7 +8152,7 @@ var PowerTables;
                 BackgroundDataLoader.prototype.showIndication = function () {
                     if (this._indicationShown)
                         return;
-                    this._masterTable.Renderer.Modifier.appendRow(this._indicator);
+                    this._masterTable.Renderer.Modifier.appendRow(this.Indicator);
                     this._indicationShown = true;
                 };
                 BackgroundDataLoader.prototype.destroyIndication = function () {
@@ -8160,9 +8161,9 @@ var PowerTables;
                     this._masterTable.Renderer.Modifier.destroyPartitionRow();
                     this._indicationShown = false;
                 };
-                BackgroundDataLoader.prototype.loadMore = function (page) {
+                BackgroundDataLoader.prototype.loadMore = function (show, page) {
                     this.destroyIndication();
-                    this.loadNextCore(page, true);
+                    this.loadNextCore(page, show);
                 };
                 return BackgroundDataLoader;
             }());
@@ -8185,6 +8186,7 @@ var PowerTables;
                     this.MasterTable = masterTable;
                     this._dataLoader = dataLoader;
                     this.TemplateIdOverride = masterTable.Configuration.Partition.Server.LoadingRowTemplateId;
+                    this.Show = true;
                 }
                 PartitionIndicatorRow.prototype.loadMore = function () {
                     var loadPages = null;
@@ -8193,7 +8195,7 @@ var PowerTables;
                         if (isNaN(loadPages))
                             loadPages = null;
                     }
-                    this._dataLoader.loadMore(loadPages);
+                    this._dataLoader.loadMore(this.Show, loadPages);
                 };
                 return PartitionIndicatorRow;
             }());
@@ -8506,6 +8508,7 @@ var PowerTables;
                     this._dataLoader = new PowerTables.Services.Partition.BackgroundDataLoader(masterTable);
                     this._dataLoader.UseLoadMore = this._conf.UseLoadMore;
                     this._dataLoader.AppendLoadingRow = this._conf.AppendLoadingRow;
+                    this._dataLoader.Indicator.Show = false;
                     this.Type = PowerTables.PartitionType.Server;
                 }
                 ServerPartitionService.prototype.setSkip = function (skip, preserveTake) {
@@ -8527,7 +8530,9 @@ var PowerTables;
                             return;
                         }
                         else {
+                            this._dataLoader.skipTake(skip, this.Take);
                             this._dataLoader.loadNextDataPart(this._conf.LoadAhead);
+                            return;
                         }
                     }
                     _super.prototype.setSkip.call(this, skip, preserveTake);
@@ -8550,6 +8555,7 @@ var PowerTables;
                     if (noData)
                         return;
                     if ((iSkip + (take * 2) > this._masterTable.DataHolder.Ordered.length)) {
+                        this._dataLoader.skipTake(this.Skip, take);
                         this._dataLoader.loadNextDataPart(this._conf.LoadAhead);
                     }
                 };
@@ -8557,6 +8563,7 @@ var PowerTables;
                     // Check if it is pager's request. If true - nothing to do here. All necessary things are already done in queryModifier
                     if (serverQuery.IsBackgroundDataFetch)
                         return;
+                    this._dataLoader.skipTake(this.Skip, this.Take);
                     var hasClientFilters = this.any(clientQuery.Filterings);
                     // in case if we have client filters we're switching to sequential partitioner
                     if (hasClientFilters) {
@@ -8574,20 +8581,33 @@ var PowerTables;
                         Skip: this.Skip
                     };
                 };
+                ServerPartitionService.prototype.resetSkip = function () {
+                    if (this.Skip === 0)
+                        return;
+                    var prevSkip = this.Skip;
+                    this._dataLoader.skipTake(0, this.Take);
+                    this.Skip = 0;
+                    this._masterTable.Events.PartitionChanged.invokeAfter(this, {
+                        PreviousSkip: prevSkip,
+                        Skip: this.Skip,
+                        PreviousTake: this.Take,
+                        Take: this.Take
+                    });
+                };
                 ServerPartitionService.prototype.switchToSequential = function () {
                     this._masterTable.Partition = this._seq;
                     this._seq.Owner = this;
+                    this._seq.Take = this.Take;
                 };
                 ServerPartitionService.prototype.switchBack = function (serverQuery, clientQuery, isServerQuery) {
                     this._masterTable.Partition = this;
                     this.partitionBeforeQuery(serverQuery, clientQuery, isServerQuery);
+                    this.resetSkip();
                 };
                 ServerPartitionService.prototype.partitionAfterQuery = function (initialSet, query, serverCount) {
                     if (serverCount !== -1)
                         this._serverTotalCount = serverCount;
                     var result = this.skipTakeSet(initialSet, query);
-                    this._anything = result.length > 0;
-                    this._enough = initialSet.length >= this.Take * this._conf.LoadAhead;
                     return result;
                 };
                 ServerPartitionService.prototype.isAmountFinite = function () {
@@ -8630,9 +8650,9 @@ var PowerTables;
                     this._backgroundLoad = false;
                     this._masterTable = masterTable;
                     this._conf = masterTable.Configuration.Partition.Server;
-                    this._dataLoader = new PowerTables.Services.Partition.BackgroundDataLoader(masterTable);
-                    this._dataLoader.UseLoadMore = this._conf.UseLoadMore;
-                    this._dataLoader.AppendLoadingRow = this._conf.AppendLoadingRow;
+                    this.DataLoader = new PowerTables.Services.Partition.BackgroundDataLoader(masterTable);
+                    this.DataLoader.UseLoadMore = this._conf.UseLoadMore;
+                    this.DataLoader.AppendLoadingRow = this._conf.AppendLoadingRow;
                     if (this._conf.AppendLoadingRow || this._conf.UseLoadMore) {
                         this._masterTable.Controller.registerAdditionalRowsProvider(this);
                     }
@@ -8641,13 +8661,13 @@ var PowerTables;
                 SequentialPartitionService.prototype.setSkip = function (skip, preserveTake) {
                     if (this.Skip === 0 && skip <= 0)
                         return;
-                    this._dataLoader.skipTake(skip, this.Take);
+                    this.DataLoader.skipTake(skip, this.Take);
                     _super.prototype.setSkip.call(this, skip, preserveTake);
                     if (skip + this.Take > this._masterTable.DataHolder.Ordered.length) {
-                        this._dataLoader.loadNextDataPart(this._conf.LoadAhead);
+                        this.DataLoader.loadNextDataPart(this._conf.LoadAhead);
                     }
                     else {
-                        this._dataLoader.destroyIndication();
+                        this.DataLoader.destroyIndication();
                     }
                 };
                 SequentialPartitionService.prototype.setTake = function (take) {
@@ -8656,15 +8676,15 @@ var PowerTables;
                     if (noData)
                         return;
                     if (this.Skip + take > this._masterTable.DataHolder.Ordered.length) {
-                        this._dataLoader.skipTake(this.Skip, take);
-                        this._dataLoader.loadNextDataPart(this._conf.LoadAhead, function () { return _super.prototype.setTake.call(_this, take); });
+                        this.DataLoader.skipTake(this.Skip, take);
+                        this.DataLoader.loadNextDataPart(this._conf.LoadAhead, function () { return _super.prototype.setTake.call(_this, take); });
                     }
                     else {
                         _super.prototype.setTake.call(this, take);
                     }
                 };
                 SequentialPartitionService.prototype.isAmountFinite = function () {
-                    return this._dataLoader.FinishReached;
+                    return this.DataLoader.FinishReached;
                 };
                 SequentialPartitionService.prototype.amount = function () {
                     return _super.prototype.amount.call(this);
@@ -8673,7 +8693,7 @@ var PowerTables;
                     if (this.Skip === 0)
                         return;
                     var prevSkip = this.Skip;
-                    this._dataLoader.skipTake(0, this.Take);
+                    this.DataLoader.skipTake(0, this.Take);
                     this.Skip = 0;
                     this._masterTable.Events.PartitionChanged.invokeAfter(this, {
                         PreviousSkip: prevSkip,
@@ -8706,7 +8726,7 @@ var PowerTables;
                     var result = this.skipTakeSet(initialSet, query);
                     if (!query.IsBackgroundDataFetch) {
                         var activeClientFiltering = this.any(query.Filterings);
-                        this._dataLoader.ClientSearchParameters = activeClientFiltering;
+                        this.DataLoader.ClientSearchParameters = activeClientFiltering;
                         var enough = initialSet.length >= this.Take * this._conf.LoadAhead;
                         if (activeClientFiltering && !enough) {
                             if (this._conf.UseLoadMore) {
@@ -8720,14 +8740,14 @@ var PowerTables;
                     return result;
                 };
                 SequentialPartitionService.prototype.provide = function (rows) {
-                    this._dataLoader.skipTake(this.Skip, this.Take);
+                    this.DataLoader.skipTake(this.Skip, this.Take);
                     if (this._provideIndication) {
-                        this._dataLoader.provideIndicator(rows);
+                        this.DataLoader.provideIndicator(rows);
                         this._provideIndication = false;
                     }
                     if (this._backgroundLoad) {
                         this._backgroundLoad = false;
-                        this._dataLoader.loadNextDataPart(this._conf.LoadAhead);
+                        this.DataLoader.loadNextDataPart(this._conf.LoadAhead);
                     }
                 };
                 SequentialPartitionService.prototype.hasEnoughDataToSkip = function (skip) {

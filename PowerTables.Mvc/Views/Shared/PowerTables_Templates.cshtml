@@ -149,12 +149,12 @@
             @using (t.If(x => x.DO.IsClientSearchPending && !x.DO.IsLoading))
             {
                 <div class="text-center">
-                    <span>No more records found of <b>@t.Value(x => x.DO.Stats.Stored)</b>. </span>
+                    <span>Shown search results among <b>@t.Value(x => x.DO.Stats.Stored)</b> loaded records. </span>
                     @using (t.If(x => x.DO.CanLoadMore))
                     {
                         <div>
-                            Try to load <input @t.ThisIsAdditionalPagesInput() type="text" value="@t.Value(c=>c.DO.LoadAhead)" class="form-control input-sm" style="display:inline-block;width:40px;text-align:center;" /> pages more and
-                            <button type="button" class="btn btn-default btn-sm" @t.BindLoadMore("click")>search records</button> among them.
+                            Load <input @t.ThisIsAdditionalPagesInput() type="text" value="@t.Value(c=>c.DO.LoadAhead)" class="form-control input-sm" style="display:inline-block;width:40px;text-align:center;" /> pages more and
+                            <button type="button" class="btn btn-default btn-sm" @t.BindLoadMore("click")>find more records</button>.
                         </div>
                     }
                 </div>

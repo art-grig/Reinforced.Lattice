@@ -4,9 +4,9 @@
             super(masterTable);
             this._masterTable = masterTable;
             this._conf = masterTable.Configuration.Partition.Server;
-            this._dataLoader = new PowerTables.Services.Partition.BackgroundDataLoader(masterTable);
-            this._dataLoader.UseLoadMore = this._conf.UseLoadMore;
-            this._dataLoader.AppendLoadingRow = this._conf.AppendLoadingRow;
+            this.DataLoader = new PowerTables.Services.Partition.BackgroundDataLoader(masterTable);
+            this.DataLoader.UseLoadMore = this._conf.UseLoadMore;
+            this.DataLoader.AppendLoadingRow = this._conf.AppendLoadingRow;
 
             if (this._conf.AppendLoadingRow || this._conf.UseLoadMore) {
                 this._masterTable.Controller.registerAdditionalRowsProvider(this);
@@ -17,17 +17,17 @@
 
         public Owner: ServerPartitionService;
 
-        private _dataLoader: BackgroundDataLoader;
+        public  DataLoader: BackgroundDataLoader;
         private _conf: IServerPartitionConfiguration;
 
         public setSkip(skip: number, preserveTake?: boolean): void {
             if (this.Skip === 0 && skip <= 0) return;
-            this._dataLoader.skipTake(skip, this.Take);
+            this.DataLoader.skipTake(skip, this.Take);
             super.setSkip(skip, preserveTake);
             if (skip + this.Take > this._masterTable.DataHolder.Ordered.length) {
-                this._dataLoader.loadNextDataPart(this._conf.LoadAhead);
+                this.DataLoader.loadNextDataPart(this._conf.LoadAhead);
             } else {
-                this._dataLoader.destroyIndication();
+                this.DataLoader.destroyIndication();
             }
         }
 
@@ -37,15 +37,15 @@
             var noData = !this._masterTable.DataHolder.RecentClientQuery;
             if (noData) return;
             if (this.Skip + take > this._masterTable.DataHolder.Ordered.length) {
-                this._dataLoader.skipTake(this.Skip, take);
-                this._dataLoader.loadNextDataPart(this._conf.LoadAhead, () => super.setTake(take));
+                this.DataLoader.skipTake(this.Skip, take);
+                this.DataLoader.loadNextDataPart(this._conf.LoadAhead, () => super.setTake(take));
             } else {
                 super.setTake(take);
             }
         }
 
         public isAmountFinite(): boolean {
-            return this._dataLoader.FinishReached;
+            return this.DataLoader.FinishReached;
         }
 
         public amount(): number {
@@ -54,7 +54,7 @@
         private resetSkip() {
             if (this.Skip === 0) return;
             var prevSkip = this.Skip;
-            this._dataLoader.skipTake(0, this.Take);
+            this.DataLoader.skipTake(0, this.Take);
             this.Skip = 0;
             this._masterTable.Events.PartitionChanged.invokeAfter(this,
                 {
@@ -91,7 +91,7 @@
             var result = this.skipTakeSet(initialSet, query);
             if (!query.IsBackgroundDataFetch) {
                 var activeClientFiltering = this.any(query.Filterings);
-                this._dataLoader.ClientSearchParameters = activeClientFiltering;
+                this.DataLoader.ClientSearchParameters = activeClientFiltering;
                 var enough = initialSet.length >= this.Take * this._conf.LoadAhead;
                 if (activeClientFiltering && !enough) {
                     if (this._conf.UseLoadMore) {
@@ -108,14 +108,14 @@
         private _provideIndication: boolean = false;
         private _backgroundLoad: boolean = false;
         public provide(rows: IRow[]): void {
-            this._dataLoader.skipTake(this.Skip, this.Take);
+            this.DataLoader.skipTake(this.Skip, this.Take);
             if (this._provideIndication) {
-                this._dataLoader.provideIndicator(rows);
+                this.DataLoader.provideIndicator(rows);
                 this._provideIndication = false;
             }
             if (this._backgroundLoad) {
                 this._backgroundLoad = false;
-                this._dataLoader.loadNextDataPart(this._conf.LoadAhead);
+                this.DataLoader.loadNextDataPart(this._conf.LoadAhead);
             }
         }
         public hasEnoughDataToSkip(skip: number): boolean {
