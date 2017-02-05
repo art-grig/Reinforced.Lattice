@@ -1,34 +1,26 @@
 ﻿module PowerTables.Services.Partition {
     export class ServerPartitionService extends ClientPartitionService {
-        private _modifyDataAppendQuery: any;
-        private _dataAppendLoaded: any;
-        private _dataAppendError: any;
+
         constructor(masterTable: IMasterTable) {
             super(masterTable);
             this._masterTable = masterTable;
             this._conf = masterTable.Configuration.Partition.Server;
-            this._modifyDataAppendQuery = this.modifyDataAppendQuery.bind(this);
-            this._dataAppendLoaded = this.dataAppendLoaded.bind(this);
-            this._dataAppendError = this.dataAppendError.bind(this);
-            if (this._conf.AppendLoadingRow || this._conf.UseLoadMore) {
-                this._indicator = new PartitionIndicatorRow(masterTable, this);
-            }
+            this._seq = new PowerTables.Services.Partition.SequentialPartitionService(masterTable);
+            this._dataLoader = new PowerTables.Services.Partition.BackgroundDataLoader(masterTable);
+            this._dataLoader.UseLoadMore = this._conf.UseLoadMore;
+            this._dataLoader.AppendLoadingRow = this._conf.AppendLoadingRow;
+            this.Type = PowerTables.PartitionType.Server;
         }
+        private _seq: PowerTables.Services.Partition.SequentialPartitionService;
         private _conf: IServerPartitionConfiguration;
         private _serverSkip: number = 0;
         private _indicator: PartitionIndicatorRow;
+        private _dataLoader: BackgroundDataLoader;
 
         public setSkip(skip: number, preserveTake?: boolean): void {
             if (this.Skip === 0 && skip <= 0 && this._serverSkip === 0) return;
             var iSkip = skip - this._serverSkip;
-            if (this._conf.UseLoadMore) {
-                if (iSkip + this.Take >= this._masterTable.DataHolder.Ordered.length) {
-                    this.showIndication();
-                    return;
-                } else {
-                    this.destroyIndication();
-                }
-            }
+
             if ((iSkip + (this.Take * 2) > this._masterTable.DataHolder.Ordered.length) || (iSkip < 0)) {
                 if ((iSkip > this._masterTable.DataHolder.Ordered.length) || (iSkip < 0)) {
                     var prevSkip = this.Skip;
@@ -44,7 +36,7 @@
                     this._masterTable.Controller.reload(true);
                     return;
                 } else {
-                    if (!this._conf.UseLoadMore) this.loadNextDataPart();
+                    this._dataLoader.loadNextDataPart(this._conf.LoadAhead);
                 }
             }
             super.setSkip(skip, preserveTake);
@@ -52,7 +44,7 @@
 
         protected cut(ordered: any[], skip: number, take: number) {
             skip = skip - this._serverSkip;
-            var selected = ordered;
+            var selected = null;
             if (skip > ordered.length) skip = 0;
             if (take === 0) selected = ordered.slice(skip);
             else selected = ordered.slice(skip, skip + take);
@@ -65,112 +57,25 @@
             super.setTake(take);
             if (noData) return;
             if ((iSkip + (take * 2) > this._masterTable.DataHolder.Ordered.length)) {
-                this.loadNextDataPart();
+                this._dataLoader.loadNextDataPart(this._conf.LoadAhead);
             }
         }
-
-        public IsLoadingNextPart: boolean = false;
-
-        //#region Data parts loading
-        public loadNextDataPart(pages?: number) {
-            if (this.FinishReached) return;
-            if (pages == null) pages = this._conf.LoadAhead;
-            this.IsLoadingNextPart = true;
-            if (this._conf.AppendLoadingRow) this.showIndication();
-
-            this._masterTable.Loader.query(
-                this._dataAppendLoaded,
-                (q) => this.modifyDataAppendQuery(q, pages),
-                this._dataAppendError,
-                true
-            );
-        }
-        private dataAppendError(data: any) {
-            this.IsLoadingNextPart = false;
-            if (this._conf.AppendLoadingRow) this.destroyIndication();
-        }
-        private dataAppendLoaded(data: IPowerTablesResponse) {
-            this.IsLoadingNextPart = false;
-            if (this._conf.AppendLoadingRow) this.destroyIndication();
-            this.FinishReached = (data.BatchSize < this.Take * this._conf.LoadAhead);
-        }
-
-        //#region Indication
-        
-        private _indicationShown:boolean = false;
-        private showIndication() {
-            if (this._indicationShown) return;
-            this._masterTable.Renderer.Modifier.appendRow(this._indicator);
-            this._indicationShown = true;
-        }
-
-        private destroyIndication() {
-            if (!this._indicationShown) return;
-            this._masterTable.Renderer.Modifier.destroyPartitionRow();
-            this._indicationShown = false;
-        }
-
-        public loadMore(page?: number) {
-           this.destroyIndication();
-            this.loadNextDataPart(page);
-        }
-        //#endregion
-
-        private modifyDataAppendQuery(q: IQuery, pages: number): IQuery {
-            q.IsBackgroundDataFetch = true;
-            q.Partition = {
-                NoCount: true,
-                Skip: this._serverSkip + this._masterTable.DataHolder.StoredData.length,
-                Take: this.Take * pages
-            }
-            return q;
-        }
-        //#endregion
-
-        private resetSkip() {
-            if (this.Skip === 0) return;
-            var prevSkip = this.Skip;
-            this.Skip = 0;
-            this._masterTable.Events.PartitionChanged.invokeAfter(this,
-                {
-                    PreviousSkip: prevSkip,
-                    Skip: this.Skip,
-                    PreviousTake: this.Take,
-                    Take: this.Take
-                });
-        }
-
-        private _previousClientQuery: string;
 
         public partitionBeforeQuery(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean): void {
             // Check if it is pager's request. If true - nothing to do here. All necessary things are already done in queryModifier
             if (serverQuery.IsBackgroundDataFetch) return;
-            
-            if (this._conf.NoCount) {
-                this.resetSkip();
-                serverQuery.Partition = { NoCount: true, Take: this.Take * this._conf.LoadAhead, Skip: this.Skip };
-            } else {
-                var hasClientFilters = ServerPartitionService.any(clientQuery.Filterings);
-                // in case if we have client filters...
-                if (hasClientFilters) {
-                    this.ActiveClientFiltering = true;
-                    // we will do append manually, so in  first N pages here
-                    serverQuery.Partition = { NoCount: true, Take: this.Take * this._conf.LoadAhead, Skip: 0 };
-                    var pQ = JSON.stringify(clientQuery);
-                    var queriesEqual = (pQ === this._previousClientQuery);
-                    this._previousClientQuery = pQ;
-                    if (isServerQuery || !queriesEqual) {
-                        this.resetSkip();
-                    }
-                } // in case if not - well, it seems that it is honest data request
-                else {
-                    if (this.ActiveClientFiltering) {
-                        this.ActiveClientFiltering = false;
-                        this.resetSkip();
-                    }
-                    serverQuery.Partition = { NoCount: false, Take: this.Take * this._conf.LoadAhead, Skip: this.Skip };
-                }
+
+            var hasClientFilters = this.any(clientQuery.Filterings);
+            // in case if we have client filters we're switching to sequential partitioner
+            if (hasClientFilters) {
+                this.switchToSequential();
+                this._seq.partitionBeforeQuery(serverQuery, clientQuery, isServerQuery);
+                return;
             }
+            else {
+                serverQuery.Partition = { NoCount: false, Take: this.Take * this._conf.LoadAhead, Skip: this.Skip };
+            }
+
             // for client query we pass our regular parameters
             clientQuery.Partition = {
                 NoCount: true,
@@ -178,49 +83,41 @@
                 Skip: this.Skip
             };
         }
-        
+
+        private switchToSequential() {
+            this._masterTable.Partition = this._seq;
+            this._seq.Owner = this;
+        }
+
+        public switchBack(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean) {
+            this._masterTable.Partition = this;
+            this.partitionBeforeQuery(serverQuery, clientQuery, isServerQuery);
+        }
+
+        private _provideIndication: boolean;
+        private _anything: boolean;
+        private _enough: boolean;
         public partitionAfterQuery(initialSet: any[], query: IQuery, serverCount: number): any[] {
             if (serverCount !== -1) this._serverTotalCount = serverCount;
             var result = this.skipTakeSet(initialSet, query);
-            if (this.ActiveClientFiltering) {
-                if (initialSet.length < this.Take * this._conf.LoadAhead) {
-                    console.log("not enough data, loading");
-                    if (this._conf.UseLoadMore) {
-                        
-                        setTimeout(() => this.showIndication(), 50);
-                    } else {
-                        setTimeout(() => this.loadNextDataPart(), 5);
-                    }
-                } else {
-                    console.log("enough data loaded");
-                }
-            }
+            this._anything = result.length > 0;
+            this._enough = initialSet.length >= this.Take * this._conf.LoadAhead;
+            
             return result;
-        }
-
-        private static any(o: any) {
-            for (var k in o) if (o.hasOwnProperty(k)) return true;
-            return false;
         }
 
         private _serverTotalCount: number;
 
-        public FinishReached: boolean;
-        public ActiveClientFiltering: boolean;
-
         public isAmountFinite(): boolean {
-            if (this._conf.NoCount) {
-                return this.FinishReached;
-            }
-            return !this.ActiveClientFiltering;
+            return true;
         }
 
         public totalAmount(): number {
-            return this.isAmountFinite() ? this._serverTotalCount : 0;
+            return this._serverTotalCount;
         }
 
         public amount(): number {
-            return this._conf.NoCount ? super.amount() : this._serverTotalCount;
+            return this._serverTotalCount;
         }
 
         public isClient(): boolean { return false; }
@@ -234,5 +131,7 @@
 
             return (iSkip > 0) && (iSkip <= (this._masterTable.DataHolder.Ordered.length - this.Take));
         }
+
+
     }
 }
