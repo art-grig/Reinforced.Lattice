@@ -146,6 +146,7 @@ module PowerTables {
 		Stats: ()=>PowerTables.IStatsModel;
 		IsClientSearchPending: ()=>boolean;
 		CanLoadMore: ()=>boolean;
+		LoadAhead: ()=>number;
 	}
 	export interface IStatsModel
 	{

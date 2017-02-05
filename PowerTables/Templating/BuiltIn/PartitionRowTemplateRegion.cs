@@ -73,6 +73,9 @@ namespace PowerTables.Templating.BuiltIn
 
         [OverrideTplFieldName("CanLoadMore()")]
         bool CanLoadMore { get; }
+
+        [OverrideTplFieldName("LoadAhead()")]
+        int LoadAhead { get; }
     }
 
     public static class PartitionRowTemplateExtensions

@@ -35,9 +35,9 @@
 
         public setTake(take: number): void {
             var noData = !this._masterTable.DataHolder.RecentClientQuery;
-            this._dataLoader.skipTake(this.Skip, take);
             if (noData) return;
             if (this.Skip + take > this._masterTable.DataHolder.Ordered.length) {
+                this._dataLoader.skipTake(this.Skip, take);
                 this._dataLoader.loadNextDataPart(this._conf.LoadAhead, () => super.setTake(take));
             } else {
                 super.setTake(take);
@@ -54,6 +54,7 @@
         private resetSkip() {
             if (this.Skip === 0) return;
             var prevSkip = this.Skip;
+            this._dataLoader.skipTake(0, this.Take);
             this.Skip = 0;
             this._masterTable.Events.PartitionChanged.invokeAfter(this,
                 {
@@ -107,6 +108,7 @@
         private _provideIndication: boolean = false;
         private _backgroundLoad: boolean = false;
         public provide(rows: IRow[]): void {
+            this._dataLoader.skipTake(this.Skip, this.Take);
             if (this._provideIndication) {
                 this._dataLoader.provideIndicator(rows);
                 this._provideIndication = false;

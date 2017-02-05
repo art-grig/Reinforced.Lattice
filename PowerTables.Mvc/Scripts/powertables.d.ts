@@ -140,6 +140,7 @@ declare module PowerTables {
         Stats: () => PowerTables.IStatsModel;
         IsClientSearchPending: () => boolean;
         CanLoadMore: () => boolean;
+        LoadAhead: () => number;
     }
     interface IStatsModel {
         IsSetFinite: () => boolean;
@@ -3374,7 +3375,7 @@ declare module PowerTables.Services.Partition {
         private _masterTable;
         private _dataAppendError;
         private _indicator;
-        private _loadAhead;
+        LoadAhead: number;
         AppendLoadingRow: boolean;
         FinishReached: boolean;
         IsLoadingNextPart: boolean;
@@ -3385,11 +3386,11 @@ declare module PowerTables.Services.Partition {
         provideIndicator(rows: IRow[]): void;
         private _afterFn;
         loadNextDataPart(pages?: number, after?: any): void;
-        private loadNextCore(pages?);
+        private loadNextCore(pages?, show?);
         private dataAppendError(data);
         private modifyDataAppendQuery(q, pages);
         private static any(o);
-        private dataAppendLoaded(data, pagesRequested);
+        private dataAppendLoaded(data, pagesRequested, show);
         ClientSearchParameters: boolean;
         private _indicationShown;
         showIndication(): void;
@@ -3422,6 +3423,7 @@ declare module PowerTables.Services.Partition {
         Stats(): IStatsModel;
         IsClientSearchPending(): boolean;
         CanLoadMore(): boolean;
+        LoadAhead(): number;
     }
 }
 declare module PowerTables.Services.Partition {

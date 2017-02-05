@@ -56,6 +56,8 @@
             return !this._dataLoader.FinishReached;
         }
 
-        
+        public LoadAhead(): number {
+            return this._dataLoader.LoadAhead;
+        }
     }
 }

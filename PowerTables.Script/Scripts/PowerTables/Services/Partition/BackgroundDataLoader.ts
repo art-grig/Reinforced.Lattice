@@ -3,13 +3,13 @@
         constructor(masterTable: IMasterTable) {
             this._masterTable = masterTable;
             this._indicator = new PowerTables.Services.Partition.PartitionIndicatorRow(masterTable, this);
-            this._loadAhead = masterTable.Configuration.Partition.Server.LoadAhead;
+            this.LoadAhead = masterTable.Configuration.Partition.Server.LoadAhead;
         }
 
         private _masterTable: IMasterTable;
         private _dataAppendError: any;
         private _indicator: PartitionIndicatorRow;
-        private _loadAhead: number;
+        public  LoadAhead: number;
 
         public AppendLoadingRow: boolean;
         public FinishReached: boolean;
@@ -43,15 +43,16 @@
             this.loadNextCore(pages);
         }
 
-        private loadNextCore(pages?: number) {
-            if (pages == null) pages = this._loadAhead;
+        private loadNextCore(pages?: number, show?:boolean) {
+            if (pages == null) pages = this.LoadAhead;
+            if (show == null) show = false;
             this.ClientSearchParameters = BackgroundDataLoader.any(this._masterTable.DataHolder.RecentClientQuery.Filterings);
 
             this.IsLoadingNextPart = true;
             if (this.AppendLoadingRow) this.showIndication();
 
             this._masterTable.Loader.query(
-                (d) => this.dataAppendLoaded(d, pages),
+                (d) => this.dataAppendLoaded(d, pages,show),
                 (q) => this.modifyDataAppendQuery(q, pages),
                 this._dataAppendError,
                 true
@@ -77,18 +78,22 @@
             for (var k in o) if (o.hasOwnProperty(k)) return true;
             return false;
         }
-        private dataAppendLoaded(data: IPowerTablesResponse, pagesRequested: number) {
+        private dataAppendLoaded(data: IPowerTablesResponse, pagesRequested: number, show:boolean) {
             this.IsLoadingNextPart = false;
             if (this.AppendLoadingRow) this.destroyIndication();
             this.FinishReached = (data.BatchSize < this.Take * pagesRequested);
-
+            this._masterTable.Controller.redrawVisibleData();
             if (this._masterTable.DataHolder.Ordered.length < this.Take * pagesRequested) {
                 //console.log("not enough data, loading");
                 if (this.UseLoadMore) {
                     this.destroyIndication();
-                    this.showIndication();
+                    if (!this.FinishReached) {
+                        this.showIndication();
+                    }
                 } else {
-                    setTimeout(() => this.loadNextDataPart(pagesRequested), 5);
+                    if (!this.FinishReached) {
+                        setTimeout(() => this.loadNextDataPart(pagesRequested), 5);
+                    }
                 }
             } else {
                 if (this._afterFn != null) {
@@ -116,7 +121,7 @@
 
         public loadMore(page?: number) {
             this.destroyIndication();
-            this.loadNextCore(page);
+            this.loadNextCore(page,true);
         }
     }
 }

@@ -240,6 +240,7 @@ namespace PowerTables.Typings
                 .WithProperty(c=>c.IsLoading, c => c.Type("()=>boolean"))
                 .WithProperty(c=>c.UiColumnsCount, c => c.Type("()=>number"))
                 .WithProperty(c=>c.Stats, c => c.Type("()=>PowerTables.IStatsModel"))
+                .WithProperty(c=>c.LoadAhead, c => c.Type("()=>number"))
                 ;
             builder.ExportAsInterface<IStatsModel>().OverrideNamespace("PowerTables")
                 .WithProperty(c => c.Skip, c => c.Type("()=>number"))

@@ -8065,7 +8065,7 @@ var PowerTables;
                     this._indicationShown = false;
                     this._masterTable = masterTable;
                     this._indicator = new PowerTables.Services.Partition.PartitionIndicatorRow(masterTable, this);
-                    this._loadAhead = masterTable.Configuration.Partition.Server.LoadAhead;
+                    this.LoadAhead = masterTable.Configuration.Partition.Server.LoadAhead;
                 }
                 BackgroundDataLoader.prototype.skipTake = function (skip, take) {
                     this.Skip = skip;
@@ -8088,15 +8088,17 @@ var PowerTables;
                     }
                     this.loadNextCore(pages);
                 };
-                BackgroundDataLoader.prototype.loadNextCore = function (pages) {
+                BackgroundDataLoader.prototype.loadNextCore = function (pages, show) {
                     var _this = this;
                     if (pages == null)
-                        pages = this._loadAhead;
+                        pages = this.LoadAhead;
+                    if (show == null)
+                        show = false;
                     this.ClientSearchParameters = BackgroundDataLoader.any(this._masterTable.DataHolder.RecentClientQuery.Filterings);
                     this.IsLoadingNextPart = true;
                     if (this.AppendLoadingRow)
                         this.showIndication();
-                    this._masterTable.Loader.query(function (d) { return _this.dataAppendLoaded(d, pages); }, function (q) { return _this.modifyDataAppendQuery(q, pages); }, this._dataAppendError, true);
+                    this._masterTable.Loader.query(function (d) { return _this.dataAppendLoaded(d, pages, show); }, function (q) { return _this.modifyDataAppendQuery(q, pages); }, this._dataAppendError, true);
                 };
                 BackgroundDataLoader.prototype.dataAppendError = function (data) {
                     this.IsLoadingNextPart = false;
@@ -8118,20 +8120,25 @@ var PowerTables;
                             return true;
                     return false;
                 };
-                BackgroundDataLoader.prototype.dataAppendLoaded = function (data, pagesRequested) {
+                BackgroundDataLoader.prototype.dataAppendLoaded = function (data, pagesRequested, show) {
                     var _this = this;
                     this.IsLoadingNextPart = false;
                     if (this.AppendLoadingRow)
                         this.destroyIndication();
                     this.FinishReached = (data.BatchSize < this.Take * pagesRequested);
+                    this._masterTable.Controller.redrawVisibleData();
                     if (this._masterTable.DataHolder.Ordered.length < this.Take * pagesRequested) {
                         //console.log("not enough data, loading");
                         if (this.UseLoadMore) {
                             this.destroyIndication();
-                            this.showIndication();
+                            if (!this.FinishReached) {
+                                this.showIndication();
+                            }
                         }
                         else {
-                            setTimeout(function () { return _this.loadNextDataPart(pagesRequested); }, 5);
+                            if (!this.FinishReached) {
+                                setTimeout(function () { return _this.loadNextDataPart(pagesRequested); }, 5);
+                            }
                         }
                     }
                     else {
@@ -8155,7 +8162,7 @@ var PowerTables;
                 };
                 BackgroundDataLoader.prototype.loadMore = function (page) {
                     this.destroyIndication();
-                    this.loadNextCore(page);
+                    this.loadNextCore(page, true);
                 };
                 return BackgroundDataLoader;
             }());
@@ -8206,6 +8213,9 @@ var PowerTables;
                 };
                 PartitionIndicator.prototype.CanLoadMore = function () {
                     return !this._dataLoader.FinishReached;
+                };
+                PartitionIndicator.prototype.LoadAhead = function () {
+                    return this._dataLoader.LoadAhead;
                 };
                 return PartitionIndicator;
             }());
@@ -8643,10 +8653,10 @@ var PowerTables;
                 SequentialPartitionService.prototype.setTake = function (take) {
                     var _this = this;
                     var noData = !this._masterTable.DataHolder.RecentClientQuery;
-                    this._dataLoader.skipTake(this.Skip, take);
                     if (noData)
                         return;
                     if (this.Skip + take > this._masterTable.DataHolder.Ordered.length) {
+                        this._dataLoader.skipTake(this.Skip, take);
                         this._dataLoader.loadNextDataPart(this._conf.LoadAhead, function () { return _super.prototype.setTake.call(_this, take); });
                     }
                     else {
@@ -8663,6 +8673,7 @@ var PowerTables;
                     if (this.Skip === 0)
                         return;
                     var prevSkip = this.Skip;
+                    this._dataLoader.skipTake(0, this.Take);
                     this.Skip = 0;
                     this._masterTable.Events.PartitionChanged.invokeAfter(this, {
                         PreviousSkip: prevSkip,
@@ -8709,6 +8720,7 @@ var PowerTables;
                     return result;
                 };
                 SequentialPartitionService.prototype.provide = function (rows) {
+                    this._dataLoader.skipTake(this.Skip, this.Take);
                     if (this._provideIndication) {
                         this._dataLoader.provideIndicator(rows);
                         this._provideIndication = false;

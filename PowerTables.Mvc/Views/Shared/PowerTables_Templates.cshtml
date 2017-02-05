@@ -149,22 +149,22 @@
             @using (t.If(x => x.DO.IsClientSearchPending && !x.DO.IsLoading))
             {
                 <div class="text-center">
-                    <span>No more records found on @t.Value(x => x.DO.Stats.Pages) loaded pages. </span>
+                    <span>No more records found of <b>@t.Value(x => x.DO.Stats.Stored)</b>. </span>
                     @using (t.If(x => x.DO.CanLoadMore))
                     {
                         <div>
-                            It is possible load <input @t.ThisIsAdditionalPagesInput() type="text" class="form-control input-sm" style="display:inline-block;width:40px;text-align:center;" /> pages more and
-                            <button type="button" class="btn btn-default btn-sm" @t.BindLoadMore("click")>Search</button> among them.
+                            Try to load <input @t.ThisIsAdditionalPagesInput() type="text" value="@t.Value(c=>c.DO.LoadAhead)" class="form-control input-sm" style="display:inline-block;width:40px;text-align:center;" /> pages more and
+                            <button type="button" class="btn btn-default btn-sm" @t.BindLoadMore("click")>search records</button> among them.
                         </div>
                     }
                 </div>
-                
+
             }
-            @using (t.If(x => x.DO.CanLoadMore && !x.DO.IsLoading))
+            @using (t.If(x => !x.DO.IsClientSearchPending && x.DO.CanLoadMore && !x.DO.IsLoading))
             {
-            <div class="text-center">
-                <button type="button" class="btn btn-default btn-sm" @t.BindLoadMore("click")>Load more</button>
-            </div>
+                <div class="text-center">
+                    <button type="button" class="btn btn-default btn-sm" @t.BindLoadMore("click")>Load more</button>
+                </div>
             }
         </td>
     </tr>
