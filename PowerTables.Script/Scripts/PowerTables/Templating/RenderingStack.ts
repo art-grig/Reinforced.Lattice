@@ -69,6 +69,9 @@ module PowerTables.Templating {
             case RenderedObject.Message:
                 trk = TrackHelper.getMessageTrack();
                 break;
+            case RenderedObject.Partition:
+                trk = TrackHelper.getPartitionRowTrack();
+                break;
             case RenderedObject.Custom:
                 trk = 'custom';
                 break;

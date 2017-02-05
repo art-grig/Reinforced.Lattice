@@ -13,6 +13,7 @@ namespace PowerTables.Templating
         Row,
         Cell,
         Message,
+        Partition,
         Custom
     }
 }

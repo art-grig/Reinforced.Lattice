@@ -58,7 +58,7 @@ module PowerTables.Services {
             this._masterTable.Renderer.body(rows);
         }
 
-        
+
 
         /**
          * Redraws locally visible data
@@ -213,8 +213,19 @@ module PowerTables.Services {
                 if (!row) continue;
                 result.push(row);
             }
+            var l1 = result.length;
             for (var j = 0; j < this._additionalRowsProviders.length; j++) {
                 this._additionalRowsProviders[j].provide(result);
+            }
+
+            if (l1 !== result.length) {
+                var idx = -1;
+                for (var k = 0; k < result.length; k++) {
+                    if (result[k].IsSpecial) {
+                        result[k].Index = idx;
+                        idx--;
+                    }
+                }
             }
             return result;
         }

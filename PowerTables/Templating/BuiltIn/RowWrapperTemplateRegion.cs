@@ -48,7 +48,8 @@ namespace PowerTables.Templating.BuiltIn
         /// <summary>
         /// Data object 
         /// </summary>
-        TRow DataObject { get; }
+        [OverrideTplFieldName("DataObject")]
+        TRow DO { get; }
 
         /// <summary>
         /// Row index

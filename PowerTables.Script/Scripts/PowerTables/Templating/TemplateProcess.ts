@@ -214,6 +214,10 @@ module PowerTables.Templating {
          */
         Message,
         /**
+         * Template region for partition tools row
+         */
+        Partition,
+        /**
          * Custom rendering object. 
          * Needed for rendering of random templates bound to random objects
          */
