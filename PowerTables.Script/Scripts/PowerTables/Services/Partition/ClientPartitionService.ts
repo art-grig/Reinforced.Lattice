@@ -2,6 +2,7 @@
     export class ClientPartitionService implements IPartitionService {
         constructor(masterTable: IMasterTable) {
             this._masterTable = masterTable;
+            this.Type = PowerTables.PartitionType.Client;
         }
 
         protected _masterTable: IMasterTable;
@@ -251,5 +252,12 @@
             if (skip > this.amount() - this.Take) return false;
             return true;
         }
+
+        protected any(o: any) {
+            for (var k in o) if (o.hasOwnProperty(k)) return true;
+            return false;
+        }
+
+        public Type: PartitionType;
     }
 }

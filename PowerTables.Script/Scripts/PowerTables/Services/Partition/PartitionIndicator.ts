@@ -1,12 +1,12 @@
 ﻿module PowerTables.Services.Partition {
     export class PartitionIndicatorRow implements IRow {
         
-        private _partitionService: PowerTables.Services.Partition.ServerPartitionService;
+        private _dataLoader: PowerTables.Services.Partition.BackgroundDataLoader;
 
-        constructor(masterTable: IMasterTable, partitionService: PowerTables.Services.Partition.ServerPartitionService) {
-            this.DataObject = new PartitionIndicator(masterTable, partitionService);
+        constructor(masterTable: IMasterTable, dataLoader: PowerTables.Services.Partition.BackgroundDataLoader) {
+            this.DataObject = new PartitionIndicator(masterTable, dataLoader);
             this.MasterTable = masterTable;
-            this._partitionService = partitionService;
+            this._dataLoader = dataLoader;
             this.TemplateIdOverride = masterTable.Configuration.Partition.Server.LoadingRowTemplateId;
         }
 
@@ -24,35 +24,36 @@
             var loadPages = null;
             if (this.PagesInput) {
                 loadPages = parseInt(this.PagesInput.value);
+                if (isNaN(loadPages)) loadPages = null;
             }
-            this._partitionService.loadMore(loadPages);
+            this._dataLoader.loadMore(loadPages);
         }
     }
     
     export class PartitionIndicator implements PowerTables.IPartitionRowData {
-        constructor(masterTable: IMasterTable, partitionService: PowerTables.Services.Partition.ServerPartitionService) {
+        constructor(masterTable: IMasterTable, partitionService: PowerTables.Services.Partition.BackgroundDataLoader) {
             this._masterTable = masterTable;
-            this._partitionService = partitionService;
+            this._dataLoader = partitionService;
         }
 
         private _masterTable: PowerTables.IMasterTable;
-        private _partitionService: PowerTables.Services.Partition.ServerPartitionService;
+        private _dataLoader: PowerTables.Services.Partition.BackgroundDataLoader;
 
 
         public UiColumnsCount(): number { return this._masterTable.InstanceManager.getUiColumns().length; }
 
         public IsLoading(): boolean {
-            return this._masterTable.Loader.isLoading() || this._partitionService.IsLoadingNextPart;
+            return this._dataLoader.IsLoadingNextPart;
         }
 
         public Stats(): IStatsModel { return this._masterTable.Stats; }
 
         public IsClientSearchPending(): boolean {
-            return this._partitionService.ActiveClientFiltering;
+            return this._dataLoader.ClientSearchParameters;
         }
 
         public CanLoadMore(): boolean {
-            return !this._partitionService.FinishReached;
+            return !this._dataLoader.FinishReached;
         }
 
         

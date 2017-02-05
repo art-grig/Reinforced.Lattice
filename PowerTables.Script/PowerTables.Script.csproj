@@ -35,7 +35,7 @@
     </TypeScriptCompile>
     <TypeScriptCompile Include="Scripts\PowerTables\CoreInterfaces.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Rendering\Resensor.ts" />
-    
+    <TypeScriptCompile Include="Scripts\PowerTables\Services\Partition\BackgroundDataLoader.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Templating\BackbindInfo.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Templating\Templates.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Templating\TemplateProcess.ts" />
@@ -84,6 +84,7 @@
     <TypeScriptCompile Include="Scripts\PowerTables\Services\Partition\ClientPartitionService.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Services\Partition\IPartitionService.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Services\Partition\ServerPartitionService.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Services\Partition\SequentialPartitionService.ts" />
     <TypeScriptCompile Include="Scripts\Typings\Limit.d.ts" />
     <TypeScriptCompile Include="Scripts\Typings\PagingPlugin.d.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\LoadingOverlapPlugin.ts" />

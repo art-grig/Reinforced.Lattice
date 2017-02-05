@@ -58,8 +58,6 @@ module PowerTables.Services {
             this._masterTable.Renderer.body(rows);
         }
 
-
-
         /**
          * Redraws locally visible data
          */

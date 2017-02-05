@@ -22,8 +22,6 @@ namespace PowerTables.Configuration.Json
     {
         public int LoadAhead { get; set; }
 
-        public bool NoCount { get; set; }
-
         public bool UseLoadMore { get; set; }
 
         public bool AppendLoadingRow { get; set; }
@@ -41,6 +39,7 @@ namespace PowerTables.Configuration.Json
     public enum PartitionType
     {
         Client,
-        Server
+        Server, 
+        Sequential
     }
 }

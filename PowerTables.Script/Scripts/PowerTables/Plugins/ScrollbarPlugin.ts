@@ -244,8 +244,8 @@
 
         private keydownHook(e: KeyboardEvent) {
             if ((<HTMLElement>e.target).tagName === 'input' ||
-                    (<HTMLElement>e.target).tagName === 'textarea' ||
-                    (<HTMLElement>e.target).tagName === 'select'
+                (<HTMLElement>e.target).tagName === 'textarea' ||
+                (<HTMLElement>e.target).tagName === 'select'
             ) {
                 console.log("target is input");
                 return true;
@@ -340,7 +340,7 @@
             this.startDeferring();
         }
 
-        private _skipOnUp:number = -1;
+        private _skipOnUp: number = -1;
         private scrollerMove(e: MouseEvent) {
             if (e.buttons === 0) {
                 this.scrollerEnd(e);
@@ -477,7 +477,7 @@
                 if (this._skipOnUp !== -1) this._needMoveTo = this._skipOnUp;
             }
             this.moveCheck();
-            
+
         }
         //#endregion
 
@@ -512,7 +512,7 @@
 
         private onClientDataProcessing(e: ITableEventArgs<PowerTables.IClientDataResults>) {
             if (e.MasterTable.Partition.Take === 0
-                || (this.MasterTable.Partition.isClient() && e.EventArgs.Ordered.length <= e.MasterTable.Partition.Take)
+                || ((this.MasterTable.Partition.Type === PowerTables.PartitionType.Client) && e.EventArgs.Ordered.length <= e.MasterTable.Partition.Take)
                 || e.EventArgs.Displaying.length === 0
             ) {
                 this.hideScroll();
@@ -521,7 +521,7 @@
                 this.showScroll();
             }
 
-            if (this.MasterTable.Partition.isServer() && this.MasterTable.Configuration.Partition.Server.NoCount) {
+            if (this.MasterTable.Partition.Type === PowerTables.PartitionType.Sequential) {
                 this.adjustScrollerHeight();
                 this.adjustScrollerPosition(this.MasterTable.Partition.Skip);
             }

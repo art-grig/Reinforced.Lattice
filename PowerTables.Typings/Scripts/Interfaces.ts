@@ -165,7 +165,6 @@ module PowerTables {
 	export interface IServerPartitionConfiguration
 	{
 		LoadAhead: number;
-		NoCount: boolean;
 		UseLoadMore: boolean;
 		AppendLoadingRow: boolean;
 		LoadingRowTemplateId: string;
@@ -193,6 +192,7 @@ module PowerTables {
 	export enum PartitionType { 
 		Client = 0, 
 		Server = 1, 
+		Sequential = 2, 
 	}
 }
 module PowerTables.Plugins.Formwatch {

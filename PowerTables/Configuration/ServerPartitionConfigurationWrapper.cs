@@ -19,13 +19,6 @@ namespace PowerTables.Configuration
 
     public static class ServerPartitionConfigurationExtensions
     {
-        public static ServerPartitionConfigurationWrapper NoCount(this ServerPartitionConfigurationWrapper c,
-            bool noCount = true)
-        {
-            c.Configuration.NoCount = noCount;
-            return c;
-        }
-
         public static ServerPartitionConfigurationWrapper LoadAhead(this ServerPartitionConfigurationWrapper c
             , int loadPagesAhead = 2)
         {

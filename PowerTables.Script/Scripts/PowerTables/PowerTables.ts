@@ -70,6 +70,9 @@ module PowerTables {
                 case PowerTables.PartitionType.Server:
                     this.Partition = new PowerTables.Services.Partition.ServerPartitionService(this);  
                     break;
+                case PowerTables.PartitionType.Sequential:
+                    this.Partition = new PowerTables.Services.Partition.SequentialPartitionService(this);
+                    break;
             }
             
 

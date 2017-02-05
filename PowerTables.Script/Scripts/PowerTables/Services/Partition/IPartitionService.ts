@@ -15,6 +15,9 @@
         initial(skip: number, take: number);
         isClient(): boolean;
         isServer(): boolean;
-        hasEnoughDataToSkip(skip:number):boolean;
+        hasEnoughDataToSkip(skip: number): boolean;
+
+        Type: PowerTables.PartitionType;
+        
     }
 }

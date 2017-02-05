@@ -59,8 +59,18 @@
             this._controller.replaceVisibleData([msgRow]);
         }
 
+        private _noresultsOverrideRow:IRow = null;
+        public overrideNoresults(row:IRow) {
+            this._noresultsOverrideRow = row;
+        }
+
         public provide(rows: IRow[]): void {
+            
             if (rows.length === 0) {
+                if (this._noresultsOverrideRow != null) {
+                    rows.push(this._noresultsOverrideRow);
+                    return;
+                }
                 var message: IUiMessage = {
                     Class: 'noresults',
                     Title: 'No data found',

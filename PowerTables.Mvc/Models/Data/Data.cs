@@ -32,6 +32,7 @@ namespace PowerTables.Mvc.Models
             Dictionary<ToyType, List<string>> typestoNames = new Dictionary<ToyType, List<string>>();
             ToyType current = ToyType.ActionFigures;
             List<string> currentList = null;
+            
             using (var fs = File.OpenText(toysFile))
             {
                 var line = fs.ReadLine();
@@ -61,6 +62,7 @@ namespace PowerTables.Mvc.Models
             Random r = new Random(100);
 
             int id = 0;
+            int randCnt = 4;
             foreach (var typestoName in typestoNames)
             {
                 foreach (var name in typestoName.Value)
@@ -92,6 +94,17 @@ namespace PowerTables.Mvc.Models
                         if (r.Next(10) > 5)
                         {
                             sd.ToyName += "searchme";
+                        }
+                        else
+                        {
+                            if (randCnt > 0)
+                            {
+                                if (r.Next(10) > 5)
+                                {
+                                    sd.ToyName += "@@";
+                                    randCnt--;
+                                }
+                            }
                         }
                         _sourceData.Add(sd);
                     }
