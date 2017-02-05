@@ -19,7 +19,7 @@
         }
 
         public triggerCommandOnRow(commandName: string, rowIndex: number, callback: ((params: ICommandExecutionParameters) => void) = null) {
-            this.triggerCommand(commandName, this._masterTable.DataHolder.DisplayedData[rowIndex], callback);
+            this.triggerCommand(commandName, this._masterTable.DataHolder.DisplayCache[rowIndex], callback);
         }
 
         public triggerCommand(commandName: string, subject: any, callback: ((params: ICommandExecutionParameters) => void) = null) {
