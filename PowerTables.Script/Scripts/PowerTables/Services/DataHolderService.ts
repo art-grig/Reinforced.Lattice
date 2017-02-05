@@ -215,7 +215,7 @@
                     for (var ck in this._clientValueFunction) {
                         obj[ck] = this._clientValueFunction[ck](obj);
                     }
-                    
+
                     if (this._hasPrimaryKey) {
                         obj['__key'] = this.PrimaryKeyFunction(obj);
                         if (!this._storedDataCache[obj['__key']]) data.push(obj);
@@ -324,6 +324,7 @@
          * @param query Table query
          * @returns {} 
          */
+        public DisplayCache: { [_: number]: any } = {}
         public filterStoredData(query: IQuery, serverCount: number) {
             this._events.ClientDataProcessing.invokeBefore(this, query);
 
@@ -341,7 +342,8 @@
                 this.Ordered = ordered;
             }
             this.DisplayedData = this._masterTable.Partition.partitionAfterQuery(this.Ordered, query, serverCount);
-            
+            this.updateDisplayedCache();
+
             this._events.ClientDataProcessing.invokeAfter(this, {
                 Displaying: this.DisplayedData,
                 Filtered: this.Filtered,
@@ -349,7 +351,12 @@
                 Source: this.StoredData
             });
         }
-
+        public updateDisplayedCache() {
+            this.DisplayCache = {};
+            for (var i = 0; i < this.DisplayedData.length; i++) {
+                this.DisplayCache[this.DisplayedData[i]['__i']] = this.DisplayedData[i];
+            }
+        }
 
         /**
          * Filter recent data and store it to currently displaying data 
@@ -633,6 +640,6 @@
         //#endregion
     }
 
-    
+
 
 }

@@ -218,14 +218,7 @@
         }
 
         public toggleDisplayingRow(rowIndex: number, selected?: boolean) {
-            var rw = null;
-            for (var i = 0; i < this._masterTable.DataHolder.DisplayedData.length; i++) {
-                if (this._masterTable.DataHolder.DisplayedData[i]['__i'] === rowIndex) {
-                    rw = this._masterTable.DataHolder.DisplayedData[i];
-                    break;
-                }
-            }
-            this.toggleRow(rw['__key'], selected);
+            this.toggleRow(this._masterTable.DataHolder.DisplayCache[rowIndex]['__key'], selected);
         }
 
         public toggleObjectSelected(dataObject: any, selected?: boolean) {

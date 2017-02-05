@@ -8,7 +8,7 @@
         private ensureEditing(loadIndex: number) {
             if (this._isEditing) return;
 
-            this.DataObject = this.MasterTable.DataHolder.StoredData[loadIndex];
+            this.DataObject = this.MasterTable.DataHolder.DisplayCache[loadIndex];
             this.CurrentDataObjectModified = {};
             for (var cd in this.DataObject) {
                 if (this.DataObject.hasOwnProperty(cd)) {
@@ -105,7 +105,7 @@
         public provide(rows: IRow[]): void {
             if (!this._isEditing) return;
             for (var i = 0; i < rows.length; i++) {
-                if (rows[i].DataObject === this.DataObject) {
+                if (rows[i].DataObject['__key'] === this.DataObject['__key']) {
                     rows[i] = this;
                 }
             }

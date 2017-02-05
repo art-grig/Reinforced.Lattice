@@ -18,7 +18,7 @@
             if (this._isEditing) return;
             if (rowIndex >= 0) {
                 this._isAddingNewRow = false;
-                this.DataObject = this.MasterTable.DataHolder.StoredData[rowIndex];
+                this.DataObject = this.MasterTable.DataHolder.DisplayCache[rowIndex];
                 this.CurrentDataObjectModified = {};
                 for (var cd in this.DataObject) {
                     if (this.DataObject.hasOwnProperty(cd)) {
@@ -64,7 +64,7 @@
                 }
             }
             if (rowIndex < 0) {
-                this.MasterTable.Renderer.Modifier.appendRow(this, 0);
+                this.MasterTable.Renderer.Modifier.prependRow(this);
             } else {
                 this.MasterTable.Renderer.Modifier.redrawRow(this);
             }
@@ -184,7 +184,7 @@
         public provide(rows: IRow[]): void {
             if (!this._isEditing) return;
             for (var i = 0; i < rows.length; i++) {
-                if (rows[i].DataObject === this.DataObject) {
+                if (rows[i].DataObject['__key'] === this.DataObject['__key']) {
                     rows[i] = this;
                 }
             }
