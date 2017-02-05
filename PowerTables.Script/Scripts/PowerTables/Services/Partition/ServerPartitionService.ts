@@ -1,20 +1,22 @@
 ﻿module PowerTables.Services.Partition {
     export class ServerPartitionService extends ClientPartitionService {
-        private _loadAhead: number;
-        private _noCount: boolean;
         private _modifyDataAppendQuery: any;
         private _dataAppendLoaded: any;
         private _dataAppendError: any;
         constructor(masterTable: IMasterTable) {
             super(masterTable);
             this._masterTable = masterTable;
-            this._loadAhead = masterTable.Configuration.Partition.LoadAhead;
-            this._noCount = masterTable.Configuration.Partition.NoCount;
+            this._conf = masterTable.Configuration.Partition.Server;
             this._modifyDataAppendQuery = this.modifyDataAppendQuery.bind(this);
             this._dataAppendLoaded = this.dataAppendLoaded.bind(this);
             this._dataAppendError = this.dataAppendError.bind(this);
+            if (this._conf.AppendLoadingRow || this._conf.UseLoadMore) {
+                this._indicator = new PartitionIndicator(masterTable, this);
+            }
         }
+        private _conf: IServerPartitionConfiguration;
         private _serverSkip: number = 0;
+        private _indicator: PartitionIndicator;
 
         public setSkip(skip: number, preserveTake?: boolean): void {
             if (this.Skip === 0 && skip <= 0 && this._serverSkip === 0) return;
@@ -34,7 +36,7 @@
                     this._masterTable.Controller.reload(true);
                     return;
                 } else {
-                    this.loadNextDataPart();
+                    this.loadNextDataPart(); //todo append loadmore here
                 }
             }
             super.setSkip(skip, preserveTake);
@@ -55,12 +57,12 @@
             if ((iSkip + (take * 2) > this._masterTable.DataHolder.Ordered.length)) {
                 this.loadNextDataPart();
             }
-            
+
         }
 
         //#region Data parts loading
         private loadNextDataPart() {
-            if (this._finishReached) return;
+            if (this.FinishReached) return;
             this._masterTable.Loader.query(
                 this._dataAppendLoaded,
                 this._modifyDataAppendQuery,
@@ -72,7 +74,7 @@
 
         }
         private dataAppendLoaded(data: IPowerTablesResponse) {
-            this._finishReached = (data.BatchSize < this.Take * this._loadAhead);
+            this.FinishReached = (data.BatchSize < this.Take * this._conf.LoadAhead);
         }
 
         private modifyDataAppendQuery(q: IQuery): IQuery {
@@ -80,7 +82,7 @@
             q.Partition = {
                 NoCount: true,
                 Skip: this._serverSkip + this._masterTable.DataHolder.StoredData.length,
-                Take: this.Take * this._loadAhead
+                Take: this.Take * this._conf.LoadAhead
             }
             return q;
         }
@@ -108,9 +110,9 @@
 
             // in case if we have client filters...
             if (hasClientFilters) {
-                this._activeClientFiltering = true;
+                this.ActiveClientFiltering = true;
                 // we will do append manually, so in  first N pages here
-                serverQuery.Partition = { NoCount: true, Take: this.Take * this._loadAhead, Skip: 0 };
+                serverQuery.Partition = { NoCount: true, Take: this.Take * this._conf.LoadAhead, Skip: 0 };
                 var pQ = JSON.stringify(clientQuery);
                 var queriesEqual = (pQ === this._previousClientQuery);
                 this._previousClientQuery = pQ;
@@ -119,11 +121,11 @@
                 }
             } // in case if not - well, it seems that it is honest data request
             else {
-                if (this._activeClientFiltering) {
-                    this._activeClientFiltering = false;
+                if (this.ActiveClientFiltering) {
+                    this.ActiveClientFiltering = false;
                     this.resetSkip();
                 }
-                serverQuery.Partition = { NoCount: this._noCount, Take: this.Take * this._loadAhead, Skip: this.Skip };
+                serverQuery.Partition = { NoCount: this._conf.NoCount, Take: this.Take * this._conf.LoadAhead, Skip: this.Skip };
             }
 
             // for client query we pass our regular parameters
@@ -139,9 +141,9 @@
         public partitionAfterQuery(initialSet: any[], query: IQuery, serverCount: number): any[] {
             if (serverCount !== -1) this._serverTotalCount = serverCount;
             var result = this.skipTakeSet(initialSet, query);
-            if (this._activeClientFiltering) {
-                if (initialSet.length < this.Take * this._loadAhead) {
-                    console.log("not enough data, loading");
+            if (this.ActiveClientFiltering) {
+                if (initialSet.length < this.Take * this._conf.LoadAhead) {
+                    console.log("not enough data, loading"); //todo append row here
                     setTimeout(() => this.loadNextDataPart(), 5);
                 } else {
                     console.log("enough data loaded");
@@ -157,14 +159,14 @@
 
         private _serverTotalCount: number;
 
-        private _finishReached: boolean;
-        private _activeClientFiltering: boolean;
+        public FinishReached: boolean;
+        public ActiveClientFiltering: boolean;
 
         public isAmountFinite(): boolean {
-            if (this._noCount) {
-                return this._finishReached;
+            if (this._conf.NoCount) {
+                return this.FinishReached;
             }
-            return !this._activeClientFiltering;
+            return !this.ActiveClientFiltering;
         }
 
         public totalAmount(): number {
@@ -172,7 +174,7 @@
         }
 
         public amount(): number {
-            return this._noCount ? super.amount() : this._serverTotalCount;
+            return this._conf.NoCount ? super.amount() : this._serverTotalCount;
         }
 
         public isClient(): boolean { return false; }

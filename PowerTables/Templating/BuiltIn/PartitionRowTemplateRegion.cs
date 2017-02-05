@@ -7,7 +7,7 @@ using PowerTables.Configuration.Json;
 
 namespace PowerTables.Templating.BuiltIn
 {
-    public class PartitionRowTemplateRegion : ModeledTemplateRegion<IRowModel<IPartitionRowTemplate>>,
+    public class PartitionRowTemplateRegion : ModeledTemplateRegion<IRowModel<IPartitionRowData>>,
         IProvidesEventsBinding, IProvidesTracking, IProvidesMarking
     {
         public PartitionRowTemplateRegion(string prefix, string id, ITemplatesScope scope) : base(TemplateRegionType.Row, prefix, id, scope)
@@ -57,22 +57,27 @@ namespace PowerTables.Templating.BuiltIn
 
     }
 
-    public interface IPartitionRowTemplate
+    public interface IPartitionRowData
     {
+        [OverrideTplFieldName("UiColumnsCount()")]
         int UiColumnsCount { get; }
 
+        [OverrideTplFieldName("IsLoading()")]
         bool IsLoading { get; }
 
+        [OverrideTplFieldName("Stats()")]
         IStatsModel Stats { get; }
 
+        [OverrideTplFieldName("IsClientSearchPending()")]
         bool IsClientSearchPending { get; }
 
+        [OverrideTplFieldName("CanLoadMore()")]
         bool CanLoadMore { get; }
     }
 
     public static class PartitionRowTemplateExtensions
     {
-        public static PartitionRowTemplateRegion PartitionRow(this ITemplatesScope t, string templateId = "partitionRow")
+        public static PartitionRowTemplateRegion PartitionIndication(this ITemplatesScope t, string templateId = "partitionIndication")
         {
             return new PartitionRowTemplateRegion(t.TemplatesPrefix, templateId, t);
         }

@@ -137,16 +137,15 @@ module PowerTables {
 		Type: PowerTables.PartitionType;
 		InitialSkip: number;
 		InitialTake: number;
-		LoadAhead: number;
-		NoCount: boolean;
+		Server: PowerTables.IServerPartitionConfiguration;
 	}
-	export interface IPartitionRowTemplate
+	export interface IPartitionRowData
 	{
-		UiColumnsCount: number;
-		IsLoading: boolean;
-		Stats: PowerTables.IStatsModel;
-		IsClientSearchPending: boolean;
-		CanLoadMore: boolean;
+		UiColumnsCount: ()=>number;
+		IsLoading: ()=>boolean;
+		Stats: ()=>PowerTables.IStatsModel;
+		IsClientSearchPending: ()=>boolean;
+		CanLoadMore: ()=>boolean;
 	}
 	export interface IStatsModel
 	{
@@ -162,6 +161,14 @@ module PowerTables {
 		Pages: ()=>number;
 		CurrentPage: ()=>number;
 		IsAllDataLoaded: ()=>boolean;
+	}
+	export interface IServerPartitionConfiguration
+	{
+		LoadAhead: number;
+		NoCount: boolean;
+		UseLoadMore: boolean;
+		AppendLoadingRow: boolean;
+		LoadingRowTemplateId: string;
 	}
 	export enum MessageType { 
 		UserMessage = 0, 

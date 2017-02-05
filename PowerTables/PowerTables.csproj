@@ -106,6 +106,7 @@
     <Compile Include="Configuration\PartitionConfigurationWrapper.cs" />
     <Compile Include="Configuration\PrimaryKeyExtensions.cs" />
     <Compile Include="Configuration\SelectionConfigurationWrapper.cs" />
+    <Compile Include="Configuration\ServerPartitionConfigurationWrapper.cs" />
     <Compile Include="Editing\EditCommandHandlerExtensions.cs" />
     <Compile Include="Mvc\MvcRequestHandler.cs" />
     <Compile Include="Plugins\Scrollbar\ScrollbarExtensions.cs" />

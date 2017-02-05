@@ -37,12 +37,19 @@ namespace PowerTables.Configuration
             return conf;
         }
 
-        public static PartitionConfigurationWrapper Server(this PartitionConfigurationWrapper conf,int loadPagesAhead = 2, bool noCount = false)
+        public static PartitionConfigurationWrapper Server(this PartitionConfigurationWrapper c,int loadPagesAhead = 2, bool noCount = false,
+            Action<ServerPartitionConfigurationWrapper> conf = null)
         {
-            conf.Configuration.Type = PartitionType.Server;
-            conf.Configuration.LoadAhead = loadPagesAhead;
-            conf.Configuration.NoCount = noCount;
-            return conf;
+            c.Configuration.Server = new ServerPartitionConfiguration();
+            c.Configuration.Type = PartitionType.Server;
+            c.Configuration.Server.LoadAhead = loadPagesAhead;
+            c.Configuration.Server.NoCount = noCount;
+            if (conf != null)
+            {
+                ServerPartitionConfigurationWrapper w = new ServerPartitionConfigurationWrapper(c.Configuration.Server);
+                conf(w);
+            }
+            return c;
         }
     }
 }

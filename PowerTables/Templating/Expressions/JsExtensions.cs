@@ -84,6 +84,19 @@ namespace PowerTables.Templating.Expressions
             return t._("}else{");
         }
 
+        /// <summary>
+        /// Renders handlebars "if" directive in region
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="t"></param>
+        /// <param name="condition"></param>
+        /// <returns></returns>
+        public static CodeBlock ElseIf<T>(this IModelProvider<T> t, Expression<Func<T, bool>> condition)
+        {
+            var expr = TraversePropertyLambda(condition, t.ExistingModel);
+            return new CodeBlock(string.Format("}}else if({0}){{", expr), null, t);
+        }
+
         #endregion
 
         #region Each

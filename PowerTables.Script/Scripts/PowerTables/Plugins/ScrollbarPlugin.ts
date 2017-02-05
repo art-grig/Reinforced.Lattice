@@ -26,29 +26,6 @@
             this._boundScrollerEnd = this.scrollerEnd.bind(this);
         }
 
-        //#region Events
-
-        public upArrowMouseDown(t: ITemplateBoundEvent) {
-
-        }
-
-        public upArrowMouseUp(t: ITemplateBoundEvent) {
-
-        }
-
-        public downArrowMouseDown(t: ITemplateBoundEvent) {
-
-        }
-
-        public downArrowMouseUp(t: ITemplateBoundEvent) {
-
-        }
-
-        public scrollerAreaClick(t: ITemplateBoundEvent) {
-
-        }
-        //#endregion
-
         //#region Coords calculation
 
         private updateCoords() {
@@ -163,6 +140,7 @@
             return r;
         }
         //#endregion
+
         private getElement(configSelect: string): HTMLElement {
             if (!configSelect) return null;
             switch (configSelect) {
@@ -265,18 +243,31 @@
         private disableKb() { this._kbActive = false; }
 
         private keydownHook(e: KeyboardEvent) {
-            if ((<HTMLElement>e.target).tagName === 'input'
-                || (<HTMLElement>e.target).tagName === 'textarea'
-                || (<HTMLElement>e.target).tagName === 'select'
-            ) return true;
-            if (!this._kbActive) return true;
-            if (this.isKbListenerHidden()) return true;
-            if (this._isHidden) return true;
+            if ((<HTMLElement>e.target).tagName === 'input' ||
+                    (<HTMLElement>e.target).tagName === 'textarea' ||
+                    (<HTMLElement>e.target).tagName === 'select'
+            ) {
+                console.log("target is input");
+                return true;
+            }
+            if (!this._kbActive) {
+                console.log("kb not active");
+                return true;
+            }
+            if (this.isKbListenerHidden()) {
+                console.log("kb listener hidden");
+                return true;
+            }
+            if (this._isHidden) {
+                console.log("kb hidden");
+                return true;
+            }
             if (this.handleKey(e.keyCode)) {
                 e.preventDefault();
                 e.stopPropagation();
                 return false;
             } else {
+                console.log("key not recognized");
                 return true;
             }
         }

@@ -138,7 +138,7 @@
     </tr>
 }
 
-@using (var t = this.PartitionRow())
+@using (var t = this.PartitionIndication())
 {
     <tr class="danger" @t.Track() style="padding: 30px">
         <td colspan="@t.Value(c => c.DO.UiColumnsCount)">
@@ -146,7 +146,26 @@
             {
                 <h4 class="text-center"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>  Loading</h4>
             }
-
+            @using (t.If(x => x.DO.IsClientSearchPending))
+            {
+                <div class="text-center">
+                    <span>No more records found on @t.Value(x => x.DO.Stats.Pages) loaded pages. </span>
+                    @using (t.If(x => x.DO.CanLoadMore))
+                    {
+                        <div>
+                            It is possible load <input @t.ThisIsAdditionalPagesInput() type="text" class="form-control input-sm" style="display:inline-block;width:40px;text-align:center;" /> pages more and
+                            <button type="button" class="btn btn-default btn-sm" @t.BindLoadMore("click")>Search</button> among them.
+                        </div>
+                    }
+                </div>
+                
+            }
+            @using (t.If(x => x.DO.CanLoadMore))
+            {
+            <div class="text-center">
+                <button type="button" class="btn btn-default btn-sm" @t.BindLoadMore("click")>Load more</button>
+            </div>
+            }
         </td>
     </tr>
 }
@@ -376,7 +395,7 @@
         }
         Currently shown <strong>@t.Value(c => c.Displayed)</strong> of <strong>@t.Value(c => c.ServerCount)</strong> records
         <br />
-        @using (t.If(c => c.Take>0))
+        @using (t.If(c => c.Take > 0))
         {
             <p>
                 Page <strong>@t.Value(c => c.CurrentPage)</strong> of @t.Value(c => c.Pages)

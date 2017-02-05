@@ -234,7 +234,13 @@ namespace PowerTables.Typings
 
             #region Partition
             builder.ExportAsInterface<PartitionConfiguration>().OverrideNamespace("PowerTables").WithPublicProperties();
-            builder.ExportAsInterface<IPartitionRowTemplate>().OverrideNamespace("PowerTables").WithPublicProperties();
+            builder.ExportAsInterface<IPartitionRowData>().OverrideNamespace("PowerTables").WithPublicProperties()
+                .WithProperty(c=>c.CanLoadMore, c => c.Type("()=>boolean"))
+                .WithProperty(c=>c.IsClientSearchPending, c => c.Type("()=>boolean"))
+                .WithProperty(c=>c.IsLoading, c => c.Type("()=>boolean"))
+                .WithProperty(c=>c.UiColumnsCount, c => c.Type("()=>number"))
+                .WithProperty(c=>c.Stats, c => c.Type("()=>PowerTables.IStatsModel"))
+                ;
             builder.ExportAsInterface<IStatsModel>().OverrideNamespace("PowerTables")
                 .WithProperty(c => c.Skip, c => c.Type("()=>number"))
                 .WithProperty(c => c.Mode, c => c.Type("()=>PowerTables.PartitionType"))
@@ -250,6 +256,7 @@ namespace PowerTables.Typings
                 .WithProperty(c => c.IsSetFinite, c => c.Type("()=>boolean"))
                 ;
             builder.ExportAsEnum<PartitionType>().OverrideNamespace("PowerTables");
+            builder.ExportAsInterface<ServerPartitionConfiguration>().OverrideNamespace("PowerTables").WithPublicProperties();
             #endregion
 
 
