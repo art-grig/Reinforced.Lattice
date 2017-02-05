@@ -7259,6 +7259,7 @@ var PowerTables;
                 __extends(ScrollbarPlugin, _super);
                 function ScrollbarPlugin() {
                     _super.apply(this, arguments);
+                    this._skipOnUp = -1;
                     //#endregion
                     //#region Arrows handling
                     //#region Up arrow
@@ -7309,7 +7310,7 @@ var PowerTables;
                     var total = this.MasterTable.Partition.amount();
                     var d = this._availableSpace / total;
                     var h = d * skip;
-                    if (skip === 0)
+                    if (skip <= 0)
                         h = 0;
                     if (this.Configuration.IsHorizontal)
                         this.Scroller.style.left = h + 'px';
@@ -7535,7 +7536,7 @@ var PowerTables;
                         result = true;
                     }
                     if (mappings.End.indexOf(keyCode) > -1) {
-                        this.deferScroll(this.MasterTable.Partition.amount());
+                        this.deferScroll(this.MasterTable.Partition.amount() - this.MasterTable.Partition.Take);
                         result = true;
                     }
                     return result;
@@ -7560,6 +7561,7 @@ var PowerTables;
                 ScrollbarPlugin.prototype.scrollerStart = function (e) {
                     this._mouseStartPos = this.Configuration.IsHorizontal ? e.clientX : e.clientY;
                     this._startSkip = this.MasterTable.Partition.Skip;
+                    this._skipOnUp = -1;
                     PowerTables.Services.EventsDelegatorService.addHandler(document.body, 'mousemove', this._boundScrollerMove);
                     PowerTables.Services.EventsDelegatorService.addHandler(document.body, 'mouseup', this._boundScrollerEnd);
                     this.startDeferring();
@@ -7569,9 +7571,27 @@ var PowerTables;
                         this.scrollerEnd(e);
                     }
                     var cPos = this.Configuration.IsHorizontal ? e.clientX : e.clientY;
-                    var rowsPerPixel = this.MasterTable.Partition.amount() / this._availableSpace;
+                    var amt = this.MasterTable.Partition.amount();
+                    var rowsPerPixel = amt / this._availableSpace;
                     var diff = (cPos - this._mouseStartPos) * rowsPerPixel;
-                    this.deferScroll(this._startSkip + Math.floor(diff));
+                    var skp = this._startSkip + Math.floor(diff);
+                    if (skp < 0)
+                        skp = 0;
+                    if (skp > amt - this.MasterTable.Partition.Take)
+                        skp = amt - this.MasterTable.Partition.Take;
+                    if (this.MasterTable.Partition.isServer()) {
+                        if (this.MasterTable.Partition.hasEnoughDataToSkip(skp)) {
+                            this.deferScroll(skp);
+                            this._skipOnUp = -1;
+                        }
+                        else {
+                            this._skipOnUp = skp;
+                            this.adjustScrollerPosition(skp);
+                        }
+                    }
+                    else {
+                        this.deferScroll(skp);
+                    }
                     e.stopPropagation();
                     e.preventDefault();
                 };
@@ -7653,6 +7673,10 @@ var PowerTables;
                 };
                 ScrollbarPlugin.prototype.endDeferring = function () {
                     clearInterval(this._moveCheckInterval);
+                    if (this.MasterTable.Partition.isServer()) {
+                        if (this._skipOnUp !== -1)
+                            this._needMoveTo = this._skipOnUp;
+                    }
                     this.moveCheck();
                 };
                 ScrollbarPlugin.prototype.hideScroll = function () {
@@ -7664,38 +7688,32 @@ var PowerTables;
                     this.MasterTable.Renderer.Modifier.showElement(this._scollbar);
                 };
                 ScrollbarPlugin.prototype.onPartitionChange = function (e) {
-                    if (e.EventArgs.Take === 0) {
+                    if (!this.MasterTable.DataHolder.Ordered
+                        || (this.MasterTable.Partition.isClient() && this.MasterTable.DataHolder.Ordered.length <= e.MasterTable.Partition.Take)
+                        || this.MasterTable.DataHolder.DisplayedData.length === 0
+                        || e.EventArgs.Take !== e.EventArgs.PreviousTake
+                        || e.EventArgs.Take === 0) {
                         this.hideScroll();
                         return;
                     }
                     else {
                         this.showScroll();
-                    }
-                    if (this.MasterTable.DataHolder.Ordered.length <= e.MasterTable.Partition.Take || this.MasterTable.DataHolder.DisplayedData.length === 0) {
-                        this.hideScroll();
-                        return;
-                    }
-                    else {
-                        this.showScroll();
-                    }
-                    if (e.EventArgs.Take !== e.EventArgs.PreviousTake) {
-                        this.adjustScrollerHeight();
                     }
                     this.adjustScrollerPosition(e.EventArgs.Skip);
                 };
                 ScrollbarPlugin.prototype.onClientDataProcessing = function (e) {
-                    if (e.MasterTable.Partition.Take === 0) {
+                    if (e.MasterTable.Partition.Take === 0
+                        || (this.MasterTable.Partition.isClient() && e.EventArgs.Ordered.length <= e.MasterTable.Partition.Take)
+                        || e.EventArgs.Displaying.length === 0) {
                         this.hideScroll();
                         return;
                     }
                     else {
                         this.showScroll();
                     }
-                    if (e.EventArgs.Ordered.length <= e.MasterTable.Partition.Take || e.EventArgs.Displaying.length === 0) {
-                        this.hideScroll();
-                    }
-                    else {
-                        this.showScroll();
+                    if (this.MasterTable.InstanceManager.Configuration.Partition.NoCount) {
+                        this.adjustScrollerHeight();
+                        this.adjustScrollerPosition(this.MasterTable.Partition.Skip);
                     }
                 };
                 ScrollbarPlugin.prototype.subscribe = function (e) {
@@ -8172,6 +8190,15 @@ var PowerTables;
                         Take: take
                     });
                 };
+                ClientPartitionService.prototype.isClient = function () { return true; };
+                ClientPartitionService.prototype.isServer = function () { return false; };
+                ClientPartitionService.prototype.hasEnoughDataToSkip = function (skip) {
+                    if (skip < 0)
+                        return false;
+                    if (skip > this.amount() - this.Take)
+                        return false;
+                    return true;
+                };
                 return ClientPartitionService;
             }());
             Partition.ClientPartitionService = ClientPartitionService;
@@ -8197,6 +8224,8 @@ var PowerTables;
                     this._dataAppendError = this.dataAppendError.bind(this);
                 }
                 ServerPartitionService.prototype.setSkip = function (skip, preserveTake) {
+                    if (this.Skip === 0 && skip <= 0 && this._serverSkip === 0)
+                        return;
                     var iSkip = skip - this._serverSkip;
                     if ((iSkip + (this.Take * 2) > this._masterTable.DataHolder.Ordered.length) || (iSkip < 0)) {
                         if ((iSkip > this._masterTable.DataHolder.Ordered.length) || (iSkip < 0)) {
@@ -8243,12 +8272,13 @@ var PowerTables;
                 ServerPartitionService.prototype.dataAppendError = function (data) {
                 };
                 ServerPartitionService.prototype.dataAppendLoaded = function (data) {
+                    this._finishReached = (data.BatchSize < this.Take * this._loadAhead);
                 };
                 ServerPartitionService.prototype.modifyDataAppendQuery = function (q) {
                     q.IsBackgroundDataFetch = true;
                     q.Partition = {
                         NoCount: true,
-                        Skip: this._masterTable.DataHolder.StoredData.length,
+                        Skip: this._serverSkip + this._masterTable.DataHolder.StoredData.length,
                         Take: this.Take * this._loadAhead
                     };
                     return q;
@@ -8313,10 +8343,17 @@ var PowerTables;
                     return this.isAmountFinite() ? this._serverTotalCount : 0;
                 };
                 ServerPartitionService.prototype.amount = function () {
-                    if (this._noCount) {
-                        return _super.prototype.amount.call(this);
-                    }
-                    return this._serverTotalCount;
+                    return this._noCount ? _super.prototype.amount.call(this) : this._serverTotalCount;
+                };
+                ServerPartitionService.prototype.isClient = function () { return false; };
+                ServerPartitionService.prototype.isServer = function () { return true; };
+                ServerPartitionService.prototype.hasEnoughDataToSkip = function (skip) {
+                    if (skip < 0)
+                        return false;
+                    if (skip > this.amount() - this.Take)
+                        return false;
+                    var iSkip = skip - this._serverSkip;
+                    return (iSkip > 0) && (iSkip <= (this._masterTable.DataHolder.Ordered.length - this.Take));
                 };
                 return ServerPartitionService;
             }(Partition.ClientPartitionService));

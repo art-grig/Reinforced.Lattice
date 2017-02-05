@@ -69,7 +69,7 @@
             var total = this.MasterTable.Partition.amount();
             var d = this._availableSpace / total;
             var h = d * skip;
-            if (skip === 0) h = 0;
+            if (skip <= 0) h = 0;
             if (this.Configuration.IsHorizontal) this.Scroller.style.left = h + 'px';
             else this.Scroller.style.top = h + 'px';
             this._scrollerPos = h;
@@ -298,7 +298,7 @@
                 result = true;
             }
             if (mappings.End.indexOf(keyCode) > -1) {
-                this.deferScroll(this.MasterTable.Partition.amount());
+                this.deferScroll(this.MasterTable.Partition.amount() - this.MasterTable.Partition.Take);
                 result = true;
             }
             return result;
@@ -335,20 +335,36 @@
         private scrollerStart(e: MouseEvent) {
             this._mouseStartPos = this.Configuration.IsHorizontal ? e.clientX : e.clientY;
             this._startSkip = this.MasterTable.Partition.Skip;
+            this._skipOnUp = -1;
 
             PowerTables.Services.EventsDelegatorService.addHandler(document.body, 'mousemove', this._boundScrollerMove);
             PowerTables.Services.EventsDelegatorService.addHandler(document.body, 'mouseup', this._boundScrollerEnd);
             this.startDeferring();
         }
 
+        private _skipOnUp:number = -1;
         private scrollerMove(e: MouseEvent) {
             if (e.buttons === 0) {
                 this.scrollerEnd(e);
             }
             var cPos = this.Configuration.IsHorizontal ? e.clientX : e.clientY;
-            var rowsPerPixel = this.MasterTable.Partition.amount() / this._availableSpace;
+            var amt = this.MasterTable.Partition.amount();
+            var rowsPerPixel = amt / this._availableSpace;
             var diff = (cPos - this._mouseStartPos) * rowsPerPixel;
-            this.deferScroll(this._startSkip + Math.floor(diff));
+            var skp = this._startSkip + Math.floor(diff);
+            if (skp < 0) skp = 0;
+            if (skp > amt - this.MasterTable.Partition.Take) skp = amt - this.MasterTable.Partition.Take;
+            if (this.MasterTable.Partition.isServer()) {
+                if (this.MasterTable.Partition.hasEnoughDataToSkip(skp)) {
+                    this.deferScroll(skp);
+                    this._skipOnUp = -1;
+                } else {
+                    this._skipOnUp = skp;
+                    this.adjustScrollerPosition(skp);
+                }
+            } else {
+                this.deferScroll(skp);
+            }
 
             e.stopPropagation();
             e.preventDefault();
@@ -459,51 +475,55 @@
         }
         private endDeferring() {
             clearInterval(this._moveCheckInterval);
+            if (this.MasterTable.Partition.isServer()) {
+                if (this._skipOnUp !== -1) this._needMoveTo = this._skipOnUp;
+            }
             this.moveCheck();
+            
         }
         //#endregion
 
         private _prevCount: number;
-        private _isHidden:boolean;
+        private _isHidden: boolean;
         private hideScroll() {
             this._isHidden = true;
             this.MasterTable.Renderer.Modifier.hideElement(this._scollbar);
         }
-        
+
         private showScroll() {
             this._isHidden = false;
             this.MasterTable.Renderer.Modifier.showElement(this._scollbar);
         }
         private onPartitionChange(e: ITableEventArgs<IPartitionChangeEventArgs>) {
-            if (e.EventArgs.Take === 0) {
+            if (!this.MasterTable.DataHolder.Ordered
+                || (this.MasterTable.Partition.isClient() && this.MasterTable.DataHolder.Ordered.length <= e.MasterTable.Partition.Take)
+                || this.MasterTable.DataHolder.DisplayedData.length === 0
+                || e.EventArgs.Take !== e.EventArgs.PreviousTake
+                || e.EventArgs.Take === 0
+            ) {
                 this.hideScroll();
                 return;
             } else {
                 this.showScroll();
             }
-            if (this.MasterTable.DataHolder.Ordered.length <= e.MasterTable.Partition.Take || this.MasterTable.DataHolder.DisplayedData.length === 0) {
-                this.hideScroll();
-                return;
-            } else {
-                this.showScroll();
-            }
-            if (e.EventArgs.Take !== e.EventArgs.PreviousTake) {
-                this.adjustScrollerHeight();
-            }
+
             this.adjustScrollerPosition(e.EventArgs.Skip);
         }
 
         private onClientDataProcessing(e: ITableEventArgs<PowerTables.IClientDataResults>) {
-            if (e.MasterTable.Partition.Take === 0) {
+            if (e.MasterTable.Partition.Take === 0
+                || (this.MasterTable.Partition.isClient() && e.EventArgs.Ordered.length <= e.MasterTable.Partition.Take)
+                || e.EventArgs.Displaying.length === 0
+            ) {
                 this.hideScroll();
                 return;
             } else {
                 this.showScroll();
             }
-            if (e.EventArgs.Ordered.length <= e.MasterTable.Partition.Take || e.EventArgs.Displaying.length === 0) {
-                this.hideScroll();
-            } else {
-                this.showScroll();
+
+            if (this.MasterTable.InstanceManager.Configuration.Partition.NoCount) {
+                this.adjustScrollerHeight();
+                this.adjustScrollerPosition(this.MasterTable.Partition.Skip);
             }
         }
         public subscribe(e: PowerTables.Services.EventsService): void {

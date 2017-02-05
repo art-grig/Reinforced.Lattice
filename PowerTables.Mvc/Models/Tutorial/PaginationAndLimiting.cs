@@ -2,6 +2,7 @@
 using PowerTables.Plugins;
 using PowerTables.Plugins.Limit;
 using PowerTables.Plugins.Paging;
+using PowerTables.Plugins.Scrollbar;
 
 namespace PowerTables.Mvc.Models.Tutorial
 {
@@ -24,7 +25,8 @@ namespace PowerTables.Mvc.Models.Tutorial
                 ui =>
                     ui.PlaceAt("rb")
                     .PagingSimple(true)); // lets pick simple arrows left/right paging
-            conf.Partition(x => x.Server().InitialSkipTake(take: 14));
+            conf.Scrollbar(x => x.Vertical());
+            conf.Partition(x => x.Server(noCount: true).InitialSkipTake(take: 14));
             return conf;
         }
     }

@@ -121,6 +121,7 @@ module PowerTables {
 	{
 		Message: PowerTables.ITableMessage;
 		ResultsCount: number;
+		BatchSize: number;
 		PageIndex: number;
 		Data: any[];
 		AdditionalData: any;

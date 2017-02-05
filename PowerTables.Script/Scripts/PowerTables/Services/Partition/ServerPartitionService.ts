@@ -17,6 +17,7 @@
         private _serverSkip: number = 0;
 
         public setSkip(skip: number, preserveTake?: boolean): void {
+            if (this.Skip === 0 && skip <= 0 && this._serverSkip === 0) return;
             var iSkip = skip - this._serverSkip;
             if ((iSkip + (this.Take * 2) > this._masterTable.DataHolder.Ordered.length) || (iSkip < 0)) {
                 if ((iSkip > this._masterTable.DataHolder.Ordered.length) || (iSkip < 0)) {
@@ -68,15 +69,15 @@
         private dataAppendError(data: any) {
 
         }
-        private dataAppendLoaded(data: any) {
-
+        private dataAppendLoaded(data: IPowerTablesResponse) {
+            this._finishReached = (data.BatchSize < this.Take * this._loadAhead);
         }
 
         private modifyDataAppendQuery(q: IQuery): IQuery {
             q.IsBackgroundDataFetch = true;
             q.Partition = {
                 NoCount: true,
-                Skip: this._masterTable.DataHolder.StoredData.length,
+                Skip: this._serverSkip + this._masterTable.DataHolder.StoredData.length,
                 Take: this.Take * this._loadAhead
             }
             return q;
@@ -154,10 +155,19 @@
         }
 
         public amount(): number {
-            if (this._noCount) {
-                return super.amount();
-            }
-            return this._serverTotalCount;
+            return this._noCount ? super.amount() : this._serverTotalCount;
+        }
+
+        public isClient(): boolean { return false; }
+
+        public isServer(): boolean { return true; }
+
+        public hasEnoughDataToSkip(skip: number): boolean {
+            if (skip < 0) return false;
+            if (skip > this.amount() - this.Take) return false;
+            var iSkip = skip - this._serverSkip;
+
+            return (iSkip > 0) && (iSkip <= (this._masterTable.DataHolder.Ordered.length - this.Take));
         }
     }
 }

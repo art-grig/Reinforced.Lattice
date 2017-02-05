@@ -235,5 +235,15 @@
                     Take: take
                 });
         }
+
+        public isClient(): boolean { return true; }
+
+        public isServer(): boolean { return false; }
+
+        public hasEnoughDataToSkip(skip: number): boolean {
+            if (skip < 0) return false;
+            if (skip > this.amount() - this.Take) return false;
+            return true;
+        }
     }
 }

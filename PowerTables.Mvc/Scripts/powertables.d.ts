@@ -110,6 +110,7 @@ declare module PowerTables {
     interface IPowerTablesResponse {
         Message: PowerTables.ITableMessage;
         ResultsCount: number;
+        BatchSize: number;
         PageIndex: number;
         Data: any[];
         AdditionalData: any;
@@ -3276,6 +3277,7 @@ declare module PowerTables.Plugins.Scrollbar {
         private _mouseStartPos;
         private _startSkip;
         private scrollerStart(e);
+        private _skipOnUp;
         private scrollerMove(e);
         private scrollerEnd(e);
         private handleWheel(e);
@@ -3344,6 +3346,9 @@ declare module PowerTables.Services.Partition {
         isAmountFinite(): boolean;
         totalAmount(): number;
         initial(skip: number, take: number): any;
+        isClient(): boolean;
+        isServer(): boolean;
+        hasEnoughDataToSkip(skip: number): boolean;
     }
 }
 declare module PowerTables.Services.Partition {
@@ -3359,6 +3364,9 @@ declare module PowerTables.Services.Partition {
         isAmountFinite(): boolean;
         totalAmount(): number;
         initial(skip: number, take: number): any;
+        isClient(): boolean;
+        isServer(): boolean;
+        hasEnoughDataToSkip(skip: number): boolean;
     }
 }
 declare module PowerTables.Services.Partition {
@@ -3386,6 +3394,9 @@ declare module PowerTables.Services.Partition {
         isAmountFinite(): boolean;
         totalAmount(): number;
         amount(): number;
+        isClient(): boolean;
+        isServer(): boolean;
+        hasEnoughDataToSkip(skip: number): boolean;
     }
 }
 declare module PowerTables.Plugins.LoadingOverlap {
