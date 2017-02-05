@@ -11,16 +11,24 @@
             this._dataAppendLoaded = this.dataAppendLoaded.bind(this);
             this._dataAppendError = this.dataAppendError.bind(this);
             if (this._conf.AppendLoadingRow || this._conf.UseLoadMore) {
-                this._indicator = new PartitionIndicator(masterTable, this);
+                this._indicator = new PartitionIndicatorRow(masterTable, this);
             }
         }
         private _conf: IServerPartitionConfiguration;
         private _serverSkip: number = 0;
-        private _indicator: PartitionIndicator;
+        private _indicator: PartitionIndicatorRow;
 
         public setSkip(skip: number, preserveTake?: boolean): void {
             if (this.Skip === 0 && skip <= 0 && this._serverSkip === 0) return;
             var iSkip = skip - this._serverSkip;
+            if (this._conf.UseLoadMore) {
+                if (iSkip + this.Take >= this._masterTable.DataHolder.Ordered.length) {
+                    this.showIndication();
+                    return;
+                } else {
+                    this.destroyIndication();
+                }
+            }
             if ((iSkip + (this.Take * 2) > this._masterTable.DataHolder.Ordered.length) || (iSkip < 0)) {
                 if ((iSkip > this._masterTable.DataHolder.Ordered.length) || (iSkip < 0)) {
                     var prevSkip = this.Skip;
@@ -36,11 +44,7 @@
                     this._masterTable.Controller.reload(true);
                     return;
                 } else {
-                    if (this._conf.UseLoadMore) {
-                        this.showIndication();
-                    } else {
-                        this.loadNextDataPart();
-                    }
+                    if (!this._conf.UseLoadMore) this.loadNextDataPart();
                 }
             }
             super.setSkip(skip, preserveTake);
@@ -57,7 +61,9 @@
 
         public setTake(take: number): void {
             var iSkip = this.Skip - this._serverSkip;
+            var noData = !this._masterTable.DataHolder.RecentClientQuery;
             super.setTake(take);
+            if (noData) return;
             if ((iSkip + (take * 2) > this._masterTable.DataHolder.Ordered.length)) {
                 this.loadNextDataPart();
             }
@@ -93,21 +99,8 @@
         
         private _indicationShown:boolean = false;
         private showIndication() {
-            var row: IRow = {
-                DataObject: this._indicator,
-                Index: -10,
-                Cells: {},
-                MasterTable: this._masterTable,
-                CanBeSelected: false,
-                IsAdded: false,
-                IsSelected: false,
-                IsSpecial: true,
-                IsUpdated: false,
-                TemplateIdOverride: this._conf.LoadingRowTemplateId,
-                renderContent: null,
-                renderElement: null
-            };
-            this._masterTable.Renderer.Modifier.appendRow(row);
+            if (this._indicationShown) return;
+            this._masterTable.Renderer.Modifier.appendRow(this._indicator);
             this._indicationShown = true;
         }
 
@@ -118,7 +111,7 @@
         }
 
         public loadMore(page?: number) {
-            this._masterTable.Renderer.Modifier.destroyPartitionRow();
+           this.destroyIndication();
             this.loadNextDataPart(page);
         }
         //#endregion
@@ -135,6 +128,7 @@
         //#endregion
 
         private resetSkip() {
+            if (this.Skip === 0) return;
             var prevSkip = this.Skip;
             this.Skip = 0;
             this._masterTable.Events.PartitionChanged.invokeAfter(this,
@@ -151,29 +145,32 @@
         public partitionBeforeQuery(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean): void {
             // Check if it is pager's request. If true - nothing to do here. All necessary things are already done in queryModifier
             if (serverQuery.IsBackgroundDataFetch) return;
-
-            var hasClientFilters = ServerPartitionService.any(clientQuery.Filterings);
-
-            // in case if we have client filters...
-            if (hasClientFilters) {
-                this.ActiveClientFiltering = true;
-                // we will do append manually, so in  first N pages here
-                serverQuery.Partition = { NoCount: true, Take: this.Take * this._conf.LoadAhead, Skip: 0 };
-                var pQ = JSON.stringify(clientQuery);
-                var queriesEqual = (pQ === this._previousClientQuery);
-                this._previousClientQuery = pQ;
-                if (isServerQuery || !queriesEqual) {
-                    this.resetSkip();
+            
+            if (this._conf.NoCount) {
+                this.resetSkip();
+                serverQuery.Partition = { NoCount: true, Take: this.Take * this._conf.LoadAhead, Skip: this.Skip };
+            } else {
+                var hasClientFilters = ServerPartitionService.any(clientQuery.Filterings);
+                // in case if we have client filters...
+                if (hasClientFilters) {
+                    this.ActiveClientFiltering = true;
+                    // we will do append manually, so in  first N pages here
+                    serverQuery.Partition = { NoCount: true, Take: this.Take * this._conf.LoadAhead, Skip: 0 };
+                    var pQ = JSON.stringify(clientQuery);
+                    var queriesEqual = (pQ === this._previousClientQuery);
+                    this._previousClientQuery = pQ;
+                    if (isServerQuery || !queriesEqual) {
+                        this.resetSkip();
+                    }
+                } // in case if not - well, it seems that it is honest data request
+                else {
+                    if (this.ActiveClientFiltering) {
+                        this.ActiveClientFiltering = false;
+                        this.resetSkip();
+                    }
+                    serverQuery.Partition = { NoCount: false, Take: this.Take * this._conf.LoadAhead, Skip: this.Skip };
                 }
-            } // in case if not - well, it seems that it is honest data request
-            else {
-                if (this.ActiveClientFiltering) {
-                    this.ActiveClientFiltering = false;
-                    this.resetSkip();
-                }
-                serverQuery.Partition = { NoCount: this._conf.NoCount, Take: this.Take * this._conf.LoadAhead, Skip: this.Skip };
             }
-
             // for client query we pass our regular parameters
             clientQuery.Partition = {
                 NoCount: true,
@@ -189,7 +186,8 @@
                 if (initialSet.length < this.Take * this._conf.LoadAhead) {
                     console.log("not enough data, loading");
                     if (this._conf.UseLoadMore) {
-                        this.showIndication();
+                        
+                        setTimeout(() => this.showIndication(), 50);
                     } else {
                         setTimeout(() => this.loadNextDataPart(), 5);
                     }

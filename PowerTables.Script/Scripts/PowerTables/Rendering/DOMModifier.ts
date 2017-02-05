@@ -290,7 +290,13 @@
         public destroyRowByIndex(rowDisplayIndex: number): void {
             var rowElement: HTMLElement = this._locator.getRowElementByIndex(rowDisplayIndex);
             if (!rowElement) return;
-            rowElement.parentElement.removeChild(rowElement);
+            this.destroyElement(rowElement);
+        }
+
+        public destroyRowByNumber(rowNumber: number): void {
+            var rows = this._locator.getRowElements();
+            if (rowNumber > rows.length) return;
+            this.destroyElement(<Element>rows.item(rowNumber));
         }
 
         public hideRowByIndex(rowDisplayIndex: number): void {

@@ -174,7 +174,7 @@ module PowerTables.Templating {
             var trk: string = this._stack.Current.CurrentTrack;
             if (trk.length === 0) return;
             this.w(`data-track="${trk}"`);
-            if (this.Type === RenderedObject.Row) {
+            if (this.Type === RenderedObject.Row || this.Type === RenderedObject.Partition) {
                 if ((<IRow>this.Model).IsSpecial) {
                     this.w(` data-spr='true'`);
                 }

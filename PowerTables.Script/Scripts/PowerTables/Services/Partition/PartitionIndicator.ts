@@ -1,12 +1,39 @@
 ﻿module PowerTables.Services.Partition {
+    export class PartitionIndicatorRow implements IRow {
+        
+        private _partitionService: PowerTables.Services.Partition.ServerPartitionService;
+
+        constructor(masterTable: IMasterTable, partitionService: PowerTables.Services.Partition.ServerPartitionService) {
+            this.DataObject = new PartitionIndicator(masterTable, partitionService);
+            this.MasterTable = masterTable;
+            this._partitionService = partitionService;
+            this.TemplateIdOverride = masterTable.Configuration.Partition.Server.LoadingRowTemplateId;
+        }
+
+        public TemplateIdOverride:string;
+        public IsSpecial:boolean = true;
+        public DataObject: any;
+        public Index: number = 0;
+        public MasterTable: IMasterTable;
+        public Cells: { [index: string]: ICell; } = {};
+
+        public PagesInput: HTMLInputElement;
+        public VisualState: PowerTables.Rendering.VisualState;
+
+        public loadMore() {
+            var loadPages = null;
+            if (this.PagesInput) {
+                loadPages = parseInt(this.PagesInput.value);
+            }
+            this._partitionService.loadMore(loadPages);
+        }
+    }
+    
     export class PartitionIndicator implements PowerTables.IPartitionRowData {
         constructor(masterTable: IMasterTable, partitionService: PowerTables.Services.Partition.ServerPartitionService) {
             this._masterTable = masterTable;
             this._partitionService = partitionService;
         }
-
-        public PagesInput: HTMLInputElement;
-        public VisualState: PowerTables.Rendering.VisualState;
 
         private _masterTable: PowerTables.IMasterTable;
         private _partitionService: PowerTables.Services.Partition.ServerPartitionService;
@@ -28,12 +55,6 @@
             return !this._partitionService.FinishReached;
         }
 
-        public loadMore() {
-            var loadPages = null;
-            if (this.PagesInput) {
-                loadPages = parseInt(this.PagesInput.value);
-            }
-            this._partitionService.loadMore(loadPages);
-        }
+        
     }
 }

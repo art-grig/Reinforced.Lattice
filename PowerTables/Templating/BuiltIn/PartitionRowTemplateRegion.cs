@@ -10,7 +10,7 @@ namespace PowerTables.Templating.BuiltIn
     public class PartitionRowTemplateRegion : ModeledTemplateRegion<IRowModel<IPartitionRowData>>,
         IProvidesEventsBinding, IProvidesTracking, IProvidesMarking
     {
-        public PartitionRowTemplateRegion(string prefix, string id, ITemplatesScope scope) : base(TemplateRegionType.Row, prefix, id, scope)
+        public PartitionRowTemplateRegion(string prefix, string id, ITemplatesScope scope) : base(TemplateRegionType.Partition, prefix, id, scope)
         {
         }
 

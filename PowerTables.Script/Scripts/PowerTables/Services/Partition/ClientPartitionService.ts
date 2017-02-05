@@ -91,6 +91,12 @@
                 Take: take
             };
             this._masterTable.Events.PartitionChanged.invokeBefore(this, ea);
+            if (!this._masterTable.DataHolder.RecentClientQuery) {
+                this.Take = take;
+                this._masterTable.Controller.reload();
+                this._masterTable.Events.PartitionChanged.invokeAfter(this, ea);
+                return;
+            }
             if (take === 0) {
                 this.Skip = 0;
                 this.Take = 0;

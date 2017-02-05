@@ -53,7 +53,7 @@
 
         public getPartitionRowElement(): Element {
             var track: string = TrackHelper.getPartitionRowTrack();
-            return this._bodyElement.querySelector(track);
+            return this._bodyElement.querySelector(`[data-track="${track}"]`);
         }
 
         /**
@@ -63,7 +63,7 @@
          * @returns HTML element
          */
         public getRowElements(): NodeList {
-            return this._bodyElement.querySelectorAll(`[data-track$="r-"]`);
+            return this._bodyElement.querySelectorAll(`[data-track^="r-"]`);
         }
 
         /**

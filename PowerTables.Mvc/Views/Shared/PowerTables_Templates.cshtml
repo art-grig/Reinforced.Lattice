@@ -140,13 +140,13 @@
 
 @using (var t = this.PartitionIndication())
 {
-    <tr class="danger" @t.Track() style="padding: 30px">
+    <tr @t.Track() style="padding: 30px">
         <td colspan="@t.Value(c => c.DO.UiColumnsCount)">
             @using (t.If(x => x.DO.IsLoading))
             {
                 <h4 class="text-center"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>  Loading</h4>
             }
-            @using (t.If(x => x.DO.IsClientSearchPending))
+            @using (t.If(x => x.DO.IsClientSearchPending && !x.DO.IsLoading))
             {
                 <div class="text-center">
                     <span>No more records found on @t.Value(x => x.DO.Stats.Pages) loaded pages. </span>
@@ -160,7 +160,7 @@
                 </div>
                 
             }
-            @using (t.If(x => x.DO.CanLoadMore))
+            @using (t.If(x => x.DO.CanLoadMore && !x.DO.IsLoading))
             {
             <div class="text-center">
                 <button type="button" class="btn btn-default btn-sm" @t.BindLoadMore("click")>Load more</button>

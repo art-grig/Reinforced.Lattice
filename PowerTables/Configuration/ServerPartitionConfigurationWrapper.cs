@@ -34,7 +34,7 @@ namespace PowerTables.Configuration
         }
 
         public static ServerPartitionConfigurationWrapper Indication(this ServerPartitionConfigurationWrapper c
-            , bool appendLoadingRow = false,bool useLoadMore = true,string template = "partitionIndication")
+            , bool appendLoadingRow = true,bool useLoadMore = true,string template = "partitionIndication")
         {
             c.Configuration.AppendLoadingRow = appendLoadingRow;
             c.Configuration.UseLoadMore = useLoadMore;
