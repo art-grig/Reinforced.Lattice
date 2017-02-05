@@ -521,7 +521,7 @@
                 this.showScroll();
             }
 
-            if (this.MasterTable.Configuration.Partition.NoCount) {
+            if (this.MasterTable.Partition.isServer() && this.MasterTable.Configuration.Partition.Server.NoCount) {
                 this.adjustScrollerHeight();
                 this.adjustScrollerPosition(this.MasterTable.Partition.Skip);
             }

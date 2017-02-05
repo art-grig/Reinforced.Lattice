@@ -464,8 +464,8 @@
         /**
          * @internal
          */
-        public handleElementDestroy(e: HTMLElement) {
-            var arr: HTMLElement[] = this.collectElementsHavingAttribute(e, 'data-outsub');
+        public handleElementDestroy(e: Element) {
+            var arr: Element[] = this.collectElementsHavingAttribute(e, 'data-outsub');
             if (arr.length !== 0) {
                 for (var os in this._outSubscriptions) {
                     var sub = this._outSubscriptions[os];
@@ -511,11 +511,11 @@
             }
         }
 
-        private collectElementsHavingAttribute(parent: HTMLElement, attribute: string): HTMLElement[] {
+        private collectElementsHavingAttribute(parent: Element, attribute: string): Element[] {
             var matching = parent.querySelectorAll(`[${attribute}]`);
-            var arr: HTMLElement[] = [];
+            var arr: Element[] = [];
             for (var i = 0; i < matching.length; i++) {
-                arr.push(<HTMLElement>matching[i]);
+                arr.push(matching[i]);
             }
             if (parent.hasAttribute(attribute)) arr.push(parent);
             return arr;

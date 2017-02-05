@@ -51,6 +51,11 @@
             return <HTMLElement>this._bodyElement.querySelector(`[data-track="${track}"]`);
         }
 
+        public getPartitionRowElement(): Element {
+            var track: string = TrackHelper.getPartitionRowTrack();
+            return this._bodyElement.querySelector(track);
+        }
+
         /**
          * Retrieves row element (including wrapper)
          * 
@@ -152,12 +157,25 @@
          * @param e Testing element
          * @returns {boolean} True when supplied element is row, false otherwise
          */
-        public isRow(e: HTMLElement): boolean {
+        public isRow(e: Element): boolean {
             if (!e) return false;
             if (!e.getAttribute) return false;
             var trk: string = e.getAttribute('data-track');
             if (!trk) return false;
             return (trk.charAt(0) === 'r') && (trk.charAt(1) === '-');
+        }
+        /**
+         * Determines if supplied element is table row with "IsSpecial" flag
+         * 
+         * @param e Testing element
+         * @returns {boolean} True when supplied element is row, false otherwise
+         */
+        public isSpecialRow(e: Element): boolean {
+            if (!e) return false;
+            if (!e.getAttribute) return false;
+            var spr: string = e.getAttribute('data-spr');
+            if (!spr) return false;
+            return true;
         }
 
         /**
@@ -166,7 +184,7 @@
          * @param e Testing element
          * @returns {boolean} True when supplied element is cell, false otherwise
          */
-        public isCell(e: HTMLElement): boolean {
+        public isCell(e: Element): boolean {
             if (!e) return false;
             if (!e.getAttribute) return false;
             var trk: string = e.getAttribute('data-track');

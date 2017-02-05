@@ -2366,6 +2366,7 @@ declare module PowerTables.Rendering {
          * @returns HTML element
          */
         getRowElement(row: IRow): HTMLElement;
+        getPartitionRowElement(): Element;
         /**
          * Retrieves row element (including wrapper)
          *
@@ -2435,14 +2436,21 @@ declare module PowerTables.Rendering {
          * @param e Testing element
          * @returns {boolean} True when supplied element is row, false otherwise
          */
-        isRow(e: HTMLElement): boolean;
+        isRow(e: Element): boolean;
+        /**
+         * Determines if supplied element is table row with "IsSpecial" flag
+         *
+         * @param e Testing element
+         * @returns {boolean} True when supplied element is row, false otherwise
+         */
+        isSpecialRow(e: Element): boolean;
         /**
          * Determines if supplied element is table cell
          *
          * @param e Testing element
          * @returns {boolean} True when supplied element is cell, false otherwise
          */
-        isCell(e: HTMLElement): boolean;
+        isCell(e: Element): boolean;
     }
 }
 declare module PowerTables.Rendering {
@@ -2457,12 +2465,13 @@ declare module PowerTables.Rendering {
         private _backBinder;
         private _instances;
         private _bodyElement;
+        destroyPartitionRow(): void;
         private getRealDisplay(elem);
         private displayCache;
         hideElement(el: HTMLElement): void;
         showElement(el: HTMLElement): void;
         cleanSelector(targetSelector: string): void;
-        destroyElement(element: HTMLElement): void;
+        destroyElement(element: Element): void;
         private destroyElements(elements);
         hideElements(element: NodeList): void;
         showElements(element: NodeList): void;
@@ -3168,7 +3177,7 @@ declare module PowerTables.Services {
         /**
          * @internal
          */
-        handleElementDestroy(e: HTMLElement): void;
+        handleElementDestroy(e: Element): void;
         private collectElementsHavingAttribute(parent, attribute);
     }
 }
@@ -3500,6 +3509,8 @@ declare module PowerTables.Services.Partition {
 declare module PowerTables.Services.Partition {
     class PartitionIndicator implements PowerTables.IPartitionRowData {
         constructor(masterTable: IMasterTable, partitionService: PowerTables.Services.Partition.ServerPartitionService);
+        PagesInput: HTMLInputElement;
+        VisualState: PowerTables.Rendering.VisualState;
         private _masterTable;
         private _partitionService;
         UiColumnsCount(): number;
@@ -3507,6 +3518,7 @@ declare module PowerTables.Services.Partition {
         Stats(): IStatsModel;
         IsClientSearchPending(): boolean;
         CanLoadMore(): boolean;
+        loadMore(): void;
     }
 }
 declare module PowerTables.Services.Partition {
@@ -3521,10 +3533,15 @@ declare module PowerTables.Services.Partition {
         setSkip(skip: number, preserveTake?: boolean): void;
         protected cut(ordered: any[], skip: number, take: number): any[];
         setTake(take: number): void;
-        private loadNextDataPart();
+        IsLoadingNextPart: boolean;
+        loadNextDataPart(pages?: number): void;
         private dataAppendError(data);
         private dataAppendLoaded(data);
-        private modifyDataAppendQuery(q);
+        private _indicationShown;
+        private showIndication();
+        private destroyIndication();
+        loadMore(page?: number): void;
+        private modifyDataAppendQuery(q, pages);
         private resetSkip();
         private _previousClientQuery;
         partitionBeforeQuery(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean): void;

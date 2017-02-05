@@ -6,7 +6,7 @@
         /*
         * @internal
         */
-        constructor(executor: PowerTables.Templating.TemplatesExecutor, locator: DOMLocator, backBinder: BackBinder, instances: PowerTables.Services.InstanceManagerService, ed: PowerTables.Services.EventsDelegatorService,bodyElement:HTMLElement) {
+        constructor(executor: PowerTables.Templating.TemplatesExecutor, locator: DOMLocator, backBinder: BackBinder, instances: PowerTables.Services.InstanceManagerService, ed: PowerTables.Services.EventsDelegatorService, bodyElement: HTMLElement) {
             this._locator = locator;
             this._backBinder = backBinder;
             this._instances = instances;
@@ -20,8 +20,13 @@
         private _locator: DOMLocator;
         private _backBinder: BackBinder;
         private _instances: PowerTables.Services.InstanceManagerService;
-        private _bodyElement:HTMLElement;
+        private _bodyElement: HTMLElement;
 
+        public destroyPartitionRow() {
+            var rowElement = this._locator.getPartitionRowElement();
+            if (!rowElement) return;
+            this.destroyElement(rowElement);
+        }
 
         //#region Show/hide infrastructure
         private getRealDisplay(elem): string {
@@ -73,7 +78,7 @@
             parent.innerHTML = '';
         }
 
-        public destroyElement(element: HTMLElement) {
+        public destroyElement(element: Element) {
             element.parentElement.removeChild(element);
             this._ed.handleElementDestroy(element);
         }
@@ -227,9 +232,18 @@
                 var referenceNode: HTMLElement = this._locator.getRowElementByIndex(beforeRowAtIndex);
                 referenceNode.parentNode.insertBefore(newRowElement, referenceNode);
             } else {
+                if (this._locator.isSpecialRow(this._bodyElement.lastElementChild)) {
+                    var refNode = null;
+                    var idx = this._bodyElement.childElementCount;
+                    do {
+                        idx--;
+                        refNode = this._bodyElement.children.item(idx);
+                    } while (this._locator.isSpecialRow(refNode));
+                    refNode.parentNode.insertBefore(newRowElement, refNode);
+                }
                 this._bodyElement.appendChild(newRowElement);
             }
-            this._backBinder.backBind(newRowElement,result.BackbindInfo);
+            this._backBinder.backBind(newRowElement, result.BackbindInfo);
             return newRowElement;
         }
 
@@ -247,10 +261,23 @@
             if (this._bodyElement.childElementCount === 0) {
                 this._bodyElement.appendChild(newRowElement);
             } else {
-                var referenceNode: HTMLElement = <HTMLElement>this._bodyElement.children.item(0);
-                referenceNode.parentNode.insertBefore(newRowElement, referenceNode);
+                var referenceNode: HTMLElement = <HTMLElement>this._bodyElement.firstElementChild;
+                if (this._locator.isSpecialRow(referenceNode)) {
+                    var idx = 0;
+                    do {
+                        idx++;
+                        referenceNode = <HTMLElement>this._bodyElement.children.item(idx);
+                    } while (this._locator.isSpecialRow(referenceNode) || idx < this._bodyElement.childElementCount);
+                    if (idx === this._bodyElement.childElementCount) {
+                        this._bodyElement.appendChild(newRowElement);
+                    } else {
+                        referenceNode.parentNode.insertBefore(newRowElement, referenceNode);
+                    }
+                } else {
+                    referenceNode.parentNode.insertBefore(newRowElement, referenceNode);
+                }
             }
-            this._backBinder.backBind(newRowElement,result.BackbindInfo);
+            this._backBinder.backBind(newRowElement, result.BackbindInfo);
             return newRowElement;
         }
 
@@ -341,6 +368,7 @@
 
         //#endregion
 
+        //#region Headers
         /**
          * Redraws header for specified column
          * 
@@ -374,6 +402,7 @@
             if (!e) return;
             this.showElement(e);
         }
+        //#endregion
 
         public createElement(html: string): HTMLElement {
             var parser: Rendering.Html2Dom.HtmlParser = new Rendering.Html2Dom.HtmlParser();
@@ -381,7 +410,7 @@
         }
 
         public createElementFromTemplate(templateId: string, viewModelBehind: any): HTMLElement {
-            var p = this._tpl.execute(viewModelBehind,templateId);
+            var p = this._tpl.execute(viewModelBehind, templateId);
             var parser: Rendering.Html2Dom.HtmlParser = new Rendering.Html2Dom.HtmlParser();
             var element = parser.html2Dom(p.Html);
             this._backBinder.backBind(element, p.BackbindInfo);

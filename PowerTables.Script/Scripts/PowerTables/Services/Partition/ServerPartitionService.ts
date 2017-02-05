@@ -36,7 +36,11 @@
                     this._masterTable.Controller.reload(true);
                     return;
                 } else {
-                    this.loadNextDataPart(); //todo append loadmore here
+                    if (this._conf.UseLoadMore) {
+                        this.showIndication();
+                    } else {
+                        this.loadNextDataPart();
+                    }
                 }
             }
             super.setSkip(skip, preserveTake);
@@ -57,32 +61,74 @@
             if ((iSkip + (take * 2) > this._masterTable.DataHolder.Ordered.length)) {
                 this.loadNextDataPart();
             }
-
         }
 
+        public IsLoadingNextPart: boolean = false;
+
         //#region Data parts loading
-        private loadNextDataPart() {
+        public loadNextDataPart(pages?: number) {
             if (this.FinishReached) return;
+            if (pages == null) pages = this._conf.LoadAhead;
+            this.IsLoadingNextPart = true;
+            if (this._conf.AppendLoadingRow) this.showIndication();
+
             this._masterTable.Loader.query(
                 this._dataAppendLoaded,
-                this._modifyDataAppendQuery,
+                (q) => this.modifyDataAppendQuery(q, pages),
                 this._dataAppendError,
                 true
             );
         }
         private dataAppendError(data: any) {
-
+            this.IsLoadingNextPart = false;
+            if (this._conf.AppendLoadingRow) this.destroyIndication();
         }
         private dataAppendLoaded(data: IPowerTablesResponse) {
+            this.IsLoadingNextPart = false;
+            if (this._conf.AppendLoadingRow) this.destroyIndication();
             this.FinishReached = (data.BatchSize < this.Take * this._conf.LoadAhead);
         }
 
-        private modifyDataAppendQuery(q: IQuery): IQuery {
+        //#region Indication
+        
+        private _indicationShown:boolean = false;
+        private showIndication() {
+            var row: IRow = {
+                DataObject: this._indicator,
+                Index: -10,
+                Cells: {},
+                MasterTable: this._masterTable,
+                CanBeSelected: false,
+                IsAdded: false,
+                IsSelected: false,
+                IsSpecial: true,
+                IsUpdated: false,
+                TemplateIdOverride: this._conf.LoadingRowTemplateId,
+                renderContent: null,
+                renderElement: null
+            };
+            this._masterTable.Renderer.Modifier.appendRow(row);
+            this._indicationShown = true;
+        }
+
+        private destroyIndication() {
+            if (!this._indicationShown) return;
+            this._masterTable.Renderer.Modifier.destroyPartitionRow();
+            this._indicationShown = false;
+        }
+
+        public loadMore(page?: number) {
+            this._masterTable.Renderer.Modifier.destroyPartitionRow();
+            this.loadNextDataPart(page);
+        }
+        //#endregion
+
+        private modifyDataAppendQuery(q: IQuery, pages: number): IQuery {
             q.IsBackgroundDataFetch = true;
             q.Partition = {
                 NoCount: true,
                 Skip: this._serverSkip + this._masterTable.DataHolder.StoredData.length,
-                Take: this.Take * this._conf.LoadAhead
+                Take: this.Take * pages
             }
             return q;
         }
@@ -135,16 +181,18 @@
                 Skip: this.Skip
             };
         }
-
-
-
+        
         public partitionAfterQuery(initialSet: any[], query: IQuery, serverCount: number): any[] {
             if (serverCount !== -1) this._serverTotalCount = serverCount;
             var result = this.skipTakeSet(initialSet, query);
             if (this.ActiveClientFiltering) {
                 if (initialSet.length < this.Take * this._conf.LoadAhead) {
-                    console.log("not enough data, loading"); //todo append row here
-                    setTimeout(() => this.loadNextDataPart(), 5);
+                    console.log("not enough data, loading");
+                    if (this._conf.UseLoadMore) {
+                        this.showIndication();
+                    } else {
+                        setTimeout(() => this.loadNextDataPart(), 5);
+                    }
                 } else {
                     console.log("enough data loaded");
                 }
