@@ -3,23 +3,25 @@
         constructor(masterTable: IMasterTable) {
             this._masterTable = masterTable;
             this._indicator = new PowerTables.Services.Partition.PartitionIndicatorRow(masterTable, this);
+            this._loadAhead = masterTable.Configuration.Partition.Server.LoadAhead;
         }
 
         private _masterTable: IMasterTable;
         private _dataAppendError: any;
-        private  _indicator: PartitionIndicatorRow;
+        private _indicator: PartitionIndicatorRow;
+        private _loadAhead: number;
 
         public AppendLoadingRow: boolean;
         public FinishReached: boolean;
         public IsLoadingNextPart: boolean;
         public UseLoadMore: boolean;
 
-        private _skip: number;
-        private _take: number;
+        public Skip: number;
+        public Take: number;
 
         public skipTake(skip: number, take: number) {
-            this._skip = skip;
-            this._take = take;
+            this.Skip = skip;
+            this.Take = take;
         }
 
         public provideIndicator(rows: IRow[]) {
@@ -27,8 +29,22 @@
             rows.push(this._indicator);
         }
 
-        public loadNextDataPart(pages: number) {
-            if (this.FinishReached) return;
+        private _afterFn:any = null;
+        public loadNextDataPart(pages?: number, after?: any) {
+            if (this.FinishReached) {
+                if (after != null) after();
+                return;
+            }
+            this._afterFn = after;
+            if (this.UseLoadMore) {
+                this.showIndication();
+                return;
+            }
+            this.loadNextCore(pages);
+        }
+
+        private loadNextCore(pages?: number) {
+            if (pages == null) pages = this._loadAhead;
             this.ClientSearchParameters = BackgroundDataLoader.any(this._masterTable.DataHolder.RecentClientQuery.Filterings);
 
             this.IsLoadingNextPart = true;
@@ -51,9 +67,9 @@
             q.Partition = {
                 NoCount: true,
                 Skip: this._masterTable.DataHolder.StoredData.length,
-                Take: this._take * pages
+                Take: this.Take * pages
             }
-            
+
             return q;
         }
 
@@ -64,10 +80,10 @@
         private dataAppendLoaded(data: IPowerTablesResponse, pagesRequested: number) {
             this.IsLoadingNextPart = false;
             if (this.AppendLoadingRow) this.destroyIndication();
-            this.FinishReached = (data.BatchSize < this._take * pagesRequested);
+            this.FinishReached = (data.BatchSize < this.Take * pagesRequested);
 
-            if (this._masterTable.DataHolder.Ordered.length < this._take * pagesRequested) {
-                console.log("not enough data, loading");
+            if (this._masterTable.DataHolder.Ordered.length < this.Take * pagesRequested) {
+                //console.log("not enough data, loading");
                 if (this.UseLoadMore) {
                     this.destroyIndication();
                     this.showIndication();
@@ -75,7 +91,11 @@
                     setTimeout(() => this.loadNextDataPart(pagesRequested), 5);
                 }
             } else {
-                console.log("enough data loaded");
+                if (this._afterFn != null) {
+                    this._afterFn();
+                    this._afterFn = null;
+                }
+                //console.log("enough data loaded");
             }
         }
 
@@ -96,7 +116,7 @@
 
         public loadMore(page?: number) {
             this.destroyIndication();
-            this.loadNextDataPart(page);
+            this.loadNextCore(page);
         }
     }
 }

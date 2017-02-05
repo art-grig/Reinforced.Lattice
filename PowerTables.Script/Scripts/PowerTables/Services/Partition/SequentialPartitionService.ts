@@ -14,7 +14,7 @@
             this.Type = PowerTables.PartitionType.Sequential;
         }
 
-        
+
         public Owner: ServerPartitionService;
 
         private _dataLoader: BackgroundDataLoader;
@@ -23,20 +23,24 @@
         public setSkip(skip: number, preserveTake?: boolean): void {
             if (this.Skip === 0 && skip <= 0) return;
             this._dataLoader.skipTake(skip, this.Take);
-
-            if ((skip + (this.Take * 2) > this._masterTable.DataHolder.Ordered.length) || (skip < 0)) {
-                this._dataLoader.loadNextDataPart(this._conf.LoadAhead);
-            }
             super.setSkip(skip, preserveTake);
+            if (skip + this.Take > this._masterTable.DataHolder.Ordered.length) {
+                this._dataLoader.loadNextDataPart(this._conf.LoadAhead);
+            } else {
+                this._dataLoader.destroyIndication();
+            }
         }
+
+        private _takeDiff: number = 0;
 
         public setTake(take: number): void {
             var noData = !this._masterTable.DataHolder.RecentClientQuery;
             this._dataLoader.skipTake(this.Skip, take);
-            super.setTake(take);
             if (noData) return;
-            if ((this.Skip + (take * 2) > this._masterTable.DataHolder.Ordered.length)) {
-                this._dataLoader.loadNextDataPart(this._conf.LoadAhead);
+            if (this.Skip + take > this._masterTable.DataHolder.Ordered.length) {
+                this._dataLoader.loadNextDataPart(this._conf.LoadAhead, () => super.setTake(take));
+            } else {
+                super.setTake(take);
             }
         }
 
@@ -59,7 +63,7 @@
                     Take: this.Take
                 });
         }
-        
+
         public partitionBeforeQuery(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean): void {
             // Check if it is pager's request. If true - nothing to do here. All necessary things are already done in queryModifier
             if (serverQuery.IsBackgroundDataFetch) return;
@@ -86,6 +90,7 @@
             var result = this.skipTakeSet(initialSet, query);
             if (!query.IsBackgroundDataFetch) {
                 var activeClientFiltering = this.any(query.Filterings);
+                this._dataLoader.ClientSearchParameters = activeClientFiltering;
                 var enough = initialSet.length >= this.Take * this._conf.LoadAhead;
                 if (activeClientFiltering && !enough) {
                     if (this._conf.UseLoadMore) {
@@ -98,7 +103,7 @@
             return result;
         }
 
-        
+
         private _provideIndication: boolean = false;
         private _backgroundLoad: boolean = false;
         public provide(rows: IRow[]): void {
@@ -108,7 +113,7 @@
             }
             if (this._backgroundLoad) {
                 this._backgroundLoad = false;
-                this._dataLoader.loadNextDataPart(1);
+                this._dataLoader.loadNextDataPart(this._conf.LoadAhead);
             }
         }
         public hasEnoughDataToSkip(skip: number): boolean {

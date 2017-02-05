@@ -34,8 +34,7 @@
       <Link>Scripts\Interfaces.ts</Link>
     </TypeScriptCompile>
     <TypeScriptCompile Include="Scripts\PowerTables\CoreInterfaces.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Rendering\Resensor.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Services\Partition\BackgroundDataLoader.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Rendering\Resensor.ts" />    
     <TypeScriptCompile Include="Scripts\PowerTables\Templating\BackbindInfo.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Templating\Templates.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Templating\TemplateProcess.ts" />
@@ -80,6 +79,7 @@
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\ScrollbarPlugin.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\FormwatchPlugin.ts" />
     <TypeScriptCompile Include="Scripts\Typings\HideoutPlugin.d.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Services\Partition\BackgroundDataLoader.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Services\Partition\PartitionIndicator.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Services\Partition\ClientPartitionService.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Services\Partition\IPartitionService.ts" />

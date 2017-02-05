@@ -59,6 +59,7 @@
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\ScrollbarPlugin.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\FormwatchPlugin.ts" />
     <TypeScriptCompile Include="Scripts\Typings\HideoutPlugin.d.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Services\Partition\BackgroundDataLoader.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Services\Partition\PartitionIndicator.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Services\Partition\ClientPartitionService.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Services\Partition\IPartitionService.ts" />

@@ -125,10 +125,14 @@
             } else {
                 var prevIdx = this.displayedIndexes();
                 var rows = this._masterTable.Controller.produceRows();
+                
                 this.destroySpecialRows(rows);
                 this.cutDisplayed(this.Skip, take);
                 rows = this._masterTable.Controller.produceRows();
-
+                if (take > rows.length) {
+                    take = rows.length;
+                    ea.Take = take;
+                }
                 for (var j = prevIdx.length; j < rows.length; j++) {
                     this._masterTable.Renderer.Modifier.appendRow(rows[j]);
                 }

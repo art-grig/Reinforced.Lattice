@@ -199,14 +199,14 @@ module PowerTables.Services {
         /**
          * @internal
          */
-        public produceRows(): IRow[] {
+        public produceRowsFromData(data:any[]): IRow[] {
             this._masterTable.Events.DataRendered.invokeBefore(this, null);
 
             var result: IRow[] = [];
             var columns: IColumn[] = this._masterTable.InstanceManager.getUiColumns();
 
-            for (var i: number = 0; i < this._masterTable.DataHolder.DisplayedData.length; i++) {
-                var obj = this._masterTable.DataHolder.DisplayedData[i];
+            for (var i: number = 0; i < data.length; i++) {
+                var obj = data[i];
                 var row: IRow = this.produceRow(obj, columns);
                 if (!row) continue;
                 result.push(row);
@@ -226,6 +226,13 @@ module PowerTables.Services {
                 }
             }
             return result;
+        }
+
+        /**
+         * @internal
+         */
+        public produceRows(): IRow[] {
+            return this.produceRowsFromData(this._masterTable.DataHolder.DisplayedData);
         }
 
         //#endregion

@@ -181,12 +181,12 @@
         private subscribeUiEvents() {
             if (this.UpArrow) {
                 PowerTables.Services.EventsDelegatorService.addHandler(this.UpArrow, 'mousedown', this.upArrowStart.bind(this));
-                PowerTables.Services.EventsDelegatorService.addHandler(this.UpArrow, 'mouseup', this.upArrowEnd.bind(this));
+                PowerTables.Services.EventsDelegatorService.addHandler(document.body, 'mouseup', this.upArrowEnd.bind(this));
                 PowerTables.Services.EventsDelegatorService.addHandler(this.UpArrow, 'click', this.upArrow.bind(this));
             }
             if (this.DownArrow) {
                 PowerTables.Services.EventsDelegatorService.addHandler(this.DownArrow, 'mousedown', this.downArrowStart.bind(this));
-                PowerTables.Services.EventsDelegatorService.addHandler(this.DownArrow, 'mouseup', this.downArrowEnd.bind(this));
+                PowerTables.Services.EventsDelegatorService.addHandler(document.body, 'mouseup', this.downArrowEnd.bind(this));
                 PowerTables.Services.EventsDelegatorService.addHandler(this.DownArrow, 'click', this.downArrow.bind(this));
             }
 
@@ -421,6 +421,7 @@
         }
 
         private upArrowEnd(e: MouseEvent) {
+            if (!this._upArrowActive) return;
             this._upArrowActive = false;
             clearInterval(this._upArrowInterval);
             e.stopPropagation();
@@ -438,11 +439,16 @@
         }
 
         private downArrow() {
-            if (this.MasterTable.Partition.Skip + this.MasterTable.Partition.Take >= this.MasterTable.Partition.amount()) return;
+            // to make user able to scroll until loader
+            if (this.MasterTable.Partition.Type !== PowerTables.PartitionType.Sequential) {
+                if (this.MasterTable.Partition.Skip + this.MasterTable.Partition.Take >=
+                    this.MasterTable.Partition.amount()) return;
+            }
             this.MasterTable.Partition.setSkip(this.MasterTable.Partition.Skip + this.Configuration.Forces.SingleForce);    //todo force
         }
 
         private downArrowEnd(e: MouseEvent) {
+            if (!this._downArrowActive) return;
             this._downArrowActive = false;
             clearInterval(this._downArrowInterval);
             e.stopPropagation();
@@ -512,7 +518,8 @@
 
         private onClientDataProcessing(e: ITableEventArgs<PowerTables.IClientDataResults>) {
             if (e.MasterTable.Partition.Take === 0
-                || ((this.MasterTable.Partition.Type === PowerTables.PartitionType.Client) && e.EventArgs.Ordered.length <= e.MasterTable.Partition.Take)
+                || (((this.MasterTable.Partition.Type === PowerTables.PartitionType.Client) || (this.MasterTable.Partition.Type === PowerTables.PartitionType.Sequential))
+                    && e.EventArgs.Ordered.length <= e.MasterTable.Partition.Take)
                 || e.EventArgs.Displaying.length === 0
             ) {
                 this.hideScroll();
