@@ -8,8 +8,8 @@
         constructor(masterTable: IMasterTable) {
             super(masterTable);
             this._masterTable = masterTable;
-            this._loadAhead = masterTable.InstanceManager.Configuration.Partition.LoadAhead;
-            this._noCount = masterTable.InstanceManager.Configuration.Partition.NoCount;
+            this._loadAhead = masterTable.Configuration.Partition.LoadAhead;
+            this._noCount = masterTable.Configuration.Partition.NoCount;
             this._modifyDataAppendQuery = this.modifyDataAppendQuery.bind(this);
             this._dataAppendLoaded = this.dataAppendLoaded.bind(this);
             this._dataAppendError = this.dataAppendError.bind(this);

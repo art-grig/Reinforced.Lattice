@@ -61,7 +61,13 @@ module PowerTables.Editing {
             editor.IsRowEdit = editorType === EditorMode.Row;
             editor.IsCellEdit = !(editor.IsFormEdit || editor.IsRowEdit);
             editor.Row = this;
-            editor.RawConfig = { Configuration: editorConf, Order: 0, PluginId: editorConf.PluginId, Placement: '', TemplateId: editorConf.TemplateId }
+            editor.RawConfig = <any>{
+                Configuration: editorConf,
+                Order: 0,
+                PluginId: editorConf.PluginId,
+                Placement: '', TemplateId:
+                editorConf.TemplateId
+            }
             editor.init(this.MasterTable);
             return editor;
         }

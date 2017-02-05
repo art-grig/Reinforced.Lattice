@@ -530,7 +530,7 @@
                 this.showScroll();
             }
 
-            if (this.MasterTable.InstanceManager.Configuration.Partition.NoCount) {
+            if (this.MasterTable.Configuration.Partition.NoCount) {
                 this.adjustScrollerHeight();
                 this.adjustScrollerPosition(this.MasterTable.Partition.Skip);
             }

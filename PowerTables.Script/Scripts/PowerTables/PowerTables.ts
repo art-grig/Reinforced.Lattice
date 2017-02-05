@@ -11,8 +11,8 @@ module PowerTables {
          * 
          * @param configuration JSON configuration of whole table
          */
-        constructor(configuration: Configuration.Json.ITableConfiguration) {
-            this._configuration = configuration;
+        constructor(configuration: ITableConfiguration) {
+            this.Configuration = configuration;
             this.bindReady();
         }
         private _isReady: boolean;
@@ -47,50 +47,49 @@ module PowerTables {
             });
         }
 
-        private _configuration: Configuration.Json.ITableConfiguration;
-
         private initialize() {
             this._isReady = true;
 
             if (!window['__latticeInstances']) window['__latticeInstances'] = {};
-            window['__latticeInstances'][this._configuration.TableRootId] = this;
+            window['__latticeInstances'][this.Configuration.TableRootId] = this;
 
-            this.Date = new PowerTables.Services.DateService(this._configuration.DatepickerOptions);
+            this.Stats = new PowerTables.Services.StatsService(this);
+            this.Date = new PowerTables.Services.DateService(this.Configuration.DatepickerOptions);
             this.Events = new PowerTables.Services.EventsService(this);
-            this.InstanceManager = new PowerTables.Services.InstanceManagerService(this._configuration, this, this.Events);
+            this.InstanceManager = new PowerTables.Services.InstanceManagerService(this.Configuration, this, this.Events);
             this.DataHolder = new PowerTables.Services.DataHolderService(this);
-            this.Loader = new PowerTables.Services.LoaderService(this._configuration.StaticData, this._configuration.OperationalAjaxUrl, this);
-            this.Renderer = new Rendering.Renderer(this._configuration.TableRootId, this._configuration.Prefix, this);
+            this.Loader = new PowerTables.Services.LoaderService(this.Configuration.StaticData, this.Configuration.OperationalAjaxUrl, this);
+            this.Renderer = new Rendering.Renderer(this.Configuration.TableRootId, this.Configuration.Prefix, this);
             this.Controller = new PowerTables.Services.Controller(this);
             this.Selection = new PowerTables.Services.SelectionService(this);
             this.Commands = new PowerTables.Services.CommandsService(this);
-            switch (this._configuration.Partition.Type) {
-                case PowerTables.Configuration.Json.PartitionType.Client:
+            switch (this.Configuration.Partition.Type) {
+                case PowerTables.PartitionType.Client:
                     this.Partition = new PowerTables.Services.Partition.ClientPartitionService(this);  
                     break;
-                case PowerTables.Configuration.Json.PartitionType.Server:
+                case PowerTables.PartitionType.Server:
                     this.Partition = new PowerTables.Services.Partition.ServerPartitionService(this);  
                     break;
             }
             
 
-            this.MessageService = new PowerTables.Services.MessagesService(this._configuration.MessageFunction, this.InstanceManager, this.DataHolder, this.Controller, this.Renderer);
+            this.MessageService = new PowerTables.Services.MessagesService(this.Configuration.MessageFunction, this.InstanceManager, this.DataHolder, this.Controller, this.Renderer);
 
             this.InstanceManager.initPlugins();
             this.Renderer.layout();
-            if (this._configuration.CallbackFunction) {
-                this._configuration.CallbackFunction(this);
+            if (this.Configuration.CallbackFunction) {
+                this.Configuration.CallbackFunction(this);
             }
             this.InstanceManager._subscribeConfiguredEvents();
-            this.Partition.initial(this._configuration.Partition
+            this.Partition.initial(this.Configuration.Partition
                 .InitialSkip,
-                this._configuration.Partition.InitialTake);
+                this.Configuration.Partition.InitialTake);
 
-            if (this._configuration.PrefetchedData != null && this._configuration.PrefetchedData.length > 0) {
-                this.Loader.prefetchData(this._configuration.PrefetchedData);
+            if (this.Configuration.PrefetchedData != null && this.Configuration.PrefetchedData.length > 0) {
+                this.Loader.prefetchData(this.Configuration.PrefetchedData);
                 this.Controller.redrawVisibleData();
             } else {
-                if (this._configuration.LoadImmediately) {
+                if (this.Configuration.LoadImmediately) {
                     this.Controller.reload();
                 } else {
                     this.MessageService.showMessage({
@@ -181,14 +180,16 @@ module PowerTables {
         }
 
         public getStaticData(): any {
-            if (!this._configuration.StaticData) return null;
-            return JSON.parse(this._configuration.StaticData);
+            if (!this.Configuration.StaticData) return null;
+            return JSON.parse(this.Configuration.StaticData);
         }
 
         public setStaticData(obj: any): void {
-            this._configuration.StaticData = JSON.stringify(obj);
+            this.Configuration.StaticData = JSON.stringify(obj);
         }
 
         Selection: PowerTables.Services.SelectionService;
+        public Configuration: ITableConfiguration;
+        public Stats: IStatsModel;
     }
 } 

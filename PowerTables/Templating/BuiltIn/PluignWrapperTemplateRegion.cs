@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using PowerTables.Configuration.Json;
-using PowerTables.Templating.Handlebars;
+using PowerTables.Templating.Expressions;
 
 namespace PowerTables.Templating.BuiltIn
 {

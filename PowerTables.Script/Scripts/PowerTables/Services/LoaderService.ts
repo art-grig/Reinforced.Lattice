@@ -65,7 +65,7 @@
                 Orderings: {},
                 Filterings: {},
                 AdditionalData: {},
-                StaticDataJson: this._masterTable.InstanceManager.Configuration.StaticData,
+                StaticDataJson: this._masterTable.Configuration.StaticData,
                 Selection: null,
                 IsBackgroundDataFetch: false,
                 Partition: null
@@ -331,8 +331,8 @@
                 Query: server ? serverQuery : clientQuery
             };
 
-            if (this._masterTable.InstanceManager.Configuration.QueryConfirmation) {
-                this._masterTable.InstanceManager.Configuration.QueryConfirmation(data, server ? QueryScope.Server : QueryScope.Client, () => {
+            if (this._masterTable.Configuration.QueryConfirmation) {
+                this._masterTable.Configuration.QueryConfirmation(data, server ? QueryScope.Server : QueryScope.Client, () => {
                     if (server) this.doServerQuery(data, clientQuery, callback, errorCallback);
                     else this.doClientQuery(clientQuery, callback);
                 });
@@ -375,8 +375,8 @@
                 Command: command,
                 Query: serverQuery
             };
-            if (this._masterTable.InstanceManager.Configuration.QueryConfirmation) {
-                this._masterTable.InstanceManager.Configuration.QueryConfirmation(data, QueryScope.Transboundary, () => this.doServerQuery(data, null, callback, errorCallback));
+            if (this._masterTable.Configuration.QueryConfirmation) {
+                this._masterTable.Configuration.QueryConfirmation(data, QueryScope.Transboundary, () => this.doServerQuery(data, null, callback, errorCallback));
             } else {
                 this.doServerQuery(data, null, callback, errorCallback);
             }

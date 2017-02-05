@@ -2,7 +2,7 @@
     export class CommandsService {
         constructor(masterTable: IMasterTable) {
             this._masterTable = masterTable;
-            this._commandsCache = this._masterTable.InstanceManager.Configuration.Commands;
+            this._commandsCache = this._masterTable.Configuration.Commands;
         }
 
         private _masterTable: IMasterTable;
@@ -494,7 +494,7 @@
             editor.IsRowEdit = false;
             editor.IsCellEdit = !(editor.IsFormEdit || editor.IsRowEdit);
             editor.Row = this;
-            editor.RawConfig = { Configuration: editorConf, Order: 0, PluginId: editorConf.PluginId, Placement: '', TemplateId: editorConf.TemplateId }
+            editor.RawConfig = <any>{ Configuration: editorConf, Order: 0, PluginId: editorConf.PluginId, Placement: '', TemplateId: editorConf.TemplateId }
             editor.init(this.MasterTable);
             return editor;
         }

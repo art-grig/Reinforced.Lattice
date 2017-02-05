@@ -1,6 +1,6 @@
-﻿namespace PowerTables.Templating.Handlebars.Expressions
+﻿namespace PowerTables.Templating.Expressions.Visiting
 {
-    class HbLiteralExpression : HbExpression
+    class JsLiteralExpression : JsExpression
     {
         public string Literal { get; set; }
 

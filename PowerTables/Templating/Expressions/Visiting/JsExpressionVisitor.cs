@@ -3,16 +3,15 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text;
 
-namespace PowerTables.Templating.Handlebars.Expressions
+namespace PowerTables.Templating.Expressions.Visiting
 {
-    class HbExpressionVisitor : ExpressionVisitor
+    class JsExpressionVisitor : ExpressionVisitor
     {
-        private readonly Stack<HbExpression> _resultsStack = new Stack<HbExpression>();
-        private readonly List<HbUnboundExpression> _unboundModelReferences = new List<HbUnboundExpression>();
+        private readonly Stack<JsExpression> _resultsStack = new Stack<JsExpression>();
+        private readonly List<JsUnboundExpression> _unboundModelReferences = new List<JsUnboundExpression>();
 
-        public List<HbUnboundExpression> UnboundModelReferences
+        public List<JsUnboundExpression> UnboundModelReferences
         {
             get { return _unboundModelReferences; }
         }
@@ -21,11 +20,11 @@ namespace PowerTables.Templating.Handlebars.Expressions
         {
             foreach (var unboundModelReference in _unboundModelReferences)
             {
-                unboundModelReference.Boundee = new HbLiteralExpression() { Literal = modelLiteral };
+                unboundModelReference.Boundee = new JsLiteralExpression() { Literal = modelLiteral };
             }
         }
 
-        public void Bind(HbExpression expression)
+        public void Bind(JsExpression expression)
         {
             foreach (var unboundModelReference in _unboundModelReferences)
             {
@@ -43,7 +42,7 @@ namespace PowerTables.Templating.Handlebars.Expressions
 
         protected override Expression VisitConditional(ConditionalExpression node)
         {
-            var result = new HbTernaryExpression();
+            var result = new JsTernaryExpression();
             Visit(node.Test);
             result.Condition = Retrieve();
             Visit(node.IfTrue);
@@ -66,12 +65,12 @@ namespace PowerTables.Templating.Handlebars.Expressions
 
         }
 
-        private void Return(HbExpression expr)
+        private void Return(JsExpression expr)
         {
             _resultsStack.Push(expr);
         }
 
-        public HbExpression Retrieve()
+        public JsExpression Retrieve()
         {
             return _resultsStack.Pop();
         }
@@ -86,6 +85,17 @@ namespace PowerTables.Templating.Handlebars.Expressions
                 {
                     var inst = constant.Value;
                     var val = fi.GetValue(inst);
+                    
+                    var tp = fi.FieldType;
+                    if (tp.IsNullable())
+                    {
+                        tp = tp.GetArg();
+                    }
+                    if (tp.IsEnum)
+                    {
+                        val = (int) val;
+                    }
+
                     Return(WrapConstant(val,fi.FieldType));
                     return node;
                 }
@@ -108,7 +118,7 @@ namespace PowerTables.Templating.Handlebars.Expressions
                     memberName = "length";
                 }
             }
-            Return(new HbMemberExpression { Accessed = accessedExpression, MemberName = memberName });
+            Return(new JsMemberExpression { Accessed = accessedExpression, MemberName = memberName });
             return node;
         }
 
@@ -118,7 +128,7 @@ namespace PowerTables.Templating.Handlebars.Expressions
             var ind = Retrieve();
             Visit(node.Arguments[0]);
             var indexee = Retrieve();
-            Return(new HbIndexerExpression { ExpressionToIndex = ind, Index = indexee });
+            Return(new JsIndexerExpression { ExpressionToIndex = ind, Index = indexee });
             return node;
         }
 
@@ -128,18 +138,18 @@ namespace PowerTables.Templating.Handlebars.Expressions
             if (customAttr != null)
             {
                 var result = customAttr.TranslationFunction.Invoke(null, new object[] { node, this });
-                Return((HbExpression)result);
+                Return((JsExpression)result);
                 return node;
             }
             
             Visit(node.Object);
-            HbMemberExpression callee = new HbMemberExpression() { Accessed = Retrieve(), MemberName = node.Method.Name };
+            JsMemberExpression callee = new JsMemberExpression() { Accessed = Retrieve(), MemberName = node.Method.Name };
 
             if (node.Method.Name == "get_Item")
             {
                 Visit(node.Arguments[0]);
                 var arg = Retrieve();
-                var idx = new HbIndexerExpression()
+                var idx = new JsIndexerExpression()
                 {
                     ExpressionToIndex = callee.Accessed,
                     Index = arg
@@ -147,7 +157,7 @@ namespace PowerTables.Templating.Handlebars.Expressions
                 Return(idx);
                 return node;
             }
-            var methodCall = new HbCallExpression { ExpressionToCall = callee };
+            var methodCall = new JsCallExpression { ExpressionToCall = callee };
             foreach (var expression in node.Arguments)
             {
                 Visit(expression);
@@ -164,11 +174,11 @@ namespace PowerTables.Templating.Handlebars.Expressions
             var operand = Retrieve();
             if (node.NodeType == ExpressionType.ArrayLength)
             {
-                Return(new HbMemberExpression() { Accessed = operand, MemberName = "length" });
+                Return(new JsMemberExpression() { Accessed = operand, MemberName = "length" });
                 return node;
             }
             var sym = GetNodeSymbol(node.NodeType);
-            Return(new HbUnaryExpression { Expression = operand, Symbol = sym });
+            Return(new JsUnaryExpression { Expression = operand, Symbol = sym });
             return node;
         }
 
@@ -179,7 +189,7 @@ namespace PowerTables.Templating.Handlebars.Expressions
             Visit(node.Right);
             var right = Retrieve();
             string symbol = GetNodeSymbol(node.NodeType);
-            Return(new HbBinaryExpression { Left = left, Right = right, Symbol = symbol });
+            Return(new JsBinaryExpression { Left = left, Right = right, Symbol = symbol });
             return node;
         }
 
@@ -219,7 +229,7 @@ namespace PowerTables.Templating.Handlebars.Expressions
         }
         protected override Expression VisitParameter(ParameterExpression node)
         {
-            var ngex = new HbUnboundExpression();
+            var ngex = new JsUnboundExpression();
             _unboundModelReferences.Add(ngex);
             Return(ngex);
             return base.VisitParameter(node);
@@ -231,24 +241,24 @@ namespace PowerTables.Templating.Handlebars.Expressions
             return node;
         }
 
-        private HbLiteralExpression WrapConstant(object value,Type type)
+        private JsLiteralExpression WrapConstant(object value,Type type)
         {
             if (value == null)
             {
-                return new HbLiteralExpression { Literal = "null" };
+                return new JsLiteralExpression { Literal = "null" };
             }
             if (type == typeof(string))
             {
                 var s = "\'" + value.ToString().Replace("\"", "\\\"") + "\'";
-                return new HbLiteralExpression { Literal = s };
+                return new JsLiteralExpression { Literal = s };
             }
 
             if (type == typeof(bool))
             {
                 var b = (bool)value;
-                return new HbLiteralExpression { Literal = b ? "true" : "false" };
+                return new JsLiteralExpression { Literal = b ? "true" : "false" };
             }
-            return new HbLiteralExpression {Literal = value.ToString()};
+            return new JsLiteralExpression {Literal = value.ToString()};
         }
     }
 }

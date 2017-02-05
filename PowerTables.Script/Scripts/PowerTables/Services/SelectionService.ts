@@ -3,16 +3,16 @@
 
         constructor(masterTable: IMasterTable) {
             this._masterTable = masterTable;
-            this._configuration = this._masterTable.InstanceManager.Configuration.SelectionConfiguration;
+            this._configuration = this._masterTable.Configuration.SelectionConfiguration;
             if (this._configuration.SelectSingle) {
-                this._configuration.SelectAllBehavior = PowerTables.Configuration.Json.SelectAllBehavior.Disabled;
+                this._configuration.SelectAllBehavior = PowerTables.SelectAllBehavior.Disabled;
             }
             if (this._configuration.ResetSelectionBehavior ===
-                PowerTables.Configuration.Json.ResetSelectionBehavior.ClientReload) {
+                PowerTables.ResetSelectionBehavior.ClientReload) {
                 masterTable.Events.ClientDataProcessing.subscribeAfter(x => this.resetSelection(), 'selection');
             }
             if (this._configuration.ResetSelectionBehavior ===
-                PowerTables.Configuration.Json.ResetSelectionBehavior.ServerReload) {
+                PowerTables.ResetSelectionBehavior.ServerReload) {
                 masterTable.Events.DataReceived.subscribe(x => {
                     if (x.EventArgs.Request.Command === 'query') this.resetSelection();
                 }, 'selection');
@@ -20,7 +20,7 @@
             masterTable.Loader.registerAdditionalDataReceiver('Selection', this);
         }
 
-        private _configuration: PowerTables.Configuration.Json.ISelectionConfiguration;
+        private _configuration: PowerTables.ISelectionConfiguration;
 
         private _masterTable: IMasterTable;
 
@@ -33,10 +33,10 @@
 
 
         public isAllSelected(): boolean {
-            //if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.Disabled) {
+            //if (this._configuration.SelectAllBehavior === PowerTables.SelectAllBehavior.Disabled) {
             //    return false;
             //}
-            //if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.OnlyIfAllDataVisible) {
+            //if (this._configuration.SelectAllBehavior === PowerTables.SelectAllBehavior.OnlyIfAllDataVisible) {
             //    return this._isAllSelected;
             //}
 
@@ -56,10 +56,10 @@
         }
 
         public canSelectAll(): boolean {
-            if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.Disabled) {
+            if (this._configuration.SelectAllBehavior === PowerTables.SelectAllBehavior.Disabled) {
                 return false;
             }
-            if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.OnlyIfAllDataVisible) {
+            if (this._configuration.SelectAllBehavior === PowerTables.SelectAllBehavior.OnlyIfAllDataVisible) {
                 return this._masterTable.DataHolder.StoredData.length === this._masterTable.DataHolder.DisplayedData.length;
             }
             return true;
@@ -84,10 +84,10 @@
         }
 
         public toggleAll(selected?: boolean) {
-            if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.Disabled) {
+            if (this._configuration.SelectAllBehavior === PowerTables.SelectAllBehavior.Disabled) {
                 return;
             }
-            if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.OnlyIfAllDataVisible) {
+            if (this._configuration.SelectAllBehavior === PowerTables.SelectAllBehavior.OnlyIfAllDataVisible) {
                 if (this._masterTable.DataHolder.StoredData.length !==
                     this._masterTable.DataHolder.DisplayedData.length) return;
             }
@@ -100,9 +100,9 @@
 
             var objectsToRedraw = [];
             var objSet = null;
-            if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.AllVisible ||
+            if (this._configuration.SelectAllBehavior === PowerTables.SelectAllBehavior.AllVisible ||
                 this._configuration.SelectAllBehavior ===
-                PowerTables.Configuration.Json.SelectAllBehavior.OnlyIfAllDataVisible
+                PowerTables.SelectAllBehavior.OnlyIfAllDataVisible
             ) {
                 objSet = this._masterTable.DataHolder.DisplayedData;
             } else {

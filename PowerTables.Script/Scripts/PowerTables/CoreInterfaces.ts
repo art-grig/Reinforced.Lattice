@@ -28,7 +28,7 @@
         /**
          * Raw configuration object including Plugin Id
          */
-        RawConfig: Configuration.Json.IPluginConfiguration;
+        RawConfig: IPluginConfiguration;
 
         /**
          * Plugin Id including placement
@@ -112,6 +112,11 @@
         Commands: PowerTables.Services.CommandsService;
 
         Partition: PowerTables.Services.Partition.IPartitionService;
+
+        Configuration: PowerTables.ITableConfiguration;
+
+        Stats: PowerTables.IStatsModel;
+        
 
         getStaticData(): any;
 
@@ -308,7 +313,7 @@
         /** 
          * Column configuration 
          */
-        Configuration: Configuration.Json.IColumnConfiguration;
+        Configuration: IColumnConfiguration;
         /** 
          * Reference to master table 
          */

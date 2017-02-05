@@ -13,12 +13,7 @@
         public onResponse(e: ITableEventArgs<IDataEventArgs>) {
             this._isServerRequest = true;
             if (!this.Configuration.ResponseObjectOverriden) {
-                this._recentServerData = {
-                    TotalCount: e.EventArgs.Data.ResultsCount,
-                    IsLocalRequest: false,
-                    CurrentPage: e.EventArgs.Data.PageIndex,
-                    PagingEnabled: this._pagingEnabled
-                };
+                this._recentServerData = this.MasterTable.Stats;
             }
         }
 
@@ -37,13 +32,7 @@
                 this.MasterTable.Renderer.Modifier.redrawPlugin(this);
                 return;
             }
-            this._recentData = {
-                TotalCount: this._recentServerData.TotalCount || this.MasterTable.DataHolder.StoredData.length,
-                IsLocalRequest: !this._isServerRequest,
-                CurrentPage: this._recentServerData.CurrentPage || ((!this._pagingPlugin) ? 0 : this._pagingPlugin.getCurrentPage() + 1),
-                TotalPages: ((!this._pagingPlugin) ? 0 : this._pagingPlugin.getTotalPages()),
-                PagingEnabled: this._pagingEnabled
-            };
+            this._recentData = this.MasterTable.Stats;
             this.addClientData(e.EventArgs);
 
             this._isServerRequest = false;

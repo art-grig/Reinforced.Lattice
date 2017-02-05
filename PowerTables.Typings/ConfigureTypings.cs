@@ -33,6 +33,7 @@ using PowerTables.Plugins.ResponseInfo;
 using PowerTables.Plugins.Scrollbar;
 using PowerTables.Plugins.Toolbar;
 using PowerTables.Plugins.Total;
+using PowerTables.Templating.BuiltIn;
 using Reinforced.Typings.Fluent;
 
 namespace PowerTables.Typings
@@ -42,16 +43,9 @@ namespace PowerTables.Typings
         public static void ConfigureTypings(ConfigurationBuilder builder)
         {
             builder.TryLookupDocumentationForAssembly(typeof(TableConfiguration).Assembly);
-            var infrastructureTypes =
-                typeof(TypingsConfiguration).Assembly.GetTypes()
-                    .Where(c => c.Namespace.Contains("PowerTables.Typings.Infrastructure"));
-
-
-            builder.ExportAsInterfaces(infrastructureTypes, a =>
-                a.WithPublicProperties().WithPublicMethods(c => c.CamelCase()).OverrideNamespace("PowerTables"));
-
-
+           
             builder.ExportAsInterface<TableConfiguration>()
+                .OverrideNamespace("PowerTables")
                 .WithPublicProperties()
                 .WithProperty(c => c.CallbackFunction, c => c.Type("(table:IMasterTable) => void"))
                 .WithProperty(c => c.TemplateSelector, c => c.Type("(row:IRow)=>string"))
@@ -59,6 +53,7 @@ namespace PowerTables.Typings
                 .WithProperty(c => c.QueryConfirmation, c => c.Type("(query:IPowerTableRequest,scope:QueryScope,continueFn:any) => void"))
                 ;
             builder.ExportAsInterface<DatepickerOptions>()
+
                 .WithProperty(c => c.CreateDatePicker, c => c.Type("(element:HTMLElement, isNullableDate: boolean) => void"))
                 .WithProperty(c => c.PutToDatePicker, c => c.Type("(element:HTMLElement, date?:Date) => void"))
                 .WithProperty(c => c.GetFromDatePicker, c => c.Type("(element:HTMLElement) => Date"))
@@ -70,6 +65,7 @@ namespace PowerTables.Typings
             builder.ExportAsEnum<MessageType>().OverrideNamespace("PowerTables");
 
             builder.ExportAsInterface<ColumnConfiguration>()
+                .OverrideNamespace("PowerTables")
                 .WithPublicProperties()
                 .WithProperty(c => c.CellRenderingValueFunction, c => c.Type("(a:any) => string"))
                 .WithProperty(c => c.ClientValueFunction, c => c.Type("(a:any) => any"))
@@ -77,7 +73,7 @@ namespace PowerTables.Typings
                 .WithProperty(c => c.TemplateSelector, c => c.Type("(cell:ICell)=>string"))
                 ;
 
-            builder.ExportAsInterface<PluginConfiguration>().WithPublicProperties();
+            builder.ExportAsInterface<PluginConfiguration>().OverrideNamespace("PowerTables").WithPublicProperties();
 
             builder.ExportAsInterface<FormwatchClientConfiguration>().WithPublicProperties();
             builder.ExportAsInterface<FormwatchFieldData>().WithPublicProperties()
@@ -118,10 +114,10 @@ namespace PowerTables.Typings
                 .WithProperty(c => c.IsDeferred, c => c.Ignore())
                 ;
 
-            builder.ExportAsInterface<Query>().WithPublicProperties()
-                .WithProperty(c=>c.Partition,x=>x.ForceNullable(true));
-            builder.ExportAsInterface<Partition>().WithPublicProperties();
-            builder.ExportAsEnum<Ordering>();
+            builder.ExportAsInterface<Query>().OverrideNamespace("PowerTables").WithPublicProperties()
+                .WithProperty(c => c.Partition, x => x.ForceNullable(true));
+            builder.ExportAsInterface<Partition>().OverrideNamespace("PowerTables").WithPublicProperties();
+            builder.ExportAsEnum<Ordering>().OverrideNamespace("PowerTables");
 
             #region Toolbar
             builder.ExportAsInterface<ToolbarButtonsClientConfiguration>().WithPublicProperties();
@@ -148,7 +144,7 @@ namespace PowerTables.Typings
             builder.ExportAsInterface<FormEditUiConfig>().WithPublicProperties();
             builder.ExportAsInterface<RowsEditUiConfig>().WithPublicProperties();
             #endregion
-            
+
             #region Editors
             builder.ExportAsInterface<DisplayingEditorUiConfig>().WithPublicProperties()
                 .WithProperty(c => c.Template, c => c.Type("(cell:ICell) => string"));
@@ -175,7 +171,7 @@ namespace PowerTables.Typings
 
             builder.ExportAsInterface<ReloadUiConfiguration>().WithPublicProperties();
 
-            builder.ExportAsInterface<ConfiguredSubscriptionInfo>()
+            builder.ExportAsInterface<ConfiguredSubscriptionInfo>().OverrideNamespace("PowerTables")
                 .WithPublicProperties()
                 .WithProperty(c => c.Handler, c => c.Type("(dataObject:any, originalEvent:any) => void"));
 
@@ -189,15 +185,16 @@ namespace PowerTables.Typings
             #region Selection
 
             builder.ExportAsInterface<SelectionConfiguration>()
+                .OverrideNamespace("PowerTables")
                 .WithPublicProperties()
                 .WithProperty(c => c.CanSelectRowFunction, c => c.Type("(dataObject:any)=>boolean"))
                 .WithProperty(c => c.CanSelectCellFunction, c => c.Type("(dataObject:any,column:string,select:boolean)=>boolean"))
                 ;
             builder.ExportAsInterface<SelectionAdditionalData>().WithPublicProperties();
-            builder.ExportAsEnum<SelectionToggle>();
+            builder.ExportAsEnum<SelectionToggle>().OverrideNamespace("PowerTables.Adjustments");
 
-            builder.ExportAsEnum<PowerTables.Configuration.Json.SelectAllBehavior>();
-            builder.ExportAsEnum<PowerTables.Configuration.Json.ResetSelectionBehavior>();
+            builder.ExportAsEnum<PowerTables.Configuration.Json.SelectAllBehavior>().OverrideNamespace("PowerTables");
+            builder.ExportAsEnum<PowerTables.Configuration.Json.ResetSelectionBehavior>().OverrideNamespace("PowerTables");
 
             #endregion
 
@@ -236,14 +233,29 @@ namespace PowerTables.Typings
             #endregion
 
             #region Partition
-            builder.ExportAsInterface<PartitionConfiguration>().WithPublicProperties();
-            builder.ExportAsEnum<PartitionType>();
+            builder.ExportAsInterface<PartitionConfiguration>().OverrideNamespace("PowerTables").WithPublicProperties();
+            builder.ExportAsInterface<IPartitionRowTemplate>().OverrideNamespace("PowerTables").WithPublicProperties();
+            builder.ExportAsInterface<IStatsModel>().OverrideNamespace("PowerTables")
+                .WithProperty(c => c.Skip, c => c.Type("()=>number"))
+                .WithProperty(c => c.Mode, c => c.Type("()=>PowerTables.PartitionType"))
+                .WithProperty(c => c.Take, c => c.Type("()=>number"))
+                .WithProperty(c => c.ServerCount, c => c.Type("()=>number"))
+                .WithProperty(c => c.Stored, c => c.Type("()=>number"))
+                .WithProperty(c => c.Filtered, c => c.Type("()=>number"))
+                .WithProperty(c => c.Displayed, c => c.Type("()=>number"))
+                .WithProperty(c => c.Ordered, c => c.Type("()=>number"))
+                .WithProperty(c => c.Pages, c => c.Type("()=>number"))
+                .WithProperty(c => c.CurrentPage, c => c.Type("()=>number"))
+                .WithProperty(c => c.IsAllDataLoaded, c => c.Type("()=>boolean"))
+                .WithProperty(c => c.IsSetFinite, c => c.Type("()=>boolean"))
+                ;
+            builder.ExportAsEnum<PartitionType>().OverrideNamespace("PowerTables");
             #endregion
 
 
             #region Scrollbar
             builder.ExportAsInterface<ScrollbarPluginUiConfig>().WithPublicProperties()
-                .WithProperty(c=>c.PositionCorrector,c=>c.Type("any"));
+                .WithProperty(c => c.PositionCorrector, c => c.Type("any"));
             builder.ExportAsInterface<ScrollbarKeyMappings>().WithPublicProperties();
             builder.ExportAsInterface<ScrollbarForces>().WithPublicProperties();
             builder.ExportAsEnum<StickDirection>();

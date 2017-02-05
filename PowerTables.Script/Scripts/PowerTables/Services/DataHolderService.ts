@@ -14,11 +14,11 @@
                     this._clientValueFunction[col.RawName] = col.Configuration.ClientValueFunction;
                 }
             }
-            this._configuration = masterTable.InstanceManager.Configuration;
+            this._configuration = masterTable.Configuration;
             this.compileComparisonFunction();
         }
 
-        private _configuration: PowerTables.Configuration.Json.ITableConfiguration;
+        private _configuration: PowerTables.ITableConfiguration;
 
         private _hasPrimaryKey: boolean;
 
@@ -232,7 +232,6 @@
             else this.StoredData = this.StoredData.concat(data);
 
             this.filterStoredData(clientQuery, response.ResultsCount);
-            this.updateStats(response.ResultsCount);
         }
 
         private _storedDataCache: { [_: string]: any };
@@ -342,8 +341,7 @@
                 this.Ordered = ordered;
             }
             this.DisplayedData = this._masterTable.Partition.partitionAfterQuery(this.Ordered, query, serverCount);
-            this.updateStats();
-
+            
             this._events.ClientDataProcessing.invokeAfter(this, {
                 Displaying: this.DisplayedData,
                 Filtered: this.Filtered,
@@ -633,37 +631,8 @@
             }
         }
         //#endregion
-
-        public Stats: IStats = {
-            CurrentPage: 0,
-            TotalPages: 0,
-            CurrentPageSize: 0,
-            TotalItems: 0,
-            CurrentlyDisplayingItems: 0,
-            TotalLoadedItems: 0
-        };
-
-        private updateStats(totalItems?: number) {
-            //this.Stats.CurrentPage = this.RecentClientQuery.Paging.PageIndex;
-            this.Stats.CurrentPageSize = this._masterTable.Partition.Take;
-            this.Stats.TotalLoadedItems = this.StoredData.length;
-            this.Stats.CurrentlyDisplayingItems = this.DisplayedData.length;
-            if (totalItems != null) {
-                this.Stats.TotalItems = totalItems;
-            }
-            if (this.Stats.CurrentPageSize != 0) {
-                this.Stats.TotalPages = this.Stats.TotalItems / this.Stats.CurrentPageSize;
-            }
-        }
     }
 
-    export interface IStats {
-        CurrentPage: number;
-        TotalPages: number;
-        CurrentPageSize: number;
-        TotalItems: number;
-        CurrentlyDisplayingItems: number;
-        TotalLoadedItems: number;
-    }
+    
 
 }

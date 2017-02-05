@@ -14,7 +14,7 @@
       <Link>Scripts\Interfaces.ts</Link>
     </TypeScriptCompile>
     <TypeScriptCompile Include="Scripts\PowerTables\CoreInterfaces.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Rendering\Resensor.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Rendering\Resensor.ts" />    
     <TypeScriptCompile Include="Scripts\PowerTables\Templating\BackbindInfo.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Templating\Templates.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Templating\TemplateProcess.ts" />
@@ -25,6 +25,7 @@
     <TypeScriptCompile Include="Scripts\PowerTables\TrackHelper.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\ComponentsContainer.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Services\DateService.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Services\StatsService.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Services\EventsDelegatorService.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Services\EventsService.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Services\Controller.ts" />

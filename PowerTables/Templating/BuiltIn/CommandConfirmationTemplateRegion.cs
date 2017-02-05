@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using PowerTables.Plugins.Toolbar;
-using PowerTables.Templating.Handlebars;
+using PowerTables.Templating.Expressions;
 
 namespace PowerTables.Templating.BuiltIn
 {
@@ -27,7 +27,7 @@ namespace PowerTables.Templating.BuiltIn
 
         TRow Subject { get; set; }
 
-        IHbArray<TRow> Selection { get; set; }
+        IJsArray<TRow> Selection { get; set; }
     }
 
     public interface IConfirmationWindow<TConfirmation> : IProvidesEventsBinding, IProvidesMarking, IProvidesVisualState

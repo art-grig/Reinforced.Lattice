@@ -1,8 +1,8 @@
-﻿namespace PowerTables.Templating.Handlebars.Expressions
+﻿namespace PowerTables.Templating.Expressions.Visiting
 {
-    class HbUnboundExpression : HbExpression
+    class JsUnboundExpression : JsExpression
     {
-        public HbExpression Boundee { get; set; }
+        public JsExpression Boundee { get; set; }
 
         public bool IsEmpty { get; set; }
 

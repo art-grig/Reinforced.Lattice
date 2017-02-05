@@ -14,7 +14,7 @@
         /**
          * Raw plugin configuration
          */
-        public RawConfig: Configuration.Json.IPluginConfiguration;
+        public RawConfig: IPluginConfiguration;
 
         /**
          * Plugin location ID

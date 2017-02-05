@@ -2,19 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Web.Mvc;
-using PowerTables.Templating.Handlebars.Expressions;
+using PowerTables.Templating.Expressions.Visiting;
 
-namespace PowerTables.Templating.Handlebars
+namespace PowerTables.Templating.Expressions
 {
     /// <summary>
     /// Set of extension methods to interact with handlebars.js
     /// </summary>
-    public static class HbExtensions
+    public static class JsExtensions
     {
         public static string TraversePropertyLambda(LambdaExpression lambda, string existing = null)
         {
-            var visitor = new HbExpressionVisitor();
+            var visitor = new JsExpressionVisitor();
             visitor.Visit(lambda.Body);
             visitor.BindModel(string.IsNullOrEmpty(existing) ? "o" : existing);
             var ex = visitor.Retrieve();
@@ -110,7 +109,7 @@ namespace PowerTables.Templating.Handlebars
         /// <param name="t"></param>
         /// <param name="collection"></param>
         /// <returns></returns>
-        public static ParametrizedCodeBlock<TElement> Each<T, TElement>(this IModelProvider<T> t, Expression<Func<T, IHbArray<TElement>>> collection)
+        public static ParametrizedCodeBlock<TElement> Each<T, TElement>(this IModelProvider<T> t, Expression<Func<T, IJsArray<TElement>>> collection)
         {
             var proname = TraversePropertyLambda(collection, t.ExistingModel);
             var heading = string.Format("for(var i=0;i<{0}.length;i++){{var e={0}[i];", proname);

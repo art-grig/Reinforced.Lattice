@@ -3,7 +3,7 @@
 //     the code is regenerated.
 
 
-module PowerTables.Configuration.Json {
+module PowerTables {
 	export interface ITableConfiguration
 	{
 		EmptyFiltersPlaceholder: string;
@@ -12,20 +12,42 @@ module PowerTables.Configuration.Json {
 		OperationalAjaxUrl: string;
 		LoadImmediately: boolean;
 		DatepickerOptions: PowerTables.IDatepickerOptions;
-		Columns: PowerTables.Configuration.Json.IColumnConfiguration[];
-		PluginsConfiguration: PowerTables.Configuration.Json.IPluginConfiguration[];
+		Columns: PowerTables.IColumnConfiguration[];
+		PluginsConfiguration: PowerTables.IPluginConfiguration[];
 		StaticData: string;
 		CoreTemplates: PowerTables.ICoreTemplateIds;
 		KeyFields: string[];
 		CallbackFunction: (table:IMasterTable) => void;
 		TemplateSelector: (row:IRow)=>string;
 		MessageFunction: (msg: ITableMessage) => void;
-		Subscriptions: PowerTables.Configuration.Json.IConfiguredSubscriptionInfo[];
+		Subscriptions: PowerTables.IConfiguredSubscriptionInfo[];
 		QueryConfirmation: (query:IPowerTableRequest,scope:QueryScope,continueFn:any) => void;
-		SelectionConfiguration: PowerTables.Configuration.Json.ISelectionConfiguration;
+		SelectionConfiguration: PowerTables.ISelectionConfiguration;
 		PrefetchedData: any[];
 		Commands: { [key:string]: PowerTables.Commands.ICommandDescription };
-		Partition: PowerTables.Configuration.Json.IPartitionConfiguration;
+		Partition: PowerTables.IPartitionConfiguration;
+	}
+	export interface IDatepickerOptions
+	{
+		CreateDatePicker: (element:HTMLElement, isNullableDate: boolean) => void;
+		PutToDatePicker: (element:HTMLElement, date?:Date) => void;
+		GetFromDatePicker: (element:HTMLElement) => Date;
+		DestroyDatepicker: (element:HTMLElement) => void;
+	}
+	export interface ICoreTemplateIds
+	{
+		Layout: string;
+		PluginWrapper: string;
+		RowWrapper: string;
+		CellWrapper: string;
+		HeaderWrapper: string;
+	}
+	export interface ITableMessage
+	{
+		Type: PowerTables.MessageType;
+		Title: string;
+		Details: string;
+		Class: string;
 	}
 	export interface IColumnConfiguration
 	{
@@ -51,71 +73,6 @@ module PowerTables.Configuration.Json {
 		Configuration: any;
 		Order: number;
 		TemplateId: string;
-	}
-	export interface IConfiguredSubscriptionInfo
-	{
-		IsRowSubscription: boolean;
-		ColumnName: string;
-		Selector: string;
-		DomEvent: string;
-		Handler: (dataObject:any, originalEvent:any) => void;
-	}
-	export interface ISelectionConfiguration
-	{
-		SelectAllBehavior: PowerTables.Configuration.Json.SelectAllBehavior;
-		ResetSelectionBehavior: PowerTables.Configuration.Json.ResetSelectionBehavior;
-		CanSelectRowFunction: (dataObject:any)=>boolean;
-		CanSelectCellFunction: (dataObject:any,column:string,select:boolean)=>boolean;
-		NonselectableColumns: string[];
-		SelectSingle: boolean;
-		InitialSelected: { [key:string]: string[] };
-	}
-	export interface IPartitionConfiguration
-	{
-		Type: PowerTables.Configuration.Json.PartitionType;
-		InitialSkip: number;
-		InitialTake: number;
-		LoadAhead: number;
-		NoCount: boolean;
-	}
-	export enum SelectAllBehavior { 
-		AllVisible = 0, 
-		OnlyIfAllDataVisible = 1, 
-		AllLoadedData = 2, 
-		Disabled = 3, 
-	}
-	export enum ResetSelectionBehavior { 
-		DontReset = 0, 
-		ServerReload = 1, 
-		ClientReload = 2, 
-	}
-	export enum PartitionType { 
-		Client = 0, 
-		Server = 1, 
-	}
-}
-module PowerTables {
-	export interface IDatepickerOptions
-	{
-		CreateDatePicker: (element:HTMLElement, isNullableDate: boolean) => void;
-		PutToDatePicker: (element:HTMLElement, date?:Date) => void;
-		GetFromDatePicker: (element:HTMLElement) => Date;
-		DestroyDatepicker: (element:HTMLElement) => void;
-	}
-	export interface ICoreTemplateIds
-	{
-		Layout: string;
-		PluginWrapper: string;
-		RowWrapper: string;
-		CellWrapper: string;
-		HeaderWrapper: string;
-	}
-	export interface ITableMessage
-	{
-		Type: PowerTables.MessageType;
-		Title: string;
-		Details: string;
-		Class: string;
 	}
 	export interface IPowerTablesResponse
 	{
@@ -157,6 +114,55 @@ module PowerTables {
 		OtherTablesAdjustments: { [key:string]: PowerTables.ITableAdjustment };
 		AdditionalData: any;
 	}
+	export interface IConfiguredSubscriptionInfo
+	{
+		IsRowSubscription: boolean;
+		ColumnName: string;
+		Selector: string;
+		DomEvent: string;
+		Handler: (dataObject:any, originalEvent:any) => void;
+	}
+	export interface ISelectionConfiguration
+	{
+		SelectAllBehavior: PowerTables.SelectAllBehavior;
+		ResetSelectionBehavior: PowerTables.ResetSelectionBehavior;
+		CanSelectRowFunction: (dataObject:any)=>boolean;
+		CanSelectCellFunction: (dataObject:any,column:string,select:boolean)=>boolean;
+		NonselectableColumns: string[];
+		SelectSingle: boolean;
+		InitialSelected: { [key:string]: string[] };
+	}
+	export interface IPartitionConfiguration
+	{
+		Type: PowerTables.PartitionType;
+		InitialSkip: number;
+		InitialTake: number;
+		LoadAhead: number;
+		NoCount: boolean;
+	}
+	export interface IPartitionRowTemplate
+	{
+		UiColumnsCount: number;
+		IsLoading: boolean;
+		Stats: PowerTables.IStatsModel;
+		IsClientSearchPending: boolean;
+		CanLoadMore: boolean;
+	}
+	export interface IStatsModel
+	{
+		IsSetFinite: ()=>boolean;
+		Mode: ()=>PowerTables.PartitionType;
+		ServerCount: ()=>number;
+		Stored: ()=>number;
+		Filtered: ()=>number;
+		Displayed: ()=>number;
+		Ordered: ()=>number;
+		Skip: ()=>number;
+		Take: ()=>number;
+		Pages: ()=>number;
+		CurrentPage: ()=>number;
+		IsAllDataLoaded: ()=>boolean;
+	}
 	export enum MessageType { 
 		UserMessage = 0, 
 		Banner = 1, 
@@ -165,6 +171,21 @@ module PowerTables {
 		Ascending = 0, 
 		Descending = 1, 
 		Neutral = 2, 
+	}
+	export enum SelectAllBehavior { 
+		AllVisible = 0, 
+		OnlyIfAllDataVisible = 1, 
+		AllLoadedData = 2, 
+		Disabled = 3, 
+	}
+	export enum ResetSelectionBehavior { 
+		DontReset = 0, 
+		ServerReload = 1, 
+		ClientReload = 2, 
+	}
+	export enum PartitionType { 
+		Client = 0, 
+		Server = 1, 
 	}
 }
 module PowerTables.Plugins.Formwatch {
@@ -342,7 +363,7 @@ module PowerTables.Editing {
 		FieldName: string;
 		PluginId: string;
 		ValidationMessagesTemplateId: string;
-		FakeColumn: PowerTables.Configuration.Json.IColumnConfiguration;
+		FakeColumn: PowerTables.IColumnConfiguration;
 		ValidationMessagesOverride: { [key:string]: string };
 	}
 	export interface IEditFormUiConfigBase

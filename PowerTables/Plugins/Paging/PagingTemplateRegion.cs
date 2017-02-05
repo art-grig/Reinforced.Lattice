@@ -2,7 +2,7 @@
 using System.IO;
 using System.Web.Mvc;
 using PowerTables.Templating;
-using PowerTables.Templating.Handlebars;
+using PowerTables.Templating.Expressions;
 
 namespace PowerTables.Plugins.Paging
 {
@@ -60,7 +60,7 @@ namespace PowerTables.Plugins.Paging
 
     public interface IPeriodsModeViewModel
     {
-        IHbArray<IPageViewModel> Pages { get; }
+        IJsArray<IPageViewModel> Pages { get; }
     }
 
 

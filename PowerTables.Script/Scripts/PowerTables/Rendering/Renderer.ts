@@ -11,7 +11,7 @@
             this._rootId = rootId;
             this._events = masterTable.Events;
             this._prefix = prefix;
-            this.Executor = PowerTables.Templating._ltcTpl.executor(prefix, this._instances);
+            this.Executor = PowerTables.Templating._ltcTpl.executor(prefix, masterTable);
             this.BackBinder = new BackBinder(this._instances, this._masterTable.Date);
         }
 

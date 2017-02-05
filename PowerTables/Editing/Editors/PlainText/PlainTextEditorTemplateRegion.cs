@@ -1,6 +1,5 @@
 ﻿using System.Web.Mvc;
 using PowerTables.Templating;
-using PowerTables.Templating.Handlebars;
 
 namespace PowerTables.Editing.Editors.PlainText
 {

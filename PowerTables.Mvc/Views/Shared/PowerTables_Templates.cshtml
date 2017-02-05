@@ -1,4 +1,5 @@
-﻿@using PowerTables.Editing
+﻿@using PowerTables.Configuration.Json
+@using PowerTables.Editing
 @using PowerTables.Editing.Editors.Check
 @using PowerTables.Editing.Editors.Display
 @using PowerTables.Editing.Editors.Memo
@@ -21,7 +22,7 @@
 @using PowerTables.Plugins.Toolbar
 @using PowerTables.Templating
 @using PowerTables.Templating.BuiltIn
-@using PowerTables.Templating.Handlebars
+@using PowerTables.Templating.Expressions
 
 @inherits PowerTables.Templating.TemplatesPageBase
 
@@ -368,17 +369,17 @@
 @using (var t = Plugin.ResponseInfo())
 {
     <p>
-        @using (t.If(c => c.IsLocalRequest))
+        @using (t.If(c => c.Mode == PartitionType.Client))
         {
             <br />
         <p>Data fetched locally.</p>
         }
-        Currently shown <strong>@t.Value(c => c.CurrentlyShown)</strong> of <strong>@t.Value(c => c.TotalCount)</strong> records
+        Currently shown <strong>@t.Value(c => c.Displayed)</strong> of <strong>@t.Value(c => c.ServerCount)</strong> records
         <br />
-        @using (t.If(c => c.PagingEnabled))
+        @using (t.If(c => c.Take>0))
         {
             <p>
-                Page <strong>@t.Value(c => c.CurrentPage)</strong> of @t.Value(c => c.TotalPages)
+                Page <strong>@t.Value(c => c.CurrentPage)</strong> of @t.Value(c => c.Pages)
             </p>
         }
         </p>
@@ -399,11 +400,11 @@
     </th>
 }
 
-@using (var t = this.Cell("checkboxifyCell"))
+@using (var t = Plugin.CheckboxifyCell())
 {
     using (t.If(c => c.Row.CanBeSelected))
     {
-        <div data-checkboxify="true">
+        <div @t.ThisWillTriggerSelection()>
             @using (t.If(c => c.Row.IsSelected))
             {
                 <input type="checkbox" checked="checked" />

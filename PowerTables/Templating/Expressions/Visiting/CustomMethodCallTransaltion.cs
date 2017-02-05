@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace PowerTables.Templating.Handlebars.Expressions
+namespace PowerTables.Templating.Expressions.Visiting
 {
     [AttributeUsage(AttributeTargets.Method,AllowMultiple = false)]
     public class CustomMethodCallTranslationAttribute : Attribute

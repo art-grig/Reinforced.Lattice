@@ -9,14 +9,13 @@
         /*
          * @internal
          */
-        constructor(configuration: Configuration.Json.ITableConfiguration, masterTable: IMasterTable, events:
-            PowerTables.Services.
-            EventsService) {
-            this.Configuration = configuration;
+        constructor(configuration: ITableConfiguration, masterTable: IMasterTable, events:
+            PowerTables.Services.EventsService) {
+            this._configuration = configuration;
             this._masterTable = masterTable;
             this._events = events;
-            this._isHandlingSpecialPlacementCase = !(!this.Configuration.EmptyFiltersPlaceholder);
-            this._specialCasePlaceholder = this.Configuration.EmptyFiltersPlaceholder;
+            this._isHandlingSpecialPlacementCase = !(!this._configuration.EmptyFiltersPlaceholder);
+            this._specialCasePlaceholder = this._configuration.EmptyFiltersPlaceholder;
             this.initColumns();
         }
 
@@ -32,15 +31,8 @@
          */
         public Plugins: { [key: string]: IPlugin } = {};
 
-        /**
-         * Events manager
-         */
         private _events: PowerTables.Services.EventsService;
-
-        /**
-         * Table configuration
-         */
-        public Configuration: Configuration.Json.ITableConfiguration;
+        private  _configuration: ITableConfiguration;
 
         private _rawColumnNames: string[] = [];
         private _masterTable: IMasterTable;
@@ -69,8 +61,8 @@
         private initColumns(): void {
             var columns: IColumn[] = [];
             
-            for (var i: number = 0; i < this.Configuration.Columns.length; i++) {
-                var cnf: Configuration.Json.IColumnConfiguration = this.Configuration.Columns[i];
+            for (var i: number = 0; i < this._configuration.Columns.length; i++) {
+                var cnf: IColumnConfiguration = this._configuration.Columns[i];
                 var c = InstanceManagerService.createColumn(cnf, this._masterTable, i);
                 this.Columns[c.RawName] = c;
                 columns.push(c);
@@ -82,7 +74,7 @@
 
         }
 
-        public static createColumn(cnf: Configuration.Json.IColumnConfiguration, masterTable: IMasterTable,order?:number): IColumn {
+        public static createColumn(cnf: IColumnConfiguration, masterTable: IMasterTable,order?:number): IColumn {
             var c: IColumn = {
                 Configuration: cnf,
                 RawName: cnf.RawColumnName,
@@ -109,7 +101,7 @@
          * @internal
          */
         public initPlugins(): void {
-            var pluginsConfiguration: Configuration.Json.IPluginConfiguration[] = this.Configuration.PluginsConfiguration;
+            var pluginsConfiguration: IPluginConfiguration[] = this._configuration.PluginsConfiguration;
             var specialCases: { [key: string]: IPlugin } = {};
             var anySpecialCases: boolean = false;
 
@@ -118,7 +110,7 @@
 
             // instantiating and initializing plugins
             for (var l: number = 0; l < pluginsConfiguration.length; l++) {
-                var conf: Configuration.Json.IPluginConfiguration = pluginsConfiguration[l];
+                var conf: IPluginConfiguration = pluginsConfiguration[l];
                 var plugin: IPlugin = ComponentsContainer.resolveComponent<IPlugin>(conf.PluginId);
                 plugin.PluginLocation = (!conf.Placement) ? conf.PluginId : `${conf.Placement}-${conf.PluginId}`;
                 plugin.RawConfig = conf;
@@ -187,8 +179,8 @@
         public _subscribeConfiguredEvents() {
             var delegator = this._masterTable.Renderer.Delegator;
             
-            for (var i = 0; i < this.Configuration.Subscriptions.length; i++) {
-                var sub = this.Configuration.Subscriptions[i];
+            for (var i = 0; i < this._configuration.Subscriptions.length; i++) {
+                var sub = this._configuration.Subscriptions[i];
                 if (sub.IsRowSubscription) {
                     var h = (function (hndlr) {
                         return function (e: IRowEventArgs) {

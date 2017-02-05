@@ -4,14 +4,16 @@ module PowerTables.Templating {
         public ColumnRenderes: { [key: string]: (x: ICell) => string } = {};
         public CoreTemplateIds: ICoreTemplateIds;
         public Instances: PowerTables.Services.InstanceManagerService;
+        private _master: PowerTables.IMasterTable;
 
         private _uiColumns: () => IColumn[];
-        constructor(lib: ITemplatesLib, instnaces: PowerTables.Services.InstanceManagerService) {
+        constructor(lib: ITemplatesLib, masterTable: PowerTables.IMasterTable) {
             this._lib = lib;
-            this.CoreTemplateIds = instnaces.Configuration.CoreTemplates;
-            this.cacheColumnRenderers(instnaces.Columns);
+            this._master = masterTable;
+            this.CoreTemplateIds = masterTable.Configuration.CoreTemplates;
+            this.cacheColumnRenderers(masterTable.InstanceManager.Columns);
             this._uiColumns = ()=>this.Instances.getUiColumns();
-            this.Instances = instnaces;
+            this.Instances = masterTable.InstanceManager;
             var s = ' ';
             for (var i = 1; i <= 30; i++) {
                 this.Spaces[i] = s;
@@ -22,7 +24,7 @@ module PowerTables.Templating {
         private cacheColumnRenderers(columns: { [key: string]: IColumn }) {
             for (var key in columns) {
                 if (columns.hasOwnProperty(key)) {
-                    var columnConfig: Configuration.Json.IColumnConfiguration = columns[key].Configuration;
+                    var columnConfig: IColumnConfiguration = columns[key].Configuration;
                     if (columnConfig.CellRenderingValueFunction) {
                         this.ColumnRenderes[columnConfig.RawColumnName] = columnConfig.CellRenderingValueFunction;
                         continue;
@@ -77,8 +79,8 @@ module PowerTables.Templating {
         }
 
         public obtainRowTemplate(rw: IRow): string {
-            if (this.Instances.Configuration.TemplateSelector) {
-                var to = this.Instances.Configuration.TemplateSelector(rw);
+            if (this._master.Configuration.TemplateSelector) {
+                var to = this._master.Configuration.TemplateSelector(rw);
                 if (!(!to)) rw.TemplateIdOverride = to;
             }
             if (rw.TemplateIdOverride) {

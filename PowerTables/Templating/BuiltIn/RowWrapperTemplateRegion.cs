@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using PowerTables.Templating.Handlebars;
+using PowerTables.Templating.Expressions;
 
 namespace PowerTables.Templating.BuiltIn
 {
@@ -59,7 +59,7 @@ namespace PowerTables.Templating.BuiltIn
         /// <summary>
         /// Row cells
         /// </summary>
-        IHbArray<ICellModel<TRow>> Cells { get; }
+        IJsArray<ICellModel<TRow>> Cells { get; }
     }
 
     public static class RowWrapperExtensions

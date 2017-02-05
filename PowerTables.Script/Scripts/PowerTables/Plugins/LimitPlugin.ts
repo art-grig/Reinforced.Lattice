@@ -43,7 +43,7 @@ module PowerTables.Plugins.Limit {
         public init(masterTable: IMasterTable): void {
             super.init(masterTable);
             var def = null;
-            var initTake = this.MasterTable.InstanceManager.Configuration.Partition.InitialTake.toString();
+            var initTake = this.MasterTable.Configuration.Partition.InitialTake.toString();
             for (var i = 0; i < this.Configuration.LimitValues.length; i++) {
                 var a = <ILimitSize>{
                     Value: this.Configuration.LimitValues[i],
@@ -57,7 +57,7 @@ module PowerTables.Plugins.Limit {
             }
             if (def == null) {
                 def = <ILimitSize>{
-                    Value: this.MasterTable.InstanceManager.Configuration.Partition.InitialTake,
+                    Value: this.MasterTable.Configuration.Partition.InitialTake,
                     Label: initTake,
                     IsSeparator: false,
                 };

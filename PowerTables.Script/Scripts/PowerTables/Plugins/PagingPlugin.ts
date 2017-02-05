@@ -6,35 +6,11 @@
         public NextArrow: boolean;
         public PrevArrow: boolean;
 
-        public CurrentPage() { return this.getCurrentPage() + 1; }
-        public TotalPages() { return this.getTotalPages(); }
+        public CurrentPage() { return this.MasterTable.Stats.CurrentPage() + 1; }
+        public TotalPages() { return this.MasterTable.Stats.Pages(); }
         public PageSize() { return this.MasterTable.Partition.Take; }
 
         public GotoInput: HTMLInputElement;
-
-        public getCurrentPage() {
-
-            if (this.MasterTable.Partition.Skip + this.MasterTable.Partition.Take >= this.MasterTable.Partition.amount()) {
-                return this.getTotalPages() - 1;
-            }
-            return PagingPlugin.selectedPage(this.MasterTable.Partition.Skip, this.MasterTable.Partition.Take);
-        }
-
-        private static selectedPage(skip: number, take: number) {
-            if (take === 0) return 0;
-            if (skip < take) return 0;
-            var sp = skip / take;
-            return Math.floor(sp);
-        }
-
-        public getTotalPages() {
-            if (this.MasterTable.Partition.Take === 0) return 1;
-            var tp: number = this.MasterTable.Partition.amount() / this.MasterTable.Partition.Take;
-            if (tp !== Math.floor(tp)) {
-                tp = Math.floor(tp) + 1;
-            }
-            return tp;
-        }
 
         public goToPage(page: string) {
             var pg = parseInt(page);
@@ -54,17 +30,17 @@
         }
 
         public nextClick(e: PowerTables.ITemplateBoundEvent) {
-            if (this.getCurrentPage() < this.getTotalPages()) this.goToPage((this.getCurrentPage() + 1).toString());
+            if (this.MasterTable.Stats.CurrentPage() < this.MasterTable.Stats.Pages()) this.goToPage((this.MasterTable.Stats.CurrentPage() + 1).toString());
         }
 
         public previousClick(e: PowerTables.ITemplateBoundEvent) {
-            if (this.getCurrentPage() > 0) this.goToPage((this.getCurrentPage() - 1).toString());
+            if (this.MasterTable.Stats.CurrentPage() > 0) this.goToPage((this.MasterTable.Stats.CurrentPage() - 1).toString());
         }
 
         private constructPagesElements() {
             var a: IPagesElement[] = [];
-            var total: number = this.getTotalPages();
-            var cur: number = this.getCurrentPage();
+            var total: number = this.MasterTable.Stats.Pages();
+            var cur: number = this.MasterTable.Stats.CurrentPage();
             var pdiff: number = this.Configuration.PagesToHideUnderPeriod;
             var totalKnown = this.MasterTable.Partition.isAmountFinite();
 
@@ -120,7 +96,7 @@
         public validateGotopage() {
             var v: string = this.GotoInput.value;
             var i: number = parseInt(v);
-            var valid: boolean = this.MasterTable.Partition.isAmountFinite() ? (!isNaN(i) && (i > 0) && (i <= this.getTotalPages())) : true;
+            var valid: boolean = this.MasterTable.Partition.isAmountFinite() ? (!isNaN(i) && (i > 0) && (i <= this.MasterTable.Stats.Pages())) : true;
             if (valid) {
                 this.VisualStates.normalState();
             } else {

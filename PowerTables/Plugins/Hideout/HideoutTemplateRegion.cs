@@ -1,6 +1,6 @@
 ﻿using System.Web.Mvc;
 using PowerTables.Templating;
-using PowerTables.Templating.Handlebars;
+using PowerTables.Templating.Expressions;
 
 namespace PowerTables.Plugins.Hideout
 {
@@ -28,7 +28,7 @@ namespace PowerTables.Plugins.Hideout
         /// <summary>
         /// Set of Hideout column states
         /// </summary>
-        IHbArray<IHideoutColumnState> ColumnStates { get; }
+        IJsArray<IHideoutColumnState> ColumnStates { get; }
 
     }
 

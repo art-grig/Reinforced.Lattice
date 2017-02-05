@@ -1,4 +1,5 @@
 ﻿using PowerTables.Templating;
+using PowerTables.Templating.BuiltIn;
 
 namespace PowerTables.Plugins.ResponseInfo
 {
@@ -13,21 +14,6 @@ namespace PowerTables.Plugins.ResponseInfo
         }
     }
 
-    public interface IResponseInfoDefaultData
-    {
-        int CurrentlyShown { get; }
-
-        int TotalCount { get; }
-
-        bool IsLocalRequest { get; }
-
-        int TotalPages { get; }
-
-        int CurrentPage { get; }
-
-        bool PagingEnabled { get; }
-    }
-
     public static class ResponseInfoTemplateExtensions
     {
         public static ResponseInfoTemplateRegion<T> ResponseInfo<T>(this IViewPlugins t, string templateId = "responseInfo")
@@ -35,9 +21,9 @@ namespace PowerTables.Plugins.ResponseInfo
             return new ResponseInfoTemplateRegion<T>(t,templateId);
         }
 
-        public static ResponseInfoTemplateRegion<IResponseInfoDefaultData> ResponseInfo(this IViewPlugins t, string templateId = "responseInfo")
+        public static ResponseInfoTemplateRegion<IStatsModel> ResponseInfo(this IViewPlugins t, string templateId = "responseInfo")
         {
-            return new ResponseInfoTemplateRegion<IResponseInfoDefaultData>(t, templateId);
+            return new ResponseInfoTemplateRegion<IStatsModel>(t, templateId);
         }
     }
 }
