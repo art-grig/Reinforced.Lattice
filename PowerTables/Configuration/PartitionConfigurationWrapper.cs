@@ -37,16 +37,26 @@ namespace PowerTables.Configuration
             return conf;
         }
 
-        public static PartitionConfigurationWrapper Server(this PartitionConfigurationWrapper c,int loadPagesAhead = 2,
-            Action<ServerPartitionConfigurationWrapper> conf = null)
+        public static PartitionConfigurationWrapper Server(this PartitionConfigurationWrapper c, int loadPagesAhead = 2,
+            Action<ServerPartitionConfigurationWrapper> conf = null, Action<ServerPartitionConfigurationWrapper> ifClientSearch = null)
         {
             c.Configuration.Server = new ServerPartitionConfiguration();
+            c.Configuration.Sequential = new ServerPartitionConfiguration();
+
             c.Configuration.Type = PartitionType.Server;
             c.Configuration.Server.LoadAhead = loadPagesAhead;
+            c.Configuration.Sequential.LoadAhead = loadPagesAhead;
             if (conf != null)
             {
                 ServerPartitionConfigurationWrapper w = new ServerPartitionConfigurationWrapper(c.Configuration.Server);
                 conf(w);
+                ServerPartitionConfigurationWrapper w2 = new ServerPartitionConfigurationWrapper(c.Configuration.Sequential);
+                conf(w2);
+            }
+            if (ifClientSearch != null)
+            {
+                ServerPartitionConfigurationWrapper w = new ServerPartitionConfigurationWrapper(c.Configuration.Sequential);
+                ifClientSearch(w);
             }
             return c;
         }
@@ -54,12 +64,12 @@ namespace PowerTables.Configuration
         public static PartitionConfigurationWrapper Sequential(this PartitionConfigurationWrapper c, int loadPagesAhead = 2,
             Action<ServerPartitionConfigurationWrapper> conf = null)
         {
-            c.Configuration.Server = new ServerPartitionConfiguration();
+            c.Configuration.Sequential = new ServerPartitionConfiguration();
             c.Configuration.Type = PartitionType.Sequential;
-            c.Configuration.Server.LoadAhead = loadPagesAhead;
+            c.Configuration.Sequential.LoadAhead = loadPagesAhead;
             if (conf != null)
             {
-                ServerPartitionConfigurationWrapper w = new ServerPartitionConfigurationWrapper(c.Configuration.Server);
+                ServerPartitionConfigurationWrapper w = new ServerPartitionConfigurationWrapper(c.Configuration.Sequential);
                 conf(w);
             }
             return c;

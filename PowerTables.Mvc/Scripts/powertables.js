@@ -3191,7 +3191,7 @@ var PowerTables;
                 }
                 var queriesEqual = (JSON.stringify(serverQuery) === this._previousQueryString);
                 var server = force || !queriesEqual;
-                this._masterTable.Partition.partitionBeforeQuery(serverQuery, clientQuery, server);
+                server = this._masterTable.Partition.partitionBeforeQuery(serverQuery, clientQuery, server);
                 this._masterTable.Selection.modifyQuery(serverQuery, PowerTables.QueryScope.Server);
                 var data = {
                     Command: 'query',
@@ -6150,9 +6150,16 @@ var PowerTables;
                         }
                     }
                     if (labelPair != null) {
-                        this.SelectedValue = labelPair;
                         this.MasterTable.Renderer.Modifier.redrawPlugin(this);
                     }
+                    else {
+                        this.SelectedValue = {
+                            IsSeparator: false,
+                            Label: take.toString(),
+                            Value: take
+                        };
+                    }
+                    this.SelectedValue = labelPair;
                 };
                 LimitPlugin.prototype.onPartitionChange = function (e) {
                     if (e.EventArgs.Take !== e.EventArgs.PreviousTake) {
@@ -8060,12 +8067,14 @@ var PowerTables;
         var Partition;
         (function (Partition) {
             var BackgroundDataLoader = (function () {
-                function BackgroundDataLoader(masterTable) {
+                function BackgroundDataLoader(masterTable, conf) {
                     this._afterFn = null;
                     this._indicationShown = false;
                     this._masterTable = masterTable;
-                    this.Indicator = new PowerTables.Services.Partition.PartitionIndicatorRow(masterTable, this);
-                    this.LoadAhead = masterTable.Configuration.Partition.Server.LoadAhead;
+                    this.Indicator = new PowerTables.Services.Partition.PartitionIndicatorRow(masterTable, this, conf);
+                    this.LoadAhead = conf.LoadAhead;
+                    this.AppendLoadingRow = conf.AppendLoadingRow;
+                    this.UseLoadMore = conf.UseLoadMore;
                 }
                 BackgroundDataLoader.prototype.skipTake = function (skip, take) {
                     this.Skip = skip;
@@ -8178,14 +8187,14 @@ var PowerTables;
         var Partition;
         (function (Partition) {
             var PartitionIndicatorRow = (function () {
-                function PartitionIndicatorRow(masterTable, dataLoader) {
+                function PartitionIndicatorRow(masterTable, dataLoader, conf) {
                     this.IsSpecial = true;
                     this.Index = 0;
                     this.Cells = {};
                     this.DataObject = new PartitionIndicator(masterTable, dataLoader);
                     this.MasterTable = masterTable;
                     this._dataLoader = dataLoader;
-                    this.TemplateIdOverride = masterTable.Configuration.Partition.Server.LoadingRowTemplateId;
+                    this.TemplateIdOverride = conf.LoadingRowTemplateId;
                     this.Show = true;
                 }
                 PartitionIndicatorRow.prototype.loadMore = function () {
@@ -8412,6 +8421,7 @@ var PowerTables;
                         Take: this.Take,
                         Skip: this.Skip
                     };
+                    return isServerQuery;
                 };
                 ClientPartitionService.prototype.partitionBeforeCommand = function (serverQuery) {
                     serverQuery.Partition = {
@@ -8505,7 +8515,7 @@ var PowerTables;
                     this._masterTable = masterTable;
                     this._conf = masterTable.Configuration.Partition.Server;
                     this._seq = new PowerTables.Services.Partition.SequentialPartitionService(masterTable);
-                    this._dataLoader = new PowerTables.Services.Partition.BackgroundDataLoader(masterTable);
+                    this._dataLoader = new PowerTables.Services.Partition.BackgroundDataLoader(masterTable, this._conf);
                     this._dataLoader.UseLoadMore = this._conf.UseLoadMore;
                     this._dataLoader.AppendLoadingRow = this._conf.AppendLoadingRow;
                     this._dataLoader.Indicator.Show = false;
@@ -8515,7 +8525,7 @@ var PowerTables;
                     if (this.Skip === 0 && skip <= 0 && this._serverSkip === 0)
                         return;
                     var iSkip = skip - this._serverSkip;
-                    if ((iSkip + (this.Take * 2) > this._masterTable.DataHolder.Ordered.length) || (iSkip < 0)) {
+                    if (((iSkip + this.Take * 2) > this._masterTable.DataHolder.Ordered.length) || (iSkip < 0)) {
                         if ((iSkip > this._masterTable.DataHolder.Ordered.length) || (iSkip < 0)) {
                             var prevSkip = this.Skip;
                             this.Skip = skip;
@@ -8532,6 +8542,7 @@ var PowerTables;
                         else {
                             this._dataLoader.skipTake(skip, this.Take);
                             this._dataLoader.loadNextDataPart(this._conf.LoadAhead);
+                            _super.prototype.setSkip.call(this, skip, preserveTake);
                             return;
                         }
                     }
@@ -8562,14 +8573,14 @@ var PowerTables;
                 ServerPartitionService.prototype.partitionBeforeQuery = function (serverQuery, clientQuery, isServerQuery) {
                     // Check if it is pager's request. If true - nothing to do here. All necessary things are already done in queryModifier
                     if (serverQuery.IsBackgroundDataFetch)
-                        return;
+                        return isServerQuery;
                     this._dataLoader.skipTake(this.Skip, this.Take);
                     var hasClientFilters = this.any(clientQuery.Filterings);
                     // in case if we have client filters we're switching to sequential partitioner
                     if (hasClientFilters) {
                         this.switchToSequential();
                         this._seq.partitionBeforeQuery(serverQuery, clientQuery, isServerQuery);
-                        return;
+                        return true;
                     }
                     else {
                         serverQuery.Partition = { NoCount: false, Take: this.Take * this._conf.LoadAhead, Skip: this.Skip };
@@ -8580,6 +8591,7 @@ var PowerTables;
                         Take: this.Take,
                         Skip: this.Skip
                     };
+                    return isServerQuery;
                 };
                 ServerPartitionService.prototype.resetSkip = function () {
                     if (this.Skip === 0)
@@ -8649,8 +8661,8 @@ var PowerTables;
                     this._provideIndication = false;
                     this._backgroundLoad = false;
                     this._masterTable = masterTable;
-                    this._conf = masterTable.Configuration.Partition.Server;
-                    this.DataLoader = new PowerTables.Services.Partition.BackgroundDataLoader(masterTable);
+                    this._conf = masterTable.Configuration.Partition.Sequential;
+                    this.DataLoader = new PowerTables.Services.Partition.BackgroundDataLoader(masterTable, this._conf);
                     this.DataLoader.UseLoadMore = this._conf.UseLoadMore;
                     this.DataLoader.AppendLoadingRow = this._conf.AppendLoadingRow;
                     if (this._conf.AppendLoadingRow || this._conf.UseLoadMore) {
@@ -8705,13 +8717,13 @@ var PowerTables;
                 SequentialPartitionService.prototype.partitionBeforeQuery = function (serverQuery, clientQuery, isServerQuery) {
                     // Check if it is pager's request. If true - nothing to do here. All necessary things are already done in queryModifier
                     if (serverQuery.IsBackgroundDataFetch)
-                        return;
+                        return isServerQuery;
                     this.resetSkip();
                     if (this.Owner != null) {
                         var hasClientFilters = this.any(clientQuery.Filterings);
                         if (!hasClientFilters) {
                             this.Owner.switchBack(serverQuery, clientQuery, isServerQuery);
-                            return;
+                            return true;
                         }
                     }
                     serverQuery.Partition = { NoCount: true, Take: this.Take * this._conf.LoadAhead, Skip: this.Skip };
@@ -8721,6 +8733,7 @@ var PowerTables;
                         Take: this.Take,
                         Skip: this.Skip
                     };
+                    return isServerQuery;
                 };
                 SequentialPartitionService.prototype.partitionAfterQuery = function (initialSet, query, serverCount) {
                     var result = this.skipTakeSet(initialSet, query);

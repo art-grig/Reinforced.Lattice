@@ -3,8 +3,8 @@
         constructor(masterTable: IMasterTable) {
             super(masterTable);
             this._masterTable = masterTable;
-            this._conf = masterTable.Configuration.Partition.Server;
-            this.DataLoader = new PowerTables.Services.Partition.BackgroundDataLoader(masterTable);
+            this._conf = masterTable.Configuration.Partition.Sequential;
+            this.DataLoader = new PowerTables.Services.Partition.BackgroundDataLoader(masterTable, this._conf);
             this.DataLoader.UseLoadMore = this._conf.UseLoadMore;
             this.DataLoader.AppendLoadingRow = this._conf.AppendLoadingRow;
 
@@ -14,10 +14,8 @@
             this.Type = PowerTables.PartitionType.Sequential;
         }
 
-
         public Owner: ServerPartitionService;
-
-        public  DataLoader: BackgroundDataLoader;
+        public DataLoader: BackgroundDataLoader;
         private _conf: IServerPartitionConfiguration;
 
         public setSkip(skip: number, preserveTake?: boolean): void {
@@ -65,15 +63,15 @@
                 });
         }
 
-        public partitionBeforeQuery(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean): void {
+        public partitionBeforeQuery(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean): boolean {
             // Check if it is pager's request. If true - nothing to do here. All necessary things are already done in queryModifier
-            if (serverQuery.IsBackgroundDataFetch) return;
+            if (serverQuery.IsBackgroundDataFetch) return isServerQuery;
             this.resetSkip();
             if (this.Owner != null) {
                 var hasClientFilters = this.any(clientQuery.Filterings);
                 if (!hasClientFilters) {
                     this.Owner.switchBack(serverQuery, clientQuery, isServerQuery);
-                    return;
+                    return true;
                 }
             }
 
@@ -85,6 +83,7 @@
                 Take: this.Take,
                 Skip: this.Skip
             };
+            return isServerQuery;
         }
 
         public partitionAfterQuery(initialSet: any[], query: IQuery, serverCount: number): any[] {

@@ -133,6 +133,7 @@ declare module PowerTables {
         InitialSkip: number;
         InitialTake: number;
         Server: PowerTables.IServerPartitionConfiguration;
+        Sequential: PowerTables.IServerPartitionConfiguration;
     }
     interface IPartitionRowData {
         UiColumnsCount: () => number;
@@ -3371,7 +3372,7 @@ declare module PowerTables.Plugins.Formwatch {
 }
 declare module PowerTables.Services.Partition {
     class BackgroundDataLoader {
-        constructor(masterTable: IMasterTable);
+        constructor(masterTable: IMasterTable, conf: PowerTables.IServerPartitionConfiguration);
         private _masterTable;
         private _dataAppendError;
         Indicator: PartitionIndicatorRow;
@@ -3401,7 +3402,7 @@ declare module PowerTables.Services.Partition {
 declare module PowerTables.Services.Partition {
     class PartitionIndicatorRow implements IRow {
         private _dataLoader;
-        constructor(masterTable: IMasterTable, dataLoader: PowerTables.Services.Partition.BackgroundDataLoader);
+        constructor(masterTable: IMasterTable, dataLoader: PowerTables.Services.Partition.BackgroundDataLoader, conf: PowerTables.IServerPartitionConfiguration);
         TemplateIdOverride: string;
         IsSpecial: boolean;
         DataObject: any;
@@ -3438,7 +3439,7 @@ declare module PowerTables.Services.Partition {
         setTake(take: number): void;
         protected restoreSpecialRows(rows: IRow[]): void;
         protected destroySpecialRows(rows: IRow[]): void;
-        partitionBeforeQuery(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean): void;
+        partitionBeforeQuery(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean): boolean;
         partitionBeforeCommand(serverQuery: IQuery): void;
         partitionAfterQuery(initialSet: any[], query: IQuery, serverCount: number): any[];
         protected skipTakeSet(ordered: any[], query: IQuery): any[];
@@ -3463,7 +3464,7 @@ declare module PowerTables.Services.Partition {
         Take: number;
         setSkip(skip: number, preserveTake?: boolean): void;
         setTake(take?: number): void;
-        partitionBeforeQuery(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean): void;
+        partitionBeforeQuery(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean): boolean;
         partitionBeforeCommand(serverQuery: IQuery): void;
         partitionAfterQuery(initialSet: any[], query: IQuery, serverCount: number): any[];
         amount(): number;
@@ -3487,7 +3488,7 @@ declare module PowerTables.Services.Partition {
         setSkip(skip: number, preserveTake?: boolean): void;
         protected cut(ordered: any[], skip: number, take: number): any;
         setTake(take: number): void;
-        partitionBeforeQuery(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean): void;
+        partitionBeforeQuery(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean): boolean;
         private resetSkip();
         private switchToSequential();
         switchBack(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean): void;
@@ -3514,7 +3515,7 @@ declare module PowerTables.Services.Partition {
         isAmountFinite(): boolean;
         amount(): number;
         private resetSkip();
-        partitionBeforeQuery(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean): void;
+        partitionBeforeQuery(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean): boolean;
         partitionAfterQuery(initialSet: any[], query: IQuery, serverCount: number): any[];
         private _provideIndication;
         private _backgroundLoad;

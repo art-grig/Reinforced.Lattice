@@ -164,7 +164,7 @@
             }
         }
 
-        public partitionBeforeQuery(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean): void {
+        public partitionBeforeQuery(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean): boolean {
             serverQuery.Partition = {
                 NoCount: true,
                 Take: 0,
@@ -175,6 +175,7 @@
                 Take: this.Take,
                 Skip: this.Skip
             };
+            return isServerQuery;
         }
 
         public partitionBeforeCommand(serverQuery: IQuery): void {

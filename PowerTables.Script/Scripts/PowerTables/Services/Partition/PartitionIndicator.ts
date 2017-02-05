@@ -3,11 +3,11 @@
 
         private _dataLoader: PowerTables.Services.Partition.BackgroundDataLoader;
 
-        constructor(masterTable: IMasterTable, dataLoader: PowerTables.Services.Partition.BackgroundDataLoader) {
+        constructor(masterTable: IMasterTable, dataLoader: PowerTables.Services.Partition.BackgroundDataLoader,conf:PowerTables.IServerPartitionConfiguration) {
             this.DataObject = new PartitionIndicator(masterTable, dataLoader);
             this.MasterTable = masterTable;
             this._dataLoader = dataLoader;
-            this.TemplateIdOverride = masterTable.Configuration.Partition.Server.LoadingRowTemplateId;
+            this.TemplateIdOverride = conf.LoadingRowTemplateId;
             this.Show = true;
         }
 

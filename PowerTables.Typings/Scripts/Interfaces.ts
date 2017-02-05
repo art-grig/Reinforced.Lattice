@@ -138,6 +138,7 @@ module PowerTables {
 		InitialSkip: number;
 		InitialTake: number;
 		Server: PowerTables.IServerPartitionConfiguration;
+		Sequential: PowerTables.IServerPartitionConfiguration;
 	}
 	export interface IPartitionRowData
 	{

@@ -1,14 +1,16 @@
 ﻿module PowerTables.Services.Partition {
     export class BackgroundDataLoader {
-        constructor(masterTable: IMasterTable) {
+        constructor(masterTable: IMasterTable, conf: PowerTables.IServerPartitionConfiguration) {
             this._masterTable = masterTable;
-            this.Indicator = new PowerTables.Services.Partition.PartitionIndicatorRow(masterTable, this);
-            this.LoadAhead = masterTable.Configuration.Partition.Server.LoadAhead;
+            this.Indicator = new PowerTables.Services.Partition.PartitionIndicatorRow(masterTable, this, conf);
+            this.LoadAhead = conf.LoadAhead;
+            this.AppendLoadingRow = conf.AppendLoadingRow;
+            this.UseLoadMore = conf.UseLoadMore;
         }
 
         private _masterTable: IMasterTable;
         private _dataAppendError: any;
-        public  Indicator: PartitionIndicatorRow;
+        public Indicator: PartitionIndicatorRow;
         public LoadAhead: number;
 
         public AppendLoadingRow: boolean;
@@ -119,7 +121,7 @@
             this._indicationShown = false;
         }
 
-        public loadMore(show:boolean,page?: number) {
+        public loadMore(show: boolean, page?: number) {
             this.destroyIndication();
             this.loadNextCore(page, show);
         }

@@ -16,6 +16,7 @@ namespace PowerTables.Configuration.Json
 
         public ServerPartitionConfiguration Server { get; set; }
 
+        public ServerPartitionConfiguration Sequential { get; set; }
     }
 
     public class ServerPartitionConfiguration

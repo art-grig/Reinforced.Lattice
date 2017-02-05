@@ -29,9 +29,15 @@ module PowerTables.Plugins.Limit {
                 }
             }
             if (labelPair != null) {
-                this.SelectedValue = labelPair;
                 this.MasterTable.Renderer.Modifier.redrawPlugin(this);
+            } else {
+                this.SelectedValue = {
+                    IsSeparator: false,
+                    Label: take.toString(),
+                    Value: take
+                }
             }
+            this.SelectedValue = labelPair;
         }
 
         private onPartitionChange(e: ITableEventArgs<IPartitionChangeEventArgs>) {

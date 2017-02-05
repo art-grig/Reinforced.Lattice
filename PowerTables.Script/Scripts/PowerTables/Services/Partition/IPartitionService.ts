@@ -5,7 +5,7 @@
 
         setSkip(skip: number, preserveTake?: boolean): void;
         setTake(take?: number): void;
-        partitionBeforeQuery(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean): void;
+        partitionBeforeQuery(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean): boolean;
         partitionBeforeCommand(serverQuery: IQuery): void;
         partitionAfterQuery(initialSet: any[], query: IQuery, serverCount: number): any[];
 

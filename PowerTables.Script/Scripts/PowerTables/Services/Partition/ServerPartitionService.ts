@@ -6,10 +6,11 @@
             this._masterTable = masterTable;
             this._conf = masterTable.Configuration.Partition.Server;
             this._seq = new PowerTables.Services.Partition.SequentialPartitionService(masterTable);
-            this._dataLoader = new PowerTables.Services.Partition.BackgroundDataLoader(masterTable);
+            this._dataLoader = new PowerTables.Services.Partition.BackgroundDataLoader(masterTable,this._conf);
             this._dataLoader.UseLoadMore = this._conf.UseLoadMore;
             this._dataLoader.AppendLoadingRow = this._conf.AppendLoadingRow;
             this._dataLoader.Indicator.Show = false;
+
             this.Type = PowerTables.PartitionType.Server;
         }
         private _seq: PowerTables.Services.Partition.SequentialPartitionService;
@@ -22,7 +23,7 @@
             if (this.Skip === 0 && skip <= 0 && this._serverSkip === 0) return;
             var iSkip = skip - this._serverSkip;
 
-            if ((iSkip + (this.Take * 2) > this._masterTable.DataHolder.Ordered.length) || (iSkip < 0)) {
+            if (((iSkip + this.Take*2) > this._masterTable.DataHolder.Ordered.length) || (iSkip < 0)) {
                 if ((iSkip > this._masterTable.DataHolder.Ordered.length) || (iSkip < 0)) {
                     var prevSkip = this.Skip;
                     this.Skip = skip;
@@ -39,6 +40,7 @@
                 } else {
                     this._dataLoader.skipTake(skip, this.Take);
                     this._dataLoader.loadNextDataPart(this._conf.LoadAhead);
+                    super.setSkip(skip, preserveTake);
                     return;
                 }
             }
@@ -65,16 +67,16 @@
             }
         }
 
-        public partitionBeforeQuery(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean): void {
+        public partitionBeforeQuery(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean): boolean {
             // Check if it is pager's request. If true - nothing to do here. All necessary things are already done in queryModifier
-            if (serverQuery.IsBackgroundDataFetch) return;
+            if (serverQuery.IsBackgroundDataFetch) return isServerQuery;
             this._dataLoader.skipTake(this.Skip, this.Take);
             var hasClientFilters = this.any(clientQuery.Filterings);
             // in case if we have client filters we're switching to sequential partitioner
             if (hasClientFilters) {
                 this.switchToSequential();
                 this._seq.partitionBeforeQuery(serverQuery, clientQuery, isServerQuery);
-                return;
+                return true;
             }
             else {
                 serverQuery.Partition = { NoCount: false, Take: this.Take * this._conf.LoadAhead, Skip: this.Skip };
@@ -86,6 +88,7 @@
                 Take: this.Take,
                 Skip: this.Skip
             };
+            return isServerQuery;
         }
         private resetSkip() {
             if (this.Skip === 0) return;
