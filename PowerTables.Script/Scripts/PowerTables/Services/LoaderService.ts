@@ -107,7 +107,7 @@
             return xmlhttp;
         }
 
-        private _runningBackgroundRequests:XMLHttpRequest[] = [];
+        private _runningBackgroundRequests: XMLHttpRequest[] = [];
         private cancelBackground() {
             for (var i = 0; i < this._runningBackgroundRequests.length; i++) {
                 this._runningBackgroundRequests[i].abort();
@@ -256,7 +256,7 @@
         public isLoading() {
             return this._isLoading;
         }
-        
+
 
         private doServerQuery(data: IPowerTableRequest, clientQuery: IQuery, callback: (data: any) => void, errorCallback?: (data: any) => void): void {
             this._isLoading = true;
@@ -298,7 +298,7 @@
             //});
 
             //failTimeout = setTimeout(() => { req.abort(); this.Renderer.showError('Network error: network unreacheable'); }, 10000);
-            
+
             req.send(dataText);
         }
 
@@ -321,7 +321,7 @@
 
             var server = force || !queriesEqual;
 
-            this._masterTable.Partition.partitionBeforeQuery(clientQuery, serverQuery, server);
+            this._masterTable.Partition.partitionBeforeQuery(serverQuery, clientQuery, server);
             this._masterTable.Selection.modifyQuery(serverQuery, QueryScope.Server);
             var data: IPowerTableRequest = {
                 Command: 'query',
@@ -341,7 +341,7 @@
 
         private doClientQuery(clientQuery: IQuery, callback: (data: any) => void) {
             this._isLoading = true;
-            this._dataHolder.filterStoredData(clientQuery);
+            this._dataHolder.filterStoredData(clientQuery, -1);
             callback(null);
             this._isLoading = false;
         }

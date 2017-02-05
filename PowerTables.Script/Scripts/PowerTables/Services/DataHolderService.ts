@@ -41,11 +41,11 @@
          */
         public StoredData: any[] = [];
 
-                /**
-         * Registers client filter
-         * 
-         * @param filter Client filter
-         */
+        /**
+ * Registers client filter
+ * 
+ * @param filter Client filter
+ */
         public registerClientFilter(filter: IClientFilter): void {
             this._anyClientFiltration = true;
             this._filters.push(filter);
@@ -73,7 +73,7 @@
             }
             if (this._configuration.KeyFields.length === 0) return;
             if (!window['___ltcstrh']) {
-                window['___ltcstrh'] = function(x:String) {
+                window['___ltcstrh'] = function (x: String) {
                     if (x == null) return '';
                     var r = '';
                     for (var i = 0; i < x.length; i++) {
@@ -196,7 +196,7 @@
             var obj: {} = {};
             var currentColIndex: number = this.getNextNonSpecialColumn(-1);
             var currentCol: string = this._rawColumnNames[currentColIndex];
-            if (!clientQuery.Append) this._storedDataCache = {};
+            if (!clientQuery.IsBackgroundDataFetch) this._storedDataCache = {};
 
             for (var i: number = 0; i < response.Data.length; i++) {
                 if (this._instances.Columns[currentCol].IsDateTime) {
@@ -215,20 +215,23 @@
                     for (var ck in this._clientValueFunction) {
                         obj[ck] = this._clientValueFunction[ck](obj);
                     }
-                    data.push(obj);
+                    
                     if (this._hasPrimaryKey) {
                         obj['__key'] = this.PrimaryKeyFunction(obj);
+                        if (!this._storedDataCache[obj['__key']]) data.push(obj);
                         this._storedDataCache[obj['__key']] = obj; // line that makes difference
+                    } else {
+                        data.push(obj);
                     }
                     obj['__i'] = clientQuery.Partition.Skip + data.length - 1;
                     obj = {};
                 }
                 currentCol = this._rawColumnNames[currentColIndex];
             }
-            if (!clientQuery.Append) this.StoredData = data;
-            else this.StoredData.concat(data);
+            if (!clientQuery.IsBackgroundDataFetch) this.StoredData = data;
+            else this.StoredData = this.StoredData.concat(data);
 
-            this.filterStoredData(clientQuery);
+            this.filterStoredData(clientQuery, response.ResultsCount);
             this.updateStats(response.ResultsCount);
         }
 
@@ -304,7 +307,7 @@
             return objects;
         }
 
-        
+
 
         /**
          * Part of data currently displayed without ordering and paging
@@ -322,7 +325,7 @@
          * @param query Table query
          * @returns {} 
          */
-        public filterStoredData(query: IQuery) {
+        public filterStoredData(query: IQuery, serverCount: number) {
             this._events.ClientDataProcessing.invokeBefore(this, query);
 
             this.DisplayedData = this.StoredData;
@@ -338,7 +341,7 @@
                 this.Filtered = filtered;
                 this.Ordered = ordered;
             }
-            this.DisplayedData = this._masterTable.Partition.partitionAfterQuery(this.Ordered, query);
+            this.DisplayedData = this._masterTable.Partition.partitionAfterQuery(this.Ordered, query, serverCount);
             this.updateStats();
 
             this._events.ClientDataProcessing.invokeAfter(this, {
@@ -355,7 +358,7 @@
          * using query that was previously applied to local data         
          */
         public filterStoredDataWithPreviousQuery() {
-            this.filterStoredData(this.RecentClientQuery);
+            this.filterStoredData(this.RecentClientQuery, -1);
         }
 
         //#endregion
@@ -489,7 +492,7 @@
          */
         public localLookupPrimaryKey(dataObject: any, setToLookup: any[] = this.StoredData): ILocalLookupResult {
             var found = null;
-            
+
             var nullResult = {
                 DataObject: null,
                 IsCurrentlyDisplaying: false,
@@ -607,7 +610,7 @@
                     needRefilter = true;
                 }
             }
-            this._masterTable.Selection.handleAdjustments(added,adjustments.RemoveKeys);
+            this._masterTable.Selection.handleAdjustments(added, adjustments.RemoveKeys);
 
             if (needRefilter) {
                 this.filterStoredDataWithPreviousQuery();
@@ -631,7 +634,7 @@
         }
         //#endregion
 
-        public Stats:IStats = {
+        public Stats: IStats = {
             CurrentPage: 0,
             TotalPages: 0,
             CurrentPageSize: 0,
@@ -640,7 +643,7 @@
             TotalLoadedItems: 0
         };
 
-        private updateStats(totalItems?:number) {
+        private updateStats(totalItems?: number) {
             //this.Stats.CurrentPage = this.RecentClientQuery.Paging.PageIndex;
             this.Stats.CurrentPageSize = this._masterTable.Partition.Take;
             this.Stats.TotalLoadedItems = this.StoredData.length;
@@ -660,7 +663,7 @@
         CurrentPageSize: number;
         TotalItems: number;
         CurrentlyDisplayingItems: number;
-        TotalLoadedItems:number;
+        TotalLoadedItems: number;
     }
 
 }

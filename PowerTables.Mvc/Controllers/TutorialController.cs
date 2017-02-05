@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Web.Mvc;
 using PowerTables.Configuration;
 using PowerTables.Mvc.Models;
@@ -154,6 +155,7 @@ namespace PowerTables.Mvc.Controllers
 
         public ActionResult PaginationAndLimitingHandle()
         {
+            Thread.Sleep(500);
             return Handle(c => c.Pagination());
         }
 

@@ -16,15 +16,15 @@ namespace PowerTables.Mvc.Models.Tutorial
                 {
                     "Everything",           // any text will be interpreted as "all records"
                     "-",                    // dash will be interpreted as separator
-                    "5", "10", "25", "-", "50", "100","250","1000","2000"
+                    "5", "10", "14", "-", "50", "100","250","1000","2000"
                 }));
 
 
             conf.Paging(
                 ui =>
                     ui.PlaceAt("rb")
-                    .PagingWithArrows()); // lets pick simple arrows left/right paging
-            conf.Partition(x => x.Server().InitialSkipTake(take: 25));
+                    .PagingSimple(true)); // lets pick simple arrows left/right paging
+            conf.Partition(x => x.Server().InitialSkipTake(take: 14));
             return conf;
         }
     }

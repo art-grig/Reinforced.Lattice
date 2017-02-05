@@ -2,9 +2,9 @@
     export class ServerPartitionService extends ClientPartitionService {
         private _loadAhead: number;
         private _noCount: boolean;
-        private _modifyDataAppendQuery:any;
-        private _dataAppendLoaded:any;
-        private _dataAppendError:any;
+        private _modifyDataAppendQuery: any;
+        private _dataAppendLoaded: any;
+        private _dataAppendError: any;
         constructor(masterTable: IMasterTable) {
             super(masterTable);
             this._masterTable = masterTable;
@@ -14,16 +14,43 @@
             this._dataAppendLoaded = this.dataAppendLoaded.bind(this);
             this._dataAppendError = this.dataAppendError.bind(this);
         }
+        private _serverSkip: number = 0;
 
-        public setSkip(skip: number): void {
-            if (skip + (this.Take*2) > this.amount()) {
-                this.loadNextDataPart();
+        public setSkip(skip: number, preserveTake?: boolean): void {
+            var iSkip = skip - this._serverSkip;
+            if ((iSkip + (this.Take * 2) > this._masterTable.DataHolder.Ordered.length) || (iSkip < 0)) {
+                if ((iSkip > this._masterTable.DataHolder.Ordered.length) || (iSkip < 0)) {
+                    var prevSkip = this.Skip;
+                    this.Skip = skip;
+                    this._masterTable.Events.PartitionChanged.invokeAfter(this,
+                        {
+                            PreviousSkip: prevSkip,
+                            Skip: this.Skip,
+                            PreviousTake: this.Take,
+                            Take: this.Take
+                        });
+                    this._serverSkip = skip;
+                    this._masterTable.Controller.reload(true);
+                    return;
+                } else {
+                    this.loadNextDataPart();
+                }
             }
-            super.setSkip(skip);
+            super.setSkip(skip, preserveTake);
+        }
+
+        protected cut(ordered: any[], skip: number, take: number) {
+            skip = skip - this._serverSkip;
+            var selected = ordered;
+            if (skip > ordered.length) skip = 0;
+            if (take === 0) selected = ordered.slice(skip);
+            else selected = ordered.slice(skip, skip + take);
+            return selected;
         }
 
         public setTake(take: number, preserveTake?: boolean): void {
-            if (this.Skip + (take*2) > this.amount()) {
+            var iSkip = this.Skip - this._serverSkip;
+            if (this.Skip + (take * 2) > this.amount()) {
                 this.loadNextDataPart();
             }
             super.setSkip(take, preserveTake);
@@ -42,7 +69,7 @@
 
         }
         private dataAppendLoaded(data: any) {
-            
+
         }
 
         private modifyDataAppendQuery(q: IQuery): IQuery {
@@ -50,7 +77,7 @@
             q.Partition = {
                 NoCount: true,
                 Skip: this._masterTable.DataHolder.StoredData.length,
-                Take: this.Take*this._loadAhead
+                Take: this.Take * this._loadAhead
             }
             return q;
         }
@@ -58,10 +85,10 @@
 
         public partitionBeforeQuery(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean): void {
             // Check if it is pager's request. If true - nothing to do here. All necessary things are already done in queryModifier
-            if (serverQuery.IsBackgroundDataFetch) return; 
+            if (serverQuery.IsBackgroundDataFetch) return;
 
             var hasClientFilters = ServerPartitionService.any(clientQuery.Filterings);
-            
+
             // in case if we have client filters...
             if (hasClientFilters) {
                 this._activeClientFiltering = true;
@@ -71,17 +98,17 @@
                     var prevSkip = this.Skip;
                     this.Skip = 0;
                     this._masterTable.Events.PartitionChanged.invokeAfter(this,
-                    {
-                        PreviousSkip: prevSkip,
-                        Skip: this.Skip,
-                        PreviousTake: this.Take,
-                        Take:this.Take
-                    });
+                        {
+                            PreviousSkip: prevSkip,
+                            Skip: this.Skip,
+                            PreviousTake: this.Take,
+                            Take: this.Take
+                        });
                 }
             } // in case if not - well, it seems that it is honest paging request
             else {
-                this._activeClientFiltering = true;
-                serverQuery.Partition = { NoCount: this._noCount, Take: this.Take * this._loadAhead, Skip: 0 };
+                this._activeClientFiltering = false;
+                serverQuery.Partition = { NoCount: this._noCount, Take: this.Take * this._loadAhead, Skip: this.Skip };
             }
 
             // for client query we pass our regular parameters
@@ -92,7 +119,10 @@
             };
         }
 
-        public partitionAfterQuery(initialSet: any[], query: IQuery): any[] {
+
+
+        public partitionAfterQuery(initialSet: any[], query: IQuery, serverCount: number): any[] {
+            if (serverCount !== -1) this._serverTotalCount = serverCount;
             var result = this.skipTakeSet(initialSet, query);
             if (query.IsBackgroundDataFetch) {
                 if (result.length < this.Take) {
@@ -121,6 +151,13 @@
 
         public totalAmount(): number {
             return this.isAmountFinite() ? this._serverTotalCount : 0;
+        }
+
+        public amount(): number {
+            if (this._noCount) {
+                return super.amount();
+            }
+            return this._serverTotalCount;
         }
     }
 }

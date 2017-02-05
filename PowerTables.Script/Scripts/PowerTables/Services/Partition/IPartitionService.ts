@@ -7,7 +7,7 @@
         setTake(take?: number): void;
         partitionBeforeQuery(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean): void;
         partitionBeforeCommand(serverQuery: IQuery): void;
-        partitionAfterQuery(initialSet: any[], query: IQuery): any[];
+        partitionAfterQuery(initialSet: any[], query: IQuery, serverCount:number): any[];
 
         amount(): number;
         isAmountFinite(): boolean;

@@ -57,7 +57,6 @@
             }
             this.Skip = skip;
             this._masterTable.Events.PartitionChanged.invokeAfter(this, ea);
-
         }
 
         private firstNonSpecialIndex(rows: IRow[]): number {
@@ -175,11 +174,11 @@
             };
         }
 
-        public partitionAfterQuery(initialSet: any[], query: IQuery): any[] {
+        public partitionAfterQuery(initialSet: any[], query: IQuery, serverCount: number): any[] {
             return this.skipTakeSet(initialSet, query);
         }
 
-        protected  skipTakeSet(ordered: any[], query: IQuery): any[] {
+        protected skipTakeSet(ordered: any[], query: IQuery): any[] {
             return this.cut(ordered, this.Skip, this.Take);
         }
 
