@@ -104,6 +104,7 @@
             return isServerQuery;
         }
         private resetSkip() {
+            this._serverSkip = 0;
             if (this.Skip === 0) return;
             var prevSkip = this.Skip;
             this._dataLoader.skipTake(0, this.Take);
@@ -124,8 +125,8 @@
 
         public switchBack(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean) {
             this._masterTable.Partition = this;
-            this.resetSkip();
             this.Take = this._seq.Take;
+            this.resetSkip();
             this.partitionBeforeQuery(serverQuery, clientQuery, isServerQuery);
         }
 

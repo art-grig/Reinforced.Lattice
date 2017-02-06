@@ -33,6 +33,10 @@
 
         private _afterFn: any = null;
         public loadNextDataPart(pages?: number, after?: any) {
+            if (this.IsLoadingNextPart) {
+                if (after != null) this._afterFn = after;
+                return;
+            }
             if (this.FinishReached) {
                 if (after != null) after();
                 return;
@@ -48,9 +52,9 @@
         private loadNextCore(pages?: number, show?: boolean) {
             if (pages == null) pages = this.LoadAhead;
             if (show == null) show = false;
-            this.ClientSearchParameters = BackgroundDataLoader.any(this._masterTable.DataHolder.RecentClientQuery.Filterings);
-
             this.IsLoadingNextPart = true;
+
+            this.ClientSearchParameters = BackgroundDataLoader.any(this._masterTable.DataHolder.RecentClientQuery.Filterings);
             if (this.AppendLoadingRow) this.showIndication();
 
             this._masterTable.Loader.query(

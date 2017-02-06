@@ -8135,6 +8135,11 @@ var PowerTables;
                     rows.push(this.Indicator);
                 };
                 BackgroundDataLoader.prototype.loadNextDataPart = function (pages, after) {
+                    if (this.IsLoadingNextPart) {
+                        if (after != null)
+                            this._afterFn = after;
+                        return;
+                    }
                     if (this.FinishReached) {
                         if (after != null)
                             after();
@@ -8153,8 +8158,8 @@ var PowerTables;
                         pages = this.LoadAhead;
                     if (show == null)
                         show = false;
-                    this.ClientSearchParameters = BackgroundDataLoader.any(this._masterTable.DataHolder.RecentClientQuery.Filterings);
                     this.IsLoadingNextPart = true;
+                    this.ClientSearchParameters = BackgroundDataLoader.any(this._masterTable.DataHolder.RecentClientQuery.Filterings);
                     if (this.AppendLoadingRow)
                         this.showIndication();
                     this._masterTable.Loader.query(function (d) { return _this.dataAppendLoaded(d, pages, show); }, function (q) { return _this.modifyDataAppendQuery(q, pages); }, this._dataAppendError, true);
@@ -8675,6 +8680,7 @@ var PowerTables;
                     return isServerQuery;
                 };
                 ServerPartitionService.prototype.resetSkip = function () {
+                    this._serverSkip = 0;
                     if (this.Skip === 0)
                         return;
                     var prevSkip = this.Skip;
@@ -8694,8 +8700,8 @@ var PowerTables;
                 };
                 ServerPartitionService.prototype.switchBack = function (serverQuery, clientQuery, isServerQuery) {
                     this._masterTable.Partition = this;
-                    this.resetSkip();
                     this.Take = this._seq.Take;
+                    this.resetSkip();
                     this.partitionBeforeQuery(serverQuery, clientQuery, isServerQuery);
                 };
                 ServerPartitionService.prototype.partitionAfterQuery = function (initialSet, query, serverCount) {
