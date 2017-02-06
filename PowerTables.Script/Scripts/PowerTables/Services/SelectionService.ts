@@ -39,7 +39,7 @@
             //if (this._configuration.SelectAllBehavior === PowerTables.SelectAllBehavior.OnlyIfAllDataVisible) {
             //    return this._isAllSelected;
             //}
-
+            if (this._masterTable.DataHolder.DisplayedData.length === 0) return false;
             // extremely stupid - will be changed later
             for (var i = 0; i < this._masterTable.DataHolder.DisplayedData.length; i++) {
                 if (this.canSelect(this._masterTable.DataHolder.DisplayedData[i])) {
@@ -56,6 +56,7 @@
         }
 
         public canSelectAll(): boolean {
+            if (this._masterTable.DataHolder.DisplayedData.length === 0) return false;
             if (this._configuration.SelectAllBehavior === PowerTables.SelectAllBehavior.Disabled) {
                 return false;
             }
