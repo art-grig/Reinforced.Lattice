@@ -116,11 +116,10 @@
                     width: this._stickElement.clientWidth
                 };
             } else {
-                // assume that parent has 'position:relative;'
                 var ae = this.getElement(this.Configuration.AppendToElement);
                 var aerect = ae.getBoundingClientRect();
                 c = {
-                    top: erect.top - aerect.top, //this._stickElement.offsetTop + ae.offsetTop,
+                    top: erect.top - aerect.top,
                     left: erect.left - aerect.left,
                     height: this._stickElement.clientHeight,
                     width: this._stickElement.clientWidth
@@ -200,6 +199,7 @@
 
             this._scollbar = this.MasterTable.Renderer.Modifier.createElementFromTemplate(this.RawConfig.TemplateId, this);
             var ae = this.getElement(this.Configuration.AppendToElement);
+            if (this.Configuration.AppendToElement === '$All') ae.style.position = 'relative';
             ae.appendChild(this._scollbar);
             this.subscribeUiEvents();
 
@@ -503,7 +503,7 @@
         //#region Movement deferring
         private _moveCheckInterval: any;
         private startDeferring() {
-            this._moveCheckInterval = setInterval(this.moveCheck.bind(this), 30);
+            this._moveCheckInterval = setInterval(this.moveCheck.bind(this), this.Configuration.ScrollDragSmoothness);
         }
         private deferScroll(skip: number) {
             if (!this._moveCheckInterval) this.MasterTable.Partition.setSkip(skip);

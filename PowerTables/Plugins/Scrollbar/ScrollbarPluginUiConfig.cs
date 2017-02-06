@@ -36,6 +36,8 @@ namespace PowerTables.Plugins.Scrollbar
 
         public KeyboardScrollFocusMode FocusMode { get; set; }
 
+        public int ScrollDragSmoothness { get; set; }
+
         public ScrollbarPluginUiConfig()
         {
             StickToElementSelector = "$Body";
@@ -58,6 +60,7 @@ namespace PowerTables.Plugins.Scrollbar
             };
             ScrollerMinSize = 20;
             ArrowsDelayMs = 50;
+            ScrollDragSmoothness = 50;
             FocusMode = KeyboardScrollFocusMode.MouseOver;
         }
     }

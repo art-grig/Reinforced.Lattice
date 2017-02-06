@@ -49,6 +49,13 @@ namespace PowerTables.Plugins.Scrollbar
             return v;
         }
 
+        public static PluginConfigurationWrapper<ScrollbarPluginUiConfig> DragSmoothness(
+            this PluginConfigurationWrapper<ScrollbarPluginUiConfig> v, int smoothness = 50)
+        {
+            v.Configuration.ScrollDragSmoothness = smoothness;
+            return v;
+        }
+
         private static string Element(TableElement stick)
         {
             switch (stick)

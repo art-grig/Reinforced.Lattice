@@ -3780,7 +3780,6 @@ var PowerTables;
                         };
                     }
                     else {
-                        // assume that parent has 'position:relative;'
                         var ae = this.getElement(this.Configuration.AppendToElement);
                         var aerect = ae.getBoundingClientRect();
                         c = {
@@ -3861,6 +3860,8 @@ var PowerTables;
                     this._wheelListener = this.getElement(this.Configuration.WheelEventsCatcher);
                     this._scollbar = this.MasterTable.Renderer.Modifier.createElementFromTemplate(this.RawConfig.TemplateId, this);
                     var ae = this.getElement(this.Configuration.AppendToElement);
+                    if (this.Configuration.AppendToElement === '$All')
+                        ae.style.position = 'relative';
                     ae.appendChild(this._scollbar);
                     this.subscribeUiEvents();
                     var style = this._scollbar.style;
@@ -4117,7 +4118,7 @@ var PowerTables;
                     e.stopPropagation();
                 };
                 ScrollbarPlugin.prototype.startDeferring = function () {
-                    this._moveCheckInterval = setInterval(this.moveCheck.bind(this), 30);
+                    this._moveCheckInterval = setInterval(this.moveCheck.bind(this), this.Configuration.ScrollDragSmoothness);
                 };
                 ScrollbarPlugin.prototype.deferScroll = function (skip) {
                     if (!this._moveCheckInterval)

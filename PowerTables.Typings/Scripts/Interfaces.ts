@@ -591,6 +591,7 @@ module PowerTables.Plugins.Scrollbar {
 		ArrowsDelayMs: number;
 		AppendToElement: string;
 		FocusMode: PowerTables.Plugins.Scrollbar.KeyboardScrollFocusMode;
+		ScrollDragSmoothness: number;
 	}
 	export interface IScrollbarKeyMappings
 	{
