@@ -21,17 +21,30 @@
 
         public setSkip(skip: number, preserveTake?: boolean): void {
             if (this.Skip === 0 && skip <= 0 && this._serverSkip === 0) return;
+            if (this.Skip + this.Take >= this._serverTotalCount && skip >= this.Skip) {
+                return;
+            }
+            if (preserveTake == null) preserveTake = true;
             var iSkip = skip - this._serverSkip;
+            var prevTake = this.Take;
 
             if (((iSkip + this.Take*2) > this._masterTable.DataHolder.Ordered.length) || (iSkip < 0)) {
                 if ((iSkip > this._masterTable.DataHolder.Ordered.length) || (iSkip < 0)) {
+                    if (skip + this.Take > this._serverTotalCount) {
+                        
+                        if (preserveTake) {
+                            skip = this._serverTotalCount - this.Take;
+                        } else {
+                            this.Take = this._serverTotalCount - skip;
+                        }
+                    }
                     var prevSkip = this.Skip;
                     this.Skip = skip;
                     this._masterTable.Events.PartitionChanged.invokeAfter(this,
                         {
                             PreviousSkip: prevSkip,
                             Skip: this.Skip,
-                            PreviousTake: this.Take,
+                            PreviousTake: prevTake,
                             Take: this.Take
                         });
                     this._serverSkip = skip;
