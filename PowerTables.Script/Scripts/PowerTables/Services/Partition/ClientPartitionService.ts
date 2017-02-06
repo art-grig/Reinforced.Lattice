@@ -213,7 +213,6 @@
 
             this._masterTable.Events.ClientDataProcessing.invokeBefore(this, this._masterTable.DataHolder.RecentClientQuery);
             this._masterTable.DataHolder.DisplayedData = this.cut(this._masterTable.DataHolder.Ordered, skip, take);
-            this._masterTable.DataHolder.updateDisplayedCache();
             this._masterTable.Events.ClientDataProcessing.invokeAfter(this,
                 {
                     Displaying: this._masterTable.DataHolder.DisplayedData,

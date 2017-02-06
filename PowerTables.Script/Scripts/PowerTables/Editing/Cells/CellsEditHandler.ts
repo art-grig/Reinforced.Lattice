@@ -8,7 +8,7 @@
         private ensureEditing(loadIndex: number) {
             if (this._isEditing) return;
 
-            this.DataObject = this.MasterTable.DataHolder.DisplayCache[loadIndex];
+            this.DataObject = this.MasterTable.DataHolder.StoredCache[loadIndex];
             this.CurrentDataObjectModified = {};
             for (var cd in this.DataObject) {
                 if (this.DataObject.hasOwnProperty(cd)) {

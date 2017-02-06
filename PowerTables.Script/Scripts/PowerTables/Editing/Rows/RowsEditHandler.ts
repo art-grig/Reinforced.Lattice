@@ -18,7 +18,7 @@
             if (this._isEditing) return;
             if (rowIndex >= 0) {
                 this._isAddingNewRow = false;
-                this.DataObject = this.MasterTable.DataHolder.DisplayCache[rowIndex];
+                this.DataObject = this.MasterTable.DataHolder.StoredCache[rowIndex];
                 this.CurrentDataObjectModified = {};
                 for (var cd in this.DataObject) {
                     if (this.DataObject.hasOwnProperty(cd)) {

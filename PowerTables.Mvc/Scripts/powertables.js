@@ -2015,12 +2015,9 @@ var PowerTables;
                 this.StoredData = [];
                 this._manadatoryOrderings = [];
                 /**
-                 * Filter recent data and store it to currently displaying data
-                 *
-                 * @param query Table query
-                 * @returns {}
-                 */
-                this.DisplayCache = {};
+                * Parses response from server and turns it to objects array
+                */
+                this.StoredCache = {};
                 this._rawColumnNames = masterTable.InstanceManager.getColumnNames();
                 this._events = masterTable.Events;
                 this._instances = masterTable.InstanceManager;
@@ -2145,8 +2142,8 @@ var PowerTables;
                         data.push(obj);
                         if (this._hasPrimaryKey) {
                             obj['__key'] = this.PrimaryKeyFunction(obj);
-                            if (this._storedDataCache.hasOwnProperty(obj['__key'])) {
-                                obj['__i'] = this._storedDataCache[obj['__key']]['__i'];
+                            if (this._pkDataCache.hasOwnProperty(obj['__key'])) {
+                                obj['__i'] = this._pkDataCache[obj['__key']]['__i'];
                             }
                         }
                         if (!obj.hasOwnProperty('__i')) {
@@ -2167,16 +2164,15 @@ var PowerTables;
                 } while (this._instances.Columns[this._rawColumnNames[currentColIndex]].Configuration.IsSpecial);
                 return currentColIndex;
             };
-            /**
-            * Parses response from server and turns it to objects array
-            */
             DataHolderService.prototype.storeResponse = function (response, clientQuery) {
                 var data = [];
                 var obj = {};
                 var currentColIndex = this.getNextNonSpecialColumn(-1);
                 var currentCol = this._rawColumnNames[currentColIndex];
-                if (!clientQuery.IsBackgroundDataFetch)
-                    this._storedDataCache = {};
+                if (!clientQuery.IsBackgroundDataFetch) {
+                    this._pkDataCache = {};
+                    this.StoredCache = {};
+                }
                 for (var i = 0; i < response.Data.length; i++) {
                     if (this._instances.Columns[currentCol].IsDateTime) {
                         if (response.Data[i]) {
@@ -2197,14 +2193,15 @@ var PowerTables;
                         }
                         if (this._hasPrimaryKey) {
                             obj['__key'] = this.PrimaryKeyFunction(obj);
-                            if (!this._storedDataCache[obj['__key']])
+                            if (!this._pkDataCache[obj['__key']])
                                 data.push(obj);
-                            this._storedDataCache[obj['__key']] = obj; // line that makes difference
+                            this._pkDataCache[obj['__key']] = obj; // line that makes difference
                         }
                         else {
                             data.push(obj);
                         }
                         obj['__i'] = clientQuery.Partition.Skip + data.length - 1;
+                        this.StoredCache[obj['__i']] = obj;
                         obj = {};
                     }
                     currentCol = this._rawColumnNames[currentColIndex];
@@ -2279,6 +2276,12 @@ var PowerTables;
                 }
                 return objects;
             };
+            /**
+             * Filter recent data and store it to currently displaying data
+             *
+             * @param query Table query
+             * @returns {}
+             */
             DataHolderService.prototype.filterStoredData = function (query, serverCount) {
                 this._events.ClientDataProcessing.invokeBefore(this, query);
                 this.DisplayedData = this.StoredData;
@@ -2293,19 +2296,12 @@ var PowerTables;
                     this.Ordered = ordered;
                 }
                 this.DisplayedData = this._masterTable.Partition.partitionAfterQuery(this.Ordered, query, serverCount);
-                this.updateDisplayedCache();
                 this._events.ClientDataProcessing.invokeAfter(this, {
                     Displaying: this.DisplayedData,
                     Filtered: this.Filtered,
                     Ordered: this.Ordered,
                     Source: this.StoredData
                 });
-            };
-            DataHolderService.prototype.updateDisplayedCache = function () {
-                this.DisplayCache = {};
-                for (var i = 0; i < this.DisplayedData.length; i++) {
-                    this.DisplayCache[this.DisplayedData[i]['__i']] = this.DisplayedData[i];
-                }
             };
             /**
              * Filter recent data and store it to currently displaying data
@@ -2423,10 +2419,10 @@ var PowerTables;
                 return result;
             };
             DataHolderService.prototype.getByPrimaryKeyObject = function (primaryKeyPart) {
-                return this._storedDataCache[this.PrimaryKeyFunction(primaryKeyPart)];
+                return this._pkDataCache[this.PrimaryKeyFunction(primaryKeyPart)];
             };
             DataHolderService.prototype.getByPrimaryKey = function (primaryKey) {
-                return this._storedDataCache[primaryKey];
+                return this._pkDataCache[primaryKey];
             };
             /**
              * Finds data object among recently loaded by primary key and returns ILocalLookupResult
@@ -2447,9 +2443,9 @@ var PowerTables;
                 if (!this._hasPrimaryKey)
                     return nullResult;
                 var pk = this.PrimaryKeyFunction(dataObject);
-                if (!this._storedDataCache.hasOwnProperty(pk))
+                if (!this._pkDataCache.hasOwnProperty(pk))
                     return nullResult;
-                found = this._storedDataCache[pk];
+                found = this._pkDataCache[pk];
                 var cdisp = this.DisplayedData.indexOf(found);
                 return {
                     DataObject: found,
@@ -2522,7 +2518,7 @@ var PowerTables;
                         //if (this.StoredData.length > 0) { whoai?!
                         this.StoredData.push(adjustedObjects[i]);
                         added.push(adjustedObjects[i]);
-                        this._storedDataCache[adjustedObjects[i]['__key']] = adjustedObjects[i];
+                        this._pkDataCache[adjustedObjects[i]['__key']] = adjustedObjects[i];
                         needRefilter = true;
                     }
                     else {
@@ -2541,7 +2537,7 @@ var PowerTables;
                     if (this.StoredData.indexOf(dataObject) > -1) {
                         this.StoredData.splice(this.StoredData.indexOf(dataObject), 1);
                         needRefilter = true;
-                        delete this._storedDataCache[adjustments.RemoveKeys[j]];
+                        delete this._pkDataCache[adjustments.RemoveKeys[j]];
                     }
                     if (this.Filtered.indexOf(dataObject) > -1) {
                         this.Filtered.splice(this.Filtered.indexOf(dataObject), 1);
@@ -3284,7 +3280,7 @@ var PowerTables;
             };
             CommandsService.prototype.triggerCommandOnRow = function (commandName, rowIndex, callback) {
                 if (callback === void 0) { callback = null; }
-                this.triggerCommand(commandName, this._masterTable.DataHolder.DisplayCache[rowIndex], callback);
+                this.triggerCommand(commandName, this._masterTable.DataHolder.StoredCache[rowIndex], callback);
             };
             CommandsService.prototype.triggerCommand = function (commandName, subject, callback) {
                 if (callback === void 0) { callback = null; }
@@ -4080,7 +4076,7 @@ var PowerTables;
                 }
             };
             SelectionService.prototype.toggleDisplayingRow = function (rowIndex, selected) {
-                this.toggleRow(this._masterTable.DataHolder.DisplayCache[rowIndex]['__key'], selected);
+                this.toggleRow(this._masterTable.DataHolder.StoredCache[rowIndex]['__key'], selected);
             };
             SelectionService.prototype.toggleObjectSelected = function (dataObject, selected) {
                 this.toggleRow(dataObject['__key'], selected);
@@ -7353,6 +7349,7 @@ var PowerTables;
                 __extends(ScrollbarPlugin, _super);
                 function ScrollbarPlugin() {
                     _super.apply(this, arguments);
+                    this._availableSpaceRaw = false;
                     this._skipOnUp = -1;
                     //#endregion
                     //#region Arrows handling
@@ -7406,8 +7403,15 @@ var PowerTables;
                         return;
                     var total = this.MasterTable.Partition.amount();
                     var sz = (this.MasterTable.Partition.Take * this._availableSpace) / total;
-                    if (sz < this.Configuration.ScrollerMinSize)
+                    if (sz < this.Configuration.ScrollerMinSize) {
+                        var osz = sz;
                         sz = this.Configuration.ScrollerMinSize;
+                        if (this._availableSpaceRaw) {
+                            this._availableSpace -= (sz - osz);
+                            this._availableSpaceRaw = false;
+                            this.adjustScrollerPosition(this.MasterTable.Partition.Skip);
+                        }
+                    }
                     if (this.Configuration.IsHorizontal)
                         this.Scroller.style.width = sz + 'px';
                     else
@@ -7426,6 +7430,7 @@ var PowerTables;
                         aspace -= this.Configuration.IsHorizontal ? box.width : box.height;
                     }
                     this._availableSpace = aspace;
+                    this._availableSpaceRaw = true;
                 };
                 ScrollbarPlugin.prototype.getCoords = function () {
                     var r = {};
@@ -8461,7 +8466,6 @@ var PowerTables;
                     };
                     this._masterTable.Events.ClientDataProcessing.invokeBefore(this, this._masterTable.DataHolder.RecentClientQuery);
                     this._masterTable.DataHolder.DisplayedData = this.cut(this._masterTable.DataHolder.Ordered, skip, take);
-                    this._masterTable.DataHolder.updateDisplayedCache();
                     this._masterTable.Events.ClientDataProcessing.invokeAfter(this, {
                         Displaying: this._masterTable.DataHolder.DisplayedData,
                         Filtered: this._masterTable.DataHolder.Filtered,
@@ -9671,7 +9675,7 @@ var PowerTables;
                     CellsEditHandler.prototype.ensureEditing = function (loadIndex) {
                         if (this._isEditing)
                             return;
-                        this.DataObject = this.MasterTable.DataHolder.DisplayCache[loadIndex];
+                        this.DataObject = this.MasterTable.DataHolder.StoredCache[loadIndex];
                         this.CurrentDataObjectModified = {};
                         for (var cd in this.DataObject) {
                             if (this.DataObject.hasOwnProperty(cd)) {
@@ -9809,7 +9813,7 @@ var PowerTables;
                             return;
                         if (rowIndex >= 0) {
                             this._isAddingNewRow = false;
-                            this.DataObject = this.MasterTable.DataHolder.DisplayCache[rowIndex];
+                            this.DataObject = this.MasterTable.DataHolder.StoredCache[rowIndex];
                             this.CurrentDataObjectModified = {};
                             for (var cd in this.DataObject) {
                                 if (this.DataObject.hasOwnProperty(cd)) {

@@ -1998,8 +1998,11 @@ declare module PowerTables.Services {
         /**
         * Parses response from server and turns it to objects array
         */
+        StoredCache: {
+            [_: number]: any;
+        };
         storeResponse(response: IPowerTablesResponse, clientQuery: IQuery): void;
-        private _storedDataCache;
+        private _pkDataCache;
         /**
          * Client query that was used to obtain recent local data set
          */
@@ -2034,11 +2037,7 @@ declare module PowerTables.Services {
          * @param query Table query
          * @returns {}
          */
-        DisplayCache: {
-            [_: number]: any;
-        };
         filterStoredData(query: IQuery, serverCount: number): void;
-        updateDisplayedCache(): void;
         /**
          * Filter recent data and store it to currently displaying data
          * using query that was previously applied to local data
@@ -3311,6 +3310,7 @@ declare module PowerTables.Plugins.Scrollbar {
         init(masterTable: IMasterTable): void;
         private updateCoords();
         private adjustScrollerPosition(skip);
+        private _availableSpaceRaw;
         private adjustScrollerHeight();
         private calculateAvailableSpace();
         private getCoords();

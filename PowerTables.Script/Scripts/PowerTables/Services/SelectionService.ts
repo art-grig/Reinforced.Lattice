@@ -218,7 +218,7 @@
         }
 
         public toggleDisplayingRow(rowIndex: number, selected?: boolean) {
-            this.toggleRow(this._masterTable.DataHolder.DisplayCache[rowIndex]['__key'], selected);
+            this.toggleRow(this._masterTable.DataHolder.StoredCache[rowIndex]['__key'], selected);
         }
 
         public toggleObjectSelected(dataObject: any, selected?: boolean) {

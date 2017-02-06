@@ -164,8 +164,8 @@
                     data.push(obj);
                     if (this._hasPrimaryKey) {
                         obj['__key'] = this.PrimaryKeyFunction(obj);
-                        if (this._storedDataCache.hasOwnProperty(obj['__key'])) {
-                            obj['__i'] = this._storedDataCache[obj['__key']]['__i'];
+                        if (this._pkDataCache.hasOwnProperty(obj['__key'])) {
+                            obj['__i'] = this._pkDataCache[obj['__key']]['__i'];
                         }
                     }
                     if (!obj.hasOwnProperty('__i')) {
@@ -191,12 +191,17 @@
         /**
         * Parses response from server and turns it to objects array
         */
+
+        public StoredCache: { [_: number]: any } = {}
         public storeResponse(response: IPowerTablesResponse, clientQuery: IQuery) {
             var data: any[] = [];
             var obj: {} = {};
             var currentColIndex: number = this.getNextNonSpecialColumn(-1);
             var currentCol: string = this._rawColumnNames[currentColIndex];
-            if (!clientQuery.IsBackgroundDataFetch) this._storedDataCache = {};
+            if (!clientQuery.IsBackgroundDataFetch) {
+                this._pkDataCache = {};
+                this.StoredCache = {};
+            }
 
             for (var i: number = 0; i < response.Data.length; i++) {
                 if (this._instances.Columns[currentCol].IsDateTime) {
@@ -218,12 +223,13 @@
 
                     if (this._hasPrimaryKey) {
                         obj['__key'] = this.PrimaryKeyFunction(obj);
-                        if (!this._storedDataCache[obj['__key']]) data.push(obj);
-                        this._storedDataCache[obj['__key']] = obj; // line that makes difference
+                        if (!this._pkDataCache[obj['__key']]) data.push(obj);
+                        this._pkDataCache[obj['__key']] = obj; // line that makes difference
                     } else {
                         data.push(obj);
                     }
                     obj['__i'] = clientQuery.Partition.Skip + data.length - 1;
+                    this.StoredCache[obj['__i']] = obj;
                     obj = {};
                 }
                 currentCol = this._rawColumnNames[currentColIndex];
@@ -234,7 +240,7 @@
             this.filterStoredData(clientQuery, response.ResultsCount);
         }
 
-        private _storedDataCache: { [_: string]: any };
+        private _pkDataCache: { [_: string]: any };
 
         //#region Client processing
 
@@ -324,7 +330,7 @@
          * @param query Table query
          * @returns {} 
          */
-        public DisplayCache: { [_: number]: any } = {}
+        
         public filterStoredData(query: IQuery, serverCount: number) {
             this._events.ClientDataProcessing.invokeBefore(this, query);
 
@@ -342,20 +348,13 @@
                 this.Ordered = ordered;
             }
             this.DisplayedData = this._masterTable.Partition.partitionAfterQuery(this.Ordered, query, serverCount);
-            this.updateDisplayedCache();
-
+            
             this._events.ClientDataProcessing.invokeAfter(this, {
                 Displaying: this.DisplayedData,
                 Filtered: this.Filtered,
                 Ordered: this.Ordered,
                 Source: this.StoredData
             });
-        }
-        public updateDisplayedCache() {
-            this.DisplayCache = {};
-            for (var i = 0; i < this.DisplayedData.length; i++) {
-                this.DisplayCache[this.DisplayedData[i]['__i']] = this.DisplayedData[i];
-            }
         }
 
         /**
@@ -480,11 +479,11 @@
         }
 
         public getByPrimaryKeyObject(primaryKeyPart: any): any {
-            return this._storedDataCache[this.PrimaryKeyFunction(primaryKeyPart)];
+            return this._pkDataCache[this.PrimaryKeyFunction(primaryKeyPart)];
         }
 
         public getByPrimaryKey(primaryKey: string): any {
-            return this._storedDataCache[primaryKey];
+            return this._pkDataCache[primaryKey];
         }
 
 
@@ -506,9 +505,9 @@
             };
             if (!this._hasPrimaryKey) return nullResult;
             var pk = this.PrimaryKeyFunction(dataObject);
-            if (!this._storedDataCache.hasOwnProperty(pk)) return nullResult;
+            if (!this._pkDataCache.hasOwnProperty(pk)) return nullResult;
 
-            found = this._storedDataCache[pk];
+            found = this._pkDataCache[pk];
             var cdisp = this.DisplayedData.indexOf(found);
             return {
                 DataObject: found,
@@ -582,7 +581,7 @@
                     //if (this.StoredData.length > 0) { whoai?!
                     this.StoredData.push(adjustedObjects[i]);
                     added.push(adjustedObjects[i]);
-                    this._storedDataCache[adjustedObjects[i]['__key']] = adjustedObjects[i];
+                    this._pkDataCache[adjustedObjects[i]['__key']] = adjustedObjects[i];
                     needRefilter = true;
                     //}
                 } else {
@@ -602,7 +601,7 @@
                 if (this.StoredData.indexOf(dataObject) > -1) {
                     this.StoredData.splice(this.StoredData.indexOf(dataObject), 1);
                     needRefilter = true;
-                    delete this._storedDataCache[adjustments.RemoveKeys[j]];
+                    delete this._pkDataCache[adjustments.RemoveKeys[j]];
                 }
 
                 if (this.Filtered.indexOf(dataObject) > -1) {

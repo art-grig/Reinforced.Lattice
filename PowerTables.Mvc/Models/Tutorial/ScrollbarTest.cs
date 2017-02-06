@@ -11,6 +11,7 @@ namespace PowerTables.Mvc.Models.Tutorial
         {
             conf.ProjectionTitlesAndDataOnly();
 
+            conf.Partition(c => c.Client().InitialSkipTake(take:19));
             conf.Scrollbar(x => x.Vertical().KeyboardScrollFocusMode(KeyboardScrollFocusMode.MouseClick));
             return conf;
         }

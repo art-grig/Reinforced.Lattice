@@ -53,11 +53,21 @@
             this._scrollerPos = h;
         }
 
+        private _availableSpaceRaw: boolean = false;
         private adjustScrollerHeight() {
             if (!this.Scroller) return;
             var total = this.MasterTable.Partition.amount();
             var sz = (this.MasterTable.Partition.Take * this._availableSpace) / total;
-            if (sz < this.Configuration.ScrollerMinSize) sz = this.Configuration.ScrollerMinSize;
+            if (sz < this.Configuration.ScrollerMinSize) {
+                var osz = sz;
+                sz = this.Configuration.ScrollerMinSize;
+                if (this._availableSpaceRaw) {
+                    this._availableSpace -= (sz - osz);
+                    this._availableSpaceRaw = false;
+                    this.adjustScrollerPosition(this.MasterTable.Partition.Skip);
+                }
+
+            }
             if (this.Configuration.IsHorizontal) this.Scroller.style.width = sz + 'px';
             else this.Scroller.style.height = sz + 'px';
             this._scrollerSize = sz;
@@ -75,6 +85,7 @@
                 aspace -= this.Configuration.IsHorizontal ? box.width : box.height;
             }
             this._availableSpace = aspace;
+            this._availableSpaceRaw = true;
         }
 
         private getCoords(): Coords {
