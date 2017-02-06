@@ -29,10 +29,17 @@
 
         //#region Coords calculation
 
-        private updateCoords() {
+        private _needUpdateCoords:boolean = false;
+        public updatePosition() {
             if (!this._scollbar) return;
             if (!this._stickElement) return;
             var newCoords = this.getCoords();
+            if (newCoords == null) {
+                this.hideScroll();
+                this._needUpdateCoords = true;
+                return;
+            }
+            this._needUpdateCoords = false;
             if (newCoords.height != undefined) this._scollbar.style.height = newCoords.height + 'px';
             if (newCoords.width != undefined) this._scollbar.style.width = newCoords.width + 'px';
             if (newCoords.left != undefined) this._scollbar.style.left = newCoords.left + 'px';
@@ -91,13 +98,35 @@
         private getCoords(): Coords {
             var r: Coords = {};
             var erect = this._stickElement.getBoundingClientRect();
-            var bodyrect = document.body.getBoundingClientRect();
-            var c = {
-                top: erect.top - bodyrect.top,
-                height: this._stickElement.clientHeight,
-                left: erect.left - bodyrect.left,
-                width: this._stickElement.clientWidth
-            };
+            var nil = true;
+            for (var k in erect) {
+                if (erect[k] !== 0) {
+                    nil = false;break;
+                }
+            }
+            if (nil) return null;
+            var c = { top: 0,height:0,left:0,width:0};
+            
+            if (this.Configuration.AppendToElement === 'body') {
+                var bodyrect = document.body.getBoundingClientRect();
+                c = {
+                    top: erect.top - bodyrect.top,
+                    height: this._stickElement.clientHeight,
+                    left: erect.left - bodyrect.left,
+                    width: this._stickElement.clientWidth
+                };
+            } else {
+                // assume that parent has 'position:relative;'
+                var ae = this.getElement(this.Configuration.AppendToElement);
+                var aerect = ae.getBoundingClientRect();
+                c = {
+                    top: erect.top - aerect.top, //this._stickElement.offsetTop + ae.offsetTop,
+                    left: erect.left - aerect.left,
+                    height: this._stickElement.clientHeight,
+                    width: this._stickElement.clientWidth
+                };
+            }
+            
 
             switch (this.Configuration.StickDirection) {
                 case PowerTables.Plugins.Scrollbar.StickDirection.Right:
@@ -170,8 +199,8 @@
             this._wheelListener = this.getElement(this.Configuration.WheelEventsCatcher);
 
             this._scollbar = this.MasterTable.Renderer.Modifier.createElementFromTemplate(this.RawConfig.TemplateId, this);
-            document.body.appendChild(this._scollbar);
-            this._scollbar.style.position = 'absolute';
+            var ae = this.getElement(this.Configuration.AppendToElement);
+            ae.appendChild(this._scollbar);
             this.subscribeUiEvents();
 
             var style = this._scollbar.style;
@@ -184,8 +213,8 @@
                 if (style.width) this._scrollWidth = parseInt(style.width);
                 else this._scrollWidth = coord.width;
             }
-            this._sensor = new PowerTables.Rendering.Resensor(this._stickElement.parentElement, this.updateCoords.bind(this));
-            this.updateCoords();
+            this._sensor = new PowerTables.Rendering.Resensor(this._stickElement.parentElement, this.updatePosition.bind(this));
+            this.updatePosition();
             this._sensor.attach();
         }
 
@@ -509,6 +538,9 @@
         private showScroll() {
             this._isHidden = false;
             this._scollbar.style.visibility = 'visible';
+            if (this._needUpdateCoords) {
+                this.updatePosition();
+            }
         }
         private onPartitionChange(e: ITableEventArgs<IPartitionChangeEventArgs>) {
             if (!this.MasterTable.DataHolder.Ordered

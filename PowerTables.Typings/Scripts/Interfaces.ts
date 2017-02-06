@@ -589,6 +589,7 @@ module PowerTables.Plugins.Scrollbar {
 		UseTakeAsPageForce: boolean;
 		ScrollerMinSize: number;
 		ArrowsDelayMs: number;
+		AppendToElement: string;
 		FocusMode: PowerTables.Plugins.Scrollbar.KeyboardScrollFocusMode;
 	}
 	export interface IScrollbarKeyMappings

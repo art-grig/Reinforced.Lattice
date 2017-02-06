@@ -32,6 +32,8 @@ namespace PowerTables.Plugins.Scrollbar
         public int ScrollerMinSize { get; set; }
         public int ArrowsDelayMs { get; set; }
 
+        public string AppendToElement { get; set; }
+
         public KeyboardScrollFocusMode FocusMode { get; set; }
 
         public ScrollbarPluginUiConfig()
@@ -39,6 +41,7 @@ namespace PowerTables.Plugins.Scrollbar
             StickToElementSelector = "$Body";
             WheelEventsCatcher = "$Body";
             KeyboardEventsCatcher = "$Body";
+            AppendToElement = "body";
             var kw = new ScrollbarKeyMappingsWrapper();
             kw.End(ConsoleKey.End);
             kw.Home(ConsoleKey.Home);

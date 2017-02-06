@@ -35,6 +35,20 @@ namespace PowerTables.Plugins.Scrollbar
             return v;
         }
 
+        public static PluginConfigurationWrapper<ScrollbarPluginUiConfig> AppendTo(
+            this PluginConfigurationWrapper<ScrollbarPluginUiConfig> v, TableElement element)
+        {
+            v.Configuration.AppendToElement = Element(element);
+            return v;
+        }
+
+        public static PluginConfigurationWrapper<ScrollbarPluginUiConfig> AppendTo(
+            this PluginConfigurationWrapper<ScrollbarPluginUiConfig> v, string element = "body")
+        {
+            v.Configuration.AppendToElement = element;
+            return v;
+        }
+
         private static string Element(TableElement stick)
         {
             switch (stick)
