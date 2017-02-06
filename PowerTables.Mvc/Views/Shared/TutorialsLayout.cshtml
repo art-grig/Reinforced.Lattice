@@ -297,10 +297,14 @@
         using (var conf1 = t.Plugin.Confirmation<Row>("commentsAndFeedback"))
         {
             <div class="modal-content" @t.Callback("showModal") @t.DestroyCallback("hideModal")>
-                <div class="modal-body">
+                <div class="modal-body" >
                     <fieldset class="form-horizontal">
                         @conf1.Editors()
                     </fieldset>
+                    @using (conf1.If(x => x.Subject.Price > 100 && x.Subject.Price < 300))
+                    {
+                        <span>Not valid price</span>
+                    }
                     <p class="text-center" style="display: none" @conf1.WhenContentLoading(c => c.Style("display", "inline"))>
                         <h1>
                             <span class="glyphicon glyphicon-refresh"></span> Loading...

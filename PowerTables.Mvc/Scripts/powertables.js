@@ -2146,9 +2146,6 @@ var PowerTables;
                                 obj['__i'] = this._pkDataCache[obj['__key']]['__i'];
                             }
                         }
-                        if (!obj.hasOwnProperty('__i')) {
-                            obj['__i'] = this.StoredData.length - 1;
-                        }
                         obj = {};
                     }
                     currentCol = this._rawColumnNames[currentColIndex];
@@ -2511,18 +2508,22 @@ var PowerTables;
                 var touchedData = [];
                 var touchedColumns = [];
                 var added = [];
-                var adjustedObjects = this.deserializeData(adjustments.UpdatedData);
-                for (var i = 0; i < adjustedObjects.length; i++) {
-                    var update = this.getByPrimaryKey(adjustedObjects[i]['__key']);
+                var objects = this.deserializeData(adjustments.UpdatedData);
+                for (var i = 0; i < objects.length; i++) {
+                    var update = this.getByPrimaryKey(objects[i]['__key']);
                     if (!update) {
                         //if (this.StoredData.length > 0) { whoai?!
-                        this.StoredData.push(adjustedObjects[i]);
-                        added.push(adjustedObjects[i]);
-                        this._pkDataCache[adjustedObjects[i]['__key']] = adjustedObjects[i];
+                        this.StoredData.push(objects[i]);
+                        if (!objects[i].hasOwnProperty('__i')) {
+                            objects[i]['__i'] = this._masterTable.Partition.Skip + this.StoredData.length - 1;
+                        }
+                        added.push(objects[i]);
+                        this._pkDataCache[objects[i]['__key']] = objects[i];
+                        this.StoredCache[objects[i]['__i']] = objects[i];
                         needRefilter = true;
                     }
                     else {
-                        touchedColumns.push(this.copyData(adjustedObjects[i], update));
+                        touchedColumns.push(this.copyData(objects[i], update));
                         touchedData.push(update);
                         if (this.DisplayedData.indexOf(update) > -1) {
                             redrawVisibles.push(update);
@@ -2534,10 +2535,13 @@ var PowerTables;
                     var dataObject = this.getByPrimaryKey(adjustments.RemoveKeys[j]);
                     if (dataObject == null || dataObject == undefined)
                         continue;
-                    if (this.StoredData.indexOf(dataObject) > -1) {
+                    var storedIdx = this.StoredData.indexOf(dataObject);
+                    if (storedIdx > -1) {
+                        var dto = this.StoredData[storedIdx];
                         this.StoredData.splice(this.StoredData.indexOf(dataObject), 1);
                         needRefilter = true;
                         delete this._pkDataCache[adjustments.RemoveKeys[j]];
+                        delete this.StoredCache[dto['__i']];
                     }
                     if (this.Filtered.indexOf(dataObject) > -1) {
                         this.Filtered.splice(this.Filtered.indexOf(dataObject), 1);

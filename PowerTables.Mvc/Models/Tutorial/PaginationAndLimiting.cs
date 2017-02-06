@@ -33,7 +33,7 @@ namespace PowerTables.Mvc.Models.Tutorial
 
             conf.Scrollbar(x => x.Vertical());
             
-            conf.Partition(x => x.Server(conf: d => d.Indication(false, false), ifClientSearch: d => d.Indication(true, true)).InitialSkipTake(take: 14));
+            conf.Partition(x => x.Sequential(conf: d => d.Indication(false, false)).InitialSkipTake(take: 14));
             return conf;
         }
     }
