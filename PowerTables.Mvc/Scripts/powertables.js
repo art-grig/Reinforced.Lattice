@@ -8622,9 +8622,9 @@ var PowerTables;
                 };
                 ServerPartitionService.prototype.switchBack = function (serverQuery, clientQuery, isServerQuery) {
                     this._masterTable.Partition = this;
-                    this.partitionBeforeQuery(serverQuery, clientQuery, isServerQuery);
-                    this.Take = this._seq.Take;
                     this.resetSkip();
+                    this.Take = this._seq.Take;
+                    this.partitionBeforeQuery(serverQuery, clientQuery, isServerQuery);
                 };
                 ServerPartitionService.prototype.partitionAfterQuery = function (initialSet, query, serverCount) {
                     if (serverCount !== -1)

@@ -28,8 +28,11 @@ namespace PowerTables.Mvc.Models.Tutorial
                 ui =>
                     ui.PlaceAt("rb")
                     .PagingSimple(true)); // lets pick simple arrows left/right paging
-            conf.Scrollbar(x => x.Vertical());
             conf.Column(c => c.Name).FilterValueUi(x => x.ClientFiltering());
+
+
+            conf.Scrollbar(x => x.Vertical());
+            
             conf.Partition(x => x.Server(conf: d => d.Indication(false, false), ifClientSearch: d => d.Indication()).InitialSkipTake(take: 14));
             return conf;
         }

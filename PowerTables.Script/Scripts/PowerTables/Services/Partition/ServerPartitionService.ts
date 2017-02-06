@@ -111,9 +111,9 @@
 
         public switchBack(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean) {
             this._masterTable.Partition = this;
-            this.partitionBeforeQuery(serverQuery, clientQuery, isServerQuery);
-            this.Take = this._seq.Take;
             this.resetSkip();
+            this.Take = this._seq.Take;
+            this.partitionBeforeQuery(serverQuery, clientQuery, isServerQuery);
         }
 
         private _provideIndication: boolean;

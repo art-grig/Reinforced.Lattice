@@ -351,7 +351,7 @@
 
 @using (var t = Plugin.ValueFilter())
 {
-    <input type="text" @t.DatepickerCanBeHere() @t.BindValueChanged("keyup,input,change,paste") @t.ThisIsFilterValueProvider() style="margin: 0; width: 100%; max-width: 100%;" class="form-control input-md" value="@t.Value(c=>c.Configuration.DefaultValue)" placeholder="@t.Value(c=>c.Configuration.Placeholder)" />
+    <input type="text"  @t.DatepickerCanBeHere() @t.BindValueChanged("keyup,input,change,paste") @t.ThisIsFilterValueProvider() style="margin: 0; width: 100%; max-width: 100%;" class="form-control input-md" value="@t.Value(c=>c.Configuration.DefaultValue)" placeholder="@t.Value(c=>c.Configuration.Placeholder)" />
 }
 
 @using (var t = Plugin.RangeFilter())
