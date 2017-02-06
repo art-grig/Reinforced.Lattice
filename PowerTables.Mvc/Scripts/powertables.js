@@ -6645,6 +6645,7 @@ var PowerTables;
             function Controller(masterTable) {
                 this._additionalRowsProviders = [];
                 this._masterTable = masterTable;
+                masterTable.Loader.registerAdditionalDataReceiver("Reload", this);
             }
             Controller.prototype.registerAdditionalRowsProvider = function (provider) {
                 this._additionalRowsProviders.push(provider);
@@ -6850,6 +6851,12 @@ var PowerTables;
              */
             Controller.prototype.produceRows = function () {
                 return this.produceRowsFromData(this._masterTable.DataHolder.DisplayedData);
+            };
+            //#endregion
+            Controller.prototype.handleAdditionalData = function (additionalData) {
+                if (additionalData != null && additionalData != undefined) {
+                    this.reload(true);
+                }
             };
             return Controller;
         }());

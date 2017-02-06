@@ -5,13 +5,14 @@ module PowerTables.Services {
      * Also it provides functionality for table events subscription and 
      * elements location
      */
-    export class Controller {
+    export class Controller implements IAdditionalDataReceiver {
 
         /**
          * @internal
          */
         constructor(masterTable: IMasterTable) {
             this._masterTable = masterTable;
+            masterTable.Loader.registerAdditionalDataReceiver("Reload", this);
         }
 
         private _masterTable: IMasterTable;
@@ -199,7 +200,7 @@ module PowerTables.Services {
         /**
          * @internal
          */
-        public produceRowsFromData(data:any[]): IRow[] {
+        public produceRowsFromData(data: any[]): IRow[] {
             this._masterTable.Events.DataRendered.invokeBefore(this, null);
 
             var result: IRow[] = [];
@@ -236,5 +237,10 @@ module PowerTables.Services {
         }
 
         //#endregion
+        public handleAdditionalData(additionalData: any): void {
+            if (additionalData != null && additionalData != undefined) {
+                this.reload(true);
+            }
+        }
     }
 }

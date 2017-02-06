@@ -2855,7 +2855,7 @@ declare module PowerTables.Services {
      * Also it provides functionality for table events subscription and
      * elements location
      */
-    class Controller {
+    class Controller implements IAdditionalDataReceiver {
         /**
          * @internal
          */
@@ -2916,6 +2916,7 @@ declare module PowerTables.Services {
          * @internal
          */
         produceRows(): IRow[];
+        handleAdditionalData(additionalData: any): void;
     }
 }
 declare module PowerTables.Services {
