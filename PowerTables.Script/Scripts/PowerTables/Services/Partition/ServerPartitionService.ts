@@ -63,7 +63,7 @@
             if (noData) return;
             if ((iSkip + (take * 2) > this._masterTable.DataHolder.Ordered.length)) {
                 this._dataLoader.skipTake(this.Skip, take);
-                this._dataLoader.loadNextDataPart(this._conf.LoadAhead);
+                this._dataLoader.loadNextDataPart(this._conf.LoadAhead, () => super.setTake(take));
             }
         }
 
@@ -112,6 +112,7 @@
         public switchBack(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean) {
             this._masterTable.Partition = this;
             this.partitionBeforeQuery(serverQuery, clientQuery, isServerQuery);
+            this.Take = this._seq.Take;
             this.resetSkip();
         }
 

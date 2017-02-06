@@ -23,13 +23,13 @@ module PowerTables.Plugins.Limit {
             this._limitSize = limit;
             var labelPair = null;
             for (var i = 0; i < this.Sizes.length; i++) {
-                labelPair = this.Sizes[i];
-                if (labelPair.Value === limit) {
+                if (this.Sizes[i].Value === limit) {
+                    labelPair = this.Sizes[i];
                     break;
                 }
             }
             if (labelPair != null) {
-                this.MasterTable.Renderer.Modifier.redrawPlugin(this);
+                this.SelectedValue = labelPair;    
             } else {
                 this.SelectedValue = {
                     IsSeparator: false,
@@ -37,7 +37,8 @@ module PowerTables.Plugins.Limit {
                     Value: take
                 }
             }
-            this.SelectedValue = labelPair;
+            
+            this.MasterTable.Renderer.Modifier.redrawPlugin(this);
         }
 
         private onPartitionChange(e: ITableEventArgs<IPartitionChangeEventArgs>) {

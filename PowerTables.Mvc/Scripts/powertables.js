@@ -6150,13 +6150,13 @@ var PowerTables;
                     this._limitSize = limit;
                     var labelPair = null;
                     for (var i = 0; i < this.Sizes.length; i++) {
-                        labelPair = this.Sizes[i];
-                        if (labelPair.Value === limit) {
+                        if (this.Sizes[i].Value === limit) {
+                            labelPair = this.Sizes[i];
                             break;
                         }
                     }
                     if (labelPair != null) {
-                        this.MasterTable.Renderer.Modifier.redrawPlugin(this);
+                        this.SelectedValue = labelPair;
                     }
                     else {
                         this.SelectedValue = {
@@ -6165,7 +6165,7 @@ var PowerTables;
                             Value: take
                         };
                     }
-                    this.SelectedValue = labelPair;
+                    this.MasterTable.Renderer.Modifier.redrawPlugin(this);
                 };
                 LimitPlugin.prototype.onPartitionChange = function (e) {
                     if (e.EventArgs.Take !== e.EventArgs.PreviousTake) {
@@ -8568,6 +8568,7 @@ var PowerTables;
                     return selected;
                 };
                 ServerPartitionService.prototype.setTake = function (take) {
+                    var _this = this;
                     var iSkip = this.Skip - this._serverSkip;
                     var noData = !this._masterTable.DataHolder.RecentClientQuery;
                     _super.prototype.setTake.call(this, take);
@@ -8575,7 +8576,7 @@ var PowerTables;
                         return;
                     if ((iSkip + (take * 2) > this._masterTable.DataHolder.Ordered.length)) {
                         this._dataLoader.skipTake(this.Skip, take);
-                        this._dataLoader.loadNextDataPart(this._conf.LoadAhead);
+                        this._dataLoader.loadNextDataPart(this._conf.LoadAhead, function () { return _super.prototype.setTake.call(_this, take); });
                     }
                 };
                 ServerPartitionService.prototype.partitionBeforeQuery = function (serverQuery, clientQuery, isServerQuery) {
@@ -8622,6 +8623,7 @@ var PowerTables;
                 ServerPartitionService.prototype.switchBack = function (serverQuery, clientQuery, isServerQuery) {
                     this._masterTable.Partition = this;
                     this.partitionBeforeQuery(serverQuery, clientQuery, isServerQuery);
+                    this.Take = this._seq.Take;
                     this.resetSkip();
                 };
                 ServerPartitionService.prototype.partitionAfterQuery = function (initialSet, query, serverCount) {
