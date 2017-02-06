@@ -55,7 +55,7 @@
                     }
                 }
                 this.restoreSpecialRows(rows);
-                this._masterTable.Events.DataRendered.invokeAfter(this,null);
+                this._masterTable.Events.DataRendered.invokeAfter(this, null);
             }
             this.Skip = skip;
             this._masterTable.Events.PartitionChanged.invokeAfter(this, ea);
@@ -126,7 +126,7 @@
             } else {
                 var prevIdx = this.displayedIndexes();
                 var rows = this._masterTable.Controller.produceRows();
-                
+
                 this.destroySpecialRows(rows);
                 this.cutDisplayed(this.Skip, take);
                 rows = this._masterTable.Controller.produceRows();
@@ -189,7 +189,21 @@
         }
 
         public partitionAfterQuery(initialSet: any[], query: IQuery, serverCount: number): any[] {
-            return this.skipTakeSet(initialSet, query);
+            if (initialSet.length !== 0 && this.Skip + this.Take > initialSet.length) {
+                var prevSkip = this.Skip;
+                this.Skip = initialSet.length - this.Take;
+                if (this.Skip < 0) this.Skip = 0;
+                this._masterTable.Events.PartitionChanged.invokeAfter(this,
+                {
+                    PreviousSkip: prevSkip,
+                    Skip: 0,
+                    PreviousTake: this.Take,
+                    Take: this.Take
+                });
+            }
+            var result = this.skipTakeSet(initialSet, query);
+
+            return result;
         }
 
         protected skipTakeSet(ordered: any[], query: IQuery): any[] {
@@ -218,7 +232,8 @@
                     Displaying: this._masterTable.DataHolder.DisplayedData,
                     Filtered: this._masterTable.DataHolder.Filtered,
                     Ordered: this._masterTable.DataHolder.Ordered,
-                    Source: this._masterTable.DataHolder.StoredData
+                    Source: this._masterTable.DataHolder.StoredData,
+                    OnlyPartitionPerformed: true
                 });
         }
 

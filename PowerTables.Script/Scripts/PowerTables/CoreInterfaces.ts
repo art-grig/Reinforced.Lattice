@@ -394,6 +394,8 @@
          * Actually displaying data
          */
         Displaying: any[];
+
+        OnlyPartitionPerformed?:boolean;
     }
 
     /**

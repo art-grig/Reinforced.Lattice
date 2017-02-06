@@ -61,20 +61,24 @@
         }
 
         private _availableSpaceRaw: boolean = false;
+        private _availableSpaceRawCorrection:number = 0;
         private adjustScrollerHeight() {
             if (!this.Scroller) return;
             var total = this.MasterTable.Partition.amount();
+            if (!this._availableSpaceRaw) {
+                this._availableSpace += this._availableSpaceRawCorrection;
+                this._availableSpaceRaw = true;
+            }
             var sz = (this.MasterTable.Partition.Take * this._availableSpace) / total;
             if (sz < this.Configuration.ScrollerMinSize) {
                 var osz = sz;
                 sz = this.Configuration.ScrollerMinSize;
-                if (this._availableSpaceRaw) {
-                    this._availableSpace -= (sz - osz);
-                    this._availableSpaceRaw = false;
-                    this.adjustScrollerPosition(this.MasterTable.Partition.Skip);
-                }
-
-            }
+                this._availableSpace -= (sz - osz);
+                this._availableSpaceRawCorrection = (sz - osz);
+                this._availableSpaceRaw = false;
+                this.adjustScrollerPosition(this.MasterTable.Partition.Skip);
+              
+            } 
             if (this.Configuration.IsHorizontal) this.Scroller.style.width = sz + 'px';
             else this.Scroller.style.height = sz + 'px';
             this._scrollerSize = sz;
@@ -561,6 +565,7 @@
         }
 
         private onClientDataProcessing(e: ITableEventArgs<PowerTables.IClientDataResults>) {
+            if (e.EventArgs.OnlyPartitionPerformed) return;
             if (e.MasterTable.Partition.Take === 0
                 || (((this.MasterTable.Partition.Type === PowerTables.PartitionType.Client) || (this.MasterTable.Partition.Type === PowerTables.PartitionType.Sequential))
                     && e.EventArgs.Ordered.length <= e.MasterTable.Partition.Take)
@@ -572,10 +577,8 @@
                 this.showScroll();
             }
 
-
             this.adjustScrollerHeight();
             this.adjustScrollerPosition(this.MasterTable.Partition.Skip);
-
         }
         public subscribe(e: PowerTables.Services.EventsService): void {
             e.LayoutRendered.subscribeAfter(this.onLayoutRendered.bind(this), 'scrollbar');
