@@ -45,6 +45,8 @@ namespace PowerTables.Templating.BuiltIn
         /// </summary>
         bool CanBeSelected { get; }
 
+        bool IsCommandSubject { get; }
+
         /// <summary>
         /// Data object 
         /// </summary>

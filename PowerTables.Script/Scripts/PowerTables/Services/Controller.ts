@@ -46,6 +46,9 @@ module PowerTables.Services {
          * @returns {} 
          */
         public redrawVisibleDataObject(dataObject: any): HTMLElement {
+            var d = dataObject['__i'];
+            dataObject = this._masterTable.DataHolder.StoredCache[d];
+            if (!dataObject) return null;
             if (this._masterTable.DataHolder.DisplayedData.indexOf(dataObject) < 0) return null;
             var row: IRow = this.produceRow(dataObject);
             return this._masterTable.Renderer.Modifier.redrawRow(row);

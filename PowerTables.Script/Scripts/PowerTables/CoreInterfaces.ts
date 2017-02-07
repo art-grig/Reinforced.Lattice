@@ -299,6 +299,11 @@
          * True when row can be selected, false otherwise
          */
         CanBeSelected?: boolean;
+
+        /**
+         * Is row subject for command
+         */
+        IsCommandSubject?:boolean;
     }
 
     export interface ITemplatesProvider {

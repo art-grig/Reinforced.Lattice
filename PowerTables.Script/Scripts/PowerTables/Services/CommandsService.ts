@@ -59,6 +59,20 @@
             }
         }
 
+        private redrawSubjectRow(subject: any) {
+            if (subject != null && subject != undefined) {
+                var row = this._masterTable.Controller.produceRow(subject);
+                row.IsCommandSubject = true;
+                this._masterTable.Renderer.Modifier.redrawRow(row);
+            }
+        }
+
+        private restoreSubjectRow(subject: any) {
+            if (subject != null && subject != undefined) {
+                this._masterTable.Controller.redrawVisibleDataObject(subject);
+            }
+        }
+
         public triggerCommandWithConfirmation(commandName: string, subject: any, confirmation: any, callback: ((params: ICommandExecutionParameters) => void) = null) {
             var params = {
                 CommandDescription: null,
@@ -71,10 +85,13 @@
                 dismiss: null,
                 Details: null
             };
+            this.redrawSubjectRow(subject);
+
             var cmd = this._commandsCache[commandName];
             if (cmd == null || cmd == undefined) {
                 this._masterTable.Loader.command(commandName,
                     r => {
+                        this.restoreSubjectRow(subject);
                         params.Result = r;
                         if (callback) callback(params);
                         if (r.$isDeferred && r.$url) {
@@ -86,13 +103,18 @@
                         q.AdditionalData['CommandConfirmation'] = JSON.stringify(confirmation);
                         q.AdditionalData['CommandSubject'] = JSON.stringify(subject);
                         return q;
+                    }, data => {
+                        this.restoreSubjectRow(subject);
                     });
 
                 return;
             }
             params.CommandDescription = cmd;
             if (cmd.CanExecute) {
-                if (!cmd.CanExecute({ Subject: subject, Master: this._masterTable })) return;
+                if (!cmd.CanExecute({ Subject: subject, Master: this._masterTable })) {
+                    this.restoreSubjectRow(subject);
+                    return;
+                }
             }
             if (cmd.OnBeforeExecute != null && cmd.OnBeforeExecute != undefined) {
                 params.Confirmation = cmd.OnBeforeExecute(params);
@@ -100,7 +122,7 @@
             if (cmd.Type === PowerTables.Commands.CommandType.Server) {
                 this._masterTable.Loader.command(cmd.ServerName,
                     r => {
-
+                        this.restoreSubjectRow(subject);
                         params.Result = r;
                         if (callback) callback(params);
                         if (cmd.OnSuccess) cmd.OnSuccess(params);
@@ -115,12 +137,14 @@
                         return q;
                     },
                     r => {
+                        this.restoreSubjectRow(subject);
                         params.Result = r;
                         if (callback) callback(params);
                         if (cmd.OnFailure) cmd.OnFailure(params);
                     });
             } else {
                 cmd.ClientFunction(params);
+                this.restoreSubjectRow(subject);
             }
         }
     }
@@ -464,21 +488,21 @@
         public EditorsSet: { [key: string]: PowerTables.Editing.IEditor } = {};
         public ActiveEditors: PowerTables.Editing.IEditor[] = [];
 
-        public Editors(p:PowerTables.Templating.TemplateProcess): void {
+        public Editors(p: PowerTables.Templating.TemplateProcess): void {
             for (var i = 0; i < this.ActiveEditors.length; i++) {
-                this.editor(p,this.ActiveEditors[i]);
+                this.editor(p, this.ActiveEditors[i]);
             }
         }
 
-        private editor(p: PowerTables.Templating.TemplateProcess,editor: PowerTables.Editing.IEditor): void {
+        private editor(p: PowerTables.Templating.TemplateProcess, editor: PowerTables.Editing.IEditor): void {
             editor['_IsRendered'] = true;
             editor.renderContent(p);
         }
 
-        public Editor(p: PowerTables.Templating.TemplateProcess,fieldName: string): void {
+        public Editor(p: PowerTables.Templating.TemplateProcess, fieldName: string): void {
             var editor = this.EditorsSet[fieldName];
             if (editor == null || editor == undefined) return;
-            this.editor(p,editor);
+            this.editor(p, editor);
         }
 
         private createEditor(fieldName: string, column: IColumn): PowerTables.Editing.IEditor {
