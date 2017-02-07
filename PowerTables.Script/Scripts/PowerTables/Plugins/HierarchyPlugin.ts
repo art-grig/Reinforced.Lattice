@@ -175,8 +175,6 @@
             this._isFunctionsStolen = true;
         }
 
-
-
         private onAfterClientDataProcessing(e: ITableEventArgs<IClientDataResults>) {
             this.recalculateSubtreeReferences(e.EventArgs);
         }

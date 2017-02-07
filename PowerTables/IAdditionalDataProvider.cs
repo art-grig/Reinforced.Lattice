@@ -27,6 +27,13 @@ namespace PowerTables
         Configurator<TSource, TData> Configurator { get; }
     }
 
+    public class ReloadAdditionalData
+    {
+        public bool ForceServer { get; set; }
+
+        public string[] ReloadTableIds { get; set; }
+    }
+
     public static class AdditionalDataExtensions
     {
         /// <summary>
@@ -44,6 +51,16 @@ namespace PowerTables
             var t = new T();
             p.AdditionalData.Data[key] = t;
             return t;
+        }
+
+        private const string ReloadKey = "Reload";
+        
+        public static T Reload<T>(this T c, bool forceServer, params string[] additionalTablesToReload) where T : IAdditionalDataProvider
+        {
+            var ad = c.GetOrCreateAdditionalData<ReloadAdditionalData>(ReloadKey);
+            ad.ForceServer = forceServer;
+            ad.ReloadTableIds = additionalTablesToReload;
+            return c;
         }
     }
 }

@@ -505,6 +505,11 @@ module PowerTables.Adjustments {
 		Unselect: { [key:string]: string[] };
 		Select: { [key:string]: string[] };
 	}
+	export interface IReloadAdditionalData
+	{
+		ForceServer: boolean;
+		ReloadTableIds: string[];
+	}
 	export enum SelectionToggle { 
 		LeaveAsIs = 0, 
 		All = 1, 

@@ -6855,7 +6855,15 @@ var PowerTables;
             //#endregion
             Controller.prototype.handleAdditionalData = function (additionalData) {
                 if (additionalData != null && additionalData != undefined) {
-                    this.reload(true);
+                    this.reload(additionalData.ForceServer);
+                    if (additionalData.ReloadTableIds && additionalData.ReloadTableIds.length > 0) {
+                        for (var i = 0; i < additionalData.ReloadTableIds.length; i++) {
+                            if (window['__latticeInstances'][additionalData.ReloadTableIds[i]]) {
+                                window['__latticeInstances'][additionalData.ReloadTableIds[i]].Controller
+                                    .reload(additionalData.ForceServer);
+                            }
+                        }
+                    }
                 }
             };
             return Controller;
@@ -9705,7 +9713,6 @@ var PowerTables;
             function SelectionService(masterTable) {
                 var _this = this;
                 this._selectionData = {};
-                this._isAllSelected = false;
                 this._masterTable = masterTable;
                 this._configuration = this._masterTable.Configuration.SelectionConfiguration;
                 if (this._configuration.SelectSingle) {
@@ -9826,7 +9833,6 @@ var PowerTables;
                         }
                     }
                 }
-                this._isAllSelected = selected;
                 if (objectsToRedraw.length > this._masterTable.DataHolder.DisplayedData.length / 2) {
                     this._masterTable.Controller.redrawVisibleData();
                 }
@@ -9867,12 +9873,12 @@ var PowerTables;
                     return false;
                 return sd.length === 0;
             };
-            SelectionService.prototype.toggleRow = function (primaryKey, selected) {
+            SelectionService.prototype.toggleRow = function (primaryKey, select) {
                 this._masterTable.Events.SelectionChanged.invokeBefore(this, this._selectionData);
-                if (selected == undefined || selected == null) {
-                    selected = !this.isSelectedPrimaryKey(primaryKey);
+                if (select == undefined || select == null) {
+                    select = !this.isSelectedPrimaryKey(primaryKey);
                 }
-                if (selected) {
+                if (select) {
                     if (!this._selectionData.hasOwnProperty(primaryKey)) {
                         if (this._configuration.SelectSingle) {
                             var rk = [];

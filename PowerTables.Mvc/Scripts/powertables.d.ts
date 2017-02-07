@@ -489,6 +489,10 @@ declare module PowerTables.Adjustments {
             [key: string]: string[];
         };
     }
+    interface IReloadAdditionalData {
+        ForceServer: boolean;
+        ReloadTableIds: string[];
+    }
     enum SelectionToggle {
         LeaveAsIs = 0,
         All = 1,
@@ -2916,7 +2920,7 @@ declare module PowerTables.Services {
          * @internal
          */
         produceRows(): IRow[];
-        handleAdditionalData(additionalData: any): void;
+        handleAdditionalData(additionalData: PowerTables.Adjustments.IReloadAdditionalData): void;
     }
 }
 declare module PowerTables.Services {
@@ -3643,7 +3647,6 @@ declare module PowerTables.Services {
         private _configuration;
         private _masterTable;
         private _selectionData;
-        private _isAllSelected;
         isSelected(dataObject: any): boolean;
         isAllSelected(): boolean;
         canSelect(dataObject: any): boolean;
@@ -3655,7 +3658,7 @@ declare module PowerTables.Services {
         getSelectedCells(dataObject: any): number[];
         getSelectedCellsByPrimaryKey(dataObject: any): boolean;
         isSelectedPrimaryKey(primaryKey: string): boolean;
-        toggleRow(primaryKey: string, selected?: boolean): void;
+        toggleRow(primaryKey: string, select?: boolean): void;
         toggleDisplayingRow(rowIndex: number, selected?: boolean): void;
         toggleObjectSelected(dataObject: any, selected?: boolean): void;
         handleAdjustments(added: any[], removeKeys: string[]): void;

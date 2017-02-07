@@ -25,8 +25,7 @@
         private _masterTable: IMasterTable;
 
         private _selectionData: { [primaryKey: string]: number[] } = {};
-        private _isAllSelected: boolean = false;
-
+        
         public isSelected(dataObject: any): boolean {
             return this.isSelectedPrimaryKey(dataObject['__key']);
         }
@@ -130,7 +129,7 @@
                     }
                 }
             }
-            this._isAllSelected = selected;
+            
             if (objectsToRedraw.length > this._masterTable.DataHolder.DisplayedData.length / 2) {
                 this._masterTable.Controller.redrawVisibleData();
             } else {
@@ -172,13 +171,13 @@
             return sd.length === 0;
         }
 
-        public toggleRow(primaryKey: string, selected?: boolean): void {
+        public toggleRow(primaryKey: string, select?: boolean): void {
             this._masterTable.Events.SelectionChanged.invokeBefore(this, this._selectionData);
-            if (selected == undefined || selected == null) {
-                selected = !this.isSelectedPrimaryKey(primaryKey);
+            if (select == undefined || select == null) {
+                select = !this.isSelectedPrimaryKey(primaryKey);
             }
 
-            if (selected) {
+            if (select) {
                 if (!this._selectionData.hasOwnProperty(primaryKey)) {
                     if (this._configuration.SelectSingle) {
                         var rk = [];

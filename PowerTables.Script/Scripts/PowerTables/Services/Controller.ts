@@ -237,9 +237,17 @@ module PowerTables.Services {
         }
 
         //#endregion
-        public handleAdditionalData(additionalData: any): void {
+        public handleAdditionalData(additionalData: PowerTables.Adjustments.IReloadAdditionalData): void {
             if (additionalData != null && additionalData != undefined) {
-                this.reload(true);
+                this.reload(additionalData.ForceServer);
+                if (additionalData.ReloadTableIds && additionalData.ReloadTableIds.length > 0) {
+                    for (var i = 0; i < additionalData.ReloadTableIds.length; i++) {
+                        if (window['__latticeInstances'][additionalData.ReloadTableIds[i]]) {
+                            window['__latticeInstances'][additionalData.ReloadTableIds[i]].Controller
+                                .reload(additionalData.ForceServer);
+                        }
+                    }
+                }
             }
         }
     }
