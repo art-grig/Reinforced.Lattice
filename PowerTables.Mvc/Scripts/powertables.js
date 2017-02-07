@@ -6854,7 +6854,7 @@ var PowerTables;
             };
             //#endregion
             Controller.prototype.handleAdditionalData = function (additionalData) {
-                if (additionalData != null && additionalData != undefined) {
+                if (additionalData != null && additionalData !== undefined) {
                     this.reload(additionalData.ForceServer);
                     if (additionalData.ReloadTableIds && additionalData.ReloadTableIds.length > 0) {
                         for (var i = 0; i < additionalData.ReloadTableIds.length; i++) {

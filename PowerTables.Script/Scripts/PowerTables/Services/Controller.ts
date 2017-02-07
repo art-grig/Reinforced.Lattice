@@ -238,7 +238,7 @@ module PowerTables.Services {
 
         //#endregion
         public handleAdditionalData(additionalData: PowerTables.Adjustments.IReloadAdditionalData): void {
-            if (additionalData != null && additionalData != undefined) {
+            if (additionalData != null && additionalData !== undefined) {
                 this.reload(additionalData.ForceServer);
                 if (additionalData.ReloadTableIds && additionalData.ReloadTableIds.length > 0) {
                     for (var i = 0; i < additionalData.ReloadTableIds.length; i++) {
