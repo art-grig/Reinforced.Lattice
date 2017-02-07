@@ -3773,7 +3773,8 @@ var PowerTables;
                 var objectsToRedraw = [];
                 for (var k in this._selectionData) {
                     var sd = this._selectionData[k];
-                    if (this._masterTable.DataHolder.DisplayedData.indexOf(sd) >= 0)
+                    var obj = this._masterTable.DataHolder.getByPrimaryKey(k);
+                    if (this._masterTable.DataHolder.DisplayedData.indexOf(obj) >= 0)
                         objectsToRedraw.push(sd);
                     delete this._selectionData[k];
                 }

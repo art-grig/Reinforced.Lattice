@@ -70,7 +70,8 @@
             var objectsToRedraw = [];
             for (var k in this._selectionData) {
                 var sd = this._selectionData[k];
-                if (this._masterTable.DataHolder.DisplayedData.indexOf(sd) >= 0) objectsToRedraw.push(sd);
+                var obj = this._masterTable.DataHolder.getByPrimaryKey(k);
+                if (this._masterTable.DataHolder.DisplayedData.indexOf(obj) >= 0) objectsToRedraw.push(sd);
                 delete this._selectionData[k];
             }
             if (objectsToRedraw.length > this._masterTable.DataHolder.DisplayedData.length / 2) {
