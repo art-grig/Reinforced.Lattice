@@ -11,11 +11,15 @@ namespace PowerTables.Templating.Expressions
     /// </summary>
     public static class JsExtensions
     {
-        public static string TraversePropertyLambda(LambdaExpression lambda, string existing = null)
+        public static string TraversePropertyLambda(LambdaExpression lambda, params string[] existing)
         {
+            if (existing == null || existing.Length == 0)
+            {
+                existing = new[] { "o" };
+            }
             var visitor = new JsExpressionVisitor();
-            visitor.Visit(lambda.Body);
-            visitor.BindModel(string.IsNullOrEmpty(existing) ? "o" : existing);
+            visitor.VisitAll(lambda);
+            visitor.Bind(existing);
             var ex = visitor.Retrieve();
             var expr = ex.Build();
             return expr;
@@ -100,6 +104,33 @@ namespace PowerTables.Templating.Expressions
         #endregion
 
         #region Each
+        /// <summary>
+        /// Renders handlebars "each" directive in region
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="t"></param>
+        /// <returns></returns>
+        public static ParametrizedCodeBlock<int> For<T>(this IModelProvider<T> t, Expression<Func<T, int, bool>> condition, 
+            Expression<Func<T, int>> start = null,
+            Expression<Action<T,int>> increment = null)
+        {
+            var iterator = t.Iterator();
+
+            var condJs = TraversePropertyLambda(condition, new[] { t.ExistingModel, iterator });
+            var startJs = "0";
+            if (start != null)
+            {
+                startJs = TraversePropertyLambda(start, new[] {t.ExistingModel});
+            }
+            var incrJs = iterator + "++";
+            if (increment != null)
+            {
+                incrJs = TraversePropertyLambda(increment, new[] {t.ExistingModel, iterator});
+            }
+            
+            var heading = string.Format("for(var {0}={1};{2};{3}){{ ", iterator,startJs, condJs,incrJs);
+            return new ParametrizedCodeBlock<int>(heading, "}", t, iterator);
+        }
 
         /// <summary>
         /// Renders handlebars "each" directive in region
@@ -108,11 +139,30 @@ namespace PowerTables.Templating.Expressions
         /// <param name="t"></param>
         /// <param name="collection"></param>
         /// <returns></returns>
+        public static ParametrizedCodeBlock<IJsObject> In<T>(this IModelProvider<T> t, Expression<Func<T, object>> collection)
+        {
+            var proname = TraversePropertyLambda(collection, t.ExistingModel);
+            var k = t.Key();
+            var v = t.Variable();
+            var heading = string.Format("for(var {1} in {0}){{var {2}={0}[{1}];", proname, k, v);
+            return new ParametrizedCodeBlock<IJsObject>(heading, "}", t, v);
+        }
+
+        /// <summary>
+        /// Renders handlebars "each" directive in region
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TElement"></typeparam>
+        /// <param name="t"></param>
+        /// <param name="collection"></param>
+        /// <returns></returns>
         public static ParametrizedCodeBlock<TElement> Each<T, TElement>(this IModelProvider<T> t, Expression<Func<T, IEnumerable<TElement>>> collection)
         {
             var proname = TraversePropertyLambda(collection, t.ExistingModel);
-            var heading = string.Format("for(var i=0;i<{0}.length;i++){{var e={0}[i];", proname);
-            return new ParametrizedCodeBlock<TElement>(heading, "}", t, "e");
+            var i = t.Iterator();
+            var v = t.Variable();
+            var heading = string.Format("for(var {1}=0;{1}<{0}.length;{1}++){{var {2}={0}[i];", proname, i, v);
+            return new ParametrizedCodeBlock<TElement>(heading, "}", t, v);
         }
 
         /// <summary>
@@ -125,8 +175,10 @@ namespace PowerTables.Templating.Expressions
         public static ParametrizedCodeBlock<TElement> Each<T, TElement>(this IModelProvider<T> t, Expression<Func<T, IJsArray<TElement>>> collection)
         {
             var proname = TraversePropertyLambda(collection, t.ExistingModel);
-            var heading = string.Format("for(var i=0;i<{0}.length;i++){{var e={0}[i];", proname);
-            return new ParametrizedCodeBlock<TElement>(heading, "}", t, "e");
+            var i = t.Iterator();
+            var v = t.Variable();
+            var heading = string.Format("for(var {1}=0;{1}<{0}.length;{1}++){{var {2}={0}[i];", proname, i, v);
+            return new ParametrizedCodeBlock<TElement>(heading, "}", t, v);
         }
 
         #endregion

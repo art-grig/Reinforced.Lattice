@@ -3,15 +3,13 @@
      * Internal component that is not supposed to be used directly.
      */
     export class BackBinder {
-        private _instances: PowerTables.Services.InstanceManagerService;
         private _dateService: PowerTables.Services.DateService;
         public Delegator: PowerTables.Services.EventsDelegatorService;
 
         /**
         * @internal
         */
-        constructor(instances: PowerTables.Services.InstanceManagerService, dateService: PowerTables.Services.DateService) {
-            this._instances = instances;
+        constructor(dateService: PowerTables.Services.DateService) {
             this._dateService = dateService;
         }
         

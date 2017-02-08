@@ -3,7 +3,7 @@ using System.IO;
 
 namespace PowerTables.Templating
 {
-    public class TemplateRegion : IDisposable, ITemplateRegion
+    public class TemplateRegion : DeclaratorBase, IDisposable, ITemplateRegion
     {
         private readonly ScopedWriter _writer;
         private readonly ITemplatesScope _scope;

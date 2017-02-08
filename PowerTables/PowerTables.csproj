@@ -272,6 +272,7 @@
     <Compile Include="Templating\BuiltIn\MessageWrapperTemplateRegion.cs" />
     <Compile Include="Templating\BuiltIn\HeaderWrapperTemplateRegion.cs" />
     <Compile Include="Templating\BuiltIn\PartitionRowTemplateRegion.cs" />
+    <Compile Include="Templating\DeclaratorBase.cs" />
     <Compile Include="Templating\DOMEvent.cs" />
     <Compile Include="Templating\Expressions\CodeBlock.cs" />
     <Compile Include="Templating\Expressions\Visiting\CustomMethodCallTransaltion.cs" />
