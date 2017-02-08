@@ -34,7 +34,8 @@
       <Link>Scripts\Interfaces.ts</Link>
     </TypeScriptCompile>
     <TypeScriptCompile Include="Scripts\PowerTables\CoreInterfaces.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Rendering\Resensor.ts" />    
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\HierarchyPlugin.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Rendering\Resensor.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Templating\BackbindInfo.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Templating\Templates.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Templating\TemplateProcess.ts" />
@@ -92,7 +93,7 @@
     <TypeScriptCompile Include="Scripts\PowerTables\Services\MessagesService.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\ReloadPlugin.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\LoadingPlugin.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\HierarchyPlugin.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\HierarchyPlugin2.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Editing\EditorBase.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Editing\EditHandlerBase.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Editing\Cells\CellsEditHandler.ts" />
