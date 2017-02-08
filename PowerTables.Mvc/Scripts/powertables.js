@@ -10098,7 +10098,7 @@ var PowerTables;
                     if (this._isEditing)
                         return;
                     var lookup = this.MasterTable.DataHolder.StoredCache[rowDisplayIndex];
-                    this.ensureEditingObject(lookup.DataObject);
+                    this.ensureEditingObject(lookup);
                 };
                 FormEditHandler.prototype.ensureEditingObject = function (dataObject) {
                     this.DataObject = dataObject;
@@ -10134,7 +10134,7 @@ var PowerTables;
                 FormEditHandler.prototype.beginFormEditHandler = function (e) {
                     if (this._isEditing) {
                         var lookup = this.MasterTable.DataHolder.StoredCache[e.Row];
-                        if (this.DataObject !== lookup.DataObject) {
+                        if (this.DataObject !== lookup) {
                             this.rejectAll();
                         }
                     }
