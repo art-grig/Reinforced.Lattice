@@ -4,7 +4,7 @@ using System.Web.Mvc;
 
 namespace PowerTables.Templating
 {
-    public class AdditionalTemplatesScope : ITemplatesScope, IDisposable
+    public class AdditionalTemplatesScope : DeclaratorBase, ITemplatesScope, IDisposable
     {
         public TextWriter Out { get { return _page.Output; } }
         public string TemplatesPrefix { get { return _prefix; } }

@@ -3,7 +3,7 @@ using System.Web.Mvc;
 
 namespace PowerTables.Templating
 {
-    public interface IRawProvider
+    public interface IRawProvider : IDeclarator
     {
         SpecialString Raw(string tplCode);
 

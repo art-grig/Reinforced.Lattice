@@ -8,8 +8,10 @@ namespace PowerTables.Templating
 {
     public abstract class TemplatesPageBase : WebViewPage<LatticeTemplatesViewModel>, ITemplatesScope
     {
+        private DeclaratorBase _declarator = new DeclaratorBase();
         public override void ExecutePageHierarchy()
         {
+            
             if (Model.RenderScriptTags) this.WriteLiteral("<script type=\"text/javascript\">");
             _hook = new ScopedWriter(base.GetOutputWriter(), this);
             OutputStack.Push(_hook);
@@ -61,7 +63,7 @@ namespace PowerTables.Templating
         public TextWriter Out { get { return GetOutputWriter(); } }
 
         private ScopedWriter _hook = null;
-
+        
         protected override TextWriter GetOutputWriter()
         {
             return _hook;
@@ -75,5 +77,19 @@ namespace PowerTables.Templating
         public string TemplatesPrefix { get { return Model.Prefix; } }
 
 
+        public string Variable()
+        {
+            return _declarator.Variable();
+        }
+
+        public string Iterator()
+        {
+            return _declarator.Iterator();
+        }
+
+        public string Key()
+        {
+            return _declarator.Key();
+        }
     }
 }

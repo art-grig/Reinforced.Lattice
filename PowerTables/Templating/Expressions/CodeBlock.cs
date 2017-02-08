@@ -6,7 +6,7 @@ namespace PowerTables.Templating.Expressions
     {
         private readonly IRawProvider _raw;
         private readonly string _footer;
-
+        
         protected IRawProvider RawCode
         {
             get { return _raw; }
@@ -37,6 +37,21 @@ namespace PowerTables.Templating.Expressions
         public void WriteRaw(string tplCode)
         {
             _raw.WriteRaw(tplCode);
+        }
+
+        public string Variable()
+        {
+            return _raw.Variable();
+        }
+
+        public string Iterator()
+        {
+            return _raw.Iterator();
+        }
+
+        public string Key()
+        {
+            return _raw.Key();
         }
     }
 }

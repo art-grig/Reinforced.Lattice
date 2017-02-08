@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -16,11 +17,12 @@ namespace PowerTables.Templating.Expressions.Visiting
             get { return _unboundModelReferences; }
         }
 
-        public void BindModel(string modelLiteral)
+        public void Bind(string[] parameterLiterals)
         {
             foreach (var unboundModelReference in _unboundModelReferences)
             {
-                unboundModelReference.Boundee = new JsLiteralExpression() { Literal = modelLiteral };
+                var idx = _parameters[unboundModelReference.Name];
+                unboundModelReference.Boundee = new JsLiteralExpression() { Literal = parameterLiterals[idx] };
             }
         }
 
@@ -53,7 +55,15 @@ namespace PowerTables.Templating.Expressions.Visiting
             return node;
         }
 
-
+        private readonly Dictionary<string,int> _parameters = new Dictionary<string, int>();
+        public void VisitAll(LambdaExpression expression)
+        {
+            for (int i = 0; i < expression.Parameters.Count; i++)
+            {
+                _parameters[expression.Parameters[i].Name] = i;
+            }
+            this.Visit(expression.Body);
+        }
         public override Expression Visit(Expression node)
         {
             if (node.NodeType == ExpressionType.Convert)
@@ -229,7 +239,7 @@ namespace PowerTables.Templating.Expressions.Visiting
         }
         protected override Expression VisitParameter(ParameterExpression node)
         {
-            var ngex = new JsUnboundExpression();
+            var ngex = new JsUnboundExpression(node.Name);
             _unboundModelReferences.Add(ngex);
             Return(ngex);
             return base.VisitParameter(node);
