@@ -53,11 +53,13 @@
         }
 
         public prefetchData(data: any[]) {
-            var query = this.gatherQuery(QueryScope.Server);
+            var clientQuery = this.gatherQuery(QueryScope.Client);
+            var serverQuery = this.gatherQuery(QueryScope.Server);
+            this._masterTable.Partition.partitionBeforeQuery(serverQuery, clientQuery, false);
             this._dataHolder.storeResponse(<any>{
                 Data: data
-            }, query);
-            this._previousQueryString = JSON.stringify(query);
+            }, clientQuery);
+            this._previousQueryString = JSON.stringify(clientQuery);
         }
 
         public gatherQuery(queryScope: QueryScope): IQuery {

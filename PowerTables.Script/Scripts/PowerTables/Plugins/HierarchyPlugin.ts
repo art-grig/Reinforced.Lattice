@@ -2,15 +2,15 @@
     export class HierarchyPlugin extends PluginBase<IHierarchyUiConfiguration> implements IClientFilter {
 
         public expandSubtree(args: IRowEventArgs): void {
-            this.toggleSubtreeByObject(this.MasterTable.DataHolder.localLookupDisplayedData(args.Row).DataObject, true);
+            this.toggleSubtreeByObject(this.MasterTable.DataHolder.StoredData[args.Row], true);
         }
 
         public collapseSubtree(args: IRowEventArgs): void {
-            this.toggleSubtreeByObject(this.MasterTable.DataHolder.localLookupDisplayedData(args.Row).DataObject, false);
+            this.toggleSubtreeByObject(this.MasterTable.DataHolder.StoredData[args.Row], false);
         }
 
         public toggleSubtree(args: IRowEventArgs): void {
-            this.toggleSubtreeByObject(this.MasterTable.DataHolder.localLookupDisplayedData(args.Row).DataObject, null);
+            this.toggleSubtreeByObject(this.MasterTable.DataHolder.StoredData[args.Row], null);
         }
 
         public toggleSubtreeByObject(dataObject: any, turnOpen?: boolean) {

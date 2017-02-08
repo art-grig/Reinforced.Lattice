@@ -194,12 +194,12 @@
                 this.Skip = initialSet.length - this.Take;
                 if (this.Skip < 0) this.Skip = 0;
                 this._masterTable.Events.PartitionChanged.invokeAfter(this,
-                {
-                    PreviousSkip: prevSkip,
-                    Skip: 0,
-                    PreviousTake: this.Take,
-                    Take: this.Take
-                });
+                    {
+                        PreviousSkip: prevSkip,
+                        Skip: 0,
+                        PreviousTake: this.Take,
+                        Take: this.Take
+                    });
             }
             var result = this.skipTakeSet(initialSet, query);
 

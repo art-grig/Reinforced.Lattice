@@ -437,26 +437,6 @@
         }
 
         /**
-         * Finds data object among currently displayed and returns ILocalLookupResult 
-         * containing also Loaded-set index of this data object
-         * 
-         * @param index Index of desired data object among locally displaying data
-         * @returns ILocalLookupResult
-         */
-        public localLookupDisplayedData(index: number): ILocalLookupResult {
-            if (index < 0) return null;
-            if (index > this.DisplayedData.length) return null;
-            var result: ILocalLookupResult = {
-                DataObject: this.DisplayedData[index],
-                IsCurrentlyDisplaying: true,
-                DisplayedIndex: index,
-                LoadedIndex: this.DisplayedData[index]['__i']
-            };
-
-            return result;
-        }
-
-        /**
          * Finds data object among recently loaded and returns ILocalLookupResult 
          * containing also Loaded-set index of this data object
          * 

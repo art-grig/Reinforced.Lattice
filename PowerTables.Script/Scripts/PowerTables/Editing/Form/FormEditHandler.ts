@@ -8,7 +8,7 @@
 
         private ensureEditing(rowDisplayIndex: number) {
             if (this._isEditing) return;
-            var lookup = this.MasterTable.DataHolder.localLookupDisplayedData(rowDisplayIndex);
+            var lookup = this.MasterTable.DataHolder.StoredCache[rowDisplayIndex];
             this.ensureEditingObject(lookup.DataObject);
         }
 
@@ -50,7 +50,7 @@
 
         public beginFormEditHandler(e: IRowEventArgs) {
             if (this._isEditing) {
-                var lookup = this.MasterTable.DataHolder.localLookupDisplayedData(e.Row);
+                var lookup = this.MasterTable.DataHolder.StoredCache[e.Row];
                 if (this.DataObject !== lookup.DataObject) {
                     this.rejectAll();
                 }

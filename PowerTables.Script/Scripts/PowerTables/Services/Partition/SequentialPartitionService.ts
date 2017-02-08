@@ -65,15 +65,17 @@
 
         public partitionBeforeQuery(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean): boolean {
             // Check if it is pager's request. If true - nothing to do here. All necessary things are already done in queryModifier
-            if (serverQuery.IsBackgroundDataFetch) return isServerQuery;
+            if ((serverQuery) && serverQuery.IsBackgroundDataFetch) return isServerQuery;
             this.resetSkip();
-            if (this.Owner != null) {
-                var hasClientFilters = this.any(clientQuery.Filterings);
-                if (!hasClientFilters) {
-                    this.Owner.switchBack(serverQuery, clientQuery, isServerQuery);
-                    return true;
+           
+                if (this.Owner != null) {
+                    var hasClientFilters = this.any(clientQuery.Filterings);
+                    if (!hasClientFilters) {
+                        this.Owner.switchBack(serverQuery, clientQuery, isServerQuery);
+                        return true;
+                    }
                 }
-            }
+           
 
             serverQuery.Partition = { NoCount: true, Take: this.Take * this._conf.LoadAhead, Skip: this.Skip };
 

@@ -45,8 +45,8 @@
 
         private beginRowEdit(rowIndex: number) {
             if (this._isEditing) {
-                var lookup = this.MasterTable.DataHolder.localLookupDisplayedData(rowIndex);
-                if (this.DataObject !== lookup.DataObject) {
+                var lookup = this.MasterTable.DataHolder.StoredCache[rowIndex];
+                if (this.DataObject !== lookup) {
                     this.rejectAll();
                 }
             }
