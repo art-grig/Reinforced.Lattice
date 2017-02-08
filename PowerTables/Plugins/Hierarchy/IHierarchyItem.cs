@@ -11,40 +11,27 @@
         int ChildrenCount { get; set; }
 
         /// <summary>
-        /// Gets or sets node visibility
-        /// </summary>
-        bool IsVisible { get; set; }
-
-        /// <summary>
         /// Gets or sets whether node is expanded currently or not
         /// </summary>
         bool IsExpanded { get; set; }
+    }
+
+    public interface IHierarchyDisplayRow : IHierarchyItem
+    {
+        /// <summary>
+        /// Gets whether node is in loading state loading subchildren
+        /// </summary>
+        bool IsLoading { get; }
 
         /// <summary>
-        /// Gets or sets string key distinguishing this field as parent. 
+        /// Gets or sets node visibility
         /// </summary>
-        string RootKey { get; set; }
-
-        /// <summary>
-        /// Gets or sets string key distinguishing this field as child
-        /// Leave this field null to mark this node as tree root
-        /// </summary>
-        string ParentKey { get; set; }
-
-        /// <summary>
-        /// Readonly field that is being used for internal purposes
-        /// </summary>
-        string TreeOrder { get; }
+        bool IsVisible { get; set; }
 
         /// <summary>
         /// Gets current node deepness for templating. 
         /// If this field is not specified explicitly - then it will be evaluated by hierarchy plugin
         /// </summary>
         int Deepness { get; }
-
-        /// <summary>
-        /// Gets whether node is in loading state loading subchildren
-        /// </summary>
-        bool IsLoading { get; }
     }
 }

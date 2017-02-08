@@ -13,7 +13,7 @@
             }
             if (this._configuration.ResetSelectionBehavior ===
                 PowerTables.ResetSelectionBehavior.ServerReload) {
-                masterTable.Events.DataReceived.subscribe(x => {
+                masterTable.Events.DataReceived.subscribeBefore(x => {
                     if (x.EventArgs.Request.Command === 'query') this.resetSelection();
                 }, 'selection');
             }

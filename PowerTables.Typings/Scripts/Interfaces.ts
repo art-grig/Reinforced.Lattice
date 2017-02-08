@@ -475,6 +475,7 @@ module PowerTables.Plugins.Reload {
 module PowerTables.Plugins.Hierarchy {
 	export interface IHierarchyUiConfiguration
 	{
+		ParentKeyFields: string[];
 		ExpandBehavior: PowerTables.Plugins.Hierarchy.NodeExpandBehavior;
 		CollapsedNodeFilterBehavior: PowerTables.Plugins.Hierarchy.TreeCollapsedNodeFilterBehavior;
 	}

@@ -76,8 +76,7 @@ module PowerTables {
             }
             
 
-            this.MessageService = new PowerTables.Services.MessagesService(this.Configuration.MessageFunction, this.InstanceManager, this.DataHolder, this.Controller, this.Renderer);
-
+            this.MessageService = new PowerTables.Services.MessagesService(this.Configuration.MessageFunction, this.InstanceManager, this.Controller, this.Renderer);
             this.InstanceManager.initPlugins();
             this.Renderer.layout();
             if (this.Configuration.CallbackFunction) {

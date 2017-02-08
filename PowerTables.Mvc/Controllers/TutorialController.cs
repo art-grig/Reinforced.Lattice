@@ -253,21 +253,21 @@ namespace PowerTables.Mvc.Controllers
 
             var data = new List<HierarchySource>()
             {
-                new HierarchySource(){Id = 1,Link = "http://goog.com",Text = "Item1",ParentId = 0},
-                new HierarchySource(){Id = 2,Link = "http://goog.com",Text = "Child 1 of Item 1",ParentId = 1},
-                new HierarchySource(){Id = 3,Link = "http://goog.com",Text = "Child 2 of Item 1",ParentId = 1},
-                new HierarchySource(){Id = 4,Link = "http://goog.com",Text = "Child 1 of child 1 of Item 1",ParentId = 2},
-                new HierarchySource(){Id = 5,Link = "http://goog.com",Text = "Child 2 of child 1 of Item 1",ParentId = 2},
-                new HierarchySource(){Id = 6,Link = "http://goog.com",Text = "Item2 (childless)",ParentId = 0},
-                new HierarchySource(){Id = 7,Link = "http://goog.com",Text = "Item3 (childless)",ParentId = 0},
-                new HierarchySource(){Id = 8,Link = "http://goog.com",Text = "Item4",ParentId = 0},
-                new HierarchySource(){Id = 9,Link = "http://goog.com",Text = "Child 1 of Item 4",ParentId = 8},
-                new HierarchySource(){Id = 10,Link = "http://goog.com",Text = "Child 2 of Item 4",ParentId = 8},
-                new HierarchySource(){Id = 11,Link = "http://goog.com",Text = "Child 3 of Item 4",ParentId = 8},
-                new HierarchySource(){Id = 12,Link = "http://goog.com",Text = "Child 4 of Item 4",ParentId = 8},
-                new HierarchySource(){Id = 13,Link = "http://goog.com",Text = "Child 1 of Child 2 Item 4",ParentId = 10},
-                new HierarchySource(){Id = 14,Link = "http://goog.com",Text = "Child 2 of Child 2 Item 4",ParentId = 10},
-                new HierarchySource(){Id = 15,Link = "http://goog.com",Text = "Deep child of Item 4",ParentId = 13},
+                new HierarchySource(){Id = 1,Link = "http://goog.com",Text = "Cars",ParentId = 0},
+                new HierarchySource(){Id = 2,Link = "http://goog.com",Text = "Hatchback",ParentId = 1},
+                new HierarchySource(){Id = 3,Link = "http://goog.com",Text = "Hard Trucks",ParentId = 1},
+                new HierarchySource(){Id = 4,Link = "http://goog.com",Text = "Mercedes",ParentId = 2},
+                new HierarchySource(){Id = 5,Link = "http://goog.com",Text = "Opel",ParentId = 2},
+                new HierarchySource(){Id = 6,Link = "http://goog.com",Text = "Bears  (childless)",ParentId = 0},
+                new HierarchySource(){Id = 7,Link = "http://goog.com",Text = "Foxes (childless)",ParentId = 0},
+                new HierarchySource(){Id = 8,Link = "http://goog.com",Text = "Sweets",ParentId = 0},
+                new HierarchySource(){Id = 9,Link = "http://goog.com",Text = "Pies",ParentId = 8},
+                new HierarchySource(){Id = 10,Link = "http://goog.com",Text = "Candies",ParentId = 8},
+                new HierarchySource(){Id = 11,Link = "http://goog.com",Text = "Cakes",ParentId = 8},
+                new HierarchySource(){Id = 12,Link = "http://goog.com",Text = "Lolipops",ParentId = 8},
+                new HierarchySource(){Id = 13,Link = "http://goog.com",Text = "Crab Candy",ParentId = 10},
+                new HierarchySource(){Id = 14,Link = "http://goog.com",Text = "Lick Candy",ParentId = 10},
+                new HierarchySource(){Id = 15,Link = "http://goog.com",Text = "Russian one",ParentId = 13},
             };
             foreach (var hierarchySource in data)
             {

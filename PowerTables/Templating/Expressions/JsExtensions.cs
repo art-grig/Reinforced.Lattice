@@ -13,7 +13,7 @@ namespace PowerTables.Templating.Expressions
     {
         public static string TraversePropertyLambda(LambdaExpression lambda, params string[] existing)
         {
-            if (existing == null || existing.Length == 0)
+            if (existing == null || existing.Length == 0 || existing[0] == null)
             {
                 existing = new[] { "o" };
             }
@@ -110,9 +110,9 @@ namespace PowerTables.Templating.Expressions
         /// <typeparam name="T"></typeparam>
         /// <param name="t"></param>
         /// <returns></returns>
-        public static ParametrizedCodeBlock<int> For<T>(this IModelProvider<T> t, Expression<Func<T, int, bool>> condition, 
+        public static ParametrizedCodeBlock<int> For<T>(this IModelProvider<T> t, Expression<Func<T, int, bool>> condition,
             Expression<Func<T, int>> start = null,
-            Expression<Action<T,int>> increment = null)
+            Expression<Action<T, int>> increment = null)
         {
             var iterator = t.Iterator();
 
@@ -120,15 +120,15 @@ namespace PowerTables.Templating.Expressions
             var startJs = "0";
             if (start != null)
             {
-                startJs = TraversePropertyLambda(start, new[] {t.ExistingModel});
+                startJs = TraversePropertyLambda(start, new[] { t.ExistingModel });
             }
             var incrJs = iterator + "++";
             if (increment != null)
             {
-                incrJs = TraversePropertyLambda(increment, new[] {t.ExistingModel, iterator});
+                incrJs = TraversePropertyLambda(increment, new[] { t.ExistingModel, iterator });
             }
-            
-            var heading = string.Format("for(var {0}={1};{2};{3}){{ ", iterator,startJs, condJs,incrJs);
+
+            var heading = string.Format("for(var {0}={1};{2};{3}){{ ", iterator, startJs, condJs, incrJs);
             return new ParametrizedCodeBlock<int>(heading, "}", t, iterator);
         }
 

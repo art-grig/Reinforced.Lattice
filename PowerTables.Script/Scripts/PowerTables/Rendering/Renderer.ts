@@ -85,7 +85,6 @@
          * @param rows Set of table rows         
          */
         public body(rows: IRow[]): void {
-            this._events.ClientRowsRendering.invokeBefore(this, rows);
             var process = this.Executor.beginProcess();
             for (var i: number = 0; i < rows.length; i++) {
                 var rw: IRow = rows[i];

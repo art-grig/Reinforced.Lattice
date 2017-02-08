@@ -9,10 +9,9 @@
         /*
          * @internal
          */
-        constructor(usersMessageFn: (msg: ITableMessage) => void, instances: PowerTables.Services.InstanceManagerService, dataHolder: PowerTables.Services.DataHolderService, controller: Controller, templatesProvider: ITemplatesProvider) {
+        constructor(usersMessageFn: (msg: ITableMessage) => void, instances: PowerTables.Services.InstanceManagerService, controller: Controller, templatesProvider: ITemplatesProvider) {
             this._usersMessageFn = usersMessageFn;
             this._instances = instances;
-            this._dataHolder = dataHolder;
             this._controller = controller;
             this._templatesProvider = templatesProvider;
             if (!usersMessageFn) {
@@ -23,7 +22,6 @@
 
         private _usersMessageFn: (msg: ITableMessage) => void;
         private _instances: PowerTables.Services.InstanceManagerService;
-        private _dataHolder: PowerTables.Services.DataHolderService;
         private _controller: Controller;
         private _templatesProvider: ITemplatesProvider;
 

@@ -11,6 +11,8 @@
 
         private _masterTable: IMasterTable;
 
+        private _beforeCount: number = 0;
+        private _afterCount: number = 0;
         private _handlersAfter: { [key: string]: ((e: ITableEventArgs<TAfterEventArgs>) => any)[] } = {};
         private _handlersBefore: { [key: string]: ((e: ITableEventArgs<TBeforeEventArgs>) => any)[] } = {};
 
@@ -21,6 +23,7 @@
          * @param eventArgs Event args will be passed to callee
          */
         public invokeBefore(thisArg: any, eventArgs: TBeforeEventArgs): void {
+            if (this._beforeCount === 0) return;
             var ea: ITableEventArgs<TBeforeEventArgs> = {
                 MasterTable: this._masterTable,
                 EventArgs: eventArgs,
@@ -47,6 +50,7 @@
          * @param eventArgs Event args will be passed to callee
          */
         public invokeAfter(thisArg: any, eventArgs: TAfterEventArgs): void {
+            if (this._afterCount === 0) return;
             var ea: ITableEventArgs<TAfterEventArgs> = {
                 MasterTable: this._masterTable,
                 EventArgs: eventArgs,
@@ -85,12 +89,13 @@
          * @param subscriber Subscriber key to associate with handler
          */
         public subscribeAfter(handler: (e: ITableEventArgs<TAfterEventArgs>) => any, subscriber: string): void;
-        
+
         public subscribeAfter(handler: any, subscriber?: string): void {
             if (!this._handlersAfter[subscriber]) {
                 this._handlersAfter[subscriber] = [];
             }
             this._handlersAfter[subscriber].push(handler);
+            this._afterCount++;
         }
 
         /**
@@ -118,6 +123,7 @@
                 this._handlersBefore[subscriber] = [];
             }
             this._handlersBefore[subscriber].push(handler);
+            this._beforeCount++;
         }
 
         /**
@@ -125,8 +131,28 @@
          * @param subscriber Subscriber key associated with handler
          */
         public unsubscribe(subscriber: string): void {
+            this.unsubscribeBefore(subscriber);
+            this.unsubscribeAfter(subscriber);
+        }
+
+        /**
+         * Unsubscribes specified addressee from event
+         * @param subscriber Subscriber key associated with handler
+         */
+        public unsubscribeAfter(subscriber: string): void {
             this._handlersAfter[subscriber] = null;
             delete this._handlersAfter[subscriber];
+            this._afterCount--;
+        }
+
+        /**
+         * Unsubscribes specified addressee from event
+         * @param subscriber Subscriber key associated with handler
+         */
+        public unsubscribeBefore(subscriber: string): void {
+            this._handlersBefore[subscriber] = null;
+            delete this._handlersBefore[subscriber];
+            this._beforeCount--;
         }
     }
 } 

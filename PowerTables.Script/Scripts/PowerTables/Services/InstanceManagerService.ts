@@ -125,6 +125,7 @@
                 }
             }
 
+            this._events.ColumnsCreation.invokeBefore(this, this.Columns);
             // handling special filters case
             if (this._isHandlingSpecialPlacementCase) {
                 if (anySpecialCases) {
@@ -153,7 +154,7 @@
                     }
                 }
             }
-            this._events.ColumnsCreation.invoke(this, this.Columns);
+            this._events.ColumnsCreation.invokeAfter(this, this.Columns);
         }
 
         private static startsWith(s1: string, prefix: string): boolean {

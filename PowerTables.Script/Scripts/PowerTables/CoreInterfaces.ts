@@ -486,6 +486,8 @@
          * Query response
          */
         Data: IPowerTablesResponse;
+
+        IsAdjustment:boolean;
     }
 
     /**

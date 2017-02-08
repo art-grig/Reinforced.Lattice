@@ -57,7 +57,7 @@
                 this.MasterTable.Loader.registerAdditionalDataReceiver('ResponseInfo', this);
             }
             this.MasterTable.Events.ClientDataProcessing.subscribeAfter(this.onClientDataProcessed.bind(this), 'responseInfo');
-            this.MasterTable.Events.DataReceived.subscribe(this.onResponse.bind(this), 'responseInfo');
+            this.MasterTable.Events.DataReceived.subscribeBefore(this.onResponse.bind(this), 'responseInfo');
             try {
                 this._pagingPlugin = <IPagingPlugin>this.MasterTable.InstanceManager.getPlugin('Paging');
                 this._pagingEnabled = true;

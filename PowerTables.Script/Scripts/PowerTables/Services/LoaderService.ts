@@ -56,10 +56,26 @@
             var clientQuery = this.gatherQuery(QueryScope.Client);
             var serverQuery = this.gatherQuery(QueryScope.Server);
             this._masterTable.Partition.partitionBeforeQuery(serverQuery, clientQuery, false);
+            var arg = {
+                Data: {
+                    Data: data,
+                    AdditionalData: null,
+                    Success: true,
+                    BatchSize: 0,
+                    Message: null,
+                    PageIndex: 0,
+                    ResultsCount: 0
+                },
+                Request: null,
+                XMLHttp: null, 
+                IsAdjustment: false
+            };
+            this._masterTable.Events.DataReceived.invokeBefore(this,arg);
             this._dataHolder.storeResponse(<any>{
                 Data: data
             }, clientQuery);
             this._previousQueryString = JSON.stringify(clientQuery);
+            this._masterTable.Events.DataReceived.invokeAfter(this, arg);
         }
 
         public gatherQuery(queryScope: QueryScope): IQuery {
@@ -182,9 +198,10 @@
         private checkEditResult(json: any, data: IPowerTableRequest): boolean {
             if (json == null) return false;
             if (json['__XqTFFhTxSu']) {
-                this._events.DataReceived.invoke(this, {
+                this._events.DataReceived.invokeBefore(this, {
                     Request: data,
-                    Data: json
+                    Data: json, 
+                    IsAdjustment:true
                 });
                 this._masterTable.proceedAdjustments(json);
                 for (var otherAdj in json.OtherTablesAdjustments) {
@@ -194,49 +211,64 @@
                         }
                     }
                 }
+                this._events.DataReceived.invokeAfter(this, {
+                    Request: data,
+                    Data: json,
+                    IsAdjustment: true
+                });
                 return true;
             }
             return false;
         }
 
         private handleRegularJsonResponse(responseText: string, data: IPowerTableRequest, clientQuery: IQuery, callback: any, errorCallback: any) {
-            var json = JSON.parse(responseText);
-            var error: boolean = this.checkError(json, data);
-            var message: boolean = this.checkMessage(json);
+            var response = JSON.parse(responseText);
+            var error: boolean = this.checkError(response, data);
+            var message: boolean = this.checkMessage(response);
             if (message) {
-                this.checkAdditionalData(json);
-                callback(json);
+                this.checkAdditionalData(response);
+                callback(response);
                 return;
             }
 
-            var edit: boolean = this.checkEditResult(json, data);
+            var edit: boolean = this.checkEditResult(response, data);
             if (edit) {
-                this.checkAdditionalData(json);
-                callback(json);
+                this.checkAdditionalData(response);
+                callback(response);
                 return;
             }
 
             if (!error) {
-                this._events.DataReceived.invoke(this, {
-                    Request: data,
-                    Data: json
-                });
+               
                 if (data.Command === 'query') {
-                    this._dataHolder.storeResponse(json, clientQuery);
-                    this.checkAdditionalData(json);
-                    callback(json);
+                    this._events.DataReceived.invokeBefore(this, {
+                        Request: data,
+                        Data: response, 
+                        IsAdjustment:false
+                    });
+                    this._dataHolder.storeResponse(response, clientQuery);
+                    this._events.DataReceived.invokeAfter(this, {
+                        Request: data,
+                        Data: response,
+                        IsAdjustment: false
+                    });
+
+                    this._dataHolder.filterStoredData(clientQuery, response.ResultsCount);
+
+                    this.checkAdditionalData(response);
+                    callback(response);
                     data.Query.Selection = null; // selection must not affect query results
                     data.Query.Partition = null; // partition also
                     if (!data.Query.IsBackgroundDataFetch) {
                         this._previousQueryString = JSON.stringify(data.Query);
                     }
                 } else {
-                    this.checkAdditionalData(json);
-                    callback(json);
+                    this.checkAdditionalData(response);
+                    callback(response);
                 }
             } else {
-                this.checkAdditionalData(json);
-                if (errorCallback) errorCallback(json);
+                this.checkAdditionalData(response);
+                if (errorCallback) errorCallback(response);
             }
         }
 
@@ -321,13 +353,13 @@
                 queryModifier(serverQuery);
                 queryModifier(clientQuery);
             }
-
+            
             var queriesEqual: boolean = (JSON.stringify(serverQuery) === this._previousQueryString);
-
             var server = force || !queriesEqual;
 
             server = this._masterTable.Partition.partitionBeforeQuery(serverQuery, clientQuery, server);
             this._masterTable.Selection.modifyQuery(serverQuery, QueryScope.Server);
+
             var data: IPowerTableRequest = {
                 Command: 'query',
                 Query: server ? serverQuery : clientQuery

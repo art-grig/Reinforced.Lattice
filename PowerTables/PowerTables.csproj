@@ -92,6 +92,7 @@
     <Compile Include="Commands\CommandDescription.cs" />
     <Compile Include="Commands\CommandDescriptionConfigurator.cs" />
     <Compile Include="Commands\CommandsExtensions.cs" />
+    <Compile Include="Configuration\ColumnConfiguratorExtensions.cs" />
     <Compile Include="Configuration\ConfiguratorExtensions.cs" />
     <Compile Include="Configuration\DatepickerOptions.cs" />
     <Compile Include="Configuration\EventSubscriptionWrapper.cs" />
