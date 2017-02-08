@@ -60,18 +60,7 @@
             this._filters = [];
         }
 
-        private compileComparisonFunction() {
-            if ((!this._configuration.KeyFields) || (this._configuration.KeyFields.length === 0)) {
-                this.DataObjectComparisonFunction = <any>(function () {
-                    throw Error('You must specify key fields for table row to use current setup. Please call .PrimaryKey on configuration object and specify set of columns exposing primary key.');
-                });
-                this.PrimaryKeyFunction = <any>(function () {
-                    throw Error('You must specify key fields for table row to use current setup. Please call .PrimaryKey on configuration object and specify set of columns exposing primary key.');
-                });
-                this._hasPrimaryKey = false;
-                return;
-            }
-            if (this._configuration.KeyFields.length === 0) return;
+        public compileKeyFunction(keyFields:string[]):(x:any)=>string {
             if (!window['___ltcstrh']) {
                 window['___ltcstrh'] = function (x: String) {
                     if (x == null) return '';
@@ -85,15 +74,15 @@
                 }
             }
             var fields = [];
-            for (var i = 0; i < this._configuration.KeyFields.length; i++) {
-                var field = this._configuration.KeyFields[i];
-                if (this._instances.Columns[this._configuration.KeyFields[i]].IsDateTime) {
+            for (var i = 0; i < keyFields.length; i++) {
+                var field = keyFields[i];
+                if (this._instances.Columns[keyFields[i]].IsDateTime) {
                     fields.push(`((x.${field})==null?'':((x.${field}).getTime()))`);
                 } else {
-                    if (this._instances.Columns[this._configuration.KeyFields[i]].IsBoolean) {
+                    if (this._instances.Columns[keyFields[i]].IsBoolean) {
                         fields.push(`((x.${field})==null?'':(x.${field}?'1':'0'))`);
                     }
-                    else if (this._instances.Columns[this._configuration.KeyFields[i]].IsString) {
+                    else if (this._instances.Columns[keyFields[i]].IsString) {
 
                         fields.push(`(window.___ltcstrh(x.${field}))`);
                     } else {
@@ -102,8 +91,24 @@
                 }
             }
             var keyStr = fields.join('+":"+');
+            return  eval(`(function(x) { return (${keyStr}) + ':'; })`);
+            
+        }
+
+        private compileComparisonFunction() {
+            if ((!this._configuration.KeyFields) || (this._configuration.KeyFields.length === 0)) {
+                this.DataObjectComparisonFunction = <any>(function () {
+                    throw Error('You must specify key fields for table row to use current setup. Please call .PrimaryKey on configuration object and specify set of columns exposing primary key.');
+                });
+                this.PrimaryKeyFunction = <any>(function () {
+                    throw Error('You must specify key fields for table row to use current setup. Please call .PrimaryKey on configuration object and specify set of columns exposing primary key.');
+                });
+                this._hasPrimaryKey = false;
+                return;
+            }
+            if (this._configuration.KeyFields.length === 0) return;
             this.DataObjectComparisonFunction = function (x, y) { return x['__key'] === y['__key']; };
-            this.PrimaryKeyFunction = eval(`(function(x) { return (${keyStr}) + ':'; })`);
+            this.PrimaryKeyFunction = this.compileKeyFunction(this._configuration.KeyFields);
             this._hasPrimaryKey = true;
         }
 
@@ -235,7 +240,7 @@
             if (!clientQuery.IsBackgroundDataFetch) this.StoredData = data;
             else this.StoredData = this.StoredData.concat(data);
 
-            this.filterStoredData(clientQuery, response.ResultsCount);
+            
         }
 
         private _pkDataCache: { [_: string]: any };
@@ -340,10 +345,15 @@
 
             if (this.isClientFiltrationPending() && (!(!query))) {
                 var copy: any[] = this.StoredData.slice();
-                var filtered: any[] = this.filterSet(copy, query);
-                var ordered: any[] = this.orderSet(filtered, query);
-                this.Filtered = filtered;
-                this.Ordered = ordered;
+
+                this._masterTable.Events.Filtered.invokeBefore(this,copy);
+                this.Filtered = this.filterSet(copy, query);
+                this._masterTable.Events.Filtered.invokeAfter(this, this.Filtered);
+
+                this._masterTable.Events.Ordered.invokeBefore(this, this.Filtered);
+                this.Ordered = this.orderSet(this.Filtered, query);
+                this._masterTable.Events.Ordered.invokeAfter(this, this.Ordered);
+                
             }
             this.DisplayedData = this._masterTable.Partition.partitionAfterQuery(this.Ordered, query, serverCount);
             
