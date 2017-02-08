@@ -286,25 +286,22 @@
 
         private enableKb() { this._kbActive = true; }
         private disableKb() { this._kbActive = false; }
+        private static _forbiddenNodes = ['input','INPUT','textarea','TEXTAREA','select','SELECT','object','OBJECT','iframe','IFRAME'];
+
 
         private keydownHook(e: KeyboardEvent) {
-            if ((<HTMLElement>e.target).tagName === 'input' ||
-                (<HTMLElement>e.target).tagName === 'textarea' ||
-                (<HTMLElement>e.target).tagName === 'select'
-            ) {
-                console.log("target is input");
-                return true;
+            if (e.target && e.target['nodeName']) {
+                if (ScrollbarPlugin._forbiddenNodes.indexOf((<HTMLElement>e.target).nodeName) > -1) {
+                    return true;
+                }
             }
             if (!this._kbActive) {
-                console.log("kb not active");
                 return true;
             }
             if (this.isKbListenerHidden()) {
-                console.log("kb listener hidden");
                 return true;
             }
             if (this._isHidden) {
-                console.log("kb hidden");
                 return true;
             }
             if (this.handleKey(e.keyCode)) {
@@ -312,7 +309,6 @@
                 e.stopPropagation();
                 return false;
             } else {
-                console.log("key not recognized");
                 return true;
             }
         }
