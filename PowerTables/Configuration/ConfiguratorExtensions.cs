@@ -576,5 +576,21 @@ namespace PowerTables.Configuration
             p(w);
             return conf;
         }
+
+        public static T RemovePlugin<T>(this T conf, string pluginId,string where = null) where T : IConfigurator
+        {
+            PluginConfiguration entry = null;
+            if (string.IsNullOrEmpty(where))
+            {
+                entry = conf.TableConfiguration.PluginsConfiguration.FirstOrDefault(c => c.PluginId == pluginId);
+            }
+            else
+            {
+                entry = conf.TableConfiguration.PluginsConfiguration.FirstOrDefault(c => c.PluginId == pluginId && c.Placement == where);
+            }
+            if (entry == null) return conf;
+            conf.TableConfiguration.PluginsConfiguration.Remove(entry);
+            return conf;
+        }
     }
 }

@@ -2381,13 +2381,12 @@ declare module PowerTables.Rendering {
      * Internal component that is not supposed to be used directly.
      */
     class BackBinder {
-        private _instances;
         private _dateService;
         Delegator: PowerTables.Services.EventsDelegatorService;
         /**
         * @internal
         */
-        constructor(instances: PowerTables.Services.InstanceManagerService, dateService: PowerTables.Services.DateService);
+        constructor(dateService: PowerTables.Services.DateService);
         /**
          * Applies binding of events left in events queue
          *

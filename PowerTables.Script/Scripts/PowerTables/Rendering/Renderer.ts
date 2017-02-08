@@ -12,7 +12,7 @@
             this._events = masterTable.Events;
             this._prefix = prefix;
             this.Executor = PowerTables.Templating._ltcTpl.executor(prefix, masterTable);
-            this.BackBinder = new BackBinder(this._instances, this._masterTable.Date);
+            this.BackBinder = new BackBinder(this._masterTable.Date);
         }
 
         private _columnsRenderFunctions: { [key: string]: (x: ICell) => string } = {};
