@@ -6210,7 +6210,7 @@ var PowerTables;
                             IsSeparator: this.Configuration.LimitLabels[i] === '-'
                         };
                         this.Sizes.push(a);
-                        if (a.Label == initTake) {
+                        if (a.Value === this.MasterTable.Configuration.Partition.InitialTake) {
                             def = a;
                         }
                     }
