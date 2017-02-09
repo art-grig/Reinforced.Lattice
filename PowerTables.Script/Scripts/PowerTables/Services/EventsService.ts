@@ -22,7 +22,6 @@
             this.DataRendered = new TableEvent(masterTable);
             this.DeferredDataReceived = new TableEvent(masterTable);
             this.Adjustment = new TableEvent(masterTable);
-            this.AdjustmentResult = new TableEvent(masterTable);
             this.Edit = new TableEvent(masterTable);
             this.EditValidationFailed = new TableEvent(masterTable);
 
@@ -31,6 +30,7 @@
             this.Filtered = new TableEvent(masterTable);
             this.Ordered = new TableEvent(masterTable);
             this.Partitioned = new TableEvent(masterTable);
+            this.AdjustmentRender = new TableEvent(masterTable);
         }
 
         /**
@@ -116,7 +116,8 @@
         public SelectionChanged: TableEvent<{ [primaryKey: string]: number[] }, { [primaryKey: string]: number[] }>; //registered by Checkboxify
 
         public Adjustment: TableEvent<PowerTables.ITableAdjustment, IAdjustmentResult>;
-        public AdjustmentResult: TableEvent<IAdjustmentResult, any>;
+        public AdjustmentRender: TableEvent<IAdjustmentResult, IAdjustmentResult>;
+        
         public PartitionChanged: TableEvent<IPartitionChangeEventArgs, IPartitionChangeEventArgs>;
 
         /**

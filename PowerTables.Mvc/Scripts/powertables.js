@@ -1778,7 +1778,6 @@ var PowerTables;
                 this.DataRendered = new PowerTables.TableEvent(masterTable);
                 this.DeferredDataReceived = new PowerTables.TableEvent(masterTable);
                 this.Adjustment = new PowerTables.TableEvent(masterTable);
-                this.AdjustmentResult = new PowerTables.TableEvent(masterTable);
                 this.Edit = new PowerTables.TableEvent(masterTable);
                 this.EditValidationFailed = new PowerTables.TableEvent(masterTable);
                 this.SelectionChanged = new PowerTables.TableEvent(masterTable);
@@ -1786,6 +1785,7 @@ var PowerTables;
                 this.Filtered = new PowerTables.TableEvent(masterTable);
                 this.Ordered = new PowerTables.TableEvent(masterTable);
                 this.Partitioned = new PowerTables.TableEvent(masterTable);
+                this.AdjustmentRender = new PowerTables.TableEvent(masterTable);
             }
             /**
              * Registers new event for events manager.
@@ -1895,7 +1895,10 @@ var PowerTables;
              * @internal
              */
             Controller.prototype.drawAdjustmentResult = function (adjustmentResult) {
-                this._masterTable.Events.AdjustmentResult.invoke(this, adjustmentResult);
+                this._masterTable.Events.AdjustmentRender.invokeBefore(this, adjustmentResult);
+                if (adjustmentResult.NeedRefilter) {
+                    this._masterTable.DataHolder.filterStoredDataWithPreviousQuery();
+                }
                 var rows = this.produceRows();
                 for (var i = 0; i < rows.length; i++) {
                     var needRedrawRow = false;
@@ -1919,7 +1922,7 @@ var PowerTables;
                             }
                         }
                     }
-                    if (!adjustmentResult.NeedRedrawAllVisible) {
+                    if (!adjustmentResult.NeedRefilter) {
                         if (needRedrawRow) {
                             this._masterTable.Renderer.Modifier.redrawRow(rows[i]);
                         }
@@ -1932,13 +1935,13 @@ var PowerTables;
                         }
                     }
                 }
-                if (adjustmentResult.NeedRedrawAllVisible) {
+                if (adjustmentResult.NeedRefilter) {
                     if (rows.length == 0)
                         this.redrawVisibleData();
                     else
                         this._masterTable.Renderer.body(rows);
                 }
-                this._masterTable.Events.Adjustment.invokeAfter(this, adjustmentResult);
+                this._masterTable.Events.AdjustmentRender.invokeAfter(this, adjustmentResult);
             };
             //#region Produce methods
             /**
@@ -2487,6 +2490,30 @@ var PowerTables;
             DataHolderService.prototype.getByPrimaryKey = function (primaryKey) {
                 return this._pkDataCache[primaryKey];
             };
+            DataHolderService.prototype.detachByKey = function (key) {
+                var obj = this.getByPrimaryKey(key);
+                if (!obj)
+                    return;
+                this.detach(obj);
+            };
+            DataHolderService.prototype.detach = function (dataObject) {
+                if (!dataObject)
+                    return;
+                delete this.StoredCache[dataObject['__i']];
+                delete this._pkDataCache[dataObject['__key']];
+                var idx = this.StoredData.indexOf(dataObject);
+                if (idx > -1)
+                    this.StoredData.splice(idx, 1);
+                idx = this.Filtered.indexOf(dataObject);
+                if (idx > -1)
+                    this.Filtered.splice(idx, 1);
+                idx = this.Ordered.indexOf(dataObject);
+                if (idx > -1)
+                    this.Ordered.splice(idx, 1);
+                idx = this.DisplayedData.indexOf(dataObject);
+                if (idx > -1)
+                    this.DisplayedData.splice(idx, 1);
+            };
             /**
              * Finds data object among recently loaded by primary key and returns ILocalLookupResult
              * containing also Loaded-set index of this data object
@@ -2619,25 +2646,14 @@ var PowerTables;
                     }
                 }
                 this._masterTable.Selection.handleAdjustments(added, adjustments.RemoveKeys);
-                if (needRefilter) {
-                    this.filterStoredDataWithPreviousQuery();
-                    redrawVisibles = [];
-                    for (var k = 0; k < added.length; k++) {
-                        if (this.DisplayedData.indexOf(added[k]) > -1)
-                            redrawVisibles.push(added[k]);
-                    }
-                    for (var l = 0; l < touchedData.length; l++) {
-                        if (this.DisplayedData.indexOf(touchedData[l]) > -1)
-                            redrawVisibles.push(touchedData[l]);
-                    }
-                }
-                return {
-                    NeedRedrawAllVisible: needRefilter,
-                    VisiblesToRedraw: redrawVisibles,
+                var adresult = {
+                    NeedRefilter: needRefilter,
                     AddedData: added,
                     TouchedData: touchedData,
                     TouchedColumns: touchedColumns
                 };
+                this._masterTable.Events.Adjustment.invokeAfter(this, adresult);
+                return adresult;
             };
             return DataHolderService;
         }());
@@ -7282,7 +7298,7 @@ var PowerTables;
                 */
                 TotalsPlugin.prototype.onAdjustments = function (e) {
                     var adjustments = e.EventArgs;
-                    if (adjustments.NeedRedrawAllVisible)
+                    if (adjustments.NeedRefilter)
                         return;
                     var row = this.makeTotalsRow(); //todo recalculate totals in more intelligent way
                     this.MasterTable.Renderer.Modifier.redrawRow(row);
@@ -7304,7 +7320,7 @@ var PowerTables;
                 */
                 TotalsPlugin.prototype.subscribe = function (e) {
                     e.ClientDataProcessing.subscribeAfter(this.onClientDataProcessed.bind(this), 'totals');
-                    e.AdjustmentResult.subscribe(this.onAdjustments.bind(this), 'totals');
+                    e.Adjustment.subscribeAfter(this.onAdjustments.bind(this), 'totals');
                     this.MasterTable.Controller.registerAdditionalRowsProvider(this);
                 };
                 TotalsPlugin.prototype.handleAdditionalData = function (additionalData) {
@@ -9419,6 +9435,7 @@ var PowerTables;
                     _super.apply(this, arguments);
                     this._globalHierarchy = {};
                     this._currentHierarchy = {};
+                    this._notInHierarchy = {};
                 }
                 HierarchyPlugin.prototype.init = function (masterTable) {
                     _super.prototype.init.call(this, masterTable);
@@ -9447,8 +9464,8 @@ var PowerTables;
                     if (dataObject == null || dataObject == undefined)
                         return;
                     if (turnOpen == null || turnOpen == undefined)
-                        turnOpen = !dataObject.IsExpanded;
-                    if (dataObject.IsExpanded === turnOpen)
+                        turnOpen = !dataObject.__isExpanded;
+                    if (dataObject.__isExpanded === turnOpen)
                         return;
                     if (turnOpen)
                         this.loadRow(dataObject);
@@ -9459,11 +9476,11 @@ var PowerTables;
                     if (dataObject == null || dataObject == undefined)
                         return;
                     if (turnOpen == null || turnOpen == undefined)
-                        turnOpen = !dataObject.IsExpanded;
-                    if (dataObject.IsExpanded === turnOpen)
+                        turnOpen = !dataObject.__isExpanded;
+                    if (dataObject.__isExpanded === turnOpen)
                         return;
                     if (turnOpen)
-                        this.expand(dataObject, true);
+                        this.expand(dataObject);
                     else
                         this.collapse(dataObject, true);
                 };
@@ -9477,67 +9494,72 @@ var PowerTables;
                     });
                     return;
                 };
-                //#region Expand routine
-                HierarchyPlugin.prototype.expand = function (dataObject, redraw) {
+                HierarchyPlugin.prototype.isParentExpanded = function (dataObject) {
+                    if (dataObject.__parent == null)
+                        return true;
+                    var parent = this.MasterTable.DataHolder.getByPrimaryKey(dataObject.__parent);
+                    return parent.__isExpanded;
+                };
+                //#region Expand
+                HierarchyPlugin.prototype.expand = function (dataObject) {
                     dataObject.IsExpanded = true;
+                    dataObject.__isExpanded = true;
+                    if (!this.isParentExpanded(dataObject))
+                        return;
                     var toggled = this.toggleVisibleChildren(dataObject, true);
-                    if (redraw) {
-                        var st = this.MasterTable.DataHolder.StoredCache;
-                        this.MasterTable.Controller.redrawVisibleDataObject(dataObject);
-                        var src = [];
-                        for (var i = 0; i < toggled.length; i++) {
-                            src.push(st[toggled[i]]);
+                    var st = this.MasterTable.DataHolder.StoredCache;
+                    this.MasterTable.Controller.redrawVisibleDataObject(dataObject);
+                    var src = [];
+                    for (var i = 0; i < toggled.length; i++) {
+                        src.push(st[toggled[i]]);
+                    }
+                    src = this.MasterTable.DataHolder.orderWithCurrentOrderings(src);
+                    src = this.orderHierarchy(src, dataObject.Deepness + 1);
+                    //this.MasterTable.DataHolder.Filtered =
+                    //    this.MasterTable.DataHolder.Filtered.concat(src);
+                    var orderedIdx = this.MasterTable.DataHolder.Ordered.indexOf(dataObject);
+                    this.MasterTable.DataHolder.Ordered.splice.apply(this.MasterTable.DataHolder.Ordered, [orderedIdx + 1, 0].concat(src));
+                    var pos = this.MasterTable.DataHolder.DisplayedData.indexOf(dataObject);
+                    var newNodes = src;
+                    // if we added more rows and partition's take was enabled
+                    // then we must cut it to prevent redundant nodes
+                    // creation
+                    var originalDdLength = this.MasterTable.DataHolder.DisplayedData.length;
+                    var newDdLength = originalDdLength + src.length;
+                    if (this.MasterTable.Partition.Take > 0) {
+                        if (pos === originalDdLength - 1) {
+                            // if we expanded last row then it is nothing to add
+                            // we can just fire PartitionChanged event and quit
+                            this.firePartitionChange();
+                            return;
                         }
-                        src = this.MasterTable.DataHolder.orderWithCurrentOrderings(src);
-                        src = this.orderHierarchy(src, dataObject.Deepness + 1);
-                        //this.MasterTable.DataHolder.Filtered =
-                        //    this.MasterTable.DataHolder.Filtered.concat(src);
-                        var orderedIdx = this.MasterTable.DataHolder.Ordered.indexOf(dataObject);
-                        //this.MasterTable.DataHolder.Ordered =
-                        this.MasterTable.DataHolder.Ordered.splice.apply(this.MasterTable.DataHolder.Ordered, [orderedIdx + 1, 0].concat(src));
-                        var pos = this.MasterTable.DataHolder.DisplayedData.indexOf(dataObject);
-                        var newNodes = src;
-                        // if we added more rows and partition's take was enabled
-                        // then we must cut it to prevent redundant nodes
-                        // creation
-                        var originalDdLength = this.MasterTable.DataHolder.DisplayedData.length;
-                        var newDdLength = originalDdLength + src.length;
-                        if (this.MasterTable.Partition.Take > 0) {
-                            if (pos === originalDdLength - 1) {
-                                // if we expanded last row then it is nothing to add
-                                // we can just fire PartitionChanged event and quit
-                                this.firePartitionChange();
-                                return;
-                            }
-                            // if we will add all nodes right after original, removing last nodes
-                            // - will there be enough space?
-                            if (pos + newNodes.length > originalDdLength) {
-                                //if not - let's cut src
-                                newNodes = newNodes.slice(0, (originalDdLength - pos + newNodes.length));
-                                // and also we have to remove all the nodes that
-                                // go after original node
-                                this.removeNLastRows(originalDdLength - pos);
-                                var rows = this.MasterTable.Controller.produceRowsFromData(newNodes);
-                                for (var j = 0; j < rows.length; j++) {
-                                    this.MasterTable.Renderer.Modifier.appendRow(rows[j]);
-                                }
-                            }
-                            else {
-                                // otherwise - we do not have to cut our new nodes collection
-                                // but we have to remove nodes that are currently displaying
-                                // and potentially got out of take
-                                this.removeNLastRows(newDdLength - originalDdLength);
-                                this.appendNewNodes(newNodes, pos);
+                        // if we will add all nodes right after original, removing last nodes
+                        // - will there be enough space?
+                        if (pos + newNodes.length > originalDdLength) {
+                            //if not - let's cut src
+                            newNodes = newNodes.slice(0, (originalDdLength - pos + newNodes.length));
+                            // and also we have to remove all the nodes that
+                            // go after original node
+                            this.removeNLastRows(originalDdLength - pos);
+                            var rows = this.MasterTable.Controller.produceRowsFromData(newNodes);
+                            for (var j = 0; j < rows.length; j++) {
+                                this.MasterTable.Renderer.Modifier.appendRow(rows[j]);
                             }
                         }
                         else {
-                            // if take is set to all - we simply add new rows at needed index
+                            // otherwise - we do not have to cut our new nodes collection
+                            // but we have to remove nodes that are currently displaying
+                            // and potentially got out of take
+                            this.removeNLastRows(newDdLength - originalDdLength);
                             this.appendNewNodes(newNodes, pos);
                         }
-                        // this.MasterTable.DataHolder.DisplayedData =
-                        this.MasterTable.DataHolder.DisplayedData.splice.apply(this.MasterTable.DataHolder.DisplayedData, [pos + 1, 0].concat(newNodes));
-                        this.firePartitionChange();
                     }
+                    else {
+                        // if take is set to all - we simply add new rows at needed index
+                        this.appendNewNodes(newNodes, pos);
+                    }
+                    this.MasterTable.DataHolder.DisplayedData.splice.apply(this.MasterTable.DataHolder.DisplayedData, [pos + 1, 0].concat(newNodes));
+                    this.firePartitionChange();
                 };
                 HierarchyPlugin.prototype.firePartitionChange = function () {
                     var tk = this.MasterTable.Partition.Take;
@@ -9566,8 +9588,10 @@ var PowerTables;
                         lastRow = lr;
                     }
                 };
-                HierarchyPlugin.prototype.toggleVisibleChildren = function (dataObject, visible) {
-                    var subtree = this._currentHierarchy[dataObject.__i];
+                HierarchyPlugin.prototype.toggleVisibleChildren = function (dataObject, visible, hierarchy) {
+                    if (!hierarchy)
+                        hierarchy = this._currentHierarchy;
+                    var subtree = hierarchy[dataObject.__i];
                     if (!subtree)
                         return [];
                     var result = [];
@@ -9578,12 +9602,14 @@ var PowerTables;
                     }
                     return result;
                 };
-                HierarchyPlugin.prototype.toggleVisible = function (dataObject, visible) {
+                HierarchyPlugin.prototype.toggleVisible = function (dataObject, visible, hierarchy) {
+                    if (!hierarchy)
+                        hierarchy = this._currentHierarchy;
                     var result = [dataObject.__i];
                     dataObject.__visible = visible;
-                    if (!dataObject.IsExpanded)
+                    if (!dataObject.__isExpanded)
                         return result;
-                    var subtree = this._currentHierarchy[dataObject.__i];
+                    var subtree = hierarchy[dataObject.__i];
                     for (var j = 0; j < subtree.length; j++) {
                         var obj = this.MasterTable.DataHolder.StoredCache[subtree[j]];
                         obj.__visible = visible;
@@ -9594,9 +9620,12 @@ var PowerTables;
                 //#endregion
                 //#region Collapse
                 HierarchyPlugin.prototype.collapse = function (dataObject, redraw) {
+                    dataObject.IsExpanded = false;
+                    dataObject.__isExpanded = false;
+                    if (!this.isParentExpanded(dataObject))
+                        return;
                     var hidden = this.toggleVisibleChildren(dataObject, false);
                     var hiddenCount = hidden.length;
-                    dataObject.IsExpanded = false;
                     this.MasterTable.Controller.redrawVisibleDataObject(dataObject);
                     var row = this.MasterTable.Renderer.Locator.getRowElementByIndex(dataObject.__i);
                     var orIdx = this.MasterTable.DataHolder.Ordered.indexOf(dataObject);
@@ -9672,7 +9701,9 @@ var PowerTables;
                     }
                     for (var k in addParents) {
                         var obj = this.MasterTable.DataHolder.StoredCache[k];
-                        this.expand(obj, false);
+                        obj.IsExpanded = true;
+                        obj.__isExpanded = true;
+                        this.toggleVisibleChildren(obj, true);
                         src.push(obj);
                     }
                 };
@@ -9769,7 +9800,7 @@ var PowerTables;
                         return false;
                     while (obj.__parent != null) {
                         obj = this.MasterTable.DataHolder.getByPrimaryKey(obj.__parent);
-                        if (!obj.IsExpanded)
+                        if (!obj.__isExpanded)
                             return false;
                     }
                     return true;
@@ -9782,6 +9813,7 @@ var PowerTables;
                     for (var i = 0; i < d.length; i++) {
                         var idx = d[i].__i;
                         this._globalHierarchy[idx] = [];
+                        d[i].__isExpanded = d[i].IsExpanded;
                         for (var j = 0; j < d.length; j++) {
                             if (!d[j].__parent) {
                                 if (this.isParentNull(d[j]))
@@ -9812,10 +9844,175 @@ var PowerTables;
                 HierarchyPlugin.prototype.setChildrenCount = function (dataObject, count) {
                     dataObject.ChildrenCount = count;
                 };
+                //#region Processing adjustments
+                HierarchyPlugin.prototype.proceedAddedData = function (added) {
+                    for (var i = 0; i < added.length; i++) {
+                        if (this.isParentNull(added[i]))
+                            added[i].__parent = null;
+                        else
+                            added[i].__parent = this._parentKeyFunction(added[i]);
+                        this._globalHierarchy[added['__i']] = [];
+                    }
+                    for (var j = 0; j < added.length; j++) {
+                        if (added[j].__parent != null) {
+                            var parent = this.MasterTable.DataHolder.getByPrimaryKeyObject(added[j].__parent);
+                            this._globalHierarchy[parent['__i']].push(added[j]['__i']);
+                        }
+                    }
+                    for (var k = 0; k < added.length; k++) {
+                        var o = added[k];
+                        o.__serverChildrenCount = o.ChildrenCount;
+                        o.LocalChildrenCount = this._globalHierarchy[o['__i']].length;
+                        o.Deepness = this.deepness(o);
+                        o.__visible = this.visible(o);
+                    }
+                };
+                HierarchyPlugin.prototype.proceedUpdatedData = function (d) {
+                    var obj = null;
+                    for (var i = 0; i < d.length; i++) {
+                        obj = d[i];
+                        var newParent = null;
+                        if (!this.isParentNull(d[i]))
+                            newParent = this._parentKeyFunction(obj);
+                        this.moveItem(obj, newParent);
+                    }
+                    for (var j = 0; j < d.length; j++) {
+                        obj = d[j];
+                        if (obj.__isExpanded !== obj.IsExpanded) {
+                            if (obj.IsExpanded) {
+                                obj.__isExpanded = true;
+                                this.toggleVisibleChildren(obj, true, this._globalHierarchy);
+                            }
+                            else {
+                                obj.__isExpanded = false;
+                                this.toggleVisibleChildren(obj, false, this._globalHierarchy);
+                            }
+                        }
+                    }
+                };
+                HierarchyPlugin.prototype.moveItems = function (items, newParent) {
+                    var newParentKey = (!newParent) ? null : newParent.__key;
+                    for (var i = 0; i < items.length; i++) {
+                        this.moveItem(items[i], newParentKey);
+                    }
+                    this.MasterTable.DataHolder.filterStoredDataWithPreviousQuery();
+                    this.MasterTable.Controller.redrawVisibleData();
+                };
+                HierarchyPlugin.prototype.moveItem = function (dataObject, newParentKey) {
+                    var oldParent = dataObject.__parent;
+                    // first, remove item from old parent
+                    if (oldParent != null) {
+                        var oldParentObj = this.MasterTable.DataHolder.getByPrimaryKey(oldParent);
+                        if (!oldParentObj) {
+                            // old parent is removed => item is out of hierarchy
+                            this.moveFromNotInHierarchy(dataObject.__key, newParentKey);
+                            return;
+                        }
+                        // if not => remove from global hierarchy
+                        var op = this._globalHierarchy[oldParentObj['__i']];
+                        var idx = op.indexOf(dataObject['__i']);
+                        if (idx > -1)
+                            op.splice(idx, 1);
+                    }
+                    if (newParentKey == null) {
+                        dataObject.__visible = this.MasterTable.DataHolder.satisfyCurrentFilters(dataObject);
+                        return;
+                    } // if we move it to root - no add. action required
+                    var newParentObj = this.MasterTable.DataHolder.getByPrimaryKey(newParentKey);
+                    if (!newParentObj)
+                        throw new Error("Cannot find parent " + newParentKey + " to move"); // oops
+                    dataObject.__parent = newParentObj['__i'];
+                    dataObject.__visible = newParentObj.__isExpanded && this.MasterTable.DataHolder.satisfyCurrentFilters(dataObject);
+                };
+                HierarchyPlugin.prototype.moveFromNotInHierarchy = function (key, newParentKey) {
+                    if (!this._notInHierarchy[key])
+                        return;
+                    var targetObj = this.MasterTable.DataHolder.getByPrimaryKey(key);
+                    if (!targetObj)
+                        return;
+                    var subtree = [];
+                    this._globalHierarchy[targetObj['__i']] = subtree;
+                    if (newParentKey == null) {
+                        targetObj['__parent'] = null;
+                    }
+                    else {
+                        var newParentObj = this.MasterTable.DataHolder.getByPrimaryKey(newParentKey);
+                        if (!newParentObj)
+                            throw new Error("Cannot find parent " + newParentKey + " to move from outside of tree"); // oops
+                        targetObj['__parent'] = newParentKey;
+                        var parentSubtree = this._globalHierarchy[newParentObj['__i']];
+                        parentSubtree.push(targetObj['__i']);
+                        targetObj.__visible = newParentObj.__isExpanded && this.MasterTable.DataHolder.satisfyCurrentFilters(targetObj);
+                    }
+                    var children = this._notInHierarchy[key];
+                    for (var i = 0; i < children.length; i++) {
+                        this.moveFromNotInHierarchy(children[i], targetObj.__key);
+                    }
+                    delete this._notInHierarchy[key];
+                };
+                HierarchyPlugin.prototype.cleanupNotInHierarchy = function () {
+                    for (var nk in this._notInHierarchy) {
+                        for (var i = 0; i < this._notInHierarchy[nk].length; i++) {
+                            this.MasterTable.DataHolder.detachByKey(this._notInHierarchy[nk][i]);
+                        }
+                        this.MasterTable.DataHolder.detachByKey(nk);
+                    }
+                    this._notInHierarchy = {};
+                };
+                HierarchyPlugin.prototype.onAdjustment_after = function (e) {
+                    var data = e.EventArgs;
+                    this.proceedAddedData(data.AddedData);
+                    this.proceedUpdatedData(data.TouchedData);
+                    this.cleanupNotInHierarchy();
+                    data.NeedRefilter = true;
+                };
+                HierarchyPlugin.prototype.onAdjustment_before = function (e) {
+                    var data = e.EventArgs;
+                    var rk = data.RemoveKeys;
+                    this._notInHierarchy = {};
+                    for (var i = 0; i < rk.length; i++) {
+                        var toRemove = this.MasterTable.DataHolder.getByPrimaryKey(rk[i]);
+                        this.removeFromHierarchySubtrees(toRemove, this._globalHierarchy);
+                        this.removeFromHierarchySubtrees(toRemove, this._currentHierarchy);
+                        this.moveToNotInHierarchy(toRemove['__i']);
+                    }
+                };
+                HierarchyPlugin.prototype.moveToNotInHierarchy = function (parent) {
+                    var subtree = this._globalHierarchy[parent];
+                    var parentObj = this.MasterTable.DataHolder.StoredCache[parent];
+                    if (!parentObj)
+                        return;
+                    var childKeys = [];
+                    this._notInHierarchy[parent['__key']] = childKeys;
+                    for (var i = 0; i < subtree.length; i++) {
+                        var subObj = this.MasterTable.DataHolder.StoredCache[subtree[i]];
+                        if (subObj) {
+                            childKeys.push(subObj['__key']);
+                        }
+                    }
+                    for (var j = 0; j < subtree.length; j++) {
+                        this.moveToNotInHierarchy(subtree[j]);
+                    }
+                };
+                HierarchyPlugin.prototype.removeFromHierarchySubtrees = function (toRemove, hierarchy) {
+                    if (toRemove.__parent != null) {
+                        var parent = this.MasterTable.DataHolder.getByPrimaryKey(toRemove.__parent);
+                        if (hierarchy[parent['__i']]) {
+                            var subtree = hierarchy[parent['__i']];
+                            var idx = subtree.indexOf(toRemove['__i']);
+                            if (idx > -1) {
+                                subtree.splice(idx, 1);
+                            }
+                        }
+                    }
+                };
+                //#endregion
                 HierarchyPlugin.prototype.subscribe = function (e) {
                     e.DataReceived.subscribeAfter(this.onDataReceived_after.bind(this), 'hierarchy');
                     e.Filtered.subscribeAfter(this.onFiltered_after.bind(this), 'hierarchy');
                     e.Ordered.subscribeAfter(this.onOrdered_after.bind(this), 'hierarchy');
+                    e.Adjustment.subscribeAfter(this.onAdjustment_after.bind(this), 'hierarchy');
+                    e.Adjustment.subscribeBefore(this.onAdjustment_before.bind(this), 'hierarchy');
                 };
                 return HierarchyPlugin;
             }(Plugins.PluginBase));

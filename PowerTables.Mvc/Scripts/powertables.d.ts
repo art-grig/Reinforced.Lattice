@@ -1030,6 +1030,7 @@ declare module PowerTables {
          */
         Data: IPowerTablesResponse;
         IsAdjustment: boolean;
+        Adjustments?: ITableAdjustment;
     }
     /**
      * Event args for query gathering process
@@ -1103,8 +1104,7 @@ declare module PowerTables {
         Handler: (e: TEventArgs) => any;
     }
     interface IAdjustmentResult {
-        NeedRedrawAllVisible: boolean;
-        VisiblesToRedraw: any[];
+        NeedRefilter: boolean;
         AddedData: any[];
         TouchedData: any[];
         TouchedColumns: string[][];
@@ -1883,7 +1883,7 @@ declare module PowerTables.Services {
             [primaryKey: string]: number[];
         }>;
         Adjustment: TableEvent<PowerTables.ITableAdjustment, IAdjustmentResult>;
-        AdjustmentResult: TableEvent<IAdjustmentResult, any>;
+        AdjustmentRender: TableEvent<IAdjustmentResult, IAdjustmentResult>;
         PartitionChanged: TableEvent<IPartitionChangeEventArgs, IPartitionChangeEventArgs>;
         /**
          * Event that occurs when editing entry.
@@ -2107,6 +2107,8 @@ declare module PowerTables.Services {
         localLookupStoredData(index: number): ILocalLookupResult;
         getByPrimaryKeyObject(primaryKeyPart: any): any;
         getByPrimaryKey(primaryKey: string): any;
+        detachByKey(key: string): void;
+        detach(dataObject: any): void;
         /**
          * Finds data object among recently loaded by primary key and returns ILocalLookupResult
          * containing also Loaded-set index of this data object
@@ -3661,6 +3663,7 @@ declare module PowerTables.Plugins.Hierarchy {
         private _parentKeyFunction;
         private _globalHierarchy;
         private _currentHierarchy;
+        private _notInHierarchy;
         init(masterTable: IMasterTable): void;
         expandRow(args: IRowEventArgs): void;
         expandLoadRow(args: IRowEventArgs): void;
@@ -3670,12 +3673,13 @@ declare module PowerTables.Plugins.Hierarchy {
         toggleSubtreeOrLoad(dataObject: any, turnOpen?: boolean): void;
         toggleSubtreeByObject(dataObject: any, turnOpen?: boolean): void;
         private loadRow(dataObject);
-        private expand(dataObject, redraw);
+        private isParentExpanded(dataObject);
+        private expand(dataObject);
         private firePartitionChange();
         private appendNewNodes(newNodes, parentPos);
         private removeNLastRows(n);
-        private toggleVisibleChildren(dataObject, visible);
-        private toggleVisible(dataObject, visible);
+        private toggleVisibleChildren(dataObject, visible, hierarchy?);
+        private toggleVisible(dataObject, visible, hierarchy?);
         private collapse(dataObject, redraw);
         private onFiltered_after();
         private expandParents(src);
@@ -3693,6 +3697,16 @@ declare module PowerTables.Plugins.Hierarchy {
         private setServerChildrenCount(dataObject);
         private setLocalChildrenCount(dataObject);
         private setChildrenCount(dataObject, count);
+        private proceedAddedData(added);
+        private proceedUpdatedData(d);
+        moveItems(items: any[], newParent: any): void;
+        private moveItem(dataObject, newParentKey);
+        private moveFromNotInHierarchy(key, newParentKey);
+        private cleanupNotInHierarchy();
+        private onAdjustment_after(e);
+        private onAdjustment_before(e);
+        private moveToNotInHierarchy(parent);
+        private removeFromHierarchySubtrees(toRemove, hierarchy);
         subscribe(e: PowerTables.Services.EventsService): void;
     }
 }

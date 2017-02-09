@@ -121,6 +121,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\CheckboxifyButtons.cs" />
     <Compile Include="Controllers\EditController.cs" />
+    <Compile Include="Controllers\FilesystemTable.cs" />
     <Compile Include="Controllers\FormWatchController.cs" />
     <Compile Include="Controllers\HandleTutorial.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -141,6 +142,7 @@
     <Compile Include="Models\SimpleConfirmationModel.cs" />
     <Compile Include="Models\TargetData.cs" />
     <Compile Include="Models\TestTable.cs" />
+    <Compile Include="Models\Tutorial\Filesystem.cs" />
     <Compile Include="Models\Tutorial\HierarchyTable.cs" />
     <Compile Include="Models\Tutorial\NewEditing.cs" />
     <Compile Include="Models\Tutorial\PermanentQueryPartProvider.cs" />

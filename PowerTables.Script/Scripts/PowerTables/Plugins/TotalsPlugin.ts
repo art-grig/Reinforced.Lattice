@@ -54,7 +54,7 @@
         */
         private onAdjustments(e: ITableEventArgs<IAdjustmentResult>) {
             var adjustments = e.EventArgs;
-            if (adjustments.NeedRedrawAllVisible) return;
+            if (adjustments.NeedRefilter) return;
             var row = this.makeTotalsRow(); //todo recalculate totals in more intelligent way
             this.MasterTable.Renderer.Modifier.redrawRow(row);
         }
@@ -76,7 +76,7 @@
         */
         public subscribe(e: PowerTables.Services.EventsService): void {
             e.ClientDataProcessing.subscribeAfter(this.onClientDataProcessed.bind(this), 'totals');
-            e.AdjustmentResult.subscribe(this.onAdjustments.bind(this), 'totals');
+            e.Adjustment.subscribeAfter(this.onAdjustments.bind(this), 'totals');
             this.MasterTable.Controller.registerAdditionalRowsProvider(this);
         }
         

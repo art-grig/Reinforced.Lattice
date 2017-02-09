@@ -495,7 +495,24 @@
         public getByPrimaryKey(primaryKey: string): any {
             return this._pkDataCache[primaryKey];
         }
-
+        public detachByKey(key: string) {
+            var obj = this.getByPrimaryKey(key);
+            if (!obj) return;
+            this.detach(obj);
+        }
+        public detach(dataObject: any) {
+            if (!dataObject) return;
+            delete this.StoredCache[dataObject['__i']];
+            delete this._pkDataCache[dataObject['__key']];
+            var idx = this.StoredData.indexOf(dataObject);
+            if (idx > -1) this.StoredData.splice(idx, 1);
+            idx = this.Filtered.indexOf(dataObject);
+            if (idx > -1) this.Filtered.splice(idx, 1);
+            idx = this.Ordered.indexOf(dataObject);
+            if (idx > -1) this.Ordered.splice(idx, 1);
+            idx = this.DisplayedData.indexOf(dataObject);
+            if (idx > -1) this.DisplayedData.splice(idx, 1);
+        }
 
         /**
          * Finds data object among recently loaded by primary key and returns ILocalLookupResult 
@@ -633,25 +650,14 @@
             }
             this._masterTable.Selection.handleAdjustments(added, adjustments.RemoveKeys);
 
-            if (needRefilter) {
-                this.filterStoredDataWithPreviousQuery();
-                redrawVisibles = [];
-                for (var k = 0; k < added.length; k++) {
-                    if (this.DisplayedData.indexOf(added[k]) > -1) redrawVisibles.push(added[k]);
-                }
-
-                for (var l = 0; l < touchedData.length; l++) {
-                    if (this.DisplayedData.indexOf(touchedData[l]) > -1) redrawVisibles.push(touchedData[l]);
-                }
-            }
-
-            return {
-                NeedRedrawAllVisible: needRefilter,
-                VisiblesToRedraw: redrawVisibles,
+            var adresult = {
+                NeedRefilter: needRefilter,
                 AddedData: added,
                 TouchedData: touchedData,
                 TouchedColumns: touchedColumns
-            }
+            };
+            this._masterTable.Events.Adjustment.invokeAfter(this, adresult);
+            return adresult;
         }
         //#endregion
     }

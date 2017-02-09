@@ -487,7 +487,9 @@
          */
         Data: IPowerTablesResponse;
 
-        IsAdjustment:boolean;
+        IsAdjustment: boolean;
+
+        Adjustments?: ITableAdjustment;
     }
 
     /**
@@ -571,8 +573,7 @@
     }
 
     export interface IAdjustmentResult {
-        NeedRedrawAllVisible: boolean;
-        VisiblesToRedraw: any[];
+        NeedRefilter: boolean;
         AddedData: any[];
         TouchedData: any[];
         TouchedColumns: string[][];

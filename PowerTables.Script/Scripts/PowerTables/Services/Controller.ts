@@ -89,12 +89,15 @@ module PowerTables.Services {
             }
         }
 
+        
         /**
          * @internal
          */
         public drawAdjustmentResult(adjustmentResult: IAdjustmentResult) {
-            this._masterTable.Events.AdjustmentResult.invoke(this, adjustmentResult);
-
+            this._masterTable.Events.AdjustmentRender.invokeBefore(this, adjustmentResult);
+            if (adjustmentResult.NeedRefilter) {
+                this._masterTable.DataHolder.filterStoredDataWithPreviousQuery();
+            }
             var rows: IRow[] = this.produceRows();
 
             for (var i = 0; i < rows.length; i++) {
@@ -119,7 +122,7 @@ module PowerTables.Services {
                         }
                     }
                 }
-                if (!adjustmentResult.NeedRedrawAllVisible) {
+                if (!adjustmentResult.NeedRefilter) {
                     if (needRedrawRow) {
                         this._masterTable.Renderer.Modifier.redrawRow(rows[i]);
                     } else {
@@ -132,11 +135,11 @@ module PowerTables.Services {
                 }
 
             }
-            if (adjustmentResult.NeedRedrawAllVisible) {
+            if (adjustmentResult.NeedRefilter) {
                 if (rows.length == 0) this.redrawVisibleData();
                 else this._masterTable.Renderer.body(rows);
             }
-            this._masterTable.Events.Adjustment.invokeAfter(this, adjustmentResult);
+            this._masterTable.Events.AdjustmentRender.invokeAfter(this, adjustmentResult);
         }
 
         //#region Produce methods

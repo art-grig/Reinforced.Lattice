@@ -89,7 +89,7 @@
          * @param subscriber Subscriber key to associate with handler
          */
         public subscribeAfter(handler: (e: ITableEventArgs<TAfterEventArgs>) => any, subscriber: string): void;
-
+        
         public subscribeAfter(handler: any, subscriber?: string): void {
             if (!this._handlersAfter[subscriber]) {
                 this._handlersAfter[subscriber] = [];

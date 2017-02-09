@@ -64,7 +64,7 @@ namespace PowerTables.Plugins.Hierarchy
         }
 
 
-        public static void AddChildrenHandler<TSourceData, TTargetData, TResponse>(
+        public static void AddChildrenRowHandler<TSourceData, TTargetData, TResponse>(
             this RequestHandlerBase<TSourceData, TTargetData, TResponse> handler,
             Func<PowerTablesData<TSourceData, TTargetData>, TTargetData, IEnumerable<TTargetData>> method)
             where TTargetData : IHierarchyItem, new()
@@ -92,7 +92,7 @@ namespace PowerTables.Plugins.Hierarchy
 
         }
 
-        public static void AddChildrenHandler<TSourceData, TTargetData, TResponse>(
+        public static void AddAsyncChildrenRowHandler<TSourceData, TTargetData, TResponse>(
             this RequestHandlerBase<TSourceData, TTargetData, TResponse> handler,
             Func<PowerTablesData<TSourceData, TTargetData>, TTargetData, Task<IEnumerable<TTargetData>>> method)
             where TTargetData : IHierarchyItem, new()
@@ -106,7 +106,7 @@ namespace PowerTables.Plugins.Hierarchy
 
         }
 
-        public static void AddChildrenHandler<TSourceData, TTargetData, TResponse>(
+        public static void AddAsyncChildrenHandler<TSourceData, TTargetData, TResponse>(
             this RequestHandlerBase<TSourceData, TTargetData, TResponse> handler,
             Func<PowerTablesData<TSourceData, TTargetData>, TTargetData, Task<IEnumerable<TSourceData>>> method)
             where TTargetData : IHierarchyItem, new()
