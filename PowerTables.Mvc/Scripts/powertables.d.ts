@@ -3659,7 +3659,7 @@ declare module PowerTables.Plugins.Loading {
     }
 }
 declare module PowerTables.Plugins.Hierarchy {
-    class HierarchyPlugin extends PluginBase<IHierarchyUiConfiguration> {
+    class HierarchyPlugin extends PluginBase<IHierarchyUiConfiguration> implements IClientFilter {
         private _parentKeyFunction;
         private _globalHierarchy;
         private _currentHierarchy;
@@ -3708,6 +3708,7 @@ declare module PowerTables.Plugins.Hierarchy {
         private moveToNotInHierarchy(parent);
         private removeFromHierarchySubtrees(toRemove, hierarchy);
         subscribe(e: PowerTables.Services.EventsService): void;
+        filterPredicate(rowObject: any, query: IQuery): boolean;
     }
 }
 declare module PowerTables.Editing {

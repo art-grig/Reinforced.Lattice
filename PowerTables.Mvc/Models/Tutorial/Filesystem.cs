@@ -6,6 +6,7 @@ using PowerTables.Filters;
 using PowerTables.Filters.Value;
 using PowerTables.Plugins.Hierarchy;
 using PowerTables.Plugins.Ordering;
+using PowerTables.Plugins.Scrollbar;
 
 namespace PowerTables.Mvc.Models.Tutorial
 {
@@ -34,7 +35,7 @@ namespace PowerTables.Mvc.Models.Tutorial
             conf.Column(c => c.IsDirectory).DataOnly();
             conf.Column(c => c.FullPath).Template(tpl =>
             {
-                tpl.ReturnsIf("{ChildrenCount} <= 0", c => c.IconAndName());
+                tpl.ReturnsIf("{ChildrenCount} <= 0", c => c.IconAndName().Offset());
 
                 tpl.ReturnsIf("{IsExpanded}",
                     c =>
@@ -58,12 +59,13 @@ namespace PowerTables.Mvc.Models.Tutorial
                             .Offset());
             }).BindHierarchyToggleLoad("click", "._treeToggle");
 
-
+            conf.Partition(x => x.Client().InitialSkipTake(take: 15));
+            conf.Scrollbar(x => x.Vertical());
             return conf;
         }
         private static Template IconAndName(this Template tpl)
         {
-            tpl.Content("<img src='/Tutorial/`({IsDirectory}?'DirIcon':'FileIcon')`' /> {FullPath}");
+            tpl.Tag("span").Content("<img src='/Tutorial/`({IsDirectory}?'DirIcon':'FileIcon')`' /> {FullPath}");
             return tpl;
         }
     }

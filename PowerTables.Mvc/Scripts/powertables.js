@@ -9442,6 +9442,7 @@ var PowerTables;
                     this._parentKeyFunction = this.MasterTable.DataHolder
                         .compileKeyFunction(this.Configuration.ParentKeyFields);
                     //this.MasterTable.DataHolder.registerClientOrdering("TreeOrder", this.hierarchicalOrder.bind(this));
+                    this.MasterTable.DataHolder.registerClientFilter(this);
                 };
                 //#region Event catchers
                 HierarchyPlugin.prototype.expandRow = function (args) {
@@ -9467,8 +9468,12 @@ var PowerTables;
                         turnOpen = !dataObject.__isExpanded;
                     if (dataObject.__isExpanded === turnOpen)
                         return;
-                    if (turnOpen)
-                        this.loadRow(dataObject);
+                    if (turnOpen) {
+                        if (dataObject.__isLoaded)
+                            this.expand(dataObject);
+                        else
+                            this.loadRow(dataObject);
+                    }
                     else
                         this.collapse(dataObject, true);
                 };
@@ -9487,9 +9492,12 @@ var PowerTables;
                 HierarchyPlugin.prototype.loadRow = function (dataObject) {
                     var _this = this;
                     dataObject.IsLoading = true;
+                    dataObject.IsExpanded = true;
+                    dataObject.__isExpanded = true;
                     this.MasterTable.Controller.redrawVisibleDataObject(dataObject);
                     this.MasterTable.Commands.triggerCommand('_Children', dataObject, function () {
                         dataObject.IsLoading = false;
+                        dataObject.__isLoaded = true;
                         _this.MasterTable.Controller.redrawVisibleDataObject(dataObject);
                     });
                     return;
@@ -9851,11 +9859,11 @@ var PowerTables;
                             added[i].__parent = null;
                         else
                             added[i].__parent = this._parentKeyFunction(added[i]);
-                        this._globalHierarchy[added['__i']] = [];
+                        this._globalHierarchy[added[i]['__i']] = [];
                     }
                     for (var j = 0; j < added.length; j++) {
                         if (added[j].__parent != null) {
-                            var parent = this.MasterTable.DataHolder.getByPrimaryKeyObject(added[j].__parent);
+                            var parent = this.MasterTable.DataHolder.getByPrimaryKey(added[j].__parent);
                             this._globalHierarchy[parent['__i']].push(added[j]['__i']);
                         }
                     }
@@ -10013,6 +10021,11 @@ var PowerTables;
                     e.Ordered.subscribeAfter(this.onOrdered_after.bind(this), 'hierarchy');
                     e.Adjustment.subscribeAfter(this.onAdjustment_after.bind(this), 'hierarchy');
                     e.Adjustment.subscribeBefore(this.onAdjustment_before.bind(this), 'hierarchy');
+                };
+                // we implement this only to assure DataHolder to refilter data
+                // but actually we are refiltering it later
+                HierarchyPlugin.prototype.filterPredicate = function (rowObject, query) {
+                    return true;
                 };
                 return HierarchyPlugin;
             }(Plugins.PluginBase));
