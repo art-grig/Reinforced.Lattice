@@ -3675,7 +3675,7 @@ declare module PowerTables.Plugins.Hierarchy {
         private loadRow(dataObject);
         private isParentExpanded(dataObject);
         private expand(dataObject);
-        private firePartitionChange();
+        private firePartitionChange(tk?, sk?);
         private appendNewNodes(newNodes, parentPos);
         private removeNLastRows(n);
         private toggleVisibleChildren(dataObject, visible, hierarchy?);

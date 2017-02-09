@@ -25,15 +25,17 @@ namespace PowerTables.Mvc.Models.Tutorial
                                     Directory.GetFileSystemEntries(x.FullName).Length : 0,
                     FullPath = x.FullName,
                     IsDirectory = (x.Attributes & FileAttributes.Directory) == FileAttributes.Directory,
-                    ParentKey = Path.GetDirectoryName(x.FullName) == "J:\\"? null : Path.GetDirectoryName(x.FullName)
+                    ParentKey = Path.GetDirectoryName(x.FullName) == "J:\\"? null : Path.GetDirectoryName(x.FullName),
+                    Name = x.Name
                 }
             ));
 
             conf.AppendEmptyFilters();
             conf.PrimaryKey(c => c.FullPath);
+            conf.Column(c => c.FullPath).DataOnly();
             //conf.Column(c => c.ParentKey).DataOnly();
             conf.Column(c => c.IsDirectory).DataOnly();
-            conf.Column(c => c.FullPath).Template(tpl =>
+            conf.Column(c => c.Name).Template(tpl =>
             {
                 tpl.ReturnsIf("{ChildrenCount} <= 0", c => c.IconAndName().Offset());
 
@@ -65,7 +67,7 @@ namespace PowerTables.Mvc.Models.Tutorial
         }
         private static Template IconAndName(this Template tpl)
         {
-            tpl.Tag("span").Content("<img src='/Tutorial/`({IsDirectory}?'DirIcon':'FileIcon')`' /> {FullPath}");
+            tpl.Tag("span").Content("<img src='/Tutorial/`({IsDirectory}?'DirIcon':'FileIcon')`' /> {Name}");
             return tpl;
         }
     }
@@ -75,8 +77,10 @@ namespace PowerTables.Mvc.Models.Tutorial
         public string FullPath { get; set; }
         public int ChildrenCount { get; set; }
         public bool IsExpanded { get; set; }
-        public string ParentKey { get; set; }
+        
         public bool IsDirectory { get; set; }
+        public string Name { get; set; }
+        public string ParentKey { get; set; }
     }
 
 }
