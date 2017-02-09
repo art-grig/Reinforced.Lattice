@@ -89,66 +89,79 @@
             }
             src = this.MasterTable.DataHolder.orderWithCurrentOrderings(src);
             src = this.orderHierarchy(src, dataObject.Deepness + 1);
-            //this.MasterTable.DataHolder.Filtered =
-            //    this.MasterTable.DataHolder.Filtered.concat(src);
-            var orderedIdx = this.MasterTable.DataHolder.Ordered.indexOf(dataObject);
+            var ordered = this.MasterTable.DataHolder.Ordered;
+            var displayed = this.MasterTable.DataHolder.DisplayedData;
+
+            var orderedIdx = ordered.indexOf(dataObject);
 
             this.MasterTable.DataHolder.Ordered.splice.apply(
                 this.MasterTable.DataHolder.Ordered,
                 [orderedIdx + 1, 0].concat(src));
 
-            var pos = this.MasterTable.DataHolder.DisplayedData.indexOf(dataObject);
+            var pos = displayed.indexOf(dataObject);
             var newNodes = src;
+            
             // if we added more rows and partition's take was enabled
             // then we must cut it to prevent redundant nodes
             // creation
-            var originalDdLength = this.MasterTable.DataHolder.DisplayedData.length;
-
+            var existingDisplayed = this.MasterTable.DataHolder.DisplayedData.length;
+            var head = displayed.slice(0, pos + 1), tail = displayed.slice(pos + 1);
+            var rows = null;
+            
             if (this.MasterTable.Partition.Take > 0) {
-                if (pos === originalDdLength - 1) {
+                if (pos === existingDisplayed - 1) {
                     // if we expanded last row then it is nothing to add
                     // we can just fire PartitionChanged event and quit
                     this.firePartitionChange();
                     return;
                 }
+                // head and tail are displaying
 
+                
+                var totallength = head.length + newNodes.length + tail.length;
                 // if we will add all nodes right after original, removing last nodes
                 // - will there be enough space?
-                if (pos + newNodes.length > this.MasterTable.Partition.Take) {
-                    var takeFirst = this.MasterTable.Partition.Take - pos - 1;
-                    //if not - let's cut src
-                    newNodes = newNodes.slice(0, takeFirst);
-                    // and also we have to remove all the nodes that
-                    // go after original node
-                    this.removeNLastRows(originalDdLength - pos - 1);
-                    var rows = this.MasterTable.Controller.produceRowsFromData(newNodes);
-                    for (var j = 0; j < rows.length; j++) {
-                        this.MasterTable.Renderer.Modifier.appendRow(rows[j]);
+                if (totallength > this.MasterTable.Partition.Take) {
+                    // ok, doesnt fit, lets cut
+                    var needToCut = totallength - this.MasterTable.Partition.Take;
+
+                    // first, we cut tail
+                    if (needToCut < tail.length) {
+                        // if it is enough to cut tail - ok
+                        this.removeNLastRows(tail.length - needToCut);
+                        this.appendNodes(newNodes, tail);
+                    } else {
+                        // else we remove whole tail
+                        this.removeNLastRows(tail.length);
+                        needToCut -= tail.length;
+                        if (needToCut > 0) {
+                            // and cut off some new nodes
+                            newNodes = newNodes.slice(0, newNodes.length - needToCut);
+                        }
+                        rows = this.MasterTable.Controller.produceRowsFromData(newNodes);
+                        for (var j = 0; j < rows.length; j++) {
+                            this.MasterTable.Renderer.Modifier.appendRow(rows[j]);
+                        }
                     }
-                    var ddPart = this.MasterTable.DataHolder.DisplayedData.slice(0, pos + 1);
-                    this.MasterTable.DataHolder.DisplayedData = ddPart.concat(newNodes);
                 } else {
-                    // otherwise - we do not have to cut our new nodes collection
-                    // but we have to remove nodes that are currently displaying
-                    // and potentially got out of take
-                    var lastToRemove = originalDdLength - pos - 1;
-                    this.removeNLastRows(lastToRemove);
-                    this.appendNewNodes(newNodes, pos);
-                    var spliceIdx = this.MasterTable.DataHolder.DisplayedData.length - lastToRemove;
-                    this.MasterTable.DataHolder.DisplayedData.splice(spliceIdx, lastToRemove);
-                    this.MasterTable.DataHolder.DisplayedData.splice.apply(
-                        this.MasterTable.DataHolder.DisplayedData,
-                        [pos + 1, 0].concat(newNodes));
+                    // otherwise - we do not have to cut anything
+                    this.appendNodes(newNodes, tail);
+                    this.MasterTable.DataHolder.DisplayedData = head.concat(newNodes, tail);
                 }
             } else {
                 // if take is set to all - we simply add new rows at needed index
-                this.appendNewNodes(newNodes, pos);
-                this.MasterTable.DataHolder.DisplayedData.splice.apply(
-                    this.MasterTable.DataHolder.DisplayedData,
-                    [pos + 1, 0].concat(newNodes));
+                this.appendNodes(newNodes,tail);
+                this.MasterTable.DataHolder.DisplayedData = head.concat(newNodes, tail);
             }
             this.firePartitionChange();
 
+        }
+        private appendNodes(newNodes: any[], tail: any[]) {
+            var beforeIdx = tail[0]['__i'];
+            var rows = this.MasterTable.Controller.produceRowsFromData(newNodes);
+            for (var j = 0; j < rows.length; j++) {
+                this.MasterTable.Renderer.Modifier.appendRow(rows[j], beforeIdx);
+            }
         }
         private firePartitionChange(tk?: number, sk?: number) {
             tk = tk == null ? this.MasterTable.Partition.Take : tk;
@@ -164,16 +177,7 @@
                     Take: tk, PreviousTake: prevTk, Skip: sk, PreviousSkip: prevSk
                 });
         }
-        private appendNewNodes(newNodes: any[], parentPos: number) {
-            var beforeIndex = null;
-            if (this.MasterTable.DataHolder.DisplayedData.length > (parentPos + 1)) {
-                beforeIndex = this.MasterTable.DataHolder.DisplayedData[parentPos + 1]['__i'];
-            }
-            var rows = this.MasterTable.Controller.produceRowsFromData(newNodes);
-            for (var j = 0; j < rows.length; j++) {
-                this.MasterTable.Renderer.Modifier.appendRow(rows[j], beforeIndex);
-            }
-        }
+        
 
         private removeNLastRows(n: number) {
             var last = this.MasterTable.DataHolder
@@ -237,8 +241,9 @@
             var oldDisplayedLength = displayed.length;
             var splice = displayed.splice(dIdx + 1, hiddenCount);
             var displayedHidden = splice.length;
+            var all = (this.MasterTable.Partition.Take === 0) || (oldDisplayedLength < this.MasterTable.Partition.Take);
 
-            var dataToAppend = ordered.slice(orIdx + 1, orIdx + 1 + displayedHidden);
+            var dataToAppend = all ? [] : ordered.slice(orIdx + 1, orIdx + 1 + displayedHidden);
             var piece = dataToAppend;
 
             displayed = displayed.concat(piece);
@@ -258,7 +263,7 @@
                 displayed = dataToPrepend.concat(displayed);
             }
 
-            if (appendLength > 0) {
+            if (!all && (appendLength > 0)) {
                 var appendPiece = ordered.slice(orIdx + 1 + displayedHidden, orIdx + 1 + displayedHidden + appendLength);
                 dataToAppend = dataToAppend.concat(appendPiece);
                 displayed = displayed.concat(appendPiece);
