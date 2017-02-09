@@ -32,7 +32,9 @@
         private _clientValueFunction: { [key: string]: (dataObject: any) => any } = {}
 
         /**
-         * Data that actually is currently displayed in table
+         * Data that actually is currently displayed in table.
+         * If target user uses partition correctly - usually it is small collection.
+         * And let's keep it small
          */
         public DisplayedData: any[] = [];
 
@@ -60,7 +62,7 @@
             this._filters = [];
         }
 
-        public compileKeyFunction(keyFields:string[]):(x:any)=>string {
+        public compileKeyFunction(keyFields: string[]): (x: any) => string {
             if (!window['___ltcstrh']) {
                 window['___ltcstrh'] = function (x: String) {
                     if (x == null) return '';
@@ -91,8 +93,8 @@
                 }
             }
             var keyStr = fields.join('+":"+');
-            return  eval(`(function(x) { return (${keyStr}) + ':'; })`);
-            
+            return eval(`(function(x) { return (${keyStr}) + ':'; })`);
+
         }
 
         private compileComparisonFunction() {
@@ -173,7 +175,7 @@
                             obj['__i'] = this._pkDataCache[obj['__key']]['__i'];
                         }
                     }
-                    
+
                     obj = {};
                 }
                 currentCol = this._rawColumnNames[currentColIndex];
@@ -240,7 +242,7 @@
             if (!clientQuery.IsBackgroundDataFetch) this.StoredData = data;
             else this.StoredData = this.StoredData.concat(data);
 
-            
+
         }
 
         private _pkDataCache: { [_: string]: any };
@@ -276,6 +278,25 @@
                 return result;
             }
             return objects;
+        }
+
+        public satisfyCurrentFilters(obj: any): boolean {
+            return this.satisfyFilters(obj, this.RecentClientQuery);
+        }
+
+        public satisfyFilters(obj: any, query: IQuery): boolean {
+            if (this._filters.length === 0) return true;
+            var acceptable: boolean = true;
+            for (var j: number = 0; j < this._filters.length; j++) {
+                var filter: IClientFilter = this._filters[j];
+                acceptable = filter.filterPredicate(obj, query);
+                if (!acceptable) break;
+            }
+            return acceptable;
+        }
+
+        public orderWithCurrentOrderings(set: any[]) {
+            return this.orderSet(set, this.RecentClientQuery);
         }
 
         /**
@@ -333,7 +354,7 @@
          * @param query Table query
          * @returns {} 
          */
-        
+
         public filterStoredData(query: IQuery, serverCount: number) {
             this._events.ClientDataProcessing.invokeBefore(this, query);
 
@@ -346,17 +367,17 @@
             if (this.isClientFiltrationPending() && (!(!query))) {
                 var copy: any[] = this.StoredData.slice();
 
-                this._masterTable.Events.Filtered.invokeBefore(this,copy);
+                this._masterTable.Events.Filtered.invokeBefore(this, copy);
                 this.Filtered = this.filterSet(copy, query);
                 this._masterTable.Events.Filtered.invokeAfter(this, this.Filtered);
 
                 this._masterTable.Events.Ordered.invokeBefore(this, this.Filtered);
                 this.Ordered = this.orderSet(this.Filtered, query);
                 this._masterTable.Events.Ordered.invokeAfter(this, this.Ordered);
-                
+
             }
             this.DisplayedData = this._masterTable.Partition.partitionAfterQuery(this.Ordered, query, serverCount);
-            
+
             this._events.ClientDataProcessing.invokeAfter(this, {
                 Displaying: this.DisplayedData,
                 Filtered: this.Filtered,

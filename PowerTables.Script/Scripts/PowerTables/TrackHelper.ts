@@ -59,6 +59,13 @@ module PowerTables {
         /**
          * Returns string track ID for row
          */
+        public static getRowTrackByObject(dataObject:any): string {
+            return this.getRowTrackByIndex(dataObject['__i']);
+        }
+
+        /**
+         * Returns string track ID for row
+         */
         public static getMessageTrack(): string {
             return 'r-msg';
         }

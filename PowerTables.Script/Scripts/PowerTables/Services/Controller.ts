@@ -215,6 +215,15 @@ module PowerTables.Services {
                 if (!row) continue;
                 result.push(row);
             }
+            
+            return result;
+        }
+
+        /**
+         * @internal
+         */
+        public produceRows(): IRow[] {
+            var result = this.produceRowsFromData(this._masterTable.DataHolder.DisplayedData);
             var l1 = result.length;
             for (var j = 0; j < this._additionalRowsProviders.length; j++) {
                 this._additionalRowsProviders[j].provide(result);
@@ -230,13 +239,6 @@ module PowerTables.Services {
                 }
             }
             return result;
-        }
-
-        /**
-         * @internal
-         */
-        public produceRows(): IRow[] {
-            return this.produceRowsFromData(this._masterTable.DataHolder.DisplayedData);
         }
 
         //#endregion

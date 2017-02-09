@@ -1887,11 +1887,24 @@ declare module PowerTables.Plugins.Hierarchy {
         private _parentKeyFunction;
         private _hierarchy;
         init(masterTable: IMasterTable): void;
-        private toggleObject(dataObject, expand);
+        expandRow(args: IRowEventArgs): void;
+        collapseRow(args: IRowEventArgs): void;
+        toggleRow(args: IRowEventArgs): void;
+        toggleSubtreeByObject(dataObject: any, turnOpen?: boolean): void;
+        private expand(dataObject, redraw);
+        private removeNLastRows(n);
+        private toggleVisibleChildren(dataObject);
+        private toggleVisible(dataObject);
+        private collapse(dataObject);
+        private collapseChildren(dataObject);
         private onFiltered_after();
         private addParents(o, existing);
         private onOrdered_after();
+        private orderHierarchy(src);
+        private appendChildren(target, index, hierarchy);
+        private buildHierarchy(d);
         private isParentNull(dataObject);
+        private deepness(obj);
         private onDataReceived_after(e);
         subscribe(e: PowerTables.Services.EventsService): void;
     }
@@ -2185,6 +2198,7 @@ declare module PowerTables.Plugins.Scrollbar {
         private adjustScrollerPosition(skip);
         private _availableSpaceRaw;
         private _availableSpaceRawCorrection;
+        private _previousAmout;
         private adjustScrollerHeight();
         private calculateAvailableSpace();
         private getCoords();
@@ -2410,21 +2424,28 @@ declare module PowerTables.Rendering {
          * @param cell Cell element
          * @returns {HTMLElement} Element containing cell (with wrapper)
          */
-        getCellElement(cell: ICell): HTMLElement;
+        getCellElement(cell: ICell): Element;
         /**
          * Retrieves cell element using supplied coordinates
          *
          * @param cell Cell element
          * @returns {HTMLElement} Element containing cell (with wrapper)
          */
-        getCellElementByIndex(rowDisplayIndex: number, columnIndex: number): HTMLElement;
+        getCellElementByIndex(rowDisplayIndex: number, columnIndex: number): Element;
         /**
          * Retrieves row element (including wrapper)
          *
          * @param row Row
          * @returns HTML element
          */
-        getRowElement(row: IRow): HTMLElement;
+        getRowElement(row: IRow): Element;
+        /**
+         * Retrieves row element (including wrapper)
+         *
+         * @param row Row
+         * @returns HTML element
+         */
+        getRowElementByObject(dataObject: any): Element;
         getPartitionRowElement(): Element;
         /**
          * Retrieves row element (including wrapper)
@@ -2439,7 +2460,7 @@ declare module PowerTables.Rendering {
         * @param row Row
         * @returns HTML element
         */
-        getRowElementByIndex(rowDisplayingIndex: number): HTMLElement;
+        getRowElementByIndex(rowDisplayingIndex: number): Element;
         /**
          * Retrieves data cells for specified column (including wrappers)
          *
@@ -2474,14 +2495,14 @@ declare module PowerTables.Rendering {
          * @param header Column header
          * @returns HTML element
          */
-        getHeaderElement(header: IColumnHeader): HTMLElement;
+        getHeaderElement(header: IColumnHeader): Element;
         /**
          * Retrieves HTML element for plugin (including wrapper)
          *
          * @param plugin Plugin
          * @returns HTML element
          */
-        getPluginElement(plugin: IPlugin): HTMLElement;
+        getPluginElement(plugin: IPlugin): Element;
         /**
          * Retrieves HTML element for plugin (including wrapper)
          *
@@ -2527,8 +2548,8 @@ declare module PowerTables.Rendering {
         destroyPartitionRow(): void;
         private getRealDisplay(elem);
         private displayCache;
-        hideElement(el: HTMLElement): void;
-        showElement(el: HTMLElement): void;
+        hideElement(el: Element): void;
+        showElement(el: Element): void;
         cleanSelector(targetSelector: string): void;
         destroyElement(element: Element): void;
         private destroyElements(elements);
@@ -2562,6 +2583,7 @@ declare module PowerTables.Rendering {
          * @returns {}
          */
         redrawRow(row: IRow): HTMLElement;
+        destroyRowByObject(dataObject: any): void;
         destroyRow(row: IRow): void;
         hideRow(row: IRow): void;
         showRow(row: IRow): void;
@@ -2986,7 +3008,9 @@ declare module PowerTables.Services {
         private _masterTable;
         private _clientValueFunction;
         /**
-         * Data that actually is currently displayed in table
+         * Data that actually is currently displayed in table.
+         * If target user uses partition correctly - usually it is small collection.
+         * And let's keep it small
          */
         DisplayedData: any[];
         /**
@@ -3044,6 +3068,9 @@ declare module PowerTables.Services {
          * @returns {Array} Array of filtered items
          */
         filterSet(objects: any[], query: IQuery): any[];
+        satisfyCurrentFilters(obj: any): boolean;
+        satisfyFilters(obj: any, query: IQuery): boolean;
+        orderWithCurrentOrderings(set: any[]): any[];
         /**
         * Orders supplied data set using client query
         *
@@ -4050,6 +4077,10 @@ declare module PowerTables {
          * Returns string track ID for row
          */
         static getRowTrack(row: IRow): string;
+        /**
+         * Returns string track ID for row
+         */
+        static getRowTrackByObject(dataObject: any): string;
         /**
          * Returns string track ID for row
          */

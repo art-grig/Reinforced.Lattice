@@ -1606,19 +1606,20 @@ var PowerTables;
             var RangeFilterPlugin = (function (_super) {
                 __extends(RangeFilterPlugin, _super);
                 function RangeFilterPlugin() {
+                    var _this = this;
                     _super.apply(this, arguments);
                     this._filteringIsBeingExecuted = false;
                     this._isInitializing = true;
                     this.afterDrawn = function (e) {
-                        if (this.Configuration.Hidden)
+                        if (_this.Configuration.Hidden)
                             return;
-                        if (this.AssociatedColumn.IsDateTime) {
-                            var fromDate = this.MasterTable.Date.parse(this.Configuration.FromValue);
-                            var toDate = this.MasterTable.Date.parse(this.Configuration.ToValue);
-                            this.MasterTable.Date.putDateToDatePicker(this.FromValueProvider, fromDate);
-                            this.MasterTable.Date.putDateToDatePicker(this.ToValueProvider, toDate);
+                        if (_this.AssociatedColumn.IsDateTime) {
+                            var fromDate = _this.MasterTable.Date.parse(_this.Configuration.FromValue);
+                            var toDate = _this.MasterTable.Date.parse(_this.Configuration.ToValue);
+                            _this.MasterTable.Date.putDateToDatePicker(_this.FromValueProvider, fromDate);
+                            _this.MasterTable.Date.putDateToDatePicker(_this.ToValueProvider, toDate);
                         }
-                        this._isInitializing = false;
+                        _this._isInitializing = false;
                     };
                 }
                 RangeFilterPlugin.prototype.getFromValue = function () {
@@ -1927,6 +1928,7 @@ var PowerTables;
             var ValueFilterPlugin = (function (_super) {
                 __extends(ValueFilterPlugin, _super);
                 function ValueFilterPlugin() {
+                    var _this = this;
                     _super.apply(this, arguments);
                     this._filteringIsBeingExecuted = false;
                     this._isInitializing = true;
@@ -1934,13 +1936,13 @@ var PowerTables;
                     * @internal
                     */
                     this.afterDrawn = function (e) {
-                        if (this.Configuration.Hidden)
+                        if (_this.Configuration.Hidden)
                             return;
-                        if (this.AssociatedColumn.IsDateTime) {
-                            var date = this.MasterTable.Date.parse(this.Configuration.DefaultValue);
-                            this.MasterTable.Date.putDateToDatePicker(this.FilterValueProvider, date);
+                        if (_this.AssociatedColumn.IsDateTime) {
+                            var date = _this.MasterTable.Date.parse(_this.Configuration.DefaultValue);
+                            _this.MasterTable.Date.putDateToDatePicker(_this.FilterValueProvider, date);
                         }
-                        this._isInitializing = false;
+                        _this._isInitializing = false;
                     };
                 }
                 /**
@@ -2556,8 +2558,169 @@ var PowerTables;
                         .compileKeyFunction(this.Configuration.ParentKeyFields);
                     //this.MasterTable.DataHolder.registerClientOrdering("TreeOrder", this.hierarchicalOrder.bind(this));
                 };
-                HierarchyPlugin.prototype.toggleObject = function (dataObject, expand) {
+                HierarchyPlugin.prototype.expandRow = function (args) {
+                    this.toggleSubtreeByObject(this.MasterTable.DataHolder.StoredData[args.Row], true);
                 };
+                HierarchyPlugin.prototype.collapseRow = function (args) {
+                    this.toggleSubtreeByObject(this.MasterTable.DataHolder.StoredData[args.Row], false);
+                };
+                HierarchyPlugin.prototype.toggleRow = function (args) {
+                    this.toggleSubtreeByObject(this.MasterTable.DataHolder.StoredData[args.Row], null);
+                };
+                HierarchyPlugin.prototype.toggleSubtreeByObject = function (dataObject, turnOpen) {
+                    if (dataObject == null || dataObject == undefined)
+                        return;
+                    if (turnOpen == null || turnOpen == undefined)
+                        turnOpen = !dataObject.IsVisible;
+                    if (dataObject.IsExpanded === turnOpen)
+                        return;
+                    if (turnOpen)
+                        this.expand(dataObject, true);
+                    else
+                        this.collapse(dataObject);
+                };
+                HierarchyPlugin.prototype.expand = function (dataObject, redraw) {
+                    var _this = this;
+                    dataObject.IsExpanded = true;
+                    var subtree = this._hierarchy[dataObject.__i];
+                    if (this.Configuration.ExpandBehavior === Hierarchy.NodeExpandBehavior.AlwaysLoadRemotely ||
+                        ((dataObject.ChildrenCount > 0) && subtree.length === 0)) {
+                        dataObject.IsLoading = true;
+                        this.MasterTable.Controller.redrawVisibleDataObject(dataObject);
+                        this.MasterTable.Commands.triggerCommand('_Children', dataObject, function () {
+                            dataObject.IsLoading = false;
+                            _this.MasterTable.Controller.redrawVisibleDataObject(dataObject);
+                        });
+                        return;
+                    }
+                    var toggled = this.toggleVisibleChildren(dataObject);
+                    if (redraw) {
+                        this.MasterTable.Controller.redrawVisibleDataObject(dataObject);
+                        var src = [];
+                        for (var i = 0; i < toggled.length; i++) {
+                            if (this.MasterTable.DataHolder.satisfyCurrentFilters(toggled[i])) {
+                                src.push(toggled[i]);
+                            }
+                        }
+                        src = this.MasterTable.DataHolder.orderWithCurrentOrderings(src);
+                        src = this.orderHierarchy(src);
+                        this.MasterTable.DataHolder.Filtered =
+                            this.MasterTable.DataHolder.Filtered.concat(src);
+                        var orderedIdx = this.MasterTable.DataHolder.Ordered.indexOf(dataObject);
+                        this.MasterTable.DataHolder.Ordered =
+                            this.MasterTable.DataHolder.Ordered.splice(orderedIdx, 0, src);
+                        var pos = this.MasterTable.DataHolder.DisplayedData.indexOf(dataObject);
+                        var newNodes = src;
+                        // if we added more rows and partition's take was enabled
+                        // then we must cut it to prevent redundant nodes
+                        // creation
+                        var originalDdLength = this.MasterTable.DataHolder.DisplayedData.length;
+                        var newDdLength = originalDdLength + src.length;
+                        if (this.MasterTable.Partition.Take > 0) {
+                            if (pos === originalDdLength - 1) {
+                                // if we expanded last row then it is nothing to add
+                                // we can just fire PartitionChanged event and quit
+                                var tk = this.MasterTable.Partition.Take;
+                                var sk = this.MasterTable.Partition.Skip;
+                                this.MasterTable.Events.PartitionChanged.invokeAfter(this, {
+                                    Take: tk, PreviousTake: tk, Skip: sk, PreviousSkip: sk
+                                });
+                                return;
+                            }
+                            // if we will add all nodes right after original, removing last nodes
+                            // - will there be enough space?
+                            if (pos + newNodes.length > originalDdLength) {
+                                //if not - let's cur src
+                                newNodes = newNodes.slice(0, (originalDdLength - pos + newNodes.length));
+                                // and also we have to remove all the nodes that
+                                // go after original node
+                                this.removeNLastRows(originalDdLength - pos);
+                                var rows = this.MasterTable.Controller.produceRowsFromData(newNodes);
+                                for (var j = 0; j < rows.length; j++) {
+                                    this.MasterTable.Renderer.Modifier.appendRow(rows[j]);
+                                }
+                            }
+                            else {
+                                // otherwise - we do not have to cur our new nodes collection
+                                // but we have to remove nodes that are currently displaying
+                                // and potentially got out of take
+                                this.removeNLastRows(newDdLength - originalDdLength);
+                            }
+                        }
+                        else {
+                        }
+                        var newDd = this.MasterTable.DataHolder.DisplayedData.splice(pos, 0, newNodes);
+                    }
+                };
+                HierarchyPlugin.prototype.removeNLastRows = function (n) {
+                    var last = this.MasterTable.DataHolder
+                        .DisplayedData[this.MasterTable.DataHolder.DisplayedData.length - 1];
+                    var lastRow = this.MasterTable.Renderer.Locator.getRowElementByObject(last);
+                    for (var i = 0; i < n; i++) {
+                        var lr = lastRow.previousElementSibling;
+                        this.MasterTable.Renderer.Modifier.destroyElement(lastRow);
+                        lastRow = lr;
+                    }
+                };
+                HierarchyPlugin.prototype.toggleVisibleChildren = function (dataObject) {
+                    var subtree = this._hierarchy[dataObject.__i];
+                    var result = [];
+                    for (var i = 0; i < subtree.length; i++) {
+                        result = result.concat(this.toggleVisible(this.MasterTable.DataHolder.StoredCache[subtree[i]]));
+                    }
+                    return result;
+                };
+                HierarchyPlugin.prototype.toggleVisible = function (dataObject) {
+                    var subtree = this._hierarchy[dataObject.__i];
+                    var result = [dataObject.__i];
+                    for (var j = 0; j < subtree.length; j++) {
+                        var obj = this.MasterTable.DataHolder.StoredCache[subtree[j]];
+                        obj.IsVisible = true;
+                        if (obj.IsExpanded) {
+                            result = result.concat(this.toggleVisible(obj));
+                        }
+                    }
+                    return result;
+                };
+                //#region Collapse
+                HierarchyPlugin.prototype.collapse = function (dataObject) {
+                    var hiddenCount = this.collapseChildren(dataObject);
+                    dataObject.IsExpanded = false;
+                    this.MasterTable.Controller.redrawVisibleDataObject(dataObject);
+                    var row = this.MasterTable.Renderer.Locator.getRowElementByIndex(dataObject.__i);
+                    var orIdx = this.MasterTable.DataHolder.Ordered.indexOf(dataObject);
+                    var dIdx = this.MasterTable.DataHolder.DisplayedData.indexOf(dataObject);
+                    this.MasterTable.DataHolder.Ordered =
+                        this.MasterTable.DataHolder.Ordered.splice(orIdx, hiddenCount);
+                    this.MasterTable.DataHolder.DisplayedData =
+                        this.MasterTable.DataHolder.DisplayedData.splice(dIdx, hiddenCount);
+                    var ne = row.nextElementSibling;
+                    for (var i = 0; i < hiddenCount; i++) {
+                        var n = ne.nextElementSibling;
+                        this.MasterTable.Renderer.Modifier.destroyElement(ne);
+                        ne = n;
+                    }
+                    var pTake = this.MasterTable.Partition.Take;
+                    this.MasterTable.Partition.Take -= hiddenCount;
+                    this.MasterTable.Partition.setTake(pTake);
+                };
+                HierarchyPlugin.prototype.collapseChildren = function (dataObject) {
+                    var subtree = this._hierarchy[dataObject.__i];
+                    if (subtree.length === 0)
+                        return 0;
+                    var result = 0;
+                    for (var i = 0; i < subtree.length; i++) {
+                        var obj = this.MasterTable.DataHolder.StoredCache[subtree[i]];
+                        if (!obj.IsVisible)
+                            continue;
+                        result += this.collapseChildren(obj);
+                        result++;
+                        obj.IsVisible = false;
+                    }
+                    return result;
+                };
+                //#endregion
+                //#region Refilter and reorder
                 HierarchyPlugin.prototype.onFiltered_after = function () {
                     var src = this.MasterTable.DataHolder.Filtered;
                     if (this.Configuration.CollapsedNodeFilterBehavior === Hierarchy.TreeCollapsedNodeFilterBehavior.ExcludeCollapsed) {
@@ -2572,8 +2735,8 @@ var PowerTables;
                         Hierarchy.TreeCollapsedNodeFilterBehavior.IncludeCollapsed;
                     var addParents = {};
                     for (var j = 0; j < src.length; j++) {
-                        if (addParents[src[j]['__i']])
-                            delete addParents[src[j]['__i']];
+                        if (addParents[src[j].__i])
+                            delete addParents[src[j].__i];
                         else {
                             this.addParents(src[j], addParents);
                         }
@@ -2581,23 +2744,60 @@ var PowerTables;
                     for (var k in addParents) {
                         var obj = this.MasterTable.DataHolder.StoredCache[k];
                         if (expandParents) {
-                            this.toggleObject(obj, true);
+                            this.expand(obj, false);
                         }
                         src.push(obj);
                     }
                     this.MasterTable.DataHolder.Filtered = src;
                 };
                 HierarchyPlugin.prototype.addParents = function (o, existing) {
-                    if (o['__parent'] == null)
+                    if (o.__parent == null)
                         return;
-                    while (o['__parent'] != null) {
-                        o = this.MasterTable.DataHolder.getByPrimaryKey(o['__parent']);
-                        existing[o['__i']] = true;
+                    while (o.__parent != null) {
+                        o = this.MasterTable.DataHolder.getByPrimaryKey(o.__parent);
+                        existing[o.__i] = true;
                     }
                 };
                 HierarchyPlugin.prototype.onOrdered_after = function () {
                     var src = this.MasterTable.DataHolder.Ordered;
+                    this.MasterTable.DataHolder.Ordered = this.orderHierarchy(src);
                 };
+                HierarchyPlugin.prototype.orderHierarchy = function (src) {
+                    var filteredHierarchy = this.buildHierarchy(src);
+                    var target = [];
+                    for (var i = 0; i < filteredHierarchy.roots.length; i++) {
+                        this.appendChildren(target, filteredHierarchy.roots[i], filteredHierarchy.Hierarchy);
+                    }
+                    return target;
+                };
+                HierarchyPlugin.prototype.appendChildren = function (target, index, hierarchy) {
+                    var thisNode = this.MasterTable.DataHolder.StoredCache[index];
+                    target.push(thisNode);
+                    for (var i = 0; i < hierarchy[index].length; i++) {
+                        this.appendChildren(target, hierarchy[index][i], hierarchy);
+                    }
+                };
+                HierarchyPlugin.prototype.buildHierarchy = function (d) {
+                    var result = {};
+                    var roots = [];
+                    for (var i = 0; i < d.length; i++) {
+                        var idx = d[i].__i;
+                        result[idx] = [];
+                        if (d[i].__parent == null)
+                            roots.push(d[i].__i);
+                        for (var j = 0; j < d.length; j++) {
+                            if (d[j].__parent === d[i].__key) {
+                                result[idx].push(d[j].__i);
+                            }
+                        }
+                    }
+                    return {
+                        roots: roots,
+                        Hierarchy: result
+                    };
+                };
+                //#endregion
+                //#region Initial cache
                 HierarchyPlugin.prototype.isParentNull = function (dataObject) {
                     for (var i = 0; i < this.Configuration.ParentKeyFields.length; i++) {
                         if (dataObject[this.Configuration.ParentKeyFields[i]] != null)
@@ -2605,29 +2805,43 @@ var PowerTables;
                     }
                     return true;
                 };
+                HierarchyPlugin.prototype.deepness = function (obj) {
+                    var result = 0;
+                    while (obj.__parent != null) {
+                        result++;
+                        obj = this.MasterTable.DataHolder.getByPrimaryKey(obj.__parent);
+                    }
+                    return result;
+                };
                 HierarchyPlugin.prototype.onDataReceived_after = function (e) {
                     if (e.EventArgs.IsAdjustment)
                         return;
                     var d = this.MasterTable.DataHolder.StoredData;
                     this._hierarchy = {};
                     for (var i = 0; i < d.length; i++) {
-                        var idx = d[i]['__i'];
+                        var idx = d[i].__i;
                         this._hierarchy[idx] = [];
                         for (var j = 0; j < d.length; j++) {
-                            if (!d[j]['__parent']) {
+                            if (!d[j].__parent) {
                                 if (this.isParentNull(d[j]))
-                                    d[j]['__parent'] = null;
+                                    d[j].__parent = null;
                                 else
-                                    d[j]['__parent'] = this._parentKeyFunction(d[j]);
+                                    d[j].__parent = this._parentKeyFunction(d[j]);
                             }
-                            if (d[j]['__parent'] === d[i]['__key']) {
-                                this._hierarchy[idx] = d[j]['__i'];
+                            if (d[j].__parent === d[i].__key) {
+                                this._hierarchy[idx].push(d[j].__i);
                             }
                         }
                     }
+                    for (var k = 0; k < this.MasterTable.DataHolder.StoredData.length; k++) {
+                        this.MasterTable.DataHolder.StoredData[k].Deepness = this.deepness(this.MasterTable.DataHolder.StoredData[k]);
+                    }
                 };
+                //#endregion
                 HierarchyPlugin.prototype.subscribe = function (e) {
                     e.DataReceived.subscribeAfter(this.onDataReceived_after.bind(this), 'hierarchy');
+                    e.Filtered.subscribeAfter(this.onFiltered_after.bind(this), 'hierarchy');
+                    e.Ordered.subscribeAfter(this.onOrdered_after.bind(this), 'hierarchy');
                 };
                 return HierarchyPlugin;
             }(Plugins.PluginBase));
@@ -3779,6 +3993,7 @@ var PowerTables;
                     this._needUpdateCoords = false;
                     this._availableSpaceRaw = false;
                     this._availableSpaceRawCorrection = 0;
+                    this._previousAmout = 0;
                     this._skipOnUp = -1;
                     //#endregion
                     //#region Arrows handling
@@ -3836,6 +4051,7 @@ var PowerTables;
                     if (!this.Scroller)
                         return;
                     var total = this.MasterTable.Partition.amount();
+                    this._previousAmout = total;
                     if (!this._availableSpaceRaw) {
                         this._availableSpace += this._availableSpaceRawCorrection;
                         this._availableSpaceRaw = true;
@@ -4270,7 +4486,7 @@ var PowerTables;
                     else {
                         this.showScroll();
                     }
-                    if (e.EventArgs.Take !== e.EventArgs.PreviousTake) {
+                    if (this.MasterTable.Partition.amount() !== this._previousAmout) {
                         this.adjustScrollerHeight();
                     }
                     this.adjustScrollerPosition(e.EventArgs.Skip);
@@ -4973,6 +5189,16 @@ var PowerTables;
                 var track = PowerTables.TrackHelper.getRowTrack(row);
                 return this._bodyElement.querySelector("[data-track=\"" + track + "\"]");
             };
+            /**
+             * Retrieves row element (including wrapper)
+             *
+             * @param row Row
+             * @returns HTML element
+             */
+            DOMLocator.prototype.getRowElementByObject = function (dataObject) {
+                var track = PowerTables.TrackHelper.getRowTrackByObject(dataObject);
+                return this._bodyElement.querySelector("[data-track=\"" + track + "\"]");
+            };
             DOMLocator.prototype.getPartitionRowElement = function () {
                 var track = PowerTables.TrackHelper.getPartitionRowTrack();
                 return this._bodyElement.querySelector("[data-track=\"" + track + "\"]");
@@ -5155,19 +5381,21 @@ var PowerTables;
                 return '';
             };
             DOMModifier.prototype.hideElement = function (el) {
+                var e = el;
                 if (!el)
                     return;
                 if (!el.getAttribute('displayOld'))
-                    el.setAttribute("displayOld", el.style.display);
-                el.style.display = "none";
+                    el.setAttribute("displayOld", e.style.display);
+                e.style.display = "none";
             };
             DOMModifier.prototype.showElement = function (el) {
+                var e = el;
                 if (!el)
                     return;
                 if (this.getRealDisplay(el) !== 'none')
                     return;
                 var old = el.getAttribute("displayOld");
-                el.style.display = old || "";
+                e.style.display = old || "";
                 if (this.getRealDisplay(el) === "none") {
                     var nodeName = el.nodeName, body = document.body, display;
                     if (this.displayCache[nodeName])
@@ -5182,7 +5410,7 @@ var PowerTables;
                         this.displayCache[nodeName] = display;
                     }
                     el.setAttribute('displayOld', display);
-                    el.style.display = display;
+                    e.style.display = display;
                 }
             };
             DOMModifier.prototype.cleanSelector = function (targetSelector) {
@@ -5296,6 +5524,12 @@ var PowerTables;
                 var newElem = this.replaceElement(oldElement, result.Html);
                 this._backBinder.backBind(newElem, result.BackbindInfo);
                 return newElem;
+            };
+            DOMModifier.prototype.destroyRowByObject = function (dataObject) {
+                var rowElement = this._locator.getRowElementByObject(dataObject);
+                if (!rowElement)
+                    return;
+                this.destroyElement(rowElement);
             };
             DOMModifier.prototype.destroyRow = function (row) {
                 var rowElement = this._locator.getRowElement(row);
@@ -6961,6 +7195,13 @@ var PowerTables;
                         continue;
                     result.push(row);
                 }
+                return result;
+            };
+            /**
+             * @internal
+             */
+            Controller.prototype.produceRows = function () {
+                var result = this.produceRowsFromData(this._masterTable.DataHolder.DisplayedData);
                 var l1 = result.length;
                 for (var j = 0; j < this._additionalRowsProviders.length; j++) {
                     this._additionalRowsProviders[j].provide(result);
@@ -6975,12 +7216,6 @@ var PowerTables;
                     }
                 }
                 return result;
-            };
-            /**
-             * @internal
-             */
-            Controller.prototype.produceRows = function () {
-                return this.produceRowsFromData(this._masterTable.DataHolder.DisplayedData);
             };
             //#endregion
             Controller.prototype.handleAdditionalData = function (additionalData) {
@@ -7015,7 +7250,9 @@ var PowerTables;
                 this._anyClientFiltration = false;
                 this._clientValueFunction = {};
                 /**
-                 * Data that actually is currently displayed in table
+                 * Data that actually is currently displayed in table.
+                 * If target user uses partition correctly - usually it is small collection.
+                 * And let's keep it small
                  */
                 this.DisplayedData = [];
                 /**
@@ -7246,6 +7483,24 @@ var PowerTables;
                     return result;
                 }
                 return objects;
+            };
+            DataHolderService.prototype.satisfyCurrentFilters = function (obj) {
+                return this.satisfyFilters(obj, this.RecentClientQuery);
+            };
+            DataHolderService.prototype.satisfyFilters = function (obj, query) {
+                if (this._filters.length === 0)
+                    return true;
+                var acceptable = true;
+                for (var j = 0; j < this._filters.length; j++) {
+                    var filter = this._filters[j];
+                    acceptable = filter.filterPredicate(obj, query);
+                    if (!acceptable)
+                        break;
+                }
+                return acceptable;
+            };
+            DataHolderService.prototype.orderWithCurrentOrderings = function (set) {
+                return this.orderSet(set, this.RecentClientQuery);
             };
             /**
             * Orders supplied data set using client query
@@ -10905,6 +11160,12 @@ var PowerTables;
          */
         TrackHelper.getRowTrack = function (row) {
             return this.getRowTrackByIndex(row.Index);
+        };
+        /**
+         * Returns string track ID for row
+         */
+        TrackHelper.getRowTrackByObject = function (dataObject) {
+            return this.getRowTrackByIndex(dataObject['__i']);
         };
         /**
          * Returns string track ID for row

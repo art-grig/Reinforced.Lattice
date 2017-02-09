@@ -61,10 +61,12 @@
         }
 
         private _availableSpaceRaw: boolean = false;
-        private _availableSpaceRawCorrection:number = 0;
+        private _availableSpaceRawCorrection: number = 0;
+        private _previousAmout = 0;
         private adjustScrollerHeight() {
             if (!this.Scroller) return;
             var total = this.MasterTable.Partition.amount();
+            this._previousAmout = total;
             if (!this._availableSpaceRaw) {
                 this._availableSpace += this._availableSpaceRawCorrection;
                 this._availableSpaceRaw = true;
@@ -553,7 +555,7 @@
             } else {
                 this.showScroll();
             }
-            if (e.EventArgs.Take !== e.EventArgs.PreviousTake) {
+            if (this.MasterTable.Partition.amount() !== this._previousAmout) {
                 this.adjustScrollerHeight();
             }
 

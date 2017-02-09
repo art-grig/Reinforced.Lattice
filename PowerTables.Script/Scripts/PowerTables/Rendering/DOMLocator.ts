@@ -24,9 +24,9 @@
          * @param cell Cell element
          * @returns {HTMLElement} Element containing cell (with wrapper)
          */
-        public getCellElement(cell: ICell): HTMLElement {
+        public getCellElement(cell: ICell): Element {
             var track: string = TrackHelper.getCellTrack(cell);
-            return <HTMLElement>this._bodyElement.querySelector(`[data-track="${track}"]`);
+            return this._bodyElement.querySelector(`[data-track="${track}"]`);
         }
 
         /**
@@ -35,9 +35,9 @@
          * @param cell Cell element
          * @returns {HTMLElement} Element containing cell (with wrapper)
          */
-        public getCellElementByIndex(rowDisplayIndex: number, columnIndex: number): HTMLElement {
+        public getCellElementByIndex(rowDisplayIndex: number, columnIndex: number): Element {
             var track: string = TrackHelper.getCellTrackByIndexes(rowDisplayIndex, columnIndex);
-            return <HTMLElement>this._bodyElement.querySelector(`[data-track="${track}"]`);
+            return this._bodyElement.querySelector(`[data-track="${track}"]`);
         }
 
         /**
@@ -46,9 +46,20 @@
          * @param row Row
          * @returns HTML element
          */
-        public getRowElement(row: IRow): HTMLElement {
+        public getRowElement(row: IRow): Element {
             var track: string = TrackHelper.getRowTrack(row);
-            return <HTMLElement>this._bodyElement.querySelector(`[data-track="${track}"]`);
+            return this._bodyElement.querySelector(`[data-track="${track}"]`);
+        }
+
+        /**
+         * Retrieves row element (including wrapper)
+         * 
+         * @param row Row
+         * @returns HTML element
+         */
+        public getRowElementByObject(dataObject: any): Element {
+            var track: string = TrackHelper.getRowTrackByObject(dataObject);
+            return this._bodyElement.querySelector(`[data-track="${track}"]`);
         }
 
         public getPartitionRowElement(): Element {
@@ -72,9 +83,9 @@
         * @param row Row
         * @returns HTML element
         */
-        public getRowElementByIndex(rowDisplayingIndex: number): HTMLElement {
+        public getRowElementByIndex(rowDisplayingIndex: number): Element {
             var track: string = TrackHelper.getRowTrackByIndex(rowDisplayingIndex);
-            return <HTMLElement>this._bodyElement.querySelector(`[data-track="${track}"]`);
+            return this._bodyElement.querySelector(`[data-track="${track}"]`);
         }
 
         /**
@@ -124,9 +135,9 @@
          * @param header Column header
          * @returns HTML element 
          */
-        public getHeaderElement(header: IColumnHeader): HTMLElement {
+        public getHeaderElement(header: IColumnHeader): Element {
             var track: string = TrackHelper.getHeaderTrack(header);
-            return <HTMLElement>this._rootElement.querySelector(`[data-track="${track}"]`);
+            return this._rootElement.querySelector(`[data-track="${track}"]`);
         }
 
         /**
@@ -135,9 +146,9 @@
          * @param plugin Plugin
          * @returns HTML element 
          */
-        public getPluginElement(plugin: IPlugin): HTMLElement {
+        public getPluginElement(plugin: IPlugin): Element {
             var track: string = TrackHelper.getPluginTrack(plugin);
-            return <HTMLElement>this._rootElement.querySelector(`[data-track="${track}"]`);
+            return this._rootElement.querySelector(`[data-track="${track}"]`);
         }
 
         /**

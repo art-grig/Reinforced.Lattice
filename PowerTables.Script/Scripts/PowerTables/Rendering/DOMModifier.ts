@@ -40,18 +40,20 @@
 
         private displayCache = {}
 
-        public hideElement(el: HTMLElement) {
+        public hideElement(el: Element) {
+            var e = <HTMLElement> el;
             if (!el) return;
-            if (!el.getAttribute('displayOld')) el.setAttribute("displayOld", el.style.display);
-            el.style.display = "none";
+            if (!el.getAttribute('displayOld')) el.setAttribute("displayOld", e.style.display);
+            e.style.display = "none";
         }
 
-        public showElement(el: HTMLElement) {
+        public showElement(el: Element) {
+            var e = <HTMLElement>el;
             if (!el) return;
             if (this.getRealDisplay(el) !== 'none') return;
 
             var old = el.getAttribute("displayOld");
-            el.style.display = old || "";
+            e.style.display = old || "";
 
             if (this.getRealDisplay(el) === "none") {
                 var nodeName = el.nodeName, body = document.body, display: any;
@@ -67,13 +69,13 @@
                 }
 
                 el.setAttribute('displayOld', display);
-                el.style.display = display;
+                e.style.display = display;
             }
         }
         public cleanSelector(targetSelector: string) {
-            var parent = <HTMLElement>document.querySelector(targetSelector);
-            for (var i = 0; i < parent.children.length; i++) {
-                this._ed.handleElementDestroy(<HTMLElement>parent.children.item(i));
+            var parent = document.querySelector(targetSelector);
+            for (var i = 0; i < (<HTMLElement>parent).children.length; i++) {
+                this._ed.handleElementDestroy((<HTMLElement>parent).children.item(i));
             }
             parent.innerHTML = '';
         }
@@ -112,7 +114,7 @@
          * @returns {} 
          */
         public redrawPlugin(plugin: IPlugin): HTMLElement {
-            var oldPluginElement: HTMLElement = this._locator.getPluginElement(plugin);
+            var oldPluginElement = this._locator.getPluginElement(plugin);
             var t = this._tpl.beginProcess();
             PowerTables.Templating.Driver.renderPlugin(t, plugin);
             var result = this._tpl.endProcess(t);
@@ -142,17 +144,17 @@
         }
 
         public hidePlugin(plugin: IPlugin): void {
-            var pluginElement: HTMLElement = this._locator.getPluginElement(plugin);
+            var pluginElement = this._locator.getPluginElement(plugin);
             this.hideElement(pluginElement);
         }
 
         public showPlugin(plugin: IPlugin) {
-            var pluginElement: HTMLElement = this._locator.getPluginElement(plugin);
+            var pluginElement = this._locator.getPluginElement(plugin);
             this.showElement(pluginElement);
         }
 
         public destroyPlugin(plugin: IPlugin) {
-            var pluginElement: HTMLElement = this._locator.getPluginElement(plugin);
+            var pluginElement = this._locator.getPluginElement(plugin);
             this.destroyElement(pluginElement);
         }
 
@@ -191,10 +193,16 @@
             var p = this._tpl.beginProcess();
             PowerTables.Templating.Driver.row(p, row);
             var result = this._tpl.endProcess(p);
-            var oldElement: HTMLElement = this._locator.getRowElement(row);
+            var oldElement  = this._locator.getRowElement(row);
             var newElem = this.replaceElement(oldElement, result.Html);
             this._backBinder.backBind(newElem, result.BackbindInfo);
             return newElem;
+        }
+
+        public destroyRowByObject(dataObject: any): void {
+            var rowElement = this._locator.getRowElementByObject(dataObject);
+            if (!rowElement) return;
+            this.destroyElement(rowElement);
         }
 
         public destroyRow(row: IRow): void {
@@ -229,7 +237,7 @@
             var newRowElement: HTMLElement = this.createElement(result.Html);
 
             if (beforeRowAtIndex != null && beforeRowAtIndex != undefined) {
-                var referenceNode: HTMLElement = this._locator.getRowElementByIndex(beforeRowAtIndex);
+                var referenceNode = this._locator.getRowElementByIndex(beforeRowAtIndex);
                 referenceNode.parentNode.insertBefore(newRowElement, referenceNode);
             } else {
                 if (this._locator.isSpecialRow(this._bodyElement.lastElementChild)) {
@@ -288,7 +296,7 @@
          * @returns {} 
          */
         public destroyRowByIndex(rowDisplayIndex: number): void {
-            var rowElement: HTMLElement = this._locator.getRowElementByIndex(rowDisplayIndex);
+            var rowElement = this._locator.getRowElementByIndex(rowDisplayIndex);
             if (!rowElement) return;
             this.destroyElement(rowElement);
         }
@@ -318,7 +326,7 @@
             var p = this._tpl.beginProcess();
             PowerTables.Templating.Driver.cell(p, cell);
             var result = this._tpl.endProcess(p);
-            var oldElement: HTMLElement = this._locator.getCellElement(cell);
+            var oldElement = this._locator.getCellElement(cell);
             var newElem = this.replaceElement(oldElement, result.Html);
             this._backBinder.backBind(newElem, result.BackbindInfo);
             return newElem;
@@ -385,8 +393,8 @@
             PowerTables.Templating.Driver.header(p, column);
             var result = this._tpl.endProcess(p);
 
-            var oldHeaderElement: HTMLElement = this._locator.getHeaderElement(column.Header);
-            var newElement: HTMLElement = this.replaceElement(oldHeaderElement, result.Html);
+            var oldHeaderElement = this._locator.getHeaderElement(column.Header);
+            var newElement = this.replaceElement(oldHeaderElement, result.Html);
             this._backBinder.backBind(newElement, result.BackbindInfo);
             return newElement;
         }
@@ -423,9 +431,9 @@
             return element;
         }
 
-        private replaceElement(element: HTMLElement, html: string): HTMLElement {
+        private replaceElement(element: Element, html: string): HTMLElement {
             if (!element) return null;
-            var node: HTMLElement = this.createElement(html);
+            var node = this.createElement(html);
             element.parentElement.replaceChild(node, element);
             this._ed.handleElementDestroy(element);
             return node;
