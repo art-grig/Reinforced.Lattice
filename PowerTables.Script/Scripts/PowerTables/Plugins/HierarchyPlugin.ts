@@ -24,12 +24,13 @@
 
         public toggleSubtreeByObject(dataObject: any, turnOpen?: boolean) {
             if (dataObject == null || dataObject == undefined) return;
-            if (turnOpen == null || turnOpen == undefined) turnOpen = !dataObject.IsVisible;
+            if (turnOpen == null || turnOpen == undefined) turnOpen = !dataObject.IsExpanded;
             if (dataObject.IsExpanded === turnOpen) return;
             if (turnOpen) this.expand(dataObject, true);
-            else this.collapse(dataObject);
+            else this.collapse(dataObject,true);
         }
 
+        //#region Expand routine
         private expand(dataObject: IItem, redraw: boolean) {
             dataObject.IsExpanded = true;
 
@@ -60,7 +61,7 @@
                 this.MasterTable.DataHolder.Filtered =
                     this.MasterTable.DataHolder.Filtered.concat(src);
                 var orderedIdx = this.MasterTable.DataHolder.Ordered.indexOf(dataObject);
-                this.MasterTable.DataHolder.Ordered =
+                //this.MasterTable.DataHolder.Ordered =
                     this.MasterTable.DataHolder.Ordered.splice(orderedIdx, 0, src);
                 var pos = this.MasterTable.DataHolder.DisplayedData.indexOf(dataObject);
                 var newNodes = src;
@@ -69,26 +70,20 @@
                 // creation
                 var originalDdLength = this.MasterTable.DataHolder.DisplayedData.length;
                 var newDdLength = originalDdLength + src.length;
-                
+
 
                 if (this.MasterTable.Partition.Take > 0) {
                     if (pos === originalDdLength - 1) {
                         // if we expanded last row then it is nothing to add
                         // we can just fire PartitionChanged event and quit
-                        var tk = this.MasterTable.Partition.Take;
-                        var sk = this.MasterTable.Partition.Skip;
-
-                        this.MasterTable.Events.PartitionChanged.invokeAfter(this,
-                        {
-                            Take: tk, PreviousTake: tk, Skip:sk, PreviousSkip: sk
-                        });
+                       this.firePartitionChange();
                         return;
                     }
-                    
+
                     // if we will add all nodes right after original, removing last nodes
                     // - will there be enough space?
                     if (pos + newNodes.length > originalDdLength) {
-                        //if not - let's cur src
+                        //if not - let's cut src
                         newNodes = newNodes.slice(0, (originalDdLength - pos + newNodes.length));
                         // and also we have to remove all the nodes that
                         // go after original node
@@ -98,24 +93,36 @@
                             this.MasterTable.Renderer.Modifier.appendRow(rows[j]);
                         }
                     } else {
-                        // otherwise - we do not have to cur our new nodes collection
+                        // otherwise - we do not have to cut our new nodes collection
                         // but we have to remove nodes that are currently displaying
                         // and potentially got out of take
                         this.removeNLastRows(newDdLength - originalDdLength);
-
+                        this.appendNewNodes(newNodes,pos);
                     }
                 } else {
                     // if take is set to all - we simply add new rows at needed index
+                    this.appendNewNodes(newNodes, pos);
                 }
 
-                var newDd =
+               // this.MasterTable.DataHolder.DisplayedData =
                     this.MasterTable.DataHolder.DisplayedData.splice(pos, 0, newNodes);
+                this.firePartitionChange();
+            }
+        }
+        private firePartitionChange() {
+            var tk = this.MasterTable.Partition.Take;
+            var sk = this.MasterTable.Partition.Skip;
 
-
-
-
-
-
+            this.MasterTable.Events.PartitionChanged.invokeAfter(this,
+                {
+                    Take: tk, PreviousTake: tk, Skip: sk, PreviousSkip: sk
+                });
+        }
+        private appendNewNodes(newNodes: any[], parentPos:number) {
+            var beforeIndex = this.MasterTable.DataHolder.DisplayedData[parentPos + 1]['__i'];
+            var rows = this.MasterTable.Controller.produceRowsFromData(newNodes);
+            for (var j = rows.length - 1; j >= 0; j--) {
+                this.MasterTable.Renderer.Modifier.appendRow(rows[j], beforeIndex);
             }
         }
 
@@ -144,36 +151,54 @@
             var result = [dataObject.__i];
             for (var j = 0; j < subtree.length; j++) {
                 var obj = this.MasterTable.DataHolder.StoredCache[subtree[j]];
-                obj.IsVisible = true;
+                obj.__visible = true;
                 if (obj.IsExpanded) {
                     result = result.concat(this.toggleVisible(obj));
                 }
             }
             return result;
         }
+        //#endregion
 
         //#region Collapse
-        private collapse(dataObject: IItem) {
+        private collapse(dataObject: IItem,redraw:boolean) {
             var hiddenCount = this.collapseChildren(dataObject);
             dataObject.IsExpanded = false;
             this.MasterTable.Controller.redrawVisibleDataObject(dataObject);
             var row = this.MasterTable.Renderer.Locator.getRowElementByIndex(dataObject.__i);
             var orIdx = this.MasterTable.DataHolder.Ordered.indexOf(dataObject);
             var dIdx = this.MasterTable.DataHolder.DisplayedData.indexOf(dataObject);
-            this.MasterTable.DataHolder.Ordered =
-                this.MasterTable.DataHolder.Ordered.splice(orIdx, hiddenCount);
-            this.MasterTable.DataHolder.DisplayedData =
-                this.MasterTable.DataHolder.DisplayedData.splice(dIdx, hiddenCount);
-
-            var ne = row.nextElementSibling;
-            for (var i = 0; i < hiddenCount; i++) {
-                var n = ne.nextElementSibling;
-                this.MasterTable.Renderer.Modifier.destroyElement(ne);
-                ne = n;
+            this.MasterTable.DataHolder.Ordered.splice(orIdx, hiddenCount);
+            this.MasterTable.DataHolder.DisplayedData.splice(dIdx, hiddenCount);
+            var diEnd = this.MasterTable.DataHolder.DisplayedData.length;
+            if (this.MasterTable.Partition.Take !== 0) {
+                var piece = this.MasterTable.DataHolder.Ordered.slice(orIdx + 1, hiddenCount);
+                this.MasterTable.DataHolder.DisplayedData =
+                    this.MasterTable.DataHolder.DisplayedData.concat(piece);
             }
-            var pTake = this.MasterTable.Partition.Take;
-            this.MasterTable.Partition.Take -= hiddenCount;
-            this.MasterTable.Partition.setTake(pTake);
+            if (redraw) {
+                //first, we remove all the related elements
+                var ne = row.nextElementSibling;
+                for (var i = 0; i < hiddenCount; i++) {
+                    var n = ne.nextElementSibling;
+                    this.MasterTable.Renderer.Modifier.destroyElement(ne);
+                    ne = n;
+                }
+
+                //then we need to append same count to the end, taking "take" into account
+                if (this.MasterTable.Partition.Take === 0) {
+                    // if take set to showing all - basically we have nothing to do here
+                    // just fire partition changed event
+                    this.firePartitionChange();
+                } else {
+                    var pieceToAdd = this.MasterTable.DataHolder.DisplayedData.slice(diEnd, hiddenCount);
+                    var rows = this.MasterTable.Controller.produceRowsFromData(pieceToAdd);
+                    for (var j = 0; j < rows.length; j++) {
+                        this.MasterTable.Renderer.Modifier.appendRow(rows[j]);
+                    }
+                    this.firePartitionChange();
+                }
+            }
         }
 
         private collapseChildren(dataObject: IItem): number {
@@ -182,10 +207,10 @@
             var result = 0;
             for (var i = 0; i < subtree.length; i++) {
                 var obj = this.MasterTable.DataHolder.StoredCache[subtree[i]];
-                if (!obj.IsVisible) continue;
+                if (!obj.__visible) continue;
                 result += this.collapseChildren(obj);
                 result++;
-                obj.IsVisible = false;
+                obj.__visible = false;
             }
             return result;
         }
@@ -197,7 +222,7 @@
             if (this.Configuration.CollapsedNodeFilterBehavior === TreeCollapsedNodeFilterBehavior.ExcludeCollapsed) {
                 var cpy = [];
                 for (var i = 0; i < src.length; i++) {
-                    if (src[i].IsVisible) cpy.push(src[i]);
+                    if (src[i].__visible) cpy.push(src[i]);
                 }
                 src = cpy;
             }
@@ -206,9 +231,12 @@
             var addParents: { [_: number]: boolean } = {};
 
             for (var j = 0; j < src.length; j++) {
-                if (addParents[src[j].__i]) delete addParents[src[j].__i];
-                else {
-                    this.addParents(src[j], addParents);
+                this.addParents(src[j], addParents);
+            }
+
+            for (var l = 0; l < src.length; l++) {
+                if (addParents[src[l]['__i']]) {
+                    delete addParents[src[l]['__i']];
                 }
             }
 
@@ -282,11 +310,21 @@
 
         private deepness(obj: IItem): number {
             var result = 0;
-            while (obj.__parent != null) {
+            while (obj.__parent!=null) {
                 result++;
                 obj = this.MasterTable.DataHolder.getByPrimaryKey(obj.__parent);
             }
             return result;
+        }
+
+        private visible(obj: IItem): boolean {
+            var vis = this.MasterTable.DataHolder.satisfyCurrentFilters(obj);
+            if (!vis) return false;
+            while (obj.__parent != null) {
+                obj = this.MasterTable.DataHolder.getByPrimaryKey(obj.__parent);
+                if (!obj.IsExpanded) return false;
+            }
+            return true;
         }
 
         private onDataReceived_after(e: ITableEventArgs<IDataEventArgs>) {
@@ -310,6 +348,8 @@
             for (var k = 0; k < this.MasterTable.DataHolder.StoredData.length; k++) {
                 this.MasterTable.DataHolder.StoredData[k].Deepness = this.deepness(
                     this.MasterTable.DataHolder.StoredData[k]);
+                this.MasterTable.DataHolder.StoredData[k].__visible = this.visible(
+                    this.MasterTable.DataHolder.StoredData[k]);
             }
         }
         //#endregion
@@ -331,7 +371,7 @@
         __parent: string;
         __i: number;
         __key: string;
-        IsVisible: boolean;
+        __visible: boolean;
         IsExpanded: boolean;
         ChildrenCount: number;
         IsLoading: boolean;

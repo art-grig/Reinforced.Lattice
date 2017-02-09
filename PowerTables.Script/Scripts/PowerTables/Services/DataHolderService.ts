@@ -281,6 +281,7 @@
         }
 
         public satisfyCurrentFilters(obj: any): boolean {
+            if (!this.RecentClientQuery) return true;
             return this.satisfyFilters(obj, this.RecentClientQuery);
         }
 

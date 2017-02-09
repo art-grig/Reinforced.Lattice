@@ -79,6 +79,9 @@ module PowerTables.Templating {
         }
 
         public obtainRowTemplate(rw: IRow): string {
+            if (rw.TemplateIdOverride) {
+                return rw.TemplateIdOverride;
+            }
             if (this._master.Configuration.TemplateSelector) {
                 var to = this._master.Configuration.TemplateSelector(rw);
                 if (!(!to)) rw.TemplateIdOverride = to;
@@ -90,6 +93,9 @@ module PowerTables.Templating {
         }
 
         public obtainCellTemplate(cell: ICell): string {
+            if (cell.TemplateIdOverride) {
+                return cell.TemplateIdOverride;
+            }
             if (cell.Column.Configuration.TemplateSelector) {
                 cell.TemplateIdOverride = cell.Column.Configuration.TemplateSelector(cell);
             }

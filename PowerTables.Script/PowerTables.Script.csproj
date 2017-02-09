@@ -93,7 +93,6 @@
     <TypeScriptCompile Include="Scripts\PowerTables\Services\MessagesService.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\ReloadPlugin.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Plugins\LoadingPlugin.ts" />
-    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\HierarchyPlugin2.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Editing\EditorBase.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Editing\EditHandlerBase.ts" />
     <TypeScriptCompile Include="Scripts\PowerTables\Editing\Cells\CellsEditHandler.ts" />

@@ -72,7 +72,7 @@ namespace PowerTables.Mvc.Models.Tutorial
         public int Id { get; set; }
         public int ChildrenCount { get; set; }
         public bool IsExpanded { get; set; }
-        public int ParentKey { get; set; }
+        public int? ParentKey { get; set; }
         
         public string Text { get; set; }
 
@@ -85,7 +85,7 @@ namespace PowerTables.Mvc.Models.Tutorial
     {
         public int Id { get; set; }
 
-        public int ParentId { get; set; }
+        public int? ParentId { get; set; }
 
         public string Text { get; set; }
 
