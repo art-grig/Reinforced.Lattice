@@ -24,9 +24,9 @@
         bool IsLoading { get; }
 
         /// <summary>
-        /// Gets or sets node visibility
+        /// Reveals locally available children of this node
         /// </summary>
-        bool IsVisible { get; set; }
+        int LocalChildrenCount { get; }
 
         /// <summary>
         /// Gets current node deepness for templating. 

@@ -195,7 +195,7 @@
             }
         }
 
-        private checkEditResult(json: any, data: IPowerTableRequest): boolean {
+        private checkAdjustment(json: any, data: IPowerTableRequest): boolean {
             if (json == null) return false;
             if (json['__XqTFFhTxSu']) {
                 this._events.DataReceived.invokeBefore(this, {
@@ -231,7 +231,7 @@
                 return;
             }
 
-            var edit: boolean = this.checkEditResult(response, data);
+            var edit: boolean = this.checkAdjustment(response, data);
             if (edit) {
                 this.checkAdditionalData(response);
                 callback(response);

@@ -21,7 +21,7 @@ namespace PowerTables.Mvc.Models.Tutorial
                 Link = x.Link,
                 IconLink = x.IconLink,
                 ChildrenCount = c.Count(v=>v.ParentId==x.Id),
-                IsExpanded = true,
+                IsExpanded = false,
                 ParentKey = x.ParentId
             }));
 
@@ -31,7 +31,7 @@ namespace PowerTables.Mvc.Models.Tutorial
             conf.Column(c=>c.ParentKey).DataOnly();
             conf.Column(c => c.Text).Template(tpl =>
             {
-                tpl.ReturnsIf("{ChildrenCount} <= 0", c => c.Tag("span").Offset().Content("{Text}"));
+                tpl.ReturnsIf("{LocalChildrenCount} <= 0", c => c.Tag("span").Offset().Content("{Text}"));
 
                 tpl.ReturnsIf("{IsExpanded}",
                     c =>
@@ -53,7 +53,7 @@ namespace PowerTables.Mvc.Models.Tutorial
                                         .Css("cursor", "pointer")
                                         .After(" {Text}"))
                             .Offset());
-            }).ToggleEvent("click", "._treeToggle");
+            }).BindHierarchyToggle("click", "._treeToggle");
 
             ;
             conf.Column(c => c.Text).OrderableUi(c => c.UseClientOrdering().DefaultOrdering(Ordering.Descending)).FilterValueUi(c=>c.ClientFiltering());
@@ -62,7 +62,7 @@ namespace PowerTables.Mvc.Models.Tutorial
 
         private static Template Offset(this Template tpl)
         {
-            tpl.Css("padding-left", "`{Deepness}*10`px");
+            tpl.Css("padding-left", "`{Deepness}*18`px");
             return tpl;
         }
     }

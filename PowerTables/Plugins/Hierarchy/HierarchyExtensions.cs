@@ -33,21 +33,33 @@ namespace PowerTables.Plugins.Hierarchy
             return conf;
         }
 
-        public static ColumnUsage<TSource, TTarget, TCol> ExpandEvent<TSource, TTarget, TCol>(this ColumnUsage<TSource, TTarget,TCol> conf, DOMEvent evt, string selector) where TTarget: IHierarchyItem, new()
+        public static ColumnUsage<TSource, TTarget, TCol> BindHierarchyExpand<TSource, TTarget, TCol>(this ColumnUsage<TSource, TTarget,TCol> conf, DOMEvent evt, string selector) where TTarget: IHierarchyItem, new()
         {
             conf.SubscribeCellEvent(x => x.StreamEventToPlugin(evt, PluginId, "expandRow").Selector(selector));
             return conf;
         }
 
-        public static ColumnUsage<TSource, TTarget, TCol> CollapseEvent<TSource, TTarget, TCol>(this ColumnUsage<TSource, TTarget, TCol> conf, DOMEvent evt, string selector) where TTarget : IHierarchyItem, new()
+        public static ColumnUsage<TSource, TTarget, TCol> BindHierarchyCollapse<TSource, TTarget, TCol>(this ColumnUsage<TSource, TTarget, TCol> conf, DOMEvent evt, string selector) where TTarget : IHierarchyItem, new()
         {
             conf.SubscribeCellEvent(x => x.StreamEventToPlugin(evt, PluginId, "collapseRow").Selector(selector));
             return conf;
         }
 
-        public static ColumnUsage<TSource, TTarget, TCol> ToggleEvent<TSource, TTarget, TCol>(this ColumnUsage<TSource, TTarget, TCol> conf, DOMEvent evt, string selector) where TTarget : IHierarchyItem, new()
+        public static ColumnUsage<TSource, TTarget, TCol> BindHierarchyToggle<TSource, TTarget, TCol>(this ColumnUsage<TSource, TTarget, TCol> conf, DOMEvent evt, string selector) where TTarget : IHierarchyItem, new()
         {
             conf.SubscribeCellEvent(x => x.StreamEventToPlugin(evt, PluginId, "toggleRow").Selector(selector));
+            return conf;
+        }
+
+        public static ColumnUsage<TSource, TTarget, TCol> BindHierarchyLoad<TSource, TTarget, TCol>(this ColumnUsage<TSource, TTarget, TCol> conf, DOMEvent evt, string selector) where TTarget : IHierarchyItem, new()
+        {
+            conf.SubscribeCellEvent(x => x.StreamEventToPlugin(evt, PluginId, "expandLoadRow").Selector(selector));
+            return conf;
+        }
+
+        public static ColumnUsage<TSource, TTarget, TCol> BindHierarchyToggleLoad<TSource, TTarget, TCol>(this ColumnUsage<TSource, TTarget, TCol> conf, DOMEvent evt, string selector) where TTarget : IHierarchyItem, new()
+        {
+            conf.SubscribeCellEvent(x => x.StreamEventToPlugin(evt, PluginId, "toggleLoadRow").Selector(selector));
             return conf;
         }
 

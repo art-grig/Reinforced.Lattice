@@ -2255,7 +2255,7 @@ declare module PowerTables.Services {
         private checkError(json, data);
         private checkMessage(json);
         private checkAdditionalData(json);
-        private checkEditResult(json, data);
+        private checkAdjustment(json, data);
         private handleRegularJsonResponse(responseText, data, clientQuery, callback, errorCallback);
         private handleDeferredResponse(responseText, data, callback);
         isLoading(): boolean;
@@ -3659,30 +3659,40 @@ declare module PowerTables.Plugins.Loading {
 declare module PowerTables.Plugins.Hierarchy {
     class HierarchyPlugin extends PluginBase<IHierarchyUiConfiguration> {
         private _parentKeyFunction;
-        private _hierarchy;
+        private _globalHierarchy;
+        private _currentHierarchy;
         init(masterTable: IMasterTable): void;
         expandRow(args: IRowEventArgs): void;
+        expandLoadRow(args: IRowEventArgs): void;
+        toggleLoadRow(args: IRowEventArgs): void;
         collapseRow(args: IRowEventArgs): void;
         toggleRow(args: IRowEventArgs): void;
+        toggleSubtreeOrLoad(dataObject: any, turnOpen?: boolean): void;
         toggleSubtreeByObject(dataObject: any, turnOpen?: boolean): void;
+        private loadRow(dataObject);
         private expand(dataObject, redraw);
         private firePartitionChange();
         private appendNewNodes(newNodes, parentPos);
         private removeNLastRows(n);
-        private toggleVisibleChildren(dataObject);
-        private toggleVisible(dataObject);
+        private toggleVisibleChildren(dataObject, visible);
+        private toggleVisible(dataObject, visible);
         private collapse(dataObject, redraw);
-        private collapseChildren(dataObject);
         private onFiltered_after();
+        private expandParents(src);
+        private restoreHierarchyData(d);
+        private buildCurrentHierarchy(d);
         private addParents(o, existing);
         private onOrdered_after();
-        private orderHierarchy(src);
+        private orderHierarchy(src, minDeepness);
         private appendChildren(target, index, hierarchy);
-        private buildHierarchy(d);
+        private buildHierarchy(d, minDeepness);
         private isParentNull(dataObject);
         private deepness(obj);
         private visible(obj);
         private onDataReceived_after(e);
+        private setServerChildrenCount(dataObject);
+        private setLocalChildrenCount(dataObject);
+        private setChildrenCount(dataObject, count);
         subscribe(e: PowerTables.Services.EventsService): void;
     }
 }
