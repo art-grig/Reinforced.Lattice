@@ -11,8 +11,8 @@
             this._rootId = rootId;
             this._events = masterTable.Events;
             this._prefix = prefix;
-            this.Executor = PowerTables.Templating._ltcTpl.executor(prefix, this._instances);
-            this.BackBinder = new BackBinder(this._instances, this._masterTable.Date);
+            this.Executor = PowerTables.Templating._ltcTpl.executor(prefix, masterTable);
+            this.BackBinder = new BackBinder(this._masterTable.Date);
         }
 
         private _columnsRenderFunctions: { [key: string]: (x: ICell) => string } = {};
@@ -66,16 +66,15 @@
             this.RootElement.innerHTML = rendered.Html;
 
             var bodyMarker: Element = this.RootElement.querySelector('[data-track="tableBodyHere"]');
-            if (!bodyMarker) throw new Error('{{Body}} placeholder is missing in table layout template');
+            if (!bodyMarker) throw new Error('Body placeholder is missing in table layout template');
             this.BodyElement = bodyMarker.parentElement;
             this.BodyElement.removeChild(bodyMarker);
 
             this.Locator = new DOMLocator(this.BodyElement, this.RootElement, this._rootId);
             this.Delegator = new PowerTables.Services.EventsDelegatorService(this.Locator, this.BodyElement, this.RootElement, this._rootId, this._masterTable);
             this.BackBinder.Delegator = this.Delegator;
-            this.Modifier = new DOMModifier(this.Executor, this.Locator, this.BackBinder, this._instances, this.Delegator);
-
-
+            this.Modifier = new DOMModifier(this.Executor, this.Locator, this.BackBinder, this._instances, this.Delegator, this.BodyElement);
+            
             this.BackBinder.backBind(this.RootElement, rendered.BackbindInfo);
             this._events.LayoutRendered.invokeAfter(this, null);
         }
@@ -86,11 +85,10 @@
          * @param rows Set of table rows         
          */
         public body(rows: IRow[]): void {
-            this._events.ClientRowsRendering.invokeBefore(this, rows);
             var process = this.Executor.beginProcess();
             for (var i: number = 0; i < rows.length; i++) {
                 var rw: IRow = rows[i];
-                PowerTables.Templating.Driver.row(process,rw);
+                PowerTables.Templating.Driver.row(process, rw);
             }
             var result = this.Executor.endProcess(process);
 
@@ -127,7 +125,7 @@
             return target;
         }
 
-       /**
+        /**
          * Removes all dynamically loaded content in table
          * 
          * @returns {} 

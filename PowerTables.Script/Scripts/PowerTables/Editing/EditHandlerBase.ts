@@ -3,7 +3,7 @@ module PowerTables.Editing {
         //#region IRow members
         public Cells: { [key: string]: ICell } = {};
         public DataObject: any;
-        public IsSpecial: boolean = true;
+        public IsSpecial: boolean = false;
         public Index: number;
         //#endregion
 
@@ -29,7 +29,7 @@ module PowerTables.Editing {
         }
 
         protected sendDataObjectToServer(then: () => void) {
-            this.MasterTable.Loader.requestServer('Edit', (r) => this.dispatchEditResponse(r, then), (q) => {
+            this.MasterTable.Loader.command('Edit', (r) => this.dispatchEditResponse(r, then), (q) => {
                 q.AdditionalData['Edit'] = JSON.stringify(this.CurrentDataObjectModified);
                 return q;
             });
@@ -61,7 +61,13 @@ module PowerTables.Editing {
             editor.IsRowEdit = editorType === EditorMode.Row;
             editor.IsCellEdit = !(editor.IsFormEdit || editor.IsRowEdit);
             editor.Row = this;
-            editor.RawConfig = { Configuration: editorConf, Order: 0, PluginId: editorConf.PluginId, Placement: '', TemplateId: editorConf.TemplateId }
+            editor.RawConfig = <any>{
+                Configuration: editorConf,
+                Order: 0,
+                PluginId: editorConf.PluginId,
+                Placement: '', TemplateId:
+                editorConf.TemplateId
+            }
             editor.init(this.MasterTable);
             return editor;
         }

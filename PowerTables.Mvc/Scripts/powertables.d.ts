@@ -1,4 +1,4 @@
-declare module PowerTables.Configuration.Json {
+declare module PowerTables {
     interface ITableConfiguration {
         EmptyFiltersPlaceholder: string;
         Prefix: string;
@@ -6,21 +6,41 @@ declare module PowerTables.Configuration.Json {
         OperationalAjaxUrl: string;
         LoadImmediately: boolean;
         DatepickerOptions: PowerTables.IDatepickerOptions;
-        Columns: PowerTables.Configuration.Json.IColumnConfiguration[];
-        PluginsConfiguration: PowerTables.Configuration.Json.IPluginConfiguration[];
+        Columns: PowerTables.IColumnConfiguration[];
+        PluginsConfiguration: PowerTables.IPluginConfiguration[];
         StaticData: string;
         CoreTemplates: PowerTables.ICoreTemplateIds;
         KeyFields: string[];
         CallbackFunction: (table: IMasterTable) => void;
         TemplateSelector: (row: IRow) => string;
         MessageFunction: (msg: ITableMessage) => void;
-        Subscriptions: PowerTables.Configuration.Json.IConfiguredSubscriptionInfo[];
+        Subscriptions: PowerTables.IConfiguredSubscriptionInfo[];
         QueryConfirmation: (query: IPowerTableRequest, scope: QueryScope, continueFn: any) => void;
-        SelectionConfiguration: PowerTables.Configuration.Json.ISelectionConfiguration;
+        SelectionConfiguration: PowerTables.ISelectionConfiguration;
         PrefetchedData: any[];
         Commands: {
             [key: string]: PowerTables.Commands.ICommandDescription;
         };
+        Partition: PowerTables.IPartitionConfiguration;
+    }
+    interface IDatepickerOptions {
+        CreateDatePicker: (element: HTMLElement, isNullableDate: boolean) => void;
+        PutToDatePicker: (element: HTMLElement, date?: Date) => void;
+        GetFromDatePicker: (element: HTMLElement) => Date;
+        DestroyDatepicker: (element: HTMLElement) => void;
+    }
+    interface ICoreTemplateIds {
+        Layout: string;
+        PluginWrapper: string;
+        RowWrapper: string;
+        CellWrapper: string;
+        HeaderWrapper: string;
+    }
+    interface ITableMessage {
+        Type: PowerTables.MessageType;
+        Title: string;
+        Details: string;
+        Class: string;
     }
     interface IColumnConfiguration {
         Title: string;
@@ -45,59 +65,10 @@ declare module PowerTables.Configuration.Json {
         Order: number;
         TemplateId: string;
     }
-    interface IConfiguredSubscriptionInfo {
-        IsRowSubscription: boolean;
-        ColumnName: string;
-        Selector: string;
-        DomEvent: string;
-        Handler: (dataObject: any, originalEvent: any) => void;
-    }
-    interface ISelectionConfiguration {
-        SelectAllBehavior: PowerTables.Configuration.Json.SelectAllBehavior;
-        ResetSelectionBehavior: PowerTables.Configuration.Json.ResetSelectionBehavior;
-        CanSelectRowFunction: (dataObject: any) => boolean;
-        CanSelectCellFunction: (dataObject: any, column: string, select: boolean) => boolean;
-        NonselectableColumns: string[];
-        SelectSingle: boolean;
-        InitialSelected: {
-            [key: string]: string[];
-        };
-    }
-    enum SelectAllBehavior {
-        AllVisible = 0,
-        OnlyIfAllDataVisible = 1,
-        AllLoadedData = 2,
-        Disabled = 3,
-    }
-    enum ResetSelectionBehavior {
-        DontReset = 0,
-        ServerReload = 1,
-        ClientReload = 2,
-    }
-}
-declare module PowerTables {
-    interface IDatepickerOptions {
-        CreateDatePicker: (element: HTMLElement, isNullableDate: boolean) => void;
-        PutToDatePicker: (element: HTMLElement, date?: Date) => void;
-        GetFromDatePicker: (element: HTMLElement) => Date;
-        DestroyDatepicker: (element: HTMLElement) => void;
-    }
-    interface ICoreTemplateIds {
-        Layout: string;
-        PluginWrapper: string;
-        RowWrapper: string;
-        CellWrapper: string;
-        HeaderWrapper: string;
-    }
-    interface ITableMessage {
-        Type: PowerTables.MessageType;
-        Title: string;
-        Details: string;
-        Class: string;
-    }
     interface IPowerTablesResponse {
         Message: PowerTables.ITableMessage;
         ResultsCount: number;
+        BatchSize: number;
         PageIndex: number;
         Data: any[];
         AdditionalData: any;
@@ -108,7 +79,7 @@ declare module PowerTables {
         Query: PowerTables.IQuery;
     }
     interface IQuery {
-        Paging: PowerTables.IPaging;
+        Partition?: PowerTables.IPartition;
         Orderings: {
             [key: string]: PowerTables.Ordering;
         };
@@ -122,10 +93,12 @@ declare module PowerTables {
         Selection: {
             [key: string]: number[];
         };
+        IsBackgroundDataFetch: boolean;
     }
-    interface IPaging {
-        PageIndex: number;
-        PageSize: number;
+    interface IPartition {
+        Skip: number;
+        Take: number;
+        NoCount: boolean;
     }
     interface ITableAdjustment {
         Message: PowerTables.ITableMessage;
@@ -137,6 +110,59 @@ declare module PowerTables {
         };
         AdditionalData: any;
     }
+    interface IConfiguredSubscriptionInfo {
+        IsRowSubscription: boolean;
+        ColumnName: string;
+        Selector: string;
+        DomEvent: string;
+        Handler: (dataObject: any, originalEvent: any) => void;
+    }
+    interface ISelectionConfiguration {
+        SelectAllBehavior: PowerTables.SelectAllBehavior;
+        ResetSelectionBehavior: PowerTables.ResetSelectionBehavior;
+        CanSelectRowFunction: (dataObject: any) => boolean;
+        CanSelectCellFunction: (dataObject: any, column: string, select: boolean) => boolean;
+        NonselectableColumns: string[];
+        SelectSingle: boolean;
+        InitialSelected: {
+            [key: string]: string[];
+        };
+    }
+    interface IPartitionConfiguration {
+        Type: PowerTables.PartitionType;
+        InitialSkip: number;
+        InitialTake: number;
+        Server: PowerTables.IServerPartitionConfiguration;
+        Sequential: PowerTables.IServerPartitionConfiguration;
+    }
+    interface IPartitionRowData {
+        UiColumnsCount: () => number;
+        IsLoading: () => boolean;
+        Stats: () => PowerTables.IStatsModel;
+        IsClientSearchPending: () => boolean;
+        CanLoadMore: () => boolean;
+        LoadAhead: () => number;
+    }
+    interface IStatsModel {
+        IsSetFinite: () => boolean;
+        Mode: () => PowerTables.PartitionType;
+        ServerCount: () => number;
+        Stored: () => number;
+        Filtered: () => number;
+        Displayed: () => number;
+        Ordered: () => number;
+        Skip: () => number;
+        Take: () => number;
+        Pages: () => number;
+        CurrentPage: () => number;
+        IsAllDataLoaded: () => boolean;
+    }
+    interface IServerPartitionConfiguration {
+        LoadAhead: number;
+        UseLoadMore: boolean;
+        AppendLoadingRow: boolean;
+        LoadingRowTemplateId: string;
+    }
     enum MessageType {
         UserMessage = 0,
         Banner = 1,
@@ -145,6 +171,22 @@ declare module PowerTables {
         Ascending = 0,
         Descending = 1,
         Neutral = 2,
+    }
+    enum SelectAllBehavior {
+        AllVisible = 0,
+        OnlyIfAllDataVisible = 1,
+        AllLoadedData = 2,
+        Disabled = 3,
+    }
+    enum ResetSelectionBehavior {
+        DontReset = 0,
+        ServerReload = 1,
+        ClientReload = 2,
+    }
+    enum PartitionType {
+        Client = 0,
+        Server = 1,
+        Sequential = 2,
     }
 }
 declare module PowerTables.Plugins.Formwatch {
@@ -250,11 +292,8 @@ declare module PowerTables.Filters.Select {
 }
 declare module PowerTables.Plugins.Limit {
     interface ILimitClientConfiguration {
-        DefaultValue: string;
         LimitValues: number[];
         LimitLabels: string[];
-        ReloadTableOnLimitChange: boolean;
-        EnableClientLimiting: boolean;
         DefaultTemplateId: string;
     }
 }
@@ -276,7 +315,6 @@ declare module PowerTables.Plugins.Paging {
         PagesToHideUnderPeriod: number;
         UseFirstLastPage: boolean;
         UseGotoPage: boolean;
-        EnableClientPaging: boolean;
         DefaultTemplateId: string;
     }
 }
@@ -325,7 +363,7 @@ declare module PowerTables.Editing {
         FieldName: string;
         PluginId: string;
         ValidationMessagesTemplateId: string;
-        FakeColumn: PowerTables.Configuration.Json.IColumnConfiguration;
+        FakeColumn: PowerTables.IColumnConfiguration;
         ValidationMessagesOverride: {
             [key: string]: string;
         };
@@ -420,6 +458,7 @@ declare module PowerTables.Plugins.Reload {
 }
 declare module PowerTables.Plugins.Hierarchy {
     interface IHierarchyUiConfiguration {
+        ParentKeyFields: string[];
         ExpandBehavior: PowerTables.Plugins.Hierarchy.NodeExpandBehavior;
         CollapsedNodeFilterBehavior: PowerTables.Plugins.Hierarchy.TreeCollapsedNodeFilterBehavior;
     }
@@ -450,6 +489,10 @@ declare module PowerTables.Adjustments {
         Select: {
             [key: string]: string[];
         };
+    }
+    interface IReloadAdditionalData {
+        ForceServer: boolean;
+        ReloadTableIds: string[];
     }
     enum SelectionToggle {
         LeaveAsIs = 0,
@@ -519,6 +562,54 @@ declare module PowerTables.Commands {
         Server = 1,
     }
 }
+declare module PowerTables.Plugins.Scrollbar {
+    interface IScrollbarPluginUiConfig {
+        WheelEventsCatcher: string;
+        KeyboardEventsCatcher: string;
+        IsHorizontal: boolean;
+        StickToElementSelector: string;
+        StickDirection: PowerTables.Plugins.Scrollbar.StickDirection;
+        StickHollow: PowerTables.Plugins.Scrollbar.StickHollow;
+        DefaultTemplateId: string;
+        Keys: PowerTables.Plugins.Scrollbar.IScrollbarKeyMappings;
+        Forces: PowerTables.Plugins.Scrollbar.IScrollbarForces;
+        PositionCorrector: any;
+        UseTakeAsPageForce: boolean;
+        ScrollerMinSize: number;
+        ArrowsDelayMs: number;
+        AppendToElement: string;
+        FocusMode: PowerTables.Plugins.Scrollbar.KeyboardScrollFocusMode;
+        ScrollDragSmoothness: number;
+    }
+    interface IScrollbarKeyMappings {
+        SingleUp: number[];
+        SingleDown: number[];
+        PageUp: number[];
+        PageDown: number[];
+        Home: number[];
+        End: number[];
+    }
+    interface IScrollbarForces {
+        WheelForce: number;
+        SingleForce: number;
+        PageForce: number;
+    }
+    enum StickDirection {
+        Right = 0,
+        Left = 1,
+        Top = 2,
+        Bottom = 3,
+    }
+    enum StickHollow {
+        Internal = 0,
+        External = 1,
+    }
+    enum KeyboardScrollFocusMode {
+        Manual = 0,
+        MouseOver = 1,
+        MouseClick = 2,
+    }
+}
 declare module PowerTables {
     /**
      * Client filter interface.
@@ -545,7 +636,7 @@ declare module PowerTables {
         /**
          * Raw configuration object including Plugin Id
          */
-        RawConfig: Configuration.Json.IPluginConfiguration;
+        RawConfig: IPluginConfiguration;
         /**
          * Plugin Id including placement
          */
@@ -612,6 +703,9 @@ declare module PowerTables {
          * API for commands
          */
         Commands: PowerTables.Services.CommandsService;
+        Partition: PowerTables.Services.Partition.IPartitionService;
+        Configuration: PowerTables.ITableConfiguration;
+        Stats: PowerTables.IStatsModel;
         getStaticData(): any;
         setStaticData(obj: any): void;
     }
@@ -775,6 +869,10 @@ declare module PowerTables {
          * True when row can be selected, false otherwise
          */
         CanBeSelected?: boolean;
+        /**
+         * Is row subject for command
+         */
+        IsCommandSubject?: boolean;
     }
     interface ITemplatesProvider {
         Executor: PowerTables.Templating.TemplatesExecutor;
@@ -787,7 +885,7 @@ declare module PowerTables {
         /**
          * Column configuration
          */
-        Configuration: Configuration.Json.IColumnConfiguration;
+        Configuration: IColumnConfiguration;
         /**
          * Reference to master table
          */
@@ -858,6 +956,7 @@ declare module PowerTables {
          * Actually displaying data
          */
         Displaying: any[];
+        OnlyPartitionPerformed?: boolean;
     }
     /**
      * Event args wrapper for table
@@ -892,7 +991,7 @@ declare module PowerTables {
         /**
          * Request object to be used while sending to server
          */
-        XMLHttp: XMLHttpRequest;
+        XMLHttp?: XMLHttpRequest;
     }
     interface ILoadingResponseEventArgs extends ILoadingEventArgs {
         /**
@@ -930,6 +1029,8 @@ declare module PowerTables {
          * Query response
          */
         Data: IPowerTablesResponse;
+        IsAdjustment: boolean;
+        Adjustments?: ITableAdjustment;
     }
     /**
      * Event args for query gathering process
@@ -1003,8 +1104,7 @@ declare module PowerTables {
         Handler: (e: TEventArgs) => any;
     }
     interface IAdjustmentResult {
-        NeedRedrawAllVisible: boolean;
-        VisiblesToRedraw: any[];
+        NeedRefilter: boolean;
         AddedData: any[];
         TouchedData: any[];
         TouchedColumns: string[][];
@@ -1077,6 +1177,15 @@ declare module PowerTables {
         dismiss: () => void;
         Details: any;
     }
+    interface IAdditionalRowsProvider {
+        provide(rows: IRow[]): void;
+    }
+    interface IPartitionChangeEventArgs {
+        PreviousSkip: number;
+        PreviousTake: number;
+        Skip: number;
+        Take: number;
+    }
     /**
     * Event that was bound from template
     */
@@ -1097,6 +1206,30 @@ declare module PowerTables {
          * Event argumetns
          */
         EventArguments: any[];
+    }
+}
+declare module PowerTables.Rendering {
+    class Resensor {
+        constructor(element: HTMLElement, handler: any);
+        private requestAnimationFrame;
+        private _resizeBoud;
+        private _handler;
+        private _sensor;
+        private _expandChild;
+        private _expand;
+        private _shrink;
+        private _lastWidth;
+        private _lastHeight;
+        private _newWidth;
+        private _newHeight;
+        private _dirty;
+        private _element;
+        private _rafId;
+        attach(): void;
+        private onResized();
+        private onScroll();
+        private reset();
+        private static getComputedStyle(element, prop);
     }
 }
 declare module PowerTables.Templating {
@@ -1267,17 +1400,21 @@ declare module PowerTables.Templating {
          */
         Message = 4,
         /**
+         * Template region for partition tools row
+         */
+        Partition = 5,
+        /**
          * Custom rendering object.
          * Needed for rendering of random templates bound to random objects
          */
-        Custom = 5,
+        Custom = 6,
     }
 }
 declare module PowerTables.Templating {
     class _ltcTpl {
         private static _lib;
         static _(prefix: string, id: string, tpl: ITemplateDel): void;
-        static executor(prefix: string, instances: PowerTables.Services.InstanceManagerService): TemplatesExecutor;
+        static executor(prefix: string, table: PowerTables.IMasterTable): TemplatesExecutor;
     }
 }
 declare module PowerTables.Templating {
@@ -1288,8 +1425,9 @@ declare module PowerTables.Templating {
         };
         CoreTemplateIds: ICoreTemplateIds;
         Instances: PowerTables.Services.InstanceManagerService;
+        private _master;
         private _uiColumns;
-        constructor(lib: ITemplatesLib, instnaces: PowerTables.Services.InstanceManagerService);
+        constructor(lib: ITemplatesLib, masterTable: PowerTables.IMasterTable);
         Spaces: {
             [_: number]: string;
         };
@@ -1334,6 +1472,8 @@ declare module PowerTables {
     class TableEvent<TBeforeEventArgs, TAfterEventArgs> {
         constructor(masterTable: any);
         private _masterTable;
+        private _beforeCount;
+        private _afterCount;
         private _handlersAfter;
         private _handlersBefore;
         /**
@@ -1389,6 +1529,16 @@ declare module PowerTables {
          * @param subscriber Subscriber key associated with handler
          */
         unsubscribe(subscriber: string): void;
+        /**
+         * Unsubscribes specified addressee from event
+         * @param subscriber Subscriber key associated with handler
+         */
+        unsubscribeAfter(subscriber: string): void;
+        /**
+         * Unsubscribes specified addressee from event
+         * @param subscriber Subscriber key associated with handler
+         */
+        unsubscribeBefore(subscriber: string): void;
     }
 }
 declare module PowerTables {
@@ -1428,7 +1578,15 @@ declare module PowerTables {
         /**
          * Returns string track ID for row
          */
+        static getRowTrackByObject(dataObject: any): string;
+        /**
+         * Returns string track ID for row
+         */
         static getMessageTrack(): string;
+        /**
+         * Returns string track ID for row
+         */
+        static getPartitionRowTrack(): string;
         /**
          * Returns string track ID for row
          */
@@ -1555,6 +1713,24 @@ declare module PowerTables.Services {
     }
 }
 declare module PowerTables.Services {
+    class StatsService implements PowerTables.IStatsModel {
+        constructor(master: IMasterTable);
+        private _master;
+        IsSetFinite(): boolean;
+        Mode(): PartitionType;
+        ServerCount(): number;
+        Stored(): number;
+        Filtered(): number;
+        Displayed(): number;
+        Ordered(): number;
+        Skip(): number;
+        Take(): number;
+        Pages(): number;
+        CurrentPage(): number;
+        IsAllDataLoaded(): boolean;
+    }
+}
+declare module PowerTables.Services {
     /**
      * API for managing in-table elements' events
      */
@@ -1563,8 +1739,8 @@ declare module PowerTables.Services {
          * @internal
          */
         constructor(locator: PowerTables.Rendering.DOMLocator, bodyElement: HTMLElement, layoutElement: HTMLElement, rootId: string, masterTable: IMasterTable);
-        static addHandler(element: HTMLElement, type: string, handler: any): void;
-        static removeHandler(element: HTMLElement, type: string, handler: any): void;
+        static addHandler(element: HTMLElement, type: string, handler: any, useCapture?: boolean): void;
+        static removeHandler(element: HTMLElement, type: string, handler: any, useCapture?: boolean): void;
         private _masterTable;
         private _rootId;
         private _locator;
@@ -1620,7 +1796,7 @@ declare module PowerTables.Services {
         /**
          * @internal
          */
-        handleElementDestroy(e: HTMLElement): void;
+        handleElementDestroy(e: Element): void;
         private collectElementsHavingAttribute(parent, attribute);
     }
 }
@@ -1684,17 +1860,12 @@ declare module PowerTables.Services {
          * Occurs EVERY time when something is being received from server side.
          * Event argument is deserialized JSON data from server.
          */
-        DataReceived: TableEvent<IDataEventArgs, any>;
+        DataReceived: TableEvent<IDataEventArgs, IDataEventArgs>;
         ClientDataProcessing: TableEvent<IQuery, IClientDataResults>;
         DataRendered: TableEvent<any, any>;
-        /**
-         * "Before Client Rows Rendering" event.
-         *
-         * Occurs every time after after rows set for client-side was
-         * modified but not rendered yet. Here you can add/remove/modify render for
-         * particular rows
-         */
-        ClientRowsRendering: TableEvent<IRow[], any>;
+        Filtered: TableEvent<any[], any[]>;
+        Ordered: TableEvent<any[], any[]>;
+        Partitioned: TableEvent<any[], any[]>;
         /**
          * Registers new event for events manager.
          * This method is to be used by plugins to provide their
@@ -1712,7 +1883,8 @@ declare module PowerTables.Services {
             [primaryKey: string]: number[];
         }>;
         Adjustment: TableEvent<PowerTables.ITableAdjustment, IAdjustmentResult>;
-        AdjustmentResult: TableEvent<IAdjustmentResult, any>;
+        AdjustmentRender: TableEvent<IAdjustmentResult, IAdjustmentResult>;
+        PartitionChanged: TableEvent<IPartitionChangeEventArgs, IPartitionChangeEventArgs>;
         /**
          * Event that occurs when editing entry.
          * Event parameter is object that is being edited
@@ -1730,12 +1902,14 @@ declare module PowerTables.Services {
      * Also it provides functionality for table events subscription and
      * elements location
      */
-    class Controller {
+    class Controller implements IAdditionalDataReceiver {
         /**
          * @internal
          */
         constructor(masterTable: IMasterTable);
         private _masterTable;
+        private _additionalRowsProviders;
+        registerAdditionalRowsProvider(provider: IAdditionalRowsProvider): void;
         /**
          * Initializes full reloading cycle
          * @returns {}
@@ -1745,10 +1919,9 @@ declare module PowerTables.Services {
          * Redraws row containing currently visible data object
          *
          * @param dataObject Data object
-         * @param idx
          * @returns {}
          */
-        redrawVisibleDataObject(dataObject: any, idx?: number): HTMLElement;
+        redrawVisibleDataObject(dataObject: any): HTMLElement;
         /**
          * Redraws locally visible data
          */
@@ -1781,8 +1954,16 @@ declare module PowerTables.Services {
          * @param columns Optional displaying columns set
          * @returns {IRow} Row representing displayed object
          */
-        produceRow(dataObject: any, idx: number, columns?: IColumn[]): IRow;
-        private produceRows();
+        produceRow(dataObject: any, columns?: IColumn[]): IRow;
+        /**
+         * @internal
+         */
+        produceRowsFromData(data: any[]): IRow[];
+        /**
+         * @internal
+         */
+        produceRows(): IRow[];
+        handleAdditionalData(additionalData: PowerTables.Adjustments.IReloadAdditionalData): void;
     }
 }
 declare module PowerTables.Services {
@@ -1802,7 +1983,9 @@ declare module PowerTables.Services {
         private _masterTable;
         private _clientValueFunction;
         /**
-         * Data that actually is currently displayed in table
+         * Data that actually is currently displayed in table.
+         * If target user uses partition correctly - usually it is small collection.
+         * And let's keep it small
          */
         DisplayedData: any[];
         /**
@@ -1810,21 +1993,14 @@ declare module PowerTables.Services {
          */
         StoredData: any[];
         /**
-         * Enable query truncation from beginning during executing client queries
-         */
-        EnableClientSkip: boolean;
-        /**
-         * Enable query truncation by data cound during executing client queries
-         */
-        EnableClientTake: boolean;
-        /**
-         * Registers client filter
-         *
-         * @param filter Client filter
-         */
+ * Registers client filter
+ *
+ * @param filter Client filter
+ */
         registerClientFilter(filter: IClientFilter): void;
         getClientFilters(): IClientFilter[];
         clearClientFilters(): void;
+        compileKeyFunction(keyFields: string[]): (x: any) => string;
         private compileComparisonFunction();
         PrimaryKeyFunction: (x: any) => string;
         /**
@@ -1850,8 +2026,11 @@ declare module PowerTables.Services {
         /**
         * Parses response from server and turns it to objects array
         */
+        StoredCache: {
+            [_: number]: any;
+        };
         storeResponse(response: IPowerTablesResponse, clientQuery: IQuery): void;
-        private _storedDataCache;
+        private _pkDataCache;
         /**
          * Client query that was used to obtain recent local data set
          */
@@ -1864,6 +2043,9 @@ declare module PowerTables.Services {
          * @returns {Array} Array of filtered items
          */
         filterSet(objects: any[], query: IQuery): any[];
+        satisfyCurrentFilters(obj: any): boolean;
+        satisfyFilters(obj: any, query: IQuery): boolean;
+        orderWithCurrentOrderings(set: any[]): any[];
         /**
         * Orders supplied data set using client query
         *
@@ -1872,7 +2054,6 @@ declare module PowerTables.Services {
         * @returns {Array} Array of ordered items
         */
         orderSet(objects: any[], query: IQuery): any[];
-        private skipTakeSet(ordered, query);
         /**
          * Part of data currently displayed without ordering and paging
          */
@@ -1887,7 +2068,7 @@ declare module PowerTables.Services {
          * @param query Table query
          * @returns {}
          */
-        filterStoredData(query: IQuery): void;
+        filterStoredData(query: IQuery, serverCount: number): void;
         /**
          * Filter recent data and store it to currently displaying data
          * using query that was previously applied to local data
@@ -1917,14 +2098,6 @@ declare module PowerTables.Services {
          */
         localLookupStoredDataObject(dataObject: any): ILocalLookupResult;
         /**
-         * Finds data object among currently displayed and returns ILocalLookupResult
-         * containing also Loaded-set index of this data object
-         *
-         * @param index Index of desired data object among locally displaying data
-         * @returns ILocalLookupResult
-         */
-        localLookupDisplayedData(index: number): ILocalLookupResult;
-        /**
          * Finds data object among recently loaded and returns ILocalLookupResult
          * containing also Loaded-set index of this data object
          *
@@ -1934,6 +2107,8 @@ declare module PowerTables.Services {
         localLookupStoredData(index: number): ILocalLookupResult;
         getByPrimaryKeyObject(primaryKeyPart: any): any;
         getByPrimaryKey(primaryKey: string): any;
+        detachByKey(key: string): void;
+        detach(dataObject: any): void;
         /**
          * Finds data object among recently loaded by primary key and returns ILocalLookupResult
          * containing also Loaded-set index of this data object
@@ -1945,16 +2120,6 @@ declare module PowerTables.Services {
         private copyData(source, target);
         defaultObject(): any;
         proceedAdjustments(adjustments: PowerTables.ITableAdjustment): IAdjustmentResult;
-        Stats: IStats;
-        private updateStats(totalItems?);
-    }
-    interface IStats {
-        CurrentPage: number;
-        TotalPages: number;
-        CurrentPageSize: number;
-        TotalItems: number;
-        CurrentlyDisplayingItems: number;
-        TotalLoadedItems: number;
     }
 }
 declare module PowerTables.Services {
@@ -1964,7 +2129,7 @@ declare module PowerTables.Services {
     * plugins instances, variable ways to query them and accessing their properties
     */
     class InstanceManagerService {
-        constructor(configuration: Configuration.Json.ITableConfiguration, masterTable: IMasterTable, events: PowerTables.Services.EventsService);
+        constructor(configuration: ITableConfiguration, masterTable: IMasterTable, events: PowerTables.Services.EventsService);
         /**
          * Dictionary containing current table columns configurations.
          * Key - raw column name. Value - IColumn instance
@@ -1979,14 +2144,8 @@ declare module PowerTables.Services {
         Plugins: {
             [key: string]: IPlugin;
         };
-        /**
-         * Events manager
-         */
         private _events;
-        /**
-         * Table configuration
-         */
-        Configuration: Configuration.Json.ITableConfiguration;
+        private _configuration;
         private _rawColumnNames;
         private _masterTable;
         private _isHandlingSpecialPlacementCase;
@@ -1998,7 +2157,7 @@ declare module PowerTables.Services {
         private static _booleanTypes;
         static classifyType(fieldType: string): IClassifiedType;
         private initColumns();
-        static createColumn(cnf: Configuration.Json.IColumnConfiguration, masterTable: IMasterTable, order?: number): IColumn;
+        static createColumn(cnf: IColumnConfiguration, masterTable: IMasterTable, order?: number): IColumn;
         initPlugins(): void;
         private static startsWith(s1, prefix);
         private static endsWith(s1, postfix);
@@ -2065,7 +2224,6 @@ declare module PowerTables.Services {
         constructor(staticData: any, operationalAjaxUrl: string, masterTable: IMasterTable);
         private _queryPartProviders;
         private _additionalDataReceivers;
-        private _previousRequest;
         private _staticData;
         private _operationalAjaxUrl;
         private _events;
@@ -2090,18 +2248,23 @@ declare module PowerTables.Services {
         registerAdditionalDataReceiver(dataKey: string, receiver: IAdditionalDataReceiver): void;
         prefetchData(data: any[]): void;
         gatherQuery(queryScope: QueryScope): IQuery;
+        private _previousRequest;
         createXmlHttp(): any;
-        private getXmlHttp();
+        private _runningBackgroundRequests;
+        private cancelBackground();
+        private getXmlHttp(backgroupd);
         private _previousQueryString;
-        private checkError(json, data, req);
+        private checkError(json, data);
         private checkMessage(json);
         private checkAdditionalData(json);
-        private checkEditResult(json, data, req);
-        private handleRegularJsonResponse(req, data, clientQuery, callback, errorCallback);
-        private handleDeferredResponse(req, data, callback);
+        private checkAdjustment(json, data);
+        private handleRegularJsonResponse(responseText, data, clientQuery, callback, errorCallback);
+        private handleDeferredResponse(responseText, data, callback);
         isLoading(): boolean;
         private doServerQuery(data, clientQuery, callback, errorCallback?);
         private _isLoading;
+        query(callback: (data: any) => void, queryModifier?: (a: IQuery) => IQuery, errorCallback?: (data: any) => void, force?: boolean): void;
+        private doClientQuery(clientQuery, callback);
         /**
          * Sends specified request to server and lets table handle it.
          * Always use this method to invoke table's server functionality because this method
@@ -2112,7 +2275,7 @@ declare module PowerTables.Services {
          * @param queryModifier Inline query modifier for in-place query modification
          * @param errorCallback Will be called if error occures
          */
-        requestServer(command: string, callback: (data: any) => void, queryModifier?: (a: IQuery) => IQuery, errorCallback?: (data: any) => void, force?: boolean): void;
+        command(command: string, callback: (data: any) => void, queryModifier?: (a: IQuery) => IQuery, errorCallback?: (data: any) => void, force?: boolean): void;
     }
 }
 declare module PowerTables.Services {
@@ -2123,6 +2286,8 @@ declare module PowerTables.Services {
         canExecute(commandName: string, subject?: any): boolean;
         triggerCommandOnRow(commandName: string, rowIndex: number, callback?: ((params: ICommandExecutionParameters) => void)): void;
         triggerCommand(commandName: string, subject: any, callback?: ((params: ICommandExecutionParameters) => void)): void;
+        private redrawSubjectRow(subject);
+        private restoreSubjectRow(subject);
         triggerCommandWithConfirmation(commandName: string, subject: any, confirmation: any, callback?: ((params: ICommandExecutionParameters) => void)): void;
     }
     class ConfirmationWindowViewModel implements PowerTables.Editing.IEditHandler {
@@ -2195,7 +2360,6 @@ declare module PowerTables.Services {
         private _configuration;
         private _masterTable;
         private _selectionData;
-        private _isAllSelected;
         isSelected(dataObject: any): boolean;
         isAllSelected(): boolean;
         canSelect(dataObject: any): boolean;
@@ -2207,8 +2371,8 @@ declare module PowerTables.Services {
         getSelectedCells(dataObject: any): number[];
         getSelectedCellsByPrimaryKey(dataObject: any): boolean;
         isSelectedPrimaryKey(primaryKey: string): boolean;
-        toggleRow(primaryKey: string, selected?: boolean): void;
-        toggleDisplayingRow(displayIndex: number, selected?: boolean): void;
+        toggleRow(primaryKey: string, select?: boolean): void;
+        toggleDisplayingRow(rowIndex: number, selected?: boolean): void;
         toggleObjectSelected(dataObject: any, selected?: boolean): void;
         handleAdjustments(added: any[], removeKeys: string[]): void;
         modifyQuery(query: IQuery, scope: QueryScope): void;
@@ -2230,13 +2394,12 @@ declare module PowerTables.Rendering {
      * Internal component that is not supposed to be used directly.
      */
     class BackBinder {
-        private _instances;
         private _dateService;
         Delegator: PowerTables.Services.EventsDelegatorService;
         /**
         * @internal
         */
-        constructor(instances: PowerTables.Services.InstanceManagerService, dateService: PowerTables.Services.DateService);
+        constructor(dateService: PowerTables.Services.DateService);
         /**
          * Applies binding of events left in events queue
          *
@@ -2266,19 +2429,21 @@ declare module PowerTables.Rendering {
      * Class that is responsible for particular HTML elements redrawing/addition/removal
      */
     class DOMModifier {
-        constructor(executor: PowerTables.Templating.TemplatesExecutor, locator: DOMLocator, backBinder: BackBinder, instances: PowerTables.Services.InstanceManagerService, ed: PowerTables.Services.EventsDelegatorService);
+        constructor(executor: PowerTables.Templating.TemplatesExecutor, locator: DOMLocator, backBinder: BackBinder, instances: PowerTables.Services.InstanceManagerService, ed: PowerTables.Services.EventsDelegatorService, bodyElement: HTMLElement);
         private _tpl;
         private _ed;
         private _locator;
         private _backBinder;
         private _instances;
+        private _bodyElement;
+        destroyPartitionRow(): void;
         private getRealDisplay(elem);
         private displayCache;
-        hideElement(el: HTMLElement): void;
-        showElement(el: HTMLElement): void;
+        hideElement(el: Element): void;
+        showElement(el: Element): void;
         cleanSelector(targetSelector: string): void;
-        destroyElement(element: HTMLElement): void;
-        destroyElements(elements: NodeList): void;
+        destroyElement(element: Element): void;
+        private destroyElements(elements);
         hideElements(element: NodeList): void;
         showElements(element: NodeList): void;
         /**
@@ -2309,6 +2474,7 @@ declare module PowerTables.Rendering {
          * @returns {}
          */
         redrawRow(row: IRow): HTMLElement;
+        destroyRowByObject(dataObject: any): void;
         destroyRow(row: IRow): void;
         hideRow(row: IRow): void;
         showRow(row: IRow): void;
@@ -2318,7 +2484,14 @@ declare module PowerTables.Rendering {
          * @param row
          * @returns {}
          */
-        appendRow(row: IRow, beforeRowAtIndex: number): HTMLElement;
+        appendRow(row: IRow, beforeRowAtIndex?: number): HTMLElement;
+        /**
+         * Redraws specified row refreshing all its graphical state
+         *
+         * @param row
+         * @returns {}
+         */
+        prependRow(row: IRow): HTMLElement;
         /**
          * Removes referenced row by its index
          *
@@ -2326,6 +2499,7 @@ declare module PowerTables.Rendering {
          * @returns {}
          */
         destroyRowByIndex(rowDisplayIndex: number): void;
+        destroyRowByNumber(rowNumber: number): void;
         hideRowByIndex(rowDisplayIndex: number): void;
         showRowByIndex(rowDisplayIndex: number): void;
         redrawCell(cell: ICell): HTMLElement;
@@ -2348,6 +2522,7 @@ declare module PowerTables.Rendering {
         hideHeader(column: IColumn): void;
         showHeader(column: IColumn): void;
         createElement(html: string): HTMLElement;
+        createElementFromTemplate(templateId: string, viewModelBehind: any): HTMLElement;
         private replaceElement(element, html);
     }
 }
@@ -2428,28 +2603,43 @@ declare module PowerTables.Rendering {
          * @param cell Cell element
          * @returns {HTMLElement} Element containing cell (with wrapper)
          */
-        getCellElement(cell: ICell): HTMLElement;
+        getCellElement(cell: ICell): Element;
         /**
          * Retrieves cell element using supplied coordinates
          *
          * @param cell Cell element
          * @returns {HTMLElement} Element containing cell (with wrapper)
          */
-        getCellElementByIndex(rowDisplayIndex: number, columnIndex: number): HTMLElement;
+        getCellElementByIndex(rowDisplayIndex: number, columnIndex: number): Element;
         /**
          * Retrieves row element (including wrapper)
          *
          * @param row Row
          * @returns HTML element
          */
-        getRowElement(row: IRow): HTMLElement;
+        getRowElement(row: IRow): Element;
+        /**
+         * Retrieves row element (including wrapper)
+         *
+         * @param row Row
+         * @returns HTML element
+         */
+        getRowElementByObject(dataObject: any): Element;
+        getPartitionRowElement(): Element;
+        /**
+         * Retrieves row element (including wrapper)
+         *
+         * @param row Row
+         * @returns HTML element
+         */
+        getRowElements(): NodeList;
         /**
         * Retrieves row element (including wrapper) by specified row index
         *
         * @param row Row
         * @returns HTML element
         */
-        getRowElementByIndex(rowDisplayingIndex: number): HTMLElement;
+        getRowElementByIndex(rowDisplayingIndex: number): Element;
         /**
          * Retrieves data cells for specified column (including wrappers)
          *
@@ -2484,14 +2674,14 @@ declare module PowerTables.Rendering {
          * @param header Column header
          * @returns HTML element
          */
-        getHeaderElement(header: IColumnHeader): HTMLElement;
+        getHeaderElement(header: IColumnHeader): Element;
         /**
          * Retrieves HTML element for plugin (including wrapper)
          *
          * @param plugin Plugin
          * @returns HTML element
          */
-        getPluginElement(plugin: IPlugin): HTMLElement;
+        getPluginElement(plugin: IPlugin): Element;
         /**
          * Retrieves HTML element for plugin (including wrapper)
          *
@@ -2505,14 +2695,21 @@ declare module PowerTables.Rendering {
          * @param e Testing element
          * @returns {boolean} True when supplied element is row, false otherwise
          */
-        isRow(e: HTMLElement): boolean;
+        isRow(e: Element): boolean;
+        /**
+         * Determines if supplied element is table row with "IsSpecial" flag
+         *
+         * @param e Testing element
+         * @returns {boolean} True when supplied element is row, false otherwise
+         */
+        isSpecialRow(e: Element): boolean;
         /**
          * Determines if supplied element is table cell
          *
          * @param e Testing element
          * @returns {boolean} True when supplied element is cell, false otherwise
          */
-        isCell(e: HTMLElement): boolean;
+        isCell(e: Element): boolean;
     }
 }
 declare module PowerTables.Rendering {
@@ -2567,10 +2764,10 @@ declare module PowerTables.Rendering {
         renderObject(templateId: string, viewModelBehind: any, targetSelector: string): HTMLElement;
         renderObjectTo(templateId: string, viewModelBehind: any, target: HTMLElement): HTMLElement;
         /**
-          * Removes all dynamically loaded content in table
-          *
-          * @returns {}
-          */
+         * Removes all dynamically loaded content in table
+         *
+         * @returns {}
+         */
         clearBody(): void;
     }
 }
@@ -2707,10 +2904,9 @@ declare module PowerTables {
          *
          * @param configuration JSON configuration of whole table
          */
-        constructor(configuration: Configuration.Json.ITableConfiguration);
+        constructor(configuration: ITableConfiguration);
         private _isReady;
         private bindReady();
-        private _configuration;
         private initialize();
         /**
          * API for working with dates
@@ -2755,6 +2951,7 @@ declare module PowerTables {
          * API for table messages
          */
         Commands: PowerTables.Services.CommandsService;
+        Partition: PowerTables.Services.Partition.IPartitionService;
         /**
          * Fires specified DOM event on specified element
          *
@@ -2766,6 +2963,8 @@ declare module PowerTables {
         getStaticData(): any;
         setStaticData(obj: any): void;
         Selection: PowerTables.Services.SelectionService;
+        Configuration: ITableConfiguration;
+        Stats: IStatsModel;
     }
 }
 declare module PowerTables.Plugins {
@@ -2778,7 +2977,7 @@ declare module PowerTables.Plugins {
         /**
          * Raw plugin configuration
          */
-        RawConfig: Configuration.Json.IPluginConfiguration;
+        RawConfig: IPluginConfiguration;
         /**
          * Plugin location ID
          */
@@ -2856,16 +3055,16 @@ declare module PowerTables.Plugins.Ordering {
     }
 }
 declare module PowerTables.Plugins.Limit {
-    class LimitPlugin extends PowerTables.Filters.FilterBase<Plugins.Limit.ILimitClientConfiguration> {
+    class LimitPlugin extends PowerTables.Plugins.PluginBase<Plugins.Limit.ILimitClientConfiguration> {
         SelectedValue: ILimitSize;
         private _limitSize;
         Sizes: ILimitSize[];
         renderContent(p: PowerTables.Templating.TemplateProcess): void;
         changeLimitHandler(e: PowerTables.ITemplateBoundEvent): void;
-        changeLimit(limit: number): void;
-        modifyQuery(query: IQuery, scope: QueryScope): void;
+        changeLimit(take: number): void;
+        private onPartitionChange(e);
         init(masterTable: IMasterTable): void;
-        private onColumnsCreation();
+        subscribe(e: PowerTables.Services.EventsService): void;
     }
     /**
      * Size entry for limit plugin
@@ -2877,25 +3076,15 @@ declare module PowerTables.Plugins.Limit {
     }
 }
 declare module PowerTables.Plugins.Paging {
-    class PagingPlugin extends PowerTables.Filters.FilterBase<Plugins.Paging.IPagingClientConfiguration> {
+    class PagingPlugin extends PowerTables.Plugins.PluginBase<Plugins.Paging.IPagingClientConfiguration> {
         Pages: IPagesElement[];
         Shown: boolean;
         NextArrow: boolean;
         PrevArrow: boolean;
-        private _selectedPage;
         CurrentPage(): number;
         TotalPages(): number;
         PageSize(): number;
-        private _totalPages;
-        private _pageSize;
         GotoInput: HTMLInputElement;
-        getCurrentPage(): number;
-        getTotalPages(): number;
-        getPageSize(): number;
-        private onFilterGathered(e);
-        private onColumnsCreation();
-        private onResponse(e);
-        private onClientDataProcessing(e);
         goToPage(page: string): void;
         gotoPageClick(e: PowerTables.ITemplateBoundEvent): void;
         navigateToPage(e: PowerTables.ITemplateBoundEvent): void;
@@ -2904,8 +3093,10 @@ declare module PowerTables.Plugins.Paging {
         private constructPagesElements();
         renderContent(p: PowerTables.Templating.TemplateProcess): void;
         validateGotopage(): void;
-        modifyQuery(query: IQuery, scope: QueryScope): void;
         init(masterTable: IMasterTable): void;
+        private onPartitionChanged(e);
+        private onClientDataProcessing(e);
+        subscribe(e: PowerTables.Services.EventsService): void;
     }
     interface IPagesElement {
         Prev?: boolean;
@@ -3077,13 +3268,9 @@ declare module PowerTables.Plugins.Total {
     /**
      * Client-side implementation of totals plugin
      */
-    class TotalsPlugin extends PluginBase<Plugins.Total.ITotalClientConfiguration> implements PowerTables.IAdditionalDataReceiver {
+    class TotalsPlugin extends PluginBase<Plugins.Total.ITotalClientConfiguration> implements PowerTables.IAdditionalDataReceiver, PowerTables.IAdditionalRowsProvider {
         private _totalsForColumns;
         private makeTotalsRow();
-        /**
-        * @internal
-        */
-        onClientRowsRendering(e: ITableEventArgs<IRow[]>): void;
         /**
         * @internal
         */
@@ -3098,6 +3285,7 @@ declare module PowerTables.Plugins.Total {
         subscribe(e: PowerTables.Services.EventsService): void;
         handleAdditionalData(additionalData: any): void;
         init(masterTable: IMasterTable): void;
+        provide(rows: IRow[]): void;
     }
 }
 declare module PowerTables.Plugins.Checkboxify {
@@ -3134,6 +3322,81 @@ declare module PowerTables.Plugins.Toolbar {
         init(masterTable: IMasterTable): void;
     }
 }
+declare module PowerTables.Plugins.Scrollbar {
+    class ScrollbarPlugin extends PowerTables.Plugins.PluginBase<PowerTables.Plugins.Scrollbar.IScrollbarPluginUiConfig> {
+        IsVertical: boolean;
+        UpArrow: HTMLElement;
+        DownArrow: HTMLElement;
+        Scroller: HTMLElement;
+        ScrollerActiveArea: HTMLElement;
+        private _stickElement;
+        private _scrollWidth;
+        private _scrollHeight;
+        private _scollbar;
+        private _availableSpace;
+        private _scrollerPos;
+        private _scrollerSize;
+        private _kbListener;
+        private _wheelListener;
+        private _boundScrollerMove;
+        private _boundScrollerEnd;
+        init(masterTable: IMasterTable): void;
+        private _needUpdateCoords;
+        updatePosition(): void;
+        private adjustScrollerPosition(skip);
+        private _availableSpaceRaw;
+        private _availableSpaceRawCorrection;
+        private _previousAmout;
+        private adjustScrollerHeight();
+        private calculateAvailableSpace();
+        private getCoords();
+        private getElement(configSelect);
+        private onLayoutRendered(e);
+        private subscribeUiEvents();
+        private trackKbListenerClick(e);
+        private isKbListenerHidden();
+        private _kbActive;
+        private enableKb();
+        private disableKb();
+        private static _forbiddenNodes;
+        private keydownHook(e);
+        private handleKey(keyCode);
+        activeAreaClick(e: MouseEvent): void;
+        activeAreaMouseDown(e: MouseEvent): void;
+        private _mouseStartPos;
+        private _startSkip;
+        private scrollerStart(e);
+        private _skipOnUp;
+        private scrollerMove(e);
+        private scrollerEnd(e);
+        private handleWheel(e);
+        private _upArrowActive;
+        private _upArrowInterval;
+        private upArrowStart(e);
+        private upArrow();
+        private upArrowEnd(e);
+        private _downArrowActive;
+        private _downArrowInterval;
+        private downArrowStart(e);
+        private downArrow();
+        private downArrowEnd(e);
+        private _moveCheckInterval;
+        private startDeferring();
+        private deferScroll(skip);
+        private _needMoveTo;
+        private _movedTo;
+        private moveCheck();
+        private endDeferring();
+        private _prevCount;
+        private _isHidden;
+        private hideScroll();
+        private showScroll();
+        private onPartitionChange(e);
+        private onClientDataProcessing(e);
+        subscribe(e: PowerTables.Services.EventsService): void;
+        private _sensor;
+    }
+}
 declare module PowerTables.Plugins.Formwatch {
     class FormwatchPlugin extends PluginBase<PowerTables.Plugins.Formwatch.IFormwatchClientConfiguration> implements IQueryPartProvider {
         private _existingValues;
@@ -3147,6 +3410,161 @@ declare module PowerTables.Plugins.Formwatch {
         subscribe(e: PowerTables.Services.EventsService): void;
         fieldChange(fieldSelector: string, delay: number, element: HTMLInputElement, e: Event): void;
         init(masterTable: IMasterTable): void;
+    }
+}
+declare module PowerTables.Services.Partition {
+    class BackgroundDataLoader {
+        constructor(masterTable: IMasterTable, conf: PowerTables.IServerPartitionConfiguration);
+        private _masterTable;
+        private _dataAppendError;
+        Indicator: PartitionIndicatorRow;
+        LoadAhead: number;
+        AppendLoadingRow: boolean;
+        FinishReached: boolean;
+        IsLoadingNextPart: boolean;
+        UseLoadMore: boolean;
+        Skip: number;
+        Take: number;
+        skipTake(skip: number, take: number): void;
+        provideIndicator(rows: IRow[]): void;
+        private _afterFn;
+        loadNextDataPart(pages?: number, after?: any): void;
+        private loadNextCore(pages?, show?);
+        private dataAppendError(data);
+        private modifyDataAppendQuery(q, pages);
+        private static any(o);
+        private dataAppendLoaded(data, pagesRequested, show);
+        ClientSearchParameters: boolean;
+        private _indicationShown;
+        showIndication(): void;
+        destroyIndication(): void;
+        loadMore(show: boolean, page?: number): void;
+    }
+}
+declare module PowerTables.Services.Partition {
+    class PartitionIndicatorRow implements IRow {
+        private _dataLoader;
+        constructor(masterTable: IMasterTable, dataLoader: PowerTables.Services.Partition.BackgroundDataLoader, conf: PowerTables.IServerPartitionConfiguration);
+        TemplateIdOverride: string;
+        IsSpecial: boolean;
+        DataObject: any;
+        Index: number;
+        MasterTable: IMasterTable;
+        Cells: {
+            [index: string]: ICell;
+        };
+        Show: boolean;
+        PagesInput: HTMLInputElement;
+        VisualState: PowerTables.Rendering.VisualState;
+        loadMore(): void;
+    }
+    class PartitionIndicator implements PowerTables.IPartitionRowData {
+        constructor(masterTable: IMasterTable, partitionService: PowerTables.Services.Partition.BackgroundDataLoader);
+        private _masterTable;
+        private _dataLoader;
+        UiColumnsCount(): number;
+        IsLoading(): boolean;
+        Stats(): IStatsModel;
+        IsClientSearchPending(): boolean;
+        CanLoadMore(): boolean;
+        LoadAhead(): number;
+    }
+}
+declare module PowerTables.Services.Partition {
+    class ClientPartitionService implements IPartitionService {
+        constructor(masterTable: IMasterTable);
+        protected _masterTable: IMasterTable;
+        setSkip(skip: number, preserveTake?: boolean): void;
+        private firstNonSpecialIndex(rows);
+        private lastNonSpecialIndex(rows);
+        protected displayedIndexes(): number[];
+        setTake(take: number): void;
+        protected restoreSpecialRows(rows: IRow[]): void;
+        protected destroySpecialRows(rows: IRow[]): void;
+        partitionBeforeQuery(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean): boolean;
+        partitionBeforeCommand(serverQuery: IQuery): void;
+        partitionAfterQuery(initialSet: any[], query: IQuery, serverCount: number): any[];
+        protected skipTakeSet(ordered: any[], query: IQuery): any[];
+        protected cut(ordered: any[], skip: number, take: number): any[];
+        protected cutDisplayed(skip: number, take: number): void;
+        Skip: number;
+        Take: number;
+        amount(): number;
+        isAmountFinite(): boolean;
+        totalAmount(): number;
+        initial(skip: number, take: number): any;
+        isClient(): boolean;
+        isServer(): boolean;
+        hasEnoughDataToSkip(skip: number): boolean;
+        protected any(o: any): boolean;
+        Type: PartitionType;
+    }
+}
+declare module PowerTables.Services.Partition {
+    interface IPartitionService {
+        Skip: number;
+        Take: number;
+        setSkip(skip: number, preserveTake?: boolean): void;
+        setTake(take?: number): void;
+        partitionBeforeQuery(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean): boolean;
+        partitionBeforeCommand(serverQuery: IQuery): void;
+        partitionAfterQuery(initialSet: any[], query: IQuery, serverCount: number): any[];
+        amount(): number;
+        isAmountFinite(): boolean;
+        totalAmount(): number;
+        initial(skip: number, take: number): any;
+        isClient(): boolean;
+        isServer(): boolean;
+        hasEnoughDataToSkip(skip: number): boolean;
+        Type: PowerTables.PartitionType;
+    }
+}
+declare module PowerTables.Services.Partition {
+    class ServerPartitionService extends ClientPartitionService {
+        constructor(masterTable: IMasterTable);
+        private _seq;
+        private _conf;
+        private _serverSkip;
+        private _indicator;
+        private _dataLoader;
+        setSkip(skip: number, preserveTake?: boolean): void;
+        protected cut(ordered: any[], skip: number, take: number): any;
+        setTake(take: number): void;
+        partitionBeforeQuery(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean): boolean;
+        private resetSkip();
+        private switchToSequential();
+        switchBack(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean): void;
+        private _provideIndication;
+        partitionAfterQuery(initialSet: any[], query: IQuery, serverCount: number): any[];
+        private _serverTotalCount;
+        isAmountFinite(): boolean;
+        totalAmount(): number;
+        amount(): number;
+        isClient(): boolean;
+        isServer(): boolean;
+        hasEnoughDataToSkip(skip: number): boolean;
+    }
+}
+declare module PowerTables.Services.Partition {
+    class SequentialPartitionService extends ClientPartitionService {
+        constructor(masterTable: IMasterTable);
+        Owner: ServerPartitionService;
+        DataLoader: BackgroundDataLoader;
+        private _conf;
+        setSkip(skip: number, preserveTake?: boolean): void;
+        private _takeDiff;
+        setTake(take: number): void;
+        isAmountFinite(): boolean;
+        amount(): number;
+        private resetSkip();
+        partitionBeforeQuery(serverQuery: IQuery, clientQuery: IQuery, isServerQuery: boolean): boolean;
+        partitionAfterQuery(initialSet: any[], query: IQuery, serverCount: number): any[];
+        private _provideIndication;
+        private _backgroundLoad;
+        provide(rows: IRow[]): void;
+        hasEnoughDataToSkip(skip: number): boolean;
+        isClient(): boolean;
+        isServer(): boolean;
     }
 }
 declare module PowerTables.Plugins.LoadingOverlap {
@@ -3184,11 +3602,10 @@ declare module PowerTables.Services {
      * Class responsible for handling of table messages. It handles internally thrown messages as well as
      * user's ones
      */
-    class MessagesService {
-        constructor(usersMessageFn: (msg: ITableMessage) => void, instances: PowerTables.Services.InstanceManagerService, dataHolder: PowerTables.Services.DataHolderService, controller: Controller, templatesProvider: ITemplatesProvider);
+    class MessagesService implements IAdditionalRowsProvider {
+        constructor(usersMessageFn: (msg: ITableMessage) => void, instances: PowerTables.Services.InstanceManagerService, controller: Controller, templatesProvider: ITemplatesProvider);
         private _usersMessageFn;
         private _instances;
-        private _dataHolder;
         private _controller;
         private _templatesProvider;
         /**
@@ -3198,6 +3615,9 @@ declare module PowerTables.Services {
          */
         showMessage(message: ITableMessage): void;
         private showTableMessage(tableMessage);
+        private _noresultsOverrideRow;
+        overrideNoresults(row: IRow): void;
+        provide(rows: IRow[]): void;
     }
 }
 declare module PowerTables.Plugins.Reload {
@@ -3238,32 +3658,57 @@ declare module PowerTables.Plugins.Loading {
         hideLoadingIndicator(): void;
     }
 }
-declare module PowerTables.Plugins.RowAction {
-}
 declare module PowerTables.Plugins.Hierarchy {
     class HierarchyPlugin extends PluginBase<IHierarchyUiConfiguration> implements IClientFilter {
-        expandSubtree(args: IRowEventArgs): void;
-        collapseSubtree(args: IRowEventArgs): void;
-        toggleSubtree(args: IRowEventArgs): void;
-        toggleSubtreeByObject(dataObject: any, turnOpen?: boolean, index?: number): void;
-        private expand(dataObject, index);
-        private toggleVisibleRec(dataObject);
-        private collapse(dataObject, index);
-        private collapseChildren(dataObject);
+        private _parentKeyFunction;
+        private _globalHierarchy;
+        private _currentHierarchy;
+        private _notInHierarchy;
         init(masterTable: IMasterTable): void;
-        private hierarchicalOrder(a, b);
-        private refilterStoredData();
-        private _hierarchyFiltered;
-        private stackOrder(data);
-        private recalculateSubtreeReferences(e);
-        private _isFunctionsStolen;
-        private _stolenFilterFunctions;
-        private stealFilterFunctions();
-        private onAfterClientDataProcessing(e);
+        expandRow(args: IRowEventArgs): void;
+        expandLoadRow(args: IRowEventArgs): void;
+        toggleLoadRow(args: IRowEventArgs): void;
+        collapseRow(args: IRowEventArgs): void;
+        toggleRow(args: IRowEventArgs): void;
+        toggleSubtreeOrLoad(dataObject: any, turnOpen?: boolean): void;
+        toggleSubtreeByObject(dataObject: any, turnOpen?: boolean): void;
+        private loadRow(dataObject);
+        private isParentExpanded(dataObject);
+        private expand(dataObject);
+        private appendNodes(newNodes, tail);
+        private firePartitionChange(tk?, sk?);
+        private removeNLastRows(n);
+        private toggleVisibleChildren(dataObject, visible, hierarchy?);
+        private toggleVisible(dataObject, visible, hierarchy?);
+        private collapse(dataObject, redraw);
+        private onFiltered_after();
+        private expandParents(src);
+        private restoreHierarchyData(d);
+        private buildCurrentHierarchy(d);
+        private addParents(o, existing);
+        private onOrdered_after();
+        private orderHierarchy(src, minDeepness);
+        private appendChildren(target, index, hierarchy);
+        private buildHierarchy(d, minDeepness);
+        private isParentNull(dataObject);
+        private deepness(obj);
+        private visible(obj);
+        private onDataReceived_after(e);
+        private setServerChildrenCount(dataObject);
+        private setLocalChildrenCount(dataObject);
+        private setChildrenCount(dataObject, count);
+        private proceedAddedData(added);
+        private proceedUpdatedData(d);
+        moveItems(items: any[], newParent: any): void;
+        private moveItem(dataObject, newParentKey);
+        private moveFromNotInHierarchy(key, newParentKey);
+        private cleanupNotInHierarchy();
+        private onAdjustment_after(e);
+        private onAdjustment_before(e);
+        private moveToNotInHierarchy(parent);
+        private removeFromHierarchySubtrees(toRemove, hierarchy);
         subscribe(e: PowerTables.Services.EventsService): void;
-        private onAfterLayoutRendered();
         filterPredicate(rowObject: any, query: IQuery): boolean;
-        private onBeforeClientDataProcessing();
     }
 }
 declare module PowerTables.Editing {
@@ -3494,30 +3939,30 @@ declare module PowerTables.Editing {
     }
 }
 declare module PowerTables.Editing.Editors.Cells {
-    class CellsEditHandler extends EditHandlerBase<PowerTables.Editing.Cells.ICellsEditUiConfig> {
+    class CellsEditHandler extends EditHandlerBase<PowerTables.Editing.Cells.ICellsEditUiConfig> implements IAdditionalRowsProvider {
         private _isEditing;
         private _activeEditor;
-        private ensureEditing(rowDisplayIndex);
+        private ensureEditing(loadIndex);
         private beginCellEdit(column, rowIndex);
         beginCellEditHandle(e: ICellEventArgs): void;
-        onBeforeClientRowsRendering(e: ITableEventArgs<IRow[]>): void;
-        onAfterDataRendered(e: any): void;
+        onAfterRender(e: any): void;
         afterDrawn: (e: ITableEventArgs<any>) => void;
         commit(editor: PowerTables.Editing.IEditor): void;
         private finishEditing(editor, redraw);
         private cleanupAfterEdit();
         notifyChanged(editor: PowerTables.Editing.IEditor): void;
         reject(editor: PowerTables.Editing.IEditor): void;
+        provide(rows: IRow[]): void;
+        init(masterTable: IMasterTable): void;
     }
 }
 declare module PowerTables.Editing.Editors.Cells {
-    class RowsEditHandler extends EditHandlerBase<PowerTables.Editing.Rows.IRowsEditUiConfig> {
+    class RowsEditHandler extends EditHandlerBase<PowerTables.Editing.Rows.IRowsEditUiConfig> implements IAdditionalRowsProvider {
         private _isEditing;
         private _activeEditors;
         private _isAddingNewRow;
-        onBeforeClientRowsRendering(e: ITableEventArgs<IRow[]>): void;
-        onAfterDataRendered(e: any): void;
-        private ensureEditing(rowDisplayIndex);
+        onAfterRender(e: any): void;
+        private ensureEditing(rowIndex);
         private beginRowEdit(rowIndex);
         afterDrawn: (e: ITableEventArgs<any>) => void;
         commitAll(): void;
@@ -3529,6 +3974,8 @@ declare module PowerTables.Editing.Editors.Cells {
         beginRowEditHandle(e: IRowEventArgs): void;
         commitRowEditHandle(e: IRowEventArgs): void;
         rejectRowEditHandle(e: IRowEventArgs): void;
+        provide(rows: IRow[]): void;
+        init(masterTable: IMasterTable): void;
     }
 }
 declare module PowerTables.Editing.Form {

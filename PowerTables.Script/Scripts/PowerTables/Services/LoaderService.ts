@@ -19,7 +19,7 @@
         private _queryPartProviders: IQueryPartProvider[] = [];
         private _additionalDataReceivers: { [_: string]: IAdditionalDataReceiver[] } = {};
 
-        private _previousRequest: any;
+
         private _staticData: any; // from ctor
         private _operationalAjaxUrl: string; // from ctor
         private _events: PowerTables.Services.EventsService; // from ctor
@@ -53,26 +53,42 @@
         }
 
         public prefetchData(data: any[]) {
-            var query = this.gatherQuery(QueryScope.Server);
+            var clientQuery = this.gatherQuery(QueryScope.Client);
+            var serverQuery = this.gatherQuery(QueryScope.Server);
+            this._masterTable.Partition.partitionBeforeQuery(serverQuery, clientQuery, false);
+            var arg = {
+                Data: {
+                    Data: data,
+                    AdditionalData: null,
+                    Success: true,
+                    BatchSize: 0,
+                    Message: null,
+                    PageIndex: 0,
+                    ResultsCount: 0
+                },
+                Request: null,
+                XMLHttp: null, 
+                IsAdjustment: false
+            };
+            this._masterTable.Events.DataReceived.invokeBefore(this,arg);
             this._dataHolder.storeResponse(<any>{
                 Data: data
-            }, query);
-            this._previousQueryString = JSON.stringify(query);
+            }, clientQuery);
+            this._previousQueryString = JSON.stringify(clientQuery);
+            this._masterTable.Events.DataReceived.invokeAfter(this, arg);
         }
 
         public gatherQuery(queryScope: QueryScope): IQuery {
             var a: IQuery = {
-                Paging: {
-                    PageSize: 0,
-                    PageIndex: 0
-                },
                 Orderings: {},
                 Filterings: {},
                 AdditionalData: {},
-                StaticDataJson: this._masterTable.InstanceManager.Configuration.StaticData,
-                Selection: null
-
+                StaticDataJson: this._masterTable.Configuration.StaticData,
+                Selection: null,
+                IsBackgroundDataFetch: false,
+                Partition: null
             };
+
             if (queryScope === QueryScope.Client) {
                 this._events.ClientQueryGathering.invokeBefore(this, { Query: a, Scope: queryScope });
             } else {
@@ -91,6 +107,8 @@
             return a;
         }
 
+        //#region XMLHTTP
+        private _previousRequest: any;
         public createXmlHttp(): any {
             var xmlhttp: boolean | XMLHttpRequest;
             try {
@@ -108,27 +126,43 @@
             return xmlhttp;
         }
 
-
-        private getXmlHttp() {
-            if (this._previousRequest) {
-                this._previousRequest.abort();
-                this._previousRequest = null;
+        private _runningBackgroundRequests: XMLHttpRequest[] = [];
+        private cancelBackground() {
+            for (var i = 0; i < this._runningBackgroundRequests.length; i++) {
+                this._runningBackgroundRequests[i].abort();
+            }
+            this._runningBackgroundRequests = [];
+        }
+        private getXmlHttp(backgroupd: boolean) {
+            if (!backgroupd) {
+                if (this._previousRequest) {
+                    this._previousRequest.abort();
+                    this._previousRequest = null;
+                    this.cancelBackground();
+                }
             }
             var req = this.createXmlHttp();
-            this._previousRequest = req;
+            req.open('POST', this._operationalAjaxUrl, true);
+            req.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            req.setRequestHeader('Content-type', 'application/json');
+
+            if (!backgroupd) this._previousRequest = req;
+            else this._runningBackgroundRequests.push(req);
+
             return req;
         }
+        //#endregion
 
         private _previousQueryString: string;
 
-        private checkError(json: any, data: IPowerTableRequest, req: XMLHttpRequest): boolean {
+        //#region Checks and handles
+        private checkError(json: any, data: IPowerTableRequest): boolean {
             if (json == null) return false;
             if (json['__ZBnpwvibZm'] && json['Success'] != undefined && !json.Success) {
                 this._masterTable.MessageService.showMessage(json['Message']);
 
                 this._events.LoadingError.invoke(this, {
                     Request: data,
-                    XMLHttp: req,
                     Reason: json.Message
                 });
                 return true;
@@ -161,13 +195,13 @@
             }
         }
 
-        private checkEditResult(json: any, data: IPowerTableRequest, req: XMLHttpRequest): boolean {
+        private checkAdjustment(json: any, data: IPowerTableRequest): boolean {
             if (json == null) return false;
             if (json['__XqTFFhTxSu']) {
-                this._events.DataReceived.invoke(this, {
+                this._events.DataReceived.invokeBefore(this, {
                     Request: data,
-                    XMLHttp: req,
-                    Data: json
+                    Data: json, 
+                    IsAdjustment:true
                 });
                 this._masterTable.proceedAdjustments(json);
                 for (var otherAdj in json.OtherTablesAdjustments) {
@@ -177,57 +211,73 @@
                         }
                     }
                 }
+                this._events.DataReceived.invokeAfter(this, {
+                    Request: data,
+                    Data: json,
+                    IsAdjustment: true
+                });
                 return true;
             }
             return false;
         }
 
-        private handleRegularJsonResponse(req: XMLHttpRequest, data: IPowerTableRequest, clientQuery: IQuery, callback: any, errorCallback: any) {
-            var json = JSON.parse(req.responseText);
-            var error: boolean = this.checkError(json, data, req);
-            var message: boolean = this.checkMessage(json);
+        private handleRegularJsonResponse(responseText: string, data: IPowerTableRequest, clientQuery: IQuery, callback: any, errorCallback: any) {
+            var response = JSON.parse(responseText);
+            var error: boolean = this.checkError(response, data);
+            var message: boolean = this.checkMessage(response);
             if (message) {
-                this.checkAdditionalData(json);
-                callback(json);
+                this.checkAdditionalData(response);
+                callback(response);
                 return;
             }
-            var edit: boolean = this.checkEditResult(json, data, req);
 
-
+            var edit: boolean = this.checkAdjustment(response, data);
             if (edit) {
-                this.checkAdditionalData(json);
-                callback(json);
+                this.checkAdditionalData(response);
+                callback(response);
                 return;
             }
+
             if (!error) {
-                this._events.DataReceived.invoke(this, {
-                    Request: data,
-                    XMLHttp: req,
-                    Data: json
-                });
+               
                 if (data.Command === 'query') {
-                    this._dataHolder.storeResponse(json, clientQuery);
-                    this.checkAdditionalData(json);
-                    callback(json);
+                    this._events.DataReceived.invokeBefore(this, {
+                        Request: data,
+                        Data: response, 
+                        IsAdjustment:false
+                    });
+                    this._dataHolder.storeResponse(response, clientQuery);
+                    this._events.DataReceived.invokeAfter(this, {
+                        Request: data,
+                        Data: response,
+                        IsAdjustment: false
+                    });
+
+                    this._dataHolder.filterStoredData(clientQuery, response.ResultsCount);
+
+                    this.checkAdditionalData(response);
+                    callback(response);
                     data.Query.Selection = null; // selection must not affect query results
-                    this._previousQueryString = JSON.stringify(data.Query);
+                    data.Query.Partition = null; // partition also
+                    if (!data.Query.IsBackgroundDataFetch) {
+                        this._previousQueryString = JSON.stringify(data.Query);
+                    }
                 } else {
-                    this.checkAdditionalData(json);
-                    callback(json);
+                    this.checkAdditionalData(response);
+                    callback(response);
                 }
             } else {
-                this.checkAdditionalData(json);
-                if (errorCallback) errorCallback(json);
+                this.checkAdditionalData(response);
+                if (errorCallback) errorCallback(response);
             }
         }
 
-        private handleDeferredResponse(req: XMLHttpRequest, data: IPowerTableRequest, callback: any) {
-            if (req.responseText.indexOf('$Token=') === 0) {
-                var token: string = req.responseText.substr(7, req.responseText.length - 7);
+        private handleDeferredResponse(responseText: string, data: IPowerTableRequest, callback: any) {
+            if (responseText.indexOf('$Token=') === 0) {
+                var token: string = responseText.substr(7, responseText.length - 7);
                 var deferredUrl = this._operationalAjaxUrl + (this._operationalAjaxUrl.indexOf('?') > -1 ? '&' : '?') + 'q=' + token;
                 this._events.DeferredDataReceived.invoke(this, {
                     Request: data,
-                    XMLHttp: req,
                     Token: token,
                     DataUrl: deferredUrl
                 });
@@ -238,24 +288,19 @@
                 });
             }
         }
+        //#endregion
+
         public isLoading() {
             return this._isLoading;
         }
+
+
         private doServerQuery(data: IPowerTableRequest, clientQuery: IQuery, callback: (data: any) => void, errorCallback?: (data: any) => void): void {
             this._isLoading = true;
+            var req: XMLHttpRequest = this.getXmlHttp(data.Query.IsBackgroundDataFetch) as XMLHttpRequest;
             var dataText: string = JSON.stringify(data);
-            var req: XMLHttpRequest = this.getXmlHttp() as XMLHttpRequest;
-
-            this._events.Loading.invokeBefore(this, {
-                Request: data,
-                XMLHttp: req
-            });
-
-            req.open('POST', this._operationalAjaxUrl, true);
-            req.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-            req.setRequestHeader('Content-type', 'application/json');
+            this._events.Loading.invokeBefore(this, { Request: data, XMLHttp: req });
             var reqEvent: string = req.onload ? 'onload' : 'onreadystatechange'; // for IE
-
             req[reqEvent] = (() => {
                 if (req.readyState !== 4) return false;
 
@@ -264,9 +309,9 @@
                     if (ctype) ctype = ctype.toLowerCase();
 
                     if (ctype && ctype.indexOf('application/json') >= 0) {
-                        this.handleRegularJsonResponse(req, data, clientQuery, callback, errorCallback);
+                        this.handleRegularJsonResponse(req.responseText, data, clientQuery, callback, errorCallback);
                     } else if (ctype && ctype.indexOf('lattice/service') >= 0) {
-                        this.handleDeferredResponse(req, data, callback);
+                        this.handleDeferredResponse(req.responseText, data, callback);
                     } else {
                         if (callback) callback(req.responseText);
                     }
@@ -284,7 +329,6 @@
                     Request: data,
                     XMLHttp: req
                 });
-
             });
             //req.onabort = (e => {
             //    alert('hop!');
@@ -292,11 +336,52 @@
 
             //failTimeout = setTimeout(() => { req.abort(); this.Renderer.showError('Network error: network unreacheable'); }, 10000);
 
-
             req.send(dataText);
         }
 
         private _isLoading = false;
+
+        public query(callback: (data: any) => void,
+            queryModifier?: (a: IQuery) => IQuery,
+            errorCallback?: (data: any) => void,
+            force?: boolean): void {
+
+            var serverQuery: IQuery = this.gatherQuery(QueryScope.Server);
+            var clientQuery: IQuery = this.gatherQuery(QueryScope.Client);
+
+            if (queryModifier) {
+                queryModifier(serverQuery);
+                queryModifier(clientQuery);
+            }
+            
+            var queriesEqual: boolean = (JSON.stringify(serverQuery) === this._previousQueryString);
+            var server = force || !queriesEqual;
+
+            server = this._masterTable.Partition.partitionBeforeQuery(serverQuery, clientQuery, server);
+            this._masterTable.Selection.modifyQuery(serverQuery, QueryScope.Server);
+
+            var data: IPowerTableRequest = {
+                Command: 'query',
+                Query: server ? serverQuery : clientQuery
+            };
+
+            if (this._masterTable.Configuration.QueryConfirmation) {
+                this._masterTable.Configuration.QueryConfirmation(data, server ? QueryScope.Server : QueryScope.Client, () => {
+                    if (server) this.doServerQuery(data, clientQuery, callback, errorCallback);
+                    else this.doClientQuery(clientQuery, callback);
+                });
+            } else {
+                if (server) this.doServerQuery(data, clientQuery, callback, errorCallback);
+                else this.doClientQuery(clientQuery, callback);
+            }
+        }
+
+        private doClientQuery(clientQuery: IQuery, callback: (data: any) => void) {
+            this._isLoading = true;
+            this._dataHolder.filterStoredData(clientQuery, -1);
+            callback(null);
+            this._isLoading = false;
+        }
 
         /**
          * Sends specified request to server and lets table handle it. 
@@ -308,48 +393,26 @@
          * @param queryModifier Inline query modifier for in-place query modification
          * @param errorCallback Will be called if error occures
          */
-        public requestServer(command: string, callback: (data: any) => void, queryModifier?: (a: IQuery) => IQuery, errorCallback?: (data: any) => void, force?: boolean): void {
-
-            var scope: QueryScope = QueryScope.Transboundary;
-            if (command === 'query') scope = QueryScope.Server;
-
-            var serverQuery: IQuery = this.gatherQuery(scope);
-
-            var clientQuery: IQuery = null;
-            if (command === 'query') clientQuery = this.gatherQuery(QueryScope.Client);
-
-            if (queryModifier) {
-                queryModifier(serverQuery);
-                if (command === 'query') queryModifier(clientQuery);
+        public command(command: string, callback: (data: any) => void, queryModifier?: (a: IQuery) => IQuery, errorCallback?: (data: any) => void, force?: boolean): void {
+            if (command === 'query') {
+                this.query(callback, queryModifier, errorCallback, force);
+                return;
             }
 
-            var queriesEqual: boolean = (command === 'query') && (JSON.stringify(serverQuery) === this._previousQueryString);
-            this._masterTable.Selection.modifyQuery(serverQuery, scope);
-            if (force || !queriesEqual) {
+            var serverQuery: IQuery = this.gatherQuery(QueryScope.Transboundary);
+            if (queryModifier) {
+                queryModifier(serverQuery);
+            }
+            this._masterTable.Selection.modifyQuery(serverQuery, QueryScope.Transboundary);
 
-                var data: IPowerTableRequest = {
-                    Command: command,
-                    Query: serverQuery
-                };
-                if (this._masterTable.InstanceManager.Configuration.QueryConfirmation) {
-                    this._masterTable.InstanceManager.Configuration.QueryConfirmation(data, scope, () => this.doServerQuery(data, clientQuery, callback, errorCallback));
-                } else {
-                    this.doServerQuery(data, clientQuery, callback, errorCallback);
-                }
+            var data: IPowerTableRequest = {
+                Command: command,
+                Query: serverQuery
+            };
+            if (this._masterTable.Configuration.QueryConfirmation) {
+                this._masterTable.Configuration.QueryConfirmation(data, QueryScope.Transboundary, () => this.doServerQuery(data, null, callback, errorCallback));
             } else {
-                if (this._masterTable.InstanceManager.Configuration.QueryConfirmation) {
-                    this._masterTable.InstanceManager.Configuration.QueryConfirmation({ Command: 'Query', Query: clientQuery }, QueryScope.Client, () => {
-                        this._isLoading = true;
-                        this._dataHolder.filterStoredData(clientQuery);
-                        callback(null);
-                        this._isLoading = false;
-                    });
-                } else {
-                    this._isLoading = true;
-                    this._dataHolder.filterStoredData(clientQuery);
-                    callback(null);
-                    this._isLoading = false;
-                }
+                this.doServerQuery(data, null, callback, errorCallback);
             }
         }
     }

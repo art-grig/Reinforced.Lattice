@@ -1,10 +1,10 @@
 ﻿using System;
 
-namespace PowerTables.Templating.Handlebars.Expressions
+namespace PowerTables.Templating.Expressions.Visiting
 {
-    class HbUnaryExpression : HbExpression
+    class JsUnaryExpression : JsExpression
     {
-        public HbExpression Expression { get; set; }
+        public JsExpression Expression { get; set; }
         public string Symbol { get; set; }
         public override string Build()
         {

@@ -121,6 +121,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\CheckboxifyButtons.cs" />
     <Compile Include="Controllers\EditController.cs" />
+    <Compile Include="Controllers\FilesystemTable.cs" />
     <Compile Include="Controllers\FormWatchController.cs" />
     <Compile Include="Controllers\HandleTutorial.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -141,10 +142,12 @@
     <Compile Include="Models\SimpleConfirmationModel.cs" />
     <Compile Include="Models\TargetData.cs" />
     <Compile Include="Models\TestTable.cs" />
+    <Compile Include="Models\Tutorial\Filesystem.cs" />
     <Compile Include="Models\Tutorial\HierarchyTable.cs" />
     <Compile Include="Models\Tutorial\NewEditing.cs" />
     <Compile Include="Models\Tutorial\PermanentQueryPartProvider.cs" />
     <Compile Include="Models\Tutorial\ClientReloadingWithQueryPartProvider.cs" />
+    <Compile Include="Models\Tutorial\ScrollbarTest.cs" />
     <Compile Include="Models\Tutorial\SubscribingCellAndRowEvents.cs" />
     <Compile Include="Models\Tutorial\TableAdvancedTemplating.cs" />
     <Compile Include="Models\Tutorial\ClientTotals.cs" />
@@ -194,6 +197,7 @@
     <Content Include="Content\users.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="bundleconfig.json" />
     <None Include="Scripts\jquery-2.1.4.intellisense.js" />
     <Content Include="Scripts\jquery-2.1.4.js" />
     <Content Include="Scripts\jquery-2.1.4.min.js" />
@@ -266,6 +270,9 @@
     <Content Include="Scripts\locales\bootstrap-datepicker.zh-TW.min.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
     <Content Include="Scripts\powertables.js" />
+    <Content Include="Scripts\powertables.min.js">
+      <DependentUpon>powertables.js</DependentUpon>
+    </Content>
     <Content Include="Scripts\prism.js" />
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />

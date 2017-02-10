@@ -1,0 +1,95 @@
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')" />
+    <PropertyGroup>   
+        <TypeScriptToolsVersion>1.8</TypeScriptToolsVersion>   
+        <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
+        <TypeScriptSourceMap>true</TypeScriptSourceMap>
+        <TypeScriptOutFile>..\PowerTables.Mvc\Scripts\powertables.js</TypeScriptOutFile>
+        <TypeScriptGeneratesDeclarations>True</TypeScriptGeneratesDeclarations>
+        <TypeScriptMapRoot>..\PowerTables.Mvc\Scripts\</TypeScriptMapRoot>
+        <BuildingProject>true</BuildingProject>
+    </PropertyGroup>
+    <ItemGroup>
+    <TypeScriptCompile Include="..\PowerTables.Typings\Scripts\Interfaces.ts">
+      <Link>Scripts\Interfaces.ts</Link>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="Scripts\PowerTables\CoreInterfaces.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Rendering\Resensor.ts" />    
+    <TypeScriptCompile Include="Scripts\PowerTables\Templating\BackbindInfo.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Templating\Templates.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Templating\TemplateProcess.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Templating\Lib.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Templating\TemplatesExecutor.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Templating\Driver.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Event.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\TrackHelper.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\ComponentsContainer.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Services\DateService.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Services\StatsService.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Services\EventsDelegatorService.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Services\EventsService.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Services\Controller.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Services\DataHolderService.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Services\InstanceManagerService.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Services\LoaderService.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Services\CommandsService.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Services\SelectionService.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Rendering\BackBinder.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Rendering\DOMModifier.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Rendering\HtmlToDom.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Rendering\DOMLocator.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Rendering\Renderer.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Templating\RenderingStack.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Rendering\VisualState.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\PowerTables.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\PluginBase.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Filters\FilterBase.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\OrderingPlugin.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\LimitPlugin.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\PagingPlugin.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Filters\ValueFilterPlugin.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Filters\RangeFilterPlugin.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Filters\SelectFilterPlugin.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\HideoutPlugin.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\ResponseInfoPlugin.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\TotalsPlugin.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\CheckboxifyPlugin.ts" />
+    <TypeScriptCompile Include="Scripts\Typings\CheckboxifyPlugin.d.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\ToolbarPlugin.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\ScrollbarPlugin.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\FormwatchPlugin.ts" />
+    <TypeScriptCompile Include="Scripts\Typings\HideoutPlugin.d.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Services\Partition\BackgroundDataLoader.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Services\Partition\PartitionIndicator.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Services\Partition\ClientPartitionService.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Services\Partition\IPartitionService.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Services\Partition\ServerPartitionService.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Services\Partition\SequentialPartitionService.ts" />
+    <TypeScriptCompile Include="Scripts\Typings\Limit.d.ts" />
+    <TypeScriptCompile Include="Scripts\Typings\PagingPlugin.d.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\LoadingOverlapPlugin.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\RegularSelectPlugin.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Services\MessagesService.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\ReloadPlugin.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\LoadingPlugin.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\HierarchyPlugin.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Editing\EditorBase.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Editing\EditHandlerBase.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Editing\Cells\CellsEditHandler.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Editing\Rows\RowsEditHandler.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Editing\Form\FormEditHandler.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Editing\Editors\PlainText\PlainTextEditor.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Editing\Editors\SelectList\SelectListEditor.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Editing\Editors\Check\CheckEditor.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Editing\Editors\Memo\MemoEditor.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Editing\Editors\Display\DisplayEditor.ts" />
+    <TypeScriptCompile Include="Scripts\PowerTables\Plugins\MouseSelectPlugin.ts" />
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">15.0</VisualStudioVersion>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v15.0\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v15.0\TypeScript\Microsoft.TypeScript.targets')" />
+  <Target Name='Build'>
+    <CallTarget Targets="CompileTypeScript;CompileTypeScriptWithTSConfig;"/>  
+  </Target>
+</Project>

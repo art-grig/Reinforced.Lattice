@@ -14,11 +14,11 @@
                     this._clientValueFunction[col.RawName] = col.Configuration.ClientValueFunction;
                 }
             }
-            this._configuration = masterTable.InstanceManager.Configuration;
+            this._configuration = masterTable.Configuration;
             this.compileComparisonFunction();
         }
 
-        private _configuration: PowerTables.Configuration.Json.ITableConfiguration;
+        private _configuration: PowerTables.ITableConfiguration;
 
         private _hasPrimaryKey: boolean;
 
@@ -32,7 +32,9 @@
         private _clientValueFunction: { [key: string]: (dataObject: any) => any } = {}
 
         /**
-         * Data that actually is currently displayed in table
+         * Data that actually is currently displayed in table.
+         * If target user uses partition correctly - usually it is small collection.
+         * And let's keep it small
          */
         public DisplayedData: any[] = [];
 
@@ -42,20 +44,10 @@
         public StoredData: any[] = [];
 
         /**
-         * Enable query truncation from beginning during executing client queries
-         */
-        public EnableClientSkip: boolean;
-
-        /**
-         * Enable query truncation by data cound during executing client queries
-         */
-        public EnableClientTake: boolean;
-
-        /**
-         * Registers client filter
-         * 
-         * @param filter Client filter
-         */
+ * Registers client filter
+ * 
+ * @param filter Client filter
+ */
         public registerClientFilter(filter: IClientFilter): void {
             this._anyClientFiltration = true;
             this._filters.push(filter);
@@ -70,6 +62,41 @@
             this._filters = [];
         }
 
+        public compileKeyFunction(keyFields: string[]): (x: any) => string {
+            if (!window['___ltcstrh']) {
+                window['___ltcstrh'] = function (x: String) {
+                    if (x == null) return '';
+                    var r = '';
+                    for (var i = 0; i < x.length; i++) {
+                        if (x[i] === '\\') r += '\\\\';
+                        else if (x[i] === ':') r += '\\:';
+                        else r += x[i];
+                    }
+                    return r;
+                }
+            }
+            var fields = [];
+            for (var i = 0; i < keyFields.length; i++) {
+                var field = keyFields[i];
+                if (this._instances.Columns[keyFields[i]].IsDateTime) {
+                    fields.push(`((x.${field})==null?'':((x.${field}).getTime()))`);
+                } else {
+                    if (this._instances.Columns[keyFields[i]].IsBoolean) {
+                        fields.push(`((x.${field})==null?'':(x.${field}?'1':'0'))`);
+                    }
+                    else if (this._instances.Columns[keyFields[i]].IsString) {
+
+                        fields.push(`(window.___ltcstrh(x.${field}))`);
+                    } else {
+                        fields.push(`((x.${field})==null?'':(x.${field}.toString()))`);
+                    }
+                }
+            }
+            var keyStr = fields.join('+":"+');
+            return eval(`(function(x) { return (${keyStr}) + ':'; })`);
+
+        }
+
         private compileComparisonFunction() {
             if ((!this._configuration.KeyFields) || (this._configuration.KeyFields.length === 0)) {
                 this.DataObjectComparisonFunction = <any>(function () {
@@ -82,38 +109,8 @@
                 return;
             }
             if (this._configuration.KeyFields.length === 0) return;
-            if (!window['___ltcstrh']) {
-                window['___ltcstrh'] = function(x:String) {
-                    if (x == null) return '';
-                    var r = '';
-                    for (var i = 0; i < x.length; i++) {
-                        if (x[i] === '\\') r += '\\\\';
-                        else if (x[i] === ':') r += '\\:';
-                        else r += x[i];
-                    }
-                    return r;
-                }
-            }
-            var fields = [];
-            for (var i = 0; i < this._configuration.KeyFields.length; i++) {
-                var field = this._configuration.KeyFields[i];
-                if (this._instances.Columns[this._configuration.KeyFields[i]].IsDateTime) {
-                    fields.push(`((x.${field})==null?'':((x.${field}).getTime()))`);
-                } else {
-                    if (this._instances.Columns[this._configuration.KeyFields[i]].IsBoolean) {
-                        fields.push(`((x.${field})==null?'':(x.${field}?'1':'0'))`);
-                    }
-                    else if (this._instances.Columns[this._configuration.KeyFields[i]].IsString) {
-
-                        fields.push(`(window.___ltcstrh(x.${field}))`);
-                    } else {
-                        fields.push(`((x.${field})==null?'':(x.${field}.toString()))`);
-                    }
-                }
-            }
-            var keyStr = fields.join('+":"+');
             this.DataObjectComparisonFunction = function (x, y) { return x['__key'] === y['__key']; };
-            this.PrimaryKeyFunction = eval(`(function(x) { return (${keyStr}) + ':'; })`);
+            this.PrimaryKeyFunction = this.compileKeyFunction(this._configuration.KeyFields);
             this._hasPrimaryKey = true;
         }
 
@@ -145,7 +142,7 @@
         private _manadatoryOrderings: string[] = [];
 
         private isClientFiltrationPending(): boolean {
-            return (this.EnableClientSkip || this.EnableClientTake || this._anyClientFiltration);
+            return this._anyClientFiltration;
         }
 
         public deserializeData(source: any[]): any[] {
@@ -174,7 +171,11 @@
                     data.push(obj);
                     if (this._hasPrimaryKey) {
                         obj['__key'] = this.PrimaryKeyFunction(obj);
+                        if (this._pkDataCache.hasOwnProperty(obj['__key'])) {
+                            obj['__i'] = this._pkDataCache[obj['__key']]['__i'];
+                        }
                     }
+
                     obj = {};
                 }
                 currentCol = this._rawColumnNames[currentColIndex];
@@ -195,12 +196,17 @@
         /**
         * Parses response from server and turns it to objects array
         */
+
+        public StoredCache: { [_: number]: any } = {}
         public storeResponse(response: IPowerTablesResponse, clientQuery: IQuery) {
             var data: any[] = [];
             var obj: {} = {};
             var currentColIndex: number = this.getNextNonSpecialColumn(-1);
             var currentCol: string = this._rawColumnNames[currentColIndex];
-            this._storedDataCache = {};
+            if (!clientQuery.IsBackgroundDataFetch) {
+                this._pkDataCache = {};
+                this.StoredCache = {};
+            }
 
             for (var i: number = 0; i < response.Data.length; i++) {
                 if (this._instances.Columns[currentCol].IsDateTime) {
@@ -219,21 +225,27 @@
                     for (var ck in this._clientValueFunction) {
                         obj[ck] = this._clientValueFunction[ck](obj);
                     }
-                    data.push(obj);
+
                     if (this._hasPrimaryKey) {
                         obj['__key'] = this.PrimaryKeyFunction(obj);
-                        this._storedDataCache[obj['__key']] = obj; // line that makes difference
+                        if (!this._pkDataCache[obj['__key']]) data.push(obj);
+                        this._pkDataCache[obj['__key']] = obj; // line that makes difference
+                    } else {
+                        data.push(obj);
                     }
+                    obj['__i'] = clientQuery.Partition.Skip + data.length - 1;
+                    this.StoredCache[obj['__i']] = obj;
                     obj = {};
                 }
                 currentCol = this._rawColumnNames[currentColIndex];
             }
-            this.StoredData = data;
-            this.filterStoredData(clientQuery);
-            this.updateStats(response.ResultsCount);
+            if (!clientQuery.IsBackgroundDataFetch) this.StoredData = data;
+            else this.StoredData = this.StoredData.concat(data);
+
+
         }
 
-        private _storedDataCache: { [_: string]: any };
+        private _pkDataCache: { [_: string]: any };
 
         //#region Client processing
 
@@ -268,6 +280,26 @@
             return objects;
         }
 
+        public satisfyCurrentFilters(obj: any): boolean {
+            if (!this.RecentClientQuery) return true;
+            return this.satisfyFilters(obj, this.RecentClientQuery);
+        }
+
+        public satisfyFilters(obj: any, query: IQuery): boolean {
+            if (this._filters.length === 0) return true;
+            var acceptable: boolean = true;
+            for (var j: number = 0; j < this._filters.length; j++) {
+                var filter: IClientFilter = this._filters[j];
+                acceptable = filter.filterPredicate(obj, query);
+                if (!acceptable) break;
+            }
+            return acceptable;
+        }
+
+        public orderWithCurrentOrderings(set: any[]) {
+            return this.orderSet(set, this.RecentClientQuery);
+        }
+
         /**
         * Orders supplied data set using client query 
         * 
@@ -280,8 +312,6 @@
                 var sortFn: string = '';
                 var comparersArg: string = '';
                 var orderFns: any[] = [];
-
-
                 for (var i: number = 0; i < this._rawColumnNames.length; i++) {
                     var orderingKey: string = this._rawColumnNames[i];
                     if (query.Orderings.hasOwnProperty(orderingKey) || (this._manadatoryOrderings.indexOf(orderingKey) >= 0)) {
@@ -307,26 +337,7 @@
             return objects;
         }
 
-        private skipTakeSet(ordered: any[], query: IQuery): any[] {
-            var selected = ordered;
 
-            var startingIndex: number = query.Paging.PageIndex * query.Paging.PageSize;
-            if (startingIndex > ordered.length) startingIndex = 0;
-            var take: number = query.Paging.PageSize;
-            if (this.EnableClientSkip && this.EnableClientTake) {
-                if (take === 0) selected = ordered.slice(startingIndex);
-                else selected = ordered.slice(startingIndex, startingIndex + take);
-            } else {
-                if (this.EnableClientSkip) {
-                    selected = ordered.slice(startingIndex);
-                } else if (this.EnableClientTake) {
-                    if (take !== 0) {
-                        selected = ordered.slice(0, query.Paging.PageSize);
-                    }
-                }
-            }
-            return selected;
-        }
 
         /**
          * Part of data currently displayed without ordering and paging
@@ -344,7 +355,8 @@
          * @param query Table query
          * @returns {} 
          */
-        public filterStoredData(query: IQuery) {
+
+        public filterStoredData(query: IQuery, serverCount: number) {
             this._events.ClientDataProcessing.invokeBefore(this, query);
 
             this.DisplayedData = this.StoredData;
@@ -355,16 +367,17 @@
 
             if (this.isClientFiltrationPending() && (!(!query))) {
                 var copy: any[] = this.StoredData.slice();
-                var filtered: any[] = this.filterSet(copy, query);
-                var ordered: any[] = this.orderSet(filtered, query);
-                var selected: any[] = this.skipTakeSet(ordered, query);
 
-                this.Filtered = filtered;
-                this.Ordered = ordered;
-                this.DisplayedData = selected;
-                
+                this._masterTable.Events.Filtered.invokeBefore(this, copy);
+                this.Filtered = this.filterSet(copy, query);
+                this._masterTable.Events.Filtered.invokeAfter(this, this.Filtered);
+
+                this._masterTable.Events.Ordered.invokeBefore(this, this.Filtered);
+                this.Ordered = this.orderSet(this.Filtered, query);
+                this._masterTable.Events.Ordered.invokeAfter(this, this.Ordered);
+
             }
-            this.updateStats();
+            this.DisplayedData = this._masterTable.Partition.partitionAfterQuery(this.Ordered, query, serverCount);
 
             this._events.ClientDataProcessing.invokeAfter(this, {
                 Displaying: this.DisplayedData,
@@ -374,13 +387,12 @@
             });
         }
 
-
         /**
          * Filter recent data and store it to currently displaying data 
          * using query that was previously applied to local data         
          */
         public filterStoredDataWithPreviousQuery() {
-            this.filterStoredData(this.RecentClientQuery);
+            this.filterStoredData(this.RecentClientQuery, -1);
         }
 
         //#endregion
@@ -400,7 +412,7 @@
                     result.push({
                         DataObject: setToLookup[i],
                         IsCurrentlyDisplaying: false,
-                        LoadedIndex: i,
+                        LoadedIndex: setToLookup[i]['__i'],
                         DisplayedIndex: -1
                     });
                 }
@@ -430,7 +442,7 @@
                 DataObject: dataObject,
                 IsCurrentlyDisplaying: true,
                 DisplayedIndex: index,
-                LoadedIndex: this.StoredData.indexOf(dataObject)
+                LoadedIndex: dataObject['__i']
             };
 
             return result;
@@ -457,26 +469,6 @@
         }
 
         /**
-         * Finds data object among currently displayed and returns ILocalLookupResult 
-         * containing also Loaded-set index of this data object
-         * 
-         * @param index Index of desired data object among locally displaying data
-         * @returns ILocalLookupResult
-         */
-        public localLookupDisplayedData(index: number): ILocalLookupResult {
-            if (index < 0) return null;
-            if (index > this.DisplayedData.length) return null;
-            var result: ILocalLookupResult = {
-                DataObject: this.DisplayedData[index],
-                IsCurrentlyDisplaying: true,
-                DisplayedIndex: index,
-                LoadedIndex: this.StoredData.indexOf(this.DisplayedData[index])
-            };
-
-            return result;
-        }
-
-        /**
          * Finds data object among recently loaded and returns ILocalLookupResult 
          * containing also Loaded-set index of this data object
          * 
@@ -497,13 +489,30 @@
         }
 
         public getByPrimaryKeyObject(primaryKeyPart: any): any {
-            return this._storedDataCache[this.PrimaryKeyFunction(primaryKeyPart)];
+            return this._pkDataCache[this.PrimaryKeyFunction(primaryKeyPart)];
         }
 
         public getByPrimaryKey(primaryKey: string): any {
-            return this._storedDataCache[primaryKey];
+            return this._pkDataCache[primaryKey];
         }
-
+        public detachByKey(key: string) {
+            var obj = this.getByPrimaryKey(key);
+            if (!obj) return;
+            this.detach(obj);
+        }
+        public detach(dataObject: any) {
+            if (!dataObject) return;
+            delete this.StoredCache[dataObject['__i']];
+            delete this._pkDataCache[dataObject['__key']];
+            var idx = this.StoredData.indexOf(dataObject);
+            if (idx > -1) this.StoredData.splice(idx, 1);
+            idx = this.Filtered.indexOf(dataObject);
+            if (idx > -1) this.Filtered.splice(idx, 1);
+            idx = this.Ordered.indexOf(dataObject);
+            if (idx > -1) this.Ordered.splice(idx, 1);
+            idx = this.DisplayedData.indexOf(dataObject);
+            if (idx > -1) this.DisplayedData.splice(idx, 1);
+        }
 
         /**
          * Finds data object among recently loaded by primary key and returns ILocalLookupResult 
@@ -514,33 +523,25 @@
          */
         public localLookupPrimaryKey(dataObject: any, setToLookup: any[] = this.StoredData): ILocalLookupResult {
             var found = null;
-            var foundIdx = 0;
 
-            for (var i = 0; i < setToLookup.length; i++) {
-                if (this.DataObjectComparisonFunction(dataObject, setToLookup[i])) {
-                    found = setToLookup[i];
-                    foundIdx = i;
-                    break;
-                }
-            }
-            var result: ILocalLookupResult;
-            if (found == null) {
-                result = {
-                    DataObject: null,
-                    IsCurrentlyDisplaying: false,
-                    DisplayedIndex: -1,
-                    LoadedIndex: -1
-                };
-            } else {
-                var cdisp = this.DisplayedData.indexOf(found);
-                result = {
-                    DataObject: found,
-                    IsCurrentlyDisplaying: cdisp > -1,
-                    DisplayedIndex: cdisp,
-                    LoadedIndex: foundIdx
-                };
-            }
-            return result;
+            var nullResult = {
+                DataObject: null,
+                IsCurrentlyDisplaying: false,
+                DisplayedIndex: -1,
+                LoadedIndex: -1
+            };
+            if (!this._hasPrimaryKey) return nullResult;
+            var pk = this.PrimaryKeyFunction(dataObject);
+            if (!this._pkDataCache.hasOwnProperty(pk)) return nullResult;
+
+            found = this._pkDataCache[pk];
+            var cdisp = this.DisplayedData.indexOf(found);
+            return {
+                DataObject: found,
+                IsCurrentlyDisplaying: cdisp > -1,
+                DisplayedIndex: cdisp,
+                LoadedIndex: found['__i']
+            };
         }
 
         //#endregion
@@ -584,6 +585,7 @@
             if (this._hasPrimaryKey) {
                 def['__key'] = this.PrimaryKeyFunction(def);
             }
+            def['__i'] = this.StoredData.length - 1;
             return def;
         }
 
@@ -597,20 +599,24 @@
             var touchedColumns = [];
             var added = [];
 
-            var adjustedObjects = this.deserializeData(adjustments.UpdatedData);
+            var objects = this.deserializeData(adjustments.UpdatedData);
 
-            for (var i = 0; i < adjustedObjects.length; i++) {
+            for (var i = 0; i < objects.length; i++) {
 
-                var update = this.getByPrimaryKey(adjustedObjects[i]['__key']);
+                var update = this.getByPrimaryKey(objects[i]['__key']);
                 if (!update) {
                     //if (this.StoredData.length > 0) { whoai?!
-                    this.StoredData.push(adjustedObjects[i]);
-                    added.push(adjustedObjects[i]);
-                    this._storedDataCache[adjustedObjects[i]['__key']] = adjustedObjects[i];
+                    this.StoredData.push(objects[i]);
+                    if (!objects[i].hasOwnProperty('__i')) {
+                        objects[i]['__i'] = this._masterTable.Partition.Skip + this.StoredData.length - 1;
+                    }
+                    added.push(objects[i]);
+                    this._pkDataCache[objects[i]['__key']] = objects[i];
+                    this.StoredCache[objects[i]['__i']] = objects[i];
                     needRefilter = true;
                     //}
                 } else {
-                    touchedColumns.push(this.copyData(adjustedObjects[i], update));
+                    touchedColumns.push(this.copyData(objects[i], update));
                     touchedData.push(update);
                     if (this.DisplayedData.indexOf(update) > -1) {
                         redrawVisibles.push(update);
@@ -623,10 +629,13 @@
                 var dataObject = this.getByPrimaryKey(adjustments.RemoveKeys[j]);
                 if (dataObject == null || dataObject == undefined) continue;
 
-                if (this.StoredData.indexOf(dataObject) > -1) {
+                var storedIdx = this.StoredData.indexOf(dataObject);
+                if (storedIdx > -1) {
+                    var dto = this.StoredData[storedIdx];
                     this.StoredData.splice(this.StoredData.indexOf(dataObject), 1);
                     needRefilter = true;
-                    delete this._storedDataCache[adjustments.RemoveKeys[j]];
+                    delete this._pkDataCache[adjustments.RemoveKeys[j]];
+                    delete this.StoredCache[dto['__i']];
                 }
 
                 if (this.Filtered.indexOf(dataObject) > -1) {
@@ -639,60 +648,20 @@
                     needRefilter = true;
                 }
             }
-            this._masterTable.Selection.handleAdjustments(added,adjustments.RemoveKeys);
+            this._masterTable.Selection.handleAdjustments(added, adjustments.RemoveKeys);
 
-            if (needRefilter) {
-                this.filterStoredDataWithPreviousQuery();
-                redrawVisibles = [];
-                for (var k = 0; k < added.length; k++) {
-                    if (this.DisplayedData.indexOf(added[k]) > -1) redrawVisibles.push(added[k]);
-                }
-
-                for (var l = 0; l < touchedData.length; l++) {
-                    if (this.DisplayedData.indexOf(touchedData[l]) > -1) redrawVisibles.push(touchedData[l]);
-                }
-            }
-
-            return {
-                NeedRedrawAllVisible: needRefilter,
-                VisiblesToRedraw: redrawVisibles,
+            var adresult = {
+                NeedRefilter: needRefilter,
                 AddedData: added,
                 TouchedData: touchedData,
                 TouchedColumns: touchedColumns
-            }
+            };
+            this._masterTable.Events.Adjustment.invokeAfter(this, adresult);
+            return adresult;
         }
         //#endregion
-
-        public Stats:IStats = {
-            CurrentPage: 0,
-            TotalPages: 0,
-            CurrentPageSize: 0,
-            TotalItems: 0,
-            CurrentlyDisplayingItems: 0,
-            TotalLoadedItems: 0
-        };
-
-        private updateStats(totalItems?:number) {
-            this.Stats.CurrentPage = this.RecentClientQuery.Paging.PageIndex;
-            this.Stats.CurrentPageSize = this.RecentClientQuery.Paging.PageSize;
-            this.Stats.TotalLoadedItems = this.StoredData.length;
-            this.Stats.CurrentlyDisplayingItems = this.DisplayedData.length;
-            if (totalItems != null) {
-                this.Stats.TotalItems = totalItems;
-            }
-            if (this.Stats.CurrentPageSize != 0) {
-                this.Stats.TotalPages = this.Stats.TotalItems / this.Stats.CurrentPageSize;
-            }
-        }
     }
 
-    export interface IStats {
-        CurrentPage: number;
-        TotalPages: number;
-        CurrentPageSize: number;
-        TotalItems: number;
-        CurrentlyDisplayingItems: number;
-        TotalLoadedItems:number;
-    }
+
 
 }

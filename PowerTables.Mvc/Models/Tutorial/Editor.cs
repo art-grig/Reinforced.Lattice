@@ -129,7 +129,7 @@ namespace PowerTables.Mvc.Models.Tutorial
                 c.AddCommandButton("Test Selection", "Test").DisableIfNothingChecked();
             });
 
-
+            conf.Partition(x => x.Server());
             conf.AddColumn<bool>("NewColumn", c => !c.IsPaid, (c, v) => c.IsPaid = !v).Title("New column").ClientExpression("!{IsPaid}");
             conf.Checkboxify();
             return conf;

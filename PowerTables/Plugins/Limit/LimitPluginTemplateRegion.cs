@@ -1,6 +1,6 @@
 ﻿using System.Web.Mvc;
 using PowerTables.Templating;
-using PowerTables.Templating.Handlebars;
+using PowerTables.Templating.Expressions;
 
 namespace PowerTables.Plugins.Limit
 {
@@ -30,7 +30,7 @@ namespace PowerTables.Plugins.Limit
         /// <summary>
         /// All available sizes
         /// </summary>
-        IHbArray<ILimitSize> Sizes { get; }
+        IJsArray<ILimitSize> Sizes { get; }
     }
 
     /// <summary>

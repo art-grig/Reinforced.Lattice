@@ -1,7 +1,7 @@
 ﻿
 module PowerTables.Plugins.Limit {
-    
-    export class LimitPlugin extends PowerTables.Filters.FilterBase<Plugins.Limit.ILimitClientConfiguration> {
+
+    export class LimitPlugin extends PowerTables.Plugins.PluginBase<Plugins.Limit.ILimitClientConfiguration> {
         public SelectedValue: ILimitSize;
         private _limitSize = 0;
         public Sizes: ILimitSize[] = [];
@@ -11,42 +11,46 @@ module PowerTables.Plugins.Limit {
         }
 
         public changeLimitHandler(e: PowerTables.ITemplateBoundEvent) {
-            var limit = parseInt(e.EventArguments[0]);
-            if (isNaN(limit)) limit = 0;
-            this.changeLimit(limit);
+            var limit = e.EventArguments[0];
+            if (typeof limit === "string") limit = 0;
+            this.MasterTable.Partition.setTake(limit);
         }
 
-        public changeLimit(limit: number) {
+        public changeLimit(take: number) {
+            var limit = take;
             var changed = this._limitSize !== limit;
             if (!changed) return;
             this._limitSize = limit;
             var labelPair = null;
             for (var i = 0; i < this.Sizes.length; i++) {
-                labelPair = this.Sizes[i];
-                if (labelPair.Value === limit) {
+                if (this.Sizes[i].Value === limit) {
+                    labelPair = this.Sizes[i];
                     break;
                 }
             }
-            if (labelPair != null) this.SelectedValue = labelPair;
+            if (labelPair != null) {
+                this.SelectedValue = labelPair;    
+            } else {
+                this.SelectedValue = {
+                    IsSeparator: false,
+                    Label: take.toString(),
+                    Value: take
+                }
+            }
+            
             this.MasterTable.Renderer.Modifier.redrawPlugin(this);
-            if (this.Configuration.ReloadTableOnLimitChange) this.MasterTable.Controller.reload();
         }
 
-        public modifyQuery(query: IQuery, scope: QueryScope): void {
-            var client = this.Configuration.EnableClientLimiting;
-
-            if (client && (scope === QueryScope.Client || scope === QueryScope.Transboundary)) {
-                query.Paging.PageSize = this._limitSize;
-            }
-
-            if (!client && (scope === QueryScope.Server || scope === QueryScope.Transboundary)) {
-                query.Paging.PageSize = this._limitSize;
+        private onPartitionChange(e: ITableEventArgs<IPartitionChangeEventArgs>) {
+            if (e.EventArgs.Take !== e.EventArgs.PreviousTake) {
+                this.changeLimit(e.EventArgs.Take);
             }
         }
 
         public init(masterTable: IMasterTable): void {
             super.init(masterTable);
             var def = null;
+            var initTake = this.MasterTable.Configuration.Partition.InitialTake.toString();
             for (var i = 0; i < this.Configuration.LimitValues.length; i++) {
                 var a = <ILimitSize>{
                     Value: this.Configuration.LimitValues[i],
@@ -54,36 +58,25 @@ module PowerTables.Plugins.Limit {
                     IsSeparator: this.Configuration.LimitLabels[i] === '-'
                 };
                 this.Sizes.push(a);
-                if (a.Label === this.Configuration.DefaultValue) {
+                if (a.Value === this.MasterTable.Configuration.Partition.InitialTake) {
                     def = a;
                 }
             }
+            if (def == null) {
+                def = <ILimitSize>{
+                    Value: this.MasterTable.Configuration.Partition.InitialTake,
+                    Label: initTake,
+                    IsSeparator: false,
+                };
+                this.Sizes.push(a);
 
-            if (def) {
-                this.SelectedValue = def;
-                this._limitSize = def.Value;
-            } else {
-                this._limitSize = 0;
             }
-
-            if (this.Configuration.EnableClientLimiting) {
-                this.MasterTable.DataHolder.EnableClientTake = true;
-            }
-
-            this.MasterTable.Events.ColumnsCreation.subscribe(this.onColumnsCreation.bind(this), 'paging');
-
+            this.SelectedValue = def;
+            this._limitSize = def.Value;
         }
 
-        private onColumnsCreation() {
-            if (this.Configuration.EnableClientLimiting && !this.MasterTable.DataHolder.EnableClientSkip) {
-                var paging = null;
-                try {
-                    paging = this.MasterTable.InstanceManager.getPlugin('Paging');
-                } catch (a) {
-                }
-                if (paging != null)
-                    throw new Error('Limit ang paging plugin must both work locally or both remote. Please enable client paging');
-            }
+        public subscribe(e: PowerTables.Services.EventsService): void {
+            e.PartitionChanged.subscribeAfter(this.onPartitionChange.bind(this), 'limit');
         }
     }
 

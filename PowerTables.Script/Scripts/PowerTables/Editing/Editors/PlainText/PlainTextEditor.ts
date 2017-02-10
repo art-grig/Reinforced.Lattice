@@ -25,6 +25,7 @@
         }
 
         public setValue(value: any): void {
+            if (!this.Input) return;
             if (this.Column.IsDateTime) {
                 this.MasterTable.Date.putDateToDatePicker(this.Input, value);
             } else {

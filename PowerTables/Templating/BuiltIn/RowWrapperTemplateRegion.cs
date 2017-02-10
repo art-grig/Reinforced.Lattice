@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using PowerTables.Templating.Handlebars;
+using PowerTables.Templating.Expressions;
 
 namespace PowerTables.Templating.BuiltIn
 {
@@ -45,10 +45,13 @@ namespace PowerTables.Templating.BuiltIn
         /// </summary>
         bool CanBeSelected { get; }
 
+        bool IsCommandSubject { get; }
+
         /// <summary>
         /// Data object 
         /// </summary>
-        TRow DataObject { get; }
+        [OverrideTplFieldName("DataObject")]
+        TRow DO { get; }
 
         /// <summary>
         /// Row index
@@ -58,7 +61,7 @@ namespace PowerTables.Templating.BuiltIn
         /// <summary>
         /// Row cells
         /// </summary>
-        IHbArray<ICellModel<TRow>> Cells { get; }
+        IJsArray<ICellModel<TRow>> Cells { get; }
     }
 
     public static class RowWrapperExtensions

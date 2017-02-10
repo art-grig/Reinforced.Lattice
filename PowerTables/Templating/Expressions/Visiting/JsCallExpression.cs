@@ -2,17 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace PowerTables.Templating.Handlebars.Expressions
+namespace PowerTables.Templating.Expressions.Visiting
 {
-    class HbCallExpression : HbExpression
+    class JsCallExpression : JsExpression
     {
-        public HbExpression ExpressionToCall { get; set; }
+        public JsExpression ExpressionToCall { get; set; }
 
-        public List<HbExpression> Arguments { get; set; }
+        public List<JsExpression> Arguments { get; set; }
 
-        public HbCallExpression()
+        public JsCallExpression()
         {
-            Arguments = new List<HbExpression>();
+            Arguments = new List<JsExpression>();
         }
 
         public override string Build()

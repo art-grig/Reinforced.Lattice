@@ -3,43 +3,42 @@
 
         constructor(masterTable: IMasterTable) {
             this._masterTable = masterTable;
-            this._configuration = this._masterTable.InstanceManager.Configuration.SelectionConfiguration;
+            this._configuration = this._masterTable.Configuration.SelectionConfiguration;
             if (this._configuration.SelectSingle) {
-                this._configuration.SelectAllBehavior = PowerTables.Configuration.Json.SelectAllBehavior.Disabled;
+                this._configuration.SelectAllBehavior = PowerTables.SelectAllBehavior.Disabled;
             }
             if (this._configuration.ResetSelectionBehavior ===
-                PowerTables.Configuration.Json.ResetSelectionBehavior.ClientReload) {
+                PowerTables.ResetSelectionBehavior.ClientReload) {
                 masterTable.Events.ClientDataProcessing.subscribeAfter(x => this.resetSelection(), 'selection');
             }
             if (this._configuration.ResetSelectionBehavior ===
-                PowerTables.Configuration.Json.ResetSelectionBehavior.ServerReload) {
-                masterTable.Events.DataReceived.subscribe(x => {
+                PowerTables.ResetSelectionBehavior.ServerReload) {
+                masterTable.Events.DataReceived.subscribeBefore(x => {
                     if (x.EventArgs.Request.Command === 'query') this.resetSelection();
                 }, 'selection');
             }
             masterTable.Loader.registerAdditionalDataReceiver('Selection', this);
         }
 
-        private _configuration: PowerTables.Configuration.Json.ISelectionConfiguration;
+        private _configuration: PowerTables.ISelectionConfiguration;
 
         private _masterTable: IMasterTable;
 
         private _selectionData: { [primaryKey: string]: number[] } = {};
-        private _isAllSelected: boolean = false;
-
+        
         public isSelected(dataObject: any): boolean {
             return this.isSelectedPrimaryKey(dataObject['__key']);
         }
 
 
         public isAllSelected(): boolean {
-            //if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.Disabled) {
+            //if (this._configuration.SelectAllBehavior === PowerTables.SelectAllBehavior.Disabled) {
             //    return false;
             //}
-            //if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.OnlyIfAllDataVisible) {
+            //if (this._configuration.SelectAllBehavior === PowerTables.SelectAllBehavior.OnlyIfAllDataVisible) {
             //    return this._isAllSelected;
             //}
-
+            if (this._masterTable.DataHolder.DisplayedData.length === 0) return false;
             // extremely stupid - will be changed later
             for (var i = 0; i < this._masterTable.DataHolder.DisplayedData.length; i++) {
                 if (this.canSelect(this._masterTable.DataHolder.DisplayedData[i])) {
@@ -56,10 +55,11 @@
         }
 
         public canSelectAll(): boolean {
-            if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.Disabled) {
+            if (this._masterTable.DataHolder.DisplayedData.length === 0) return false;
+            if (this._configuration.SelectAllBehavior === PowerTables.SelectAllBehavior.Disabled) {
                 return false;
             }
-            if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.OnlyIfAllDataVisible) {
+            if (this._configuration.SelectAllBehavior === PowerTables.SelectAllBehavior.OnlyIfAllDataVisible) {
                 return this._masterTable.DataHolder.StoredData.length === this._masterTable.DataHolder.DisplayedData.length;
             }
             return true;
@@ -85,10 +85,10 @@
         }
 
         public toggleAll(selected?: boolean) {
-            if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.Disabled) {
+            if (this._configuration.SelectAllBehavior === PowerTables.SelectAllBehavior.Disabled) {
                 return;
             }
-            if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.OnlyIfAllDataVisible) {
+            if (this._configuration.SelectAllBehavior === PowerTables.SelectAllBehavior.OnlyIfAllDataVisible) {
                 if (this._masterTable.DataHolder.StoredData.length !==
                     this._masterTable.DataHolder.DisplayedData.length) return;
             }
@@ -101,9 +101,9 @@
 
             var objectsToRedraw = [];
             var objSet = null;
-            if (this._configuration.SelectAllBehavior === PowerTables.Configuration.Json.SelectAllBehavior.AllVisible ||
+            if (this._configuration.SelectAllBehavior === PowerTables.SelectAllBehavior.AllVisible ||
                 this._configuration.SelectAllBehavior ===
-                PowerTables.Configuration.Json.SelectAllBehavior.OnlyIfAllDataVisible
+                PowerTables.SelectAllBehavior.OnlyIfAllDataVisible
             ) {
                 objSet = this._masterTable.DataHolder.DisplayedData;
             } else {
@@ -130,7 +130,7 @@
                     }
                 }
             }
-            this._isAllSelected = selected;
+            
             if (objectsToRedraw.length > this._masterTable.DataHolder.DisplayedData.length / 2) {
                 this._masterTable.Controller.redrawVisibleData();
             } else {
@@ -172,13 +172,13 @@
             return sd.length === 0;
         }
 
-        public toggleRow(primaryKey: string, selected?: boolean): void {
+        public toggleRow(primaryKey: string, select?: boolean): void {
             this._masterTable.Events.SelectionChanged.invokeBefore(this, this._selectionData);
-            if (selected == undefined || selected == null) {
-                selected = !this.isSelectedPrimaryKey(primaryKey);
+            if (select == undefined || select == null) {
+                select = !this.isSelectedPrimaryKey(primaryKey);
             }
 
-            if (selected) {
+            if (select) {
                 if (!this._selectionData.hasOwnProperty(primaryKey)) {
                     if (this._configuration.SelectSingle) {
                         var rk = [];
@@ -218,9 +218,8 @@
 
         }
 
-        public toggleDisplayingRow(displayIndex: number, selected?: boolean) {
-            if (displayIndex < 0 || displayIndex >= this._masterTable.DataHolder.DisplayedData.length) return;
-            this.toggleRow(this._masterTable.DataHolder.DisplayedData[displayIndex]['__key'], selected);
+        public toggleDisplayingRow(rowIndex: number, selected?: boolean) {
+            this.toggleRow(this._masterTable.DataHolder.StoredCache[rowIndex]['__key'], selected);
         }
 
         public toggleObjectSelected(dataObject: any, selected?: boolean) {

@@ -1,12 +1,12 @@
 ﻿using System;
 
-namespace PowerTables.Templating.Handlebars.Expressions
+namespace PowerTables.Templating.Expressions.Visiting
 {
-    class HbBinaryExpression : HbExpression
+    class JsBinaryExpression : JsExpression
     {
-        public HbExpression Left { get; set; }
+        public JsExpression Left { get; set; }
 
-        public HbExpression Right { get; set; }
+        public JsExpression Right { get; set; }
 
         public string Symbol { get; set; }
         public override string Build()

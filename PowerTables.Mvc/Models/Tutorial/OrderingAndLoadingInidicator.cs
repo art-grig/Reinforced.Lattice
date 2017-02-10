@@ -11,9 +11,9 @@ namespace PowerTables.Mvc.Models.Tutorial
             conf.ProjectionTitlesAndDataOnly();
 
             conf.LoadingIndicator(where: "rt", order: 4);
-            conf.Column(c => c.Price).Orderable(c => c.Price, ui => ui.DefaultOrdering(Ordering.Descending));
+            //conf.Column(c => c.Price).Orderable(c => c.Price, ui => ui.DefaultOrdering(Ordering.Descending));
             conf.Column(c => c.Name).Orderable(c => c.ToyName);
-            conf.Column(c => c.ItemsSold).Title("Sold (client ordering)").Orderable(c => c.ItemsLeft, ui => ui.UseClientOrdering());
+            conf.Column(c => c.ItemsSold).Title("Sold (client ordering)");
 
             return conf;
         }

@@ -1,4 +1,5 @@
-﻿@using PowerTables.Editing
+﻿@using PowerTables.Configuration.Json
+@using PowerTables.Editing
 @using PowerTables.Editing.Editors.Check
 @using PowerTables.Editing.Editors.Display
 @using PowerTables.Editing.Editors.Memo
@@ -17,10 +18,11 @@
 @using PowerTables.Plugins.Paging
 @using PowerTables.Plugins.Reload
 @using PowerTables.Plugins.ResponseInfo
+@using PowerTables.Plugins.Scrollbar
 @using PowerTables.Plugins.Toolbar
 @using PowerTables.Templating
 @using PowerTables.Templating.BuiltIn
-@using PowerTables.Templating.Handlebars
+@using PowerTables.Templating.Expressions
 
 @inherits PowerTables.Templating.TemplatesPageBase
 
@@ -125,13 +127,45 @@
 @using (var t = this.Message("error"))
 {
     <tr class="danger" @t.Track() style="padding: 30px">
-        <td colspan="@t.Value(c => c.TypedDataObject.UiColumnsCount)">
+        <td colspan="@t.Value(c => c.TDO.UiColumnsCount)">
             <h4 class="text-center"><span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>  Error occured</h4>
             <p style="margin-left:25px;margin-right:25px">
-                @t.Value(c => c.TypedDataObject.Title)
+                @t.Value(c => c.TDO.Title)
                 <hr />
-                @t.Value(c => c.TypedDataObject.Details)
+                @t.Value(c => c.TDO.Details)
             </p>
+        </td>
+    </tr>
+}
+
+@using (var t = this.PartitionIndication())
+{
+    <tr @t.Track() style="padding: 30px">
+        <td colspan="@t.Value(c => c.DO.UiColumnsCount)">
+            @using (t.If(x => x.DO.IsLoading))
+            {
+                <h4 class="text-center"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>  Loading</h4>
+            }
+            @using (t.If(x => x.DO.IsClientSearchPending && !x.DO.IsLoading))
+            {
+                <div class="text-center">
+                    <span>Shown search results among <b>@t.Value(x => x.DO.Stats.Stored)</b> loaded records. </span>
+                    @using (t.If(x => x.DO.CanLoadMore))
+                    {
+                        <div>
+                            Load <input @t.ThisIsAdditionalPagesInput() type="text" value="@t.Value(c=>c.DO.LoadAhead)" class="form-control input-sm" style="display:inline-block;width:40px;text-align:center;" /> pages more and
+                            <button type="button" class="btn btn-default btn-sm" @t.BindLoadMore("click")>find more records</button>.
+                        </div>
+                    }
+                </div>
+
+            }
+            @using (t.If(x => !x.DO.IsClientSearchPending && x.DO.CanLoadMore && !x.DO.IsLoading))
+            {
+                <div class="text-center">
+                    <button type="button" class="btn btn-default btn-sm" @t.BindLoadMore("click")>Load more</button>
+                </div>
+            }
         </td>
     </tr>
 }
@@ -139,7 +173,7 @@
 @using (var t = this.Message("noresults"))
 {
     <tr class="info" @t.Track()>
-        <td colspan="@t.Value(c => c.TypedDataObject.UiColumnsCount)">
+        <td colspan="@t.Value(c => c.TDO.UiColumnsCount)">
             <h4 class="text-center text-info bg-info">
                 <span class="glyphicon glyphicon-eye-close"></span>  No data found
             </h4>
@@ -150,7 +184,7 @@
 @using (var t = this.Message("initial"))
 {
     <tr class="warning" @t.Track()>
-        <td colspan="@t.Value(c => c.TypedDataObject.UiColumnsCount)">
+        <td colspan="@t.Value(c => c.TDO.UiColumnsCount)">
             <h4 class="text-center text-info bg-info">
                 <span class="glyphicon glyphicon-search"></span>  Please change filter settings to get search results
             </h4>
@@ -184,7 +218,7 @@
 {
     <div class="btn-group">
         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-            Results: <strong>@t.Value(c => c.SelectedValue.Label)</strong> <span class="caret"></span>
+            Results: <strong>@t.Value(c => c.SelectedValue == null ? "null" : c.SelectedValue.Label)</strong> <span class="caret"></span>
         </button>
         <ul class="dropdown-menu" role="menu">
             @using (var sz = t.Each(c => c.Sizes))
@@ -198,6 +232,40 @@
             }
         </ul>
     </div>
+}
+
+@using (var t = Plugin.Scroll())
+{
+    using (t.If(c => c.IsVertical))
+    {
+        <div style="opacity:.7;background:grey;border-radius:5px;width:24px; position: absolute;" @t.ThisIsScrollerActiveArea()>
+            <button @t.ThisIsUpArrow() type="button" class="btn btn-default btn-xs" style="display:block; width: 100%;">
+                <span class="glyphicon glyphicon-chevron-up"></span>
+            </button>
+            <button @t.ThisIsScroller() type="button" class="btn btn-default btn-xs"
+                    style="position: relative; display: block; height: 20px; width: 100%; top: 0px"></button>
+
+            <button @t.ThisIsDownArrow() type="button" class="btn btn-default btn-xs"
+                    style="bottom:0;position:absolute; top:auto;width: 100%;">
+                <span class="glyphicon glyphicon-chevron-down"></span>
+            </button>
+        </div>
+    }
+    using (t.If(c => !c.IsVertical))
+    {
+        <div style="opacity:.7;background:grey;border-radius:5px;height: 24px; position: absolute;" @t.ThisIsScrollerActiveArea()>
+            <button @t.ThisIsUpArrow() type="button" class="btn btn-default btn-xs" style="display:block; height: 100%; float: left;">
+                <span class="glyphicon glyphicon-chevron-left"></span>
+            </button>
+            <button @t.ThisIsScroller() type="button" class="btn btn-default btn-xs"
+                    style="position: relative;height: 24px; top: 0px"></button>
+
+            <button @t.ThisIsDownArrow() type="button" class="btn btn-default btn-xs"
+                    style="right:0; float: right;height:24px">
+                <span class="glyphicon glyphicon-chevron-right"></span>
+            </button>
+        </div>
+    }
 }
 
 @using (var t = Plugin.MouseSelect())
@@ -283,7 +351,7 @@
 
 @using (var t = Plugin.ValueFilter())
 {
-    <input type="text" @t.DatepickerCanBeHere() @t.BindValueChanged("keyup,input,change,paste") @t.ThisIsFilterValueProvider() style="margin: 0; width: 100%; max-width: 100%;" class="form-control input-md" value="@t.Value(c=>c.Configuration.DefaultValue)" placeholder="@t.Value(c=>c.Configuration.Placeholder)" />
+    <input type="text"  @t.DatepickerCanBeHere() @t.BindValueChanged("keyup,input,change,paste") @t.ThisIsFilterValueProvider() style="margin: 0; width: 100%; max-width: 100%;" class="form-control input-md" value="@t.Value(c=>c.Configuration.DefaultValue)" placeholder="@t.Value(c=>c.Configuration.Placeholder)" />
 }
 
 @using (var t = Plugin.RangeFilter())
@@ -338,17 +406,17 @@
 @using (var t = Plugin.ResponseInfo())
 {
     <p>
-        @using (t.If(c => c.IsLocalRequest))
+        @using (t.If(c => c.Mode == PartitionType.Client))
         {
             <br />
         <p>Data fetched locally.</p>
         }
-        Currently shown <strong>@t.Value(c => c.CurrentlyShown)</strong> of <strong>@t.Value(c => c.TotalCount)</strong> records
+        Currently shown <strong>@t.Value(c => c.Displayed)</strong> of <strong>@t.Value(c => c.ServerCount)</strong> records
         <br />
-        @using (t.If(c => c.PagingEnabled))
+        @using (t.If(c => c.Take > 0))
         {
             <p>
-                Page <strong>@t.Value(c => c.CurrentPage)</strong> of @t.Value(c => c.TotalPages)
+                Page <strong>@t.Value(c => c.CurrentPage)</strong> of @t.Value(c => c.Pages)
             </p>
         }
         </p>
@@ -369,11 +437,11 @@
     </th>
 }
 
-@using (var t = this.Cell("checkboxifyCell"))
+@using (var t = Plugin.CheckboxifyCell())
 {
-    using (t.If(c=>c.Row.CanBeSelected))
+    using (t.If(c => c.Row.CanBeSelected))
     {
-        <div data-checkboxify="true">
+        <div @t.ThisWillTriggerSelection()>
             @using (t.If(c => c.Row.IsSelected))
             {
                 <input type="checkbox" checked="checked" />

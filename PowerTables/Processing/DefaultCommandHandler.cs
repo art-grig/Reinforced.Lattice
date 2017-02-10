@@ -24,6 +24,7 @@ namespace PowerTables.Processing
                 PageIndex = data.CurrentPage,
                 ResultsCount = data.ResultsCount,
                 Data = data.Configuration.EncodeResults(mapped),
+                BatchSize = mapped.Length,
                 AdditionalData = new AdditionalDataContainer(),
                 Success = true
             };

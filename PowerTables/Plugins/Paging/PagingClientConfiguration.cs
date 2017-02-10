@@ -16,8 +16,6 @@
 
         public bool UseGotoPage { get; set; }
 
-        public bool EnableClientPaging { get; set; }
-
         public string DefaultTemplateId { get { return "paging"; } }
     }
 }

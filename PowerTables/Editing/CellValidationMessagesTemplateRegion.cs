@@ -2,7 +2,7 @@
 using System.IO;
 using System.Web.Mvc;
 using PowerTables.Templating;
-using PowerTables.Templating.Handlebars;
+using PowerTables.Templating.Expressions;
 
 namespace PowerTables.Editing
 {
@@ -19,7 +19,7 @@ namespace PowerTables.Editing
 
     public interface IValidationMessagesViewModel
     {
-        IHbArray<IValidationMessageViewModel> Messages { get; }
+        IJsArray<IValidationMessageViewModel> Messages { get; }
 
         bool IsRowEdit { get; }
 

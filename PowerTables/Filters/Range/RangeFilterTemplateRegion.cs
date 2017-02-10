@@ -1,7 +1,7 @@
 ﻿using System.Web.Mvc;
 using PowerTables.Templating;
 using PowerTables.Templating.BuiltIn;
-using PowerTables.Templating.Handlebars;
+using PowerTables.Templating.Expressions;
 
 namespace PowerTables.Filters.Range
 {

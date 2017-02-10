@@ -21,11 +21,10 @@ namespace PowerTables
         /// Applies paging to source set
         /// </summary>
         /// <param name="source">Source set</param>
-        /// <param name="request">Request</param>
+        /// <param name="partition">Partition request</param>
         /// <param name="totalCount">Total data count in source request</param>
-        /// <param name="pageIndex">Resulting page index (if total data count is less than requested)</param>
         /// <returns>Paged source set</returns>
-        IQueryable<TSourceData> ApplyPaging(IQueryable<TSourceData> source, Query request, out long totalCount, out int pageIndex);
+        IQueryable<TSourceData> ApplyPaging(IQueryable<TSourceData> source, Partition partition, out long totalCount);
 
         /// <summary>
         /// Applies ordering to source set

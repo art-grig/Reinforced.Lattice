@@ -5,23 +5,29 @@ module PowerTables.Services {
      * Also it provides functionality for table events subscription and 
      * elements location
      */
-    export class Controller {
+    export class Controller implements IAdditionalDataReceiver {
 
         /**
          * @internal
          */
         constructor(masterTable: IMasterTable) {
             this._masterTable = masterTable;
+            masterTable.Loader.registerAdditionalDataReceiver("Reload", this);
         }
 
         private _masterTable: IMasterTable;
+        private _additionalRowsProviders: IAdditionalRowsProvider[] = [];
+
+        public registerAdditionalRowsProvider(provider: IAdditionalRowsProvider) {
+            this._additionalRowsProviders.push(provider);
+        }
 
         /**
          * Initializes full reloading cycle
          * @returns {} 
          */
         public reload(forceServer?: boolean): void {
-            this._masterTable.Loader.requestServer('query', (e: IPowerTablesResponse) => {
+            this._masterTable.Loader.query((e: IPowerTablesResponse) => {
                 if (e == null) {
                     this.redrawVisibleData();
                     return;
@@ -37,16 +43,14 @@ module PowerTables.Services {
          * Redraws row containing currently visible data object
          * 
          * @param dataObject Data object
-         * @param idx 
          * @returns {} 
          */
-        public redrawVisibleDataObject(dataObject: any, idx?: number): HTMLElement {
-            if (idx == null || idx == undefined) {
-                var dispIndex: ILocalLookupResult = this._masterTable.DataHolder.localLookupDisplayedDataObject(dataObject);
-                if (dispIndex == null) return null;
-                idx = dispIndex.DisplayedIndex;
-            }
-            var row: IRow = this.produceRow(dataObject, idx);
+        public redrawVisibleDataObject(dataObject: any): HTMLElement {
+            var d = dataObject['__i'];
+            dataObject = this._masterTable.DataHolder.StoredCache[d];
+            if (!dataObject) return null;
+            if (this._masterTable.DataHolder.DisplayedData.indexOf(dataObject) < 0) return null;
+            var row: IRow = this.produceRow(dataObject);
             return this._masterTable.Renderer.Modifier.redrawRow(row);
         }
 
@@ -55,18 +59,8 @@ module PowerTables.Services {
          */
         public redrawVisibleData(): void {
             var rows: IRow[] = this.produceRows();
-            if (rows.length === 0) {
-                this._masterTable.MessageService.showMessage({
-                    Class: 'noresults',
-                    Title: 'No data found',
-                    Details: 'Try specifying different filter settings',
-                    Type: MessageType.Banner
-                });
-            } else {
-                this._masterTable.Renderer.body(rows);
-            }
+            this._masterTable.Renderer.body(rows);
         }
-
 
         /**
          * Redraws locally visible data
@@ -78,7 +72,7 @@ module PowerTables.Services {
         public redrawVisibleCells(dataObject: any, columns: IColumn[]) {
             var dispIndex: ILocalLookupResult = this._masterTable.DataHolder.localLookupDisplayedDataObject(dataObject);
             if (dispIndex == null) throw new Error('Cannot redraw cells because proposed object it is not displaying currently');
-            var row = this.produceRow(dataObject, dispIndex.DisplayedIndex);
+            var row = this.produceRow(dataObject);
             for (var i = 0; i < columns.length; i++) {
                 if (row.Cells.hasOwnProperty(columns[i].RawName)) {
                     this._masterTable.Renderer.Modifier.redrawCell(row.Cells[columns[i].RawName]);
@@ -95,12 +89,15 @@ module PowerTables.Services {
             }
         }
 
+        
         /**
          * @internal
          */
         public drawAdjustmentResult(adjustmentResult: IAdjustmentResult) {
-            this._masterTable.Events.AdjustmentResult.invoke(this, adjustmentResult);
-
+            this._masterTable.Events.AdjustmentRender.invokeBefore(this, adjustmentResult);
+            if (adjustmentResult.NeedRefilter) {
+                this._masterTable.DataHolder.filterStoredDataWithPreviousQuery();
+            }
             var rows: IRow[] = this.produceRows();
 
             for (var i = 0; i < rows.length; i++) {
@@ -125,7 +122,7 @@ module PowerTables.Services {
                         }
                     }
                 }
-                if (!adjustmentResult.NeedRedrawAllVisible) {
+                if (!adjustmentResult.NeedRefilter) {
                     if (needRedrawRow) {
                         this._masterTable.Renderer.Modifier.redrawRow(rows[i]);
                     } else {
@@ -138,14 +135,14 @@ module PowerTables.Services {
                 }
 
             }
-            if (adjustmentResult.NeedRedrawAllVisible) {
+            if (adjustmentResult.NeedRefilter) {
                 if (rows.length == 0) this.redrawVisibleData();
                 else this._masterTable.Renderer.body(rows);
             }
-            this._masterTable.Events.Adjustment.invokeAfter(this, adjustmentResult);
-
+            this._masterTable.Events.AdjustmentRender.invokeAfter(this, adjustmentResult);
         }
 
+        //#region Produce methods
         /**
          * Converts data object,row and column to cell
          * 
@@ -175,13 +172,13 @@ module PowerTables.Services {
          * @param columns Optional displaying columns set
          * @returns {IRow} Row representing displayed object
          */
-        public produceRow(dataObject: any, idx: number, columns?: IColumn[]): IRow {
+        public produceRow(dataObject: any, columns?: IColumn[]): IRow {
             if (!dataObject) return null;
             if (!columns) columns = this._masterTable.InstanceManager.getUiColumns();
 
             var rw: IRow = <IRow>{
                 DataObject: dataObject,
-                Index: idx,
+                Index: dataObject['__i'],
                 MasterTable: this._masterTable,
                 IsSelected: this._masterTable.Selection.isSelected(dataObject),
                 CanBeSelected: this._masterTable.Selection.canSelect(dataObject),
@@ -206,21 +203,60 @@ module PowerTables.Services {
             return rw;
         }
 
-        private produceRows(): IRow[] {
+        /**
+         * @internal
+         */
+        public produceRowsFromData(data: any[]): IRow[] {
             this._masterTable.Events.DataRendered.invokeBefore(this, null);
 
             var result: IRow[] = [];
             var columns: IColumn[] = this._masterTable.InstanceManager.getUiColumns();
 
-            for (var i: number = 0; i < this._masterTable.DataHolder.DisplayedData.length; i++) {
-                var row: IRow = this.produceRow(this._masterTable.DataHolder.DisplayedData[i], i, columns);
+            for (var i: number = 0; i < data.length; i++) {
+                var obj = data[i];
+                var row: IRow = this.produceRow(obj, columns);
                 if (!row) continue;
                 result.push(row);
             }
-
+            
             return result;
         }
 
+        /**
+         * @internal
+         */
+        public produceRows(): IRow[] {
+            var result = this.produceRowsFromData(this._masterTable.DataHolder.DisplayedData);
+            var l1 = result.length;
+            for (var j = 0; j < this._additionalRowsProviders.length; j++) {
+                this._additionalRowsProviders[j].provide(result);
+            }
 
+            if (l1 !== result.length) {
+                var idx = -1;
+                for (var k = 0; k < result.length; k++) {
+                    if (result[k].IsSpecial) {
+                        result[k].Index = idx;
+                        idx--;
+                    }
+                }
+            }
+            return result;
+        }
+
+        //#endregion
+        public handleAdditionalData(additionalData: PowerTables.Adjustments.IReloadAdditionalData): void {
+            if (additionalData != null && additionalData !== undefined) {
+                this.reload(additionalData.ForceServer);
+                if (additionalData.ReloadTableIds && additionalData.ReloadTableIds.length > 0) {
+                    for (var i = 0; i < additionalData.ReloadTableIds.length; i++) {
+                        if (window['__latticeInstances'][additionalData.ReloadTableIds[i]]) {
+                            window['__latticeInstances'][additionalData.ReloadTableIds[i]].Controller
+                                .reload(additionalData.ForceServer);
+                        }
+                    }
+                }
+            }
+        }
     }
 }

@@ -20,34 +20,25 @@ namespace PowerTables.Processing
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="source">FIltered and ordered source set</param>
-        /// <param name="request">Request object</param>
+        /// <param name="partition">Data partition request</param>
         /// <param name="totalCount">Returned total results count</param>
-        /// <param name="pageIndex">Current pag index</param>
         /// <returns></returns>
-        protected virtual IQueryable<T> ApplyPagingCore<T>(IQueryable<T> source, Query request, out long totalCount, out int pageIndex)
+        protected virtual IQueryable<T> ApplyPagingCore<T>(IQueryable<T> source, Partition partition, out long totalCount)
         {
-            totalCount = 0;
-            pageIndex = 0;
+            totalCount = -1;
 
-            if (request.Paging == null) return source;
-            if (request.Paging.PageSize == 0) return source;
+            if (partition == null) return source;
+            if (!partition.NoCount) totalCount = TotalCount(source);
+            var result = source;
+            if (partition.Skip != 0) result = result.Skip(partition.Skip);
+            if (partition.Take != 0) result = result.Take(partition.Take);
 
-            totalCount = TotalCount(source);
-            var startingElement = request.Paging.PageSize * request.Paging.PageIndex + 1;
-            pageIndex = request.Paging.PageIndex;
-            if (startingElement > totalCount)
-            {
-                startingElement = 1; //take first page if desired page does not exist
-                pageIndex = 0;
-            }
-
-            var result = source.Skip(startingElement - 1).Take(request.Paging.PageSize);
             return result;
         }
 
-        public virtual IQueryable<TSourceData> ApplyPaging(IQueryable<TSourceData> source, Query request, out long totalCount, out int pageIndex)
+        public virtual IQueryable<TSourceData> ApplyPaging(IQueryable<TSourceData> source, Partition partition, out long totalCount)
         {
-            return ApplyPagingCore(source, request, out totalCount, out pageIndex);
+            return ApplyPagingCore(source, partition, out totalCount);
         }
 
         /// <summary>

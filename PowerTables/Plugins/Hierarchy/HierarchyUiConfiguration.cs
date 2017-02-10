@@ -5,6 +5,8 @@
     /// </summary>
     public class HierarchyUiConfiguration
     {
+        public string[] ParentKeyFields { get; set; }
+
         /// <summary>
         /// Gets or sets expansion behavior. Options are - to load collapsed nodes contents from server-side everywhere or try to fetch from local cache
         /// </summary>

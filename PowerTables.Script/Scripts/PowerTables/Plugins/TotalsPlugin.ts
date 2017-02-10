@@ -3,7 +3,8 @@
      * Client-side implementation of totals plugin
      */
     export class TotalsPlugin extends PluginBase<Plugins.Total.ITotalClientConfiguration>
-        implements PowerTables.IAdditionalDataReceiver {
+        implements PowerTables.IAdditionalDataReceiver, PowerTables.IAdditionalRowsProvider
+    {
         private _totalsForColumns: { [key: string]: string };
 
         private makeTotalsRow(): IRow {
@@ -51,21 +52,9 @@
         /**
         * @internal
         */
-        public onClientRowsRendering(e: ITableEventArgs<IRow[]>) {
-            if (this._totalsForColumns) {
-                if (this.Configuration.ShowOnTop) {
-                    e.EventArgs.splice(0, 0, this.makeTotalsRow());
-                } else {
-                    e.EventArgs.push(this.makeTotalsRow());
-                }
-            }
-        }
-        /**
-        * @internal
-        */
         private onAdjustments(e: ITableEventArgs<IAdjustmentResult>) {
             var adjustments = e.EventArgs;
-            if (adjustments.NeedRedrawAllVisible) return;
+            if (adjustments.NeedRefilter) return;
             var row = this.makeTotalsRow(); //todo recalculate totals in more intelligent way
             this.MasterTable.Renderer.Modifier.redrawRow(row);
         }
@@ -81,13 +70,14 @@
                 }
             }
         }
+
         /**
         * @internal
         */
         public subscribe(e: PowerTables.Services.EventsService): void {
-            e.ClientRowsRendering.subscribeBefore(this.onClientRowsRendering.bind(this), 'totals');
             e.ClientDataProcessing.subscribeAfter(this.onClientDataProcessed.bind(this), 'totals');
-            e.AdjustmentResult.subscribe(this.onAdjustments.bind(this), 'totals');
+            e.Adjustment.subscribeAfter(this.onAdjustments.bind(this), 'totals');
+            this.MasterTable.Controller.registerAdditionalRowsProvider(this);
         }
         
         handleAdditionalData(additionalData): void {
@@ -101,6 +91,16 @@
         init(masterTable: IMasterTable): void {
             super.init(masterTable);
             this.MasterTable.Loader.registerAdditionalDataReceiver('Total', this);
+        }
+
+        public provide(rows: IRow[]): void {
+            if (this._totalsForColumns) {
+                if (this.Configuration.ShowOnTop) {
+                    rows.splice(0, 0, this.makeTotalsRow());
+                } else {
+                    rows.push(this.makeTotalsRow());
+                }
+            }
         }
     }
 

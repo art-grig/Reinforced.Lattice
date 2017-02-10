@@ -86,18 +86,6 @@ namespace PowerTables.Plugins.Paging
         }
 
         /// <summary>
-        /// When client paging is enabled, paging requests will not be passed to server. Client will load unpaged data and page it manually on client-side
-        /// </summary>
-        /// <param name="c"></param>
-        /// <param name="enable">Enable or disable client paging</param>
-        /// <returns></returns>
-        public static PluginConfigurationWrapper<PagingClientConfiguration> EnableClientPaging(this PluginConfigurationWrapper<PagingClientConfiguration> c, bool enable = true)
-        {
-            c.Configuration.EnableClientPaging = enable;
-            return c;
-        }
-
-        /// <summary>
         /// Adds visual element that consists of small textbox and "go" button 
         /// to make it easier to navigate to page specified
         /// </summary>

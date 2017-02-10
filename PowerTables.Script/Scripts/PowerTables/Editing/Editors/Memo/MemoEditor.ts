@@ -29,6 +29,7 @@
         }
 
         public setValue(value: any): void {
+            if (!this.TextArea) return;
             this.TextArea.value = value;
         }
 

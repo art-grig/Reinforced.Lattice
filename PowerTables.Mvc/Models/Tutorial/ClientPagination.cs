@@ -2,6 +2,7 @@
 using PowerTables.Plugins;
 using PowerTables.Plugins.Limit;
 using PowerTables.Plugins.Paging;
+using PowerTables.Plugins.Scrollbar;
 
 namespace PowerTables.Mvc.Models.Tutorial
 {
@@ -11,24 +12,24 @@ namespace PowerTables.Mvc.Models.Tutorial
         {
             conf.OrderingAndLoadingInidicator();
             conf.LoadImmediately(false);
+
             conf.Limit(ui => ui.PlaceAt("lt")
-                .EnableClientLimiting() // lets enable client limiting
                 .Values(new[]
             {
                 "Everything",           // any text will be interpreted as "all records"
                 "-",                    // dash will be interpreted as separator
                 "5", "10", "-", "50", "100","250","1000","2000"
-            }, "10"));
+            }));
 
 
             conf.Paging(
                 ui =>
                     ui.PlaceAt("rb")
-                    .EnableClientPaging()                       // Client limiting cannot work without client paging
                     .PagingWithPeriods(useFirstLasPage: true)   // lets pick most complex paging
                     .UseGotoPage()                              // and also enable "Go to page" functionality
                 );
-            //conf.MouseSelect(ui => { });
+            conf.Partition(x => x.InitialSkipTake(take: 10));
+            conf.Scrollbar(x => x.Vertical().KeyboardScrollFocusMode(KeyboardScrollFocusMode.MouseClick));
             return conf;
         }
     }

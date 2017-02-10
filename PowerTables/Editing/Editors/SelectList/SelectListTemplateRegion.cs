@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Web.Mvc;
 using PowerTables.Templating;
-using PowerTables.Templating.Handlebars;
+using PowerTables.Templating.Expressions;
 
 namespace PowerTables.Editing.Editors.SelectList
 {
@@ -15,7 +15,7 @@ namespace PowerTables.Editing.Editors.SelectList
 
     public interface ISelectListEditorViewModel : ICellEditorViewModel
     {
-        IHbArray<SelectListItem> Items { get; }
+        IJsArray<SelectListItem> Items { get; }
 
         string SelectedText { get; set; }
 

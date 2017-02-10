@@ -5,11 +5,11 @@ module PowerTables.Templating {
             if (!_ltcTpl._lib[prefix]) _ltcTpl._lib[prefix] = { Prefix: prefix, Templates: {} };
             _ltcTpl._lib[prefix].Templates[id] = tpl;
         }
-        public static executor(prefix: string, instances: PowerTables.Services.InstanceManagerService): TemplatesExecutor {
+        public static executor(prefix: string, table: PowerTables.IMasterTable): TemplatesExecutor {
             if (!_ltcTpl._lib.hasOwnProperty(prefix)) {
                 throw new Error(`Cannot find templates set with prefix ${prefix}`);
             }
-            return new TemplatesExecutor(_ltcTpl._lib[prefix], instances);
+            return new TemplatesExecutor(_ltcTpl._lib[prefix], table);
         }
 
     }

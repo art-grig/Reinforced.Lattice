@@ -1,9 +1,9 @@
 ﻿@using PowerTables.Editing.Form
 @using PowerTables.Mvc.Models.Tutorial
 @using PowerTables.Templating
-@using PowerTables.Templating.Handlebars
 @using PowerTables.Mvc.Models
 @using PowerTables.Templating.BuiltIn
+@using PowerTables.Templating.Expressions
 
 <!DOCTYPE html>
 @{
@@ -43,6 +43,14 @@
             }
         }
     </script>
+    <style type="text/css">
+        [data-track="h-Edit"] {
+            width: 135px;
+        }
+        [data-track="h-IsPaid"] {
+            width: 90px;
+        }
+    </style>
 </head>
 <body>
     <div class="navbar navbar-inverse navbar-fixed-top">
@@ -112,10 +120,6 @@
                 </div>
             </div>
         </div>
-        <hr />
-        <footer>
-            <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
-        </footer>
     </div>
 
     <div class="modal fade" tabindex="-1" role="dialog" id="confirmationModal">
@@ -293,10 +297,14 @@
         using (var conf1 = t.Plugin.Confirmation<Row>("commentsAndFeedback"))
         {
             <div class="modal-content" @t.Callback("showModal") @t.DestroyCallback("hideModal")>
-                <div class="modal-body">
+                <div class="modal-body" >
                     <fieldset class="form-horizontal">
                         @conf1.Editors()
                     </fieldset>
+                    @using (conf1.If(x => x.Subject.Price > 100 && x.Subject.Price < 300))
+                    {
+                        <span>Not valid price</span>
+                    }
                     <p class="text-center" style="display: none" @conf1.WhenContentLoading(c => c.Style("display", "inline"))>
                         <h1>
                             <span class="glyphicon glyphicon-refresh"></span> Loading...

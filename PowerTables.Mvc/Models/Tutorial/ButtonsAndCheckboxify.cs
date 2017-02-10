@@ -104,6 +104,7 @@ namespace PowerTables.Mvc.Models.Tutorial
                 {
                     x.Window<CommentsValidationForm>("commentsAndFeedback", "#confirmationContent", d =>
                     {
+                        
                         d.AutoForm(c =>
                         {
                             c.EditCheck(v => v.Validated)
@@ -145,7 +146,11 @@ namespace PowerTables.Mvc.Models.Tutorial
 
 
 
-            conf.Column(c => c.TypeOfToy).Template(x => x.Returns("<a class='btn btn-sm btn-default'>Leave comment</a>"))
+            conf.Column(c => c.TypeOfToy).Template(x =>
+                {
+                    x.ReturnsIf("{^Row.IsCommandSubject}", "<i>Wait...</i>");
+                    x.Returns("<a class='btn btn-sm btn-default'>Leave comment</a>");
+                })
                 .SubscribeCellEvent(a => a.Command("click", "LeaveComment").Selector("a"));
             conf.Column(c => c.PreviousState).Template(x => x.Returns("<a class='btn btn-sm btn-default'>View Comments</a>"))
                .SubscribeCellEvent(a => a.Command("click", "ViewComments").Selector("a"));

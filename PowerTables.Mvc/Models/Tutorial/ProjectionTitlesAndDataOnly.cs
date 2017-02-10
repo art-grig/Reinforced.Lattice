@@ -34,7 +34,7 @@ namespace PowerTables.Mvc.Models.Tutorial
                 PreviousState = q.PreviousStateCode,
                 SupplierAddress = q.SupplierAddress
             }));
-
+            
             conf.Column(c => c.TypeOfToy).Title("Class");
             conf.Column(c => c.ItemsSold).Title("Sold");
             conf.Column(c => c.ItemsWasInitially).Title("Initial");

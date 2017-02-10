@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Newtonsoft.Json;
-using PowerTables.Templating.Handlebars;
+using PowerTables.Templating.Expressions;
 
 namespace PowerTables.Templating
 {
@@ -282,7 +282,7 @@ namespace PowerTables.Templating
         public static SpecialVisualStateDescription<T> Content<T, TData>(this SpecialVisualStateDescription<T> t,
             Expression<Func<T, TData>> property)
         {
-            t.State.Content(HbExtensions.TraversePropertyLambda(property));
+            t.State.Content(JsExtensions.TraversePropertyLambda(property));
             return t;
         }
     }

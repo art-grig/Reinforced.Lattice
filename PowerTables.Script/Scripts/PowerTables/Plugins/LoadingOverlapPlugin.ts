@@ -89,7 +89,7 @@
             this.MasterTable.Events.Loading.subscribeBefore((e) => this.onBeforeLoading(e), 'overlapLoading');
             this.MasterTable.Events.DataRendered.subscribeAfter(() => this.deoverlap(), 'overlapLoading');
             this.MasterTable.Events.Loading.subscribeAfter(() => this.deoverlap(), 'overlapLoading');
-            window.addEventListener('resize', this.updateCoordsAll.bind(this));
+            PowerTables.Services.EventsDelegatorService.addHandler(<any>window,'resize', this.updateCoordsAll.bind(this));
         }
     }
     ComponentsContainer.registerComponent('LoadingOverlap', LoadingOverlapPlugin);

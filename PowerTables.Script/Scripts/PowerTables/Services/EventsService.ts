@@ -20,14 +20,17 @@
 
             this.ClientDataProcessing = new TableEvent(masterTable);
             this.DataRendered = new TableEvent(masterTable);
-            this.ClientRowsRendering = new TableEvent(masterTable);
             this.DeferredDataReceived = new TableEvent(masterTable);
             this.Adjustment = new TableEvent(masterTable);
-            this.AdjustmentResult = new TableEvent(masterTable);
             this.Edit = new TableEvent(masterTable);
             this.EditValidationFailed = new TableEvent(masterTable);
 
             this.SelectionChanged = new TableEvent(masterTable);
+            this.PartitionChanged = new TableEvent(masterTable);
+            this.Filtered = new TableEvent(masterTable);
+            this.Ordered = new TableEvent(masterTable);
+            this.Partitioned = new TableEvent(masterTable);
+            this.AdjustmentRender = new TableEvent(masterTable);
         }
 
         /**
@@ -87,21 +90,15 @@
          * Occurs EVERY time when something is being received from server side. 
          * Event argument is deserialized JSON data from server. 
          */
-        public DataReceived: TableEvent<IDataEventArgs, any>;
+        public DataReceived: TableEvent<IDataEventArgs, IDataEventArgs>;
 
         public ClientDataProcessing: TableEvent<IQuery, IClientDataResults>;
         public DataRendered: TableEvent<any, any>;
 
-
-        /**
-         * "Before Client Rows Rendering" event.
-         * 
-         * Occurs every time after after rows set for client-side was 
-         * modified but not rendered yet. Here you can add/remove/modify render for 
-         * particular rows
-         */
-        public ClientRowsRendering: TableEvent<IRow[], any>;
-
+        public Filtered: TableEvent<any[], any[]>;
+        public Ordered: TableEvent<any[], any[]>;
+        public Partitioned: TableEvent<any[], any[]>;
+        
         /**
          * Registers new event for events manager. 
          * This method is to be used by plugins to provide their 
@@ -119,7 +116,9 @@
         public SelectionChanged: TableEvent<{ [primaryKey: string]: number[] }, { [primaryKey: string]: number[] }>; //registered by Checkboxify
 
         public Adjustment: TableEvent<PowerTables.ITableAdjustment, IAdjustmentResult>;
-        public AdjustmentResult: TableEvent<IAdjustmentResult, any>;
+        public AdjustmentRender: TableEvent<IAdjustmentResult, IAdjustmentResult>;
+        
+        public PartitionChanged: TableEvent<IPartitionChangeEventArgs, IPartitionChangeEventArgs>;
 
         /**
          * Event that occurs when editing entry. 

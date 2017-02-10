@@ -31,6 +31,7 @@
         }
 
         public setValue(value: any): void {
+            if (!this.List) return;
             var strvalue = this.Column.IsDateTime ? this.MasterTable.Date.serialize(value) : (value == null ? null : value.toString());
             var isSet = false;
             for (var i = 0; i < this.List.options.length; i++) {

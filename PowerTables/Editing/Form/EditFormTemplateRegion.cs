@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Web.Mvc;
 using PowerTables.Plugins.Toolbar;
 using PowerTables.Templating;
-using PowerTables.Templating.Handlebars;
+using PowerTables.Templating.Expressions;
 
 namespace PowerTables.Editing.Form
 {

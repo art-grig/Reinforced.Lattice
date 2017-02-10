@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO;
 
-namespace PowerTables.Templating.Handlebars
+namespace PowerTables.Templating.Expressions
 {
     public class ParametrizedCodeBlock<T>: CodeBlock, IModelProvider<T>, IProvidesEventsBinding
     {

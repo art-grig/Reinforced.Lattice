@@ -1,7 +1,10 @@
 ﻿using PowerTables.Configuration;
+using PowerTables.Filters;
+using PowerTables.Filters.Value;
 using PowerTables.Plugins;
 using PowerTables.Plugins.Limit;
 using PowerTables.Plugins.Paging;
+using PowerTables.Plugins.Scrollbar;
 
 namespace PowerTables.Mvc.Models.Tutorial
 {
@@ -11,19 +14,26 @@ namespace PowerTables.Mvc.Models.Tutorial
         {
             conf.OrderingAndLoadingInidicator();
             conf.LoadImmediately(false);
+            conf.AppendEmptyFilters();
             conf.Limit(ui => ui.PlaceAt("lt")
                 .Values(new[]
-            {
-                "Everything",           // any text will be interpreted as "all records"
-                "-",                    // dash will be interpreted as separator
-                "5", "10", "-", "50", "100","250","1000","2000"
-            }, "10"));
+                {
+                    "Everything",           // any text will be interpreted as "all records"
+                    "-",                    // dash will be interpreted as separator
+                    "5", "10", "14", "-", "50", "100","250","1000","2000"
+                }));
 
 
             conf.Paging(
                 ui =>
                     ui.PlaceAt("rb")
-                    .PagingWithArrows()); // lets pick simple arrows left/right paging
+                    .PagingSimple(true)); // lets pick simple arrows left/right paging
+            conf.Column(c => c.Name).FilterValueUi(x => x.ClientFiltering());
+
+
+            conf.Scrollbar(x => x.Vertical());
+            
+            conf.Partition(x => x.Sequential(conf: d => d.Indication(false, false)).InitialSkipTake(take: 14));
             return conf;
         }
     }

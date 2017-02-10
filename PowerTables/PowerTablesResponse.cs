@@ -32,6 +32,11 @@ namespace PowerTables
         public long ResultsCount { get; set; }
 
         /// <summary>
+        /// Size of this particular batch
+        /// </summary>
+        public long BatchSize { get; set; }
+
+        /// <summary>
         /// Current data page index 
         /// </summary>
         public int PageIndex { get; set; }

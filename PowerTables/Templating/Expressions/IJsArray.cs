@@ -1,9 +1,9 @@
-﻿namespace PowerTables.Templating.Handlebars
+﻿namespace PowerTables.Templating.Expressions
 {
     /// <summary>
     /// Javascript collection
     /// </summary>
-    public interface IHbArray<T>
+    public interface IJsArray<T>
     {
         /// <summary>
         /// Array length

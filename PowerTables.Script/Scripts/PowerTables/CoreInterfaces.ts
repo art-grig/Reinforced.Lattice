@@ -28,7 +28,7 @@
         /**
          * Raw configuration object including Plugin Id
          */
-        RawConfig: Configuration.Json.IPluginConfiguration;
+        RawConfig: IPluginConfiguration;
 
         /**
          * Plugin Id including placement
@@ -110,6 +110,13 @@
          * API for commands
          */
         Commands: PowerTables.Services.CommandsService;
+
+        Partition: PowerTables.Services.Partition.IPartitionService;
+
+        Configuration: PowerTables.ITableConfiguration;
+
+        Stats: PowerTables.IStatsModel;
+        
 
         getStaticData(): any;
 
@@ -292,6 +299,11 @@
          * True when row can be selected, false otherwise
          */
         CanBeSelected?: boolean;
+
+        /**
+         * Is row subject for command
+         */
+        IsCommandSubject?:boolean;
     }
 
     export interface ITemplatesProvider {
@@ -306,7 +318,7 @@
         /** 
          * Column configuration 
          */
-        Configuration: Configuration.Json.IColumnConfiguration;
+        Configuration: IColumnConfiguration;
         /** 
          * Reference to master table 
          */
@@ -387,6 +399,8 @@
          * Actually displaying data
          */
         Displaying: any[];
+
+        OnlyPartitionPerformed?:boolean;
     }
 
     /**
@@ -427,7 +441,7 @@
         /**
          * Request object to be used while sending to server
          */
-        XMLHttp: XMLHttpRequest;
+        XMLHttp?: XMLHttpRequest;
     }
 
     export interface ILoadingResponseEventArgs extends ILoadingEventArgs {
@@ -472,6 +486,10 @@
          * Query response
          */
         Data: IPowerTablesResponse;
+
+        IsAdjustment: boolean;
+
+        Adjustments?: ITableAdjustment;
     }
 
     /**
@@ -555,8 +573,7 @@
     }
 
     export interface IAdjustmentResult {
-        NeedRedrawAllVisible: boolean;
-        VisiblesToRedraw: any[];
+        NeedRefilter: boolean;
         AddedData: any[];
         TouchedData: any[];
         TouchedColumns: string[][];
@@ -642,6 +659,17 @@
         dismiss: () => void;
 
         Details: any;
+    }
+
+    export interface IAdditionalRowsProvider {
+        provide(rows:IRow[]):void;
+    }
+
+    export interface IPartitionChangeEventArgs {
+        PreviousSkip: number;
+        PreviousTake: number;
+        Skip: number;
+        Take:number;
     }
     /**
     * Event that was bound from template

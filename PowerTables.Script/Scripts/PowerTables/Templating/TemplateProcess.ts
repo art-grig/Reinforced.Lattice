@@ -174,6 +174,11 @@ module PowerTables.Templating {
             var trk: string = this._stack.Current.CurrentTrack;
             if (trk.length === 0) return;
             this.w(`data-track="${trk}"`);
+            if (this.Type === RenderedObject.Row || this.Type === RenderedObject.Partition) {
+                if ((<IRow>this.Model).IsSpecial) {
+                    this.w(` data-spr='true'`);
+                }
+            }
         }
 
         public isLocation(location: string): boolean {
@@ -213,6 +218,10 @@ module PowerTables.Templating {
          * Template region for messages
          */
         Message,
+        /**
+         * Template region for partition tools row
+         */
+        Partition,
         /**
          * Custom rendering object. 
          * Needed for rendering of random templates bound to random objects

@@ -3,7 +3,7 @@
 //     the code is regenerated.
 
 
-module PowerTables.Configuration.Json {
+module PowerTables {
 	export interface ITableConfiguration
 	{
 		EmptyFiltersPlaceholder: string;
@@ -12,19 +12,42 @@ module PowerTables.Configuration.Json {
 		OperationalAjaxUrl: string;
 		LoadImmediately: boolean;
 		DatepickerOptions: PowerTables.IDatepickerOptions;
-		Columns: PowerTables.Configuration.Json.IColumnConfiguration[];
-		PluginsConfiguration: PowerTables.Configuration.Json.IPluginConfiguration[];
+		Columns: PowerTables.IColumnConfiguration[];
+		PluginsConfiguration: PowerTables.IPluginConfiguration[];
 		StaticData: string;
 		CoreTemplates: PowerTables.ICoreTemplateIds;
 		KeyFields: string[];
 		CallbackFunction: (table:IMasterTable) => void;
 		TemplateSelector: (row:IRow)=>string;
 		MessageFunction: (msg: ITableMessage) => void;
-		Subscriptions: PowerTables.Configuration.Json.IConfiguredSubscriptionInfo[];
+		Subscriptions: PowerTables.IConfiguredSubscriptionInfo[];
 		QueryConfirmation: (query:IPowerTableRequest,scope:QueryScope,continueFn:any) => void;
-		SelectionConfiguration: PowerTables.Configuration.Json.ISelectionConfiguration;
+		SelectionConfiguration: PowerTables.ISelectionConfiguration;
 		PrefetchedData: any[];
 		Commands: { [key:string]: PowerTables.Commands.ICommandDescription };
+		Partition: PowerTables.IPartitionConfiguration;
+	}
+	export interface IDatepickerOptions
+	{
+		CreateDatePicker: (element:HTMLElement, isNullableDate: boolean) => void;
+		PutToDatePicker: (element:HTMLElement, date?:Date) => void;
+		GetFromDatePicker: (element:HTMLElement) => Date;
+		DestroyDatepicker: (element:HTMLElement) => void;
+	}
+	export interface ICoreTemplateIds
+	{
+		Layout: string;
+		PluginWrapper: string;
+		RowWrapper: string;
+		CellWrapper: string;
+		HeaderWrapper: string;
+	}
+	export interface ITableMessage
+	{
+		Type: PowerTables.MessageType;
+		Title: string;
+		Details: string;
+		Class: string;
 	}
 	export interface IColumnConfiguration
 	{
@@ -51,63 +74,11 @@ module PowerTables.Configuration.Json {
 		Order: number;
 		TemplateId: string;
 	}
-	export interface IConfiguredSubscriptionInfo
-	{
-		IsRowSubscription: boolean;
-		ColumnName: string;
-		Selector: string;
-		DomEvent: string;
-		Handler: (dataObject:any, originalEvent:any) => void;
-	}
-	export interface ISelectionConfiguration
-	{
-		SelectAllBehavior: PowerTables.Configuration.Json.SelectAllBehavior;
-		ResetSelectionBehavior: PowerTables.Configuration.Json.ResetSelectionBehavior;
-		CanSelectRowFunction: (dataObject:any)=>boolean;
-		CanSelectCellFunction: (dataObject:any,column:string,select:boolean)=>boolean;
-		NonselectableColumns: string[];
-		SelectSingle: boolean;
-		InitialSelected: { [key:string]: string[] };
-	}
-	export enum SelectAllBehavior { 
-		AllVisible = 0, 
-		OnlyIfAllDataVisible = 1, 
-		AllLoadedData = 2, 
-		Disabled = 3, 
-	}
-	export enum ResetSelectionBehavior { 
-		DontReset = 0, 
-		ServerReload = 1, 
-		ClientReload = 2, 
-	}
-}
-module PowerTables {
-	export interface IDatepickerOptions
-	{
-		CreateDatePicker: (element:HTMLElement, isNullableDate: boolean) => void;
-		PutToDatePicker: (element:HTMLElement, date?:Date) => void;
-		GetFromDatePicker: (element:HTMLElement) => Date;
-		DestroyDatepicker: (element:HTMLElement) => void;
-	}
-	export interface ICoreTemplateIds
-	{
-		Layout: string;
-		PluginWrapper: string;
-		RowWrapper: string;
-		CellWrapper: string;
-		HeaderWrapper: string;
-	}
-	export interface ITableMessage
-	{
-		Type: PowerTables.MessageType;
-		Title: string;
-		Details: string;
-		Class: string;
-	}
 	export interface IPowerTablesResponse
 	{
 		Message: PowerTables.ITableMessage;
 		ResultsCount: number;
+		BatchSize: number;
 		PageIndex: number;
 		Data: any[];
 		AdditionalData: any;
@@ -120,17 +91,19 @@ module PowerTables {
 	}
 	export interface IQuery
 	{
-		Paging: PowerTables.IPaging;
+		Partition?: PowerTables.IPartition;
 		Orderings: { [key:string]: PowerTables.Ordering };
 		Filterings: { [key:string]: string };
 		AdditionalData: { [key:string]: string };
 		StaticDataJson: string;
 		Selection: { [key:string]: number[] };
+		IsBackgroundDataFetch: boolean;
 	}
-	export interface IPaging
+	export interface IPartition
 	{
-		PageIndex: number;
-		PageSize: number;
+		Skip: number;
+		Take: number;
+		NoCount: boolean;
 	}
 	export interface ITableAdjustment
 	{
@@ -141,6 +114,63 @@ module PowerTables {
 		OtherTablesAdjustments: { [key:string]: PowerTables.ITableAdjustment };
 		AdditionalData: any;
 	}
+	export interface IConfiguredSubscriptionInfo
+	{
+		IsRowSubscription: boolean;
+		ColumnName: string;
+		Selector: string;
+		DomEvent: string;
+		Handler: (dataObject:any, originalEvent:any) => void;
+	}
+	export interface ISelectionConfiguration
+	{
+		SelectAllBehavior: PowerTables.SelectAllBehavior;
+		ResetSelectionBehavior: PowerTables.ResetSelectionBehavior;
+		CanSelectRowFunction: (dataObject:any)=>boolean;
+		CanSelectCellFunction: (dataObject:any,column:string,select:boolean)=>boolean;
+		NonselectableColumns: string[];
+		SelectSingle: boolean;
+		InitialSelected: { [key:string]: string[] };
+	}
+	export interface IPartitionConfiguration
+	{
+		Type: PowerTables.PartitionType;
+		InitialSkip: number;
+		InitialTake: number;
+		Server: PowerTables.IServerPartitionConfiguration;
+		Sequential: PowerTables.IServerPartitionConfiguration;
+	}
+	export interface IPartitionRowData
+	{
+		UiColumnsCount: ()=>number;
+		IsLoading: ()=>boolean;
+		Stats: ()=>PowerTables.IStatsModel;
+		IsClientSearchPending: ()=>boolean;
+		CanLoadMore: ()=>boolean;
+		LoadAhead: ()=>number;
+	}
+	export interface IStatsModel
+	{
+		IsSetFinite: ()=>boolean;
+		Mode: ()=>PowerTables.PartitionType;
+		ServerCount: ()=>number;
+		Stored: ()=>number;
+		Filtered: ()=>number;
+		Displayed: ()=>number;
+		Ordered: ()=>number;
+		Skip: ()=>number;
+		Take: ()=>number;
+		Pages: ()=>number;
+		CurrentPage: ()=>number;
+		IsAllDataLoaded: ()=>boolean;
+	}
+	export interface IServerPartitionConfiguration
+	{
+		LoadAhead: number;
+		UseLoadMore: boolean;
+		AppendLoadingRow: boolean;
+		LoadingRowTemplateId: string;
+	}
 	export enum MessageType { 
 		UserMessage = 0, 
 		Banner = 1, 
@@ -149,6 +179,22 @@ module PowerTables {
 		Ascending = 0, 
 		Descending = 1, 
 		Neutral = 2, 
+	}
+	export enum SelectAllBehavior { 
+		AllVisible = 0, 
+		OnlyIfAllDataVisible = 1, 
+		AllLoadedData = 2, 
+		Disabled = 3, 
+	}
+	export enum ResetSelectionBehavior { 
+		DontReset = 0, 
+		ServerReload = 1, 
+		ClientReload = 2, 
+	}
+	export enum PartitionType { 
+		Client = 0, 
+		Server = 1, 
+		Sequential = 2, 
 	}
 }
 module PowerTables.Plugins.Formwatch {
@@ -258,11 +304,8 @@ module PowerTables.Filters.Select {
 module PowerTables.Plugins.Limit {
 	export interface ILimitClientConfiguration
 	{
-		DefaultValue: string;
 		LimitValues: number[];
 		LimitLabels: string[];
-		ReloadTableOnLimitChange: boolean;
-		EnableClientLimiting: boolean;
 		DefaultTemplateId: string;
 	}
 }
@@ -282,7 +325,6 @@ module PowerTables.Plugins.Paging {
 		PagesToHideUnderPeriod: number;
 		UseFirstLastPage: boolean;
 		UseGotoPage: boolean;
-		EnableClientPaging: boolean;
 		DefaultTemplateId: string;
 	}
 }
@@ -330,7 +372,7 @@ module PowerTables.Editing {
 		FieldName: string;
 		PluginId: string;
 		ValidationMessagesTemplateId: string;
-		FakeColumn: PowerTables.Configuration.Json.IColumnConfiguration;
+		FakeColumn: PowerTables.IColumnConfiguration;
 		ValidationMessagesOverride: { [key:string]: string };
 	}
 	export interface IEditFormUiConfigBase
@@ -433,6 +475,7 @@ module PowerTables.Plugins.Reload {
 module PowerTables.Plugins.Hierarchy {
 	export interface IHierarchyUiConfiguration
 	{
+		ParentKeyFields: string[];
 		ExpandBehavior: PowerTables.Plugins.Hierarchy.NodeExpandBehavior;
 		CollapsedNodeFilterBehavior: PowerTables.Plugins.Hierarchy.TreeCollapsedNodeFilterBehavior;
 	}
@@ -462,6 +505,11 @@ module PowerTables.Adjustments {
 		SelectionToggle: PowerTables.Adjustments.SelectionToggle;
 		Unselect: { [key:string]: string[] };
 		Select: { [key:string]: string[] };
+	}
+	export interface IReloadAdditionalData
+	{
+		ForceServer: boolean;
+		ReloadTableIds: string[];
 	}
 	export enum SelectionToggle { 
 		LeaveAsIs = 0, 
@@ -529,5 +577,56 @@ module PowerTables.Commands {
 	export enum CommandType { 
 		Client = 0, 
 		Server = 1, 
+	}
+}
+module PowerTables.Plugins.Scrollbar {
+	export interface IScrollbarPluginUiConfig
+	{
+		WheelEventsCatcher: string;
+		KeyboardEventsCatcher: string;
+		IsHorizontal: boolean;
+		StickToElementSelector: string;
+		StickDirection: PowerTables.Plugins.Scrollbar.StickDirection;
+		StickHollow: PowerTables.Plugins.Scrollbar.StickHollow;
+		DefaultTemplateId: string;
+		Keys: PowerTables.Plugins.Scrollbar.IScrollbarKeyMappings;
+		Forces: PowerTables.Plugins.Scrollbar.IScrollbarForces;
+		PositionCorrector: any;
+		UseTakeAsPageForce: boolean;
+		ScrollerMinSize: number;
+		ArrowsDelayMs: number;
+		AppendToElement: string;
+		FocusMode: PowerTables.Plugins.Scrollbar.KeyboardScrollFocusMode;
+		ScrollDragSmoothness: number;
+	}
+	export interface IScrollbarKeyMappings
+	{
+		SingleUp: number[];
+		SingleDown: number[];
+		PageUp: number[];
+		PageDown: number[];
+		Home: number[];
+		End: number[];
+	}
+	export interface IScrollbarForces
+	{
+		WheelForce: number;
+		SingleForce: number;
+		PageForce: number;
+	}
+	export enum StickDirection { 
+		Right = 0, 
+		Left = 1, 
+		Top = 2, 
+		Bottom = 3, 
+	}
+	export enum StickHollow { 
+		Internal = 0, 
+		External = 1, 
+	}
+	export enum KeyboardScrollFocusMode { 
+		Manual = 0, 
+		MouseOver = 1, 
+		MouseClick = 2, 
 	}
 }

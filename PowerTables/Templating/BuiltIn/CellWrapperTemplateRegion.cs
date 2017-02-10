@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using PowerTables.Templating.Handlebars;
+using PowerTables.Templating.Expressions;
 
 namespace PowerTables.Templating.BuiltIn
 {
@@ -27,7 +27,8 @@ namespace PowerTables.Templating.BuiltIn
         /// </summary>
         object Data { get; }
 
-        IHbDictionary<string, string> DataObject { get; }
+        [OverrideTplFieldName("DataObject")]
+        IJsDictionary<string, string> DO { get; }
 
         /// <summary>
         /// True when this cell is selected, false otherwise.
@@ -62,7 +63,7 @@ namespace PowerTables.Templating.BuiltIn
         /// Data object
         /// </summary>
         [OverrideTplFieldName("DataObject")]
-        T TypedDataObject { get; }
+        T TDO { get; }
 
     }
 

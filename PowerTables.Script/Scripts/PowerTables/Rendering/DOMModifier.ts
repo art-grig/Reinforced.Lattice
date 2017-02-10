@@ -6,12 +6,13 @@
         /*
         * @internal
         */
-        constructor(executor: PowerTables.Templating.TemplatesExecutor, locator: DOMLocator, backBinder: BackBinder, instances: PowerTables.Services.InstanceManagerService, ed: PowerTables.Services.EventsDelegatorService) {
+        constructor(executor: PowerTables.Templating.TemplatesExecutor, locator: DOMLocator, backBinder: BackBinder, instances: PowerTables.Services.InstanceManagerService, ed: PowerTables.Services.EventsDelegatorService, bodyElement: HTMLElement) {
             this._locator = locator;
             this._backBinder = backBinder;
             this._instances = instances;
             this._ed = ed;
             this._tpl = executor;
+            this._bodyElement = bodyElement;
         }
 
         private _tpl: PowerTables.Templating.TemplatesExecutor;
@@ -19,6 +20,13 @@
         private _locator: DOMLocator;
         private _backBinder: BackBinder;
         private _instances: PowerTables.Services.InstanceManagerService;
+        private _bodyElement: HTMLElement;
+
+        public destroyPartitionRow() {
+            var rowElement = this._locator.getPartitionRowElement();
+            if (!rowElement) return;
+            this.destroyElement(rowElement);
+        }
 
         //#region Show/hide infrastructure
         private getRealDisplay(elem): string {
@@ -32,18 +40,20 @@
 
         private displayCache = {}
 
-        public hideElement(el: HTMLElement) {
+        public hideElement(el: Element) {
+            var e = <HTMLElement> el;
             if (!el) return;
-            if (!el.getAttribute('displayOld')) el.setAttribute("displayOld", el.style.display);
-            el.style.display = "none";
+            if (!el.getAttribute('displayOld')) el.setAttribute("displayOld", e.style.display);
+            e.style.display = "none";
         }
 
-        public showElement(el: HTMLElement) {
+        public showElement(el: Element) {
+            var e = <HTMLElement>el;
             if (!el) return;
             if (this.getRealDisplay(el) !== 'none') return;
 
             var old = el.getAttribute("displayOld");
-            el.style.display = old || "";
+            e.style.display = old || "";
 
             if (this.getRealDisplay(el) === "none") {
                 var nodeName = el.nodeName, body = document.body, display: any;
@@ -59,24 +69,23 @@
                 }
 
                 el.setAttribute('displayOld', display);
-                el.style.display = display;
+                e.style.display = display;
             }
         }
-
         public cleanSelector(targetSelector: string) {
-            var parent = <HTMLElement>document.querySelector(targetSelector);
-            for (var i = 0; i < parent.children.length; i++) {
-                this._ed.handleElementDestroy(<HTMLElement>parent.children.item(i));
+            var parent = document.querySelector(targetSelector);
+            for (var i = 0; i < (<HTMLElement>parent).children.length; i++) {
+                this._ed.handleElementDestroy((<HTMLElement>parent).children.item(i));
             }
             parent.innerHTML = '';
         }
 
-        public destroyElement(element: HTMLElement) {
+        public destroyElement(element: Element) {
             element.parentElement.removeChild(element);
             this._ed.handleElementDestroy(element);
         }
 
-        public destroyElements(elements: NodeList) {
+        private destroyElements(elements: NodeList) {
             for (var i = 0; i < elements.length; i++) {
                 this.destroyElement(<HTMLElement>elements.item(i));
             }
@@ -105,7 +114,7 @@
          * @returns {} 
          */
         public redrawPlugin(plugin: IPlugin): HTMLElement {
-            var oldPluginElement: HTMLElement = this._locator.getPluginElement(plugin);
+            var oldPluginElement = this._locator.getPluginElement(plugin);
             var t = this._tpl.beginProcess();
             PowerTables.Templating.Driver.renderPlugin(t, plugin);
             var result = this._tpl.endProcess(t);
@@ -135,17 +144,17 @@
         }
 
         public hidePlugin(plugin: IPlugin): void {
-            var pluginElement: HTMLElement = this._locator.getPluginElement(plugin);
+            var pluginElement = this._locator.getPluginElement(plugin);
             this.hideElement(pluginElement);
         }
 
         public showPlugin(plugin: IPlugin) {
-            var pluginElement: HTMLElement = this._locator.getPluginElement(plugin);
+            var pluginElement = this._locator.getPluginElement(plugin);
             this.showElement(pluginElement);
         }
 
         public destroyPlugin(plugin: IPlugin) {
-            var pluginElement: HTMLElement = this._locator.getPluginElement(plugin);
+            var pluginElement = this._locator.getPluginElement(plugin);
             this.destroyElement(pluginElement);
         }
 
@@ -184,24 +193,33 @@
             var p = this._tpl.beginProcess();
             PowerTables.Templating.Driver.row(p, row);
             var result = this._tpl.endProcess(p);
-            var oldElement: HTMLElement = this._locator.getRowElement(row);
+            var oldElement  = this._locator.getRowElement(row);
             var newElem = this.replaceElement(oldElement, result.Html);
             this._backBinder.backBind(newElem, result.BackbindInfo);
             return newElem;
         }
 
+        public destroyRowByObject(dataObject: any): void {
+            var rowElement = this._locator.getRowElementByObject(dataObject);
+            if (!rowElement) return;
+            this.destroyElement(rowElement);
+        }
+
         public destroyRow(row: IRow): void {
             var rowElement = this._locator.getRowElement(row);
+            if (!rowElement) return;
             this.destroyElement(rowElement);
         }
 
         public hideRow(row: IRow): void {
             var rowElement = this._locator.getRowElement(row);
+            if (!rowElement) return;
             this.hideElement(rowElement);
         }
 
         public showRow(row: IRow): void {
             var rowElement = this._locator.getRowElement(row);
+            if (!rowElement) return;
             this.showElement(rowElement);
         }
 
@@ -212,17 +230,62 @@
          * @param row 
          * @returns {} 
          */
-        public appendRow(row: IRow, beforeRowAtIndex: number): HTMLElement {
-
+        public appendRow(row: IRow, beforeRowAtIndex?: number): HTMLElement {
             var p = this._tpl.beginProcess();
             PowerTables.Templating.Driver.row(p, row);
             var result = this._tpl.endProcess(p);
-
-            var referenceNode: HTMLElement = this._locator.getRowElementByIndex(beforeRowAtIndex);
             var newRowElement: HTMLElement = this.createElement(result.Html);
-            referenceNode.parentNode.insertBefore(newRowElement, referenceNode);
-            this._backBinder.backBind(newRowElement, result.BackbindInfo);
 
+            if (beforeRowAtIndex != null && beforeRowAtIndex != undefined) {
+                var referenceNode = this._locator.getRowElementByIndex(beforeRowAtIndex);
+                referenceNode.parentNode.insertBefore(newRowElement, referenceNode);
+            } else {
+                if (this._locator.isSpecialRow(this._bodyElement.lastElementChild)) {
+                    var refNode = null;
+                    var idx = this._bodyElement.childElementCount;
+                    do {
+                        idx--;
+                        refNode = this._bodyElement.children.item(idx);
+                    } while (this._locator.isSpecialRow(refNode));
+                    refNode.parentNode.insertBefore(newRowElement, refNode);
+                }
+                this._bodyElement.appendChild(newRowElement);
+            }
+            this._backBinder.backBind(newRowElement, result.BackbindInfo);
+            return newRowElement;
+        }
+
+        /**
+         * Redraws specified row refreshing all its graphical state
+         * 
+         * @param row 
+         * @returns {} 
+         */
+        public prependRow(row: IRow): HTMLElement {
+            var p = this._tpl.beginProcess();
+            PowerTables.Templating.Driver.row(p, row);
+            var result = this._tpl.endProcess(p);
+            var newRowElement: HTMLElement = this.createElement(result.Html);
+            if (this._bodyElement.childElementCount === 0) {
+                this._bodyElement.appendChild(newRowElement);
+            } else {
+                var referenceNode: HTMLElement = <HTMLElement>this._bodyElement.firstElementChild;
+                if (this._locator.isSpecialRow(referenceNode)) {
+                    var idx = 0;
+                    do {
+                        idx++;
+                        referenceNode = <HTMLElement>this._bodyElement.children.item(idx);
+                    } while (this._locator.isSpecialRow(referenceNode) || idx < this._bodyElement.childElementCount);
+                    if (idx === this._bodyElement.childElementCount) {
+                        this._bodyElement.appendChild(newRowElement);
+                    } else {
+                        referenceNode.parentNode.insertBefore(newRowElement, referenceNode);
+                    }
+                } else {
+                    referenceNode.parentNode.insertBefore(newRowElement, referenceNode);
+                }
+            }
+            this._backBinder.backBind(newRowElement, result.BackbindInfo);
             return newRowElement;
         }
 
@@ -233,17 +296,26 @@
          * @returns {} 
          */
         public destroyRowByIndex(rowDisplayIndex: number): void {
-            var referenceNode: HTMLElement = this._locator.getRowElementByIndex(rowDisplayIndex);
-            referenceNode.parentElement.removeChild(referenceNode);
+            var rowElement = this._locator.getRowElementByIndex(rowDisplayIndex);
+            if (!rowElement) return;
+            this.destroyElement(rowElement);
+        }
+
+        public destroyRowByNumber(rowNumber: number): void {
+            var rows = this._locator.getRowElements();
+            if (rowNumber > rows.length) return;
+            this.destroyElement(<Element>rows.item(rowNumber));
         }
 
         public hideRowByIndex(rowDisplayIndex: number): void {
             var rowElement = this._locator.getRowElementByIndex(rowDisplayIndex);
+            if (!rowElement) return;
             this.hideElement(rowElement);
         }
 
         public showRowByIndex(rowDisplayIndex: number): void {
             var rowElement = this._locator.getRowElementByIndex(rowDisplayIndex);
+            if (!rowElement) return;
             this.showElement(rowElement);
         }
 
@@ -254,7 +326,7 @@
             var p = this._tpl.beginProcess();
             PowerTables.Templating.Driver.cell(p, cell);
             var result = this._tpl.endProcess(p);
-            var oldElement: HTMLElement = this._locator.getCellElement(cell);
+            var oldElement = this._locator.getCellElement(cell);
             var newElem = this.replaceElement(oldElement, result.Html);
             this._backBinder.backBind(newElem, result.BackbindInfo);
             return newElem;
@@ -262,16 +334,19 @@
 
         public destroyCell(cell: ICell): void {
             var e = this._locator.getCellElement(cell);
+            if (!e) return;
             e.parentElement.removeChild(e);
         }
 
         public hideCell(cell: ICell) {
             var e = this._locator.getCellElement(cell);
+            if (!e) return;
             this.hideElement(e);
         }
 
         public showCell(cell: ICell) {
             var e = this._locator.getCellElement(cell);
+            if (!e) return;
             this.hideElement(e);
         }
 
@@ -307,6 +382,7 @@
 
         //#endregion
 
+        //#region Headers
         /**
          * Redraws header for specified column
          * 
@@ -317,34 +393,47 @@
             PowerTables.Templating.Driver.header(p, column);
             var result = this._tpl.endProcess(p);
 
-            var oldHeaderElement: HTMLElement = this._locator.getHeaderElement(column.Header);
-            var newElement: HTMLElement = this.replaceElement(oldHeaderElement, result.Html);
+            var oldHeaderElement = this._locator.getHeaderElement(column.Header);
+            var newElement = this.replaceElement(oldHeaderElement, result.Html);
             this._backBinder.backBind(newElement, result.BackbindInfo);
             return newElement;
         }
 
         public destroyHeader(column: IColumn): void {
             var e = this._locator.getHeaderElement(column.Header);
+            if (!e) return;
             this.destroyElement(e);
         }
 
         public hideHeader(column: IColumn): void {
             var e = this._locator.getHeaderElement(column.Header);
+            if (!e) return;
             this.hideElement(e);
         }
 
         public showHeader(column: IColumn): void {
             var e = this._locator.getHeaderElement(column.Header);
+            if (!e) return;
             this.showElement(e);
         }
+        //#endregion
 
         public createElement(html: string): HTMLElement {
             var parser: Rendering.Html2Dom.HtmlParser = new Rendering.Html2Dom.HtmlParser();
             return parser.html2Dom(html);
         }
 
-        private replaceElement(element: HTMLElement, html: string): HTMLElement {
-            var node: HTMLElement = this.createElement(html);
+        public createElementFromTemplate(templateId: string, viewModelBehind: any): HTMLElement {
+            var p = this._tpl.execute(viewModelBehind, templateId);
+            var parser: Rendering.Html2Dom.HtmlParser = new Rendering.Html2Dom.HtmlParser();
+            var element = parser.html2Dom(p.Html);
+            this._backBinder.backBind(element, p.BackbindInfo);
+            return element;
+        }
+
+        private replaceElement(element: Element, html: string): HTMLElement {
+            if (!element) return null;
+            var node = this.createElement(html);
             element.parentElement.replaceChild(node, element);
             this._ed.handleElementDestroy(element);
             return node;

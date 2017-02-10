@@ -1,75 +1,20 @@
 ﻿module PowerTables.Plugins.Paging {
-    export class PagingPlugin extends PowerTables.Filters.FilterBase<Plugins.Paging.IPagingClientConfiguration> {
+    export class PagingPlugin extends PowerTables.Plugins.PluginBase<Plugins.Paging.IPagingClientConfiguration> {
 
         public Pages: IPagesElement[];
         public Shown: boolean;
         public NextArrow: boolean;
         public PrevArrow: boolean;
 
-        private _selectedPage: number = 0;
-
-        public CurrentPage() { return this._selectedPage + 1; }
-
-        public TotalPages() { return this._totalPages; }
-
-        public PageSize() { return this._pageSize; }
-
-        private _totalPages: number;
-        private _pageSize: number;
+        public CurrentPage() { return this.MasterTable.Stats.CurrentPage() + 1; }
+        public TotalPages() { return this.MasterTable.Stats.Pages(); }
+        public PageSize() { return this.MasterTable.Partition.Take; }
 
         public GotoInput: HTMLInputElement;
 
-        public getCurrentPage() {
-            return this._selectedPage;
-        }
-
-        public getTotalPages() {
-            return this._totalPages;
-        }
-
-        public getPageSize() {
-            return this._pageSize;
-        }
-
-        private onFilterGathered(e: ITableEventArgs<IQueryGatheringEventArgs>) {
-            this._pageSize = e.EventArgs.Query.Paging.PageSize;
-        }
-        private onColumnsCreation() {
-            if (this.Configuration.EnableClientPaging && !this.MasterTable.DataHolder.EnableClientTake) {
-                var limit: any = null;
-                try {
-                    limit = this.MasterTable.InstanceManager.getPlugin('Limit');
-                } catch (a) { }
-                if (limit != null)
-                    throw new Error('Paging ang Limit plugins must both work locally or both remote. Please enable client limiting');
-            }
-        }
-
-        private onResponse(e: ITableEventArgs<IDataEventArgs>) {
-            this._selectedPage = e.EventArgs.Data.PageIndex;
-            var tp: number = e.EventArgs.Data.ResultsCount / this._pageSize;
-            if (tp !== parseInt(<any>tp)) {
-                tp = parseInt(<any>tp) + 1;
-            }
-            this._totalPages = tp;
-            this.MasterTable.Renderer.Modifier.redrawPlugin(this);
-        }
-
-        private onClientDataProcessing(e: ITableEventArgs<IClientDataResults>) {
-            var tp: number = e.EventArgs.Filtered.length / this._pageSize;
-            if (tp !== parseInt(<any>tp)) {
-                tp = parseInt(<any>tp) + 1;
-            }
-            if (tp < this._selectedPage) {
-                this._selectedPage = 0;
-            }
-            this._totalPages = tp;
-            this.MasterTable.Renderer.Modifier.redrawPlugin(this);
-        }
-
         public goToPage(page: string) {
-            this._selectedPage = parseInt(page);
-            this.MasterTable.Controller.reload();
+            var pg = parseInt(page);
+            this.MasterTable.Partition.setSkip(pg * this.MasterTable.Partition.Take, false);
         }
 
         public gotoPageClick(e: PowerTables.ITemplateBoundEvent) {
@@ -85,18 +30,19 @@
         }
 
         public nextClick(e: PowerTables.ITemplateBoundEvent) {
-            if (this._selectedPage < this._totalPages) this.goToPage((this._selectedPage + 1).toString());
+            if (this.MasterTable.Stats.CurrentPage() < this.MasterTable.Stats.Pages()) this.goToPage((this.MasterTable.Stats.CurrentPage() + 1).toString());
         }
 
         public previousClick(e: PowerTables.ITemplateBoundEvent) {
-            if (this._selectedPage > 0) this.goToPage((this._selectedPage - 1).toString());
+            if (this.MasterTable.Stats.CurrentPage() > 0) this.goToPage((this.MasterTable.Stats.CurrentPage() - 1).toString());
         }
 
         private constructPagesElements() {
             var a: IPagesElement[] = [];
-            var total: number = this._totalPages;
-            var cur: number = this._selectedPage;
+            var total: number = this.MasterTable.Stats.Pages();
+            var cur: number = this.MasterTable.Stats.CurrentPage();
             var pdiff: number = this.Configuration.PagesToHideUnderPeriod;
+            var totalKnown = this.MasterTable.Partition.isAmountFinite();
 
             if (total > 1) {
                 this.Shown = true;
@@ -120,10 +66,13 @@
                                 a.push({ Page: i, InActivePage: true });
                             }
                         }
+                        if (!totalKnown) {
+                            a.push({ Page: 0, Period: true });
+                        }
                     }
                     if (cur < total - 1) a.push({ Page: 0, Next: true });
 
-                    if (this.Configuration.UseFirstLastPage) a.push({ Page: total - 1, Last: true });
+                    if (this.Configuration.UseFirstLastPage && totalKnown) a.push({ Page: total - 1, Last: true });
 
                     var disFunction: () => any = function () { return this.Page + 1; }
                     for (var j: number = 0; j < a.length; j++) {
@@ -131,7 +80,7 @@
                     }
                     this.Pages = a;
                 } else {
-                    this.NextArrow = cur < total - 1;
+                    this.NextArrow = totalKnown ? cur < total - 1 : true;
                     this.PrevArrow = cur > 0;
                 }
             } else {
@@ -139,7 +88,7 @@
             }
         }
 
-        public renderContent(p:PowerTables.Templating.TemplateProcess): void {
+        public renderContent(p: PowerTables.Templating.TemplateProcess): void {
             this.constructPagesElements();
             super.defaultRender(p);
         }
@@ -147,7 +96,7 @@
         public validateGotopage() {
             var v: string = this.GotoInput.value;
             var i: number = parseInt(v);
-            var valid: boolean = !isNaN(i) && (i > 0) && (i <= this._totalPages);
+            var valid: boolean = this.MasterTable.Partition.isAmountFinite() ? (!isNaN(i) && (i > 0) && (i <= this.MasterTable.Stats.Pages())) : true;
             if (valid) {
                 this.VisualStates.normalState();
             } else {
@@ -155,33 +104,22 @@
             }
         }
 
-        public modifyQuery(query: IQuery, scope: QueryScope): void {
-            if (this.Configuration.EnableClientPaging && scope===QueryScope.Client) {
-                query.Paging.PageIndex = this._selectedPage;
-            }
-
-            if ((!this.Configuration.EnableClientPaging) && scope !== QueryScope.Client) {
-                query.Paging.PageIndex = this._selectedPage;
-            }
-        }
-
         public init(masterTable: IMasterTable): void {
             super.init(masterTable);
-            if (!this.Configuration.EnableClientPaging) {
-                this.MasterTable.Events.QueryGathering.subscribeAfter(this.onFilterGathered.bind(this), 'paging');
-            } else {
-                this.MasterTable.Events.ClientQueryGathering.subscribeAfter(this.onFilterGathered.bind(this), 'paging');
-            }
-            if (!this.Configuration.EnableClientPaging) {
-                this.MasterTable.Events.DataReceived.subscribe(this.onResponse.bind(this), 'paging');
-            } else {
-                this.MasterTable.Events.ClientDataProcessing.subscribeAfter(this.onClientDataProcessing.bind(this), 'paging');
-            }
-            this.MasterTable.Events.ColumnsCreation.subscribe(this.onColumnsCreation.bind(this), 'paging');
+        }
 
-            if (this.Configuration.EnableClientPaging) {
-                this.MasterTable.DataHolder.EnableClientSkip = true;
-            }
+        private onPartitionChanged(e: ITableEventArgs<PowerTables.IPartitionChangeEventArgs>) {
+            if (e.EventArgs.Take === e.EventArgs.PreviousTake && e.EventArgs.Skip === e.EventArgs.PreviousSkip) return;
+            this.MasterTable.Renderer.Modifier.redrawPlugin(this);
+        }
+
+        private onClientDataProcessing(e: ITableEventArgs<PowerTables.IClientDataResults>) {
+            this.MasterTable.Renderer.Modifier.redrawPlugin(this);
+        }
+
+        public subscribe(e: PowerTables.Services.EventsService): void {
+            e.PartitionChanged.subscribeAfter(this.onPartitionChanged.bind(this), 'paging');
+            e.ClientDataProcessing.subscribeAfter(this.onClientDataProcessing.bind(this), 'paging');
         }
     }
 
@@ -192,12 +130,12 @@
         Page: number;
         First?: boolean;
         Last?: boolean;
-        Next?:boolean;
+        Next?: boolean;
         InActivePage?: boolean;
         DisPage?: () => string;
     }
 
-    
 
-    ComponentsContainer.registerComponent('Paging',PagingPlugin);
+
+    ComponentsContainer.registerComponent('Paging', PagingPlugin);
 } 

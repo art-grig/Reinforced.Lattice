@@ -1,17 +1,12 @@
-﻿namespace PowerTables.Templating.Handlebars
+﻿namespace PowerTables.Templating.Expressions
 {
     /// <summary>
     /// Javascript objects dictionary
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
     /// <typeparam name="T"></typeparam>
-    public interface IHbDictionary<TKey,T>
+    public interface IJsDictionary<TKey,T>
     {
-        /// <summary>
-        /// Length
-        /// </summary>
-        int Length { get;}
-
         /// <summary>
         /// Object at specified key
         /// </summary>

@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace PowerTables.Templating.Handlebars
+namespace PowerTables.Templating.Expressions
 {
     public class CodeBlock : IDisposable, IRawProvider
     {
         private readonly IRawProvider _raw;
         private readonly string _footer;
-
+        
         protected IRawProvider RawCode
         {
             get { return _raw; }
@@ -41,6 +37,21 @@ namespace PowerTables.Templating.Handlebars
         public void WriteRaw(string tplCode)
         {
             _raw.WriteRaw(tplCode);
+        }
+
+        public string Variable()
+        {
+            return _raw.Variable();
+        }
+
+        public string Iterator()
+        {
+            return _raw.Iterator();
+        }
+
+        public string Key()
+        {
+            return _raw.Key();
         }
     }
 }

@@ -32,6 +32,7 @@
 
         public setValue(value: any): void {
             this._value = (!(!value));
+            if (!this.VisualStates) return;
             this.updateState();
         }
 

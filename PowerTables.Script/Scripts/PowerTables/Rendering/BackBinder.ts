@@ -3,15 +3,13 @@
      * Internal component that is not supposed to be used directly.
      */
     export class BackBinder {
-        private _instances: PowerTables.Services.InstanceManagerService;
         private _dateService: PowerTables.Services.DateService;
         public Delegator: PowerTables.Services.EventsDelegatorService;
 
         /**
         * @internal
         */
-        constructor(instances: PowerTables.Services.InstanceManagerService, dateService: PowerTables.Services.DateService) {
-            this._instances = instances;
+        constructor(dateService: PowerTables.Services.DateService) {
             this._dateService = dateService;
         }
         
@@ -52,6 +50,7 @@
         }
 
         private getMatchingElements(parent: HTMLElement, attr: string): any {
+            if (parent == null) return [];
             var list = parent.querySelectorAll(`[${attr}]`);
             var result = [];
             for (var i: number = 0; i < list.length; i++) {
@@ -124,7 +123,8 @@
         private backbindEvents(parentElement: HTMLElement, info: PowerTables.Templating.IBackbindInfo) {
             var elements = this.getMatchingElements(parentElement, `data-evb`);
             // backbinding of events
-            this.traverseBackbind<PowerTables.Templating.IBackbindEvent>(elements, parentElement, info.EventsQueue, 'data-be', (subscription, element) => {
+            this.traverseBackbind<PowerTables.Templating.IBackbindEvent>(elements, parentElement, info.EventsQueue, 'data-be',
+                (subscription, element) => {
                 for (var j: number = 0; j < subscription.Functions.length; j++) {
                     var bindFn: string = subscription.Functions[j];
                     var handler: void | Object = null;

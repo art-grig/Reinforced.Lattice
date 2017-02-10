@@ -81,7 +81,7 @@ namespace PowerTables
                 int page = 0;
 
 
-                var paged = _queryHandler.ApplyPaging(ordered, request.Query, out count, out page);
+                var paged = _queryHandler.ApplyPaging(ordered, request.Query.Partition, out count);
                 var mapped = new Lazy<TTableData[]>(() => _queryHandler.ApplyMapping(paged, request.Query));
                 var mappedObject =
                     new Lazy<object[]>(() => _queryHandler.ApplyMapping(paged, request.Query).Cast<object>().ToArray());

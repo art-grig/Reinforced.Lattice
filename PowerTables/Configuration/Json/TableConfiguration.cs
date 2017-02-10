@@ -112,6 +112,10 @@ namespace PowerTables.Configuration.Json
             Subscriptions = new List<ConfiguredSubscriptionInfo>();
             SelectionConfiguration = new SelectionConfiguration();
             Commands = new Dictionary<string, CommandDescription>();
+            Partition = new PartitionConfiguration()
+            {
+                Type = PartitionType.Client
+            };
         }
 
         /// <summary>
@@ -120,6 +124,8 @@ namespace PowerTables.Configuration.Json
         public object[] PrefetchedData { get; internal set; }
 
         public Dictionary<string, CommandDescription> Commands { get; set; }
+
+        public PartitionConfiguration Partition { get; set; }
 
     }
 
@@ -333,6 +339,8 @@ namespace PowerTables.Configuration.Json
 
         public Dictionary<string,string[]> InitialSelected { get; set; }
     }
+
+    
 
     public enum SelectAllBehavior
     {
