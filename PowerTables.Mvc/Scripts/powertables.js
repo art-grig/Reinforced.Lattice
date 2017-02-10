@@ -9552,7 +9552,7 @@ var PowerTables;
                             // first, we cut tail
                             if (needToCut < tail.length) {
                                 // if it is enough to cut tail - ok
-                                this.removeNLastRows(tail.length - needToCut);
+                                this.removeNLastRows(needToCut);
                                 tail = tail.slice(0, tail.length - needToCut);
                                 this.appendNodes(newNodes, tail);
                             }
@@ -9832,6 +9832,9 @@ var PowerTables;
                     while (obj.__parent != null) {
                         result++;
                         obj = this.MasterTable.DataHolder.getByPrimaryKey(obj.__parent);
+                        if (!obj)
+                            throw new Error("Fields " + this.Configuration.ParentKeyFields
+                                .concat(', ') + " must be all null in root nodes");
                     }
                     return result;
                 };

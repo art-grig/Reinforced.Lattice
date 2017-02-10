@@ -24,7 +24,7 @@ namespace PowerTables.Mvc.Controllers
 
         public ActionResult FilesystemHandle()
         {
-            var di = new DirectoryInfo(@"J:\");
+            var di = new DirectoryInfo(@"C:\\Program Files (x86)");
             var infos = di.EnumerateFileSystemInfos().Where(c=> (c.Attributes & FileAttributes.Hidden) != FileAttributes.Hidden);
             var t = new Configurator<FileSystemInfo, FileRow>().Filesystem();
             var handler = t.CreateMvcHandler(ControllerContext);
