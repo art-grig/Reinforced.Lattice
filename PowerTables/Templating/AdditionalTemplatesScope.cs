@@ -6,10 +6,12 @@ namespace PowerTables.Templating
 {
     public class AdditionalTemplatesScope : DeclaratorBase, ITemplatesScope, IDisposable
     {
-        public TextWriter Out { get { return _page.Output; } }
+        public TemplateControl Flow { get; }
+
         public string TemplatesPrefix { get { return _prefix; } }
+
         public IViewPlugins Plugin { get { return _classifier; } }
-        public bool CrunchingTemplate { get; set; }
+
         public SpecialString Raw(string tplCode)
         {
             return _hook.CreateRaw(tplCode);
@@ -33,6 +35,7 @@ namespace PowerTables.Templating
         private readonly bool _renderScriptTag;
         public AdditionalTemplatesScope(WebViewPage page, string prefix, bool renderScriptTag = true)
         {
+            this.Flow = new TemplateControl(() => _page.Output);
             _classifier = new PluginsClassifier(new LatticeTemplatesViewModel() { Prefix = prefix }, this);
             _page = page;
             _renderScriptTag = renderScriptTag;

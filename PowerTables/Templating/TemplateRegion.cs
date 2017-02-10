@@ -15,16 +15,16 @@ namespace PowerTables.Templating
 
         internal TemplateRegion(TemplateRegionType type, string prefix, string id, ITemplatesScope scope)
         {
-            _writer = (ScopedWriter)scope.Out;
+            _writer = (ScopedWriter)scope.Flow.Out;
             _scope = scope;
             Type = type;
             _writer.Write(string.Format(";PowerTables.Templating._ltcTpl._('{0}','{1}',function(o,d,w,p,s){{p.d(o,{2});", prefix, id, (int)type));
-            scope.CrunchingTemplate = true;
+            scope.Flow.CrunchingTemplate = true;
         }
 
         public virtual void Dispose()
         {
-            _scope.CrunchingTemplate = false;
+            _scope.Flow.CrunchingTemplate = false;
             _writer.Write("p.u();});");
         }
 

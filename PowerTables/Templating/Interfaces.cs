@@ -15,10 +15,7 @@ namespace PowerTables.Templating
     /// </summary>
     public interface ITemplateRegion : IRawProvider
     {
-        /// <summary>
-        /// TextWriter that should consume target document's HTML
-        /// </summary>
-        TextWriter Writer { get; }
+        
     }
     
     /// <summary>

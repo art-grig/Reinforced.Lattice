@@ -10,7 +10,7 @@ using System.Web.Mvc;
 
 namespace PowerTables.Templating
 {
-    public class SpecialString : IHtmlString
+    public sealed class SpecialString : IHtmlString
     {
         private readonly string _internalString;
 
@@ -44,7 +44,7 @@ namespace PowerTables.Templating
             return new SpecialString(x + y._internalString);
         }
     }
-    internal class ScopedWriter : TextWriter
+    internal sealed class ScopedWriter : TextWriter
     {
         private readonly TextWriter _original;
 
@@ -69,7 +69,7 @@ namespace PowerTables.Templating
 
         public override void Write(string value)
         {
-            if (_scope.CrunchingTemplate)
+            if (_scope.Flow.CrunchingTemplate)
             {
                 if (!_specialStrings.Contains(value))
                 {
@@ -83,7 +83,23 @@ namespace PowerTables.Templating
             _original.Write(value);
         }
 
-        
+        public override void Write(object value)
+        {
+            if (value != null && value is SpecialString)
+            {
+                throw new Exception("Works");
+            }
+
+            if (value != null && value is string)
+            {
+                if (_scope.Flow.CrunchingTemplate)
+                {
+                    value = RawExtensions.Prettify((string)value);
+                }
+            }
+            _original.Write(value);
+        }
+
 
         #region Delegation
 
@@ -153,24 +169,6 @@ namespace PowerTables.Templating
         }
 
        
-
-        public override void Write(object value)
-        {
-            if (value != null && value is SpecialString)
-            {
-                throw new Exception("Works");
-            }
-
-            if (value != null && value is string)
-            {
-                if (_scope.CrunchingTemplate)
-                {
-                    value = RawExtensions.Prettify((string) value);
-                }
-            }
-            _original.Write(value);
-        }
-
         public override void Write(string format, object arg0)
         {
             _original.Write(format, arg0);
