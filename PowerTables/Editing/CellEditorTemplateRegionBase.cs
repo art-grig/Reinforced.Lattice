@@ -2,6 +2,7 @@
 using System.Web.Mvc;
 using PowerTables.Templating;
 using PowerTables.Templating.BuiltIn;
+using PowerTables.Templating.Compilation;
 using PowerTables.Templating.Expressions;
 
 namespace PowerTables.Editing

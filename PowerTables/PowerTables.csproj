@@ -273,6 +273,7 @@
     <Compile Include="Templating\BuiltIn\MessageWrapperTemplateRegion.cs" />
     <Compile Include="Templating\BuiltIn\HeaderWrapperTemplateRegion.cs" />
     <Compile Include="Templating\BuiltIn\PartitionRowTemplateRegion.cs" />
+    <Compile Include="Templating\Compilation\CharStream.cs" />
     <Compile Include="Templating\DeclaratorBase.cs" />
     <Compile Include="Templating\DOMEvent.cs" />
     <Compile Include="Templating\Expressions\CodeBlock.cs" />
@@ -304,7 +305,8 @@
     <Compile Include="Templating\BuiltIn\PluignWrapperTemplateRegion.cs" />
     <Compile Include="Templating\RawExtensions.cs" />
     <Compile Include="Templating\ResharperAnnotations.cs" />
-    <Compile Include="Templating\ScopedWriter.cs" />
+    <Compile Include="Templating\Compilation\ScopedWriter.cs" />
+    <Compile Include="Templating\Compilation\TagDetector.cs" />
     <Compile Include="Templating\TemplateControl.cs" />
     <Compile Include="Templating\TemplateRegion.cs" />
     <Compile Include="Templating\TemplateRegionType.cs" />

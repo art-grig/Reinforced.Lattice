@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using PowerTables.Templating;
+using PowerTables.Templating.Compilation;
 
 namespace PowerTables.Editing.Editors.Display
 {

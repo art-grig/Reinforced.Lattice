@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Web.Mvc;
+using PowerTables.Templating.Compilation;
 
 namespace PowerTables.Templating
 {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using PowerTables.Templating.Compilation;
 using PowerTables.Templating.Expressions.Visiting;
 
 namespace PowerTables.Templating.Expressions

@@ -125,12 +125,12 @@
 
 
 @using (var t = this.Message("error"))
-{
+{ 
     <tr class="danger" @t.Track() style="padding: 30px">
         <td colspan="@t.Value(c => c.TDO.UiColumnsCount)">
             <h4 class="text-center"><span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>  Error occured</h4>
             <p style="margin-left:25px;margin-right:25px">
-                @t.Value(c => c.TDO.Title)
+                @t.Value(c => c.TDO.Title) 
                 <hr />
                 @t.Value(c => c.TDO.Details)
             </p>

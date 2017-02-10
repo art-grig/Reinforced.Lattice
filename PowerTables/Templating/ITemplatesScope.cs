@@ -5,7 +5,7 @@ namespace PowerTables.Templating
     /// <summary>
     /// Common interface for template scopes to make them embeddable to any page
     /// </summary>
-    public interface ITemplatesScope: IRawProvider
+    public interface ITemplatesScope : IRawProvider
     {
         /// <summary>
         /// Internal information about template scope

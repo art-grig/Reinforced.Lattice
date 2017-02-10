@@ -1,4 +1,5 @@
 ﻿using System;
+using PowerTables.Templating.Compilation;
 
 namespace PowerTables.Templating.Expressions
 {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using PowerTables.Templating.Compilation;
 
 namespace PowerTables.Templating
 {
@@ -8,12 +9,8 @@ namespace PowerTables.Templating
         private readonly ScopedWriter _writer;
         private readonly ITemplatesScope _scope;
         public TemplateRegionType Type { get; protected set; }
-        public TextWriter Writer
-        {
-            get { return _writer; }
-        }
 
-        internal TemplateRegion(TemplateRegionType type, string prefix, string id, ITemplatesScope scope)
+        public TemplateRegion(TemplateRegionType type, string prefix, string id, ITemplatesScope scope)
         {
             _writer = (ScopedWriter)scope.Flow.Out;
             _scope = scope;

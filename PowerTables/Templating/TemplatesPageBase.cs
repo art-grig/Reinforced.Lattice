@@ -3,6 +3,7 @@ using System.Text;
 using System.Web.Mvc;
 using System.Web.WebPages;
 using System.Web.WebPages.Instrumentation;
+using PowerTables.Templating.Compilation;
 
 namespace PowerTables.Templating
 {

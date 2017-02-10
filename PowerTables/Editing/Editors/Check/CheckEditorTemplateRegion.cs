@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Web.Mvc;
 using PowerTables.Templating;
+using PowerTables.Templating.Compilation;
 
 namespace PowerTables.Editing.Editors.Check
 {

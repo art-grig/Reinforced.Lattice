@@ -1,6 +1,7 @@
 ﻿using System.Web.Mvc;
 using PowerTables.Templating;
 using PowerTables.Templating.BuiltIn;
+using PowerTables.Templating.Compilation;
 
 namespace PowerTables.Plugins.Ordering
 {

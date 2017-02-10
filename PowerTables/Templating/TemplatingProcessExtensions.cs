@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using Newtonsoft.Json;
+using PowerTables.Templating.Compilation;
 using PowerTables.Templating.Expressions;
 
 namespace PowerTables.Templating

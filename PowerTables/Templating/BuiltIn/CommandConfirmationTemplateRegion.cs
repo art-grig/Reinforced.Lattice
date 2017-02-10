@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using PowerTables.Plugins.Toolbar;
+using PowerTables.Templating.Compilation;
 using PowerTables.Templating.Expressions;
 
 namespace PowerTables.Templating.BuiltIn
