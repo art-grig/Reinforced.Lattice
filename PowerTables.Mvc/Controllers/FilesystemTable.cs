@@ -25,7 +25,7 @@ namespace PowerTables.Mvc.Controllers
         public ActionResult FilesystemHandle()
         {
             var di = new DirectoryInfo(@"C:\\Program Files (x86)");
-            var infos = di.EnumerateFileSystemInfos().Where(c=> (c.Attributes & FileAttributes.Hidden) != FileAttributes.Hidden);
+            var infos = di.EnumerateFileSystemInfos().Where(c => (c.Attributes & FileAttributes.Hidden) != FileAttributes.Hidden);
             var t = new Configurator<FileSystemInfo, FileRow>().Filesystem();
             var handler = t.CreateMvcHandler(ControllerContext);
             handler.AddChildrenHandler(Children);
@@ -37,7 +37,7 @@ namespace PowerTables.Mvc.Controllers
             var di = new DirectoryInfo(fileRow.FullPath);
             return di.EnumerateFileSystemInfos().Where(c => (c.Attributes & FileAttributes.Hidden) != FileAttributes.Hidden);
         }
-        
+
         public ActionResult FileIcon(string path)
         {
             return File(Icon.FileIcon, "image/png");
@@ -48,12 +48,39 @@ namespace PowerTables.Mvc.Controllers
             return File(Icon.DirIcon, "image/png");
         }
 
+        public ActionResult GetIcon(string path)
+        {
+            return File(Icon.GetIcon(path), "image/png");
+        }
+
     }
 
     class Icon
     {
         public static byte[] FileIcon { get; private set; }
         public static byte[] DirIcon { get; private set; }
+
+        public static Dictionary<string, byte[]> CachedIcons = new Dictionary<string, byte[]>();
+
+        public static byte[] GetIcon(string path)
+        {
+            var ex = Path.GetExtension(path);
+            var dir = new DirectoryInfo(path);
+            if (dir.Exists) return DirIcon;
+            if (string.IsNullOrEmpty(ex))
+            {
+                return FileIcon;
+            }
+            if (CachedIcons.ContainsKey(ex)) return CachedIcons[ex];
+
+            SHFILEINFO shinfo = new SHFILEINFO();
+            Win32.SHGetFileInfo(path, 0, ref shinfo, (uint)Marshal.SizeOf(shinfo), Win32.SHGFI_ICON | Win32.SHGFI_SMALLICON); ;
+            System.Drawing.Icon fileIcon = System.Drawing.Icon.FromHandle(shinfo.hIcon);
+            var icon = ToPngBytes(fileIcon);
+            if (ex != ".exe") CachedIcons[ex] = icon;
+            return icon;
+        }
+
         static Icon()
         {
             SHFILEINFO shinfo = new SHFILEINFO();
@@ -72,7 +99,7 @@ namespace PowerTables.Mvc.Controllers
             {
                 using (var ms = new MemoryStream())
                 {
-                    icn.Save(ms,ImageFormat.Png);
+                    icn.Save(ms, ImageFormat.Png);
                     return ms.ToArray();
                 }
             }

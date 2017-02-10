@@ -76,7 +76,7 @@ namespace PowerTables.Mvc.Models.Tutorial
         }
         private static Template IconAndName(this Template tpl)
         {
-            tpl.Tag("span").Content("<img src='/Tutorial/`({IsDirectory}?'DirIcon':'FileIcon')`' /> {Name}");
+            tpl.Tag("span").Content("<img src='/Tutorial/GetIcon?path={FullPath}' /> {Name}");
             return tpl;
         }
 
