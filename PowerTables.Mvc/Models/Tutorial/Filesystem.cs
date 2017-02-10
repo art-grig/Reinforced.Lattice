@@ -37,7 +37,7 @@ namespace PowerTables.Mvc.Models.Tutorial
             conf.Column(c => c.IsDirectory).DataOnly();
             conf.Column(c => c.Name).Template(tpl =>
             {
-                tpl.ReturnsIf("{ChildrenCount} <= 0", c => c.IconAndName().Offset());
+                tpl.ReturnsIf("{ChildrenCount} <= 0", c => c.IconAndName().Offset().Loading());
 
                 tpl.ReturnsIf("{IsExpanded}",
                     c =>
@@ -48,7 +48,7 @@ namespace PowerTables.Mvc.Models.Tutorial
                                         .Class("glyphicon glyphicon-chevron-down _treeToggle")
                                         .Css("cursor", "pointer")
                                         .After(x => x.IconAndName()))
-                            .Offset());
+                            .Offset().Loading());
                 tpl.Returns(
                     c =>
                         c.Tag("span")
@@ -58,7 +58,7 @@ namespace PowerTables.Mvc.Models.Tutorial
                                         .Class("glyphicon glyphicon-chevron-right _treeToggle")
                                         .Css("cursor", "pointer")
                                         .After(x => x.IconAndName()))
-                            .Offset());
+                            .Offset().Loading());
             }).BindHierarchyToggleLoad("click", "._treeToggle");
 
             conf.Partition(x => x.Client().InitialSkipTake(take: 15));
@@ -68,6 +68,12 @@ namespace PowerTables.Mvc.Models.Tutorial
         private static Template IconAndName(this Template tpl)
         {
             tpl.Tag("span").Content("<img src='/Tutorial/`({IsDirectory}?'DirIcon':'FileIcon')`' /> {Name}");
+            return tpl;
+        }
+
+        private static Template Loading(this Template tpl)
+        {
+            tpl.After("`(({IsLoading})?'<i>Loading...</i>':'')`");
             return tpl;
         }
     }
