@@ -161,7 +161,7 @@ namespace PowerTables.Templating.Expressions
             var proname = TraversePropertyLambda(collection, t.ExistingModel);
             var i = t.Iterator();
             var v = t.Variable();
-            var heading = string.Format("for(var {1}=0;{1}<{0}.length;{1}++){{var {2}={0}[i];", proname, i, v);
+            var heading = string.Format("for(var {1}=0;{1}<{0}.length;{1}++){{var {2}={0}[{1}];", proname, i, v);
             return new ParametrizedCodeBlock<TElement>(heading, "}", t, v);
         }
 
@@ -177,7 +177,7 @@ namespace PowerTables.Templating.Expressions
             var proname = TraversePropertyLambda(collection, t.ExistingModel);
             var i = t.Iterator();
             var v = t.Variable();
-            var heading = string.Format("for(var {1}=0;{1}<{0}.length;{1}++){{var {2}={0}[i];", proname, i, v);
+            var heading = string.Format("for(var {1}=0;{1}<{0}.length;{1}++){{var {2}={0}[{1}];", proname, i, v);
             return new ParametrizedCodeBlock<TElement>(heading, "}", t, v);
         }
 

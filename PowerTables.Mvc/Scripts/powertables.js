@@ -9657,31 +9657,28 @@ var PowerTables;
                     var dIdx = displayed.indexOf(dataObject);
                     ordered.splice(orIdx + 1, hiddenCount);
                     var oldDisplayedLength = displayed.length;
-                    var splice = displayed.splice(dIdx + 1, hiddenCount);
-                    var displayedHidden = splice.length;
-                    var all = (this.MasterTable.Partition.Take === 0) || (oldDisplayedLength < this.MasterTable.Partition.Take);
-                    var dataToAppend = all ? [] : ordered.slice(orIdx + 1, orIdx + 1 + displayedHidden);
-                    var piece = dataToAppend;
-                    displayed = displayed.concat(piece);
-                    var dataToPrepend = [];
-                    var appendLength = 0;
+                    var displayedHidden = displayed.splice(dIdx + 1, hiddenCount).length;
+                    var head = [];
+                    var stay = displayed.splice(dIdx + 1);
+                    var tail = ordered.slice(orIdx + 1 + stay.length, orIdx + 1 + stay.length + displayedHidden);
+                    var increaseTail = 0;
                     var nskip = null;
-                    if (displayed.length < oldDisplayedLength && this.MasterTable.Partition.Skip > 0) {
+                    var totalLength = displayed.length + stay.length + tail.length;
+                    if (totalLength < oldDisplayedLength && this.MasterTable.Partition.Skip > 0) {
                         nskip = this.MasterTable.Partition.Skip;
-                        nskip -= (oldDisplayedLength - displayed.length);
+                        nskip -= (oldDisplayedLength - totalLength);
                         if (nskip < 0) {
-                            appendLength = -nskip;
+                            increaseTail = -nskip;
                             nskip = 0;
                         }
-                        dataToPrepend = ordered.slice(nskip, orIdx - 1);
-                        displayed = dataToPrepend.concat(displayed);
+                        head = ordered.slice(nskip, orIdx - 1);
                     }
-                    if (!all && (appendLength > 0)) {
-                        var appendPiece = ordered.slice(orIdx + 1 + displayedHidden, orIdx + 1 + displayedHidden + appendLength);
-                        dataToAppend = dataToAppend.concat(appendPiece);
-                        displayed = displayed.concat(appendPiece);
+                    if (increaseTail > 0) {
+                        tail = ordered.slice(orIdx + 1 + stay.length, orIdx + 1 + displayedHidden + increaseTail + stay.length);
                     }
+                    displayed = head.concat(displayed, stay, tail);
                     this.MasterTable.DataHolder.DisplayedData = displayed;
+                    console.log(displayed.length);
                     if (redraw) {
                         //first, we remove all the related elements
                         var ne = row.nextElementSibling;
@@ -9691,14 +9688,14 @@ var PowerTables;
                             ne = n;
                         }
                         var rows = null;
-                        if (dataToPrepend.length > 0) {
-                            rows = this.MasterTable.Controller.produceRowsFromData(dataToPrepend);
+                        if (head.length > 0) {
+                            rows = this.MasterTable.Controller.produceRowsFromData(head);
                             for (var k = rows.length - 1; k >= 0; k--) {
                                 this.MasterTable.Renderer.Modifier.prependRow(rows[k]);
                             }
                         }
-                        if (dataToAppend.length > 0) {
-                            rows = this.MasterTable.Controller.produceRowsFromData(dataToAppend);
+                        if (tail.length > 0) {
+                            rows = this.MasterTable.Controller.produceRowsFromData(tail);
                             for (var l = 0; l < rows.length; l++) {
                                 this.MasterTable.Renderer.Modifier.appendRow(rows[l]);
                             }
