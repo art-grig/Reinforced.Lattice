@@ -129,11 +129,13 @@
                     if (needToCut < tail.length) {
                         // if it is enough to cut tail - ok
                         this.removeNLastRows(tail.length - needToCut);
+                        tail = tail.slice(0, tail.length - needToCut);
                         this.appendNodes(newNodes, tail);
                     } else {
                         // else we remove whole tail
                         this.removeNLastRows(tail.length);
                         needToCut -= tail.length;
+                        tail = [];
                         if (needToCut > 0) {
                             // and cut off some new nodes
                             newNodes = newNodes.slice(0, newNodes.length - needToCut);
@@ -146,13 +148,12 @@
                 } else {
                     // otherwise - we do not have to cut anything
                     this.appendNodes(newNodes, tail);
-                    this.MasterTable.DataHolder.DisplayedData = head.concat(newNodes, tail);
                 }
             } else {
                 // if take is set to all - we simply add new rows at needed index
                 this.appendNodes(newNodes,tail);
-                this.MasterTable.DataHolder.DisplayedData = head.concat(newNodes, tail);
             }
+            this.MasterTable.DataHolder.DisplayedData = head.concat(newNodes, tail);
             this.firePartitionChange();
 
         }
