@@ -21,8 +21,7 @@ module PowerTables.Templating {
         public Html: string = '';
         public w: IWriteFn;
         public s: IWriteFn;
-        public Model: any;
-        public Type: RenderedObject;
+        public Context: IRenderingContext;
         public BackInfo: PowerTables.Templating.IBackbindInfo;
         public Executor: TemplatesExecutor;
         public UiColumns: IColumn[];
@@ -31,7 +30,42 @@ module PowerTables.Templating {
 
         private append(str: any): void {
             if (str == null || str == undefined) return;
-            this.Html += str.toString();
+            if (this.Context.CurrentTrack != null && !this.Context.IsTrackWritten) {
+                var strPiece = str.toString();
+                this.autotrack(strPiece);
+            } else this.Html += str.toString();
+        }
+
+        private autotrack(str: string) {
+            this.Context.TrackBuffer += str;
+            var idx = this.findStartTag(this.Context.TrackBuffer);
+            if (idx < 0) return;
+            if (idx === this.Context.TrackBuffer.length) {
+                this.Context.TrackBuffer += this.trackAttr();
+            } else {
+                var head = this.Context.TrackBuffer.substr(0, idx);
+                var tail = this.Context.TrackBuffer.substring(idx, this.Context.TrackBuffer.length);
+                this.Context.TrackBuffer = head + this.trackAttr() + tail;
+            }
+            this.Html += this.Context.TrackBuffer;
+            this.Context.IsTrackWritten = true;
+        }
+
+        private static alphaRegex = /[a-zA-Z]/;
+
+        private findStartTag(buf: string): number {
+            var idx = buf.indexOf('<');
+            if (idx < 0) return -1;
+
+            while ((idx + 1 < buf.length - 1) && (!TemplateProcess.alphaRegex.test(buf.charAt(idx + 1)))) {
+                idx = buf.indexOf('<', idx + 1);
+            }
+            if (idx < 0) return -1;
+
+            idx++;
+            while ((idx < buf.length) && TemplateProcess.alphaRegex.test(buf.charAt(idx))) idx++;
+            return idx;
+
         }
 
         public nest(data: any, templateId: string) {
@@ -85,23 +119,20 @@ module PowerTables.Templating {
 
         public d(model: any, type: RenderedObject) {
             this._stack.push(type, model);
-            this.Model = model;
-            this.Type = this._stack.Current.Type;
+            this.Context = this._stack.Current;
         }
 
         public u() {
             this._stack.popContext();
             if (!this._stack.Current) {
-                this.Model = null;
-                this.Type = null;
+                this.Context = null;
             } else {
-                this.Model = this._stack.Current.Object;
-                this.Type = this._stack.Current.Type;
+                this.Context = this._stack.Current;
             }
         }
 
         public vs(stateName: string, state: PowerTables.Templating.IState): void {
-            state.Receiver = this.Model;
+            state.Receiver = this.Context.Object;
             if (!this.BackInfo.CachedVisualStates[stateName]) this.BackInfo.CachedVisualStates[stateName] = [];
             var index = this.BackInfo.CachedVisualStates[stateName].length;
             this.BackInfo.CachedVisualStates[stateName].push(state);
@@ -111,7 +142,7 @@ module PowerTables.Templating {
 
         public e(commaSeparatedFunctions: string, commaSeparatedEvents: string, eventArgs: any[]): void {
             var ed: PowerTables.Templating.IBackbindEvent = <PowerTables.Templating.IBackbindEvent>{
-                EventReceiver: this.Model,
+                EventReceiver: this.Context.Object,
                 Functions: commaSeparatedFunctions.split(','),
                 Events: commaSeparatedEvents.split(','),
                 EventArguments: eventArgs
@@ -143,7 +174,7 @@ module PowerTables.Templating {
 
         public m(fieldName: string, key: string, receiverPath: string) {
             var index: number = this.BackInfo.MarkQueue.length;
-            var receiver = this.Model;
+            var receiver = this.Context.Object;
             if (receiverPath != null) {
                 var tp = PowerTables.Rendering.BackBinder.traverseWindowPath(receiverPath);
                 receiver = tp.target || tp.parent;
@@ -162,7 +193,7 @@ module PowerTables.Templating {
 
             if (condition) {
                 var md: PowerTables.Templating.IBackbindDatepicker = <PowerTables.Templating.IBackbindDatepicker>{
-                    ElementReceiver: this._stack.Current.Object,
+                    ElementReceiver: this.Context.Object,
                     IsNullable: nullable
                 };
                 this.BackInfo.DatepickersQueue.push(md);
@@ -170,20 +201,21 @@ module PowerTables.Templating {
             }
         }
 
-        public t(): void {
+        private trackAttr(): string {
             var trk: string = this._stack.Current.CurrentTrack;
-            if (trk.length === 0) return;
-            this.w(`data-track="${trk}"`);
-            if (this.Type === RenderedObject.Row || this.Type === RenderedObject.Partition) {
-                if ((<IRow>this.Model).IsSpecial) {
-                    this.w(` data-spr='true'`);
+            if (trk.length === 0) return null;
+            var tra = `data-track="${trk}"`;
+            if (this.Context.Type === RenderedObject.Row || this.Context.Type === RenderedObject.Partition) {
+                if ((<IRow>this.Context.Object).IsSpecial) {
+                    tra += ` data-spr='true'`;
                 }
             }
+            return ' ' + tra + ' ';
         }
 
         public isLocation(location: string): boolean {
-            if (this.Type === RenderedObject.Plugin) {
-                var loc: string = this.Model.PluginLocation;
+            if (this.Context.Type === RenderedObject.Plugin) {
+                var loc: string = this.Context.Object['PluginLocation'];
                 if (loc.length < location.length) return false;
                 if (loc.length === location.length && loc === location) return true;
                 if (loc.substring(0, location.length) === location) return true;

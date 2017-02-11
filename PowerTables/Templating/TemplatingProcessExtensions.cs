@@ -157,17 +157,5 @@ namespace PowerTables.Templating
         {
             return t._("p.dp(({0}),({1}));", condition, nullableCondition);
         }
-
-        /// <summary>
-        /// Placeholder for tracking ticket. It is necessary for some complonents
-        /// </summary>
-        /// <param name="t"></param>
-        /// <returns></returns>
-        public static SpecialString Track(this IProvidesTracking t)
-        {
-            t.IsTrackSet = true;
-            return t._("p.t();");
-        }
-
     }
 }

@@ -1350,8 +1350,7 @@ declare module PowerTables.Templating {
         Html: string;
         w: IWriteFn;
         s: IWriteFn;
-        Model: any;
-        Type: RenderedObject;
+        Context: IRenderingContext;
         BackInfo: PowerTables.Templating.IBackbindInfo;
         Executor: TemplatesExecutor;
         UiColumns: IColumn[];
@@ -1359,6 +1358,9 @@ declare module PowerTables.Templating {
             [key: string]: (x: ICell) => string;
         };
         private append(str);
+        private autotrack(str);
+        private static alphaRegex;
+        private findStartTag(buf);
         nest(data: any, templateId: string): void;
         private spc(num);
         spaceW(): void;
@@ -1372,7 +1374,7 @@ declare module PowerTables.Templating {
         dc(fn: any, args: any[]): void;
         m(fieldName: string, key: string, receiverPath: string): void;
         dp(condition: boolean, nullable: boolean): void;
-        t(): void;
+        private trackAttr();
         isLocation(location: string): boolean;
     }
     /**
@@ -2825,6 +2827,14 @@ declare module PowerTables.Templating {
          * Rendering object track attribute
          */
         CurrentTrack: string;
+        /**
+         * Temporary buffer for setting track
+         */
+        TrackBuffer: string;
+        /**
+         * Is track element written
+         */
+        IsTrackWritten: boolean;
     }
 }
 declare module PowerTables.Rendering {

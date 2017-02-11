@@ -80,23 +80,23 @@
 {
     <text>
         @using (t.IfPlacement("lt"))
-        { <span @t.Track()> @t.Content() </span> }
+        { <span> @t.Content() </span> }
         @using (t.IfPlacement("toolbar-lt"))
-        { <span @t.Track()> @t.Content() </span> }
+        { <span> @t.Content() </span> }
         @using (t.IfPlacement("lb"))
-        { <div @t.Track()> @t.Content() </div> }
+        { <div> @t.Content() </div> }
         @using (t.IfPlacement("toolbar-lb"))
-        { <div @t.Track()> @t.Content() </div> }
+        { <div> @t.Content() </div> }
         @using (t.IfPlacement("rt"))
-        { <div @t.Track()> @t.Content() </div> }
+        { <div> @t.Content() </div> }
         @using (t.IfPlacement("toolbar-rt"))
-        { <div @t.Track()> @t.Content() </div> }
+        { <div> @t.Content() </div> }
         @using (t.IfPlacement("rb"))
-        { <div @t.Track()> @t.Content() </div> }
+        { <div> @t.Content() </div> }
         @using (t.IfPlacement("toolbar-rb"))
-        { <div style="float: right;" @t.Track()> @t.Content() </div> }
+        { <div style="float: right;"> @t.Content() </div> }
         @using (t.IfPlacement("filter"))
-        { <div @t.Track()>@t.Content()</div> }
+        { <div>@t.Content()</div> }
     </text>
 }
 
@@ -105,7 +105,7 @@
 *@
 @using (var t = this.HeaderWrapper())
 {
-    <div style="display: inline" @t.Track()><span>@t.Content()</span>|</div> }
+    <div style="display: inline"><span>@t.Content()</span>|</div> }
 
 @*
     Row wrapper template.
@@ -113,7 +113,7 @@
 *@
 @using (var t = this.RowWrapper())
 {
-    <div class="col-md-3" style="margin-bottom: 10px" @t.Track()>
+    <div class="col-md-3" style="margin-bottom: 10px">
         <div class="thumbnail">
             <img src="http://www.toysrus.com/graphics/product_images/pTRU1-20603499enh-z6.jpg" alt="">
             <div class="btn-toolbar inside-tools" role="toolbar">
@@ -131,10 +131,10 @@
 }
 
 @using (var t = this.RowWrapper("updatedRow"))
-{ <tr class="success" @t.Track()>@t.Content()</tr> }
+{ <tr class="success">@t.Content()</tr> }
 
 @using (var t = this.RowWrapper("addedRow"))
-{ <tr style="background-color: #96f2e1" @t.Track()>@t.Content()</tr> }
+{ <tr style="background-color: #96f2e1">@t.Content()</tr> }
 
 @*
     Cell wrapper template.
@@ -142,17 +142,17 @@
 *@
 @using (var t = this.CellWrapper())
 {
-    <span @t.Track() style="display: block;white-space: nowrap;text-overflow: ellipsis;">@t.Content()</span>
+    <span style="display: block;white-space: nowrap;text-overflow: ellipsis;">@t.Content()</span>
 }
 
 @using (var t = this.CellWrapper("updatedCell"))
-{ <td class="touched" @t.Track()>@t.Content()</td> }
+{ <td class="touched">@t.Content()</td> }
 
 @using (var t = this.MessagesWrapper())
 {
     using (t.IfStrEquals(c => c.Class, "error"))
     {
-        <tr class="danger" @t.Track() style="padding: 30px">
+        <tr class="danger" style="padding: 30px">
             <td colspan="@t.Value(c => c.UiColumnsCount)">
                 <h4 class="text-center"><span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>  Error occured</h4>
                 <p style="margin-left:25px;margin-right:25px">
@@ -166,7 +166,7 @@
 
     using (t.IfStrEquals(c => c.Class, "noresults"))
     {
-        <tr class="info" @t.Track()>
+        <tr class="info">
             <td colspan="@t.Value(c => c.UiColumnsCount)">
                 <h4 class="text-center text-info bg-info">
                     <span class="glyphicon glyphicon-eye-close"></span>  No data found
@@ -177,7 +177,7 @@
 
     using (t.IfStrEquals(c => c.Class, "initial"))
     {
-        <tr class="warning" @t.Track()>
+        <tr class="warning">
             <td colspan="@t.Value(c => c.UiColumnsCount)">
                 <h4 class="text-center text-info bg-info">
                     <span class="glyphicon glyphicon-search"></span>  Please change filter settings to get search results
@@ -198,7 +198,7 @@
 
 @using (var t = Plugin.Ordering())
 {
-    <div @t.Track() @t.BindSwitchOrdering("click") style="cursor: pointer;display:inline">
+    <div @t.BindSwitchOrdering("click") style="cursor: pointer;display:inline">
         <span>@t.HtmlValue(c => c.Column.Configuration.Title)</span>
         @using (t.If(c => c.IsNeutral))
         { <span class="glyphicon glyphicon-sort" style="color: #bac5d3;"></span> }
@@ -378,7 +378,7 @@
 
 @using (var t = Plugin.CheckboxifySelectAll())
 {
-    <div @t.Track()>
+    <div>
         @using (t.If(c => c.CanSelectAll))
         {
             using (t.If(c => c.IsAllSelected))
@@ -414,7 +414,7 @@
 
 @using (var t = Plugin.CheckboxifyRow())
 {
-    <div class="col-md-3" style="margin-bottom: 10px" @t.Track()>
+    <div class="col-md-3" style="margin-bottom: 10px">
         <div class="thumbnail" style="background: aliceblue;">
             <img src="http://www.toysrus.com/graphics/product_images/pTRU1-20603499enh-z6.jpg" alt="">
             <div class="btn-toolbar inside-tools" role="toolbar">

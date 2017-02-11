@@ -79,23 +79,23 @@
 {
     <text>
         @using (t.IfPlacement("lt"))
-        { <span @t.Track()> @t.Content() </span> }
+        { <span> @t.Content() </span> }
         @using (t.IfPlacement("toolbar-lt"))
-        { <span @t.Track()> @t.Content() </span> }
+        { <span> @t.Content() </span> }
         @using (t.IfPlacement("lb"))
-        { <div @t.Track()> @t.Content() </div> }
+        { <div> @t.Content() </div> }
         @using (t.IfPlacement("toolbar-lb"))
-        { <div @t.Track()> @t.Content() </div> }
+        { <div> @t.Content() </div> }
         @using (t.IfPlacement("rt"))
-        { <div style="float: right;" @t.Track()> @t.Content() </div> }
+        { <div style="float: right;"> @t.Content() </div> }
         @using (t.IfPlacement("toolbar-rt"))
-        { <div style="float: right;" @t.Track()> @t.Content() </div> }
+        { <div style="float: right;"> @t.Content() </div> }
         @using (t.IfPlacement("rb"))
-        { <div style="float: right;" @t.Track()> @t.Content() </div> }
+        { <div style="float: right;"> @t.Content() </div> }
         @using (t.IfPlacement("toolbar-rb"))
-        { <div style="float: right;" @t.Track()> @t.Content() </div> }
+        { <div style="float: right;"> @t.Content() </div> }
         @using (t.IfPlacement("filter"))
-        { <th @t.Track()>@t.Content()</th> }
+        { <th>@t.Content()</th> }
     </text>
 }
 
@@ -103,30 +103,30 @@
     Column header wrapper template.
 *@
 @using (var t = this.HeaderWrapper())
-{ <th @t.Track()>@t.Content()</th> }
+{ <th>@t.Content()</th> }
 
 @*
     Row wrapper template.
     Following HTML is being wrapped around each data row
 *@
 @using (var t = this.RowWrapper())
-{ <tr class="@t.If(c => c.IsSelected, "success") @t.If(c=>c.IsUpdated,"touched") @t.If(c=>c.IsAdded,"touched")" @t.Track()>@t.Content()</tr> }
+{ <tr class="@t.If(c => c.IsSelected, "success") @t.If(c=>c.IsUpdated,"touched") @t.If(c=>c.IsAdded,"touched")">@t.Content()</tr> }
 
 
 @using (var t = this.RowWrapper("alternateRow"))
-{ <tr class="@t.If(c => c.IsSelected, "success") @t.If(c=>c.IsUpdated,"touched") @t.If(c=>c.IsAdded,"touched")" @t.Track()>@t.Content()</tr> }
+{ <tr class="@t.If(c => c.IsSelected, "success") @t.If(c=>c.IsUpdated,"touched") @t.If(c=>c.IsAdded,"touched")">@t.Content()</tr> }
 
 @*
     Cell wrapper template.
     Following HTML is being wrapped around each data cell
 *@
 @using (var t = this.CellWrapper())
-{ <td class="@t.If(c=>c.IsSelected,"success") @t.If(c=>c.IsUpdated,"touched") @t.If(c=>c.IsAdded,"touched")" @t.Track()>@t.Content()</td> }
+{ <td class="@t.If(c=>c.IsSelected,"success") @t.If(c=>c.IsUpdated,"touched") @t.If(c=>c.IsAdded,"touched")">@t.Content()</td> }
 
 
 @using (var t = this.Message("error"))
 { 
-    <tr class="danger" @t.Track() style="padding: 30px">
+    <tr class="danger" style="padding: 30px">
         <td colspan="@t.Value(c => c.TDO.UiColumnsCount)">
             <h4 class="text-center"><span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>  Error occured</h4>
             <p style="margin-left:25px;margin-right:25px">
@@ -140,7 +140,7 @@
 
 @using (var t = this.PartitionIndication())
 {
-    <tr @t.Track() style="padding: 30px">
+    <tr style="padding: 30px">
         <td colspan="@t.Value(c => c.DO.UiColumnsCount)">
             @using (t.If(x => x.DO.IsLoading))
             {
@@ -172,7 +172,7 @@
 
 @using (var t = this.Message("noresults"))
 {
-    <tr class="info" @t.Track()>
+    <tr class="info">
         <td colspan="@t.Value(c => c.TDO.UiColumnsCount)">
             <h4 class="text-center text-info bg-info">
                 <span class="glyphicon glyphicon-eye-close"></span>  No data found
@@ -183,7 +183,7 @@
 
 @using (var t = this.Message("initial"))
 {
-    <tr class="warning" @t.Track()>
+    <tr class="warning">
         <td colspan="@t.Value(c => c.TDO.UiColumnsCount)">
             <h4 class="text-center text-info bg-info">
                 <span class="glyphicon glyphicon-search"></span>  Please change filter settings to get search results
@@ -203,7 +203,7 @@
 
 @using (var t = Plugin.Ordering())
 {
-    <th @t.Track() @t.BindSwitchOrdering("click") style="cursor: pointer">
+    <th @t.BindSwitchOrdering("click") style="cursor: pointer">
         <span><strong>@t.HtmlValue(c => c.Column.Configuration.Title)</strong></span>
         @using (t.If(c => c.IsNeutral))
         { <span class="glyphicon glyphicon-sort" style="color: #bac5d3; float: right;"></span> }
@@ -424,7 +424,7 @@
 
 @using (var t = Plugin.CheckboxifySelectAll())
 {
-    <th @t.Track()>
+    <th>
         @using (t.If(c => c.CanSelectAll))
         {
             using (t.If(c => c.IsAllSelected))

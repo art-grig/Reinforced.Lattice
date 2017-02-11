@@ -44,7 +44,9 @@ module PowerTables.Templating {
             var ctx: IRenderingContext = <IRenderingContext>{
                 Type: elementType,
                 Object: element,
-                CurrentTrack: this.getTrack(elementType, element)
+                CurrentTrack: this.getTrack(elementType, element),
+                IsTrackWritten: false,
+                TrackBuffer: ''
             }
             this._contextStack.push(ctx);
             this.Current = ctx;
@@ -54,30 +56,30 @@ module PowerTables.Templating {
 
             var trk: string;
             switch (elementType) {
-            case RenderedObject.Plugin:
-                trk = TrackHelper.getPluginTrack(<IPlugin>element);
-                break;
-            case RenderedObject.Header:
-                trk = TrackHelper.getHeaderTrack((<IColumnHeader>element));
-                break;
-            case RenderedObject.Cell:
-                trk = TrackHelper.getCellTrack(<any>element);
-                break;
-            case RenderedObject.Row:
-                trk = TrackHelper.getRowTrack(<any>element);
-                break;
-            case RenderedObject.Message:
-                trk = TrackHelper.getMessageTrack();
-                break;
-            case RenderedObject.Partition:
-                trk = TrackHelper.getPartitionRowTrack();
-                break;
-            case RenderedObject.Custom:
-                trk = 'custom';
-                break;
-            default:
+                case RenderedObject.Plugin:
+                    trk = TrackHelper.getPluginTrack(<IPlugin>element);
+                    break;
+                case RenderedObject.Header:
+                    trk = TrackHelper.getHeaderTrack((<IColumnHeader>element));
+                    break;
+                case RenderedObject.Cell:
+                    trk = TrackHelper.getCellTrack(<any>element);
+                    break;
+                case RenderedObject.Row:
+                    trk = TrackHelper.getRowTrack(<any>element);
+                    break;
+                case RenderedObject.Message:
+                    trk = TrackHelper.getMessageTrack();
+                    break;
+                case RenderedObject.Partition:
+                    trk = TrackHelper.getPartitionRowTrack();
+                    break;
+                case RenderedObject.Custom:
+                    trk = null;
+                    break;
+                default:
 
-                throw new Error('Invalid context element type');
+                    throw new Error('Invalid context element type');
             }
             return trk;
         }
@@ -110,6 +112,16 @@ module PowerTables.Templating {
          * Rendering object track attribute
          */
         CurrentTrack: string;
+
+        /**
+         * Temporary buffer for setting track
+         */
+        TrackBuffer: string;
+
+        /**
+         * Is track element written
+         */
+        IsTrackWritten: boolean;
     }
 
 }
