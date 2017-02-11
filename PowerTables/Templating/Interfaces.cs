@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Web.Mvc;
+using PowerTables.Templating.Compilation;
 
 namespace PowerTables.Templating
 {
@@ -15,10 +16,7 @@ namespace PowerTables.Templating
     /// </summary>
     public interface ITemplateRegion : IRawProvider
     {
-        /// <summary>
-        /// TextWriter that should consume target document's HTML
-        /// </summary>
-        TextWriter Writer { get; }
+        
     }
     
     /// <summary>
@@ -34,17 +32,6 @@ namespace PowerTables.Templating
     /// provide helper methods for binding DOM events to well-known functionalty
     /// </summary>
     public interface IProvidesEventsBinding : ITemplateRegion { }
-
-    /// <summary>
-    /// Template region providing tracking 
-    /// </summary>
-    public interface IProvidesTracking : ITemplateRegion
-    {
-        /// <summary>
-        /// True, when @Track() method was used at least once, false otherwise
-        /// </summary>
-        bool IsTrackSet { get; set; }
-    }
 
     /// <summary>
     /// Provides .Content method consuming column name (column-dependent content)

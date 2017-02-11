@@ -4,12 +4,8 @@ using PowerTables.Templating.Expressions;
 namespace PowerTables.Templating.BuiltIn
 {
     public class CellWrapperTemplateRegion<T> : ModeledTemplateRegion<ICellModel<T>>,
-        IProvidesContent,
-        IProvidesTracking
-
+        IProvidesContent
     {
-        public bool IsTrackSet { get; set; }
-
         public CellWrapperTemplateRegion(string prefix, string id, ITemplatesScope writer) : base(TemplateRegionType.Cell, prefix, id, writer)
         {
         }

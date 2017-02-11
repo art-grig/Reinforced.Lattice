@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using Newtonsoft.Json;
+using PowerTables.Templating.Compilation;
 using PowerTables.Templating.Expressions;
 
 namespace PowerTables.Templating
@@ -156,17 +157,5 @@ namespace PowerTables.Templating
         {
             return t._("p.dp(({0}),({1}));", condition, nullableCondition);
         }
-
-        /// <summary>
-        /// Placeholder for tracking ticket. It is necessary for some complonents
-        /// </summary>
-        /// <param name="t"></param>
-        /// <returns></returns>
-        public static SpecialString Track(this IProvidesTracking t)
-        {
-            t.IsTrackSet = true;
-            return t._("p.t();");
-        }
-
     }
 }

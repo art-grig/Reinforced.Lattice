@@ -5,12 +5,12 @@ namespace PowerTables.Templating
     /// <summary>
     /// Common interface for template scopes to make them embeddable to any page
     /// </summary>
-    public interface ITemplatesScope: IRawProvider
+    public interface ITemplatesScope : IRawProvider
     {
         /// <summary>
-        /// Reference to page's output stream
+        /// Internal information about template scope
         /// </summary>
-        TextWriter Out { get; }
+        TemplateControl Flow { get; }
 
         /// <summary>
         /// Templates prefix
@@ -21,7 +21,5 @@ namespace PowerTables.Templating
         /// Plugins collection
         /// </summary>
         IViewPlugins Plugin { get; }
-
-        bool CrunchingTemplate { get; set; }
     }
 }

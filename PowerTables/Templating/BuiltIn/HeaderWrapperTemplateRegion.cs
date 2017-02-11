@@ -4,13 +4,8 @@ using PowerTables.Configuration.Json;
 namespace PowerTables.Templating.BuiltIn
 {
     public class HeaderWrapperTemplateRegion
-        : ModeledTemplateRegion<IColumnHeader>,
-        IProvidesTracking, IProvidesContent, IProvidesColumnContent
+        : ModeledTemplateRegion<IColumnHeader>, IProvidesContent, IProvidesColumnContent
     {
-
-
-        public bool IsTrackSet { get; set; }
-
         public HeaderWrapperTemplateRegion(string prefix, string id, ITemplatesScope writer) : base(TemplateRegionType.Header, prefix, id, writer)
         {
         }

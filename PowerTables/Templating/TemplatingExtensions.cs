@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Web.Mvc;
 using Newtonsoft.Json;
+using PowerTables.Templating.Compilation;
 
 // ReSharper disable InconsistentNaming
 

@@ -3,17 +3,21 @@ using System.Text;
 using System.Web.Mvc;
 using System.Web.WebPages;
 using System.Web.WebPages.Instrumentation;
+using PowerTables.Templating.Compilation;
 
 namespace PowerTables.Templating
 {
     public abstract class TemplatesPageBase : WebViewPage<LatticeTemplatesViewModel>, ITemplatesScope
     {
         private DeclaratorBase _declarator = new DeclaratorBase();
+        private ScopedWriter _hook = null;
+
         public override void ExecutePageHierarchy()
         {
-            
-            if (Model.RenderScriptTags) this.WriteLiteral("<script type=\"text/javascript\">");
             _hook = new ScopedWriter(base.GetOutputWriter(), this);
+            Flow = new TemplateControl(() => _hook);
+            if (Model.RenderScriptTags) this.WriteLiteral("<script type=\"text/javascript\">");
+
             OutputStack.Push(_hook);
             base.ExecutePageHierarchy();
             OutputStack.Pop();
@@ -49,7 +53,6 @@ namespace PowerTables.Templating
             }
         }
 
-        public bool CrunchingTemplate { get; set; }
         public SpecialString Raw(string tplCode)
         {
             return _hook.CreateRaw(tplCode);
@@ -59,17 +62,13 @@ namespace PowerTables.Templating
         {
             _hook.WriteRaw(tplCode);
         }
-
-        public TextWriter Out { get { return GetOutputWriter(); } }
-
-        private ScopedWriter _hook = null;
         
         protected override TextWriter GetOutputWriter()
         {
             return _hook;
         }
 
-
+        public TemplateControl Flow { get; private set; }
 
         /// <summary>
         /// Templates prefix

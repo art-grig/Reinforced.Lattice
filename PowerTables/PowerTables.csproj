@@ -304,7 +304,8 @@
     <Compile Include="Templating\BuiltIn\PluignWrapperTemplateRegion.cs" />
     <Compile Include="Templating\RawExtensions.cs" />
     <Compile Include="Templating\ResharperAnnotations.cs" />
-    <Compile Include="Templating\ScopedWriter.cs" />
+    <Compile Include="Templating\Compilation\ScopedWriter.cs" />
+    <Compile Include="Templating\TemplateControl.cs" />
     <Compile Include="Templating\TemplateRegion.cs" />
     <Compile Include="Templating\TemplateRegionType.cs" />
     <Compile Include="Templating\TemplatesPageBase.cs" />

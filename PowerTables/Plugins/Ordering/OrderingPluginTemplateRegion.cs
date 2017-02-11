@@ -1,17 +1,14 @@
 ﻿using System.Web.Mvc;
 using PowerTables.Templating;
 using PowerTables.Templating.BuiltIn;
+using PowerTables.Templating.Compilation;
 
 namespace PowerTables.Plugins.Ordering
 {
     public class OrderingPluginTemplateRegion : PluginTemplateRegion,
         IModelProvider<IOrderingPluginModel>,
-        IProvidesContent,
-        IProvidesTracking
+        IProvidesContent
     {
-
-
-        public bool IsTrackSet { get; set; }
         public string ExistingModel { get; private set; }
 
         public OrderingPluginTemplateRegion(IViewPlugins page, string id)

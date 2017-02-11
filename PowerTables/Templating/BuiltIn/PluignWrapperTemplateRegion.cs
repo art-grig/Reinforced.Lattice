@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using PowerTables.Configuration.Json;
 using PowerTables.Templating.Expressions;
 
@@ -8,22 +9,11 @@ namespace PowerTables.Templating.BuiltIn
     public class PluignWrapperTemplateRegion<T> :
         ModeledTemplateRegion<IPluginWrapperModel<T>>,
         IProvidesEventsBinding,
-        IProvidesContent,
-        IProvidesTracking
+        IProvidesContent
     {
         public PluignWrapperTemplateRegion(string prefix, string templateId, ITemplatesScope writer)
             : base(TemplateRegionType.Plugin, prefix, templateId, writer)
         {
-        }
-
-
-
-        public bool IsTrackSet { get; set; }
-
-        public override void Dispose()
-        {
-            if (!IsTrackSet) throw new Exception("Tracking element required for plugin wrapper");
-            base.Dispose();
         }
     }
 
@@ -53,11 +43,12 @@ namespace PowerTables.Templating.BuiltIn
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="pw"></param>
-        /// <param name="locationPart">Part of plugin location</param>
+        /// <param name="locationParts">Parts of plugin location</param>
         /// <returns></returns>
-        public static CodeBlock IfPlacement<T>(this PluignWrapperTemplateRegion<T> pw, string locationPart)
+        public static CodeBlock IfPlacement<T>(this PluignWrapperTemplateRegion<T> pw, params string[] locationParts)
         {
-            return new CodeBlock(string.Format("if(p.isLocation('{0}')){{", locationPart), "}", pw);
+            var arg = string.Join(",", locationParts.Select(x => string.Format("'{0}'", x)));
+            return new CodeBlock(string.Format("if(p.isLocation({0})){{", arg), "}", pw);
         }
     }
 }

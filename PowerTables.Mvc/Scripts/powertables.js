@@ -272,7 +272,42 @@ var PowerTables;
             TemplateProcess.prototype.append = function (str) {
                 if (str == null || str == undefined)
                     return;
-                this.Html += str.toString();
+                if (this.Context.CurrentTrack != null && !this.Context.IsTrackWritten) {
+                    var strPiece = str.toString();
+                    this.autotrack(strPiece);
+                }
+                else
+                    this.Html += str.toString();
+            };
+            TemplateProcess.prototype.autotrack = function (str) {
+                this.Context.TrackBuffer += str;
+                var idx = this.findStartTag(this.Context.TrackBuffer);
+                if (idx < 0)
+                    return;
+                if (idx === this.Context.TrackBuffer.length) {
+                    this.Context.TrackBuffer += this.trackAttr();
+                }
+                else {
+                    var head = this.Context.TrackBuffer.substr(0, idx);
+                    var tail = this.Context.TrackBuffer.substring(idx, this.Context.TrackBuffer.length);
+                    this.Context.TrackBuffer = head + this.trackAttr() + tail;
+                }
+                this.Html += this.Context.TrackBuffer;
+                this.Context.IsTrackWritten = true;
+            };
+            TemplateProcess.prototype.findStartTag = function (buf) {
+                var idx = buf.indexOf('<');
+                if (idx < 0)
+                    return -1;
+                while ((idx + 1 < buf.length - 1) && (!TemplateProcess.alphaRegex.test(buf.charAt(idx + 1)))) {
+                    idx = buf.indexOf('<', idx + 1);
+                }
+                if (idx < 0)
+                    return -1;
+                idx++;
+                while ((idx < buf.length) && TemplateProcess.alphaRegex.test(buf.charAt(idx)))
+                    idx++;
+                return idx;
             };
             TemplateProcess.prototype.nest = function (data, templateId) {
                 this.Executor.nest(data, templateId, this);
@@ -321,22 +356,19 @@ var PowerTables;
             };
             TemplateProcess.prototype.d = function (model, type) {
                 this._stack.push(type, model);
-                this.Model = model;
-                this.Type = this._stack.Current.Type;
+                this.Context = this._stack.Current;
             };
             TemplateProcess.prototype.u = function () {
                 this._stack.popContext();
                 if (!this._stack.Current) {
-                    this.Model = null;
-                    this.Type = null;
+                    this.Context = null;
                 }
                 else {
-                    this.Model = this._stack.Current.Object;
-                    this.Type = this._stack.Current.Type;
+                    this.Context = this._stack.Current;
                 }
             };
             TemplateProcess.prototype.vs = function (stateName, state) {
-                state.Receiver = this.Model;
+                state.Receiver = this.Context.Object;
                 if (!this.BackInfo.CachedVisualStates[stateName])
                     this.BackInfo.CachedVisualStates[stateName] = [];
                 var index = this.BackInfo.CachedVisualStates[stateName].length;
@@ -346,7 +378,7 @@ var PowerTables;
             };
             TemplateProcess.prototype.e = function (commaSeparatedFunctions, commaSeparatedEvents, eventArgs) {
                 var ed = {
-                    EventReceiver: this.Model,
+                    EventReceiver: this.Context.Object,
                     Functions: commaSeparatedFunctions.split(','),
                     Events: commaSeparatedEvents.split(','),
                     EventArguments: eventArgs
@@ -375,7 +407,7 @@ var PowerTables;
             };
             TemplateProcess.prototype.m = function (fieldName, key, receiverPath) {
                 var index = this.BackInfo.MarkQueue.length;
-                var receiver = this.Model;
+                var receiver = this.Context.Object;
                 if (receiverPath != null) {
                     var tp = PowerTables.Rendering.BackBinder.traverseWindowPath(receiverPath);
                     receiver = tp.target || tp.parent;
@@ -392,36 +424,45 @@ var PowerTables;
                 var index = this.BackInfo.DatepickersQueue.length;
                 if (condition) {
                     var md = {
-                        ElementReceiver: this._stack.Current.Object,
+                        ElementReceiver: this.Context.Object,
                         IsNullable: nullable
                     };
                     this.BackInfo.DatepickersQueue.push(md);
                     this.w("data-dp=\"" + index + "\"");
                 }
             };
-            TemplateProcess.prototype.t = function () {
+            TemplateProcess.prototype.trackAttr = function () {
                 var trk = this._stack.Current.CurrentTrack;
                 if (trk.length === 0)
-                    return;
-                this.w("data-track=\"" + trk + "\"");
-                if (this.Type === RenderedObject.Row || this.Type === RenderedObject.Partition) {
-                    if (this.Model.IsSpecial) {
-                        this.w(" data-spr='true'");
+                    return null;
+                var tra = "data-track=\"" + trk + "\"";
+                if (this.Context.Type === RenderedObject.Row || this.Context.Type === RenderedObject.Partition) {
+                    if (this.Context.Object.IsSpecial) {
+                        tra += " data-spr='true'";
                     }
                 }
+                return ' ' + tra + ' ';
             };
-            TemplateProcess.prototype.isLocation = function (location) {
-                if (this.Type === RenderedObject.Plugin) {
-                    var loc = this.Model.PluginLocation;
-                    if (loc.length < location.length)
-                        return false;
-                    if (loc.length === location.length && loc === location)
-                        return true;
-                    if (loc.substring(0, location.length) === location)
-                        return true;
+            TemplateProcess.prototype.isLoc = function (location) {
+                var loc = this.Context.Object['PluginLocation'];
+                if (loc.length < location.length)
+                    return false;
+                if (loc.length === location.length && loc === location)
+                    return true;
+                if (loc.substring(0, location.length) === location)
+                    return true;
+                return false;
+            };
+            TemplateProcess.prototype.isLocation = function () {
+                if (this.Context.Type === RenderedObject.Plugin) {
+                    for (var i = 0; i < arguments.length; i++) {
+                        if (this.isLoc(arguments[i]))
+                            return true;
+                    }
                 }
                 return false;
             };
+            TemplateProcess.alphaRegex = /[a-zA-Z]/;
             return TemplateProcess;
         }());
         Templating.TemplateProcess = TemplateProcess;
@@ -599,23 +640,23 @@ var PowerTables;
                 p.w('<input type="hidden" data-track="tableBodyHere" style="display:none;"/>');
             };
             Driver.content = function (p, columnName) {
-                if (p.Model.renderContent) {
-                    p.Model.renderContent(p);
+                if (p.Context.Object.renderContent) {
+                    p.Context.Object.renderContent(p);
                 }
                 else {
-                    switch (p.Type) {
+                    switch (p.Context.Type) {
                         case Templating.RenderedObject.Header:
-                            Driver.headerContent(p.Model, p);
+                            Driver.headerContent(p.Context.Object, p);
                             break;
                         case Templating.RenderedObject.Plugin:
                             // if we are here then plugin's renderContent is not 
                             // overriden
                             throw new Error('It is required to override renderContent for plugin');
                         case Templating.RenderedObject.Row:
-                            Driver.rowContent(p.Model, p, columnName);
+                            Driver.rowContent(p.Context.Object, p, columnName);
                             break;
                         case Templating.RenderedObject.Cell:
-                            Driver.cellContent(p.Model, p);
+                            Driver.cellContent(p.Context.Object, p);
                             break;
                         default:
                             throw new Error('Unknown rendering context type');
@@ -5656,7 +5697,9 @@ var PowerTables;
                 var ctx = {
                     Type: elementType,
                     Object: element,
-                    CurrentTrack: this.getTrack(elementType, element)
+                    CurrentTrack: this.getTrack(elementType, element),
+                    IsTrackWritten: false,
+                    TrackBuffer: ''
                 };
                 this._contextStack.push(ctx);
                 this.Current = ctx;
@@ -5683,7 +5726,7 @@ var PowerTables;
                         trk = PowerTables.TrackHelper.getPartitionRowTrack();
                         break;
                     case Templating.RenderedObject.Custom:
-                        trk = 'custom';
+                        trk = null;
                         break;
                     default:
                         throw new Error('Invalid context element type');

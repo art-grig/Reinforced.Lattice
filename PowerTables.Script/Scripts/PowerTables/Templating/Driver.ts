@@ -5,22 +5,22 @@
         }
 
         public static content(p: PowerTables.Templating.TemplateProcess, columnName?: string) {
-            if (p.Model.renderContent) {
-                p.Model.renderContent(p);
+            if (p.Context.Object.renderContent) {
+                p.Context.Object.renderContent(p);
             } else {
-                switch (p.Type) {
+                switch (p.Context.Type) {
                     case RenderedObject.Header:
-                        Driver.headerContent(p.Model, p);
+                        Driver.headerContent(<any>p.Context.Object, p);
                         break;
                     case RenderedObject.Plugin:
                         // if we are here then plugin's renderContent is not 
                         // overriden
                         throw new Error('It is required to override renderContent for plugin');
                     case RenderedObject.Row:
-                        Driver.rowContent(p.Model, p, columnName);
+                        Driver.rowContent(<any>p.Context.Object, p, columnName);
                         break;
                     case RenderedObject.Cell:
-                        Driver.cellContent(p.Model, p);
+                        Driver.cellContent(<any>p.Context.Object, p);
                         break;
                     default:
                         throw new Error('Unknown rendering context type');

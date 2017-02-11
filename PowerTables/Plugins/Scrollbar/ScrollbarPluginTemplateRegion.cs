@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using PowerTables.Templating;
+using PowerTables.Templating.Compilation;
 
 namespace PowerTables.Plugins.Scrollbar
 {
