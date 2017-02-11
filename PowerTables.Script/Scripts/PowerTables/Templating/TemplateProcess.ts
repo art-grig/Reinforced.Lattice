@@ -213,12 +213,20 @@ module PowerTables.Templating {
             return ' ' + tra + ' ';
         }
 
-        public isLocation(location: string): boolean {
+        public isLoc(location: string): boolean {
+            var loc: string = this.Context.Object['PluginLocation'];
+            if (loc.length < location.length) return false;
+            if (loc.length === location.length && loc === location) return true;
+            if (loc.substring(0, location.length) === location) return true;
+
+            return false;
+        }
+
+        public isLocation(): boolean {
             if (this.Context.Type === RenderedObject.Plugin) {
-                var loc: string = this.Context.Object['PluginLocation'];
-                if (loc.length < location.length) return false;
-                if (loc.length === location.length && loc === location) return true;
-                if (loc.substring(0, location.length) === location) return true;
+                for (var i = 0; i < arguments.length; i++) {
+                    if (this.isLoc(arguments[i])) return true;
+                }
             }
             return false;
         }

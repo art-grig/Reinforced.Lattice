@@ -1375,7 +1375,8 @@ declare module PowerTables.Templating {
         m(fieldName: string, key: string, receiverPath: string): void;
         dp(condition: boolean, nullable: boolean): void;
         private trackAttr();
-        isLocation(location: string): boolean;
+        isLoc(location: string): boolean;
+        isLocation(): boolean;
     }
     /**
      * What renders in current helper method

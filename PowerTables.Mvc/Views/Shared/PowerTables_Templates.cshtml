@@ -78,21 +78,9 @@
 @using (var t = this.PluginWrapper())
 {
     <text>
-        @using (t.IfPlacement("lt"))
-        { <span> @t.Content() </span> }
-        @using (t.IfPlacement("toolbar-lt"))
-        { <span> @t.Content() </span> }
-        @using (t.IfPlacement("lb"))
-        { <div> @t.Content() </div> }
-        @using (t.IfPlacement("toolbar-lb"))
-        { <div> @t.Content() </div> }
-        @using (t.IfPlacement("rt"))
-        { <div style="float: right;"> @t.Content() </div> }
-        @using (t.IfPlacement("toolbar-rt"))
-        { <div style="float: right;"> @t.Content() </div> }
-        @using (t.IfPlacement("rb"))
-        { <div style="float: right;"> @t.Content() </div> }
-        @using (t.IfPlacement("toolbar-rb"))
+        @using (t.IfPlacement("lt", "lb", "toolbar-lt", "toolbar-lb"))
+        { <div style="display: inline-block"> @t.Content() </div> }
+        @using (t.IfPlacement("rt", "rb", "toolbar-rt", "toolbar-rb"))
         { <div style="float: right;"> @t.Content() </div> }
         @using (t.IfPlacement("filter"))
         { <th>@t.Content()</th> }

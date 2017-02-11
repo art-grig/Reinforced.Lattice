@@ -443,15 +443,22 @@ var PowerTables;
                 }
                 return ' ' + tra + ' ';
             };
-            TemplateProcess.prototype.isLocation = function (location) {
+            TemplateProcess.prototype.isLoc = function (location) {
+                var loc = this.Context.Object['PluginLocation'];
+                if (loc.length < location.length)
+                    return false;
+                if (loc.length === location.length && loc === location)
+                    return true;
+                if (loc.substring(0, location.length) === location)
+                    return true;
+                return false;
+            };
+            TemplateProcess.prototype.isLocation = function () {
                 if (this.Context.Type === RenderedObject.Plugin) {
-                    var loc = this.Context.Object['PluginLocation'];
-                    if (loc.length < location.length)
-                        return false;
-                    if (loc.length === location.length && loc === location)
-                        return true;
-                    if (loc.substring(0, location.length) === location)
-                        return true;
+                    for (var i = 0; i < arguments.length; i++) {
+                        if (this.isLoc(arguments[i]))
+                            return true;
+                    }
                 }
                 return false;
             };
