@@ -8,22 +8,11 @@ namespace PowerTables.Templating.BuiltIn
     public class PluignWrapperTemplateRegion<T> :
         ModeledTemplateRegion<IPluginWrapperModel<T>>,
         IProvidesEventsBinding,
-        IProvidesContent,
-        IProvidesTracking
+        IProvidesContent
     {
         public PluignWrapperTemplateRegion(string prefix, string templateId, ITemplatesScope writer)
             : base(TemplateRegionType.Plugin, prefix, templateId, writer)
         {
-        }
-
-
-
-        public bool IsTrackSet { get; set; }
-
-        public override void Dispose()
-        {
-            if (!IsTrackSet) throw new Exception("Tracking element required for plugin wrapper");
-            base.Dispose();
         }
     }
 

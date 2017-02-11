@@ -2,13 +2,8 @@
 
 namespace PowerTables.Templating.BuiltIn
 {
-    public class MessageTemplateRegion : ModeledTemplateRegion<ICellModel<IMessageRowModel>>,
-        IProvidesTracking
+    public class MessageTemplateRegion : ModeledTemplateRegion<ICellModel<IMessageRowModel>>
     {
-
-
-        public bool IsTrackSet { get; set; }
-
         public MessageTemplateRegion(string prefix, string id, ITemplatesScope writer)
             : base(TemplateRegionType.Message, prefix, id, writer)
         {

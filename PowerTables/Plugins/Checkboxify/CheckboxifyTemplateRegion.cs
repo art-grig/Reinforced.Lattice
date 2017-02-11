@@ -6,12 +6,9 @@ using PowerTables.Templating.Compilation;
 namespace PowerTables.Plugins.Checkboxify
 {
     public class CheckboxifySelectAllTemplateRegion : PluginTemplateRegion,
-        IModelProvider<ICheckboxifySelectAll>, IProvidesTracking
+        IModelProvider<ICheckboxifySelectAll>
     {
-
-
         public string ExistingModel { get; private set; }
-        public bool IsTrackSet { get; set; }
 
         public CheckboxifySelectAllTemplateRegion(IViewPlugins page, string id) : base(page, id, TemplateRegionType.Header)
         {

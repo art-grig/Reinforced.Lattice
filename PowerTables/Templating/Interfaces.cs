@@ -34,17 +34,6 @@ namespace PowerTables.Templating
     public interface IProvidesEventsBinding : ITemplateRegion { }
 
     /// <summary>
-    /// Template region providing tracking 
-    /// </summary>
-    public interface IProvidesTracking : ITemplateRegion
-    {
-        /// <summary>
-        /// True, when @Track() method was used at least once, false otherwise
-        /// </summary>
-        bool IsTrackSet { get; set; }
-    }
-
-    /// <summary>
     /// Provides .Content method consuming column name (column-dependent content)
     /// </summary>
     public interface IProvidesColumnContent : ITemplateRegion { }

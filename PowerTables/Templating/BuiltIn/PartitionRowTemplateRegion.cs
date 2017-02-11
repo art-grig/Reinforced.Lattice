@@ -9,13 +9,11 @@ using PowerTables.Templating.Compilation;
 namespace PowerTables.Templating.BuiltIn
 {
     public class PartitionRowTemplateRegion : ModeledTemplateRegion<IRowModel<IPartitionRowData>>,
-        IProvidesEventsBinding, IProvidesTracking, IProvidesMarking
+        IProvidesEventsBinding, IProvidesMarking
     {
         public PartitionRowTemplateRegion(string prefix, string id, ITemplatesScope scope) : base(TemplateRegionType.Partition, prefix, id, scope)
         {
         }
-
-        public bool IsTrackSet { get; set; }
     }
 
     public interface IStatsModel

@@ -3,14 +3,10 @@ using PowerTables.Templating.Expressions;
 
 namespace PowerTables.Templating.BuiltIn
 {
-    public class RowWrapperTemplateRegion<T> : ModeledTemplateRegion<IRowModel<T>>, 
-        IProvidesTracking, 
+    public class RowWrapperTemplateRegion<T> : ModeledTemplateRegion<IRowModel<T>>,
         IProvidesContent,
         IProvidesColumnContent
     {
-        
-        public bool IsTrackSet { get; set; }
-
         public RowWrapperTemplateRegion(string prefix, string id, ITemplatesScope writer) : base(TemplateRegionType.Row, prefix, id, writer)
         {
         }
