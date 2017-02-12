@@ -1,6 +1,6 @@
 ﻿using System.Web.Mvc;
 
-namespace PowerTables.Mvc
+namespace Reinforced.Lattice.DebugSink
 {
     public class FilterConfig
     {

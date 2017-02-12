@@ -1,21 +1,22 @@
 ﻿using System.Web.Mvc.Html;
-using PowerTables.CellTemplating;
-using PowerTables.Configuration;
-using PowerTables.Editing;
-using PowerTables.Editing.Cells;
-using PowerTables.Editing.Editors.Check;
-using PowerTables.Editing.Editors.Display;
-using PowerTables.Editing.Editors.Memo;
-using PowerTables.Editing.Editors.PlainText;
-using PowerTables.Editing.Editors.SelectList;
-using PowerTables.Editing.Form;
-using PowerTables.Editing.Rows;
-using PowerTables.Plugins.Checkboxify;
-using PowerTables.Plugins.LoadingOverlap;
-using PowerTables.Plugins.Ordering;
-using PowerTables.Plugins.Toolbar;
+using Reinforced.Lattice.CellTemplating;
+using Reinforced.Lattice.Configuration;
+using Reinforced.Lattice.Editing;
+using Reinforced.Lattice.Editing.Cells;
+using Reinforced.Lattice.Editing.Editors.Check;
+using Reinforced.Lattice.Editing.Editors.Display;
+using Reinforced.Lattice.Editing.Editors.Memo;
+using Reinforced.Lattice.Editing.Editors.PlainText;
+using Reinforced.Lattice.Editing.Editors.SelectList;
+using Reinforced.Lattice.Editing.Form;
+using Reinforced.Lattice.Editing.Rows;
+using Reinforced.Lattice.Mvc;
+using Reinforced.Lattice.Plugins.Checkboxify;
+using Reinforced.Lattice.Plugins.LoadingOverlap;
+using Reinforced.Lattice.Plugins.Ordering;
+using Reinforced.Lattice.Plugins.Toolbar;
 
-namespace PowerTables.Mvc.Models.Tutorial
+namespace Reinforced.Lattice.DebugSink.Models.Tutorial
 {
     public static partial class Tutorial
     {

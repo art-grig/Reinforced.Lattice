@@ -1,6 +1,6 @@
-﻿using PowerTables.Mvc.Models.Tutorial;
+﻿using Reinforced.Lattice.DebugSink.Models.Tutorial;
 
-namespace PowerTables.Mvc.Models
+namespace Reinforced.Lattice.DebugSink.Models
 {
     public class SimpleConfirmationModel
     {

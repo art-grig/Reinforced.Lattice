@@ -1,13 +1,13 @@
 ﻿using System.Linq;
-using PowerTables.CellTemplating;
-using PowerTables.Configuration;
-using PowerTables.Plugins;
-using PowerTables.Plugins.Hideout;
-using PowerTables.Plugins.Ordering;
-using PowerTables.Plugins.ResponseInfo;
-using PowerTables.Plugins.Total;
+using Reinforced.Lattice.Configuration;
+using Reinforced.Lattice.Plugins;
+using Reinforced.Lattice.Plugins.Hideout;
+using Reinforced.Lattice.Plugins.Ordering;
+using Reinforced.Lattice.Plugins.ResponseInfo;
+using Reinforced.Lattice.Plugins.Total;
+using Reinforced.Lattice.CellTemplating;
 
-namespace PowerTables.Mvc.Models.Tutorial
+namespace Reinforced.Lattice.DebugSink.Models.Tutorial
 {
     public static partial class Tutorial
     {

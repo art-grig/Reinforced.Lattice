@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Web.Mvc;
-using PowerTables.Mvc.Models.Tutorial;
+using Reinforced.Lattice.DebugSink.Models.Tutorial;
 
-namespace PowerTables.Mvc.Models
+namespace Reinforced.Lattice.DebugSink.Models
 {
     public class AdditionalSearchData
     {

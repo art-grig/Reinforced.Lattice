@@ -1,7 +1,7 @@
 ﻿using System.Web.Mvc;
 using System.Web.Routing;
 
-namespace PowerTables.Mvc
+namespace Reinforced.Lattice.DebugSink
 {
     public class RouteConfig
     {

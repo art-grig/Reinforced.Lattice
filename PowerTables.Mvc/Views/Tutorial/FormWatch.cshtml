@@ -1,7 +1,7 @@
 ﻿@using PowerTables
 @using PowerTables.CellTemplating
-@using PowerTables.Mvc.Models.Tutorial
-@model PowerTables.Mvc.Models.Tutorial.FormWatchTutorialModel
+@using Reinforced.Lattice.DebugSink.Models.Tutorial
+@model Reinforced.Lattice.DebugSink.Models.Tutorial.FormWatchTutorialModel
 @{
     Layout = "~/Views/Shared/TutorialsLayout.cshtml";
     Model.Table.Column(c => c.State).Razor(@<a href="@Url.Action("Editor", new { id = "{Id}" })">Edit {State}</a>);

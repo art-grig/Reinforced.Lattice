@@ -5,7 +5,7 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reinforced.Lattice", "PowerTables\Reinforced.Lattice.csproj", "{2E931FD3-EFE9-42D5-8D90-F3B659F06760}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PowerTables.Mvc", "PowerTables.Mvc\PowerTables.Mvc.csproj", "{DBFE0B3B-DC1E-4979-8170-0849253C4687}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reinforced.Lattice.DebugSink", "PowerTables.Mvc\Reinforced.Lattice.DebugSink.csproj", "{DBFE0B3B-DC1E-4979-8170-0849253C4687}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reinforced.Lattice.Typings", "PowerTables.Typings\Reinforced.Lattice.Typings.csproj", "{89CE0C6B-E552-484A-9A95-86C2EA81EEBB}"
 EndProject

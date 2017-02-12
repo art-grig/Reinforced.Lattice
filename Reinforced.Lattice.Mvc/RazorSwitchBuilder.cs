@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Web;
 using System.Web.WebPages;
-using PowerTables.CellTemplating;
+using Reinforced.Lattice.CellTemplating;
 
 namespace Reinforced.Lattice.Mvc
 {

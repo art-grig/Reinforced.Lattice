@@ -1,6 +1,6 @@
 ﻿using System.Web.Mvc;
 
-namespace PowerTables.Mvc.Controllers
+namespace Reinforced.Lattice.DebugSink.Controllers
 {
     public class HandleTutorial : Controller
     {

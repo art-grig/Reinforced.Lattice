@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Web.WebPages;
-using PowerTables;
-using PowerTables.CellTemplating;
-using PowerTables.Configuration;
+using Reinforced.Lattice.CellTemplating;
+using Reinforced.Lattice.Configuration;
 
 namespace Reinforced.Lattice.Mvc
 {

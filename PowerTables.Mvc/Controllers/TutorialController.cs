@@ -5,12 +5,12 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Web.Mvc;
-using PowerTables.Configuration;
-using PowerTables.Mvc.Models;
-using PowerTables.Mvc.Models.Tutorial;
+using Reinforced.Lattice.Configuration;
+using Reinforced.Lattice.DebugSink.Models.Data;
+using Reinforced.Lattice.DebugSink.Models.Tutorial;
 using Reinforced.Lattice.Mvc;
 
-namespace PowerTables.Mvc.Controllers
+namespace Reinforced.Lattice.DebugSink.Controllers
 {
     public partial class TutorialController : Controller
     {

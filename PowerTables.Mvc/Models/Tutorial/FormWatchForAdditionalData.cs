@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
-using PowerTables.CellTemplating;
-using PowerTables.Configuration;
-using PowerTables.Plugins;
-using PowerTables.Plugins.Formwatch;
-using PowerTables.Plugins.LoadingOverlap;
-using PowerTables.Plugins.Reload;
+using Reinforced.Lattice.CellTemplating;
+using Reinforced.Lattice.Configuration;
+using Reinforced.Lattice.Plugins;
+using Reinforced.Lattice.Plugins.Formwatch;
+using Reinforced.Lattice.Plugins.LoadingOverlap;
+using Reinforced.Lattice.Plugins.Reload;
 
-namespace PowerTables.Mvc.Models.Tutorial
+namespace Reinforced.Lattice.DebugSink.Models.Tutorial
 {
     public static partial class Tutorial
     {

@@ -3,7 +3,7 @@ using System.Web.Optimization;
 using System.Web.Routing;
 using Reinforced.Lattice.Templates;
 
-namespace PowerTables.Mvc
+namespace Reinforced.Lattice.DebugSink
 {
     public class MvcApplication : System.Web.HttpApplication
     {

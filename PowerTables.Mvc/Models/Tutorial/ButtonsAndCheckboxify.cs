@@ -1,19 +1,20 @@
 ﻿using System;
 using System.Linq;
 using System.Web.Mvc;
-using PowerTables.CellTemplating;
-using PowerTables.Commands;
-using PowerTables.Configuration;
-using PowerTables.Editing;
-using PowerTables.Editing.Editors.Check;
-using PowerTables.Editing.Editors.Memo;
-using PowerTables.Editing.Editors.PlainText;
-using PowerTables.Editing.Editors.SelectList;
-using PowerTables.Mvc.Extensions;
-using PowerTables.Plugins.Checkboxify;
-using PowerTables.Plugins.Toolbar;
+using Reinforced.Lattice.CellTemplating;
+using Reinforced.Lattice.Commands;
+using Reinforced.Lattice.Configuration;
+using Reinforced.Lattice.DebugSink.Extensions;
+using Reinforced.Lattice.Editing;
+using Reinforced.Lattice.Editing.Editors.Check;
+using Reinforced.Lattice.Editing.Editors.Memo;
+using Reinforced.Lattice.Editing.Editors.PlainText;
+using Reinforced.Lattice.Editing.Editors.SelectList;
+using Reinforced.Lattice.Mvc;
+using Reinforced.Lattice.Plugins.Checkboxify;
+using Reinforced.Lattice.Plugins.Toolbar;
 
-namespace PowerTables.Mvc.Models.Tutorial
+namespace Reinforced.Lattice.DebugSink.Models.Tutorial
 {
     public class CommentForm
     {

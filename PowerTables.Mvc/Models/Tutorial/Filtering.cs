@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Web.Mvc.Html;
-using PowerTables.Configuration;
-using PowerTables.Filters;
-using PowerTables.Filters.Multi;
-using PowerTables.Filters.Range;
-using PowerTables.Filters.Select;
-using PowerTables.Filters.Value;
+using Reinforced.Lattice.Configuration;
+using Reinforced.Lattice.Filters;
+using Reinforced.Lattice.Filters.Multi;
+using Reinforced.Lattice.Filters.Range;
+using Reinforced.Lattice.Filters.Select;
+using Reinforced.Lattice.Filters.Value;
+using Reinforced.Lattice.Mvc;
 
-namespace PowerTables.Mvc.Models.Tutorial
+namespace Reinforced.Lattice.DebugSink.Models.Tutorial
 {
     public static partial class Tutorial
     {

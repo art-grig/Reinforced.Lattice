@@ -1,8 +1,8 @@
-﻿using PowerTables.Configuration;
-using PowerTables.Mvc.Extensions;
-using PowerTables.Plugins.Toolbar;
+﻿using Reinforced.Lattice.Configuration;
+using Reinforced.Lattice.DebugSink.Extensions;
+using Reinforced.Lattice.Plugins.Toolbar;
 
-namespace PowerTables.Mvc.Models.Tutorial
+namespace Reinforced.Lattice.DebugSink.Models.Tutorial
 {
     public static partial class Tutorial
     {

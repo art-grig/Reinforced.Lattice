@@ -1,12 +1,13 @@
 ﻿using System.Linq;
 using System.Web.Mvc;
-using PowerTables.Configuration;
-using PowerTables.Filters;
-using PowerTables.Filters.Select;
-using PowerTables.Filters.Value;
-using PowerTables.Plugins.Ordering;
+using Reinforced.Lattice.Configuration;
+using Reinforced.Lattice.Filters;
+using Reinforced.Lattice.Filters.Select;
+using Reinforced.Lattice.Filters.Value;
+using Reinforced.Lattice.Mvc;
+using Reinforced.Lattice.Plugins.Ordering;
 
-namespace PowerTables.Mvc.Models.Tutorial
+namespace Reinforced.Lattice.DebugSink.Models.Tutorial
 {
     public static partial class Tutorial
     {

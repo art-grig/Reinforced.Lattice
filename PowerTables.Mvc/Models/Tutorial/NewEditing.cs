@@ -1,9 +1,9 @@
-﻿using PowerTables.Configuration;
-using PowerTables.Editing.Cells;
-using PowerTables.Editing.Editors.Check;
-using PowerTables.Editing.Editors.PlainText;
+﻿using Reinforced.Lattice.Configuration;
+using Reinforced.Lattice.Editing.Cells;
+using Reinforced.Lattice.Editing.Editors.Check;
+using Reinforced.Lattice.Editing.Editors.PlainText;
 
-namespace PowerTables.Mvc.Models.Tutorial
+namespace Reinforced.Lattice.DebugSink.Models.Tutorial
 {
     public static partial class Tutorial
     {

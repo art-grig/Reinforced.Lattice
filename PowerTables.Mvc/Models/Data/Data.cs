@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Web;
 using Newtonsoft.Json;
-using PowerTables.Mvc.Models.Tutorial;
+using Reinforced.Lattice.DebugSink.Models.Tutorial;
 
-namespace PowerTables.Mvc.Models
+namespace Reinforced.Lattice.DebugSink.Models.Data
 {
     public class Data
     {

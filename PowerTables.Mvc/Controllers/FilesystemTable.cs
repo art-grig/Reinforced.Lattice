@@ -1,18 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Web;
 using System.Web.Mvc;
-using PowerTables.Configuration;
-using PowerTables.Mvc.Models.Tutorial;
-using PowerTables.Plugins.Hierarchy;
+using Reinforced.Lattice.Configuration;
+using Reinforced.Lattice.DebugSink.Models.Tutorial;
 using Reinforced.Lattice.Mvc;
+using Reinforced.Lattice.Plugins.Hierarchy;
 
-namespace PowerTables.Mvc.Controllers
+namespace Reinforced.Lattice.DebugSink.Controllers
 {
     public partial class TutorialController
     {

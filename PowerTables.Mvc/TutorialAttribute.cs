@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PowerTables.Mvc
+namespace Reinforced.Lattice.DebugSink
 {
     public class TutorialAttribute : Attribute
     {

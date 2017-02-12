@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Web.Mvc;
 using Newtonsoft.Json;
-using PowerTables;
 
 namespace Reinforced.Lattice.Mvc
 {

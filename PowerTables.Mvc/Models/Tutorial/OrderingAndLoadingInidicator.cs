@@ -1,8 +1,8 @@
-﻿using PowerTables.Configuration;
-using PowerTables.Plugins.Loading;
-using PowerTables.Plugins.Ordering;
+﻿using Reinforced.Lattice.Configuration;
+using Reinforced.Lattice.Plugins.Loading;
+using Reinforced.Lattice.Plugins.Ordering;
 
-namespace PowerTables.Mvc.Models.Tutorial
+namespace Reinforced.Lattice.DebugSink.Models.Tutorial
 {
     public static partial class Tutorial
     {

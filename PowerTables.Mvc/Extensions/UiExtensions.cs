@@ -1,8 +1,8 @@
 ﻿using System;
-using PowerTables.CellTemplating;
-using PowerTables.Configuration;
+using Reinforced.Lattice.CellTemplating;
+using Reinforced.Lattice.Configuration;
 
-namespace PowerTables.Mvc.Extensions
+namespace Reinforced.Lattice.DebugSink.Extensions
 {
     public static class UiExtensions
     {

@@ -1,6 +1,6 @@
-﻿using PowerTables.Configuration;
+﻿using Reinforced.Lattice.Configuration;
 
-namespace PowerTables.Mvc.Models.Tutorial
+namespace Reinforced.Lattice.DebugSink.Models.Tutorial
 {
     public static partial class Tutorial
     {

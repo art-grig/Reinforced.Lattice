@@ -1,17 +1,14 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using PowerTables.CellTemplating;
-using PowerTables.Configuration;
-using PowerTables.Filters;
-using PowerTables.Filters.Value;
-using PowerTables.Mvc.Extensions;
-using PowerTables.Plugins.Checkboxify;
-using PowerTables.Plugins.Hierarchy;
-using PowerTables.Plugins.Ordering;
-using PowerTables.Plugins.Scrollbar;
+using Reinforced.Lattice.CellTemplating;
+using Reinforced.Lattice.Configuration;
+using Reinforced.Lattice.DebugSink.Extensions;
+using Reinforced.Lattice.Plugins.Checkboxify;
+using Reinforced.Lattice.Plugins.Hierarchy;
+using Reinforced.Lattice.Plugins.Scrollbar;
 
-namespace PowerTables.Mvc.Models.Tutorial
+namespace Reinforced.Lattice.DebugSink.Models.Tutorial
 {
     public static partial class Tutorial
     {

@@ -1,12 +1,12 @@
-﻿using PowerTables.Configuration;
-using PowerTables.Filters;
-using PowerTables.Filters.Value;
-using PowerTables.Plugins;
-using PowerTables.Plugins.Limit;
-using PowerTables.Plugins.Paging;
-using PowerTables.Plugins.Scrollbar;
+﻿using Reinforced.Lattice.Configuration;
+using Reinforced.Lattice.Filters;
+using Reinforced.Lattice.Filters.Value;
+using Reinforced.Lattice.Plugins;
+using Reinforced.Lattice.Plugins.Limit;
+using Reinforced.Lattice.Plugins.Paging;
+using Reinforced.Lattice.Plugins.Scrollbar;
 
-namespace PowerTables.Mvc.Models.Tutorial
+namespace Reinforced.Lattice.DebugSink.Models.Tutorial
 {
     public static partial class Tutorial
     {

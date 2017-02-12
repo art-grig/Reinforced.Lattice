@@ -1,6 +1,6 @@
 ﻿using System.Web.Optimization;
 
-namespace PowerTables.Mvc
+namespace Reinforced.Lattice.DebugSink
 {
     public class BundleConfig
     {

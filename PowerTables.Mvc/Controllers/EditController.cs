@@ -1,13 +1,13 @@
 ﻿using System.Linq;
 using System.Web.Mvc;
-using PowerTables.Adjustments;
-using PowerTables.Editing;
-using PowerTables.Mvc.Models;
-using PowerTables.Mvc.Models.Tutorial;
-using PowerTables.Processing;
+using Reinforced.Lattice.Adjustments;
+using Reinforced.Lattice.DebugSink.Models.Data;
+using Reinforced.Lattice.DebugSink.Models.Tutorial;
+using Reinforced.Lattice.Editing;
 using Reinforced.Lattice.Mvc;
+using Reinforced.Lattice.Processing;
 
-namespace PowerTables.Mvc.Controllers
+namespace Reinforced.Lattice.DebugSink.Controllers
 {
     public partial class TutorialController
     {

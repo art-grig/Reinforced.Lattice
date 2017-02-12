@@ -3,9 +3,8 @@ using System.IO;
 using System.Text;
 using System.Web.Mvc;
 using Newtonsoft.Json;
-using PowerTables;
-using PowerTables.Configuration;
-using PowerTables.Processing;
+using Reinforced.Lattice.Configuration;
+using Reinforced.Lattice.Processing;
 
 namespace Reinforced.Lattice.Mvc
 {

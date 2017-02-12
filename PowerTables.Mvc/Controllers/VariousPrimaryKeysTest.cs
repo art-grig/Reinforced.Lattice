@@ -2,17 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
-using PowerTables.Adjustments;
-using PowerTables.Configuration;
-using PowerTables.Configuration.Json;
-using PowerTables.Plugins.Limit;
-using PowerTables.Plugins.Paging;
-using PowerTables.Plugins.RegularSelect;
-using PowerTables.Plugins.Toolbar;
-using PowerTables.Processing;
+using Reinforced.Lattice.Adjustments;
+using Reinforced.Lattice.Configuration;
+using Reinforced.Lattice.Configuration.Json;
 using Reinforced.Lattice.Mvc;
+using Reinforced.Lattice.Plugins.Limit;
+using Reinforced.Lattice.Plugins.Paging;
+using Reinforced.Lattice.Plugins.RegularSelect;
+using Reinforced.Lattice.Plugins.Toolbar;
+using Reinforced.Lattice.Processing;
 
-namespace PowerTables.Mvc.Controllers
+namespace Reinforced.Lattice.DebugSink.Controllers
 {
     public class PlanningRow
     {

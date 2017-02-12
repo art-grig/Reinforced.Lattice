@@ -1,7 +1,7 @@
-﻿using PowerTables.Configuration;
-using PowerTables.Mvc.Models.Tutorial;
+﻿using Reinforced.Lattice.Configuration;
+using Reinforced.Lattice.DebugSink.Models.Tutorial;
 
-namespace PowerTables.Mvc.Models
+namespace Reinforced.Lattice.DebugSink.Models
 {
     public static class TestTable
     {

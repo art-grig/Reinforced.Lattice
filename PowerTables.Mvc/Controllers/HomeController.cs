@@ -2,15 +2,16 @@
 using System.Linq;
 using System.Threading;
 using System.Web.Mvc;
-using PowerTables.Configuration;
-using PowerTables.Mvc.Models;
-using PowerTables.Mvc.Models.Tutorial;
-using PowerTables.Plugins.Formwatch;
-using PowerTables.Plugins.Hideout;
-using PowerTables.Processing;
+using Reinforced.Lattice.Configuration;
+using Reinforced.Lattice.DebugSink.Models;
+using Reinforced.Lattice.DebugSink.Models.Data;
+using Reinforced.Lattice.DebugSink.Models.Tutorial;
 using Reinforced.Lattice.Mvc;
+using Reinforced.Lattice.Plugins.Formwatch;
+using Reinforced.Lattice.Plugins.Hideout;
+using Reinforced.Lattice.Processing;
 
-namespace PowerTables.Mvc.Controllers
+namespace Reinforced.Lattice.DebugSink.Controllers
 {
     public partial class HomeController : Controller
     {

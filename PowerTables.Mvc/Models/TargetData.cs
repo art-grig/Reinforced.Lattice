@@ -1,4 +1,4 @@
-﻿namespace PowerTables.Mvc.Models
+﻿namespace Reinforced.Lattice.DebugSink.Models
 {
    
 

@@ -1,9 +1,7 @@
-﻿using System.Linq;
-using PowerTables.Configuration;
-using PowerTables.Mvc.Extensions;
-using PowerTables.Plugins.Scrollbar;
+﻿using Reinforced.Lattice.Configuration;
+using Reinforced.Lattice.Plugins.Scrollbar;
 
-namespace PowerTables.Mvc.Models.Tutorial
+namespace Reinforced.Lattice.DebugSink.Models.Tutorial
 {
     public static partial class Tutorial
     {

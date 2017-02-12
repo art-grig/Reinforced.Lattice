@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Mvc;
-using PowerTables;
-using PowerTables.Editing;
-using PowerTables.Editing.Editors.SelectList;
-using PowerTables.Filters.Select;
-using PowerTables.Plugins;
+using Reinforced.Lattice.Editing;
+using Reinforced.Lattice.Editing.Editors.SelectList;
+using Reinforced.Lattice.Filters.Select;
+using Reinforced.Lattice.Plugins;
 
 namespace Reinforced.Lattice.Mvc
 {

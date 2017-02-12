@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.Web;
-using PowerTables.CellTemplating;
+using Reinforced.Lattice.CellTemplating;
 
 namespace Reinforced.Lattice.Mvc
 {
