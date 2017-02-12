@@ -149,7 +149,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PowerTables\Reinforced.Lattice.csproj">
+    <ProjectReference Include="..\Reinforced.Lattice\Reinforced.Lattice.csproj">
       <Project>{2E931FD3-EFE9-42D5-8D90-F3B659F06760}</Project>
       <Name>Reinforced.Lattice</Name>
     </ProjectReference>
