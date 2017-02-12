@@ -144,9 +144,15 @@ namespace Reinforced.Lattice.Mvc
         }
 
 #if MVC4
+        private static T GetCustomAttribute<T>(this MemberInfo pi) where T : Attribute
+        {
+            var attrs = pi.GetCustomAttributes(typeof(T), false);
+            if (attrs.Length == 0) return null;
+            return (T)attrs[0];
+        }
         private static string GetDisplayName(FieldInfo field)
         {
-            DisplayAttribute display = field.GetCustomAttribute<DisplayAttribute>(inherit: false);
+            DisplayAttribute display = field.GetCustomAttribute<DisplayAttribute>();
             if (display != null)
             {
                 string name = display.GetName();

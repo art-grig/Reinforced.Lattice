@@ -81,6 +81,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Reinforced.Lattice.Templates.Mvc5\Reinforced.Lattice.Templates.Mvc5.csproj">
+      <Project>{aead84d9-50af-48aa-8d26-5408af239eef}</Project>
+      <Name>Reinforced.Lattice.Templates.Mvc5</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Reinforced.Lattice\Reinforced.Lattice.csproj">
       <Project>{2e931fd3-efe9-42d5-8d90-f3b659f06760}</Project>
       <Name>Reinforced.Lattice</Name>

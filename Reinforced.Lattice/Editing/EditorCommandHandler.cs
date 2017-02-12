@@ -40,7 +40,7 @@ namespace Reinforced.Lattice.Editing
             return update;
         }
 
-#if NET45
+#if ASYNC
         protected override async Task<TableAdjustment> HandleAsync(LatticeData data)
         {
             LatticeData<TSourceData, TTargetData> typedData = new LatticeData<TSourceData, TTargetData>(data);

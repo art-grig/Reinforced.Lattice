@@ -275,7 +275,7 @@ namespace Reinforced.Lattice.Templates.Compilation
         {
             _original.WriteLine(format, arg);
         }
-
+#if ASYNC
         public override Task WriteAsync(char value)
         {
             return _original.WriteAsync(value);
@@ -315,7 +315,7 @@ namespace Reinforced.Lattice.Templates.Compilation
         {
             return _original.FlushAsync();
         }
-
+#endif
         public override IFormatProvider FormatProvider
         {
             get { return _original.FormatProvider; }
@@ -334,6 +334,6 @@ namespace Reinforced.Lattice.Templates.Compilation
 
 
 
-        #endregion
+#endregion
     }
 }

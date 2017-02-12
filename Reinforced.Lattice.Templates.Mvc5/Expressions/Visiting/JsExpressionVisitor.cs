@@ -83,7 +83,14 @@ namespace Reinforced.Lattice.Templates.Expressions.Visiting
         {
             return _resultsStack.Pop();
         }
-
+#if MVC4
+        private static T GetCustomAttribute<T>(MemberInfo pi) where T : Attribute
+        {
+            var attrs = pi.GetCustomAttributes(typeof(T), false);
+            if (attrs.Length == 0) return null;
+            return (T)attrs[0];
+        }
+#endif
         protected override Expression VisitMember(MemberExpression node)
         {
             if (node.Expression.Type.IsDefined(typeof(CompilerGeneratedAttribute), false))
@@ -111,8 +118,11 @@ namespace Reinforced.Lattice.Templates.Expressions.Visiting
             }
 
             var memberName = node.Member.Name;
-
+#if MVC4
+            var attr = GetCustomAttribute<OverrideTplFieldNameAttribute>(node.Member);
+#else
             var attr = node.Member.GetCustomAttribute<OverrideTplFieldNameAttribute>();
+#endif
             if (attr != null)
             {
                 memberName = attr.Name;
@@ -143,7 +153,11 @@ namespace Reinforced.Lattice.Templates.Expressions.Visiting
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
+#if MVC4
+            var customAttr = GetCustomAttribute<CustomMethodCallTranslationAttribute>(node.Method);
+#else
             var customAttr = node.Method.GetCustomAttribute<CustomMethodCallTranslationAttribute>();
+#endif
             if (customAttr != null)
             {
                 var result = customAttr.TranslationFunction.Invoke(null, new object[] { node, this });

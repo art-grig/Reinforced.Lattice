@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using System.Web.Mvc;
 using Newtonsoft.Json;
@@ -17,29 +18,36 @@ namespace Reinforced.Lattice.Mvc
             _context = context;
         }
 
+
         protected override LatticeRequest ExtractRequestCore()
         {
-            if (_context.HttpContext.Request.HttpMethod == "GET")
-            {
-                var token = _context.HttpContext.Request.QueryString["q"];
-                return TokenStorage.Lookup(token);
+            if (_context.HttpContext.Request.HttpMethod == "GET"){
+            var token = _context.HttpContext.Request.QueryString["q"];
+            return TokenStorage.Lookup(token);
             }
-
-            var request = _context.RequestContext.HttpContext.Request;
+             var request = _context.RequestContext.HttpContext.Request;
             request.InputStream.Seek(0, SeekOrigin.Begin);
             string jsonData = new StreamReader(request.InputStream).ReadToEnd();
             return JsonConvert.DeserializeObject<LatticeRequest>(jsonData);
         }
 
+
+
+
         protected override ActionResult FormatError(LatticeResponse errorResponse)
         {
-            return new JsonNetResult() { Data = errorResponse, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            return new JsonNetResult()
+            {
+                Data = errorResponse
+                ,JsonRequestBehavior = JsonRequestBehavior.AllowGet
+            };
         }
 
         protected override ActionResult ProduceRedirect(string token)
         {
             return new ContentResult()
             {
+
                 Content = InMemoryTokenStorage.TokenPrefix + token,
                 ContentEncoding = Encoding.UTF8,
                 ContentType = "lattice/service"
@@ -71,7 +79,13 @@ namespace Reinforced.Lattice.Mvc
                 return commandResponse as ActionResult;
             }
 
-            return new JsonNetResult() { Data = commandResponse, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            return new JsonNetResult()
+            {
+                Data = commandResponse
+
+                ,JsonRequestBehavior = JsonRequestBehavior.AllowGet
+
+            };
         }
 
         public override TStaticData ExtractStaticData<TStaticData>()
@@ -84,6 +98,7 @@ namespace Reinforced.Lattice.Mvc
 
     public static class MvcHandlerExtensions
     {
+
         public static MvcRequestHandler<TSourceData, TTableData> CreateMvcHandler<TSourceData, TTableData>(
             this Configurator<TSourceData, TTableData> configurator, ControllerContext controllerContext, IQueryHandler<TSourceData, TTableData> queryHandler = null,
             ITokenStorage tokenStorage = null) where TTableData : new()

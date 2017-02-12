@@ -7,6 +7,7 @@ namespace Reinforced.Lattice.Mvc
     /// <summary>
     /// ActionResult used for Lattise's Default client responses
     /// </summary>
+
     public class JsonNetResult : JsonResult
     {
         
@@ -29,4 +30,5 @@ namespace Reinforced.Lattice.Mvc
             response.Write(serializedObject);
         }
     }
+
 }

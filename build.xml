@@ -1,0 +1,71 @@
+<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<PropertyGroup>
+		<Version>1.0.0</Version>
+	</PropertyGroup>
+	<Import Project="C:\Program Files (x86)\MSBuild\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" Label="MSBuildCommunity" />
+	<Target Name="NugetFolders">
+		<ItemGroup>
+			<NugetDirs Include="build\Reinforced.Lattice" />
+			<NugetDirs Include="build\Reinforced.Lattice.Mvc4" />
+			<NugetDirs Include="build\Reinforced.Lattice.Mvc4.Razor" />
+			<NugetDirs Include="build\Reinforced.Lattice.Mvc5" />
+			<NugetDirs Include="build\Reinforced.Lattice.Mvc5.Razor" />
+			<NugetDirs Include="build\Reinforced.Lattice.Script" />
+			<NugetDirs Include="build\Reinforced.Lattice.Templates.Mvc4" />
+			<NugetDirs Include="build\Reinforced.Lattice.Templates.Mvc5" />
+			<NugetDirs Include="build\packages" />
+		</ItemGroup>
+		<RemoveDir Directories="@(NugetDirs)" />
+		<MakeDir Directories="@(NugetDirs)" />
+	</Target>
+	<Target Name="BuildCore">
+        <MSBuild Projects="Reinforced.Lattice\Reinforced.Lattice.NET40.csproj" BuildInParallel="True" Properties="Configuration=Release" />
+        <MSBuild Projects="Reinforced.Lattice\Reinforced.Lattice.NET45.csproj" BuildInParallel="True" Properties="Configuration=Release" />
+        
+        <MSBuild Projects="Reinforced.Lattice.Mvc4\Reinforced.Lattice.Mvc4.NET40.csproj" BuildInParallel="True" Properties="Configuration=Release" />
+        <MSBuild Projects="Reinforced.Lattice.Mvc4\Reinforced.Lattice.Mvc4.NET45.csproj" BuildInParallel="True" Properties="Configuration=Release" />
+        
+        <MSBuild Projects="Reinforced.Lattice.Mvc4.Razor\Reinforced.Lattice.Mvc4.Razor.NET40.csproj" BuildInParallel="True" Properties="Configuration=Release" />
+        <MSBuild Projects="Reinforced.Lattice.Mvc4.Razor\Reinforced.Lattice.Mvc4.Razor.NET45.csproj" BuildInParallel="True" Properties="Configuration=Release" />
+        
+        <MSBuild Projects="Reinforced.Lattice.Mvc5\Reinforced.Lattice.Mvc5.NET45.csproj" BuildInParallel="True" Properties="Configuration=Release" />
+        <MSBuild Projects="Reinforced.Lattice.Mvc5.Razor\Reinforced.Lattice.Mvc5.Razor.NET45.csproj" BuildInParallel="True" Properties="Configuration=Release" />
+        
+        <MSBuild Projects="Reinforced.Lattice.Templates.Mvc4\Reinforced.Lattice.Templates.Mvc4.NET40.csproj" BuildInParallel="True" Properties="Configuration=Release" />
+        <MSBuild Projects="Reinforced.Lattice.Templates.Mvc4\Reinforced.Lattice.Templates.Mvc4.NET45.csproj" BuildInParallel="True" Properties="Configuration=Release" />
+        
+        <MSBuild Projects="Reinforced.Lattice.Templates.Mvc5\Reinforced.Lattice.Templates.Mvc5.NET45.csproj" BuildInParallel="True" Properties="Configuration=Release" />
+    </Target>
+	<Target Name="RewriteVersions"></Target>
+	<Target Name="RewriteVersion">
+		<PropertyGroup Label="Parameters">
+			<ProjectPath />
+		</PropertyGroup>
+	</Target>
+	<ItemGroup Label="ReinforcedLattice_Files">
+		<Reinforced.Lattice_net40_Files Include="build\Reinforced.Lattice\net40\Reinforced.Lattice.dll; build\Reinforced.Lattice\net40\Reinforced.Lattice.pdb; build\Reinforced.Lattice\net40\Reinforced.Lattice.xml" />
+		<Reinforced.Lattice_net45_Files Include="build\Reinforced.Lattice\net45\Reinforced.Lattice.dll; build\Reinforced.Lattice\net45\Reinforced.Lattice.pdb; build\Reinforced.Lattice\net45\Reinforced.Lattice.xml" />
+		<Reinforced.Lattice.Mvc4_net40_Files Include="build\Reinforced.Lattice.Mvc4\net40\Reinforced.Lattice.Mvc4.dll; build\Reinforced.Lattice.Mvc4\net40\Reinforced.Lattice.Mvc4.pdb; build\Reinforced.Lattice.Mvc4\net40\Reinforced.Lattice.Mvc4.xml" />
+		<Reinforced.Lattice.Mvc4_net45_Files Include="build\Reinforced.Lattice.Mvc4\net45\Reinforced.Lattice.Mvc4.dll; build\Reinforced.Lattice.Mvc4\net45\Reinforced.Lattice.Mvc4.pdb; build\Reinforced.Lattice.Mvc4\net45\Reinforced.Lattice.Mvc4.xml" />
+		<Reinforced.Lattice.Mvc4.Razor_net40_Files Include="build\Reinforced.Lattice.Mvc4.Razor\net40\Reinforced.Lattice.Mvc4.Razor.dll; build\Reinforced.Lattice.Mvc4.Razor\net40\Reinforced.Lattice.Mvc4.Razor.pdb; build\Reinforced.Lattice.Mvc4.Razor\net40\Reinforced.Lattice.Mvc4.Razor.xml" />
+		<Reinforced.Lattice.Mvc4.Razor_net45_Files Include="build\Reinforced.Lattice.Mvc4.Razor\net45\Reinforced.Lattice.Mvc4.Razor.dll; build\Reinforced.Lattice.Mvc4.Razor\net45\Reinforced.Lattice.Mvc4.Razor.pdb; build\Reinforced.Lattice.Mvc4.Razor\net45\Reinforced.Lattice.Mvc4.Razor.xml" />
+		<Reinforced.Lattice.Mvc5_net45_Files Include="build\Reinforced.Lattice.Mvc5\net45\Reinforced.Lattice.Mvc5.dll; build\Reinforced.Lattice.Mvc5\net45\Reinforced.Lattice.Mvc5.pdb; build\Reinforced.Lattice.Mvc5\net45\Reinforced.Lattice.Mvc5.xml" />
+		<Reinforced.Lattice.Mvc5.Razor_net45_Files Include="build\Reinforced.Lattice.Mvc5.Razor\net45\Reinforced.Lattice.Mvc5.Razor.dll; build\Reinforced.Lattice.Mvc5.Razor\net45\Reinforced.Lattice.Mvc5.Razor.pdb; build\Reinforced.Lattice.Mvc5.Razor\net45\Reinforced.Lattice.Mvc5.Razor.xml" />
+		<Reinforced.Lattice.Templates.Mvc4_net40_Files Include="build\Reinforced.Lattice.Templates.Mvc4\net40\Reinforced.Lattice.Templates.Mvc4.dll; build\Reinforced.Lattice.Templates.Mvc4\net40\Reinforced.Lattice.Templates.Mvc4.pdb; build\Reinforced.Lattice.Templates.Mvc4\net40\Reinforced.Lattice.Templates.Mvc4.xml" />
+		<Reinforced.Lattice.Templates.Mvc4_net45_Files Include="build\Reinforced.Lattice.Templates.Mvc4\net45\Reinforced.Lattice.Templates.Mvc4.dll; build\Reinforced.Lattice.Templates.Mvc4\net45\Reinforced.Lattice.Templates.Mvc4.pdb; build\Reinforced.Lattice.Templates.Mvc4\net45\Reinforced.Lattice.Templates.Mvc4.xml" />
+		<Reinforced.Lattice.Templates.Mvc5_net45_Files Include="build\Reinforced.Lattice.Templates.Mvc5\net45\Reinforced.Lattice.Templates.dll; build\Reinforced.Lattice.Templates.Mvc5\net45\Reinforced.Lattice.Templates.Mvc5.xml; build\Reinforced.Lattice.Templates.Mvc5\net45\Reinforced.Lattice.Templates.pdb" />
+	</ItemGroup>
+	<Target Name="ProduceVersion">
+		<MSBuild Projects="setversion.xml" Properties="ProjectName=Reinforced.Lattice;Title='Reinforced.Lattice core';Version=$(Version)" />
+		<MSBuild Projects="setversion.xml" Properties="ProjectName=Reinforced.Lattice.Mvc4;Title='MVC4 integration for Reinforced.Lattice';Version=$(Version)" />
+		<MSBuild Projects="setversion.xml" Properties="ProjectName=Reinforced.Lattice.Mvc5;Title='MVC5 integration for Reinforced.Lattice';Version=$(Version)" />
+		<MSBuild Projects="setversion.xml" Properties="ProjectName=Reinforced.Lattice.Mvc4.Razor;Title='MVC4 Razor extensions for Reinforced.Lattice';Version=$(Version)" />
+		<MSBuild Projects="setversion.xml" Properties="ProjectName=Reinforced.Lattice.Mvc5.Razor;Title='MVC5 Razor extensions for Reinforced.Lattice';Version=$(Version)" />
+		<MSBuild Projects="setversion.xml" Properties="ProjectName=Reinforced.Lattice.Templates.Mvc4;Title='MVC4 Razor templates for Reinforced.Lattice';Version=$(Version)" />
+		<MSBuild Projects="setversion.xml" Properties="ProjectName=Reinforced.Lattice.Templates.Mvc5;Title='MVC5 Razor templates for Reinforced.Lattice';Version=$(Version)" />
+		<MSBuild Projects="setversion.xml" Target="UpdateNuspec" Properties="ProjectName=Reinforced.Lattice.Script;Version=$(Version)" />
+		<MSBuild Projects="setversion.xml" Target="UpdateNuspec" Properties="ProjectName=Reinforced.Lattice.Bootstrap;Version=$(Version)" />
+		<MSBuild Projects="setversion.xml" Target="UpdateNuspec" Properties="ProjectName=Reinforced.Lattice.Bundle.Mvc4;Version=$(Version)" />
+		<MSBuild Projects="setversion.xml" Target="UpdateNuspec" Properties="ProjectName=Reinforced.Lattice.Bundle.Mvc5;Version=$(Version)" />		
+	</Target>
+</Project>
