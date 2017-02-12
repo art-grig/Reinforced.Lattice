@@ -15,6 +15,23 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reinforced.Lattice.Mvc", "R
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reinforced.Lattice.Templates", "Reinforced.Lattice.Templates\Reinforced.Lattice.Templates.csproj", "{AEAD84D9-50AF-48AA-8D26-5408AF239EEF}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core Library", "Core Library", "{05D473F0-3D16-42C0-8DFF-29231D418722}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reinforced.Lattice.NET40", "Reinforced.Lattice\Reinforced.Lattice.NET40.csproj", "{D5555A98-A3BA-473C-87C0-0D4662C932A6}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Reinforced.Lattice.NETCore", "Reinforced.Lattice\Reinforced.Lattice.NETCore.xproj", "{9FA9CA03-0CD5-4831-B44F-7003DE2FBA2D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Integrations", "Integrations", "{B26A2169-5203-4B19-8DCD-040F45F53866}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Script", "Script", "{88F2EBC4-B7B1-4C70-BE44-BE471E6612FA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Templates", "Templates", "{97A73A13-90C2-48A4-A053-4F8C9058A3CB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuget", "nuget", "{941DA316-E324-4ABF-B613-CD1395E8F76A}"
+	ProjectSection(SolutionItems) = preProject
+		nuget\Reinforced.Lattice.nuspec = nuget\Reinforced.Lattice.nuspec
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,8 +60,25 @@ Global
 		{AEAD84D9-50AF-48AA-8D26-5408AF239EEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AEAD84D9-50AF-48AA-8D26-5408AF239EEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AEAD84D9-50AF-48AA-8D26-5408AF239EEF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D5555A98-A3BA-473C-87C0-0D4662C932A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D5555A98-A3BA-473C-87C0-0D4662C932A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D5555A98-A3BA-473C-87C0-0D4662C932A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D5555A98-A3BA-473C-87C0-0D4662C932A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9FA9CA03-0CD5-4831-B44F-7003DE2FBA2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9FA9CA03-0CD5-4831-B44F-7003DE2FBA2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9FA9CA03-0CD5-4831-B44F-7003DE2FBA2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9FA9CA03-0CD5-4831-B44F-7003DE2FBA2D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{2E931FD3-EFE9-42D5-8D90-F3B659F06760} = {05D473F0-3D16-42C0-8DFF-29231D418722}
+		{89CE0C6B-E552-484A-9A95-86C2EA81EEBB} = {88F2EBC4-B7B1-4C70-BE44-BE471E6612FA}
+		{DCB38E53-9A9D-4352-90AA-44785455DFA3} = {88F2EBC4-B7B1-4C70-BE44-BE471E6612FA}
+		{1AC04086-7A85-4E84-928F-D739C16B33A8} = {B26A2169-5203-4B19-8DCD-040F45F53866}
+		{AEAD84D9-50AF-48AA-8D26-5408AF239EEF} = {97A73A13-90C2-48A4-A053-4F8C9058A3CB}
+		{D5555A98-A3BA-473C-87C0-0D4662C932A6} = {05D473F0-3D16-42C0-8DFF-29231D418722}
+		{9FA9CA03-0CD5-4831-B44F-7003DE2FBA2D} = {05D473F0-3D16-42C0-8DFF-29231D418722}
 	EndGlobalSection
 EndGlobal

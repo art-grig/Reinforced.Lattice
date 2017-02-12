@@ -2,18 +2,34 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace Reinforced.Lattice.Configuration
 {
     internal class HashCalculator
     {
+#if NET45
         private readonly IReadOnlyCollection<PropertyDescription> _properties;
+#else
+        private readonly IEnumerable<PropertyDescription> _properties;
+#endif
+
         private readonly PropertyDescription[] _keyColumns;
         private readonly Type _rowType;
-        private static readonly CultureInfo UsCulture = CultureInfo.CreateSpecificCulture("en-US");
+#if NETCORE
+        private static readonly CultureInfo UsCulture = new CultureInfo("en-US");
+#else
+        private static readonly CultureInfo UsCulture =  CultureInfo.CreateSpecificCulture("en-US");
+#endif
 
-        public HashCalculator(IReadOnlyCollection<PropertyDescription> properties, string[] fieldsSet, Type rowType)
+        public HashCalculator(
+#if NET45
+            IReadOnlyCollection<PropertyDescription> properties, 
+#else
+            IEnumerable<PropertyDescription> properties,
+#endif
+            string[] fieldsSet, Type rowType)
         {
             _properties = properties;
             _rowType = rowType;
@@ -34,7 +50,7 @@ namespace Reinforced.Lattice.Configuration
         
 
 
-        #region Obtaining key
+#region Obtaining key
         public string GetKey(object obj)
         {
             StringBuilder sb = new StringBuilder();
@@ -53,7 +69,12 @@ namespace Reinforced.Lattice.Configuration
             if (value == null) return string.Empty;
             if (type.IsNullable()) type = type.GetArg();
             if (type.IsInteger()) return ConvertInteger(value);
+#if NETCORE
+            if (type.GetTypeInfo().IsEnum) return ConvertInteger(value);
+#else
+
             if (type.IsEnum) return ConvertInteger(value);
+#endif
             if (type.IsFloating()) return ConvertFloating(value);
             if (type == typeof(bool)) return ConvertBoolean(value);
             if (type == typeof(string)) return ConvertString(value);
@@ -101,9 +122,9 @@ namespace Reinforced.Lattice.Configuration
         }
 
 
-        #endregion
+#endregion
 
-        #region Key decryption
+#region Key decryption
 
         public object DecryptHash(string hash)
         {
@@ -156,7 +177,11 @@ namespace Reinforced.Lattice.Configuration
             if (nlbl) type = type.GetArg();
 
             if (type.IsInteger()) return DecryptInteger(value, type);
+#if NETCORE
+            if (type.GetTypeInfo().IsEnum) return DecryptEnum(value, type);
+#else
             if (type.IsEnum) return DecryptEnum(value, type);
+#endif
             if (type.IsFloating()) return DecryptFloating(value, type);
             if (type == typeof(bool)) return DecryptBoolean(value);
             if (type == typeof(string)) return DecryptString(value);
@@ -211,6 +236,6 @@ namespace Reinforced.Lattice.Configuration
             return value.Replace("\\\\", "\\").Replace("\\:", ":");
         }
 
-        #endregion
+#endregion
     }
 }

@@ -1,5 +1,8 @@
 ﻿using System;
+#if NETCORE
+#else
 using System.ComponentModel.DataAnnotations;
+#endif
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -61,24 +64,41 @@ namespace Reinforced.Lattice
 
     internal static class PropertyDescriptionExtensions
     {
+#if NET45
+#else
+        public static T GetCustomAttribute<T>(this MemberInfo pi) where T : Attribute
+        {
+            var attrs = pi.GetCustomAttributes(typeof(T), false);
+            if (attrs.Length == 0) return null;
+            return (T)attrs[0];
+        }
+#endif
         public static PropertyDescription Description(this PropertyInfo pi, bool autoTitle = false, bool firstCapitals = false)
         {
             var title = pi.Name;
+#if NETCORE
+#else
             var attr = pi.GetCustomAttribute<DisplayAttribute>();
             if (attr != null)
             {
                 if (!string.IsNullOrEmpty(attr.Name)) title = attr.Name;
-            }else if (autoTitle)
-            {
-                
             }
+            else if (autoTitle)
+            {
+
+            }
+#endif
+#if NET45
             return new PropertyDescription(pi.Name, pi.PropertyType, title, pi.GetValue, pi.SetValue, pi);
+#else
+            return new PropertyDescription(pi.Name, pi.PropertyType, title, (o) => pi.GetValue(o, null), (o, v) => pi.SetValue(o, v, null), pi);
+#endif
         }
 
         public static string PrettifyTitle(this string title, bool firstCapitals)
         {
             if (title.Contains(' ')) return title;
-            
+
             StringBuilder sb = new StringBuilder();
             sb.Append(title[0]);
             bool prevCapital = char.IsUpper(title[0]);

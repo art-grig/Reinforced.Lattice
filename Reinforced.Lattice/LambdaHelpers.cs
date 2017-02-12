@@ -88,7 +88,12 @@ namespace Reinforced.Lattice
         /// <returns>Lambda expression denoting c=>c.Property</returns>
         public static Expression MemberExpression<T>(string propertyName)
         {
-            var t = typeof(T).GetProperty(propertyName);
+
+#if NETCORE
+            var t = typeof(T).GetTypeInfo().GetProperty(propertyName);
+#else
+            var t = typeof(T).GetProperty(propertyName);          
+#endif
             var param = Expression.Parameter(t.DeclaringType);
             var mex = Expression.Property(param, t);
             var lmbd = Expression.Lambda(mex, param);
@@ -123,7 +128,12 @@ namespace Reinforced.Lattice
             MemberExpression mex = Expression.Property(pex, property);
             if (property.PropertyType.IsNullable())
             {
-                var val = property.PropertyType.GetProperty("Value");
+#if NETCORE
+                var val = property.PropertyType.GetTypeInfo().GetProperty("Value");
+#else
+                var val = property.PropertyType.GetProperty("Value");          
+#endif
+
                 mex = Expression.Property(mex, val);
             }
             BinaryExpression bex = Expression.MakeBinary(expressionType, mex, cex);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using Reinforced.Lattice.Configuration.Json;
 
 namespace Reinforced.Lattice.Configuration
@@ -23,11 +24,19 @@ namespace Reinforced.Lattice.Configuration
 
             if (columnConfiguration.IsNullable)
             {
+#if NETCORE
+                columnConfiguration.IsEnum = typeof(TColumn).GetTypeInfo().GetGenericArguments()[0].GetTypeInfo().IsEnum;
+#else
                 columnConfiguration.IsEnum = typeof(TColumn).GetGenericArguments()[0].IsEnum;
+#endif
             }
             else
             {
+#if NETCORE
+                columnConfiguration.IsEnum = typeof(TColumn).GetTypeInfo().IsEnum;
+#else
                 columnConfiguration.IsEnum = typeof(TColumn).IsEnum;
+#endif
             }
             ColumnConfiguration = columnConfiguration;
         }

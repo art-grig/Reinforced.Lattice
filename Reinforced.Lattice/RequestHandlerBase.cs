@@ -133,6 +133,7 @@ Btw, original message was: {0}", ex.Message),
             }
         }
 
+#if ASYNC
         /// <summary>
         /// Entirely handles request to table. This method will extract all needed data from ControllerContext. Not needed additional information.
         /// </summary>
@@ -161,7 +162,7 @@ Btw, original message was: {0}", ex.Message),
                 return ProduceError(ex);
             }
         }
-
+#endif
         private TResult ProduceError(Exception ex)
         {
             LatticeResponse ptr = new LatticeResponse();

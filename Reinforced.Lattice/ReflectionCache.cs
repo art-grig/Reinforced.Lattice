@@ -52,6 +52,21 @@ namespace Reinforced.Lattice
         static ReflectionCache()
         {
             QueryableType = typeof(Queryable);
+#if NETCORE
+            OrderByMethod = QueryableType.GetTypeInfo().GetMethods().Single(c => c.Name == "OrderBy" && c.GetParameters().Length == 2);
+            OrderByDescendingMethod = QueryableType.GetTypeInfo().GetMethods().Single(c => c.Name == "OrderByDescending" && c.GetParameters().Length == 2);
+            WhereMethod = QueryableType.GetTypeInfo().GetMethods().Where(c => c.Name == "Where")
+                .Single(c => 
+                c.GetParameters()[1].ParameterType.GetTypeInfo().GetGenericArguments()[0]
+                .GetTypeInfo().GetGenericArguments().Length == 2);
+            EnumerableType = typeof(Enumerable);
+            ContainsMethod =
+                EnumerableType.GetTypeInfo().GetMethods().Single(c => c.Name == "Contains" && c.GetParameters().Length == 2);
+            ThenByMethod = QueryableType.GetTypeInfo().GetMethods().Single(c => c.Name == "ThenBy" && c.GetParameters().Length == 2);
+            ThenByDescendingMethod = QueryableType.GetTypeInfo().GetMethods().Single(c => c.Name == "ThenByDescending" && c.GetParameters().Length == 2);
+            SelectMethod = QueryableType.GetTypeInfo().GetMethods().Where(c => c.Name == "Select" && c.GetParameters().Length == 2)
+                .Single(c => c.GetParameters()[1].ParameterType.GetTypeInfo().GetGenericArguments()[0].GetTypeInfo().GetGenericArguments().Length == 2);
+#else
             OrderByMethod = QueryableType.GetMethods().Single(c => c.Name == "OrderBy" && c.GetParameters().Length == 2);
             OrderByDescendingMethod = QueryableType.GetMethods().Single(c => c.Name == "OrderByDescending" && c.GetParameters().Length == 2);
             WhereMethod = QueryableType.GetMethods().Where(c => c.Name == "Where").Single(c => c.GetParameters()[1].ParameterType.GetGenericArguments()[0].GetGenericArguments().Length == 2);
@@ -61,6 +76,7 @@ namespace Reinforced.Lattice
             ThenByMethod = QueryableType.GetMethods().Single(c => c.Name == "ThenBy" && c.GetParameters().Length == 2);
             ThenByDescendingMethod = QueryableType.GetMethods().Single(c => c.Name == "ThenByDescending" && c.GetParameters().Length == 2);
             SelectMethod = QueryableType.GetMethods().Where(c => c.Name == "Select" && c.GetParameters().Length == 2).Single(c => c.GetParameters()[1].ParameterType.GetGenericArguments()[0].GetGenericArguments().Length == 2);
+#endif
         }
         private static readonly Dictionary<string, MethodInfo> _genericMethodsCache = new Dictionary<string, MethodInfo>();
         private static readonly Dictionary<Type, PropertyDescription[]> _propertiesCache = new Dictionary<Type, PropertyDescription[]>();
@@ -68,8 +84,14 @@ namespace Reinforced.Lattice
 
         private static List<PropertyDescription> ExtractProperties(Type t)
         {
+#if NETCORE
+            return (t.GetTypeInfo().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty |
+                                           BindingFlags.SetProperty | BindingFlags.FlattenHierarchy)
+                                           .OrderByDescending(c => c.DeclaringType != t).Select(c => c.Description()).ToList());
+#else
             return (t.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty |
                                             BindingFlags.SetProperty | BindingFlags.FlattenHierarchy).OrderByDescending(c=>c.DeclaringType!=t).Select(c=>c.Description()).ToList());
+#endif
         }
 
 
@@ -107,14 +129,25 @@ namespace Reinforced.Lattice
         /// <returns>Parametrized method info</returns>
         private static MethodInfo GetCachedMethod(MethodInfo method, params Type[] typeParameters)
         {
-            if (typeParameters.Any(c => c.IsGenericType)) //do not cache methods for generic type defs
+            if (
+#if NETCORE
+                typeParameters.Any(c => c.GetTypeInfo().IsGenericType)
+#else
+                typeParameters.Any(c => c.IsGenericType)
+#endif
+                ) //do not cache methods for generic type defs
             {
                 return method.MakeGenericMethod(typeParameters);
             }
             StringBuilder sb = new StringBuilder(method.Name);
             foreach (var typeParameter in typeParameters)
             {
+
+#if NETCORE
+                sb.Append(typeParameter.GetTypeInfo().GUID);
+#else
                 sb.Append(typeParameter.GUID);
+#endif
             }
             var genericParamsKey = sb.ToString();
             if (!_genericMethodsCache.ContainsKey(genericParamsKey))

@@ -30,9 +30,11 @@ namespace Reinforced.Lattice.Processing
             return result;
         }
 
+#if ASYNC
         protected override async Task<LatticeResponse> HandleAsync(LatticeData data)
         {
             return await Task.FromResult(Handle(data));
         }
+#endif
     }
 }

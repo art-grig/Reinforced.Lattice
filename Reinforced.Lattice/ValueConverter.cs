@@ -21,7 +21,12 @@ namespace Reinforced.Lattice
         /// <returns>True if type is nullable value type. False otherwise</returns>
         public static bool IsNullable(this Type t)
         {
+
+#if NETCORE
+            return (t.GetTypeInfo().IsGenericType && (t.GetGenericTypeDefinition() == typeof(Nullable<>)));
+#else
             return (t.IsGenericType && (t.GetGenericTypeDefinition() == typeof(Nullable<>)));
+#endif
         }
 
         internal static bool IsInteger(this Type t)
@@ -50,7 +55,12 @@ namespace Reinforced.Lattice
         /// <returns>First type argument</returns>
         public static Type GetArg(this Type t)
         {
-            return t.GetGenericArguments()[0];
+
+#if NETCORE
+            return t.GetTypeInfo().GetGenericArguments()[0];
+#else
+            return t.GetGenericArguments()[0];    
+#endif
         }
 
         public static TTarget Convert<TTarget>(string src)
@@ -61,7 +71,7 @@ namespace Reinforced.Lattice
         public static object Convert(string src, Type targetType)
         {
             if (String.IsNullOrEmpty(src)) return null;
-            
+
             if (targetType.IsNullable())
             {
                 if (src == NotPresentValue) return null;
@@ -77,9 +87,16 @@ namespace Reinforced.Lattice
             {
                 return Guid.Parse(src);
             }
-            
 
-            if (targetType.IsEnum)
+
+            if (
+
+#if NETCORE
+                          targetType.GetTypeInfo().IsEnum
+#else
+                targetType.IsEnum          
+#endif
+                )
             {
                 return Enum.Parse(targetType, src);
             }
@@ -118,7 +135,7 @@ namespace Reinforced.Lattice
                 object arg = MapValue(src, tw, conf);
                 return Activator.CreateInstance(targetType, arg);
             }
-
+            
             var converter = TypeDescriptor.GetConverter(src.GetType());
             if (converter.CanConvertTo(targetType))
             {
@@ -137,9 +154,17 @@ namespace Reinforced.Lattice
             if (!objType.IsNullable()) return nullable;
             if (!_nullableValueProperties.ContainsKey(objType))
             {
+#if NETCORE
+                _nullableValueProperties[objType] = objType.GetTypeInfo().GetProperty("Value");
+#else
                 _nullableValueProperties[objType] = objType.GetProperty("Value");
+#endif
             }
+#if NET45
             return _nullableValueProperties[objType].GetValue(nullable);
+#else
+            return _nullableValueProperties[objType].GetValue(nullable, null);
+#endif
         }
 
         /// <summary>

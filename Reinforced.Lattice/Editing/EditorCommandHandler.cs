@@ -40,6 +40,7 @@ namespace Reinforced.Lattice.Editing
             return update;
         }
 
+#if NET45
         protected override async Task<TableAdjustment> HandleAsync(LatticeData data)
         {
             LatticeData<TSourceData, TTargetData> typedData = new LatticeData<TSourceData, TTargetData>(data);
@@ -50,5 +51,7 @@ namespace Reinforced.Lattice.Editing
             else result = _handlerMethod(typedData, edited);
             return result;
         }
+#endif
+
     }
 }
