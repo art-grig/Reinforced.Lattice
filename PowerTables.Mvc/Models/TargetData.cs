@@ -1,5 +1,0 @@
-﻿namespace PowerTables.Mvc.Models
-{
-   
-
-}

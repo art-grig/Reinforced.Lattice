@@ -1,0 +1,26 @@
+﻿@using Reinforced.Lattice.Mvc
+@using Reinforced.Lattice.Templates
+@model Reinforced.Lattice.Configuration.Configurator<DateTime, Reinforced.Lattice.DebugSink.Controllers.PlanningRow>
+@{
+    Layout = "~/Views/Shared/TutorialsLayout.cshtml";
+    @(Model.Column(c=>c.Day)
+    .RazorSwitch("{@}",x=>x
+        .When("10",@<span style="background-color:red">{Day}</span>)
+        .When("20",@<span style="background-color:green">{Day}</span>)
+        .Default(@<span style="background-color:blue">{Day}</span>)
+        ))
+
+}
+
+@section Result{
+    <div class="container-fluid">
+        <br />
+        <div id="mytable"></div>
+    </div>
+}
+
+@section Scripts {
+    @{ Html.RenderDefaultTemplates(); }
+
+    @Model.InitializationScript("mytable", "window.$$table")
+}

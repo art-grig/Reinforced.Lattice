@@ -1,0 +1,38 @@
+﻿<script type="text/javascript">
+    @*
+        It is very important for datepicker do not to overlap DOM events on text input
+        bootstrap-datepicker does, so we are using such hack
+    *@
+    var createDatePicker = function(element,isDateNullable) {
+        $(element)
+            .datepicker({ format: 'dd MM yyyy', weekStart: 1 })
+            .on('changeDate', function() {
+                Reinforced.Lattice.Master.fireDomEvent('keyup', element);
+            });
+        if (!isDateNullable) {
+            $(element).attr('readonly', 'readonly');
+        }
+    }
+
+    var putDateToDatepicker = function(element, date) {
+        $(element).datepicker('update', date);
+    }
+
+    var getDateFromDatepicker = function(element, date) {
+        return $(element).datepicker('getDate');
+    }
+
+    var destroyDatepicker = function(e) {
+        $(e).datepicker('remove');
+    }
+
+    var showModal = function(element) {
+        $('#confirmationModal').modal('show');
+    }
+
+    var hideModal = function (element) {
+        $('#confirmationModal').modal('hide');
+    }
+</script>
+
+<link rel="stylesheet" href="~/Content/bootstrap-datepicker3.min.css"/>

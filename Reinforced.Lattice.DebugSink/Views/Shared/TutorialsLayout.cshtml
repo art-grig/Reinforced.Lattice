@@ -1,0 +1,369 @@
+﻿@using Reinforced.Lattice.DebugSink
+@using Reinforced.Lattice.DebugSink.Models
+@using Reinforced.Lattice.DebugSink.Models.Tutorial
+@using Reinforced.Lattice.Templates
+@using Reinforced.Lattice.Templates.BuiltIn
+@using Reinforced.Lattice.Templates.Editing.Form
+@using Reinforced.Lattice.Templates.Expressions
+
+
+<!DOCTYPE html>
+@{
+    List<TutorialAttribute> tutorials = ViewBag.Tutorials;
+    TutorialAttribute cTut = ViewBag.CurrentTutorial;
+    if (cTut == null)
+    {
+        cTut = new TutorialAttribute("Welcome");
+    }
+    Dictionary<Code, string> additionaCode = ViewBag.AdditionalCode;
+    if (additionaCode == null)
+    {
+        additionaCode = new Dictionary<Code, string>();
+    }
+}
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reinforced.Lattice | @cTut.TutorialTitle</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/jquery")
+    <link rel="stylesheet" href="~/Content/prism.css" />
+    <script type="text/javascript" src="~/Scripts/prism.js"></script>
+    <script type="text/javascript" src="~/Scripts/reinforced.lattice.js"></script>
+    @{ Html.RenderPartial("Datepicker"); }
+
+    <script type="text/javascript">
+        var windowObj = {
+            val: 1,
+            elements: {
+
+            },
+            callback: function (e, handler) {
+                alert(e + ' created. This value: ' + this.val);
+            }
+        }
+    </script>
+    <style type="text/css">
+        [data-track="h-Edit"] {
+            width: 135px;
+        }
+        [data-track="h-IsPaid"] {
+            width: 90px;
+        }
+        [data-track="h-_checkboxify"] {
+            width: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("Reinforced.Lattice Tutorial", "Index", "Tutorial", new { area = "" }, new { @class = "navbar-brand" })
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav"></ul>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid body-content">
+        <br />
+        <div class="row">
+            <div class="col-md-2">
+                <ul class="list-group">
+                    @foreach (var t in tutorials)
+                    {
+                        <a href="@Url.Action(t.TutorialId,"Tutorial")" class="list-group-item @(cTut.TutorialId==t.TutorialId?"active":string.Empty)">@(t.TutorialNumber). @t.TutorialTitle</a>
+                    }
+                </ul>
+            </div>
+            <div class="col-md-10">
+
+                <div class="container-fluid">
+                    <h2>@cTut.TutorialTitle</h2>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <ul class="nav nav-tabs" role="tablist">
+                                <li role="presentation" class="active"><a href="#_result" aria-controls="_result" role="tab" data-toggle="tab">Sample</a></li>
+                                <li role="presentation"><a href="#_code" aria-controls="_code" role="tab" data-toggle="tab">Table configuration</a></li>
+                                @foreach (var c in additionaCode)
+                                {
+                                    <li role="presentation"><a href="#_@(c.Key.Id)" aria-controls="_@(c.Key.Id)" role="tab" data-toggle="tab">@c.Key.File</a></li>
+                                }
+                            </ul>
+                            <div class="tab-content">
+                                <div role="tabpanel" class="tab-pane active" id="_result">
+                                    @RenderSection("Result")
+                                </div>
+                                <div role="tabpanel" class="tab-pane" id="_code">
+                                    <pre>
+                                    <code class="language-csharp">
+@ViewBag.Code
+</code>
+                                    </pre>
+                                </div>
+                                @foreach (var c in additionaCode)
+                                {
+                                    <div role="tabpanel" class="tab-pane" id="_@(c.Key.Id)">
+                                        <pre>
+                                        <code class="language-@(c.Key.Language)">
+@c.Value
+</code>
+                                    </pre>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" tabindex="-1" role="dialog" id="confirmationModal">
+        <div class="modal-dialog" id="confirmationContent">
+
+        </div>
+    </div>
+
+
+
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("Scripts", required: false)
+    @using (var t = this.LatticeAdditionalTemplates())
+    {
+        using (var editForm = t.Plugin.Edit_Form("simpleEditForm"))
+        {
+            <div class="modal-content" @t.Callback("showModal") @t.DestroyCallback("hideModal")>
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">
+                        @using (editForm.If(x => x.DataObject["Id"] == (object)1))
+                        {
+                            <text>Create new object</text>
+                            @editForm.Else()
+                            <text>Edit object #@editForm.Value(x=>x.DataObject["Id"])</text>
+                        }
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <fieldset class="form form-horizontal">
+                        @editForm.Editors()
+                    </fieldset>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" @editForm.BindReject("click")>Cancel</button>
+                    <button type="button" class="btn btn-primary" @editForm.BindCommit("click")>Save</button>
+                </div>
+            </div>
+        }
+        using (var conf1 = t.Plugin.Confirmation("simpleConfirmation"))
+        {
+            <div class="modal-content" @t.Callback("showModal") @t.DestroyCallback("hideModal")>
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Confirmation</h4>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        Are you sure want to perform action 1?
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" @conf1.BindDismiss("click")>Nope</button>
+                    <button type="button" class="btn btn-primary" @conf1.BindConfirm("click")>Yep</button>
+                </div>
+            </div>
+        }
+
+        using (var conf1 = t.Plugin.Confirmation<Row>("confirmationSelection"))
+        {
+            <div class="modal-content" @t.Callback("showModal") @t.DestroyCallback("hideModal")>
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Confirmation</h4>
+                </div>
+                <div class="modal-body" @t.Callback("windowObj.callback", "o")>
+                    <p>
+                        Are you sure want to perform action 1 on @conf1.Value(c => c.Selection.Length) items?
+                        <br />
+                        Selected Items: <br />
+                        @using (var item = conf1.Each(c => c.Selection))
+                        {
+                            @item.Value(c => c.Name)
+                            <br />
+                        }
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" @conf1.BindDismiss("click")>Nope</button>
+                    <button type="button" class="btn btn-primary" @conf1.BindConfirm("click")>Yes</button>
+                </div>
+            </div>
+        }
+
+        using (var conf1 = t.Plugin.Confirmation<Row, SimpleConfirmationModel>("confirmationSelectionForm"))
+        {
+            <div class="modal-content" @t.Callback("showModal") @t.DestroyCallback("hideModal")>
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Confirmation</h4>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        Are you sure want to perform action 1 on @conf1.Value(c => c.Selection.Length) items?
+                        <br /><br />
+                        <fieldset class="form-horizontal">
+                            <div class="form-group">
+                                <label for="ToyName" class="col-sm-2 control-label">Name</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="ToyName" placeholder="Name" name="ToyName">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="ToyType" class="col-sm-2 control-label">Toy type</label>
+                                <div class="col-sm-10">
+                                    @Html.DropDownList("ToyType", EnumHelper.GetSelectList(typeof(ToyType)), new { @class = "form-control" })
+                                </div>
+                            </div>
+                        </fieldset>
+                        <script type="text/javascript">
+                            alert('Javascript supported!');
+                        </script>
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" @conf1.BindDismiss("click")>Nope</button>
+                    <button type="button" class="btn btn-primary" @conf1.BindConfirm("click")>Yes</button>
+                </div>
+            </div>
+        }
+
+        using (var conf1 = t.Plugin.Confirmation<Row>("removalConfirmation"))
+        {
+            <div class="modal-content" @t.Callback("showModal") @t.DestroyCallback("hideModal")>
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">@conf1.TemplatePiece("Name") removal</h4>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        Are you sure want to remove @conf1.Value(c => c.Selection.Length) @conf1.TemplatePiece("NamePlural")?
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" @conf1.BindDismiss("click")>Nope</button>
+                    <button type="button" class="btn btn-primary" @conf1.BindConfirm("click")>Yes</button>
+                </div>
+            </div>
+        }
+
+        using (var conf1 = t.Plugin.Confirmation<Row>("commentConfirmation"))
+        {
+            <div class="modal-content" @t.Callback("showModal") @t.DestroyCallback("hideModal")>
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Leave comment for @conf1.Value(c => c.Subject.Name)</h4>
+                </div>
+                <div class="modal-body">
+                    <fieldset class="form-horizontal">
+                        @conf1.Editors()
+                    </fieldset>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" @conf1.BindDismiss("click")>Nope</button>
+                    <button type="button" class="btn btn-primary" @conf1.BindConfirm("click")>Yes</button>
+                </div>
+            </div>
+        }
+
+        using (var conf1 = t.Plugin.Confirmation<Row>("commentsView"))
+        {
+            <div class="modal-content" @t.Callback("showModal") @t.DestroyCallback("hideModal")>
+                <div class="modal-body">
+                    <p class="text-center" style="display: none" @conf1.WhenContentLoading(c => c.Style("display", "inline"))>
+                        <h1><span class="glyphicon glyphicon-refresh"></span> Loading...</h1>
+                    </p>
+                    <div @conf1.WhenContentLoading(c => c.Style("display", "none")) @conf1.ThisIsContentContainer()></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" @conf1.BindDismiss("click")>Ok</button>
+                </div>
+            </div>
+        }
+
+        using (var conf1 = t.Plugin.Confirmation<Row>("commentsAndFeedback"))
+        {
+            <div class="modal-content" @t.Callback("showModal") @t.DestroyCallback("hideModal")>
+                <div class="modal-body" >
+                    <fieldset class="form-horizontal">
+                        @conf1.Editors()
+                    </fieldset>
+                    @using (conf1.If(x => x.Subject.Price > 100 && x.Subject.Price < 300))
+                    {
+                        <span>Not valid price</span>
+                    }
+                    <p class="text-center" style="display: none" @conf1.WhenContentLoading(c => c.Style("display", "inline"))>
+                        <h1>
+                            <span class="glyphicon glyphicon-refresh"></span> Loading...
+                        </h1>
+                    </p>
+                    <div @conf1.WhenContentLoading(c => c.Style("display", "none")) @conf1.ThisIsContentContainer()></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" @conf1.BindDismiss("click")>Cancel</button>
+                    <button type="button" class="btn btn-primary" @conf1.BindConfirm("click")>Confirm</button>
+                </div>
+            </div>
+        }
+
+        using (var conf1 = t.Plugin.Confirmation<Row>("detailsTest"))
+        {
+            <div class="modal-content" @t.Callback("showModal") @t.DestroyCallback("hideModal")>
+                <div class="modal-body">
+                    <fieldset class="form-horizontal">
+                        @conf1.Editors()
+                    </fieldset>
+                    <p class="text-center" style="display: none" @conf1.WhenContentLoading(c => c.Style("display", "inline"))>
+                        <h1>
+                            <span class="glyphicon glyphicon-refresh"></span> Loading...
+                        </h1>
+                    </p>
+                    <div @conf1.WhenContentLoading(c => c.Style("display", "none")) @conf1.ThisIsDetailsContainer()>
+                        <p class="text-center"><i>Please change price limits to get results</i></p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" @conf1.BindDismiss("click")>Cancel</button>
+                    <button type="button" class="btn btn-primary" @conf1.BindConfirm("click")>Confirm</button>
+                </div>
+            </div>
+        }
+
+        using (var w = t.Plugin.Details<Row, DetailsModel, PriceRange>("toysDetails"))
+        {
+            <table class="table table-striped table-bordered">
+                <tbody>
+                    <tr>
+                        <td><b>Toy Name</b></td>
+                        <td>@w.Value(c => c.Subject.Name)</td>
+                    </tr>
+                    <tr>
+                        <td><b>Average Price</b></td>
+                        <td>@w.Value(c => c.Details.AveragePrice)</td>
+                    </tr>
+                    <tr><td><b>Items Count</b></td><td>@w.Value(c => c.Details.ItemsCount)</td></tr>
+                </tbody>
+            </table>
+        }
+    }
+
+</body>
+</html>
