@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reinforced.Lattice.Script",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reinforced.Lattice.Mvc", "Reinforced.Lattice.Mvc\Reinforced.Lattice.Mvc.csproj", "{1AC04086-7A85-4E84-928F-D739C16B33A8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reinforced.Lattice.Templates", "Reinforced.Lattice.Templating\Reinforced.Lattice.Templates.csproj", "{AEAD84D9-50AF-48AA-8D26-5408AF239EEF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reinforced.Lattice.Templates", "Reinforced.Lattice.Templates\Reinforced.Lattice.Templates.csproj", "{AEAD84D9-50AF-48AA-8D26-5408AF239EEF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
