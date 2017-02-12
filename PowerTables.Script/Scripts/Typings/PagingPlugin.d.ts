@@ -1,4 +1,4 @@
-﻿declare module PowerTables.Plugins {
+﻿declare module Reinforced.Lattice.Plugins {
     /**
      * Paging plugin external interface
      */

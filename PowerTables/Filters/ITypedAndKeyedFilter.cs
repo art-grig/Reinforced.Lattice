@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace PowerTables.Filters
+namespace Reinforced.Lattice.Filters
 {
     /// <summary>
     /// Represents typed filter with functions for applying filter and extracting filter parameters

@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using PowerTables;
 
-namespace Reinforced.Lattice.Templating.Expressions.Visiting
+namespace Reinforced.Lattice.Templates.Expressions.Visiting
 {
     class JsExpressionVisitor : ExpressionVisitor
     {

@@ -1,4 +1,4 @@
-﻿namespace PowerTables.Plugins
+﻿namespace Reinforced.Lattice.Plugins
 {
     public static class PluginConfigurationExtensions
     {

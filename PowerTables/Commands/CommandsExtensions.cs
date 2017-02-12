@@ -1,12 +1,12 @@
 ﻿using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using PowerTables.CellTemplating;
-using PowerTables.Configuration;
-using PowerTables.Editing;
-using PowerTables.Plugins.Formwatch;
+using Reinforced.Lattice.CellTemplating;
+using Reinforced.Lattice.Configuration;
+using Reinforced.Lattice.Editing;
+using Reinforced.Lattice.Plugins.Formwatch;
 
-namespace PowerTables.Commands
+namespace Reinforced.Lattice.Commands
 {
     public static class CommandsExtensions
     {

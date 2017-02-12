@@ -1,4 +1,4 @@
-﻿namespace PowerTables.Editing
+﻿namespace Reinforced.Lattice.Editing
 {
     public interface INongenericEditFieldUsage
     {

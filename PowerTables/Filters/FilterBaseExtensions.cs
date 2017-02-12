@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace PowerTables.Filters
+namespace Reinforced.Lattice.Filters
 {
     /// <summary>
     /// Common extensions for flexible customization of all filters
@@ -17,7 +17,7 @@ namespace PowerTables.Filters
         /// <param name="extractFunction">Function that will be used to convert client's string value for filter to <typeparamref name="TFilteringKey"/></param>
         /// <returns></returns>
         public static FilterBase<TSourceData, TFilteringKey> Value<TSourceData, TFilteringKey>(
-            this FilterBase<TSourceData, TFilteringKey> columnFilter, Func<PowerTables.Query, Tuple<bool,TFilteringKey>> extractFunction)
+            this FilterBase<TSourceData, TFilteringKey> columnFilter, Func<Reinforced.Lattice.Query, Tuple<bool,TFilteringKey>> extractFunction)
         {
             columnFilter.ExtractFunction = extractFunction;
             return columnFilter;

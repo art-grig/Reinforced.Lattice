@@ -1,4 +1,4 @@
-﻿namespace Reinforced.Lattice.Templating
+﻿namespace Reinforced.Lattice.Templates
 {
     /// <summary>
     /// ViewModel for All Lattice' templates

@@ -1,4 +1,4 @@
-﻿namespace PowerTables.Filters
+﻿namespace Reinforced.Lattice.Filters
 {
     /// <summary>
     /// Filter that is attached to specified column

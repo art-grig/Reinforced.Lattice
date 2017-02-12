@@ -1,9 +1,9 @@
 ﻿using System;
-using PowerTables.CellTemplating;
-using PowerTables.Configuration;
-using PowerTables.Configuration.Json;
+using Reinforced.Lattice.CellTemplating;
+using Reinforced.Lattice.Configuration;
+using Reinforced.Lattice.Configuration.Json;
 
-namespace PowerTables.Editing.Cells
+namespace Reinforced.Lattice.Editing.Cells
 {
     public static class CellsEditingExtensions
     {

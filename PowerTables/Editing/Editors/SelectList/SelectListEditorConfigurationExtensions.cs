@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Newtonsoft.Json.Linq;
-using PowerTables.CellTemplating;
+using Reinforced.Lattice.CellTemplating;
 
-namespace PowerTables.Editing.Editors.SelectList
+namespace Reinforced.Lattice.Editing.Editors.SelectList
 {
     public static class SelectListUiConfigurationExtensions
     {

@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using PowerTables.Configuration;
-using PowerTables.Configuration.Json;
-using PowerTables.Filters.Select;
-using PowerTables.Plugins;
+using Reinforced.Lattice.Configuration;
+using Reinforced.Lattice.Configuration.Json;
+using Reinforced.Lattice.Filters.Select;
+using Reinforced.Lattice.Plugins;
 
-namespace PowerTables.Filters.Multi
+namespace Reinforced.Lattice.Filters.Multi
 {
     public static class MultiFilterExtensions
     {

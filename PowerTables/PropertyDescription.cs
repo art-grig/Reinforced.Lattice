@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace PowerTables
+namespace Reinforced.Lattice
 {
     /// <summary>
     /// Intermediate proxy for describing property, reflecting column

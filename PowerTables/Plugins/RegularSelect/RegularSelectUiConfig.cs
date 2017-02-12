@@ -1,4 +1,4 @@
-﻿namespace PowerTables.Plugins.RegularSelect
+﻿namespace Reinforced.Lattice.Plugins.RegularSelect
 {
     public class RegularSelectUiConfig
     {

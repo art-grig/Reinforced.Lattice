@@ -1,4 +1,4 @@
-﻿declare module PowerTables.Plugins.Limit {
+﻿declare module Reinforced.Lattice.Plugins.Limit {
     /**
      * Limit plugin interface
      */

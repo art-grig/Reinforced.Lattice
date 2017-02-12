@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace Reinforced.Lattice.Templating.Expressions
+namespace Reinforced.Lattice.Templates.Expressions
 {
     public class ParametrizedCodeBlock<T>: CodeBlock, IModelProvider<T>, IProvidesEventsBinding
     {

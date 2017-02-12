@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 
 
-namespace PowerTables
+namespace Reinforced.Lattice
 {
     /// <summary>
     /// Set of helper reflection methods

@@ -1,6 +1,6 @@
-﻿using Reinforced.Lattice.Templating.Compilation;
+﻿using Reinforced.Lattice.Templates.Compilation;
 
-namespace Reinforced.Lattice.Templating.Plugins.Loading
+namespace Reinforced.Lattice.Templates.Plugins.Loading
 {
     public class LoadingPluginTemplateRegion : PluginTemplateRegion
     {

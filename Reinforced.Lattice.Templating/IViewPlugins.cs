@@ -1,4 +1,4 @@
-﻿namespace Reinforced.Lattice.Templating
+﻿namespace Reinforced.Lattice.Templates
 {
     /// <summary>
     /// Views plugins classifier

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 
-namespace PowerTables.Editing.Editors.SelectList
+namespace Reinforced.Lattice.Editing.Editors.SelectList
 {
     public class SelectListEditorUiConfig : EditFieldUiConfigBase
     {

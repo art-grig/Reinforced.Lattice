@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 
 
-namespace PowerTables.Plugins.Total
+namespace Reinforced.Lattice.Plugins.Total
 {
     /// <summary>
     /// Additional data that will be used to calculate totals

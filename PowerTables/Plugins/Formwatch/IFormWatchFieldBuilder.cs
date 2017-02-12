@@ -1,4 +1,4 @@
-﻿namespace PowerTables.Plugins.Formwatch
+﻿namespace Reinforced.Lattice.Plugins.Formwatch
 {
     public interface IFormWatchFieldBuilder
     {

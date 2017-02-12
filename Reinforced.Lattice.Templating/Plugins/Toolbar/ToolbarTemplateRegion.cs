@@ -1,8 +1,8 @@
-﻿using PowerTables.Plugins.Toolbar;
-using Reinforced.Lattice.Templating.Compilation;
-using Reinforced.Lattice.Templating.Expressions;
+﻿using Reinforced.Lattice.Plugins.Toolbar;
+using Reinforced.Lattice.Templates.Compilation;
+using Reinforced.Lattice.Templates.Expressions;
 
-namespace Reinforced.Lattice.Templating.Plugins.Toolbar
+namespace Reinforced.Lattice.Templates.Plugins.Toolbar
 {
     public class ToolbarTemplateRegion : PluginTemplateRegion, IModelProvider<IToolbarViewModel>
     {

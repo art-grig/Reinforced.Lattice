@@ -1,5 +1,5 @@
 ﻿
-declare module PowerTables.Plugins {
+declare module Reinforced.Lattice.Plugins {
     export interface ICheckboxifyPlugin {
         selectByRowIndex(rowIndex: number): void;
         getSelection(): string[];
@@ -8,7 +8,7 @@ declare module PowerTables.Plugins {
     
 }
 /*
-declare module PowerTables {
+declare module Reinforced.Lattice {
     interface EventsService {
         SelectionChanged: TableEvent<string[]>;
     }    

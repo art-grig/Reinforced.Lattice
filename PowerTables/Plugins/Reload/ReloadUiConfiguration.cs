@@ -1,4 +1,4 @@
-﻿namespace PowerTables.Plugins.Reload
+﻿namespace Reinforced.Lattice.Plugins.Reload
 {
     /// <summary>
     /// Client configuration for Reload plugin

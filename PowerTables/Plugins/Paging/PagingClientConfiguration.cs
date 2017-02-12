@@ -1,4 +1,4 @@
-﻿namespace PowerTables.Plugins.Paging
+﻿namespace Reinforced.Lattice.Plugins.Paging
 {
     /// <summary>
     /// Client configuration for Paging plugin. 

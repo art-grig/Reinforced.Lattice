@@ -1,4 +1,4 @@
-﻿namespace PowerTables.Configuration.Json
+﻿namespace Reinforced.Lattice.Configuration.Json
 {
     public class PartitionConfiguration
     {

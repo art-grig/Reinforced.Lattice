@@ -1,8 +1,8 @@
 ﻿using System;
 using Newtonsoft.Json.Linq;
-using PowerTables.CellTemplating;
+using Reinforced.Lattice.CellTemplating;
 
-namespace PowerTables.Configuration
+namespace Reinforced.Lattice.Configuration
 {
     public static class ColumnConfiguratorExtensions
     {

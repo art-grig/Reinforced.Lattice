@@ -1,8 +1,8 @@
 ﻿using System;
-using PowerTables.Configuration;
-using PowerTables.Configuration.Json;
+using Reinforced.Lattice.Configuration;
+using Reinforced.Lattice.Configuration.Json;
 
-namespace PowerTables.Plugins.Limit
+namespace Reinforced.Lattice.Plugins.Limit
 {
     /// <summary>
     /// Extensions for limit plugin

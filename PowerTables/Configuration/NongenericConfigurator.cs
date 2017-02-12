@@ -6,11 +6,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Newtonsoft.Json;
-using PowerTables.Configuration.Json;
-using PowerTables.Filters;
-using PowerTables.Processing;
+using Reinforced.Lattice.Configuration.Json;
+using Reinforced.Lattice.Filters;
+using Reinforced.Lattice.Processing;
 
-namespace PowerTables.Configuration
+namespace Reinforced.Lattice.Configuration
 {
     public abstract class NongenericConfigurator : IConfigurator
     {

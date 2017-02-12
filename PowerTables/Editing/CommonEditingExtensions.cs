@@ -1,7 +1,7 @@
 ﻿using System;
-using PowerTables.Configuration;
+using Reinforced.Lattice.Configuration;
 
-namespace PowerTables.Editing
+namespace Reinforced.Lattice.Editing
 {
     public static class CommonEditingExtensions
     {

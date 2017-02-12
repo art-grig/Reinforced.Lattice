@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
-using PowerTables.Configuration;
-using PowerTables.Configuration.Json;
-using PowerTables.Filters.Value;
-using PowerTables.Plugins;
+using Reinforced.Lattice.Configuration;
+using Reinforced.Lattice.Configuration.Json;
+using Reinforced.Lattice.Filters.Value;
+using Reinforced.Lattice.Plugins;
 
-namespace PowerTables.Filters.Select
+namespace Reinforced.Lattice.Filters.Select
 {
     public static class SelectFilterExtensions
     {

@@ -1,4 +1,4 @@
-﻿namespace Reinforced.Lattice.Templating.Plugins.LoadingOverlap
+﻿namespace Reinforced.Lattice.Templates.Plugins.LoadingOverlap
 {
     public class LoadingOverlapTemplatesRegion : PluginTemplateRegion
     {

@@ -1,7 +1,7 @@
 ﻿using System;
-using Reinforced.Lattice.Templating.Compilation;
+using Reinforced.Lattice.Templates.Compilation;
 
-namespace Reinforced.Lattice.Templating.Plugins.Reload
+namespace Reinforced.Lattice.Templates.Plugins.Reload
 {
     public class ReloadTemplateRegion : PluginTemplateRegion, IProvidesVisualState
     {

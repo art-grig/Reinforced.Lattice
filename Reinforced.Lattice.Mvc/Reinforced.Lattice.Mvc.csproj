@@ -88,9 +88,9 @@
     <Compile Include="TemplateListExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PowerTables\PowerTables.csproj">
+    <ProjectReference Include="..\PowerTables\Reinforced.Lattice.csproj">
       <Project>{2E931FD3-EFE9-42D5-8D90-F3B659F06760}</Project>
-      <Name>PowerTables</Name>
+      <Name>Reinforced.Lattice</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

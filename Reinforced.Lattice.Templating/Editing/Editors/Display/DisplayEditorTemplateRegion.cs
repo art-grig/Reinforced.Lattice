@@ -1,6 +1,6 @@
-﻿using Reinforced.Lattice.Templating.Compilation;
+﻿using Reinforced.Lattice.Templates.Compilation;
 
-namespace Reinforced.Lattice.Templating.Editing.Editors.Display
+namespace Reinforced.Lattice.Templates.Editing.Editors.Display
 {
     public class DisplayEditorTemplateRegion<T> : CellEditorTemplateRegionBase<ICellEditorViewModel<T>>
     {

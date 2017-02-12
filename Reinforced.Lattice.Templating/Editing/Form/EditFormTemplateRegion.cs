@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Linq.Expressions;
-using PowerTables;
-using Reinforced.Lattice.Templating.Compilation;
-using Reinforced.Lattice.Templating.Expressions;
+using Reinforced.Lattice.Templates.Compilation;
+using Reinforced.Lattice.Templates.Expressions;
 
-namespace Reinforced.Lattice.Templating.Editing.Form
+namespace Reinforced.Lattice.Templates.Editing.Form
 {
     public class EditFormTemplateRegion<T> : PluginTemplateRegion, IModelProvider<IEditFormModel<T>>
     {

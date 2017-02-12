@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace PowerTables.Editing
+namespace Reinforced.Lattice.Editing
 {
     public static class EditCommandHandlerExtensions
     {

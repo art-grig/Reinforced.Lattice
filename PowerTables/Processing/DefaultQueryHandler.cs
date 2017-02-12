@@ -1,7 +1,7 @@
 ﻿using System.Linq;
-using PowerTables.Configuration;
+using Reinforced.Lattice.Configuration;
 
-namespace PowerTables.Processing
+namespace Reinforced.Lattice.Processing
 {
     /// <summary>
     /// Default query handler implementation. Used if no IQueryHandler provided to tables handler

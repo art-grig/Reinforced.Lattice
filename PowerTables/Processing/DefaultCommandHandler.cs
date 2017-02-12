@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace PowerTables.Processing
+namespace Reinforced.Lattice.Processing
 {
     /// <summary>
     /// Default implementation of command handler. 

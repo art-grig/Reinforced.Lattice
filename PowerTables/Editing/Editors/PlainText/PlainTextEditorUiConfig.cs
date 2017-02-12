@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 
-namespace PowerTables.Editing.Editors.PlainText
+namespace Reinforced.Lattice.Editing.Editors.PlainText
 {
     public class PlainTextEditorUiConfig : EditFieldUiConfigBase
     {

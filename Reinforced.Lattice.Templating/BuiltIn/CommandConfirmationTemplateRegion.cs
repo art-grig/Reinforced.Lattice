@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using PowerTables;
-using Reinforced.Lattice.Templating.Compilation;
-using Reinforced.Lattice.Templating.Expressions;
+using Reinforced.Lattice.Templates.Compilation;
+using Reinforced.Lattice.Templates.Expressions;
 
-namespace Reinforced.Lattice.Templating.BuiltIn
+namespace Reinforced.Lattice.Templates.BuiltIn
 {
     public class CommandConfirmationTemplateRegion<TRow, TConfirmation> : PluginTemplateRegion, IModelProvider<IConfirmationViewModel<TRow, TConfirmation>>,
         IProvidesDatepicker, IProvidesVisualState, IConfirmationWindow<TConfirmation>

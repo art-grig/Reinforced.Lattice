@@ -1,8 +1,8 @@
 ﻿using System;
-using PowerTables.Configuration;
-using PowerTables.Processing;
+using Reinforced.Lattice.Configuration;
+using Reinforced.Lattice.Processing;
 
-namespace PowerTables.Plugins.ResponseInfo
+namespace Reinforced.Lattice.Plugins.ResponseInfo
 {
     /// <summary>
     /// Response modifier providing separate action/delegate to response modifier. 

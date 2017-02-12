@@ -1,4 +1,4 @@
-﻿namespace Reinforced.Lattice.Templating.Plugins.MouseSelect
+﻿namespace Reinforced.Lattice.Templates.Plugins.MouseSelect
 {
     public class MouseSelectTemplateRegion : PluginTemplateRegion
     {

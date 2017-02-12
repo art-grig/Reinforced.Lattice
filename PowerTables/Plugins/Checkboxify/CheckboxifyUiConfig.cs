@@ -1,4 +1,4 @@
-﻿namespace PowerTables.Plugins.Checkboxify
+﻿namespace Reinforced.Lattice.Plugins.Checkboxify
 {
     public class CheckboxifyUiConfig
     {

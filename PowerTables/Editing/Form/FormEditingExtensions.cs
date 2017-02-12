@@ -1,10 +1,10 @@
 ﻿using System;
-using PowerTables.CellTemplating;
-using PowerTables.Configuration;
-using PowerTables.Configuration.Json;
-using PowerTables.Plugins.Toolbar;
+using Reinforced.Lattice.CellTemplating;
+using Reinforced.Lattice.Configuration;
+using Reinforced.Lattice.Configuration.Json;
+using Reinforced.Lattice.Plugins.Toolbar;
 
-namespace PowerTables.Editing.Form
+namespace Reinforced.Lattice.Editing.Form
 {
     public static class FormEditingExtensions
     {

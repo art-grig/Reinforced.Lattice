@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 
-namespace PowerTables.Plugins.Formwatch
+namespace Reinforced.Lattice.Plugins.Formwatch
 {
     public class FormwatchClientConfiguration
     {

@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using PowerTables.Configuration;
+using Reinforced.Lattice.Configuration;
 
-namespace PowerTables.Plugins
+namespace Reinforced.Lattice.Plugins
 {
     /// <summary>
     /// Helper builder used to specify required columns

@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using PowerTables.Adjustments;
-using PowerTables.Commands;
-using PowerTables.Configuration;
-using PowerTables.Configuration.Json;
-using PowerTables.Processing;
+using Reinforced.Lattice.Adjustments;
+using Reinforced.Lattice.Commands;
+using Reinforced.Lattice.Configuration;
+using Reinforced.Lattice.Configuration.Json;
+using Reinforced.Lattice.Processing;
 
-namespace PowerTables.Plugins.Hierarchy
+namespace Reinforced.Lattice.Plugins.Hierarchy
 {
     public static class HierarchyExtensions
     {

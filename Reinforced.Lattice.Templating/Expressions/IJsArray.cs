@@ -1,4 +1,4 @@
-﻿namespace Reinforced.Lattice.Templating.Expressions
+﻿namespace Reinforced.Lattice.Templates.Expressions
 {
     /// <summary>
     /// Javascript collection

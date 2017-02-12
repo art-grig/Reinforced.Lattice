@@ -318,9 +318,9 @@
     <TypeScriptCompile Include="Scripts\typings\jquery\jquery.d.ts" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PowerTables\PowerTables.csproj">
+    <ProjectReference Include="..\PowerTables\Reinforced.Lattice.csproj">
       <Project>{2E931FD3-EFE9-42D5-8D90-F3B659F06760}</Project>
-      <Name>PowerTables</Name>
+      <Name>Reinforced.Lattice</Name>
     </ProjectReference>
     <ProjectReference Include="..\Reinforced.Lattice.Mvc\Reinforced.Lattice.Mvc.csproj">
       <Project>{1ac04086-7a85-4e84-928f-d739c16b33a8}</Project>

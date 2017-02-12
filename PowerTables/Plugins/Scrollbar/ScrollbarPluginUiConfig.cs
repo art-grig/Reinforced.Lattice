@@ -1,7 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json.Linq;
 
-namespace PowerTables.Plugins.Scrollbar
+namespace Reinforced.Lattice.Plugins.Scrollbar
 {
     public class ScrollbarPluginUiConfig : IProvidesTemplate
     {

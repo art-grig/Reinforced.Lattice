@@ -1,6 +1,6 @@
-﻿using PowerTables.Plugins;
+﻿using Reinforced.Lattice.Plugins;
 
-namespace PowerTables.Filters.Range
+namespace Reinforced.Lattice.Filters.Range
 {
     /// <summary>
     /// Set of extensions for Range filter UI configuration

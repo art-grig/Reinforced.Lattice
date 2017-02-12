@@ -34,7 +34,7 @@
 			in attributes and in fluent methods then configuration from fluent methods will
 			be used.
 		-->
-		<RtConfigurationMethod>PowerTables.Typings.TypingsConfiguration.ConfigureTypings</RtConfigurationMethod>
+		<RtConfigurationMethod>Reinforced.Lattice.Typings.TypingsConfiguration.ConfigureTypings</RtConfigurationMethod>
 		
 		<!--
 			Boolean parameter that controls writing of "auto-generated warning" comment to each generated file.

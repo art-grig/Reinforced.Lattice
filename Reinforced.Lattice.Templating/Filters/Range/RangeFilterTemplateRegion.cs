@@ -1,9 +1,9 @@
-﻿using PowerTables.Filters.Range;
-using Reinforced.Lattice.Templating.BuiltIn;
-using Reinforced.Lattice.Templating.Compilation;
-using Reinforced.Lattice.Templating.Expressions;
+﻿using Reinforced.Lattice.Filters.Range;
+using Reinforced.Lattice.Templates.BuiltIn;
+using Reinforced.Lattice.Templates.Compilation;
+using Reinforced.Lattice.Templates.Expressions;
 
-namespace Reinforced.Lattice.Templating.Filters.Range
+namespace Reinforced.Lattice.Templates.Filters.Range
 {
     public class RangeFilterTemplateRegion : PluginTemplateRegion, IModelProvider<IRangeFilterModel>, IProvidesDatepicker
     {

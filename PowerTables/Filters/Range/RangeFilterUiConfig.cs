@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
-using PowerTables.Plugins;
+using Reinforced.Lattice.Plugins;
 
-namespace PowerTables.Filters.Range
+namespace Reinforced.Lattice.Filters.Range
 {
     /// <summary>
     /// UI configuration for range filterr

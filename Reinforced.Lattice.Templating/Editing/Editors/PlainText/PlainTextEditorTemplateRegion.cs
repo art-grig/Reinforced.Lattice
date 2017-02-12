@@ -1,6 +1,6 @@
-﻿using Reinforced.Lattice.Templating.Compilation;
+﻿using Reinforced.Lattice.Templates.Compilation;
 
-namespace Reinforced.Lattice.Templating.Editing.Editors.PlainText
+namespace Reinforced.Lattice.Templates.Editing.Editors.PlainText
 {
     public class PlainTextEditorTemplateRegion : CellEditorTemplateRegionBase<IPlainTextEditorViewModel>
     {

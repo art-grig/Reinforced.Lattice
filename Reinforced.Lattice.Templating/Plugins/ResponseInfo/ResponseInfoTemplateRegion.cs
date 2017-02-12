@@ -1,6 +1,6 @@
-﻿using Reinforced.Lattice.Templating.BuiltIn;
+﻿using Reinforced.Lattice.Templates.BuiltIn;
 
-namespace Reinforced.Lattice.Templating.Plugins.ResponseInfo
+namespace Reinforced.Lattice.Templates.Plugins.ResponseInfo
 {
     public class ResponseInfoTemplateRegion<T> : PluginTemplateRegion, IModelProvider<T>
     {

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
-using PowerTables.Configuration;
+using Reinforced.Lattice.Configuration;
 
-namespace PowerTables.Filters.Range
+namespace Reinforced.Lattice.Filters.Range
 {
     /// <summary>
     /// Range column filter supports 2 values (min. and max.) to be specified.

@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
-using PowerTables.Editing;
-using PowerTables.Plugins.Formwatch;
+using Reinforced.Lattice.Editing;
+using Reinforced.Lattice.Plugins.Formwatch;
 
-namespace PowerTables.Commands
+namespace Reinforced.Lattice.Commands
 {
     public class CommandDescription
     {

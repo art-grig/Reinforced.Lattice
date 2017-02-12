@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace Reinforced.Lattice.Templating
+namespace Reinforced.Lattice.Templates
 {
     public sealed class TemplateControl
     {

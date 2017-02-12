@@ -1,8 +1,8 @@
 ﻿using System;
-using PowerTables.Configuration;
-using PowerTables.Configuration.Json;
+using Reinforced.Lattice.Configuration;
+using Reinforced.Lattice.Configuration.Json;
 
-namespace PowerTables.Plugins.LoadingOverlap
+namespace Reinforced.Lattice.Plugins.LoadingOverlap
 {
     public static class LoadingOverlapExtensions
     {

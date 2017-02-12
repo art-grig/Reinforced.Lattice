@@ -1,7 +1,7 @@
-﻿using PowerTables.Configuration;
-using PowerTables.Configuration.Json;
+﻿using Reinforced.Lattice.Configuration;
+using Reinforced.Lattice.Configuration.Json;
 
-namespace PowerTables.Plugins.RegularSelect
+namespace Reinforced.Lattice.Plugins.RegularSelect
 {
     public static class RegularSelectExtensions
     {

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Linq.Expressions;
 using Newtonsoft.Json.Linq;
-using PowerTables.CellTemplating;
-using PowerTables.Configuration.Json;
+using Reinforced.Lattice.CellTemplating;
+using Reinforced.Lattice.Configuration.Json;
 
-namespace PowerTables.Configuration
+namespace Reinforced.Lattice.Configuration
 {
     public class SelectionConfigurationWrapper
     {

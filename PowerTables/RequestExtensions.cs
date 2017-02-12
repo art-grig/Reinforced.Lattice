@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace PowerTables
+namespace Reinforced.Lattice
 {
     /// <summary>
     /// Provides handy extensions for request and Query object
@@ -53,7 +53,7 @@ namespace PowerTables
         /// </summary>
         /// <typeparam name="T">Object type</typeparam>
         /// <param name="key">Key in additional data</param>
-        /// <param name="request">PowerTables request</param>
+        /// <param name="request">Reinforced.Lattice request</param>
         /// <returns>Additional data object</returns>
         public static T RetrieveAdditionalObject<T>(this LatticeRequest request, string key)
         {
@@ -64,7 +64,7 @@ namespace PowerTables
         /// Retrieves additional JSONed data from AdditionalData collection
         /// </summary>
         /// <typeparam name="T">Object type</typeparam>
-        /// <param name="request">PowerTables request</param>
+        /// <param name="request">Reinforced.Lattice request</param>
         /// <param name="key">Key in additional data</param>
         /// <param name="converters">Converters to be supplied to Json.Net</param>
         /// <returns>RetrieveAdditionalObject ViewModel</returns>
@@ -77,7 +77,7 @@ namespace PowerTables
         /// Retrieves additional JSONed data from AdditionalData collection
         /// </summary>
         /// <typeparam name="T">Object type</typeparam>
-        /// <param name="request">PowerTables request</param>
+        /// <param name="request">Reinforced.Lattice request</param>
         ///  <param name="key">Key in additional data</param>
         /// <param name="serializerSettings">Serializer settings to be supplied to Json.Net</param>
         /// <returns>RetrieveAdditionalObject ViewModel</returns>
@@ -92,7 +92,7 @@ namespace PowerTables
         /// </summary>
         /// <typeparam name="T">Object type</typeparam>
         /// <param name="key">Key in additional data</param>
-        /// <param name="request">PowerTables request</param>
+        /// <param name="request">Reinforced.Lattice request</param>
         /// <returns>Additional data object</returns>
         public static T RetrieveAdditionalObject<T>(this IRequestable request, string key)
         {
@@ -103,7 +103,7 @@ namespace PowerTables
         /// Retrieves additional JSONed data from AdditionalData collection
         /// </summary>
         /// <typeparam name="T">Object type</typeparam>
-        /// <param name="request">PowerTables request</param>
+        /// <param name="request">Reinforced.Lattice request</param>
         /// <param name="key">Key in additional data</param>
         /// <param name="converters">Converters to be supplied to Json.Net</param>
         /// <returns>RetrieveAdditionalObject ViewModel</returns>
@@ -116,7 +116,7 @@ namespace PowerTables
         /// Retrieves additional JSONed data from AdditionalData collection
         /// </summary>
         /// <typeparam name="T">Object type</typeparam>
-        /// <param name="request">PowerTables request</param>
+        /// <param name="request">Reinforced.Lattice request</param>
         ///  <param name="key">Key in additional data</param>
         /// <param name="serializerSettings">Serializer settings to be supplied to Json.Net</param>
         /// <returns>RetrieveAdditionalObject ViewModel</returns>

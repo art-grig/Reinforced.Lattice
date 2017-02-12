@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Text;
-using PowerTables.CellTemplating;
+using Reinforced.Lattice.CellTemplating;
 
-namespace PowerTables.Plugins.Total
+namespace Reinforced.Lattice.Plugins.Total
 {
     /// <summary>
     /// Describes type of client data set to perform client calculations on

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using PowerTables.Processing;
+using Reinforced.Lattice.Processing;
 
-namespace PowerTables.Plugins.Total
+namespace Reinforced.Lattice.Plugins.Total
 {
     /// <summary>
     /// Response modifier that prepares data for totals plugin

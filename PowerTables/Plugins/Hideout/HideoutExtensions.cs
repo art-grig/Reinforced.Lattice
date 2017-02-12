@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
-using PowerTables.Configuration;
-using PowerTables.Configuration.Json;
+using Reinforced.Lattice.Configuration;
+using Reinforced.Lattice.Configuration.Json;
 
-namespace PowerTables.Plugins.Hideout
+namespace Reinforced.Lattice.Plugins.Hideout
 {
     /// <summary>
     /// Extensions for Hideout plugin. 

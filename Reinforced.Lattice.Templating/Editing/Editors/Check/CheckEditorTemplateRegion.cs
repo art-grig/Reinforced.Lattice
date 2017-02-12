@@ -1,7 +1,7 @@
 ﻿using System;
-using Reinforced.Lattice.Templating.Compilation;
+using Reinforced.Lattice.Templates.Compilation;
 
-namespace Reinforced.Lattice.Templating.Editing.Editors.Check
+namespace Reinforced.Lattice.Templates.Editing.Editors.Check
 {
     /// <summary>
     /// Template region for checkbox editor

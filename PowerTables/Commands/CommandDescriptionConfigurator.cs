@@ -1,4 +1,4 @@
-﻿namespace PowerTables.Commands
+﻿namespace Reinforced.Lattice.Commands
 {
     public class CommandDescriptionConfigurator
     {

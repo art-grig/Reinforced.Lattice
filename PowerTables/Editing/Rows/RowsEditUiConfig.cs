@@ -1,4 +1,4 @@
-﻿namespace PowerTables.Editing.Rows
+﻿namespace Reinforced.Lattice.Editing.Rows
 {
     public class RowsEditUiConfig : EditFormUiConfigBase
     {

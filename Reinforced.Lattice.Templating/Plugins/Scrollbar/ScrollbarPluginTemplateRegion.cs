@@ -1,6 +1,6 @@
-﻿using Reinforced.Lattice.Templating.Compilation;
+﻿using Reinforced.Lattice.Templates.Compilation;
 
-namespace Reinforced.Lattice.Templating.Plugins.Scrollbar
+namespace Reinforced.Lattice.Templates.Plugins.Scrollbar
 {
     public class ScrollbarPluginTemplateRegion : PluginTemplateRegion, IModelProvider<IScrollbarModel>
     {

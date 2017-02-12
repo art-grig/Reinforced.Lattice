@@ -1,8 +1,8 @@
-﻿using PowerTables.Plugins.Hideout;
-using Reinforced.Lattice.Templating.Compilation;
-using Reinforced.Lattice.Templating.Expressions;
+﻿using Reinforced.Lattice.Plugins.Hideout;
+using Reinforced.Lattice.Templates.Compilation;
+using Reinforced.Lattice.Templates.Expressions;
 
-namespace Reinforced.Lattice.Templating.Plugins.Hideout
+namespace Reinforced.Lattice.Templates.Plugins.Hideout
 {
     public class HideoutTemplateRegion : PluginTemplateRegion,
         IModelProvider<IHideoutViewModel>

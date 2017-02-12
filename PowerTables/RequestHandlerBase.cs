@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using PowerTables.Configuration;
-using PowerTables.Processing;
+using Reinforced.Lattice.Configuration;
+using Reinforced.Lattice.Processing;
 
-namespace PowerTables
+namespace Reinforced.Lattice
 {
     public abstract class RequestHandlerBase<TSourceData, TTableData, TResult> where TTableData : new()
     {

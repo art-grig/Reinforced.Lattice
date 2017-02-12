@@ -1,8 +1,8 @@
 ﻿using System;
-using PowerTables.Configuration;
-using PowerTables.Configuration.Json;
+using Reinforced.Lattice.Configuration;
+using Reinforced.Lattice.Configuration.Json;
 
-namespace PowerTables.Plugins.Scrollbar
+namespace Reinforced.Lattice.Plugins.Scrollbar
 {
     public static class ScrollbarExtensions
     {

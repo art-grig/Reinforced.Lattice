@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections;
 using Newtonsoft.Json;
-using PowerTables.Configuration;
-using PowerTables.Configuration.Json;
+using Reinforced.Lattice.Configuration;
+using Reinforced.Lattice.Configuration.Json;
 
-namespace PowerTables.Plugins.Formwatch
+namespace Reinforced.Lattice.Plugins.Formwatch
 {
     /// <summary>
     /// This class provides extension methods for Formwatch plugin
@@ -57,7 +57,7 @@ namespace PowerTables.Plugins.Formwatch
         /// Retrieves values of form
         /// </summary>
         /// <typeparam name="T">Form ViewModel type</typeparam>
-        /// <param name="request">PowerTables request</param>
+        /// <param name="request">Reinforced.Lattice request</param>
         /// <returns>Form ViewModel</returns>
         public static T Form<T>(this LatticeRequest request)
         {
@@ -68,7 +68,7 @@ namespace PowerTables.Plugins.Formwatch
         /// Retrieves values of form
         /// </summary>
         /// <typeparam name="T">Form ViewModel type</typeparam>
-        /// <param name="request">PowerTables request</param>
+        /// <param name="request">Reinforced.Lattice request</param>
         /// <param name="converters">Converters to be supplied to Json.Net</param>
         /// <returns>Form ViewModel</returns>
         public static T Form<T>(this LatticeRequest request, params JsonConverter[] converters)
@@ -80,7 +80,7 @@ namespace PowerTables.Plugins.Formwatch
         /// Retrieves values of form
         /// </summary>
         /// <typeparam name="T">Form ViewModel type</typeparam>
-        /// <param name="request">PowerTables request</param>
+        /// <param name="request">Reinforced.Lattice request</param>
         /// <param name="serializerSettings">Serializer settings to be supplied to Json.Net</param>
         /// <returns>Form ViewModel</returns>
         public static T Form<T>(this LatticeRequest request, JsonSerializerSettings serializerSettings)
@@ -92,7 +92,7 @@ namespace PowerTables.Plugins.Formwatch
         /// Attaches instance of Formwatch plugin to table. 
         /// Formwatch plugin brings the ability of automatic triggering specified fields change 
         /// on client, extract specified fields data and include it to request. 
-        /// It is possible to retrieve collected form data with <see cref="Form{T}(PowerTables.Query)"/> or <see cref="Form{T}(LatticeRequest)"/> method. 
+        /// It is possible to retrieve collected form data with <see cref="Form{T}(Reinforced.Lattice.Query)"/> or <see cref="Form{T}(LatticeRequest)"/> method. 
         /// Formwatch plugin is quite flexible and allows you to specify selector for each field, constant values, custom 
         /// value evaluation functions etc.
         /// </summary>

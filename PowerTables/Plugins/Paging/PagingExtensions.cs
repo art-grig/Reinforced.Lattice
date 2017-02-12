@@ -1,8 +1,8 @@
 ﻿using System;
-using PowerTables.Configuration;
-using PowerTables.Configuration.Json;
+using Reinforced.Lattice.Configuration;
+using Reinforced.Lattice.Configuration.Json;
 
-namespace PowerTables.Plugins.Paging
+namespace Reinforced.Lattice.Plugins.Paging
 {
     /// <summary>
     /// Extension methods for paging plugin

@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PowerTables", "PowerTables\PowerTables.csproj", "{2E931FD3-EFE9-42D5-8D90-F3B659F06760}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reinforced.Lattice", "PowerTables\Reinforced.Lattice.csproj", "{2E931FD3-EFE9-42D5-8D90-F3B659F06760}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PowerTables.Mvc", "PowerTables.Mvc\PowerTables.Mvc.csproj", "{DBFE0B3B-DC1E-4979-8170-0849253C4687}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PowerTables.Typings", "PowerTables.Typings\PowerTables.Typings.csproj", "{89CE0C6B-E552-484A-9A95-86C2EA81EEBB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reinforced.Lattice.Typings", "PowerTables.Typings\Reinforced.Lattice.Typings.csproj", "{89CE0C6B-E552-484A-9A95-86C2EA81EEBB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PowerTables.Script", "PowerTables.Script\PowerTables.Script.csproj", "{DCB38E53-9A9D-4352-90AA-44785455DFA3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reinforced.Lattice.Script", "PowerTables.Script\Reinforced.Lattice.Script.csproj", "{DCB38E53-9A9D-4352-90AA-44785455DFA3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reinforced.Lattice.Mvc", "Reinforced.Lattice.Mvc\Reinforced.Lattice.Mvc.csproj", "{1AC04086-7A85-4E84-928F-D739C16B33A8}"
 EndProject

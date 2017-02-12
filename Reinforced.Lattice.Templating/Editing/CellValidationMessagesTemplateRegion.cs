@@ -1,9 +1,8 @@
 ﻿using System;
-using PowerTables.Editing;
-using Reinforced.Lattice.Templating.Compilation;
-using Reinforced.Lattice.Templating.Expressions;
+using Reinforced.Lattice.Templates.Compilation;
+using Reinforced.Lattice.Templates.Expressions;
 
-namespace Reinforced.Lattice.Templating.Editing
+namespace Reinforced.Lattice.Templates.Editing
 {
     public class CellValidationMessagesTemplateRegion : TemplateRegion
         , IModelProvider<IValidationMessagesViewModel>

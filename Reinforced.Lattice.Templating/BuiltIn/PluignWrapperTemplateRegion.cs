@@ -1,8 +1,8 @@
 ﻿using System.Linq;
-using PowerTables.Configuration.Json;
-using Reinforced.Lattice.Templating.Expressions;
+using Reinforced.Lattice.Configuration.Json;
+using Reinforced.Lattice.Templates.Expressions;
 
-namespace Reinforced.Lattice.Templating.BuiltIn
+namespace Reinforced.Lattice.Templates.BuiltIn
 {
     public class PluignWrapperTemplateRegion<T> :
         ModeledTemplateRegion<IPluginWrapperModel<T>>,

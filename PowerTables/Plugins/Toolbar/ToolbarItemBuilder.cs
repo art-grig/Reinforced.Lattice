@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 
-namespace PowerTables.Plugins.Toolbar
+namespace Reinforced.Lattice.Plugins.Toolbar
 {
     /// <summary>
     /// Builder for toolbar item (button or submenu)

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace PowerTables.CellTemplating
+namespace Reinforced.Lattice.CellTemplating
 {
     /// <summary>
     /// Builds switch for template

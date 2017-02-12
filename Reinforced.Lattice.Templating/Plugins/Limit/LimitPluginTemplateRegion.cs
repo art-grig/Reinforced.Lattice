@@ -1,7 +1,7 @@
-﻿using Reinforced.Lattice.Templating.Compilation;
-using Reinforced.Lattice.Templating.Expressions;
+﻿using Reinforced.Lattice.Templates.Compilation;
+using Reinforced.Lattice.Templates.Expressions;
 
-namespace Reinforced.Lattice.Templating.Plugins.Limit
+namespace Reinforced.Lattice.Templates.Plugins.Limit
 {
     public class LimitPluginTemplateRegion : PluginTemplateRegion
         , IModelProvider<ILimitPluginViewModel>

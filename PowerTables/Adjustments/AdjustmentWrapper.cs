@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using PowerTables.Configuration;
+using Reinforced.Lattice.Configuration;
 
-namespace PowerTables.Adjustments
+namespace Reinforced.Lattice.Adjustments
 {
     public class AdjustmentWrapper<TSource, TData> : IGenericAdditionalDataProvider<TSource, TData> where TData : new()
     {

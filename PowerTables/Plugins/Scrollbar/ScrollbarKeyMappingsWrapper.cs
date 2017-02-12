@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace PowerTables.Plugins.Scrollbar
+namespace Reinforced.Lattice.Plugins.Scrollbar
 {
     public class ScrollbarKeyMappingsWrapper
     {

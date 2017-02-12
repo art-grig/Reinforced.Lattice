@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Reinforced.Lattice.Templating.Expressions.Visiting
+namespace Reinforced.Lattice.Templates.Expressions.Visiting
 {
     class JsCallExpression : JsExpression
     {

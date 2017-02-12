@@ -1,8 +1,7 @@
-﻿using PowerTables;
-using PowerTables.Configuration.Json;
-using Reinforced.Lattice.Templating.Compilation;
+﻿using Reinforced.Lattice.Configuration.Json;
+using Reinforced.Lattice.Templates.Compilation;
 
-namespace Reinforced.Lattice.Templating.BuiltIn
+namespace Reinforced.Lattice.Templates.BuiltIn
 {
     public class PartitionRowTemplateRegion : ModeledTemplateRegion<IRowModel<IPartitionRowData>>,
         IProvidesEventsBinding, IProvidesMarking

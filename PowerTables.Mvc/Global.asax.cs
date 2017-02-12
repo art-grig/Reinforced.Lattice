@@ -1,7 +1,7 @@
 ﻿using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
-using Reinforced.Lattice.Templating;
+using Reinforced.Lattice.Templates;
 
 namespace PowerTables.Mvc
 {

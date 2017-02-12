@@ -1,4 +1,4 @@
-﻿namespace PowerTables.Configuration
+﻿namespace Reinforced.Lattice.Configuration
 {
     /// <summary>
     /// Generic interface for column where no additional properties matters, only target row type

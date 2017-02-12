@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace PowerTables
+namespace Reinforced.Lattice
 {
     /// <summary>
     /// Helper class for building IDs for filtered DOM events. 

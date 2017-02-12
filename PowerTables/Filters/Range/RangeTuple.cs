@@ -1,4 +1,4 @@
-namespace PowerTables.Filters.Range
+namespace Reinforced.Lattice.Filters.Range
 {
     /// <summary>
     /// Describes values range for range column filter

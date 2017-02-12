@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 
-namespace PowerTables.Filters
+namespace Reinforced.Lattice.Filters
 {
     /// <summary>
     /// Base interface for all filters. 

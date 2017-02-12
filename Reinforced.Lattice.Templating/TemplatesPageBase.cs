@@ -1,8 +1,8 @@
 ﻿using System.IO;
 using System.Web.Mvc;
-using Reinforced.Lattice.Templating.Compilation;
+using Reinforced.Lattice.Templates.Compilation;
 
-namespace Reinforced.Lattice.Templating
+namespace Reinforced.Lattice.Templates
 {
     public abstract class TemplatesPageBase : WebViewPage<LatticeTemplatesViewModel>, ITemplatesScope
     {

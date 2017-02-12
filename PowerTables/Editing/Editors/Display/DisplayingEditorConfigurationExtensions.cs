@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq.Expressions;
 using Newtonsoft.Json.Linq;
-using PowerTables.CellTemplating;
+using Reinforced.Lattice.CellTemplating;
 
-namespace PowerTables.Editing.Editors.Display
+namespace Reinforced.Lattice.Editing.Editors.Display
 {
     public static class DisplayingEditorConfigurationExtensions
     {

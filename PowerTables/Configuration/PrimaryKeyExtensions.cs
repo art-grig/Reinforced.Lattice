@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
-namespace PowerTables.Configuration
+namespace Reinforced.Lattice.Configuration
 {
     public static class PrimaryKeyExtensions
     {

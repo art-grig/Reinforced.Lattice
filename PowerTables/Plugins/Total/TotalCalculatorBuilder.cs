@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using PowerTables.CellTemplating;
+using Reinforced.Lattice.CellTemplating;
 
-namespace PowerTables.Plugins.Total
+namespace Reinforced.Lattice.Plugins.Total
 {
     /// <summary>
     /// Builder for server table subtotals calculators

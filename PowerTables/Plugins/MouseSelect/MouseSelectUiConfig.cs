@@ -1,4 +1,4 @@
-﻿namespace PowerTables.Plugins.MouseSelect
+﻿namespace Reinforced.Lattice.Plugins.MouseSelect
 {
     public class MouseSelectUiConfig : IProvidesTemplate
     {

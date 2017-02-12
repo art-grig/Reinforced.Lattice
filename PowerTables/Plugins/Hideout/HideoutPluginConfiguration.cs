@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 
 
-namespace PowerTables.Plugins.Hideout
+namespace Reinforced.Lattice.Plugins.Hideout
 {
     /// <summary>
     /// Client hideout plugin configuration

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using PowerTables.Plugins;
+using Reinforced.Lattice.Plugins;
 
-namespace PowerTables.Filters.Select
+namespace Reinforced.Lattice.Filters.Select
 {
     /// <summary>
     /// Extensions for Select Filter UI

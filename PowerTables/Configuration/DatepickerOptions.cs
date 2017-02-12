@@ -1,7 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json.Linq;
 
-namespace PowerTables.Configuration
+namespace Reinforced.Lattice.Configuration
 {
     /// <summary>
     /// Unified point of working with dates. 

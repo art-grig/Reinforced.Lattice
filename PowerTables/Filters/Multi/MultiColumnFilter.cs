@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using PowerTables.Configuration;
+using Reinforced.Lattice.Configuration;
 
-namespace PowerTables.Filters.Multi
+namespace Reinforced.Lattice.Filters.Multi
 {
     /// <summary>
     /// Column multi-filter supports specifying several fintering values. These values should be separated by "|" (pipeline) symbol.

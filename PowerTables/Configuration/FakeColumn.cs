@@ -1,7 +1,7 @@
 ﻿using System;
-using PowerTables.Configuration.Json;
+using Reinforced.Lattice.Configuration.Json;
 
-namespace PowerTables.Configuration
+namespace Reinforced.Lattice.Configuration
 {
     public class FakeColumn<TColumn> : IColumnTargetProperty<TColumn>
     {

@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Reinforced.Lattice.Templating.Compilation;
-using Reinforced.Lattice.Templating.Expressions.Visiting;
+using Reinforced.Lattice.Templates.Compilation;
+using Reinforced.Lattice.Templates.Expressions.Visiting;
 
-namespace Reinforced.Lattice.Templating.Expressions
+namespace Reinforced.Lattice.Templates.Expressions
 {
     /// <summary>
     /// Set of extension methods to interact with handlebars.js

@@ -1,4 +1,4 @@
-﻿namespace PowerTables.Plugins.Hierarchy
+﻿namespace Reinforced.Lattice.Plugins.Hierarchy
 {
     /// <summary>
     /// Client-side configuration of hierarchy plugin

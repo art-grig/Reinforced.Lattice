@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
-using PowerTables.Configuration;
+using Reinforced.Lattice.Configuration;
 
-namespace PowerTables.Filters
+namespace Reinforced.Lattice.Filters
 {
     /// <summary>
     /// Extensions for every ColumnFilter

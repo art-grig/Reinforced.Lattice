@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Reinforced.Lattice.Templating.Expressions.Visiting
+namespace Reinforced.Lattice.Templates.Expressions.Visiting
 {
     class JsUnaryExpression : JsExpression
     {

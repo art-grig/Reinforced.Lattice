@@ -2,11 +2,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using PowerTables.Configuration.Json;
-using PowerTables.Filters;
-using PowerTables.Processing;
+using Reinforced.Lattice.Configuration.Json;
+using Reinforced.Lattice.Filters;
+using Reinforced.Lattice.Processing;
 
-namespace PowerTables.Configuration
+namespace Reinforced.Lattice.Configuration
 {
     /// <summary>
     /// Nongeneric table configurator interface
@@ -89,8 +89,8 @@ namespace PowerTables.Configuration
 
         /// <summary>
         /// Returns MvcHtmlString that contains JSON table configuration that is used to construct
-        /// Javascript PowerTables object. 
-        /// PowerTables client-side is highly dependant on large JSON configuration. 
+        /// Javascript Reinforced.Lattice object. 
+        /// Reinforced.Lattice client-side is highly dependant on large JSON configuration. 
         /// So <see cref="Configurator{TSourceData,TTableData}"/> is initially set of helper methods 
         /// helping to build this JSON configuration. 
         /// This overload of JsonConfig consumes "static data". Static data is data class that 

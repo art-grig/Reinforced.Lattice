@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 
 
-namespace PowerTables.Plugins.Limit
+namespace Reinforced.Lattice.Plugins.Limit
 {
     /// <summary>
     /// Client configuration for Limit plugin. 

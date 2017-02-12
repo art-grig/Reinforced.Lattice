@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json.Linq;
-using PowerTables.Plugins;
+using Reinforced.Lattice.Plugins;
 
 
-namespace PowerTables.Filters.Value
+namespace Reinforced.Lattice.Filters.Value
 {
     /// <summary>
     /// UI configuration for value filter

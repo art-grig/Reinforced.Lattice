@@ -1,9 +1,9 @@
 ﻿using System;
-using Reinforced.Lattice.Templating.BuiltIn;
-using Reinforced.Lattice.Templating.Compilation;
-using Reinforced.Lattice.Templating.Expressions;
+using Reinforced.Lattice.Templates.BuiltIn;
+using Reinforced.Lattice.Templates.Compilation;
+using Reinforced.Lattice.Templates.Expressions;
 
-namespace Reinforced.Lattice.Templating.Editing
+namespace Reinforced.Lattice.Templates.Editing
 {
     public class CellEditorTemplateRegionBase<T> : PluginTemplateRegion, 
         IProvidesVisualState, 

@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
-using PowerTables.Plugins;
+using Reinforced.Lattice.Plugins;
 
 
-namespace PowerTables.Filters.Select
+namespace Reinforced.Lattice.Filters.Select
 {
     /// <summary>
     /// UI configuration for select filter 

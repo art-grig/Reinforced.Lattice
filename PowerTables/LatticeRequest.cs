@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 
 using Newtonsoft.Json;
-using PowerTables.Configuration;
+using Reinforced.Lattice.Configuration;
 
-namespace PowerTables
+namespace Reinforced.Lattice
 {
     /// <summary>
     /// Data request constructed in Javascript, passed to server and extracted from ControllerContext
@@ -59,7 +59,7 @@ namespace PowerTables
         public Dictionary<string, string> AdditionalData { get; set; }
 
         /// <summary>
-        /// Static data extractable via PowerTablesHandler
+        /// Static data extractable via Reinforced.LatticeHandler
         /// </summary>
         public string StaticDataJson { get; set; }
 

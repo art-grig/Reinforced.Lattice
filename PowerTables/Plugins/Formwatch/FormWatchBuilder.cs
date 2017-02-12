@@ -5,7 +5,7 @@ using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace PowerTables.Plugins.Formwatch
+namespace Reinforced.Lattice.Plugins.Formwatch
 {
     internal interface IFormWatchBuilder
     {

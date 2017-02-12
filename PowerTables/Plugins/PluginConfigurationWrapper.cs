@@ -1,6 +1,6 @@
-using PowerTables.Configuration.Json;
+using Reinforced.Lattice.Configuration.Json;
 
-namespace PowerTables.Plugins
+namespace Reinforced.Lattice.Plugins
 {
     public class PluginConfigurationWrapper<T> where T : new()
     {

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using PowerTables.Configuration.Json;
+using Reinforced.Lattice.Configuration.Json;
 
-namespace PowerTables.Editing
+namespace Reinforced.Lattice.Editing
 {
     public abstract class EditFormUiConfigBase
     {

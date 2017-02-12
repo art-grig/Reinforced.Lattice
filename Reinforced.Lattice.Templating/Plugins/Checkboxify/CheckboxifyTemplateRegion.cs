@@ -1,7 +1,7 @@
-﻿using Reinforced.Lattice.Templating.BuiltIn;
-using Reinforced.Lattice.Templating.Compilation;
+﻿using Reinforced.Lattice.Templates.BuiltIn;
+using Reinforced.Lattice.Templates.Compilation;
 
-namespace Reinforced.Lattice.Templating.Plugins.Checkboxify
+namespace Reinforced.Lattice.Templates.Plugins.Checkboxify
 {
     public class CheckboxifySelectAllTemplateRegion : PluginTemplateRegion,
         IModelProvider<ICheckboxifySelectAll>

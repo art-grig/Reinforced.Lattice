@@ -1,7 +1,7 @@
 ﻿using System;
-using Reinforced.Lattice.Templating.Compilation;
+using Reinforced.Lattice.Templates.Compilation;
 
-namespace Reinforced.Lattice.Templating.Expressions
+namespace Reinforced.Lattice.Templates.Expressions
 {
     public class CodeBlock : IDisposable, IRawProvider
     {

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using PowerTables.Configuration;
+using Reinforced.Lattice.Configuration;
 
-namespace PowerTables.CellTemplating
+namespace Reinforced.Lattice.CellTemplating
 {
     public static class TemplateListExtensions
     {

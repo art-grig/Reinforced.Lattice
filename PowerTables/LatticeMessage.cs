@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace PowerTables
+namespace Reinforced.Lattice
 {
     /// <summary>
     /// JSON model for table message

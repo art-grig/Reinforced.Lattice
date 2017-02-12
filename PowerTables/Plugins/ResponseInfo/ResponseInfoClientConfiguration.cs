@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
-using PowerTables.CellTemplating;
-using PowerTables.Plugins.Total;
+using Reinforced.Lattice.CellTemplating;
+using Reinforced.Lattice.Plugins.Total;
 
-namespace PowerTables.Plugins.ResponseInfo
+namespace Reinforced.Lattice.Plugins.ResponseInfo
 {
     public class ResponseInfoClientConfiguration : IProvidesTemplate
     {

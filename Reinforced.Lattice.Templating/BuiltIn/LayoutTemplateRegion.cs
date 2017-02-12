@@ -1,6 +1,6 @@
-﻿using Reinforced.Lattice.Templating.Compilation;
+﻿using Reinforced.Lattice.Templates.Compilation;
 
-namespace Reinforced.Lattice.Templating.BuiltIn
+namespace Reinforced.Lattice.Templates.BuiltIn
 {
     public class LayoutTemplateRegion : TemplateRegion, IProvidesEventsBinding
     {

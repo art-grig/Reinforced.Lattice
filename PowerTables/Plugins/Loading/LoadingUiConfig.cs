@@ -1,4 +1,4 @@
-﻿namespace PowerTables.Plugins.Loading
+﻿namespace Reinforced.Lattice.Plugins.Loading
 {
     public class LoadingUiConfig : IProvidesTemplate
     {

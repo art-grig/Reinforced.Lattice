@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace Reinforced.Lattice.Templating.Compilation
+namespace Reinforced.Lattice.Templates.Compilation
 {
     public sealed class SpecialString : IHtmlString
     {

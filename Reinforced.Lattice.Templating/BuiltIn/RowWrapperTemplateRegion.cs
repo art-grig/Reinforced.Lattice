@@ -1,6 +1,6 @@
-﻿using Reinforced.Lattice.Templating.Expressions;
+﻿using Reinforced.Lattice.Templates.Expressions;
 
-namespace Reinforced.Lattice.Templating.BuiltIn
+namespace Reinforced.Lattice.Templates.BuiltIn
 {
     public class RowWrapperTemplateRegion<T> : ModeledTemplateRegion<IRowModel<T>>,
         IProvidesContent,

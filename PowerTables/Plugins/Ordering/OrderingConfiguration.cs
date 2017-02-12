@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 
-namespace PowerTables.Plugins.Ordering
+namespace Reinforced.Lattice.Plugins.Ordering
 {
     /// <summary>
     /// Client per-column configuration for ordering. 
@@ -12,7 +12,7 @@ namespace PowerTables.Plugins.Ordering
         /// <summary>
         /// Default orderings for columns. Key - column RawName, Value - ordering direction
         /// </summary>
-        public Dictionary<string, PowerTables.Ordering> DefaultOrderingsForColumns { get; private set; }
+        public Dictionary<string, Reinforced.Lattice.Ordering> DefaultOrderingsForColumns { get; private set; }
 
         /// <summary>
         /// Columns that are sortable on client-side with corresponding comparer functions
@@ -21,7 +21,7 @@ namespace PowerTables.Plugins.Ordering
 
         public OrderingConfiguration()
         {
-            DefaultOrderingsForColumns = new Dictionary<string, PowerTables.Ordering>();
+            DefaultOrderingsForColumns = new Dictionary<string, Reinforced.Lattice.Ordering>();
             ClientSortableColumns = new Dictionary<string, JRaw>();
         }
 

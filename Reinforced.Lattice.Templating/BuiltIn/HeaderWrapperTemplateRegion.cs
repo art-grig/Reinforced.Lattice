@@ -1,6 +1,6 @@
-﻿using PowerTables.Configuration.Json;
+﻿using Reinforced.Lattice.Configuration.Json;
 
-namespace Reinforced.Lattice.Templating.BuiltIn
+namespace Reinforced.Lattice.Templates.BuiltIn
 {
     public class HeaderWrapperTemplateRegion
         : ModeledTemplateRegion<IColumnHeader>, IProvidesContent, IProvidesColumnContent

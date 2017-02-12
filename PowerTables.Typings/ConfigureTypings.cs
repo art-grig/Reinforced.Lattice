@@ -1,42 +1,42 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using System.Web.Mvc;
-using PowerTables.Adjustments;
-using PowerTables.Commands;
-using PowerTables.Configuration;
-using PowerTables.Configuration.Json;
-using PowerTables.Editing;
-using PowerTables.Editing.Cells;
-using PowerTables.Editing.Editors.Check;
-using PowerTables.Editing.Editors.Display;
-using PowerTables.Editing.Editors.Memo;
-using PowerTables.Editing.Editors.PlainText;
-using PowerTables.Editing.Editors.SelectList;
-using PowerTables.Editing.Form;
-using PowerTables.Editing.Rows;
-using PowerTables.Filters.Range;
-using PowerTables.Filters.Select;
-using PowerTables.Filters.Value;
-using PowerTables.Plugins.Checkboxify;
-using PowerTables.Plugins.Formwatch;
-using PowerTables.Plugins.Hideout;
-using PowerTables.Plugins.Hierarchy;
-using PowerTables.Plugins.Limit;
-using PowerTables.Plugins.LoadingOverlap;
-using PowerTables.Plugins.MouseSelect;
-using PowerTables.Plugins.Ordering;
-using PowerTables.Plugins.Paging;
-using PowerTables.Plugins.RegularSelect;
-using PowerTables.Plugins.Reload;
-using PowerTables.Plugins.ResponseInfo;
-using PowerTables.Plugins.Scrollbar;
-using PowerTables.Plugins.Toolbar;
-using PowerTables.Plugins.Total;
-using Reinforced.Lattice.Templating.BuiltIn;
+using Reinforced.Lattice;
+using Reinforced.Lattice.Adjustments;
+using Reinforced.Lattice.Commands;
+using Reinforced.Lattice.Configuration;
+using Reinforced.Lattice.Configuration.Json;
+using Reinforced.Lattice.Editing;
+using Reinforced.Lattice.Editing.Cells;
+using Reinforced.Lattice.Editing.Editors.Check;
+using Reinforced.Lattice.Editing.Editors.Display;
+using Reinforced.Lattice.Editing.Editors.Memo;
+using Reinforced.Lattice.Editing.Editors.PlainText;
+using Reinforced.Lattice.Editing.Editors.SelectList;
+using Reinforced.Lattice.Editing.Form;
+using Reinforced.Lattice.Editing.Rows;
+using Reinforced.Lattice.Filters.Range;
+using Reinforced.Lattice.Filters.Select;
+using Reinforced.Lattice.Filters.Value;
+using Reinforced.Lattice.Plugins.Checkboxify;
+using Reinforced.Lattice.Plugins.Formwatch;
+using Reinforced.Lattice.Plugins.Hideout;
+using Reinforced.Lattice.Plugins.Hierarchy;
+using Reinforced.Lattice.Plugins.Limit;
+using Reinforced.Lattice.Plugins.LoadingOverlap;
+using Reinforced.Lattice.Plugins.MouseSelect;
+using Reinforced.Lattice.Plugins.Ordering;
+using Reinforced.Lattice.Plugins.Paging;
+using Reinforced.Lattice.Plugins.RegularSelect;
+using Reinforced.Lattice.Plugins.Reload;
+using Reinforced.Lattice.Plugins.ResponseInfo;
+using Reinforced.Lattice.Plugins.Scrollbar;
+using Reinforced.Lattice.Plugins.Toolbar;
+using Reinforced.Lattice.Plugins.Total;
+using Reinforced.Lattice.Templates.BuiltIn;
 using Reinforced.Typings.Fluent;
 
-namespace PowerTables.Typings
+namespace Reinforced.Lattice.Typings
 {
     public class TypingsConfiguration
     {
@@ -45,12 +45,12 @@ namespace PowerTables.Typings
             builder.TryLookupDocumentationForAssembly(typeof(TableConfiguration).Assembly);
            
             builder.ExportAsInterface<TableConfiguration>()
-                .OverrideNamespace("PowerTables")
+                .OverrideNamespace("Reinforced.Lattice")
                 .WithPublicProperties()
                 .WithProperty(c => c.CallbackFunction, c => c.Type("(table:IMasterTable) => void"))
                 .WithProperty(c => c.TemplateSelector, c => c.Type("(row:IRow)=>string"))
                 .WithProperty(c => c.MessageFunction, c => c.Type("(msg: ILatticeMessage) => void"))
-                .WithProperty(c => c.QueryConfirmation, c => c.Type("(query:IPowerTableRequest,scope:QueryScope,continueFn:any) => void"))
+                .WithProperty(c => c.QueryConfirmation, c => c.Type("(query:ILatticeRequest,scope:QueryScope,continueFn:any) => void"))
                 ;
             builder.ExportAsInterface<DatepickerOptions>()
 
@@ -58,14 +58,14 @@ namespace PowerTables.Typings
                 .WithProperty(c => c.PutToDatePicker, c => c.Type("(element:HTMLElement, date?:Date) => void"))
                 .WithProperty(c => c.GetFromDatePicker, c => c.Type("(element:HTMLElement) => Date"))
                 .WithProperty(c => c.DestroyDatepicker, c => c.Type("(element:HTMLElement) => void"))
-                .OverrideNamespace("PowerTables")
+                .OverrideNamespace("Reinforced.Lattice")
                 ;
-            builder.ExportAsInterface<CoreTemplateIds>().WithPublicProperties().OverrideNamespace("PowerTables");
-            builder.ExportAsInterface<LatticeMessage>().WithPublicProperties().OverrideNamespace("PowerTables").WithProperty(c => c.IsMessage, c => c.Ignore());
-            builder.ExportAsEnum<MessageType>().OverrideNamespace("PowerTables");
+            builder.ExportAsInterface<CoreTemplateIds>().WithPublicProperties().OverrideNamespace("Reinforced.Lattice");
+            builder.ExportAsInterface<LatticeMessage>().WithPublicProperties().OverrideNamespace("Reinforced.Lattice").WithProperty(c => c.IsMessage, c => c.Ignore());
+            builder.ExportAsEnum<MessageType>().OverrideNamespace("Reinforced.Lattice");
 
             builder.ExportAsInterface<ColumnConfiguration>()
-                .OverrideNamespace("PowerTables")
+                .OverrideNamespace("Reinforced.Lattice")
                 .WithPublicProperties()
                 .WithProperty(c => c.CellRenderingValueFunction, c => c.Type("(a:any) => string"))
                 .WithProperty(c => c.ClientValueFunction, c => c.Type("(a:any) => any"))
@@ -73,7 +73,7 @@ namespace PowerTables.Typings
                 .WithProperty(c => c.TemplateSelector, c => c.Type("(cell:ICell)=>string"))
                 ;
 
-            builder.ExportAsInterface<PluginConfiguration>().OverrideNamespace("PowerTables").WithPublicProperties();
+            builder.ExportAsInterface<PluginConfiguration>().OverrideNamespace("Reinforced.Lattice").WithPublicProperties();
 
             builder.ExportAsInterface<FormwatchClientConfiguration>().WithPublicProperties();
             builder.ExportAsInterface<FormwatchFieldData>().WithPublicProperties()
@@ -113,17 +113,17 @@ namespace PowerTables.Typings
                 .WithProperty(c => c.IsDeferred, c => c.Ignore())
                 ;
 
-            builder.ExportAsInterface<Query>().OverrideNamespace("PowerTables").WithPublicProperties()
+            builder.ExportAsInterface<Query>().OverrideNamespace("Reinforced.Lattice").WithPublicProperties()
                 .WithProperty(c => c.Partition, x => x.ForceNullable(true));
-            builder.ExportAsInterface<Partition>().OverrideNamespace("PowerTables").WithPublicProperties();
-            builder.ExportAsEnum<Ordering>().OverrideNamespace("PowerTables");
+            builder.ExportAsInterface<Partition>().OverrideNamespace("Reinforced.Lattice").WithPublicProperties();
+            builder.ExportAsEnum<Ordering>().OverrideNamespace("Reinforced.Lattice");
 
             #region Toolbar
             builder.ExportAsInterface<ToolbarButtonsClientConfiguration>().WithPublicProperties();
             builder.ExportAsInterface<ToolbarButtonClientConfiguration>()
                 .WithProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                 .WithProperty(c => c.OnClick,
-                    c => c.Type("(table:any /*PowerTables.PowerTable*/,menuElement:any)=>void"));
+                    c => c.Type("(table:any /*Reinforced.Lattice.PowerTable*/,menuElement:any)=>void"));
             #endregion
 
             #region Totals
@@ -157,7 +157,7 @@ namespace PowerTables.Typings
             builder.ExportAsInterface<PlainTextEditorUiConfig>()
                 .WithPublicProperties()
                 .WithProperty(c => c.FormatFunction, c => c.Type("(value:any,column:IColumn) => string"))
-                .WithProperty(c => c.ParseFunction, c => c.Type("(value:string,column:IColumn,errors:PowerTables.Editing.IValidationMessage[]) => any"))
+                .WithProperty(c => c.ParseFunction, c => c.Type("(value:string,column:IColumn,errors:Reinforced.Lattice.Editing.IValidationMessage[]) => any"))
                 ;
 
             #endregion
@@ -170,7 +170,7 @@ namespace PowerTables.Typings
 
             builder.ExportAsInterface<ReloadUiConfiguration>().WithPublicProperties();
 
-            builder.ExportAsInterface<ConfiguredSubscriptionInfo>().OverrideNamespace("PowerTables")
+            builder.ExportAsInterface<ConfiguredSubscriptionInfo>().OverrideNamespace("Reinforced.Lattice")
                 .WithPublicProperties()
                 .WithProperty(c => c.Handler, c => c.Type("(dataObject:any, originalEvent:any) => void"));
 
@@ -184,17 +184,17 @@ namespace PowerTables.Typings
             #region Selection
 
             builder.ExportAsInterface<SelectionConfiguration>()
-                .OverrideNamespace("PowerTables")
+                .OverrideNamespace("Reinforced.Lattice")
                 .WithPublicProperties()
                 .WithProperty(c => c.CanSelectRowFunction, c => c.Type("(dataObject:any)=>boolean"))
                 .WithProperty(c => c.CanSelectCellFunction, c => c.Type("(dataObject:any,column:string,select:boolean)=>boolean"))
                 ;
-            builder.ExportAsInterface<SelectionAdditionalData>().WithPublicProperties().OverrideNamespace("PowerTables.Adjustments");
-            builder.ExportAsInterface<ReloadAdditionalData>().WithPublicProperties().OverrideNamespace("PowerTables.Adjustments");
-            builder.ExportAsEnum<SelectionToggle>().OverrideNamespace("PowerTables.Adjustments");
+            builder.ExportAsInterface<SelectionAdditionalData>().WithPublicProperties().OverrideNamespace("Reinforced.Lattice.Adjustments");
+            builder.ExportAsInterface<ReloadAdditionalData>().WithPublicProperties().OverrideNamespace("Reinforced.Lattice.Adjustments");
+            builder.ExportAsEnum<SelectionToggle>().OverrideNamespace("Reinforced.Lattice.Adjustments");
 
-            builder.ExportAsEnum<PowerTables.Configuration.Json.SelectAllBehavior>().OverrideNamespace("PowerTables");
-            builder.ExportAsEnum<PowerTables.Configuration.Json.ResetSelectionBehavior>().OverrideNamespace("PowerTables");
+            builder.ExportAsEnum<SelectAllBehavior>().OverrideNamespace("Reinforced.Lattice");
+            builder.ExportAsEnum<ResetSelectionBehavior>().OverrideNamespace("Reinforced.Lattice");
 
             #endregion
 
@@ -233,18 +233,18 @@ namespace PowerTables.Typings
             #endregion
 
             #region Partition
-            builder.ExportAsInterface<PartitionConfiguration>().OverrideNamespace("PowerTables").WithPublicProperties();
-            builder.ExportAsInterface<IPartitionRowData>().OverrideNamespace("PowerTables").WithPublicProperties()
+            builder.ExportAsInterface<PartitionConfiguration>().OverrideNamespace("Reinforced.Lattice").WithPublicProperties();
+            builder.ExportAsInterface<IPartitionRowData>().OverrideNamespace("Reinforced.Lattice").WithPublicProperties()
                 .WithProperty(c=>c.CanLoadMore, c => c.Type("()=>boolean"))
                 .WithProperty(c=>c.IsClientSearchPending, c => c.Type("()=>boolean"))
                 .WithProperty(c=>c.IsLoading, c => c.Type("()=>boolean"))
                 .WithProperty(c=>c.UiColumnsCount, c => c.Type("()=>number"))
-                .WithProperty(c=>c.Stats, c => c.Type("()=>PowerTables.IStatsModel"))
+                .WithProperty(c=>c.Stats, c => c.Type("()=>Reinforced.Lattice.IStatsModel"))
                 .WithProperty(c=>c.LoadAhead, c => c.Type("()=>number"))
                 ;
-            builder.ExportAsInterface<IStatsModel>().OverrideNamespace("PowerTables")
+            builder.ExportAsInterface<IStatsModel>().OverrideNamespace("Reinforced.Lattice")
                 .WithProperty(c => c.Skip, c => c.Type("()=>number"))
-                .WithProperty(c => c.Mode, c => c.Type("()=>PowerTables.PartitionType"))
+                .WithProperty(c => c.Mode, c => c.Type("()=>Reinforced.Lattice.PartitionType"))
                 .WithProperty(c => c.Take, c => c.Type("()=>number"))
                 .WithProperty(c => c.ServerCount, c => c.Type("()=>number"))
                 .WithProperty(c => c.Stored, c => c.Type("()=>number"))
@@ -256,8 +256,8 @@ namespace PowerTables.Typings
                 .WithProperty(c => c.IsAllDataLoaded, c => c.Type("()=>boolean"))
                 .WithProperty(c => c.IsSetFinite, c => c.Type("()=>boolean"))
                 ;
-            builder.ExportAsEnum<PartitionType>().OverrideNamespace("PowerTables");
-            builder.ExportAsInterface<ServerPartitionConfiguration>().OverrideNamespace("PowerTables").WithPublicProperties();
+            builder.ExportAsEnum<PartitionType>().OverrideNamespace("Reinforced.Lattice");
+            builder.ExportAsInterface<ServerPartitionConfiguration>().OverrideNamespace("Reinforced.Lattice").WithPublicProperties();
             #endregion
 
 

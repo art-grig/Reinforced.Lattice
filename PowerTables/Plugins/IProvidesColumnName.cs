@@ -1,4 +1,4 @@
-﻿namespace PowerTables.Plugins
+﻿namespace Reinforced.Lattice.Plugins
 {
     /// <summary>
     /// Column-powered UI configuration

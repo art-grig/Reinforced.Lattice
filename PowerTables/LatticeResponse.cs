@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 using Newtonsoft.Json;
-using PowerTables.Processing;
+using Reinforced.Lattice.Processing;
 
-namespace PowerTables
+namespace Reinforced.Lattice
 {
     /// <summary>
     /// The respons that is being sent to client script. 

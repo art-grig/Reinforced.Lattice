@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace PowerTables.CellTemplating
+namespace Reinforced.Lattice.CellTemplating
 {
     public static class SwitchExtensions
     {

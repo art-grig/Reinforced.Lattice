@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Text;
-using Reinforced.Lattice.Templating.Compilation;
+using Reinforced.Lattice.Templates.Compilation;
 
-namespace Reinforced.Lattice.Templating
+namespace Reinforced.Lattice.Templates
 {
     public static class RawExtensions
     {

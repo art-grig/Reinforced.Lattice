@@ -1,7 +1,7 @@
-﻿using Reinforced.Lattice.Templating.BuiltIn;
-using Reinforced.Lattice.Templating.Compilation;
+﻿using Reinforced.Lattice.Templates.BuiltIn;
+using Reinforced.Lattice.Templates.Compilation;
 
-namespace Reinforced.Lattice.Templating.Plugins.Ordering
+namespace Reinforced.Lattice.Templates.Plugins.Ordering
 {
     public class OrderingPluginTemplateRegion : PluginTemplateRegion,
         IModelProvider<IOrderingPluginModel>,

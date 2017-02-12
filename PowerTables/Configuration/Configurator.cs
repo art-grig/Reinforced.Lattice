@@ -2,16 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using PowerTables.Configuration.Json;
+using Reinforced.Lattice.Configuration.Json;
 
-namespace PowerTables.Configuration
+namespace Reinforced.Lattice.Configuration
 {
     /// <summary>
-    /// PowerTables table configurator. 
+    /// Reinforced.Lattice table configurator. 
     /// This class stores configuration for all columns, filters, plugins etc and also 
     /// server processing configuration. It is able to extract necessary JSON configuration and provide it to 
     /// client side. 
-    /// This class is entry point for entire PowerTables. 
+    /// This class is entry point for entire Reinforced.Lattice. 
     /// It is configurable in a fluent way so feel free to write tables configuration 
     /// as fluent method chains. Then simply create table configurator where it is needed and 
     /// configure with corresponding method chain. 

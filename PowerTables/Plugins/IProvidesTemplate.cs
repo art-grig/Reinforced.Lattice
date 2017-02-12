@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace PowerTables.Plugins
+namespace Reinforced.Lattice.Plugins
 {
     /// <summary>
     /// Plugin configuration that provides template ID overriding

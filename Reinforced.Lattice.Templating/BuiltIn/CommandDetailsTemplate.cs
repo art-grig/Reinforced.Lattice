@@ -1,4 +1,4 @@
-﻿namespace Reinforced.Lattice.Templating.BuiltIn
+﻿namespace Reinforced.Lattice.Templates.BuiltIn
 {
     public class CommandDetailsTemplateRegion<TRow, TDetails, TConfirmation> : PluginTemplateRegion, IModelProvider<ICommandDetails<TRow, TDetails, TConfirmation>>,
         IProvidesDatepicker

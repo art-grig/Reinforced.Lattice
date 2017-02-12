@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
-using PowerTables.Commands;
+using Reinforced.Lattice.Commands;
 
-namespace PowerTables.Configuration.Json
+namespace Reinforced.Lattice.Configuration.Json
 {
     /// <summary>
     /// Configuration JSON object for whole table

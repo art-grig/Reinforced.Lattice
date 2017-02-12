@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 
-namespace PowerTables.Plugins.Formwatch
+namespace Reinforced.Lattice.Plugins.Formwatch
 {
     /// <summary>
     /// Formwatch configuration builder

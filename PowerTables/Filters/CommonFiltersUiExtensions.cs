@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json.Linq;
-using PowerTables.CellTemplating;
-using PowerTables.Plugins;
+using Reinforced.Lattice.CellTemplating;
+using Reinforced.Lattice.Plugins;
 
-namespace PowerTables.Filters
+namespace Reinforced.Lattice.Filters
 {
 
     public interface IHideableFilter

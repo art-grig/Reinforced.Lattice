@@ -1,7 +1,7 @@
-﻿using PowerTables.Configuration;
-using PowerTables.Configuration.Json;
+﻿using Reinforced.Lattice.Configuration;
+using Reinforced.Lattice.Configuration.Json;
 
-namespace PowerTables.Plugins.Loading
+namespace Reinforced.Lattice.Plugins.Loading
 {
     /// <summary>
     /// "Loading" plugin 

@@ -1,6 +1,6 @@
-﻿using PowerTables.Configuration;
+﻿using Reinforced.Lattice.Configuration;
 
-namespace PowerTables.Plugins.SimpeSelect
+namespace Reinforced.Lattice.Plugins.SimpeSelect
 {
     public static class SimpleSelectExtensions
     {

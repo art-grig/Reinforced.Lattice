@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Newtonsoft.Json;
-using Reinforced.Lattice.Templating.Expressions;
+using Reinforced.Lattice.Templates.Expressions;
 
-namespace Reinforced.Lattice.Templating
+namespace Reinforced.Lattice.Templates
 {
     /// <summary>
     /// JSON configuration of particular visual state for particular element

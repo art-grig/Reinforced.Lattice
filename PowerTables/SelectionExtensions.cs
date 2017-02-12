@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using PowerTables.Configuration;
+using Reinforced.Lattice.Configuration;
 
-namespace PowerTables
+namespace Reinforced.Lattice
 {
     /// <summary>
     /// Entry for selection data

@@ -1,4 +1,4 @@
-﻿namespace PowerTables.Editing.Cells
+﻿namespace Reinforced.Lattice.Editing.Cells
 {
     public class CellsEditUiConfig : EditFormUiConfigBase
     {

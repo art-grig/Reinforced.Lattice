@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace PowerTables
+namespace Reinforced.Lattice
 {
     /// <summary>
     /// It is token storage for deferred requests handling. 

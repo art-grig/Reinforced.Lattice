@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
 
-namespace PowerTables.Editing
+namespace Reinforced.Lattice.Editing
 {
     public interface INongenericHandlerConfiguration
     {

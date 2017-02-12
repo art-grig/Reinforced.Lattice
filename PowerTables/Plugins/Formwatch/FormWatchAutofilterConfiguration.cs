@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace PowerTables.Plugins.Formwatch
+namespace Reinforced.Lattice.Plugins.Formwatch
 {
     public class FormWatchAutofilterConfiguration<TCol, TForm>
     {

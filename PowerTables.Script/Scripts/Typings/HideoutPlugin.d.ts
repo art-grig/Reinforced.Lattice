@@ -1,4 +1,4 @@
-﻿declare module PowerTables.Plugins {
+﻿declare module Reinforced.Lattice.Plugins {
 
     /**
      * Plugin for hiding and showing columns

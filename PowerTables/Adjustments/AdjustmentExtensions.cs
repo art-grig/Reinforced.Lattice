@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using PowerTables.Configuration;
+using Reinforced.Lattice.Configuration;
 
-namespace PowerTables.Adjustments
+namespace Reinforced.Lattice.Adjustments
 {
     public static class AdjustmentExtensions
     {

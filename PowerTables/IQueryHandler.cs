@@ -1,7 +1,7 @@
 ﻿using System.Linq;
-using PowerTables.Configuration;
+using Reinforced.Lattice.Configuration;
 
-namespace PowerTables
+namespace Reinforced.Lattice
 {
     /// <summary>
     /// Query handler interface. The implementor is responsible for manipulation with source data based on table consifuration and original request

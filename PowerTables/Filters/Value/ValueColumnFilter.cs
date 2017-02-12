@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
-using PowerTables.Configuration;
+using Reinforced.Lattice.Configuration;
 
-namespace PowerTables.Filters.Value
+namespace Reinforced.Lattice.Filters.Value
 {
     /// <summary>
     /// Value column filter supports specifying only one value

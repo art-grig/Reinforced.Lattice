@@ -1,7 +1,7 @@
 ﻿using System;
-using Reinforced.Lattice.Templating.Compilation;
+using Reinforced.Lattice.Templates.Compilation;
 
-namespace Reinforced.Lattice.Templating
+namespace Reinforced.Lattice.Templates
 {
     public class TemplateRegion : DeclaratorBase, IDisposable, ITemplateRegion
     {
@@ -14,7 +14,7 @@ namespace Reinforced.Lattice.Templating
             _writer = (ScopedWriter)scope.Flow.Out;
             _scope = scope;
             Type = type;
-            _writer.Write(string.Format(";PowerTables.Templating._ltcTpl._('{0}','{1}',function(o,d,w,p,s){{p.d(o,{2});", prefix, id, (int)type));
+            _writer.Write(string.Format(";Reinforced.Lattice.Templating._ltcTpl._('{0}','{1}',function(o,d,w,p,s){{p.d(o,{2});", prefix, id, (int)type));
             scope.Flow.CrunchingTemplate = true;
         }
 

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
-namespace PowerTables.CellTemplating
+namespace Reinforced.Lattice.CellTemplating
 {
     public class TemplateDataWrapper<T>
     {

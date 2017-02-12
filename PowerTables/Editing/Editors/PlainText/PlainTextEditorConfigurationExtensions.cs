@@ -2,7 +2,7 @@
 using System.Linq.Expressions;
 using Newtonsoft.Json.Linq;
 
-namespace PowerTables.Editing.Editors.PlainText
+namespace Reinforced.Lattice.Editing.Editors.PlainText
 {
 
     public static class PlainTextEditorConfigurationExtensions

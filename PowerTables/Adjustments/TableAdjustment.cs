@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
-using PowerTables.Processing;
+using Reinforced.Lattice.Processing;
 
-namespace PowerTables
+namespace Reinforced.Lattice
 {
     public sealed class TableAdjustment : IAdditionalDataProvider
     {

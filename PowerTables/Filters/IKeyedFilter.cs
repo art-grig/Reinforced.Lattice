@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PowerTables.Filters
+namespace Reinforced.Lattice.Filters
 {
     /// <summary>
     /// Filter with extracting function

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using PowerTables.Plugins;
+using Reinforced.Lattice.Plugins;
 
-namespace PowerTables.Configuration.Json
+namespace Reinforced.Lattice.Configuration.Json
 {
     /// <summary>
     /// Set of extensions for working with JSON configuration

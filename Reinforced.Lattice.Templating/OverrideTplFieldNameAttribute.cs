@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Reinforced.Lattice.Templating
+namespace Reinforced.Lattice.Templates
 {
     /// <summary>
     /// Overrides models field name for handlebars

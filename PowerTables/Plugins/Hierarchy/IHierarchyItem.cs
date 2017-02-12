@@ -1,4 +1,4 @@
-﻿namespace PowerTables.Plugins.Hierarchy
+﻿namespace Reinforced.Lattice.Plugins.Hierarchy
 {
     /// <summary>
     /// Derive your row ViewModel from this interface to make it hierarchyable

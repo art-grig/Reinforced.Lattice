@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
-using PowerTables.Configuration;
-using PowerTables.Configuration.Json;
-using PowerTables.Plugins;
+using Reinforced.Lattice.Configuration;
+using Reinforced.Lattice.Configuration.Json;
+using Reinforced.Lattice.Plugins;
 
-namespace PowerTables.Filters.Range
+namespace Reinforced.Lattice.Filters.Range
 {
     /// <summary>
     /// Extension methods for RangeFilter

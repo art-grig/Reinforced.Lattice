@@ -1,10 +1,10 @@
 ﻿using System;
 using System.IO;
-using PowerTables.Plugins.Paging;
-using Reinforced.Lattice.Templating.Compilation;
-using Reinforced.Lattice.Templating.Expressions;
+using Reinforced.Lattice.Plugins.Paging;
+using Reinforced.Lattice.Templates.Compilation;
+using Reinforced.Lattice.Templates.Expressions;
 
-namespace Reinforced.Lattice.Templating.Plugins.Paging
+namespace Reinforced.Lattice.Templates.Plugins.Paging
 {
     public class PagingTemplateRegion :
         PluginTemplateRegion

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
-using PowerTables.Configuration;
+using Reinforced.Lattice.Configuration;
 
-namespace PowerTables
+namespace Reinforced.Lattice
 {
     /// <summary>
     /// Various sets of source data, selected and collected for response construction

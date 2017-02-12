@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace PowerTables
+namespace Reinforced.Lattice
 {
     public static class SerializationSettings
     {

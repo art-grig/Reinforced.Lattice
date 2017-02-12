@@ -3,7 +3,7 @@
 //     the code is regenerated.
 
 
-module PowerTables {
+module Reinforced.Lattice {
 	export interface ITableConfiguration
 	{
 		EmptyFiltersPlaceholder: string;
@@ -11,21 +11,21 @@ module PowerTables {
 		TableRootId: string;
 		OperationalAjaxUrl: string;
 		LoadImmediately: boolean;
-		DatepickerOptions: PowerTables.IDatepickerOptions;
-		Columns: PowerTables.IColumnConfiguration[];
-		PluginsConfiguration: PowerTables.IPluginConfiguration[];
+		DatepickerOptions: Reinforced.Lattice.IDatepickerOptions;
+		Columns: Reinforced.Lattice.IColumnConfiguration[];
+		PluginsConfiguration: Reinforced.Lattice.IPluginConfiguration[];
 		StaticData: string;
-		CoreTemplates: PowerTables.ICoreTemplateIds;
+		CoreTemplates: Reinforced.Lattice.ICoreTemplateIds;
 		KeyFields: string[];
 		CallbackFunction: (table:IMasterTable) => void;
 		TemplateSelector: (row:IRow)=>string;
 		MessageFunction: (msg: ILatticeMessage) => void;
-		Subscriptions: PowerTables.IConfiguredSubscriptionInfo[];
-		QueryConfirmation: (query:IPowerTableRequest,scope:QueryScope,continueFn:any) => void;
-		SelectionConfiguration: PowerTables.ISelectionConfiguration;
+		Subscriptions: Reinforced.Lattice.IConfiguredSubscriptionInfo[];
+		QueryConfirmation: (query:ILatticeRequest,scope:QueryScope,continueFn:any) => void;
+		SelectionConfiguration: Reinforced.Lattice.ISelectionConfiguration;
 		PrefetchedData: any[];
-		Commands: { [key:string]: PowerTables.Commands.ICommandDescription };
-		Partition: PowerTables.IPartitionConfiguration;
+		Commands: { [key:string]: Reinforced.Lattice.Commands.ICommandDescription };
+		Partition: Reinforced.Lattice.IPartitionConfiguration;
 	}
 	export interface IDatepickerOptions
 	{
@@ -44,7 +44,7 @@ module PowerTables {
 	}
 	export interface ILatticeMessage
 	{
-		Type: PowerTables.MessageType;
+		Type: Reinforced.Lattice.MessageType;
 		Title: string;
 		Details: string;
 		Class: string;
@@ -83,7 +83,7 @@ module PowerTables {
 	}
 	export interface ILatticeResponse
 	{
-		Message: PowerTables.ILatticeMessage;
+		Message: Reinforced.Lattice.ILatticeMessage;
 		ResultsCount: number;
 		BatchSize: number;
 		PageIndex: number;
@@ -94,12 +94,12 @@ module PowerTables {
 	export interface ILatticeRequest
 	{
 		Command: string;
-		Query: PowerTables.IQuery;
+		Query: Reinforced.Lattice.IQuery;
 	}
 	export interface IQuery
 	{
-		Partition?: PowerTables.IPartition;
-		Orderings: { [key:string]: PowerTables.Ordering };
+		Partition?: Reinforced.Lattice.IPartition;
+		Orderings: { [key:string]: Reinforced.Lattice.Ordering };
 		Filterings: { [key:string]: string };
 		AdditionalData: { [key:string]: string };
 		StaticDataJson: string;
@@ -114,11 +114,11 @@ module PowerTables {
 	}
 	export interface ITableAdjustment
 	{
-		Message: PowerTables.ILatticeMessage;
+		Message: Reinforced.Lattice.ILatticeMessage;
 		IsUpdateResult: boolean;
 		UpdatedData: any[];
 		RemoveKeys: string[];
-		OtherTablesAdjustments: { [key:string]: PowerTables.ITableAdjustment };
+		OtherTablesAdjustments: { [key:string]: Reinforced.Lattice.ITableAdjustment };
 		AdditionalData: any;
 	}
 	export interface IConfiguredSubscriptionInfo
@@ -131,8 +131,8 @@ module PowerTables {
 	}
 	export interface ISelectionConfiguration
 	{
-		SelectAllBehavior: PowerTables.SelectAllBehavior;
-		ResetSelectionBehavior: PowerTables.ResetSelectionBehavior;
+		SelectAllBehavior: Reinforced.Lattice.SelectAllBehavior;
+		ResetSelectionBehavior: Reinforced.Lattice.ResetSelectionBehavior;
 		CanSelectRowFunction: (dataObject:any)=>boolean;
 		CanSelectCellFunction: (dataObject:any,column:string,select:boolean)=>boolean;
 		NonselectableColumns: string[];
@@ -141,17 +141,17 @@ module PowerTables {
 	}
 	export interface IPartitionConfiguration
 	{
-		Type: PowerTables.PartitionType;
+		Type: Reinforced.Lattice.PartitionType;
 		InitialSkip: number;
 		InitialTake: number;
-		Server: PowerTables.IServerPartitionConfiguration;
-		Sequential: PowerTables.IServerPartitionConfiguration;
+		Server: Reinforced.Lattice.IServerPartitionConfiguration;
+		Sequential: Reinforced.Lattice.IServerPartitionConfiguration;
 	}
 	export interface IPartitionRowData
 	{
 		UiColumnsCount: ()=>number;
 		IsLoading: ()=>boolean;
-		Stats: ()=>PowerTables.IStatsModel;
+		Stats: ()=>Reinforced.Lattice.IStatsModel;
 		IsClientSearchPending: ()=>boolean;
 		CanLoadMore: ()=>boolean;
 		LoadAhead: ()=>number;
@@ -159,7 +159,7 @@ module PowerTables {
 	export interface IStatsModel
 	{
 		IsSetFinite: ()=>boolean;
-		Mode: ()=>PowerTables.PartitionType;
+		Mode: ()=>Reinforced.Lattice.PartitionType;
 		ServerCount: ()=>number;
 		Stored: ()=>number;
 		Filtered: ()=>number;
@@ -204,12 +204,12 @@ module PowerTables {
 		Sequential = 2, 
 	}
 }
-module PowerTables.Plugins.Formwatch {
+module Reinforced.Lattice.Plugins.Formwatch {
 	export interface IFormwatchClientConfiguration
 	{
 		DoNotEmbed: boolean;
-		FieldsConfiguration: PowerTables.Plugins.Formwatch.IFormwatchFieldData[];
-		FiltersMappings: { [key:string]: PowerTables.Plugins.Formwatch.IFormWatchFilteringsMappings };
+		FieldsConfiguration: Reinforced.Lattice.Plugins.Formwatch.IFormwatchFieldData[];
+		FiltersMappings: { [key:string]: Reinforced.Lattice.Plugins.Formwatch.IFormWatchFilteringsMappings };
 	}
 	export interface IFormwatchFieldData
 	{
@@ -237,7 +237,7 @@ module PowerTables.Plugins.Formwatch {
 		ForClient: boolean;
 	}
 }
-module PowerTables.Plugins.Hideout {
+module Reinforced.Lattice.Plugins.Hideout {
 	export interface IHideoutPluginConfiguration
 	{
 		ShowMenu: boolean;
@@ -247,7 +247,7 @@ module PowerTables.Plugins.Hideout {
 		DefaultTemplateId: string;
 	}
 }
-module PowerTables.Filters.Range {
+module Reinforced.Lattice.Filters.Range {
 	export interface IRangeFilterUiConfig
 	{
 		ColumnName: string;
@@ -263,7 +263,7 @@ module PowerTables.Filters.Range {
 		DefaultTemplateId: string;
 	}
 }
-module PowerTables.Filters.Value {
+module Reinforced.Lattice.Filters.Value {
 	export interface IValueFilterUiConfig
 	{
 		Placeholder: string;
@@ -277,7 +277,7 @@ module PowerTables.Filters.Value {
 		DefaultTemplateId: string;
 	}
 }
-module PowerTables.Plugins.ResponseInfo {
+module Reinforced.Lattice.Plugins.ResponseInfo {
 	export interface IResponseInfoClientConfiguration
 	{
 		ClientCalculators: { [key:string] : (data:IClientDataResults) => any };
@@ -286,20 +286,20 @@ module PowerTables.Plugins.ResponseInfo {
 		DefaultTemplateId: string;
 	}
 }
-module PowerTables.Filters.Select {
+module Reinforced.Lattice.Filters.Select {
 	export interface ISelectFilterUiConfig
 	{
 		SelectedValue: string;
 		IsMultiple: boolean;
 		ColumnName: string;
-		Items: PowerTables.IUiListItem[];
+		Items: Reinforced.Lattice.IUiListItem[];
 		Hidden: boolean;
 		ClientFiltering: boolean;
 		ClientFilteringFunction: (object: any, selectedValues:string[], query: IQuery)=>boolean;
 		DefaultTemplateId: string;
 	}
 }
-module PowerTables.Plugins.Limit {
+module Reinforced.Lattice.Plugins.Limit {
 	export interface ILimitClientConfiguration
 	{
 		LimitValues: number[];
@@ -307,15 +307,15 @@ module PowerTables.Plugins.Limit {
 		DefaultTemplateId: string;
 	}
 }
-module PowerTables.Plugins.Ordering {
+module Reinforced.Lattice.Plugins.Ordering {
 	export interface IOrderingConfiguration
 	{
-		DefaultOrderingsForColumns: { [key:string]: PowerTables.Ordering };
+		DefaultOrderingsForColumns: { [key:string]: Reinforced.Lattice.Ordering };
 		ClientSortableColumns: {[key:string]:(a:any,b:any) => number};
 		DefaultTemplateId: string;
 	}
 }
-module PowerTables.Plugins.Paging {
+module Reinforced.Lattice.Plugins.Paging {
 	export interface IPagingClientConfiguration
 	{
 		ArrowsMode: boolean;
@@ -326,10 +326,10 @@ module PowerTables.Plugins.Paging {
 		DefaultTemplateId: string;
 	}
 }
-module PowerTables.Plugins.Toolbar {
+module Reinforced.Lattice.Plugins.Toolbar {
 	export interface IToolbarButtonsClientConfiguration
 	{
-		Buttons: PowerTables.Plugins.Toolbar.IToolbarButtonClientConfiguration[];
+		Buttons: Reinforced.Lattice.Plugins.Toolbar.IToolbarButtonClientConfiguration[];
 		DefaultTemplateId: string;
 	}
 	export interface IToolbarButtonClientConfiguration
@@ -342,8 +342,8 @@ module PowerTables.Plugins.Toolbar {
 		BlackoutWhileCommand: boolean;
 		DisableIfNothingChecked: boolean;
 		Title: string;
-		OnClick: (table:any /*PowerTables.PowerTable*/,menuElement:any)=>void;
-		Submenu: PowerTables.Plugins.Toolbar.IToolbarButtonClientConfiguration[];
+		OnClick: (table:any /*Reinforced.Lattice.PowerTable*/,menuElement:any)=>void;
+		Submenu: Reinforced.Lattice.Plugins.Toolbar.IToolbarButtonClientConfiguration[];
 		HasSubmenu: boolean;
 		IsMenu: boolean;
 		Separator: boolean;
@@ -351,7 +351,7 @@ module PowerTables.Plugins.Toolbar {
 		IsDisabled: boolean;
 	}
 }
-module PowerTables.Plugins.Total {
+module Reinforced.Lattice.Plugins.Total {
 	export interface ITotalResponse
 	{
 		TotalsForColumns: { [key:string]: any };
@@ -363,54 +363,54 @@ module PowerTables.Plugins.Total {
 		ColumnsCalculatorFunctions: { [key:string] : (data:IClientDataResults) => any };
 	}
 }
-module PowerTables.Editing {
+module Reinforced.Lattice.Editing {
 	export interface IEditFieldUiConfigBase
 	{
 		TemplateId: string;
 		FieldName: string;
 		PluginId: string;
 		ValidationMessagesTemplateId: string;
-		FakeColumn: PowerTables.IColumnConfiguration;
+		FakeColumn: Reinforced.Lattice.IColumnConfiguration;
 		ValidationMessagesOverride: { [key:string]: string };
 	}
 	export interface IEditFormUiConfigBase
 	{
-		Fields: PowerTables.Editing.IEditFieldUiConfigBase[];
+		Fields: Reinforced.Lattice.Editing.IEditFieldUiConfigBase[];
 	}
 }
-module PowerTables.Editing.Cells {
-	export interface ICellsEditUiConfig extends PowerTables.Editing.IEditFormUiConfigBase
+module Reinforced.Lattice.Editing.Cells {
+	export interface ICellsEditUiConfig extends Reinforced.Lattice.Editing.IEditFormUiConfigBase
 	{
 		BeginEditEventId: string;
 	}
 }
-module PowerTables.Editing.Form {
-	export interface IFormEditUiConfig extends PowerTables.Editing.IEditFormUiConfigBase
+module Reinforced.Lattice.Editing.Form {
+	export interface IFormEditUiConfig extends Reinforced.Lattice.Editing.IEditFormUiConfigBase
 	{
 		FormTargetSelector: string;
 		FormTemplateId: string;
 	}
 }
-module PowerTables.Editing.Rows {
-	export interface IRowsEditUiConfig extends PowerTables.Editing.IEditFormUiConfigBase
+module Reinforced.Lattice.Editing.Rows {
+	export interface IRowsEditUiConfig extends Reinforced.Lattice.Editing.IEditFormUiConfigBase
 	{
 		BeginEditEventId: string;
 		CommitEventId: string;
 		RejectEventId: string;
 	}
 }
-module PowerTables.Editing.Editors.Display {
-	export interface IDisplayingEditorUiConfig extends PowerTables.Editing.IEditFieldUiConfigBase
+module Reinforced.Lattice.Editing.Editors.Display {
+	export interface IDisplayingEditorUiConfig extends Reinforced.Lattice.Editing.IEditFieldUiConfigBase
 	{
 		PluginId: string;
 		Template: (cell:ICell) => string;
 	}
 }
-module PowerTables.Editing.Editors.SelectList {
-	export interface ISelectListEditorUiConfig extends PowerTables.Editing.IEditFieldUiConfigBase
+module Reinforced.Lattice.Editing.Editors.SelectList {
+	export interface ISelectListEditorUiConfig extends Reinforced.Lattice.Editing.IEditFieldUiConfigBase
 	{
 		PluginId: string;
-		SelectListItems: PowerTables.IUiListItem[];
+		SelectListItems: Reinforced.Lattice.IUiListItem[];
 		AllowEmptyString: boolean;
 		EmptyElementText: string;
 		AddEmptyElement: boolean;
@@ -418,8 +418,8 @@ module PowerTables.Editing.Editors.SelectList {
 		MissingValueFunction: (a:any)=>any;
 	}
 }
-module PowerTables.Editing.Editors.Memo {
-	export interface IMemoEditorUiConfig extends PowerTables.Editing.IEditFieldUiConfigBase
+module Reinforced.Lattice.Editing.Editors.Memo {
+	export interface IMemoEditorUiConfig extends Reinforced.Lattice.Editing.IEditFieldUiConfigBase
 	{
 		PluginId: string;
 		WarningChars: number;
@@ -429,28 +429,28 @@ module PowerTables.Editing.Editors.Memo {
 		AllowEmptyString: boolean;
 	}
 }
-module PowerTables.Editing.Editors.Check {
-	export interface ICheckEditorUiConfig extends PowerTables.Editing.IEditFieldUiConfigBase
+module Reinforced.Lattice.Editing.Editors.Check {
+	export interface ICheckEditorUiConfig extends Reinforced.Lattice.Editing.IEditFieldUiConfigBase
 	{
 		PluginId: string;
 		IsMandatory: boolean;
 	}
 }
-module PowerTables.Editing.Editors.PlainText {
-	export interface IPlainTextEditorUiConfig extends PowerTables.Editing.IEditFieldUiConfigBase
+module Reinforced.Lattice.Editing.Editors.PlainText {
+	export interface IPlainTextEditorUiConfig extends Reinforced.Lattice.Editing.IEditFieldUiConfigBase
 	{
 		PluginId: string;
 		ValidationRegex: string;
 		EnableBasicValidation: boolean;
 		FormatFunction: (value:any,column:IColumn) => string;
-		ParseFunction: (value:string,column:IColumn,errors:PowerTables.Editing.IValidationMessage[]) => any;
+		ParseFunction: (value:string,column:IColumn,errors:Reinforced.Lattice.Editing.IValidationMessage[]) => any;
 		FloatRemoveSeparatorsRegex: string;
 		FloatDotReplaceSeparatorsRegex: string;
 		AllowEmptyString: boolean;
 		MaxAllowedLength: number;
 	}
 }
-module PowerTables.Plugins.LoadingOverlap {
+module Reinforced.Lattice.Plugins.LoadingOverlap {
 	export interface ILoadingOverlapUiConfig
 	{
 		Overlaps: { [key:string]: string };
@@ -462,7 +462,7 @@ module PowerTables.Plugins.LoadingOverlap {
 		Parent = 2, 
 	}
 }
-module PowerTables.Plugins.Reload {
+module Reinforced.Lattice.Plugins.Reload {
 	export interface IReloadUiConfiguration
 	{
 		ForceReload: boolean;
@@ -470,12 +470,12 @@ module PowerTables.Plugins.Reload {
 		DefaultTemplateId: string;
 	}
 }
-module PowerTables.Plugins.Hierarchy {
+module Reinforced.Lattice.Plugins.Hierarchy {
 	export interface IHierarchyUiConfiguration
 	{
 		ParentKeyFields: string[];
-		ExpandBehavior: PowerTables.Plugins.Hierarchy.NodeExpandBehavior;
-		CollapsedNodeFilterBehavior: PowerTables.Plugins.Hierarchy.TreeCollapsedNodeFilterBehavior;
+		ExpandBehavior: Reinforced.Lattice.Plugins.Hierarchy.NodeExpandBehavior;
+		CollapsedNodeFilterBehavior: Reinforced.Lattice.Plugins.Hierarchy.TreeCollapsedNodeFilterBehavior;
 	}
 	export enum NodeExpandBehavior { 
 		LoadFromCacheWhenPossible = 0, 
@@ -486,21 +486,21 @@ module PowerTables.Plugins.Hierarchy {
 		ExcludeCollapsed = 1, 
 	}
 }
-module PowerTables.Plugins.MouseSelect {
+module Reinforced.Lattice.Plugins.MouseSelect {
 	export interface IMouseSelectUiConfig
 	{
 	}
 }
-module PowerTables.Plugins.Checkboxify {
+module Reinforced.Lattice.Plugins.Checkboxify {
 	export interface ICheckboxifyUiConfig
 	{
 		SelectAllTemplateId: string;
 	}
 }
-module PowerTables.Adjustments {
+module Reinforced.Lattice.Adjustments {
 	export interface ISelectionAdditionalData
 	{
-		SelectionToggle: PowerTables.Adjustments.SelectionToggle;
+		SelectionToggle: Reinforced.Lattice.Adjustments.SelectionToggle;
 		Unselect: { [key:string]: string[] };
 		Select: { [key:string]: string[] };
 	}
@@ -515,17 +515,17 @@ module PowerTables.Adjustments {
 		Nothing = 2, 
 	}
 }
-module PowerTables.Plugins.RegularSelect {
+module Reinforced.Lattice.Plugins.RegularSelect {
 	export interface IRegularSelectUiConfig
 	{
-		Mode: PowerTables.Plugins.RegularSelect.RegularSelectMode;
+		Mode: Reinforced.Lattice.Plugins.RegularSelect.RegularSelectMode;
 	}
 	export enum RegularSelectMode { 
 		Rows = 0, 
 		Cells = 1, 
 	}
 }
-module PowerTables.Commands {
+module Reinforced.Lattice.Commands {
 	export interface ICommandDescription
 	{
 		Name: string;
@@ -533,8 +533,8 @@ module PowerTables.Commands {
 		ClientFunction: (param:ICommandExecutionParameters)=>any;
 		ConfirmationDataFunction: (param:ICommandExecutionParameters)=>any;
 		CanExecute: (data:{Subject:any,Master:IMasterTable})=>boolean;
-		Type: PowerTables.Commands.CommandType;
-		Confirmation: PowerTables.Commands.IConfirmationConfiguration;
+		Type: Reinforced.Lattice.Commands.CommandType;
+		Confirmation: Reinforced.Lattice.Commands.IConfirmationConfiguration;
 		OnSuccess: (param:ICommandExecutionParameters)=>void;
 		OnFailure: (param:ICommandExecutionParameters)=>void;
 		OnBeforeExecute: (param:ICommandExecutionParameters)=>any;
@@ -544,9 +544,9 @@ module PowerTables.Commands {
 		TemplateId: string;
 		TemplatePieces: {[_:string]:(param:ICommandExecutionParameters)=>string};
 		TargetSelector: string;
-		Formwatch: PowerTables.Plugins.Formwatch.IFormwatchFieldData[];
-		Autoform: PowerTables.Commands.ICommandAutoformConfiguration;
-		Details: PowerTables.Commands.IDetailLoadingConfiguration;
+		Formwatch: Reinforced.Lattice.Plugins.Formwatch.IFormwatchFieldData[];
+		Autoform: Reinforced.Lattice.Commands.ICommandAutoformConfiguration;
+		Details: Reinforced.Lattice.Commands.IDetailLoadingConfiguration;
 		ContentLoadingUrl: (subject:any)=>string;
 		ContentLoadingMethod: string;
 		ContentLoadingCommand: string;
@@ -558,7 +558,7 @@ module PowerTables.Commands {
 	}
 	export interface ICommandAutoformConfiguration
 	{
-		Autoform: PowerTables.Editing.IEditFieldUiConfigBase[];
+		Autoform: Reinforced.Lattice.Editing.IEditFieldUiConfigBase[];
 		DisableWhenContentLoading: boolean;
 		DisableWhileDetailsLoading: boolean;
 	}
@@ -577,24 +577,24 @@ module PowerTables.Commands {
 		Server = 1, 
 	}
 }
-module PowerTables.Plugins.Scrollbar {
+module Reinforced.Lattice.Plugins.Scrollbar {
 	export interface IScrollbarPluginUiConfig
 	{
 		WheelEventsCatcher: string;
 		KeyboardEventsCatcher: string;
 		IsHorizontal: boolean;
 		StickToElementSelector: string;
-		StickDirection: PowerTables.Plugins.Scrollbar.StickDirection;
-		StickHollow: PowerTables.Plugins.Scrollbar.StickHollow;
+		StickDirection: Reinforced.Lattice.Plugins.Scrollbar.StickDirection;
+		StickHollow: Reinforced.Lattice.Plugins.Scrollbar.StickHollow;
 		DefaultTemplateId: string;
-		Keys: PowerTables.Plugins.Scrollbar.IScrollbarKeyMappings;
-		Forces: PowerTables.Plugins.Scrollbar.IScrollbarForces;
+		Keys: Reinforced.Lattice.Plugins.Scrollbar.IScrollbarKeyMappings;
+		Forces: Reinforced.Lattice.Plugins.Scrollbar.IScrollbarForces;
 		PositionCorrector: any;
 		UseTakeAsPageForce: boolean;
 		ScrollerMinSize: number;
 		ArrowsDelayMs: number;
 		AppendToElement: string;
-		FocusMode: PowerTables.Plugins.Scrollbar.KeyboardScrollFocusMode;
+		FocusMode: Reinforced.Lattice.Plugins.Scrollbar.KeyboardScrollFocusMode;
 		ScrollDragSmoothness: number;
 	}
 	export interface IScrollbarKeyMappings

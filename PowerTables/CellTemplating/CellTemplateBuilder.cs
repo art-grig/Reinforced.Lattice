@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PowerTables.CellTemplating
+namespace Reinforced.Lattice.CellTemplating
 {
     /// <summary>
     /// Class used to build buttons to be output inside cell

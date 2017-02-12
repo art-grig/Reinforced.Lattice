@@ -4,9 +4,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using PowerTables.Configuration.Json;
+using Reinforced.Lattice.Configuration.Json;
 
-namespace PowerTables.Configuration
+namespace Reinforced.Lattice.Configuration
 {
     /// <summary>
     /// Extensions for table configurator

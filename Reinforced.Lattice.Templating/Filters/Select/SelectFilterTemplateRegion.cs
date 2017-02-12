@@ -1,8 +1,8 @@
-﻿using PowerTables.Filters.Select;
-using Reinforced.Lattice.Templating.BuiltIn;
-using Reinforced.Lattice.Templating.Compilation;
+﻿using Reinforced.Lattice.Filters.Select;
+using Reinforced.Lattice.Templates.BuiltIn;
+using Reinforced.Lattice.Templates.Compilation;
 
-namespace Reinforced.Lattice.Templating.Filters.Select
+namespace Reinforced.Lattice.Templates.Filters.Select
 {
     public class SelectFilterTemplateRegion : PluginTemplateRegion, IModelProvider<ISelectFilterModel>
     {

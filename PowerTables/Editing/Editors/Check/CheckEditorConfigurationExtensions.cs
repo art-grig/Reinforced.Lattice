@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 
-namespace PowerTables.Editing.Editors.Check
+namespace Reinforced.Lattice.Editing.Editors.Check
 {
     public static class CheckEditorConfigurationExtensions
     {

@@ -1,7 +1,7 @@
-﻿namespace PowerTables.Processing
+﻿namespace Reinforced.Lattice.Processing
 {
     /// <summary>
-    /// Response modifier interface exposes PowerTables extension point 
+    /// Response modifier interface exposes Reinforced.Lattice extension point 
     /// that allows to modify response before sending to client. 
     /// Usually this interface is used to supply LatticeResponse with some 
     /// AdditionalData values. 

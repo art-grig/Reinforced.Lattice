@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
-using PowerTables.Processing;
+using Reinforced.Lattice.Processing;
 
-namespace PowerTables.Editing
+namespace Reinforced.Lattice.Editing
 {
     class EditorCommandHandler<TSourceData, TTargetData> : CommandHandleBase<TableAdjustment> where TTargetData : new()
     {

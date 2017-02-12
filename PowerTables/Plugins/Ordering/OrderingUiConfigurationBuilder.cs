@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
-using PowerTables.CellTemplating;
+using Reinforced.Lattice.CellTemplating;
 
-namespace PowerTables.Plugins.Ordering
+namespace Reinforced.Lattice.Plugins.Ordering
 {
     /// <summary>
     /// Configuration builder for client-side ordering
@@ -33,7 +33,7 @@ namespace PowerTables.Plugins.Ordering
         /// <param name="ordering">Default ordering direction</param>
         /// <returns>Fluent</returns>
         public OrderingUiConfigurationBuilder DefaultOrdering(
-            PowerTables.Ordering ordering = PowerTables.Ordering.Neutral)
+            Reinforced.Lattice.Ordering ordering = Reinforced.Lattice.Ordering.Neutral)
         {
             _configuration.DefaultOrderingsForColumns[_columnName] = ordering;
             return this;
@@ -72,7 +72,7 @@ namespace PowerTables.Plugins.Ordering
         {
             _configuration = configuration.Configuration;
             _columnName = columnName;
-            _configuration.DefaultOrderingsForColumns[_columnName] = PowerTables.Ordering.Neutral;
+            _configuration.DefaultOrderingsForColumns[_columnName] = Reinforced.Lattice.Ordering.Neutral;
         }
     }
 }

@@ -1,11 +1,11 @@
 ﻿using System.Web.Mvc;
 using System.Web.Mvc.Html;
 using JetBrains.Annotations;
-using Reinforced.Lattice.Templating.Compilation;
+using Reinforced.Lattice.Templates.Compilation;
 
 // ReSharper disable InconsistentNaming
 
-namespace Reinforced.Lattice.Templating
+namespace Reinforced.Lattice.Templates
 {
     /// <summary>
     /// Helper extensions for rendering

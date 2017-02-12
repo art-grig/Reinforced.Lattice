@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq.Expressions;
-using PowerTables.Configuration;
-using PowerTables.Configuration.Json;
+using Reinforced.Lattice.Configuration;
+using Reinforced.Lattice.Configuration.Json;
 
-namespace PowerTables.Plugins.Ordering
+namespace Reinforced.Lattice.Plugins.Ordering
 {
     /// <summary>
     /// Extension methods for ordering plugin

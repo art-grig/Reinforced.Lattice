@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace PowerTables.Processing
+namespace Reinforced.Lattice.Processing
 {
     /// <summary>
     /// Exposes command handler interface. 

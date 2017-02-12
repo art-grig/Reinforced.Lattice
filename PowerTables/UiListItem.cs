@@ -1,4 +1,4 @@
-﻿namespace PowerTables
+﻿namespace Reinforced.Lattice
 {
     public class UiListItem
     {

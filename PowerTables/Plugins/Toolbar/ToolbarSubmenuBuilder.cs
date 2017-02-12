@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace PowerTables.Plugins.Toolbar
+namespace Reinforced.Lattice.Plugins.Toolbar
 {
     public class ToolbarSubmenuBuilder
     {

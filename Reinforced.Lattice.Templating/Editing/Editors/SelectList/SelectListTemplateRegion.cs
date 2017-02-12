@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Web.Mvc;
-using PowerTables;
-using Reinforced.Lattice.Templating.Compilation;
-using Reinforced.Lattice.Templating.Expressions;
+using Reinforced.Lattice.Templates.Compilation;
+using Reinforced.Lattice.Templates.Expressions;
 
-namespace Reinforced.Lattice.Templating.Editing.Editors.SelectList
+namespace Reinforced.Lattice.Templates.Editing.Editors.SelectList
 {
     public class SelectListTemplateRegion : CellEditorTemplateRegionBase<ISelectListEditorViewModel>
     {

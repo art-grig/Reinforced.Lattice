@@ -1,4 +1,4 @@
-﻿namespace Reinforced.Lattice.Templating
+﻿namespace Reinforced.Lattice.Templates
 {
     /// <summary>
     /// Common interface for template scopes to make them embeddable to any page

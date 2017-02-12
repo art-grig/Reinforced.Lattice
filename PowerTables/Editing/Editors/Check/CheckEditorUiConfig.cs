@@ -1,4 +1,4 @@
-﻿namespace PowerTables.Editing.Editors.Check
+﻿namespace Reinforced.Lattice.Editing.Editors.Check
 {
     public class CheckEditorUiConfig : EditFieldUiConfigBase
     {

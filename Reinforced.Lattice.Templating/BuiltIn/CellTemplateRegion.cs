@@ -1,4 +1,4 @@
-﻿namespace Reinforced.Lattice.Templating.BuiltIn
+﻿namespace Reinforced.Lattice.Templates.BuiltIn
 {
     public class CellTemplateRegion<T> : ModeledTemplateRegion<ICellModel<T>>
     {

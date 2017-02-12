@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace PowerTables.Plugins.LoadingOverlap
+namespace Reinforced.Lattice.Plugins.LoadingOverlap
 {
     public class LoadingOverlapUiConfig : IProvidesTemplate
     {

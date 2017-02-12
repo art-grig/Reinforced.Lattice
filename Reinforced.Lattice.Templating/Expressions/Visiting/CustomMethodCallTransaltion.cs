@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace Reinforced.Lattice.Templating.Expressions.Visiting
+namespace Reinforced.Lattice.Templates.Expressions.Visiting
 {
     [AttributeUsage(AttributeTargets.Method,AllowMultiple = false)]
     public class CustomMethodCallTranslationAttribute : Attribute

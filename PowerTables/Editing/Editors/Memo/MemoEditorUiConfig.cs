@@ -1,4 +1,4 @@
-﻿namespace PowerTables.Editing.Editors.Memo
+﻿namespace Reinforced.Lattice.Editing.Editors.Memo
 {
     public class MemoEditorUiConfig : EditFieldUiConfigBase
     {
