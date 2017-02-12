@@ -42,7 +42,7 @@ namespace PowerTables.Plugins.Total
         /// <returns></returns>
         public TotalCalculatorBuilder<TSourceData, TTableData> AddTotal<TTableColumn, TTotalType>(
             Expression<Func<TTableData, TTableColumn>> column,
-            Func<PowerTablesData<TSourceData, TTableData>, TTotalType> calculator,
+            Func<LatticeData<TSourceData, TTableData>, TTotalType> calculator,
             string valueFunction = null
             )
         {
@@ -61,7 +61,7 @@ namespace PowerTables.Plugins.Total
         /// <returns></returns>
         public TotalCalculatorBuilder<TSourceData, TTableData> AddTotalTemplate<TTableColumn, TTotalType>(
             Expression<Func<TTableData, TTableColumn>> column,
-            Func<PowerTablesData<TSourceData, TTableData>, TTotalType> calculator,
+            Func<LatticeData<TSourceData, TTableData>, TTotalType> calculator,
             Action<CellTemplateBuilder> templateBuilder
             )
         {
@@ -119,7 +119,7 @@ namespace PowerTables.Plugins.Total
         /// <returns></returns>
         public TotalCalculatorBuilder<TSourceData, TTableData> AddTotalFormat<TTableColumn, TTotalType>(
             Expression<Func<TTableData, TTableColumn>> column,
-            Func<PowerTablesData<TSourceData, TTableData>, TTotalType> calculator,
+            Func<LatticeData<TSourceData, TTableData>, TTotalType> calculator,
             string format
             )
         {

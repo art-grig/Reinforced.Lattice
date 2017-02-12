@@ -55,7 +55,7 @@ namespace PowerTables
         /// <param name="key">Key in additional data</param>
         /// <param name="request">PowerTables request</param>
         /// <returns>Additional data object</returns>
-        public static T RetrieveAdditionalObject<T>(this PowerTableRequest request, string key)
+        public static T RetrieveAdditionalObject<T>(this LatticeRequest request, string key)
         {
             return RetrieveAdditionalObject<T>(request.Query, key);
         }
@@ -68,7 +68,7 @@ namespace PowerTables
         /// <param name="key">Key in additional data</param>
         /// <param name="converters">Converters to be supplied to Json.Net</param>
         /// <returns>RetrieveAdditionalObject ViewModel</returns>
-        public static T RetrieveAdditionalObject<T>(this PowerTableRequest request, string key, params JsonConverter[] converters)
+        public static T RetrieveAdditionalObject<T>(this LatticeRequest request, string key, params JsonConverter[] converters)
         {
             return RetrieveAdditionalObject<T>(request.Query, key, converters);
         }
@@ -81,7 +81,7 @@ namespace PowerTables
         ///  <param name="key">Key in additional data</param>
         /// <param name="serializerSettings">Serializer settings to be supplied to Json.Net</param>
         /// <returns>RetrieveAdditionalObject ViewModel</returns>
-        public static T RetrieveAdditionalObject<T>(this PowerTableRequest request, string key, JsonSerializerSettings serializerSettings)
+        public static T RetrieveAdditionalObject<T>(this LatticeRequest request, string key, JsonSerializerSettings serializerSettings)
         {
             return RetrieveAdditionalObject<T>(request.Query, key, serializerSettings);
         }

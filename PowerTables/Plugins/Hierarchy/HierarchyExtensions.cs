@@ -66,7 +66,7 @@ namespace PowerTables.Plugins.Hierarchy
 
         public static void AddChildrenRowHandler<TSourceData, TTargetData, TResponse>(
             this RequestHandlerBase<TSourceData, TTargetData, TResponse> handler,
-            Func<PowerTablesData<TSourceData, TTargetData>, TTargetData, IEnumerable<TTargetData>> method)
+            Func<LatticeData<TSourceData, TTargetData>, TTargetData, IEnumerable<TTargetData>> method)
             where TTargetData : IHierarchyItem, new()
         {
             handler.AddCommandHandler(GetChildrenCommand, data =>
@@ -80,7 +80,7 @@ namespace PowerTables.Plugins.Hierarchy
 
         public static void AddChildrenHandler<TSourceData, TTargetData, TResponse>(
             this RequestHandlerBase<TSourceData, TTargetData, TResponse> handler,
-            Func<PowerTablesData<TSourceData, TTargetData>, TTargetData, IEnumerable<TSourceData>> method)
+            Func<LatticeData<TSourceData, TTargetData>, TTargetData, IEnumerable<TSourceData>> method)
             where TTargetData : IHierarchyItem, new()
         {
             handler.AddCommandHandler(GetChildrenCommand, data =>
@@ -94,7 +94,7 @@ namespace PowerTables.Plugins.Hierarchy
 
         public static void AddAsyncChildrenRowHandler<TSourceData, TTargetData, TResponse>(
             this RequestHandlerBase<TSourceData, TTargetData, TResponse> handler,
-            Func<PowerTablesData<TSourceData, TTargetData>, TTargetData, Task<IEnumerable<TTargetData>>> method)
+            Func<LatticeData<TSourceData, TTargetData>, TTargetData, Task<IEnumerable<TTargetData>>> method)
             where TTargetData : IHierarchyItem, new()
         {
             handler.AddCommandHandler(GetChildrenCommand, async data =>
@@ -108,7 +108,7 @@ namespace PowerTables.Plugins.Hierarchy
 
         public static void AddAsyncChildrenHandler<TSourceData, TTargetData, TResponse>(
             this RequestHandlerBase<TSourceData, TTargetData, TResponse> handler,
-            Func<PowerTablesData<TSourceData, TTargetData>, TTargetData, Task<IEnumerable<TSourceData>>> method)
+            Func<LatticeData<TSourceData, TTargetData>, TTargetData, Task<IEnumerable<TSourceData>>> method)
             where TTargetData : IHierarchyItem, new()
         {
             handler.AddCommandHandler(GetChildrenCommand, async data =>

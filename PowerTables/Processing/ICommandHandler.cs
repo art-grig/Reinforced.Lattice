@@ -19,7 +19,7 @@ namespace PowerTables.Processing
         /// </summary>
         /// <param name="data">Data sets</param>
         /// <returns></returns>
-        object HandleData(PowerTablesData data);
+        object HandleData(LatticeData data);
 
         /// <summary>
         /// Async-friendly command handling method. Should take in account table data and return any ActionResult. 
@@ -27,7 +27,7 @@ namespace PowerTables.Processing
         /// </summary>
         /// <param name="data">Data sets</param>
         /// <returns></returns>
-        Task<object> HandleDataAsync(PowerTablesData data);
+        Task<object> HandleDataAsync(LatticeData data);
 
         /// <summary>
         /// Query deferring control. 
@@ -47,15 +47,15 @@ namespace PowerTables.Processing
 
     public abstract class CommandHandleBase<T> : ICommandHandler
     {
-        protected abstract T Handle(PowerTablesData data);
-        protected abstract Task<T> HandleAsync(PowerTablesData data);
+        protected abstract T Handle(LatticeData data);
+        protected abstract Task<T> HandleAsync(LatticeData data);
 
-        public object HandleData(PowerTablesData data)
+        public object HandleData(LatticeData data)
         {
             return Handle(data);
         }
 
-        public async Task<object> HandleDataAsync(PowerTablesData data)
+        public async Task<object> HandleDataAsync(LatticeData data)
         {
             return await HandleAsync(data);
         }

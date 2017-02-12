@@ -2,7 +2,7 @@
 {
     public interface ITokenStorage
     {
-        PowerTableRequest Lookup(string token);
-        string StoreRequest(PowerTableRequest request);
+        LatticeRequest Lookup(string token);
+        string StoreRequest(LatticeRequest request);
     }
 }

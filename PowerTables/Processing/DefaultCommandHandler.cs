@@ -8,18 +8,18 @@ namespace PowerTables.Processing
     /// Default implementation of command handler. 
     /// This command uses "query" command to provide table with data.
     /// </summary>
-    public class DefaultCommandHandler : CommandHandleBase<PowerTablesResponse>
+    public class DefaultCommandHandler : CommandHandleBase<LatticeResponse>
     {
         /// <summary>
         /// Default query command name
         /// </summary>
         public const string CommandId = "query";
 
-        protected override PowerTablesResponse Handle(PowerTablesData data)
+        protected override LatticeResponse Handle(LatticeData data)
         {
             // queryable reveals here
             var mapped = data.Mapped.Value;
-            PowerTablesResponse result = new PowerTablesResponse()
+            LatticeResponse result = new LatticeResponse()
             {
                 PageIndex = data.CurrentPage,
                 ResultsCount = data.ResultsCount,
@@ -32,7 +32,7 @@ namespace PowerTables.Processing
             return result;
         }
 
-        protected override async Task<PowerTablesResponse> HandleAsync(PowerTablesData data)
+        protected override async Task<LatticeResponse> HandleAsync(LatticeData data)
         {
             return await Task.FromResult(Handle(data));
         }

@@ -104,11 +104,11 @@ namespace PowerTables.Typings
                 .WithProperty(c => c.ClientSortableColumns, a => a.Type("{[key:string]:(a:any,b:any) => number}"));
 
             builder.ExportAsInterface<PagingClientConfiguration>().WithPublicProperties();
-            builder.ExportAsInterface<PowerTablesResponse>()
+            builder.ExportAsInterface<LatticeResponse>()
                 .WithPublicProperties()
                 .WithMethod(c => c.FormatException(null), c => c.Ignore());
 
-            builder.ExportAsInterface<PowerTableRequest>().WithPublicProperties()
+            builder.ExportAsInterface<LatticeRequest>().WithPublicProperties()
 
                 .WithProperty(c => c.Configurator, c => c.Ignore())
                 .WithProperty(c => c.IsDeferred, c => c.Ignore())

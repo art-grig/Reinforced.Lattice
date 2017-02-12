@@ -36,7 +36,7 @@ namespace PowerTables
             public DateTime ExpireDate;
         }
         private bool _isDirty = false;
-        private readonly ConcurrentDictionary<string, PowerTableRequest> StoredRequests = new ConcurrentDictionary<string, PowerTableRequest>();
+        private readonly ConcurrentDictionary<string, LatticeRequest> StoredRequests = new ConcurrentDictionary<string, LatticeRequest>();
         private readonly List<StoredRequest> ExpirationTokens = new List<StoredRequest>();
         private bool _useSingleRequestTokens;
 
@@ -76,7 +76,7 @@ namespace PowerTables
         /// </summary>
         /// <param name="request">Request to store</param>
         /// <returns>Token value</returns>
-        public string StoreRequest(PowerTableRequest request)
+        public string StoreRequest(LatticeRequest request)
         {
             _isDirty = true;
             string token = null;
@@ -103,9 +103,9 @@ namespace PowerTables
         /// </summary>
         /// <param name="token">Token</param>
         /// <returns>Request</returns>
-        public PowerTableRequest Lookup(string token)
+        public LatticeRequest Lookup(string token)
         {
-            PowerTableRequest result = null;
+            LatticeRequest result = null;
             if (UseSingleRequestTokens)
             {
                 StoredRequests.TryRemove(token, out result);
@@ -127,7 +127,7 @@ namespace PowerTables
                 var tokensToClean = ExpirationTokens.Where(c => c.ExpireDate <= cDate).ToArray();
                 foreach (var tk in tokensToClean)
                 {
-                    PowerTableRequest req = null;
+                    LatticeRequest req = null;
                     StoredRequests.TryRemove(tk.Token, out req);
                     ExpirationTokens.Remove(tk);
                 }

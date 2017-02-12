@@ -30,24 +30,24 @@ namespace PowerTables.Mvc.Controllers
             return handler.Handle(Data.SourceData.AsQueryable());            
         }
 
-        private PartialViewResult LoadComments(PowerTablesData<Toy, Row> powerTablesData)
+        private PartialViewResult LoadComments(LatticeData<Toy, Row> latticeData)
         {
             Thread.Sleep(2000);
-            var subject = powerTablesData.CommandSubject();
+            var subject = latticeData.CommandSubject();
             return PartialView("CommentsPartial", subject);
         }
 
-        private TableAdjustment LeaveComment(PowerTablesData<Toy, Row> powerTablesData)
+        private TableAdjustment LeaveComment(LatticeData<Toy, Row> latticeData)
         {
-            var subject = powerTablesData.CommandSubject();
-            var comment = powerTablesData.CommandConfirmation<CommentForm>();
+            var subject = latticeData.CommandSubject();
+            var comment = latticeData.CommandConfirmation<CommentForm>();
 
-            return powerTablesData.Adjust(x => x.Message(TableMessage.User("success", "Comment saved")));
+            return latticeData.Adjust(x => x.Message(TableMessage.User("success", "Comment saved")));
         }
 
-        public ActionResult PricesDetails(PowerTablesData<Toy, Row> powerTablesData)
+        public ActionResult PricesDetails(LatticeData<Toy, Row> latticeData)
         {
-            var confirmation = powerTablesData.CommandConfirmation<PriceRange>();
+            var confirmation = latticeData.CommandConfirmation<PriceRange>();
             var toys = Data.SourceData.Where(c => (confirmation.StartPrice.HasValue?c.Price > (double) confirmation.StartPrice.Value:true)
                 && (confirmation.EndPrice.HasValue ? c.Price < (double)confirmation.EndPrice.Value : true));
             var details = new DetailsModel()
@@ -58,7 +58,7 @@ namespace PowerTables.Mvc.Controllers
             return Content("Avg price: " + details.AveragePrice);
         }
 
-        private TableAdjustment RemoveSelected(PowerTablesData<Toy, Row> arg)
+        private TableAdjustment RemoveSelected(LatticeData<Toy, Row> arg)
         {
             //EditionResult er = new EditionResult();
             //var editResultWrapper = new EditionResultWrapper<Row>(er);
@@ -71,7 +71,7 @@ namespace PowerTables.Mvc.Controllers
             return null;
         }
 
-        private TableAdjustment UpdateSelected(PowerTablesData<Toy, Row> arg)
+        private TableAdjustment UpdateSelected(LatticeData<Toy, Row> arg)
         {
             //var form = arg.Request.ConfirmationForm<SimpleConfirmationModel>();
             //EditionResult er = new EditionResult();

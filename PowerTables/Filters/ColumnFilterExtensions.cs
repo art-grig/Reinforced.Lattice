@@ -75,7 +75,7 @@ namespace PowerTables.Filters
         /// <param name="request">Incoming request</param>
         /// <returns></returns>
         public static Tuple<bool, TFilteringKey> ExtractFilteringKey<TFilteringKey>(
-            this IColumnConfigurator column, PowerTableRequest request)
+            this IColumnConfigurator column, LatticeRequest request)
         {
             return ExtractFilteringKey<TFilteringKey>(column, request.Query);
         }

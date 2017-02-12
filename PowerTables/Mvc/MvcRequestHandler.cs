@@ -20,7 +20,7 @@ namespace PowerTables.Mvc
             _context = context;
         }
 
-        protected override PowerTableRequest ExtractRequestCore()
+        protected override LatticeRequest ExtractRequestCore()
         {
             if (_context.HttpContext.Request.HttpMethod == "GET")
             {
@@ -31,10 +31,10 @@ namespace PowerTables.Mvc
             var request = _context.RequestContext.HttpContext.Request;
             request.InputStream.Seek(0, SeekOrigin.Begin);
             string jsonData = new StreamReader(request.InputStream).ReadToEnd();
-            return JsonConvert.DeserializeObject<PowerTableRequest>(jsonData);
+            return JsonConvert.DeserializeObject<LatticeRequest>(jsonData);
         }
 
-        protected override ActionResult FormatError(PowerTablesResponse errorResponse)
+        protected override ActionResult FormatError(LatticeResponse errorResponse)
         {
             return new JsonNetResult() { Data = errorResponse, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
         }
@@ -55,11 +55,11 @@ namespace PowerTables.Mvc
                    typeof(RedirectResult).IsAssignableFrom(handler.UnprocessedResultType);
         }
 
-        public override ActionResult ProduceResponse(PowerTablesData data, Type cType, object commandResponse)
+        public override ActionResult ProduceResponse(LatticeData data, Type cType, object commandResponse)
         {
-            if (cType == typeof(PowerTablesResponse))
+            if (cType == typeof(LatticeResponse))
             {
-                var result = commandResponse as PowerTablesResponse;
+                var result = commandResponse as LatticeResponse;
                 try
                 {
                     ApplyResponseModifiers(data, result);

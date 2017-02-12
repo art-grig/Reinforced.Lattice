@@ -32,7 +32,7 @@ namespace PowerTables.Mvc.Controllers
             return handler.Handle(infos.AsQueryable());
         }
 
-        private IEnumerable<FileSystemInfo> Children(PowerTablesData<FileSystemInfo, FileRow> powerTablesData, FileRow fileRow)
+        private IEnumerable<FileSystemInfo> Children(LatticeData<FileSystemInfo, FileRow> latticeData, FileRow fileRow)
         {
             var di = new DirectoryInfo(fileRow.FullPath);
             return di.EnumerateFileSystemInfos().Where(c => (c.Attributes & FileAttributes.Hidden) != FileAttributes.Hidden);

@@ -38,7 +38,7 @@ namespace PowerTables.Plugins.ResponseInfo
         public static Configurator<TSourceData, TTableData> ResponseInfo<TSourceData, TTableData, TResponseData>
             (this Configurator<TSourceData, TTableData> conf,
             Action<PluginConfigurationWrapper<ResponseInfoClientConfiguration>> ui,
-            Func<PowerTablesData<TSourceData, TTableData>, TResponseData> responseDataEvaluator,
+            Func<LatticeData<TSourceData, TTableData>, TResponseData> responseDataEvaluator,
              string where = null)
             where TTableData : new()
         {

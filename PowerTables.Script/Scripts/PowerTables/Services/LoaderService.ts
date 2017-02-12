@@ -156,7 +156,7 @@
         private _previousQueryString: string;
 
         //#region Checks and handles
-        private checkError(json: any, data: IPowerTableRequest): boolean {
+        private checkError(json: any, data: ILatticeRequest): boolean {
             if (json == null) return false;
             if (json['__ZBnpwvibZm'] && json['Success'] != undefined && !json.Success) {
                 this._masterTable.MessageService.showMessage(json['Message']);
@@ -195,7 +195,7 @@
             }
         }
 
-        private checkAdjustment(json: any, data: IPowerTableRequest): boolean {
+        private checkAdjustment(json: any, data: ILatticeRequest): boolean {
             if (json == null) return false;
             if (json['__XqTFFhTxSu']) {
                 this._events.DataReceived.invokeBefore(this, {
@@ -221,7 +221,7 @@
             return false;
         }
 
-        private handleRegularJsonResponse(responseText: string, data: IPowerTableRequest, clientQuery: IQuery, callback: any, errorCallback: any) {
+        private handleRegularJsonResponse(responseText: string, data: ILatticeRequest, clientQuery: IQuery, callback: any, errorCallback: any) {
             var response = JSON.parse(responseText);
             var error: boolean = this.checkError(response, data);
             var message: boolean = this.checkMessage(response);
@@ -272,7 +272,7 @@
             }
         }
 
-        private handleDeferredResponse(responseText: string, data: IPowerTableRequest, callback: any) {
+        private handleDeferredResponse(responseText: string, data: ILatticeRequest, callback: any) {
             if (responseText.indexOf('$Token=') === 0) {
                 var token: string = responseText.substr(7, responseText.length - 7);
                 var deferredUrl = this._operationalAjaxUrl + (this._operationalAjaxUrl.indexOf('?') > -1 ? '&' : '?') + 'q=' + token;
@@ -295,7 +295,7 @@
         }
 
 
-        private doServerQuery(data: IPowerTableRequest, clientQuery: IQuery, callback: (data: any) => void, errorCallback?: (data: any) => void): void {
+        private doServerQuery(data: ILatticeRequest, clientQuery: IQuery, callback: (data: any) => void, errorCallback?: (data: any) => void): void {
             this._isLoading = true;
             var req: XMLHttpRequest = this.getXmlHttp(data.Query.IsBackgroundDataFetch) as XMLHttpRequest;
             var dataText: string = JSON.stringify(data);
@@ -360,7 +360,7 @@
             server = this._masterTable.Partition.partitionBeforeQuery(serverQuery, clientQuery, server);
             this._masterTable.Selection.modifyQuery(serverQuery, QueryScope.Server);
 
-            var data: IPowerTableRequest = {
+            var data: ILatticeRequest = {
                 Command: 'query',
                 Query: server ? serverQuery : clientQuery
             };
@@ -405,7 +405,7 @@
             }
             this._masterTable.Selection.modifyQuery(serverQuery, QueryScope.Transboundary);
 
-            var data: IPowerTableRequest = {
+            var data: ILatticeRequest = {
                 Command: command,
                 Query: serverQuery
             };

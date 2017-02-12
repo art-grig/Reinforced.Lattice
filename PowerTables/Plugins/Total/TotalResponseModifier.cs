@@ -15,10 +15,10 @@ namespace PowerTables.Plugins.Total
             _calculator = calculator;
         }
 
-        public void ModifyResponse(PowerTablesData data, PowerTablesResponse response)
+        public void ModifyResponse(LatticeData data, LatticeResponse response)
         {
             TotalResponse tr = new TotalResponse() { TotalsForColumns = new Dictionary<string, object>() };
-            var gData = new PowerTablesData<TSourceData, TTableData>(data);
+            var gData = new LatticeData<TSourceData, TTableData>(data);
             foreach (var keyValuePair in _calculator.Calculators)
             {
                 var result = keyValuePair.Value.DynamicInvoke(gData);

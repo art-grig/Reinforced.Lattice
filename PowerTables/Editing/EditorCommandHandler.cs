@@ -9,41 +9,41 @@ namespace PowerTables.Editing
     {
         public const string EditAdditionalDataKey = "Edit";
 
-        private readonly Func<PowerTablesData<TSourceData, TTargetData>, TTargetData, TableAdjustment> _handlerMethod;
-        private readonly Func<PowerTablesData<TSourceData, TTargetData>, TTargetData, Task<TableAdjustment>> _asynchandlerMethod;
+        private readonly Func<LatticeData<TSourceData, TTargetData>, TTargetData, TableAdjustment> _handlerMethod;
+        private readonly Func<LatticeData<TSourceData, TTargetData>, TTargetData, Task<TableAdjustment>> _asynchandlerMethod;
 
-        public EditorCommandHandler(Func<PowerTablesData<TSourceData, TTargetData>, TTargetData, Task<TableAdjustment>> asynchandlerMethod, bool forceDeferred = false)
+        public EditorCommandHandler(Func<LatticeData<TSourceData, TTargetData>, TTargetData, Task<TableAdjustment>> asynchandlerMethod, bool forceDeferred = false)
         {
             _asynchandlerMethod = asynchandlerMethod;
         }
 
-        public EditorCommandHandler(Func<PowerTablesData<TSourceData, TTargetData>, TTargetData, TableAdjustment> handlerMethod, bool forceDeferred = false)
+        public EditorCommandHandler(Func<LatticeData<TSourceData, TTargetData>, TTargetData, TableAdjustment> handlerMethod, bool forceDeferred = false)
         {
             _handlerMethod = handlerMethod;
         }
 
-        public EditorCommandHandler(Func<PowerTablesData<TSourceData, TTargetData>, TTargetData, TableAdjustment> handlerMethod, Func<PowerTablesData<TSourceData, TTargetData>, TTargetData, Task<TableAdjustment>> asynchandlerMethod, bool forceDeferred = false)
+        public EditorCommandHandler(Func<LatticeData<TSourceData, TTargetData>, TTargetData, TableAdjustment> handlerMethod, Func<LatticeData<TSourceData, TTargetData>, TTargetData, Task<TableAdjustment>> asynchandlerMethod, bool forceDeferred = false)
         {
             _handlerMethod = handlerMethod;
             _asynchandlerMethod = asynchandlerMethod;
         }
 
-        protected override TableAdjustment Handle(PowerTablesData data)
+        protected override TableAdjustment Handle(LatticeData data)
         {
             if (_handlerMethod == null)
             {
                 throw new Exception("This is asynchronous command handler. Please use it with .HandleAsync, not .Handle.");
             }
 
-            PowerTablesData<TSourceData, TTargetData> typedData = new PowerTablesData<TSourceData, TTargetData>(data);
+            LatticeData<TSourceData, TTargetData> typedData = new LatticeData<TSourceData, TTargetData>(data);
 
             var update = _handlerMethod(typedData, data.Request.RetrieveAdditionalObject<TTargetData>(EditAdditionalDataKey));
             return update;
         }
 
-        protected override async Task<TableAdjustment> HandleAsync(PowerTablesData data)
+        protected override async Task<TableAdjustment> HandleAsync(LatticeData data)
         {
-            PowerTablesData<TSourceData, TTargetData> typedData = new PowerTablesData<TSourceData, TTargetData>(data);
+            LatticeData<TSourceData, TTargetData> typedData = new LatticeData<TSourceData, TTargetData>(data);
             var edited = data.Request.RetrieveAdditionalObject<TTargetData>(EditAdditionalDataKey);
             TableAdjustment result = null;
 

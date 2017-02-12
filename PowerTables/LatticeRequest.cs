@@ -8,7 +8,7 @@ namespace PowerTables
     /// <summary>
     /// Data request constructed in Javascript, passed to server and extracted from ControllerContext
     /// </summary>
-    public class PowerTableRequest
+    public class LatticeRequest
     {
         /// <summary>
         /// Reference to table configurator

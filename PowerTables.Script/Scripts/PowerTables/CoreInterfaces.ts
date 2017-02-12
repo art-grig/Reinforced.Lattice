@@ -436,7 +436,7 @@
         /**
          * Query to be sent to server
          */
-        Request: IPowerTableRequest;
+        Request: ILatticeRequest;
 
         /**
          * Request object to be used while sending to server
@@ -448,7 +448,7 @@
         /**
          * Response received from server
          */
-        Response: IPowerTablesResponse;
+        Response: ILatticeResponse;
     }
 
     /**
@@ -485,7 +485,7 @@
         /**
          * Query response
          */
-        Data: IPowerTablesResponse;
+        Data: ILatticeResponse;
 
         IsAdjustment: boolean;
 

@@ -18,7 +18,7 @@ namespace PowerTables.Processing
         public static void AddCommandHandler<TSourceData, TTargetData, TResponse, TCommandResult>(
             this RequestHandlerBase<TSourceData, TTargetData,TResponse> handler,
             string command,
-            Func<PowerTablesData<TSourceData, TTargetData>, TCommandResult> method,
+            Func<LatticeData<TSourceData, TTargetData>, TCommandResult> method,
             bool forceDeferred = false) where TTargetData : new()
         {
             var del = new DelegateCommandHandler<TSourceData, TTargetData, TCommandResult>(method, forceDeferred: forceDeferred);
@@ -36,7 +36,7 @@ namespace PowerTables.Processing
         public static void AddCommandHandler<TSourceData, TTargetData, TCommandResult, TResponse>(
             this RequestHandlerBase<TSourceData, TTargetData, TResponse> handler,
             string command,
-            Func<PowerTablesData<TSourceData, TTargetData>, Task<TCommandResult>> method,
+            Func<LatticeData<TSourceData, TTargetData>, Task<TCommandResult>> method,
             bool forceDeferred = false) where TTargetData : new()
         {
             var del = new DelegateCommandHandler<TSourceData, TTargetData, TCommandResult>(method, forceDeferred: forceDeferred);
@@ -56,8 +56,8 @@ namespace PowerTables.Processing
         /// <param name="forceDeferred">Should this command be deferred (query cached for further results retrieving)</param>
         public static void AddCommandHandler<TSourceData, TTargetData, TCommandResult, TResponse>(
             this RequestHandlerBase<TSourceData, TTargetData, TResponse> handler, string command,
-            Func<PowerTablesData<TSourceData, TTargetData>, Task<TCommandResult>> asyncMethod,
-            Func<PowerTablesData<TSourceData, TTargetData>, TCommandResult> syncmethod,
+            Func<LatticeData<TSourceData, TTargetData>, Task<TCommandResult>> asyncMethod,
+            Func<LatticeData<TSourceData, TTargetData>, TCommandResult> syncmethod,
             bool forceDeferred = false) where TTargetData : new()
         {
             var del = new DelegateCommandHandler<TSourceData, TTargetData, TCommandResult>(syncmethod, asyncMethod, forceDeferred: forceDeferred);

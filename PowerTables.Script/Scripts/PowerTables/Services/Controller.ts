@@ -27,7 +27,7 @@ module PowerTables.Services {
          * @returns {} 
          */
         public reload(forceServer?: boolean): void {
-            this._masterTable.Loader.query((e: IPowerTablesResponse) => {
+            this._masterTable.Loader.query((e: ILatticeResponse) => {
                 if (e == null) {
                     this.redrawVisibleData();
                     return;

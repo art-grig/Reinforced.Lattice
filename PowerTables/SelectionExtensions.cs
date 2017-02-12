@@ -46,7 +46,7 @@ namespace PowerTables
         /// <typeparam name="TTableData"></typeparam>
         /// <param name="data">Data</param>
         /// <returns>Set of selected PK-objects</returns>
-        public static IEnumerable<TTableData> Selection<TSourceData, TTableData>(this PowerTablesData<TSourceData, TTableData> data) where TTableData : new()
+        public static IEnumerable<TTableData> Selection<TSourceData, TTableData>(this LatticeData<TSourceData, TTableData> data) where TTableData : new()
         {
             return data.Configuration.ParsePrimaryKeys(data.Request.Query.Selection.Keys);
         }
@@ -61,7 +61,7 @@ namespace PowerTables
         /// <param name="data">Data</param>
         /// <returns>Set of selected objects and cells</returns>
         public static IEnumerable<CellsSelectionEntry<TTableData>> ExtendedSelection<TSourceData, TTableData>(
-            this PowerTablesData<TSourceData, TTableData> data) where TTableData : new()
+            this LatticeData<TSourceData, TTableData> data) where TTableData : new()
         {
             foreach (var se in data.Request.Query.Selection)
             {

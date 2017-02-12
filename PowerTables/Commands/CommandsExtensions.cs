@@ -280,17 +280,17 @@ namespace PowerTables.Commands
             return cmd.Part(templatePiece, x => x.Razor(content));
         }
 
-        public static TRow CommandSubject<TSource, TRow>(this PowerTablesData<TSource, TRow> d) where TRow : new()
+        public static TRow CommandSubject<TSource, TRow>(this LatticeData<TSource, TRow> d) where TRow : new()
         {
             return d.RetrieveAdditionalObject<TRow>("CommandSubject");
         }
 
-        public static TRow CommandSubject<TSource, TRow>(this PowerTablesData<TSource, TRow> d,JsonSerializerSettings settings) where TRow : new()
+        public static TRow CommandSubject<TSource, TRow>(this LatticeData<TSource, TRow> d,JsonSerializerSettings settings) where TRow : new()
         {
             return d.RetrieveAdditionalObject<TRow>("CommandSubject",settings);
         }
 
-        public static TRow CommandSubject<TSource, TRow>(this PowerTablesData<TSource, TRow> d, params JsonConverter[] converters) where TRow : new()
+        public static TRow CommandSubject<TSource, TRow>(this LatticeData<TSource, TRow> d, params JsonConverter[] converters) where TRow : new()
         {
             return d.RetrieveAdditionalObject<TRow>("CommandSubject", converters);
         }

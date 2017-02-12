@@ -26,7 +26,7 @@ namespace PowerTables.Mvc.Controllers
             return handler.Handle(Data.SourceData.AsQueryable());
         }
 
-        private TableAdjustment TestSelection(PowerTablesData<Toy, Row> data)
+        private TableAdjustment TestSelection(LatticeData<Toy, Row> data)
         {
             var selectdCells = data.ExtendedSelection()
                 .Select(c => c.SelectedObject.Id + ": " + string.Join(", ", c.SelectedColumnNames));
@@ -38,10 +38,10 @@ namespace PowerTables.Mvc.Controllers
                     x => x.Message(TableMessage.User("info", "Selection", selectionData)));
         }
 
-        private TableAdjustment EditData(PowerTablesData<Toy, Row> powerTablesData, Row edit)
+        private TableAdjustment EditData(LatticeData<Toy, Row> latticeData, Row edit)
         {
-            var selection = powerTablesData.Selection();
-            var exSelection = powerTablesData.ExtendedSelection();
+            var selection = latticeData.Selection();
+            var exSelection = latticeData.ExtendedSelection();
 
             if (edit.Id == 0)
             {
@@ -53,7 +53,7 @@ namespace PowerTables.Mvc.Controllers
                     DeliveryDelay = edit.DeliveryDelay,
                     ToyName = edit.Name + " Added"
                 });
-                return powerTablesData.Configuration.Adjust(x =>
+                return latticeData.Configuration.Adjust(x =>
                 {
                     x.Message(TableMessage.User("info", "Object added", "Successfull"));
                     x.Update(edit);
@@ -65,13 +65,13 @@ namespace PowerTables.Mvc.Controllers
 
             var idsToUpdate = new[] { 2750, 2747, 2744 };
             var src = Data.SourceData.Where(c => idsToUpdate.Contains(c.Id)).ToArray();
-            var mapped = powerTablesData.Configuration.MapRange(src);
+            var mapped = latticeData.Configuration.MapRange(src);
             foreach (var row in mapped)
             {
                 row.Name = "UFO edited this label";
                 row.IsPaid = true;
             }
-            return powerTablesData.Configuration.Adjust(x =>
+            return latticeData.Configuration.Adjust(x =>
             {
                 x.Message(TableMessage.User("info", "Objects were updated", "Successful"));
                 x.Update(mapped);

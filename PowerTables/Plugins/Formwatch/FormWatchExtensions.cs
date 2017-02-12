@@ -59,7 +59,7 @@ namespace PowerTables.Plugins.Formwatch
         /// <typeparam name="T">Form ViewModel type</typeparam>
         /// <param name="request">PowerTables request</param>
         /// <returns>Form ViewModel</returns>
-        public static T Form<T>(this PowerTableRequest request)
+        public static T Form<T>(this LatticeRequest request)
         {
             return Form<T>(request.Query);
         }
@@ -71,7 +71,7 @@ namespace PowerTables.Plugins.Formwatch
         /// <param name="request">PowerTables request</param>
         /// <param name="converters">Converters to be supplied to Json.Net</param>
         /// <returns>Form ViewModel</returns>
-        public static T Form<T>(this PowerTableRequest request, params JsonConverter[] converters)
+        public static T Form<T>(this LatticeRequest request, params JsonConverter[] converters)
         {
             return Form<T>(request.Query, converters);
         }
@@ -83,7 +83,7 @@ namespace PowerTables.Plugins.Formwatch
         /// <param name="request">PowerTables request</param>
         /// <param name="serializerSettings">Serializer settings to be supplied to Json.Net</param>
         /// <returns>Form ViewModel</returns>
-        public static T Form<T>(this PowerTableRequest request, JsonSerializerSettings serializerSettings)
+        public static T Form<T>(this LatticeRequest request, JsonSerializerSettings serializerSettings)
         {
             return Form<T>(request.Query, serializerSettings);
         }
@@ -92,7 +92,7 @@ namespace PowerTables.Plugins.Formwatch
         /// Attaches instance of Formwatch plugin to table. 
         /// Formwatch plugin brings the ability of automatic triggering specified fields change 
         /// on client, extract specified fields data and include it to request. 
-        /// It is possible to retrieve collected form data with <see cref="Form{T}(PowerTables.Query)"/> or <see cref="Form{T}(PowerTables.PowerTableRequest)"/> method. 
+        /// It is possible to retrieve collected form data with <see cref="Form{T}(PowerTables.Query)"/> or <see cref="Form{T}(LatticeRequest)"/> method. 
         /// Formwatch plugin is quite flexible and allows you to specify selector for each field, constant values, custom 
         /// value evaluation functions etc.
         /// </summary>

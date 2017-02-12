@@ -83,7 +83,7 @@ namespace PowerTables.Plugins.Hideout
         /// <param name="request">Request</param>
         /// <param name="conf">Table configurator</param>
         /// <returns>Array of PropertyInfos that are hidden</returns>
-        public static PropertyDescription[] GetHiddenColumns(this PowerTableRequest request, IConfigurator conf)
+        public static PropertyDescription[] GetHiddenColumns(this LatticeRequest request, IConfigurator conf)
         {
             return GetHiddenColumns(request.Query, conf);
         }
@@ -93,7 +93,7 @@ namespace PowerTables.Plugins.Hideout
         /// </summary>
         /// <param name="request">Request</param>
         /// <returns>Array of strings denoting names of hidden columns</returns>
-        public static string[] GetHiddenColumns(this PowerTableRequest request)
+        public static string[] GetHiddenColumns(this LatticeRequest request)
         {
             return GetHiddenColumns(request.Query);
         }
@@ -128,7 +128,7 @@ namespace PowerTables.Plugins.Hideout
         /// <param name="request">Request</param>
         /// <param name="conf">Table configurator</param>
         /// <returns>Array of PropertyInfos that are shown</returns>
-        public static PropertyDescription[] GetShownColumns(this PowerTableRequest request, IConfigurator conf)
+        public static PropertyDescription[] GetShownColumns(this LatticeRequest request, IConfigurator conf)
         {
             return GetShownColumns(request.Query, conf);
         }
@@ -138,7 +138,7 @@ namespace PowerTables.Plugins.Hideout
         /// </summary>
         /// <param name="request">Request</param>
         /// <returns>Array of strings denoting names of shown columns</returns>
-        public static string[] GetShownColumns(this PowerTableRequest request)
+        public static string[] GetShownColumns(this LatticeRequest request)
         {
             return GetShownColumns(request.Query);
         }

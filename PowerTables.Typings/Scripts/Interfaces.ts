@@ -21,7 +21,7 @@ module PowerTables {
 		TemplateSelector: (row:IRow)=>string;
 		MessageFunction: (msg: ITableMessage) => void;
 		Subscriptions: PowerTables.IConfiguredSubscriptionInfo[];
-		QueryConfirmation: (query:IPowerTableRequest,scope:QueryScope,continueFn:any) => void;
+		QueryConfirmation: (query:ILatticeRequest,scope:QueryScope,continueFn:any) => void;
 		SelectionConfiguration: PowerTables.ISelectionConfiguration;
 		PrefetchedData: any[];
 		Commands: { [key:string]: PowerTables.Commands.ICommandDescription };
@@ -74,7 +74,7 @@ module PowerTables {
 		Order: number;
 		TemplateId: string;
 	}
-	export interface IPowerTablesResponse
+	export interface ILatticeResponse
 	{
 		Message: PowerTables.ITableMessage;
 		ResultsCount: number;
@@ -84,7 +84,7 @@ module PowerTables {
 		AdditionalData: any;
 		Success: boolean;
 	}
-	export interface IPowerTableRequest
+	export interface ILatticeRequest
 	{
 		Command: string;
 		Query: PowerTables.IQuery;

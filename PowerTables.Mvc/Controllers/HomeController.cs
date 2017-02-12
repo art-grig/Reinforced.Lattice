@@ -40,12 +40,12 @@ namespace PowerTables.Mvc.Controllers
             return handler.Handle(Data.SourceData.AsQueryable());
         }
 
-        public FileResult DownloadSome(PowerTablesData<Toy, Row> request)
+        public FileResult DownloadSome(LatticeData<Toy, Row> request)
         {
             return File(@"K:\Temp\mr-101-20150608-002.csv", "text/csv");
         }
 
-        public OperationResult Delete(PowerTablesData<Toy, Row> request)
+        public OperationResult Delete(LatticeData<Toy, Row> request)
         {
             int[] selectedIds = request.Selection().Select(c=>c.Id).ToArray();
             var rc = Data.SourceData.RemoveAll(c => selectedIds.Contains(c.Id));

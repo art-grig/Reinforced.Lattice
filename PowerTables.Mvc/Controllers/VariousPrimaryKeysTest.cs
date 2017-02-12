@@ -116,13 +116,13 @@ namespace PowerTables.Mvc.Controllers
             return conf.Handle(GetDates().AsQueryable());
         }
 
-        public TableAdjustment SomethingCmd(PowerTablesData<DateTime, PlanningRow> powerTablesData)
+        public TableAdjustment SomethingCmd(LatticeData<DateTime, PlanningRow> latticeData)
         {
-            var selection = powerTablesData.Selection().ToArray();
+            var selection = latticeData.Selection().ToArray();
             var dt = DateTime.UtcNow.Date.AddDays(-DateTime.UtcNow.Date.Day);
             var dt2 = dt.AddHours(2);
             var dt3 = dt.AddHours(4);
-            return powerTablesData.Configuration.Adjust(c =>
+            return latticeData.Configuration.Adjust(c =>
                 c.Message(TableMessage.User("error", "Blah"))
                 .Select(new[] { dt, dt2, dt3 })
                 );

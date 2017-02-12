@@ -84,7 +84,7 @@
             for (var k in o) if (o.hasOwnProperty(k)) return true;
             return false;
         }
-        private dataAppendLoaded(data: IPowerTablesResponse, pagesRequested: number, show: boolean) {
+        private dataAppendLoaded(data: ILatticeResponse, pagesRequested: number, show: boolean) {
             this.IsLoadingNextPart = false;
             if (this.AppendLoadingRow) this.destroyIndication();
             this.FinishReached = (data.BatchSize < this.Take * pagesRequested);

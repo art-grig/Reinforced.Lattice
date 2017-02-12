@@ -10,8 +10,8 @@ namespace PowerTables.Processing
     /// </summary>
     public class DelegateCommandHandler<TSourceData, TTargetData, TCommandResult> : CommandHandleBase<TCommandResult> where TTargetData : new()
     {
-        private readonly Func<PowerTablesData<TSourceData, TTargetData>, TCommandResult> _handlerMethod;
-        private readonly Func<PowerTablesData<TSourceData, TTargetData>, Task<TCommandResult>> _asynchandlerMethod;
+        private readonly Func<LatticeData<TSourceData, TTargetData>, TCommandResult> _handlerMethod;
+        private readonly Func<LatticeData<TSourceData, TTargetData>, Task<TCommandResult>> _asynchandlerMethod;
         private bool _forceDeferred;
 
         /// <summary>
@@ -19,7 +19,7 @@ namespace PowerTables.Processing
         /// </summary>
         /// <param name="asynchandlerMethod">Async method that should be executed</param>
         /// <param name="forceDeferred"></param>
-        public DelegateCommandHandler(Func<PowerTablesData<TSourceData, TTargetData>, Task<TCommandResult>> asynchandlerMethod, bool forceDeferred = false)
+        public DelegateCommandHandler(Func<LatticeData<TSourceData, TTargetData>, Task<TCommandResult>> asynchandlerMethod, bool forceDeferred = false)
         {
             _asynchandlerMethod = asynchandlerMethod;
             _forceDeferred = forceDeferred;
@@ -30,7 +30,7 @@ namespace PowerTables.Processing
         /// </summary>
         /// <param name="handlerMethod">Method implementing command</param>
         /// <param name="forceDeferred">Should this command be deferred (query cached for further results retrieving)</param>
-        public DelegateCommandHandler(Func<PowerTablesData<TSourceData, TTargetData>, TCommandResult> handlerMethod, bool forceDeferred = false)
+        public DelegateCommandHandler(Func<LatticeData<TSourceData, TTargetData>, TCommandResult> handlerMethod, bool forceDeferred = false)
         {
             _handlerMethod = handlerMethod;
             _forceDeferred = forceDeferred;
@@ -42,27 +42,27 @@ namespace PowerTables.Processing
         /// <param name="handlerMethod">Method implementing command</param>
         /// <param name="asynchandlerMethod">Async method implementing command</param>
         /// <param name="forceDeferred">Should this command be deferred (query cached for further results retrieving)</param>
-        public DelegateCommandHandler(Func<PowerTablesData<TSourceData, TTargetData>, TCommandResult> handlerMethod, Func<PowerTablesData<TSourceData, TTargetData>, Task<TCommandResult>> asynchandlerMethod, bool forceDeferred = false)
+        public DelegateCommandHandler(Func<LatticeData<TSourceData, TTargetData>, TCommandResult> handlerMethod, Func<LatticeData<TSourceData, TTargetData>, Task<TCommandResult>> asynchandlerMethod, bool forceDeferred = false)
         {
             _handlerMethod = handlerMethod;
             _asynchandlerMethod = asynchandlerMethod;
             _forceDeferred = forceDeferred;
         }
 
-        protected override TCommandResult Handle(PowerTablesData data)
+        protected override TCommandResult Handle(LatticeData data)
         {
             if (_handlerMethod == null)
             {
                 throw new Exception("This is asynchronous command handler. Please use it with .HandleAsync, not .Handle.");
             }
 
-            PowerTablesData<TSourceData, TTargetData> typedData = new PowerTablesData<TSourceData, TTargetData>(data);
+            LatticeData<TSourceData, TTargetData> typedData = new LatticeData<TSourceData, TTargetData>(data);
             return _handlerMethod(typedData);
         }
 
-        protected override async Task<TCommandResult> HandleAsync(PowerTablesData data)
+        protected override async Task<TCommandResult> HandleAsync(LatticeData data)
         {
-            PowerTablesData<TSourceData, TTargetData> typedData = new PowerTablesData<TSourceData, TTargetData>(data);
+            LatticeData<TSourceData, TTargetData> typedData = new LatticeData<TSourceData, TTargetData>(data);
             TCommandResult response;
 
             if (_asynchandlerMethod != null) response = await _asynchandlerMethod(typedData).ConfigureAwait(false);

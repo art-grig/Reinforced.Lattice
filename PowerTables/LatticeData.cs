@@ -7,7 +7,7 @@ namespace PowerTables
     /// <summary>
     /// Various sets of source data, selected and collected for response construction
     /// </summary>
-    public class PowerTablesData : IRequestable
+    public class LatticeData : IRequestable
     {
         /// <summary>
         /// Source set
@@ -42,7 +42,7 @@ namespace PowerTables
         /// <summary>
         /// Original request
         /// </summary>
-        public PowerTableRequest Request { get; private set; }
+        public LatticeRequest Request { get; private set; }
 
         /// <summary>
         /// Total results count. Similar to "Ordered".Count()
@@ -77,7 +77,7 @@ namespace PowerTables
         /// </summary>
         internal object _OriginalLazy;
 
-        public PowerTablesData(IQueryable source, IQueryable filtered, IQueryable ordered, IQueryable paged, Lazy<object[]> mapped, IConfigurator configuration, PowerTableRequest request, long resultsCount, int currentPage)
+        public LatticeData(IQueryable source, IQueryable filtered, IQueryable ordered, IQueryable paged, Lazy<object[]> mapped, IConfigurator configuration, LatticeRequest request, long resultsCount, int currentPage)
         {
             Source = source;
             Filtered = filtered;
@@ -93,13 +93,13 @@ namespace PowerTables
 
     public interface IRequestable
     {
-        PowerTableRequest Request { get; }
+        LatticeRequest Request { get; }
     }
 
     /// <summary>
     /// Various sets of source data, selected and collected for response construction, strongly typed
     /// </summary>
-    public class PowerTablesData<TSourceData, TTableData> : IRequestable where TTableData : new()
+    public class LatticeData<TSourceData, TTableData> : IRequestable where TTableData : new()
     {
         /// <summary>
         /// Source set
@@ -128,7 +128,7 @@ namespace PowerTables
         /// <summary>
         /// Original request
         /// </summary>
-        public PowerTableRequest Request { get; private set; }
+        public LatticeRequest Request { get; private set; }
         /// <summary>
         /// Total results count. Similar to "Ordered".Count()
         /// </summary>
@@ -138,7 +138,7 @@ namespace PowerTables
         /// </summary>
         public int CurrentPage { get; private set; }
        
-        public PowerTablesData(PowerTablesData coreData)
+        public LatticeData(LatticeData coreData)
         {
             Source = (IQueryable<TSourceData>)coreData.Source;
             Filtered = (IQueryable<TSourceData>)coreData.Filtered;

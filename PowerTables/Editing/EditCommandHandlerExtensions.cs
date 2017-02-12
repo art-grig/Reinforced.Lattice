@@ -9,7 +9,7 @@ namespace PowerTables.Editing
 
         public static void AddEditHandler<TSourceData, TTargetData, TResponse>(
             this RequestHandlerBase<TSourceData, TTargetData, TResponse> handler,
-            Func<PowerTablesData<TSourceData, TTargetData>, TTargetData, TableAdjustment> method)
+            Func<LatticeData<TSourceData, TTargetData>, TTargetData, TableAdjustment> method)
             where TTargetData : new()
         {
             var del = new EditorCommandHandler<TSourceData, TTargetData>(method);
@@ -18,7 +18,7 @@ namespace PowerTables.Editing
 
         public static void AddAsyncEditHandler<TSourceData, TTargetData, TResponse>(
             this RequestHandlerBase<TSourceData, TTargetData, TResponse> handler,
-            Func<PowerTablesData<TSourceData, TTargetData>, TTargetData, Task<TableAdjustment>> method)
+            Func<LatticeData<TSourceData, TTargetData>, TTargetData, Task<TableAdjustment>> method)
             where TTargetData : new()
         {
             var del = new EditorCommandHandler<TSourceData, TTargetData>(method);
@@ -27,8 +27,8 @@ namespace PowerTables.Editing
 
         public static void AddEditHandler<TSourceData, TTargetData, TResponse>(
             this RequestHandlerBase<TSourceData, TTargetData, TResponse> handler,
-            Func<PowerTablesData<TSourceData, TTargetData>, TTargetData, Task<TableAdjustment>> asyncMethod,
-            Func<PowerTablesData<TSourceData, TTargetData>, TTargetData, TableAdjustment> syncmethod)
+            Func<LatticeData<TSourceData, TTargetData>, TTargetData, Task<TableAdjustment>> asyncMethod,
+            Func<LatticeData<TSourceData, TTargetData>, TTargetData, TableAdjustment> syncmethod)
             where TTargetData : new()
         {
             var del = new EditorCommandHandler<TSourceData, TTargetData>(syncmethod, asyncMethod);

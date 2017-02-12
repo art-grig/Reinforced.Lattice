@@ -70,7 +70,7 @@ namespace PowerTables
             return false;
         }
 
-        protected virtual PowerTablesData ProduceData(IQueryable<TSourceData> source, PowerTableRequest request)
+        protected virtual LatticeData ProduceData(IQueryable<TSourceData> source, LatticeRequest request)
         {
             try
             {
@@ -86,7 +86,7 @@ namespace PowerTables
                 var mappedObject =
                     new Lazy<object[]>(() => _queryHandler.ApplyMapping(paged, request.Query).Cast<object>().ToArray());
 
-                var data = new PowerTablesData(source, filtered, ordered, paged, mappedObject, _configurator, request,
+                var data = new LatticeData(source, filtered, ordered, paged, mappedObject, _configurator, request,
                     count,
                     page);
                 data._OriginalLazy = mapped;
@@ -115,7 +115,7 @@ Btw, original message was: {0}", ex.Message),
         {
             try
             {
-                PowerTableRequest request = ExtractRequest();
+                LatticeRequest request = ExtractRequest();
                 var commandHandler = ResolveCommandHandler(request.Command);
 
                 if (!request.IsDeferred && (commandHandler.ForceDeferred || IsCommandAutoDeferred(commandHandler)))
@@ -143,7 +143,7 @@ Btw, original message was: {0}", ex.Message),
         {
             try
             {
-                PowerTableRequest request = ExtractRequest();
+                LatticeRequest request = ExtractRequest();
                 var commandHandler = ResolveCommandHandler(request.Command);
 
                 if (!request.IsDeferred && commandHandler.ForceDeferred)
@@ -165,13 +165,13 @@ Btw, original message was: {0}", ex.Message),
 
         private TResult ProduceError(Exception ex)
         {
-            PowerTablesResponse ptr = new PowerTablesResponse();
+            LatticeResponse ptr = new LatticeResponse();
             ptr.FormatException(ex);
             return FormatError(ptr);
         }
 
-        private PowerTableRequest _request;
-        public PowerTableRequest ExtractRequest()
+        private LatticeRequest _request;
+        public LatticeRequest ExtractRequest()
         {
             if (_request == null)
             {
@@ -181,17 +181,17 @@ Btw, original message was: {0}", ex.Message),
             return _request;
         }
 
-        protected abstract PowerTableRequest ExtractRequestCore();
+        protected abstract LatticeRequest ExtractRequestCore();
 
-        protected abstract TResult FormatError(PowerTablesResponse errorResponse);
+        protected abstract TResult FormatError(LatticeResponse errorResponse);
 
         protected abstract TResult ProduceRedirect(string token);
 
-        public abstract TResult ProduceResponse(PowerTablesData data, Type cType, object commandResponse);
+        public abstract TResult ProduceResponse(LatticeData data, Type cType, object commandResponse);
 
         public abstract TStaticData ExtractStaticData<TStaticData>() where TStaticData : class;
 
-        protected void ApplyResponseModifiers(PowerTablesData data, PowerTablesResponse response)
+        protected void ApplyResponseModifiers(LatticeData data, LatticeResponse response)
         {
             foreach (var responseModifier in _configurator.ResponseModifiers)
             {

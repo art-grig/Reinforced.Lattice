@@ -16,7 +16,7 @@ namespace PowerTables.Adjustments
             return adj.Build();
         }
 
-        public static TableAdjustment Adjust<TSource, TData>(this PowerTablesData<TSource, TData> conf, Action<AdjustmentWrapper<TSource, TData>> adjustment) where TData : new()
+        public static TableAdjustment Adjust<TSource, TData>(this LatticeData<TSource, TData> conf, Action<AdjustmentWrapper<TSource, TData>> adjustment) where TData : new()
         {
             return conf.Configuration.Adjust(adjustment);
         }
@@ -26,7 +26,7 @@ namespace PowerTables.Adjustments
             return new AdjustmentWrapper<TSource, TData>(conf);
         }
 
-        public static AdjustmentWrapper<TSource, TData> Adjustment<TSource, TData>(this PowerTablesData<TSource, TData> conf) where TData : new()
+        public static AdjustmentWrapper<TSource, TData> Adjustment<TSource, TData>(this LatticeData<TSource, TData> conf) where TData : new()
         {
             return new AdjustmentWrapper<TSource, TData>(conf.Configuration);
         }

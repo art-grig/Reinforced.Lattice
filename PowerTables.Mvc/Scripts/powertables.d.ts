@@ -15,7 +15,7 @@ declare module PowerTables {
         TemplateSelector: (row: IRow) => string;
         MessageFunction: (msg: ITableMessage) => void;
         Subscriptions: PowerTables.IConfiguredSubscriptionInfo[];
-        QueryConfirmation: (query: IPowerTableRequest, scope: QueryScope, continueFn: any) => void;
+        QueryConfirmation: (query: ILatticeRequest, scope: QueryScope, continueFn: any) => void;
         SelectionConfiguration: PowerTables.ISelectionConfiguration;
         PrefetchedData: any[];
         Commands: {
@@ -65,7 +65,7 @@ declare module PowerTables {
         Order: number;
         TemplateId: string;
     }
-    interface IPowerTablesResponse {
+    interface ILatticeResponse {
         Message: PowerTables.ITableMessage;
         ResultsCount: number;
         BatchSize: number;
@@ -74,7 +74,7 @@ declare module PowerTables {
         AdditionalData: any;
         Success: boolean;
     }
-    interface IPowerTableRequest {
+    interface ILatticeRequest {
         Command: string;
         Query: PowerTables.IQuery;
     }
@@ -987,7 +987,7 @@ declare module PowerTables {
         /**
          * Query to be sent to server
          */
-        Request: IPowerTableRequest;
+        Request: ILatticeRequest;
         /**
          * Request object to be used while sending to server
          */
@@ -997,7 +997,7 @@ declare module PowerTables {
         /**
          * Response received from server
          */
-        Response: IPowerTablesResponse;
+        Response: ILatticeResponse;
     }
     /**
      * Event args for loading error event
@@ -1028,7 +1028,7 @@ declare module PowerTables {
         /**
          * Query response
          */
-        Data: IPowerTablesResponse;
+        Data: ILatticeResponse;
         IsAdjustment: boolean;
         Adjustments?: ITableAdjustment;
     }
@@ -1206,6 +1206,59 @@ declare module PowerTables {
          * Event argumetns
          */
         EventArguments: any[];
+    }
+}
+declare module PowerTables.Plugins.Hierarchy {
+    class HierarchyPlugin extends PluginBase<IHierarchyUiConfiguration> implements IClientFilter {
+        private _parentKeyFunction;
+        private _globalHierarchy;
+        private _currentHierarchy;
+        private _notInHierarchy;
+        init(masterTable: IMasterTable): void;
+        expandRow(args: IRowEventArgs): void;
+        expandLoadRow(args: IRowEventArgs): void;
+        toggleLoadRow(args: IRowEventArgs): void;
+        collapseRow(args: IRowEventArgs): void;
+        toggleRow(args: IRowEventArgs): void;
+        toggleSubtreeOrLoad(dataObject: any, turnOpen?: boolean): void;
+        toggleSubtreeByObject(dataObject: any, turnOpen?: boolean): void;
+        private loadRow(dataObject);
+        private isParentExpanded(dataObject);
+        private expand(dataObject);
+        private appendNodes(newNodes, tail);
+        private firePartitionChange(tk?, sk?);
+        private removeNLastRows(n);
+        private toggleVisibleChildren(dataObject, visible, hierarchy?);
+        private toggleVisible(dataObject, visible, hierarchy?);
+        private collapse(dataObject, redraw);
+        private onFiltered_after();
+        private expandParents(src);
+        private restoreHierarchyData(d);
+        private buildCurrentHierarchy(d);
+        private addParents(o, existing);
+        private onOrdered_after();
+        private orderHierarchy(src, minDeepness);
+        private appendChildren(target, index, hierarchy);
+        private buildHierarchy(d, minDeepness);
+        private isParentNull(dataObject);
+        private deepness(obj);
+        private visible(obj);
+        private onDataReceived_after(e);
+        private setServerChildrenCount(dataObject);
+        private setLocalChildrenCount(dataObject);
+        private setChildrenCount(dataObject, count);
+        private proceedAddedData(added);
+        private proceedUpdatedData(d);
+        moveItems(items: any[], newParent: any): void;
+        private moveItem(dataObject, newParentKey);
+        private moveFromNotInHierarchy(key, newParentKey);
+        private cleanupNotInHierarchy();
+        private onAdjustment_after(e);
+        private onAdjustment_before(e);
+        private moveToNotInHierarchy(parent);
+        private removeFromHierarchySubtrees(toRemove, hierarchy);
+        subscribe(e: PowerTables.Services.EventsService): void;
+        filterPredicate(rowObject: any, query: IQuery): boolean;
     }
 }
 declare module PowerTables.Rendering {
@@ -2032,7 +2085,7 @@ declare module PowerTables.Services {
         StoredCache: {
             [_: number]: any;
         };
-        storeResponse(response: IPowerTablesResponse, clientQuery: IQuery): void;
+        storeResponse(response: ILatticeResponse, clientQuery: IQuery): void;
         private _pkDataCache;
         /**
          * Client query that was used to obtain recent local data set
@@ -3667,59 +3720,6 @@ declare module PowerTables.Plugins.Loading {
          * Hides loading indicator
          */
         hideLoadingIndicator(): void;
-    }
-}
-declare module PowerTables.Plugins.Hierarchy {
-    class HierarchyPlugin extends PluginBase<IHierarchyUiConfiguration> implements IClientFilter {
-        private _parentKeyFunction;
-        private _globalHierarchy;
-        private _currentHierarchy;
-        private _notInHierarchy;
-        init(masterTable: IMasterTable): void;
-        expandRow(args: IRowEventArgs): void;
-        expandLoadRow(args: IRowEventArgs): void;
-        toggleLoadRow(args: IRowEventArgs): void;
-        collapseRow(args: IRowEventArgs): void;
-        toggleRow(args: IRowEventArgs): void;
-        toggleSubtreeOrLoad(dataObject: any, turnOpen?: boolean): void;
-        toggleSubtreeByObject(dataObject: any, turnOpen?: boolean): void;
-        private loadRow(dataObject);
-        private isParentExpanded(dataObject);
-        private expand(dataObject);
-        private appendNodes(newNodes, tail);
-        private firePartitionChange(tk?, sk?);
-        private removeNLastRows(n);
-        private toggleVisibleChildren(dataObject, visible, hierarchy?);
-        private toggleVisible(dataObject, visible, hierarchy?);
-        private collapse(dataObject, redraw);
-        private onFiltered_after();
-        private expandParents(src);
-        private restoreHierarchyData(d);
-        private buildCurrentHierarchy(d);
-        private addParents(o, existing);
-        private onOrdered_after();
-        private orderHierarchy(src, minDeepness);
-        private appendChildren(target, index, hierarchy);
-        private buildHierarchy(d, minDeepness);
-        private isParentNull(dataObject);
-        private deepness(obj);
-        private visible(obj);
-        private onDataReceived_after(e);
-        private setServerChildrenCount(dataObject);
-        private setLocalChildrenCount(dataObject);
-        private setChildrenCount(dataObject, count);
-        private proceedAddedData(added);
-        private proceedUpdatedData(d);
-        moveItems(items: any[], newParent: any): void;
-        private moveItem(dataObject, newParentKey);
-        private moveFromNotInHierarchy(key, newParentKey);
-        private cleanupNotInHierarchy();
-        private onAdjustment_after(e);
-        private onAdjustment_before(e);
-        private moveToNotInHierarchy(parent);
-        private removeFromHierarchySubtrees(toRemove, hierarchy);
-        subscribe(e: PowerTables.Services.EventsService): void;
-        filterPredicate(rowObject: any, query: IQuery): boolean;
     }
 }
 declare module PowerTables.Editing {

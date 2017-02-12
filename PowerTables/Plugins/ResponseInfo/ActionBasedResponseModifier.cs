@@ -12,18 +12,18 @@ namespace PowerTables.Plugins.ResponseInfo
     /// </summary>
     public class ActionBasedResponseModifier : IResponseModifier
     {
-        private readonly Action<PowerTablesData, PowerTablesResponse> _action;
+        private readonly Action<LatticeData, LatticeResponse> _action;
 
         /// <summary>
         /// Constructs new action-based response modifier
         /// </summary>
         /// <param name="action">Action modifying response</param>
-        public ActionBasedResponseModifier(Action<PowerTablesData, PowerTablesResponse> action)
+        public ActionBasedResponseModifier(Action<LatticeData, LatticeResponse> action)
         {
             _action = action;
         }
 
-        public void ModifyResponse(PowerTablesData data, PowerTablesResponse response)
+        public void ModifyResponse(LatticeData data, LatticeResponse response)
         {
             if (_action != null)
             {
@@ -40,22 +40,22 @@ namespace PowerTables.Plugins.ResponseInfo
     /// </summary>
     public class ActionBasedResponseModifier<TSourceData,TTableData> : IResponseModifier where TTableData : new()
     {
-        private readonly Action<PowerTablesData<TSourceData, TTableData>, PowerTablesResponse> _action;
+        private readonly Action<LatticeData<TSourceData, TTableData>, LatticeResponse> _action;
 
         /// <summary>
         /// Constructs new action-based response modifier
         /// </summary>
         /// <param name="action">Action modifying response</param>
-        public ActionBasedResponseModifier(Action<PowerTablesData<TSourceData, TTableData>, PowerTablesResponse> action)
+        public ActionBasedResponseModifier(Action<LatticeData<TSourceData, TTableData>, LatticeResponse> action)
         {
             _action = action;
         }
 
-        public void ModifyResponse(PowerTablesData data, PowerTablesResponse response)
+        public void ModifyResponse(LatticeData data, LatticeResponse response)
         {
             if (_action != null)
             {
-                _action(new PowerTablesData<TSourceData, TTableData>(data), response);
+                _action(new LatticeData<TSourceData, TTableData>(data), response);
             }
         }
     }

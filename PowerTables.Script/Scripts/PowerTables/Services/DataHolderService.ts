@@ -198,7 +198,7 @@
         */
 
         public StoredCache: { [_: number]: any } = {}
-        public storeResponse(response: IPowerTablesResponse, clientQuery: IQuery) {
+        public storeResponse(response: ILatticeResponse, clientQuery: IQuery) {
             var data: any[] = [];
             var obj: {} = {};
             var currentColIndex: number = this.getNextNonSpecialColumn(-1);
