@@ -325,9 +325,9 @@
       <Project>{1ac04086-7a85-4e84-928f-d739c16b33a8}</Project>
       <Name>Reinforced.Lattice.Mvc5</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Reinforced.Lattice.Templates\Reinforced.Lattice.Templates.csproj">
+    <ProjectReference Include="..\Reinforced.Lattice.Templates.Mvc5\Reinforced.Lattice.Templates.Mvc5.csproj">
       <Project>{aead84d9-50af-48aa-8d26-5408af239eef}</Project>
-      <Name>Reinforced.Lattice.Templates</Name>
+      <Name>Reinforced.Lattice.Templates.Mvc5</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reinforced.Lattice.Script",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reinforced.Lattice.Mvc5", "Reinforced.Lattice.Mvc5\Reinforced.Lattice.Mvc5.csproj", "{1AC04086-7A85-4E84-928F-D739C16B33A8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reinforced.Lattice.Templates", "Reinforced.Lattice.Templates\Reinforced.Lattice.Templates.csproj", "{AEAD84D9-50AF-48AA-8D26-5408AF239EEF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reinforced.Lattice.Templates.Mvc5", "Reinforced.Lattice.Templates.Mvc5\Reinforced.Lattice.Templates.Mvc5.csproj", "{AEAD84D9-50AF-48AA-8D26-5408AF239EEF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core Library", "Core Library", "{05D473F0-3D16-42C0-8DFF-29231D418722}"
 EndProject
@@ -30,6 +30,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reinforced.Lattice.Mvc4", "Reinforced.Lattice.Mvc4\Reinforced.Lattice.Mvc4.csproj", "{4B884D82-B2B3-40B4-A965-957D1EC87624}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reinforced.Lattice.Mvc4.Razor", "Reinforced.Lattice.Mvc4.Razor\Reinforced.Lattice.Mvc4.Razor.csproj", "{18F26477-D446-45D4-868B-92D2CDC84FD2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reinforced.Lattice.Templates.Mvc4", "Reinforced.Lattice.Templates.Mvc4\Reinforced.Lattice.Templates.Mvc4.csproj", "{697AB62A-26D8-4157-BA20-36B3626B4D18}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -75,6 +77,10 @@ Global
 		{18F26477-D446-45D4-868B-92D2CDC84FD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{18F26477-D446-45D4-868B-92D2CDC84FD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{18F26477-D446-45D4-868B-92D2CDC84FD2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{697AB62A-26D8-4157-BA20-36B3626B4D18}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{697AB62A-26D8-4157-BA20-36B3626B4D18}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{697AB62A-26D8-4157-BA20-36B3626B4D18}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{697AB62A-26D8-4157-BA20-36B3626B4D18}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -89,5 +95,6 @@ Global
 		{3C9EE093-4225-4767-ACC3-2099AFFD852F} = {B26A2169-5203-4B19-8DCD-040F45F53866}
 		{4B884D82-B2B3-40B4-A965-957D1EC87624} = {B26A2169-5203-4B19-8DCD-040F45F53866}
 		{18F26477-D446-45D4-868B-92D2CDC84FD2} = {B26A2169-5203-4B19-8DCD-040F45F53866}
+		{697AB62A-26D8-4157-BA20-36B3626B4D18} = {97A73A13-90C2-48A4-A053-4F8C9058A3CB}
 	EndGlobalSection
 EndGlobal
