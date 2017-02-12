@@ -85,6 +85,10 @@
       <Project>{2e931fd3-efe9-42d5-8d90-f3b659f06760}</Project>
       <Name>PowerTables</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Reinforced.Lattice.Templating\Reinforced.Lattice.Templates.csproj">
+      <Project>{AEAD84D9-50AF-48AA-8D26-5408AF239EEF}</Project>
+      <Name>Reinforced.Lattice.Templates</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Reinforced.Typings.settings.xml" />

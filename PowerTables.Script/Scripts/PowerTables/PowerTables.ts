@@ -3,9 +3,9 @@ module PowerTables {
     /**
      * Main entry point for all tables functionality
      */
-    export class PowerTable implements IMasterTable {
+    export class Master implements IMasterTable {
         /**
-         * Constructs new instance of PowerTable object. 
+         * Constructs new instance of Reinforced.Lattice master object. 
          * Usually this method is being called automatically by .InitializationCode or .InitializationScript method, 
          * but you also could combine call of Configurator<>.JsonConfig and call of Lattice constructor
          * 

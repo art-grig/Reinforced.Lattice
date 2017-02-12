@@ -19,7 +19,7 @@ module PowerTables {
 		KeyFields: string[];
 		CallbackFunction: (table:IMasterTable) => void;
 		TemplateSelector: (row:IRow)=>string;
-		MessageFunction: (msg: ITableMessage) => void;
+		MessageFunction: (msg: ILatticeMessage) => void;
 		Subscriptions: PowerTables.IConfiguredSubscriptionInfo[];
 		QueryConfirmation: (query:IPowerTableRequest,scope:QueryScope,continueFn:any) => void;
 		SelectionConfiguration: PowerTables.ISelectionConfiguration;
@@ -78,7 +78,8 @@ module PowerTables {
 	{
 		Text: string;
 		Value: string;
-		IsSelected: boolean;
+		Selected: boolean;
+		Disabled: boolean;
 	}
 	export interface ILatticeResponse
 	{
@@ -291,7 +292,7 @@ module PowerTables.Filters.Select {
 		SelectedValue: string;
 		IsMultiple: boolean;
 		ColumnName: string;
-		Items: any[];
+		Items: PowerTables.IUiListItem[];
 		Hidden: boolean;
 		ClientFiltering: boolean;
 		ClientFilteringFunction: (object: any, selectedValues:string[], query: IQuery)=>boolean;
@@ -409,7 +410,7 @@ module PowerTables.Editing.Editors.SelectList {
 	export interface ISelectListEditorUiConfig extends PowerTables.Editing.IEditFieldUiConfigBase
 	{
 		PluginId: string;
-		SelectListItems: any[];
+		SelectListItems: PowerTables.IUiListItem[];
 		AllowEmptyString: boolean;
 		EmptyElementText: string;
 		AddEmptyElement: boolean;

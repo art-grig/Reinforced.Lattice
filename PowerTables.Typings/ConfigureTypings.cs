@@ -33,7 +33,7 @@ using PowerTables.Plugins.ResponseInfo;
 using PowerTables.Plugins.Scrollbar;
 using PowerTables.Plugins.Toolbar;
 using PowerTables.Plugins.Total;
-using PowerTables.Templating.BuiltIn;
+using Reinforced.Lattice.Templating.BuiltIn;
 using Reinforced.Typings.Fluent;
 
 namespace PowerTables.Typings
@@ -49,7 +49,7 @@ namespace PowerTables.Typings
                 .WithPublicProperties()
                 .WithProperty(c => c.CallbackFunction, c => c.Type("(table:IMasterTable) => void"))
                 .WithProperty(c => c.TemplateSelector, c => c.Type("(row:IRow)=>string"))
-                .WithProperty(c => c.MessageFunction, c => c.Type("(msg: ITableMessage) => void"))
+                .WithProperty(c => c.MessageFunction, c => c.Type("(msg: ILatticeMessage) => void"))
                 .WithProperty(c => c.QueryConfirmation, c => c.Type("(query:IPowerTableRequest,scope:QueryScope,continueFn:any) => void"))
                 ;
             builder.ExportAsInterface<DatepickerOptions>()
