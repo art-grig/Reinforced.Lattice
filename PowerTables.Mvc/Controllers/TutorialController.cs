@@ -8,6 +8,7 @@ using System.Web.Mvc;
 using PowerTables.Configuration;
 using PowerTables.Mvc.Models;
 using PowerTables.Mvc.Models.Tutorial;
+using Reinforced.Lattice.Mvc;
 
 namespace PowerTables.Mvc.Controllers
 {

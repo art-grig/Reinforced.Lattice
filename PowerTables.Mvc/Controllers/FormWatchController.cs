@@ -5,6 +5,7 @@ using PowerTables.Configuration;
 using PowerTables.Mvc.Models;
 using PowerTables.Mvc.Models.Tutorial;
 using PowerTables.Plugins.Formwatch;
+using Reinforced.Lattice.Mvc;
 
 namespace PowerTables.Mvc.Controllers
 {

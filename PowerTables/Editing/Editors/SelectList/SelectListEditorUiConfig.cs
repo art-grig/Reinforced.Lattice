@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Web.Mvc;
 using Newtonsoft.Json.Linq;
 
 namespace PowerTables.Editing.Editors.SelectList
@@ -11,7 +10,7 @@ namespace PowerTables.Editing.Editors.SelectList
             get { return "SelectListEditor"; }
         }
 
-        public List<SelectListItem> SelectListItems { get; set; }
+        public List<UiListItem> SelectListItems { get; set; }
 
         public bool AllowEmptyString { get; set; }
 
@@ -24,7 +23,7 @@ namespace PowerTables.Editing.Editors.SelectList
 
         public SelectListEditorUiConfig()
         {
-            SelectListItems = new List<SelectListItem>();
+            SelectListItems = new List<UiListItem>();
             TemplateId = "selectListEditor";
         }
     }

@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using PowerTables.Configuration.Json;
 using PowerTables.Filters;
 using PowerTables.Processing;

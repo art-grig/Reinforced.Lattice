@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reflection;
-using PowerTables.Configuration;
-using PowerTables.Configuration.Json;
 
 namespace PowerTables.Editing
 {

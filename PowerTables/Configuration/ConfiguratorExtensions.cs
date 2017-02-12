@@ -4,9 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using PowerTables.CellTemplating;
 using PowerTables.Configuration.Json;
-using PowerTables.Plugins;
 
 namespace PowerTables.Configuration
 {

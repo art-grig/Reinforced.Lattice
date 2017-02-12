@@ -1,6 +1,4 @@
-﻿using System;
-using Newtonsoft.Json.Linq;
-using PowerTables.Plugins.Formwatch;
+﻿using Newtonsoft.Json.Linq;
 
 namespace PowerTables.Plugins.Toolbar
 {

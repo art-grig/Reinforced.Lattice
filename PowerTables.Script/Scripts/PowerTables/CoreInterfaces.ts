@@ -368,7 +368,7 @@
         IsBoolean: boolean;
     }
 
-    export interface IUiMessage extends ITableMessage {
+    export interface IUiMessage extends ILatticeMessage {
         UiColumnsCount: number;
         IsMessageObject?: boolean;
     }

@@ -5,6 +5,7 @@ using PowerTables.Editing;
 using PowerTables.Mvc.Models;
 using PowerTables.Mvc.Models.Tutorial;
 using PowerTables.Processing;
+using Reinforced.Lattice.Mvc;
 
 namespace PowerTables.Mvc.Controllers
 {
@@ -35,7 +36,7 @@ namespace PowerTables.Mvc.Controllers
 
             return
                 data.Configuration.Adjust(
-                    x => x.Message(TableMessage.User("info", "Selection", selectionData)));
+                    x => x.Message(LatticeMessage.User("info", "Selection", selectionData)));
         }
 
         private TableAdjustment EditData(LatticeData<Toy, Row> latticeData, Row edit)
@@ -55,7 +56,7 @@ namespace PowerTables.Mvc.Controllers
                 });
                 return latticeData.Configuration.Adjust(x =>
                 {
-                    x.Message(TableMessage.User("info", "Object added", "Successfull"));
+                    x.Message(LatticeMessage.User("info", "Object added", "Successfull"));
                     x.Update(edit);
                 });
 
@@ -73,7 +74,7 @@ namespace PowerTables.Mvc.Controllers
             }
             return latticeData.Configuration.Adjust(x =>
             {
-                x.Message(TableMessage.User("info", "Objects were updated", "Successful"));
+                x.Message(LatticeMessage.User("info", "Objects were updated", "Successful"));
                 x.Update(mapped);
                 x.Update(edit);
             });

@@ -1,15 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.WebPages;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PowerTables.CellTemplating;
 using PowerTables.Configuration;
 using PowerTables.Editing;
-using PowerTables.Editing.Form;
 using PowerTables.Plugins.Formwatch;
 
 namespace PowerTables.Commands
@@ -273,11 +267,6 @@ namespace PowerTables.Commands
         public static T Part<T>(this T cmd, string templatePiece, string template) where T : CommandConfirmationConfigurator
         {
             return cmd.Part(templatePiece,x=>x.Returns(template));
-        }
-
-        public static T RazorPart<T>(this T cmd, string templatePiece, Func<object, HelperResult> content) where T : CommandConfirmationConfigurator
-        {
-            return cmd.Part(templatePiece, x => x.Razor(content));
         }
 
         public static TRow CommandSubject<TSource, TRow>(this LatticeData<TSource, TRow> d) where TRow : new()

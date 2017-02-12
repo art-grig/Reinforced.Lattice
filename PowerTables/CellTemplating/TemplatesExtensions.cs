@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Web;
-using System.Web.WebPages;
 using PowerTables.Configuration;
 
 namespace PowerTables.CellTemplating
@@ -47,49 +43,7 @@ namespace PowerTables.CellTemplating
             col.TemplateFunction(fun);
             return col;
         }
-
-        /// <summary>
-        /// Renders configured template in specified column. 
-        /// You can use {field} syntax to include specific table column value.
-        /// Use `{field} + 10` to embed JS expression inside template. Code in `'s will 
-        /// be included to template without chages
-        /// </summary>
-        /// <param name="col">Column</param>
-        /// <param name="elementsConf">Cell template builder</param>
-        /// <returns>Fluent</returns>
-        public static ColumnUsage<TSource, TRow, TColumn> Razor<TSource, TRow, TColumn>(this ColumnUsage<TSource, TRow, TColumn> col, Func<TemplateDataWrapper<TRow>, HelperResult> mvcTemplate) where TRow : new()
-        {
-            CellTemplateBuilder ctb = new CellTemplateBuilder();
-            TemplateDataWrapper<TRow> r = new TemplateDataWrapper<TRow>(ctb);
-            var result = mvcTemplate(r);
-
-            ctb.Returns(result);
-            var fun = ctb.Build();
-            col.TemplateFunction(fun);
-            return col;
-        }
-
-        /// <summary>
-        /// Renders configured template in specified column. 
-        /// You can use {field} syntax to include specific table column value.
-        /// Use `{field} + 10` to embed JS expression inside template. Code in `'s will 
-        /// be included to template without chages
-        /// </summary>
-        /// <param name="col">Column</param>
-        /// <param name="mvcTemplate">Razor template</param>
-        /// <returns>Fluent</returns>
-        public static IColumnTargetProperty<T> Razor<T>(this IColumnTargetProperty<T> col,
-            Func<object, HelperResult> mvcTemplate)
-        {
-            CellTemplateBuilder ctb = new CellTemplateBuilder();
-            var result = mvcTemplate(new object());
-
-            ctb.Returns(result);
-            var fun = ctb.Build();
-            col.TemplateFunction(fun);
-            return col;
-        }
-
+        
         /// <summary>
         /// Appends onclick attribute to element (usually button)
         /// </summary>
@@ -129,38 +83,9 @@ namespace PowerTables.CellTemplating
             });
         }
 
-        /// <summary>
-        /// Replaces escaped %XX-symbols used by Lattice with regular symbols. 
-        /// This method only affects `,@,{,} symbols
-        /// </summary>
-        /// <param name="s">Escaped HTML string</param>
-        /// <returns></returns>
-        public static string TemplateHTMLDecode(this string s)
-        {
-            return CellTemplating.Template.SanitizeHtmlString(s);
-        }
+        
 
-        /// <summary>
-        /// Returns specified template part if condition met
-        /// </summary>
-        /// <param name="content">Content to return</param>
-        /// <returns></returns>
-        public static CellTemplateBuilder Returns(this CellTemplateBuilder x, IHtmlString content)
-        {
-            return x.Returns(CellTemplating.Template.SanitizeHtmlString(content));
-        }
-
-        /// <summary>
-        /// Returns specified template part if condition met
-        /// </summary>
-        /// <param name="content">Content to return</param>
-        /// <returns></returns>
-        public static CellTemplateBuilder Razor(this CellTemplateBuilder x, Func<object, HelperResult> content)
-        {
-            return Returns(x, content(new object()));
-        }
-
-
+        
         /// <summary>
         /// Returns specified template part if condition met
         /// </summary>
@@ -169,56 +94,6 @@ namespace PowerTables.CellTemplating
         public static CellTemplateBuilder Returns(this CellTemplateBuilder x, Action<Template> elment)
         {
             return x.Returns(CellTemplating.Template.BuildDelegate(elment));
-        }
-
-
-        /// <summary>
-        /// Returns specified template part if condition met
-        /// </summary>
-        /// <param name="expression">Expression</param>
-        /// <param name="positiveContent">Content if expression is positive</param>
-        /// <param name="negativeContent">Content if expression is negative</param>
-        /// <returns></returns>
-        public static CellTemplateBuilder ReturnsIf(this CellTemplateBuilder x, string expression, IHtmlString positiveContent, IHtmlString negativeContent)
-        {
-            return x.ReturnsIf(expression, CellTemplating.Template.SanitizeHtmlString(positiveContent),
-                CellTemplating.Template.SanitizeHtmlString(negativeContent));
-        }
-
-        /// <summary>
-        /// Returns specified template part if condition met
-        /// </summary>
-        /// <param name="expression">Expression</param>
-        /// <param name="positiveContent">Content if expression is positive</param>
-        /// <param name="negativeContent">Content if expression is negative</param>
-        /// <returns></returns>
-        public static CellTemplateBuilder ReturnsIf(this CellTemplateBuilder x, string expression, IHtmlString positiveContent, string negativeContent)
-        {
-            return x.ReturnsIf(expression, CellTemplating.Template.SanitizeHtmlString(positiveContent), negativeContent);
-        }
-
-        /// <summary>
-        /// Returns specified template part if condition met
-        /// </summary>
-        /// <param name="expression">Expression</param>
-        /// <param name="positiveContent">Content if expression is positive</param>
-        /// <param name="negativeContent">Content if expression is negative</param>
-        /// <returns></returns>
-        public static CellTemplateBuilder ReturnsIf(this CellTemplateBuilder x, string expression, string positiveContent, IHtmlString negativeContent)
-        {
-            return x.ReturnsIf(expression, positiveContent, CellTemplating.Template.SanitizeHtmlString(negativeContent));
-        }
-
-        /// <summary>
-        /// Returns specified template part if condition met
-        /// </summary>
-        /// <param name="expression">Expression</param>
-        /// <param name="positiveContent">Content if expression is positive</param>
-        /// <param name="negativeContent">Content if expression is negative</param>
-        /// <returns></returns>
-        public static CellTemplateBuilder RazorIf(this CellTemplateBuilder x, string expression, Func<object, HelperResult> positiveContent, Func<object, HelperResult> negativeContent)
-        {
-            return ReturnsIf(x, expression, positiveContent(new object()), negativeContent(new object()));
         }
 
         /// <summary>
@@ -244,50 +119,8 @@ namespace PowerTables.CellTemplating
             return x.ReturnsIf(expression, CellTemplating.Template.BuildDelegate(elment));
         }
 
-        /// <summary>
-        /// Returns specified template part if condition met
-        /// </summary>
-        /// <param name="expression">Expression</param>
-        /// <param name="content">Text to return</param>
-        /// <returns></returns>
-        public static CellTemplateBuilder ReturnsIf(this CellTemplateBuilder x, string expression, IHtmlString content)
-        {
-            return x.ReturnsIf(expression, CellTemplating.Template.SanitizeHtmlString(content));
-        }
+        
 
-
-        /// <summary>
-        /// Returns specified template part if condition met
-        /// </summary>
-        /// <param name="expression">Expression</param>
-        /// <param name="content">Text to return</param>
-        /// <returns></returns>
-        public static CellTemplateBuilder RazorIf(this CellTemplateBuilder x, string expression, Func<object, HelperResult> content)
-        {
-            return ReturnsIf(x, expression, content(new object()));
-        }
-
-
-        /// <summary>
-        /// Template will return specified content if specified column is null or undefined
-        /// </summary>
-        /// <param name="expression">Expression to check</param>
-        /// <param name="content">Content to return</param>
-        /// <returns></returns>
-        public static CellTemplateBuilder IfNotPresent(this CellTemplateBuilder x, string expression, IHtmlString content)
-        {
-            return x.IfNotPresent(expression, CellTemplating.Template.SanitizeHtmlString(content));
-        }
-
-        /// <summary>
-        /// Returns specified template part if condition met
-        /// </summary>
-        /// <param name="expression">Expression</param>
-        /// <param name="content">Text to return</param>
-        /// <returns></returns>
-        public static CellTemplateBuilder RazorIfNotPresent(this CellTemplateBuilder x, string expression, Func<object, HelperResult> content)
-        {
-            return IfNotPresent(x, expression, content(new object()));
-        }
+        
     }
 }

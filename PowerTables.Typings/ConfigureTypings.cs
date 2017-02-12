@@ -61,7 +61,7 @@ namespace PowerTables.Typings
                 .OverrideNamespace("PowerTables")
                 ;
             builder.ExportAsInterface<CoreTemplateIds>().WithPublicProperties().OverrideNamespace("PowerTables");
-            builder.ExportAsInterface<TableMessage>().WithPublicProperties().OverrideNamespace("PowerTables").WithProperty(c => c.IsMessage, c => c.Ignore());
+            builder.ExportAsInterface<LatticeMessage>().WithPublicProperties().OverrideNamespace("PowerTables").WithProperty(c => c.IsMessage, c => c.Ignore());
             builder.ExportAsEnum<MessageType>().OverrideNamespace("PowerTables");
 
             builder.ExportAsInterface<ColumnConfiguration>()
@@ -89,9 +89,8 @@ namespace PowerTables.Typings
                 .WithProperty(c => c.ClientCalculators, c => c.Type("{ [key:string] : (data:IClientDataResults) => any }"))
                 .WithProperty(c => c.ClientTemplateFunction, c => c.Type("(data:any) => string"))
                 ;
-            builder.ExportAsInterface<SelectListItem>()
-                .WithPublicProperties()
-                .WithProperty(c => c.Group, c => c.Ignore());
+            builder.ExportAsInterface<UiListItem>()
+                .WithPublicProperties();
 
 
             builder.ExportAsInterface<SelectFilterUiConfig>().WithPublicProperties().WithProperty(c => c.ClientFilteringFunction, c => c.Type("(object: any, selectedValues:string[], query: IQuery)=>boolean"));

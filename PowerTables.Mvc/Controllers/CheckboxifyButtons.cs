@@ -6,6 +6,7 @@ using PowerTables.Commands;
 using PowerTables.Mvc.Models;
 using PowerTables.Mvc.Models.Tutorial;
 using PowerTables.Processing;
+using Reinforced.Lattice.Mvc;
 
 namespace PowerTables.Mvc.Controllers
 {
@@ -42,7 +43,7 @@ namespace PowerTables.Mvc.Controllers
             var subject = latticeData.CommandSubject();
             var comment = latticeData.CommandConfirmation<CommentForm>();
 
-            return latticeData.Adjust(x => x.Message(TableMessage.User("success", "Comment saved")));
+            return latticeData.Adjust(x => x.Message(LatticeMessage.User("success", "Comment saved")));
         }
 
         public ActionResult PricesDetails(LatticeData<Toy, Row> latticeData)

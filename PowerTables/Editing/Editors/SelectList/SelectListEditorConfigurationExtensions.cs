@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Web.Mvc;
 using Newtonsoft.Json.Linq;
 using PowerTables.CellTemplating;
 
@@ -58,14 +57,14 @@ namespace PowerTables.Editing.Editors.SelectList
         }
 
         public static IEditFieldUsage<SelectListEditorUiConfig> Items(
-            this IEditFieldUsage<SelectListEditorUiConfig> t, IEnumerable<SelectListItem> selectItems)
+            this IEditFieldUsage<SelectListEditorUiConfig> t, IEnumerable<UiListItem> selectItems)
         {
             t.UiConfig.SelectListItems = selectItems.ToList();
             return t;
         }
 
         public static IEditFieldUsage<SelectListEditorUiConfig> AddItem(
-            this IEditFieldUsage<SelectListEditorUiConfig> t, SelectListItem item)
+            this IEditFieldUsage<SelectListEditorUiConfig> t, UiListItem item)
         {
             t.UiConfig.SelectListItems.Add(item);
             return t;

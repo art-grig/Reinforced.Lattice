@@ -24,7 +24,7 @@ namespace PowerTables
         /// <summary>
         /// Table message associated with this response
         /// </summary>
-        public TableMessage Message { get; set; }
+        public LatticeMessage Message { get; set; }
 
         /// <summary>
         /// Total results count
@@ -77,7 +77,7 @@ namespace PowerTables
                 }
             }
 
-            Message = TableMessage.Banner("error", msg, sb.ToString().Replace("\n", "<br/>"));
+            Message = LatticeMessage.Banner("error", msg, sb.ToString().Replace("\n", "<br/>"));
 
         }
     }

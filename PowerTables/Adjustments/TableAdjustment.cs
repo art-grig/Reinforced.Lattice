@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 using PowerTables.Processing;
 
@@ -14,7 +10,7 @@ namespace PowerTables
         /// Table message associated with this response
         /// </summary>
         [JsonProperty]
-        public TableMessage Message { get; set; }
+        public LatticeMessage Message { get; set; }
 
         /// <summary>
         /// Special mark to disctinguish Edition result from others on client side

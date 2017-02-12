@@ -2,7 +2,6 @@
 using System.Linq.Expressions;
 using Newtonsoft.Json.Linq;
 using PowerTables.CellTemplating;
-using PowerTables.Editing.Form;
 
 namespace PowerTables.Editing.Editors.Display
 {

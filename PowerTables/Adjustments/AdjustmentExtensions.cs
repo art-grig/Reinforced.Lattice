@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using PowerTables.Configuration;
 
 namespace PowerTables.Adjustments
@@ -32,7 +29,7 @@ namespace PowerTables.Adjustments
         }
 
 
-        public static T Message<T>(this T w, TableMessage message) where T : IAdditionalDataProvider
+        public static T Message<T>(this T w, LatticeMessage message) where T : IAdditionalDataProvider
         {
             w.Message = message;
             return w;

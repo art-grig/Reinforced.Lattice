@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using PowerTables.Configuration;
 
 namespace PowerTables.Adjustments
@@ -52,7 +50,7 @@ namespace PowerTables.Adjustments
         internal List<IEnumerable<TData>> RemovalsData = new List<IEnumerable<TData>>();
         internal List<IEnumerable<TSource>> RemovalsSource = new List<IEnumerable<TSource>>();
 
-        public TableMessage Message { get; set; }
+        public LatticeMessage Message { get; set; }
 
         internal AdjustmentWrapper(Configurator<TSource, TData> configurator)
         {

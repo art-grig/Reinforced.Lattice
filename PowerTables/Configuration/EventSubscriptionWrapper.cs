@@ -1,7 +1,6 @@
 ﻿using System;
 using Newtonsoft.Json.Linq;
 using PowerTables.Configuration.Json;
-using PowerTables.Templating;
 
 namespace PowerTables.Configuration
 {

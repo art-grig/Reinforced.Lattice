@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using PowerTables.Configuration;
 using PowerTables.Configuration.Json;
 

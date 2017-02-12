@@ -173,7 +173,7 @@
         private checkMessage(json: any): boolean {
             if (json == null) return false;
             if (json.Message && json.Message['__Go7XIV13OA']) {
-                var msg = <ITableMessage>json.Message;
+                var msg = <ILatticeMessage>json.Message;
                 this._masterTable.MessageService.showMessage(msg);
                 if (msg.Type === MessageType.Banner) return true;
                 return false;

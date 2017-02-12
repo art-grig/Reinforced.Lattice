@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Web.Mvc;
 using Newtonsoft.Json.Linq;
 using PowerTables.Plugins;
 
@@ -29,7 +28,7 @@ namespace PowerTables.Filters.Select
         /// <summary>
         /// Select filter value list
         /// </summary>
-        public List<SelectListItem> Items { get; set; }
+        public List<UiListItem> Items { get; set; }
         
         public bool Hidden { get; set; }
 
@@ -52,7 +51,7 @@ namespace PowerTables.Filters.Select
 
         public SelectFilterUiConfig()
         {
-            Items = new List<SelectListItem>();
+            Items = new List<UiListItem>();
         }
     }
 

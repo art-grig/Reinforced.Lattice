@@ -1,9 +1,4 @@
-﻿using System;
-using System.Reflection;
-using PowerTables.Configuration;
-using PowerTables.Configuration.Json;
-
-namespace PowerTables.Editing
+﻿namespace PowerTables.Editing
 {
     public interface INongenericEditFieldUsage
     {

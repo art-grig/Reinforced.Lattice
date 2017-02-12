@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.Mvc;
 using PowerTables.Configuration;
 using PowerTables.Filters.Select;
 using PowerTables.Filters.Value;
@@ -38,8 +34,8 @@ namespace PowerTables.Filters
         {
             var items = new[]
             {
-                new SelectListItem {Text = trueText,Value = "True"},
-                new SelectListItem {Text = falseText,Value = "False"}
+                new UiListItem {Text = trueText,Value = "True"},
+                new UiListItem {Text = falseText,Value = "False"}
             };
 
             var cf = column.FilterSelect(sourceColumn, v =>
@@ -75,8 +71,8 @@ namespace PowerTables.Filters
         {
             var items = new[]
             {
-                new SelectListItem {Text = trueText,Value = "True"},
-                new SelectListItem {Text = falseText,Value = "False"}
+                new UiListItem {Text = trueText,Value = "True"},
+                new UiListItem {Text = falseText,Value = "False"}
             };
 
             var cf = column.FilterSelectBy(filterDelegate, v =>
@@ -104,8 +100,8 @@ namespace PowerTables.Filters
         {
             var items = new[]
             {
-                new SelectListItem {Text = trueText,Value = "True"},
-                new SelectListItem {Text = falseText,Value = "False"}
+                new UiListItem {Text = trueText,Value = "True"},
+                new UiListItem {Text = falseText,Value = "False"}
             };
 
             column.FilterSelectUi(v =>

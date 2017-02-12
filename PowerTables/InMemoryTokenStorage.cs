@@ -28,7 +28,7 @@ namespace PowerTables
             Instance = new InMemoryTokenStorage();
         }
 
-        internal const string TokenPrefix = "$Token=";
+        public const string TokenPrefix = "$Token=";
 
         private struct StoredRequest
         {

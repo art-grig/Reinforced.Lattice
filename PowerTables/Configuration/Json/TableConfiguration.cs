@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using PowerTables.Commands;
-using PowerTables.Plugins.Formwatch;
 
 namespace PowerTables.Configuration.Json
 {

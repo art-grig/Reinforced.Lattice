@@ -10,6 +10,7 @@ using System.Web.Mvc;
 using PowerTables.Configuration;
 using PowerTables.Mvc.Models.Tutorial;
 using PowerTables.Plugins.Hierarchy;
+using Reinforced.Lattice.Mvc;
 
 namespace PowerTables.Mvc.Controllers
 {

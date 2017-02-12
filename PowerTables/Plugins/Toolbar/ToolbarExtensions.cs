@@ -1,5 +1,4 @@
 ﻿using System;
-using Newtonsoft.Json;
 using PowerTables.Configuration;
 using PowerTables.Configuration.Json;
 

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web.Mvc;
 using PowerTables.Plugins;
 
 namespace PowerTables.Filters.Select
@@ -22,7 +21,7 @@ namespace PowerTables.Filters.Select
         {
             if (allowAny)
             {
-                config.Configuration.Items.Add(new SelectListItem() {Text = anyText, Value = ""});
+                config.Configuration.Items.Add(new UiListItem() {Text = anyText, Value = ""});
             }
             else
             {
@@ -43,7 +42,7 @@ namespace PowerTables.Filters.Select
         {
             if (allowNotPresent)
             {
-                config.Configuration.Items.Add(new SelectListItem() { Text = notPresentText, Value = ValueConverter.NotPresentValue });
+                config.Configuration.Items.Add(new UiListItem() { Text = notPresentText, Value = ValueConverter.NotPresentValue });
             }
             else
             {
@@ -60,7 +59,7 @@ namespace PowerTables.Filters.Select
         /// <param name="replaceItems">When true, currently presented items will be replaced with newly supplied ones</param>
         /// <returns></returns>
         public static ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn> SelectItems<TColumn>(this ColumnPluginConfigurationWrapper<SelectFilterUiConfig, TColumn> config,
-            IEnumerable<SelectListItem> items, bool replaceItems = false)
+            IEnumerable<UiListItem> items, bool replaceItems = false)
         {
             if (replaceItems)
             {

@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using PowerTables.Configuration.Json;
-using PowerTables.Mvc;
-using PowerTables.Processing;
 
 namespace PowerTables.Configuration
 {

@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using PowerTables.Adjustments;
-using PowerTables.CellTemplating;
 using PowerTables.Commands;
 using PowerTables.Configuration;
 using PowerTables.Configuration.Json;
 using PowerTables.Processing;
-using PowerTables.Templating;
 
 namespace PowerTables.Plugins.Hierarchy
 {

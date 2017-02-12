@@ -21,7 +21,7 @@ module PowerTables {
 		TemplateSelector: (row:IRow)=>string;
 		MessageFunction: (msg: ITableMessage) => void;
 		Subscriptions: PowerTables.IConfiguredSubscriptionInfo[];
-		QueryConfirmation: (query:ILatticeRequest,scope:QueryScope,continueFn:any) => void;
+		QueryConfirmation: (query:IPowerTableRequest,scope:QueryScope,continueFn:any) => void;
 		SelectionConfiguration: PowerTables.ISelectionConfiguration;
 		PrefetchedData: any[];
 		Commands: { [key:string]: PowerTables.Commands.ICommandDescription };
@@ -42,7 +42,7 @@ module PowerTables {
 		CellWrapper: string;
 		HeaderWrapper: string;
 	}
-	export interface ITableMessage
+	export interface ILatticeMessage
 	{
 		Type: PowerTables.MessageType;
 		Title: string;
@@ -74,9 +74,15 @@ module PowerTables {
 		Order: number;
 		TemplateId: string;
 	}
+	export interface IUiListItem
+	{
+		Text: string;
+		Value: string;
+		IsSelected: boolean;
+	}
 	export interface ILatticeResponse
 	{
-		Message: PowerTables.ITableMessage;
+		Message: PowerTables.ILatticeMessage;
 		ResultsCount: number;
 		BatchSize: number;
 		PageIndex: number;
@@ -107,7 +113,7 @@ module PowerTables {
 	}
 	export interface ITableAdjustment
 	{
-		Message: PowerTables.ITableMessage;
+		Message: PowerTables.ILatticeMessage;
 		IsUpdateResult: boolean;
 		UpdatedData: any[];
 		RemoveKeys: string[];
@@ -279,22 +285,13 @@ module PowerTables.Plugins.ResponseInfo {
 		DefaultTemplateId: string;
 	}
 }
-module System.Web.Mvc {
-	export interface ISelectListItem
-	{
-		Disabled: boolean;
-		Selected: boolean;
-		Text: string;
-		Value: string;
-	}
-}
 module PowerTables.Filters.Select {
 	export interface ISelectFilterUiConfig
 	{
 		SelectedValue: string;
 		IsMultiple: boolean;
 		ColumnName: string;
-		Items: System.Web.Mvc.ISelectListItem[];
+		Items: any[];
 		Hidden: boolean;
 		ClientFiltering: boolean;
 		ClientFilteringFunction: (object: any, selectedValues:string[], query: IQuery)=>boolean;
@@ -412,7 +409,7 @@ module PowerTables.Editing.Editors.SelectList {
 	export interface ISelectListEditorUiConfig extends PowerTables.Editing.IEditFieldUiConfigBase
 	{
 		PluginId: string;
-		SelectListItems: System.Web.Mvc.ISelectListItem[];
+		SelectListItems: any[];
 		AllowEmptyString: boolean;
 		EmptyElementText: string;
 		AddEmptyElement: boolean;

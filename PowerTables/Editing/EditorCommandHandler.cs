@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using System.Web.Mvc;
 using PowerTables.Processing;
 
 namespace PowerTables.Editing

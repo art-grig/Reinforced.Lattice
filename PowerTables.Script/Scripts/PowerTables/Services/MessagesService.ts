@@ -9,7 +9,7 @@
         /*
          * @internal
          */
-        constructor(usersMessageFn: (msg: ITableMessage) => void, instances: PowerTables.Services.InstanceManagerService, controller: Controller, templatesProvider: ITemplatesProvider) {
+        constructor(usersMessageFn: (msg: ILatticeMessage) => void, instances: PowerTables.Services.InstanceManagerService, controller: Controller, templatesProvider: ITemplatesProvider) {
             this._usersMessageFn = usersMessageFn;
             this._instances = instances;
             this._controller = controller;
@@ -20,17 +20,17 @@
             this._controller.registerAdditionalRowsProvider(this);
         }
 
-        private _usersMessageFn: (msg: ITableMessage) => void;
+        private _usersMessageFn: (msg: ILatticeMessage) => void;
         private _instances: PowerTables.Services.InstanceManagerService;
         private _controller: Controller;
         private _templatesProvider: ITemplatesProvider;
 
         /**
          * Shows table message according to its settings
-         * @param message Message of type ITableMessage
+         * @param message Message of type ILatticeMessage
          * @returns {} 
          */
-        public showMessage(message: ITableMessage) {
+        public showMessage(message: ILatticeMessage) {
             if (message.Type === MessageType.UserMessage) {
                 this._usersMessageFn(message);
             } else {

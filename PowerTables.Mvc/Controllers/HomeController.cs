@@ -8,6 +8,7 @@ using PowerTables.Mvc.Models.Tutorial;
 using PowerTables.Plugins.Formwatch;
 using PowerTables.Plugins.Hideout;
 using PowerTables.Processing;
+using Reinforced.Lattice.Mvc;
 
 namespace PowerTables.Mvc.Controllers
 {

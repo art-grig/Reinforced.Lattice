@@ -10,6 +10,7 @@ using PowerTables.Plugins.Paging;
 using PowerTables.Plugins.RegularSelect;
 using PowerTables.Plugins.Toolbar;
 using PowerTables.Processing;
+using Reinforced.Lattice.Mvc;
 
 namespace PowerTables.Mvc.Controllers
 {
@@ -123,7 +124,7 @@ namespace PowerTables.Mvc.Controllers
             var dt2 = dt.AddHours(2);
             var dt3 = dt.AddHours(4);
             return latticeData.Configuration.Adjust(c =>
-                c.Message(TableMessage.User("error", "Blah"))
+                c.Message(LatticeMessage.User("error", "Blah"))
                 .Select(new[] { dt, dt2, dt3 })
                 );
         }

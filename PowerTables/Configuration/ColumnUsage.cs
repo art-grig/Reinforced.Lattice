@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq.Expressions;
-using System.Reflection;
 using PowerTables.Configuration.Json;
 
 namespace PowerTables.Configuration

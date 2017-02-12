@@ -1,19 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Web;
 
 namespace PowerTables.CellTemplating
 {
     /// <summary>
     /// Class used to build buttons to be output inside cell
     /// </summary>
-    public class CellTemplateBuilder : IHtmlString
+    public class CellTemplateBuilder
     {
-        private readonly List<string> _lines = new List<string>();
-        private string _result;
-        internal readonly string _objectProperty;
-        internal readonly string _defaultProperty;
+        public CellTemplateBuilderFlow Flow { get; private set; }
 
         /// <summary>
         /// Creates new instance of Cell template builder
@@ -22,42 +16,40 @@ namespace PowerTables.CellTemplating
         /// <param name="defaultProperty"></param>
         public CellTemplateBuilder(string objectProperty = "DataObject", string defaultProperty = "Data")
         {
-            _result = "return '';";
-            _objectProperty = objectProperty;
-            _defaultProperty = defaultProperty;
+            Flow = new CellTemplateBuilderFlow(objectProperty,defaultProperty);
         }
 
         #region Flow control
         public CellTemplateBuilder FlowIf(string expression, Action<CellTemplateBuilder> @if, Action<CellTemplateBuilder> @else = null)
         {
-            _lines.Add(string.Format("if ({0}) {{ ", Template.CompileExpression(expression, "v", _objectProperty, _defaultProperty)));
+            Flow.Line(string.Format("if ({0}) {{ ", Template.CompileExpression(expression, "v", Flow.ObjectProperty, Flow.DefaultProperty)));
             @if(this);
             if (@else != null)
             {
-                _lines.Add("} else { ");
+                Flow.Line("} else { ");
                 @else(this);
             }
-            _lines.Add("}");
+            Flow.Line("}");
             return this;
         }
 
         public CellTemplateBuilder FlowIfNotPresent(string expression, Action<CellTemplateBuilder> @if, Action<CellTemplateBuilder> @else = null)
         {
-            _lines.Add(string.Format("if ((({0})==null)||(({0})==undefined)) {{ ", Template.CompileExpression(expression, "v", _objectProperty, _defaultProperty)));
+            Flow.Line(string.Format("if ((({0})==null)||(({0})==undefined)) {{ ", Template.CompileExpression(expression, "v", Flow.ObjectProperty, Flow.DefaultProperty)));
             @if(this);
             if (@else != null)
             {
-                _lines.Add("} else { ");
+                Flow.Line("} else { ");
                 @else(this);
             }
-            _lines.Add("}");
+            Flow.Line("}");
             return this;
         }
 
         public CellTemplateBuilder FlowReturns(string content)
         {
-            var text = Template.Compile(content, "v", _objectProperty, _defaultProperty);
-            _lines.Add(text);
+            var text = Template.Compile(content, "v", Flow.ObjectProperty, Flow.DefaultProperty);
+            Flow.Line(text);
             return this;
         }
         #endregion
@@ -80,10 +72,10 @@ namespace PowerTables.CellTemplating
         /// <returns></returns>
         public CellTemplateBuilder IfNotPresent(string expression, string content)
         {
-            expression = Template.CompileExpression(expression, "v", _objectProperty, _defaultProperty);
-            _lines.Add(string.Format("if ((({0})==null)||(({0})==undefined)) return {1}; "
+            expression = Template.CompileExpression(expression, "v", Flow.ObjectProperty, Flow.DefaultProperty);
+            Flow.Line(string.Format("if ((({0})==null)||(({0})==undefined)) return {1}; "
                 , expression
-                , Template.Compile(content, "v", _objectProperty, _defaultProperty)));
+                , Template.Compile(content, "v", Flow.ObjectProperty, Flow.DefaultProperty)));
             return this;
         }
 
@@ -95,10 +87,10 @@ namespace PowerTables.CellTemplating
         /// <returns></returns>
         public CellTemplateBuilder IfNotPresent(string expression, Action<Template> content)
         {
-            expression = Template.CompileExpression(expression, "v", _objectProperty, _defaultProperty);
-            _lines.Add(string.Format("if ((({0})==null)||(({0})==undefined)) return {1}; "
+            expression = Template.CompileExpression(expression, "v", Flow.ObjectProperty, Flow.DefaultProperty);
+            Flow.Line(string.Format("if ((({0})==null)||(({0})==undefined)) return {1}; "
                 , expression
-                , Template.CompileDelegate(content, "v", _objectProperty, _defaultProperty)));
+                , Template.CompileDelegate(content, "v", Flow.ObjectProperty, Flow.DefaultProperty)));
             return this;
         }
 
@@ -110,13 +102,8 @@ namespace PowerTables.CellTemplating
         /// <returns></returns>
         public CellTemplateBuilder EmptyIf(string expression)
         {
-            _lines.Add(string.Format("if ({0}) return ''; ", Template.CompileExpression(expression, "v", _objectProperty, _defaultProperty)));
+            Flow.Line(string.Format("if ({0}) return ''; ", Template.CompileExpression(expression, "v", Flow.ObjectProperty, Flow.DefaultProperty)));
             return this;
-        }
-
-        internal void Line(string line)
-        {
-            _lines.Add(line);
         }
 
         /// <summary>
@@ -127,7 +114,7 @@ namespace PowerTables.CellTemplating
         /// <returns></returns>
         public CellTemplateBuilder ReturnsIf(string expression, string content)
         {
-            _lines.Add(string.Format("if ({0}) return {1}; ", Template.CompileExpression(expression, "v", _objectProperty, _defaultProperty), Template.Compile(content, "v", _objectProperty, _defaultProperty)));
+            Flow.Line(string.Format("if ({0}) return {1}; ", Template.CompileExpression(expression, "v", Flow.ObjectProperty, Flow.DefaultProperty), Template.Compile(content, "v", Flow.ObjectProperty, Flow.DefaultProperty)));
             return this;
         }
 
@@ -140,10 +127,10 @@ namespace PowerTables.CellTemplating
         /// <returns></returns>
         public CellTemplateBuilder ReturnsIf(string expression, string positiveContent, string negativeContent)
         {
-            _lines.Add(string.Format("if ({0}) {{ return {1}; }} else {{ return {2};}} ",
-                Template.CompileExpression(expression, "v", _objectProperty, _defaultProperty),
-                Template.Compile(positiveContent, "v", _objectProperty, _defaultProperty),
-                Template.Compile(negativeContent, "v", _objectProperty, _defaultProperty)));
+            Flow.Line(string.Format("if ({0}) {{ return {1}; }} else {{ return {2};}} ",
+                Template.CompileExpression(expression, "v", Flow.ObjectProperty, Flow.DefaultProperty),
+                Template.Compile(positiveContent, "v", Flow.ObjectProperty, Flow.DefaultProperty),
+                Template.Compile(negativeContent, "v", Flow.ObjectProperty, Flow.DefaultProperty)));
             return this;
         }
 
@@ -154,8 +141,8 @@ namespace PowerTables.CellTemplating
         /// <returns></returns>
         public CellTemplateBuilder Returns(string content)
         {
-            var text = Template.Compile(content, "v", _objectProperty, _defaultProperty);
-            _result = string.Format("return {0}; ", text);
+            var text = Template.Compile(content, "v", Flow.ObjectProperty, Flow.DefaultProperty);
+            Flow.Result(string.Format("return {0}; ", text));
             return this;
         }
 
@@ -165,20 +152,7 @@ namespace PowerTables.CellTemplating
         /// <returns>String containing JS function that can be run to get resulting HTML of supplied model</returns>
         public string Build()
         {
-            StringBuilder sb = new StringBuilder();
-            sb.Append("function (v) {");
-            foreach (var line in _lines)
-            {
-                sb.Append(line);
-            }
-            if (!string.IsNullOrEmpty(_result)) sb.Append(_result);
-            sb.Append("}");
-            return sb.ToString();
-        }
-
-        public string ToHtmlString()
-        {
-            return string.Empty;
+            return Flow.Build();
         }
     }
 }

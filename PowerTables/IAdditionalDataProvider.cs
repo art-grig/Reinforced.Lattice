@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using PowerTables.Configuration;
+﻿using PowerTables.Configuration;
 using PowerTables.Processing;
 
 namespace PowerTables
@@ -19,7 +18,7 @@ namespace PowerTables
         /// <summary>
         /// Message to show
         /// </summary>
-        TableMessage Message { get; set; }
+        LatticeMessage Message { get; set; }
     }
 
     public interface IGenericAdditionalDataProvider<TSource, TData> : IAdditionalDataProvider where TData : new()
