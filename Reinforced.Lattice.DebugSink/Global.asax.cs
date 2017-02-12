@@ -14,7 +14,7 @@ namespace Reinforced.Lattice.DebugSink
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
-            TemplatesPageBase.DefaultTemplatesView = "~/Views/Shared/PowerTables_Templates.cshtml";
+            TemplatesPageBase.DefaultTemplatesView = "~/Views/Shared/Lattice_Templates.cshtml";
         }
     }
 }

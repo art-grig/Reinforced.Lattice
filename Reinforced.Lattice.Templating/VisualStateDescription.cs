@@ -72,7 +72,7 @@ namespace Reinforced.Lattice.Templates
     /// Described visual state of element. 
     /// Usually in Lattice elements are being fully re-rendered and re-created when their state changes. 
     /// In some cases it is not allowed to destroy elements (e.g. they can contain user input). For above  
-    /// cases Lattice has Visual states mechanism. Use <see cref="TemplatingExtensions.State(PowerTables.Templating.IProvidesVisualState,string,System.Action{PowerTables.Templating.VisualState})"/> method to 
+    /// cases Lattice has Visual states mechanism. Use <see cref="TemplatingExtensions.State(Reinforced.Lattice.Templates.IProvidesVisualState,string,System.Action{Reinforced.Lattice.Templates.VisualState})"/> method to 
     /// set visual state for particular element. Visual state consistes of 2 parts - the key of visual state (e.g. text field 
     /// can contain states "saving", "invalid" or "normal") - and set of changes that should be applied to mentioned element in particular state. 
     /// Visual state key "normal" is reserved and being created automatically by Latttice while rendering. 

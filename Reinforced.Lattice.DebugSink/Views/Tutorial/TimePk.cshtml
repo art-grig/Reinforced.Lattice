@@ -1,7 +1,6 @@
-﻿@using PowerTables
-@using PowerTables.CellTemplating
-@using PowerTables.Configuration
-@model Configurator<DateTime, Reinforced.Lattice.DebugSink.Controllers.PlanningRow>
+﻿@using Reinforced.Lattice.Mvc
+@using Reinforced.Lattice.Templates
+@model Reinforced.Lattice.Configuration.Configurator<DateTime, Reinforced.Lattice.DebugSink.Controllers.PlanningRow>
 @{
     Layout = "~/Views/Shared/TutorialsLayout.cshtml";
     @(Model.Column(c=>c.Day)

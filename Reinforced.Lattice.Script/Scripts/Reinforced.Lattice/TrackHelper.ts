@@ -2,7 +2,7 @@
 module Reinforced.Lattice {
     /**
     * Helper class for producing track ids. 
-    * You can use this class directly, but it is better to use it via @memberref Reinforced.Lattice.PowerTable.Renderer.Rendering.Modifier instance
+    * You can use this class directly, but it is better to use it via @memberref Reinforced.Lattice.Master.Renderer.Rendering.Modifier instance
     */
     export class TrackHelper {
         /**

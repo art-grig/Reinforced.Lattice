@@ -14,8 +14,8 @@ namespace Reinforced.Lattice.Mvc
 
         /// <summary>
         /// Returns MvcHtmlString that contains JSON table configuration that is used to construct
-        /// Javascript PowerTables object. 
-        /// PowerTables client-side is highly dependant on large JSON configuration. 
+        /// Javascript Lattice Master object. 
+        /// Reinforced.Lattice client-side is highly dependant on large JSON configuration. 
         /// So <see cref="Configurator{TSourceData,TTableData}"/> is initially set of helper methods 
         /// helping to build this JSON configuration. 
         /// </summary>
@@ -32,7 +32,7 @@ namespace Reinforced.Lattice.Mvc
         /// <summary>
         /// Returns MvcHtmlString that contains Javascript initialization code (not only config) 
         /// for table. 
-        /// PowerTables client-side is highly dependant on large JSON configuration. 
+        /// Reinforced.Lattice client-side is highly dependant on large JSON configuration. 
         /// So <see cref="Configurator{TSourceData,TTableData}"/> is initially set of helper methods 
         /// helping to build this JSON configuration. 
         /// This overload of InitializationCode consumes "static data". Static data is data class that 
@@ -42,7 +42,7 @@ namespace Reinforced.Lattice.Mvc
         /// </summary>
         /// <param name="conf">Configurator</param>
         /// <param name="rootId">Id of an HTML element that will contain table</param>
-        /// <param name="variableName">Expression that new PowerTables javascript object will be assigned to</param>
+        /// <param name="variableName">Expression that new Lattice master javascript object will be assigned to</param>
         /// <param name="prefix">Templates prefix. It is used to distinguish several templates sets on single page from each other</param>
         /// <returns>MvcHtmlString containing javascript initialization code</returns>
         public static MvcHtmlString InitializationScript(this IConfigurator conf, string rootId, string variableName, string prefix = "lt")
@@ -59,7 +59,7 @@ namespace Reinforced.Lattice.Mvc
         /// <summary>
         /// Returns MvcHtmlString that contains Javascript initialization code (not only config) 
         /// for table. 
-        /// PowerTables client-side is highly dependant on large JSON configuration. 
+        /// Reinforced.Lattice client-side is highly dependant on large JSON configuration. 
         /// So <see cref="Configurator{TSourceData,TTableData}"/> is initially set of helper methods 
         /// helping to build this JSON configuration. 
         /// This overload of InitializationCode consumes "static data". Static data is data class that 
@@ -69,7 +69,7 @@ namespace Reinforced.Lattice.Mvc
         /// </summary>
         /// <param name="conf">Configurator</param>
         /// <param name="rootId">Id of an HTML element that will contain table</param>
-        /// <param name="variableName">Expression that new PowerTables javascript object will be assigned to</param>
+        /// <param name="variableName">Expression that new Lattice master javascript object will be assigned to</param>
         /// <param name="prefix">Templates prefix. It is used to distinguish several templates sets on single page from each other</param>
         /// <returns>MvcHtmlString containing javascript initialization code</returns>
         public static MvcHtmlString InitializationCode(this IConfigurator conf, string rootId, string variableName, string prefix = "lt")

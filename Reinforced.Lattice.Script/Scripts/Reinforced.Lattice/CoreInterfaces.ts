@@ -28,7 +28,7 @@
         /**
          * Raw configuration object including Plugin Id
          */
-        RawConfig: IPluginConfiguration;
+        RawConfig: Reinforced.Lattice.IPluginConfiguration;
 
         /**
          * Plugin Id including placement

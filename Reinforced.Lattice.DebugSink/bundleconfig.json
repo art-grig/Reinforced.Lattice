@@ -1,8 +1,8 @@
 [
   {
-    "outputFileName": "Scripts/powertables.min.js",
+    "outputFileName": "Scripts/reinforced.lattice.min.js",
     "inputFiles": [
-      "Scripts/powertables.js"
+      "Scripts/reinforced.lattice.js"
     ]
   }
 ]

@@ -7,7 +7,7 @@
         $(element)
             .datepicker({ format: 'dd MM yyyy', weekStart: 1 })
             .on('changeDate', function() {
-                PowerTables.PowerTable.fireDomEvent('keyup', element);
+                Reinforced.Lattice.Master.fireDomEvent('keyup', element);
             });
         if (!isDateNullable) {
             $(element).attr('readonly', 'readonly');

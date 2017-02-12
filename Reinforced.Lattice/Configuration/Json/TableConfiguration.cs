@@ -89,7 +89,7 @@ namespace Reinforced.Lattice.Configuration.Json
 
         /// <summary>
         /// Function that will be invoked before performing query
-        /// Function type is (query:IPowerTableRequest,scope:QueryScope,continueFn:any) => void
+        /// Function type is (query:ILatticeRequest,scope:QueryScope,continueFn:any) => void
         /// </summary>
         public JRaw QueryConfirmation { get; set; }
 

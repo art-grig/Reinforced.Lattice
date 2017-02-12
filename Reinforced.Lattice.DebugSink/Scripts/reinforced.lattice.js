@@ -946,7 +946,7 @@ var Reinforced;
     (function (Lattice) {
         /**
         * Helper class for producing track ids.
-        * You can use this class directly, but it is better to use it via @memberref Reinforced.Lattice.PowerTable.Renderer.Rendering.Modifier instance
+        * You can use this class directly, but it is better to use it via @memberref Reinforced.Lattice.Master.Renderer.Rendering.Modifier instance
         */
         var TrackHelper = (function () {
             function TrackHelper() {
@@ -11606,4 +11606,4 @@ var Reinforced;
         })(Plugins = Lattice.Plugins || (Lattice.Plugins = {}));
     })(Lattice = Reinforced.Lattice || (Reinforced.Lattice = {}));
 })(Reinforced || (Reinforced = {}));
-//# sourceMappingURL=../../../Reinforced.Lattice.DebugSink/Scripts/powertables.js.map
+//# sourceMappingURL=../../../Reinforced.Lattice.DebugSink/Scripts/reinforced.lattice.js.map

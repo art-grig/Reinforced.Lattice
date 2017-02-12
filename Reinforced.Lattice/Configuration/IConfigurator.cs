@@ -51,7 +51,7 @@ namespace Reinforced.Lattice.Configuration
         object[] EncodeResults(IEnumerable resultRows, int resultsCount);
 
         /// <summary>
-        /// Registers an response modifier that will modify PowerTableResponse before sending. 
+        /// Registers an response modifier that will modify LatticeResponse before sending. 
         /// See <see cref="IResponseModifier"/>
         /// </summary>
         /// <returns>Fluent</returns>

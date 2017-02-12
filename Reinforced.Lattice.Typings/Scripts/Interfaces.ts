@@ -17,11 +17,11 @@ module Reinforced.Lattice {
 		StaticData: string;
 		CoreTemplates: Reinforced.Lattice.ICoreTemplateIds;
 		KeyFields: string[];
-		CallbackFunction: (table:IMasterTable) => void;
-		TemplateSelector: (row:IRow)=>string;
-		MessageFunction: (msg: ILatticeMessage) => void;
+		CallbackFunction: (table:Reinforced.Lattice.IMasterTable) => void;
+		TemplateSelector: (row:Reinforced.Lattice.IRow)=>string;
+		MessageFunction: (msg: Reinforced.Lattice.ILatticeMessage) => void;
 		Subscriptions: Reinforced.Lattice.IConfiguredSubscriptionInfo[];
-		QueryConfirmation: (query:ILatticeRequest,scope:QueryScope,continueFn:any) => void;
+		QueryConfirmation: (query:Reinforced.Lattice.ILatticeRequest,scope:Reinforced.Lattice.QueryScope,continueFn:any) => void;
 		SelectionConfiguration: Reinforced.Lattice.ISelectionConfiguration;
 		PrefetchedData: any[];
 		Commands: { [key:string]: Reinforced.Lattice.Commands.ICommandDescription };
@@ -63,7 +63,7 @@ module Reinforced.Lattice {
 		IsEnum: boolean;
 		IsNullable: boolean;
 		ClientValueFunction: (a:any) => any;
-		TemplateSelector: (cell:ICell)=>string;
+		TemplateSelector: (cell:Reinforced.Lattice.ICell)=>string;
 		IsSpecial: boolean;
 	}
 	export interface IPluginConfiguration
@@ -280,7 +280,7 @@ module Reinforced.Lattice.Filters.Value {
 module Reinforced.Lattice.Plugins.ResponseInfo {
 	export interface IResponseInfoClientConfiguration
 	{
-		ClientCalculators: { [key:string] : (data:IClientDataResults) => any };
+		ClientCalculators: { [key:string] : (data:Reinforced.Lattice.IClientDataResults) => any };
 		ClientTemplateFunction: (data:any) => string;
 		ResponseObjectOverriden: boolean;
 		DefaultTemplateId: string;
@@ -295,7 +295,7 @@ module Reinforced.Lattice.Filters.Select {
 		Items: Reinforced.Lattice.IUiListItem[];
 		Hidden: boolean;
 		ClientFiltering: boolean;
-		ClientFilteringFunction: (object: any, selectedValues:string[], query: IQuery)=>boolean;
+		ClientFilteringFunction: (object: any, selectedValues:string[], query: Reinforced.Lattice.IQuery)=>boolean;
 		DefaultTemplateId: string;
 	}
 }
@@ -342,7 +342,7 @@ module Reinforced.Lattice.Plugins.Toolbar {
 		BlackoutWhileCommand: boolean;
 		DisableIfNothingChecked: boolean;
 		Title: string;
-		OnClick: (table:any /*Reinforced.Lattice.PowerTable*/,menuElement:any)=>void;
+		OnClick: (table:Reinforced.Lattice.IMasterTable,menuElement:any)=>void;
 		Submenu: Reinforced.Lattice.Plugins.Toolbar.IToolbarButtonClientConfiguration[];
 		HasSubmenu: boolean;
 		IsMenu: boolean;
@@ -360,7 +360,7 @@ module Reinforced.Lattice.Plugins.Total {
 	{
 		ShowOnTop: boolean;
 		ColumnsValueFunctions: { [key:string] : (a:any)=>string };
-		ColumnsCalculatorFunctions: { [key:string] : (data:IClientDataResults) => any };
+		ColumnsCalculatorFunctions: { [key:string] : (data:Reinforced.Lattice.IClientDataResults) => any };
 	}
 }
 module Reinforced.Lattice.Editing {

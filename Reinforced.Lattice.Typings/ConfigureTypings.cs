@@ -47,10 +47,10 @@ namespace Reinforced.Lattice.Typings
             builder.ExportAsInterface<TableConfiguration>()
                 .OverrideNamespace("Reinforced.Lattice")
                 .WithPublicProperties()
-                .WithProperty(c => c.CallbackFunction, c => c.Type("(table:IMasterTable) => void"))
-                .WithProperty(c => c.TemplateSelector, c => c.Type("(row:IRow)=>string"))
-                .WithProperty(c => c.MessageFunction, c => c.Type("(msg: ILatticeMessage) => void"))
-                .WithProperty(c => c.QueryConfirmation, c => c.Type("(query:ILatticeRequest,scope:QueryScope,continueFn:any) => void"))
+                .WithProperty(c => c.CallbackFunction, c => c.Type("(table:Reinforced.Lattice.IMasterTable) => void"))
+                .WithProperty(c => c.TemplateSelector, c => c.Type("(row:Reinforced.Lattice.IRow)=>string"))
+                .WithProperty(c => c.MessageFunction, c => c.Type("(msg: Reinforced.Lattice.ILatticeMessage) => void"))
+                .WithProperty(c => c.QueryConfirmation, c => c.Type("(query:Reinforced.Lattice.ILatticeRequest,scope:Reinforced.Lattice.QueryScope,continueFn:any) => void"))
                 ;
             builder.ExportAsInterface<DatepickerOptions>()
 
@@ -70,7 +70,7 @@ namespace Reinforced.Lattice.Typings
                 .WithProperty(c => c.CellRenderingValueFunction, c => c.Type("(a:any) => string"))
                 .WithProperty(c => c.ClientValueFunction, c => c.Type("(a:any) => any"))
                 .WithProperty(c => c.Meta, v => v.ForceNullable(true))
-                .WithProperty(c => c.TemplateSelector, c => c.Type("(cell:ICell)=>string"))
+                .WithProperty(c => c.TemplateSelector, c => c.Type("(cell:Reinforced.Lattice.ICell)=>string"))
                 ;
 
             builder.ExportAsInterface<PluginConfiguration>().OverrideNamespace("Reinforced.Lattice").WithPublicProperties();
@@ -86,14 +86,14 @@ namespace Reinforced.Lattice.Typings
             builder.ExportAsInterface<RangeFilterUiConfig>().WithPublicProperties().WithProperty(c => c.ClientFilteringFunction, c => c.Type("(object: any, fromValue:string, toValue:string, query: IQuery)=>boolean"));
             builder.ExportAsInterface<ValueFilterUiConfig>().WithPublicProperties().WithProperty(c => c.ClientFilteringFunction, c => c.Type("(object: any, filterValue:string, query: IQuery)=>boolean"));
             builder.ExportAsInterface<ResponseInfoClientConfiguration>().WithPublicProperties()
-                .WithProperty(c => c.ClientCalculators, c => c.Type("{ [key:string] : (data:IClientDataResults) => any }"))
+                .WithProperty(c => c.ClientCalculators, c => c.Type("{ [key:string] : (data:Reinforced.Lattice.IClientDataResults) => any }"))
                 .WithProperty(c => c.ClientTemplateFunction, c => c.Type("(data:any) => string"))
                 ;
             builder.ExportAsInterface<UiListItem>()
                 .WithPublicProperties();
 
 
-            builder.ExportAsInterface<SelectFilterUiConfig>().WithPublicProperties().WithProperty(c => c.ClientFilteringFunction, c => c.Type("(object: any, selectedValues:string[], query: IQuery)=>boolean"));
+            builder.ExportAsInterface<SelectFilterUiConfig>().WithPublicProperties().WithProperty(c => c.ClientFilteringFunction, c => c.Type("(object: any, selectedValues:string[], query: Reinforced.Lattice.IQuery)=>boolean"));
 
             builder.ExportAsInterface<LimitClientConfiguration>()
                 .WithPublicProperties();
@@ -123,7 +123,7 @@ namespace Reinforced.Lattice.Typings
             builder.ExportAsInterface<ToolbarButtonClientConfiguration>()
                 .WithProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                 .WithProperty(c => c.OnClick,
-                    c => c.Type("(table:any /*Reinforced.Lattice.PowerTable*/,menuElement:any)=>void"));
+                    c => c.Type("(table:Reinforced.Lattice.IMasterTable,menuElement:any)=>void"));
             #endregion
 
             #region Totals
@@ -131,7 +131,7 @@ namespace Reinforced.Lattice.Typings
             builder.ExportAsInterface<TotalResponse>().WithPublicProperties();
             builder.ExportAsInterface<TotalClientConfiguration>().WithPublicProperties()
                 .WithProperty(c => c.ColumnsValueFunctions, c => c.Type("{ [key:string] : (a:any)=>string }"))
-                .WithProperty(c => c.ColumnsCalculatorFunctions, c => c.Type("{ [key:string] : (data:IClientDataResults) => any }"));
+                .WithProperty(c => c.ColumnsCalculatorFunctions, c => c.Type("{ [key:string] : (data:Reinforced.Lattice.IClientDataResults) => any }"));
 
 
             #endregion

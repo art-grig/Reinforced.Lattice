@@ -50,7 +50,7 @@ namespace Reinforced.Lattice.Plugins.Toolbar
         public string Title { get; set; }
 
         /// <summary>
-        /// Gets or sets JS function to be executed on button click. JS function is of type: (table:any (Reinforced.Lattice.PowerTable), menuElement:any)=>void
+        /// Gets or sets JS function to be executed on button click. JS function is of type: (table:any (Reinforced.Lattice.Master), menuElement:any)=>void
         /// </summary>
         public JRaw OnClick { get; set; }
 

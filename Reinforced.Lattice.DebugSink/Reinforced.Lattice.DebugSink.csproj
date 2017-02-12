@@ -269,11 +269,11 @@
     <Content Include="Scripts\locales\bootstrap-datepicker.vi.min.js" />
     <Content Include="Scripts\locales\bootstrap-datepicker.zh-TW.min.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
-    <Content Include="Scripts\powertables.js" />
-    <Content Include="Scripts\powertables.min.js">
-      <DependentUpon>powertables.js</DependentUpon>
-    </Content>
     <Content Include="Scripts\prism.js" />
+    <Content Include="Scripts\reinforced.lattice.js" />
+    <Content Include="Scripts\reinforced.lattice.min.js">
+      <DependentUpon>reinforced.lattice.js</DependentUpon>
+    </Content>
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Scripts\_references.js" />
@@ -291,14 +291,13 @@
     <Content Include="Views\Home\About.cshtml" />
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
-    <Content Include="Views\Shared\PowerTables_Templates.cshtml" />
+    <Content Include="Views\Shared\Lattice_Templates.cshtml" />
     <Content Include="Views\Shared\AdditionalSearchDataView.cshtml" />
     <Content Include="Views\Tutorial\BaseTutorial.cshtml" />
     <Content Include="Views\Shared\TutorialsLayout.cshtml" />
     <Content Include="Views\Tutorial\FormWatch.cshtml" />
     <Content Include="Views\Shared\Datepicker.cshtml" />
     <Content Include="Views\Shared\ClientEvents.cshtml" />
-    <Content Include="Views\Shared\PowerTables_Horis.cshtml" />
     <Content Include="Views\Tutorial\CommentsPartial.cshtml" />
     <None Include="Views\Tutorial\Index.cshtml" />
     <Content Include="Views\Tutorial\TimePk.cshtml" />
