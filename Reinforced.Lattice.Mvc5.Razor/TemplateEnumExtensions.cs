@@ -6,6 +6,10 @@ using System.Web.WebPages;
 using Reinforced.Lattice.CellTemplating;
 using Reinforced.Lattice.Configuration;
 
+#if MVC4
+using System.Reflection;
+using System.ComponentModel.DataAnnotations;
+#endif
 namespace Reinforced.Lattice.Mvc
 {
     public static class TemplateEnumExtensions
@@ -139,6 +143,23 @@ namespace Reinforced.Lattice.Mvc
             return x.FormatSelectList(GetEnumSelectList(typeof(T)), caseValue, content, switchExpression, deflt, swtc);
         }
 
+#if MVC4
+        private static string GetDisplayName(FieldInfo field)
+        {
+            DisplayAttribute display = field.GetCustomAttribute<DisplayAttribute>(inherit: false);
+            if (display != null)
+            {
+                string name = display.GetName();
+                if (!String.IsNullOrEmpty(name))
+                {
+                    return name;
+                }
+            }
+
+            return field.Name;
+        }
+#endif
+
         private static IEnumerable<SelectListItem> GetEnumSelectList(Type type)
         {
             var enumType = type;
@@ -153,8 +174,39 @@ namespace Reinforced.Lattice.Mvc
                     type
                     ));
             }
+
+#if MVC4
+            IList<SelectListItem> selectList = new List<SelectListItem>();
+
+            // According to HTML5: "The first child option element of a select element with a required attribute and
+            // without a multiple attribute, and whose size is "1", must have either an empty value attribute, or must
+            // have no text content."  SelectExtensions.DropDownList[For]() methods often generate a matching
+            // <select/>.  Empty value for Nullable<T>, empty text for round-tripping an unrecognized value, or option
+            // label serves in some cases.  But otherwise, ignoring this does not cause problems in either IE or Chrome.
+            Type checkedType = Nullable.GetUnderlyingType(type) ?? type;
+            if (checkedType != type)
+            {
+                // Underlying type was non-null so handle Nullable<T>; ensure returned list has a spot for null
+                selectList.Add(new SelectListItem { Text = String.Empty, Value = String.Empty, });
+            }
+
+            // Populate the list
+            const BindingFlags BindingFlags =
+                BindingFlags.DeclaredOnly | BindingFlags.GetField | BindingFlags.Public | BindingFlags.Static;
+            foreach (FieldInfo field in checkedType.GetFields(BindingFlags))
+            {
+                // fieldValue will be an numeric type (byte, ...)
+                object fieldValue = field.GetRawConstantValue();
+
+                selectList.Add(new SelectListItem { Text = GetDisplayName(field), Value = fieldValue.ToString(), });
+            }
+
+            return selectList;
+#else
+            
             return EnumHelper.GetSelectList(enumType);
+#endif
         }
-        #endregion
+#endregion
     }
 }

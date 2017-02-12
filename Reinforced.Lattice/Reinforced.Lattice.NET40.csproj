@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{2E931FD3-EFE9-42D5-8D90-F3B659F06760}</ProjectGuid>
+    <ProjectGuid>{D5555A98-A3BA-473C-87C0-0D4662C932A6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Reinforced.Lattice</RootNamespace>

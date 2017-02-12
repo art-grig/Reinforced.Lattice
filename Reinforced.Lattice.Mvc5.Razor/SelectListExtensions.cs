@@ -20,7 +20,16 @@ namespace Reinforced.Lattice.Mvc
 
         public static UiListItem ToUi(this SelectListItem sli)
         {
-            return new UiListItem() { Selected = sli.Selected, Disabled = sli.Disabled, Text = sli.Text, Value = sli.Value };
+            return new UiListItem() {
+                Selected = sli.Selected,
+#if MVC4
+                Disabled = false,
+#else
+                Disabled = sli.Disabled,
+#endif
+
+                Text = sli.Text,
+                Value = sli.Value };
         }
 
         /// <summary>
