@@ -1,7 +1,7 @@
 # Reinforced.Lattice
 Remote data representation framework for .NET.
 
-Please post your questions to StackOverflow with tag [**reinforced-lattice**](http://stackoverflow.com/questions/tagged/reinforced-lattice). Please do not open post issues here - all github issues to this project from non-contributors *will not* be considered and most likely I will close them immediately.
+Please post your questions to StackOverflow with tag [**reinforced-lattice**](http://stackoverflow.com/questions/tagged/reinforced-lattice). Please do not post issues here - all github issues to this project from non-contributors *will not* be considered and most likely I will close them immediately.
 
 ## Installation
 There are builds for .NET 4.0 and .NET 4.5 split by set of packages 
