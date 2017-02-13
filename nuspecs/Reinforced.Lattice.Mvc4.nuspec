@@ -3,7 +3,7 @@
     <metadata>
         <id>Reinforced.Lattice.Mvc4</id>
         <version>##Version##</version>
-        <title>Reinforced.Lattice MVC 4 Integration</title>
+        <title>Reinforced.Lattice.Mvc4</title>
         <authors>Pavel B. Novikov</authors>
         <owners>Pavel B. Novikov</owners>
         <licenseUrl>https://github.com/reinforced/Reinforced.Lattice/blob/master/LICENSE.md</licenseUrl>

@@ -1,12 +1,12 @@
 <Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Pack">
     <Import Project="C:\Program Files (x86)\MSBuild\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" />
     <PropertyGroup>
-		<Version></Version>
         <ProjectName></ProjectName>
         <NugetPackage>build\package\$(ProjectName)\$(ProjectName).nuspec</NugetPackage>
         <NuspecTemplate>nuspecs\$(ProjectName).nuspec</NuspecTemplate>
 	</PropertyGroup>
     <Target Name="Pack">
+        <Message Text="Packing version $(ProjectName) $(Version)" Importance="high" />
         <ReadLinesFromFile File="notes\version_$(Version).md">
             <Output TaskParameter="Lines" ItemName="FileContents" />
         </ReadLinesFromFile>

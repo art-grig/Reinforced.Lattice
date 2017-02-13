@@ -2,7 +2,6 @@
 	<Import Project="C:\Program Files (x86)\MSBuild\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" />
 	<PropertyGroup>
 		<ProjectName />
-		<Version />
 		<NugetBuildDir>build\$(ProjectName)\</NugetBuildDir>
 		<PackageTempDir>build\package\$(ProjectName)\</PackageTempDir>
 		<Build40>True</Build40>
@@ -38,6 +37,7 @@
         <MSBuild Projects="pack.xml" Properties="ProjectName=$(ProjectName);Version=$(Version)" />
     </Target>
 	<Target Name="Deliver">
+        <Message Text="Delivering $(ProjectName) v.$(Version)" Importance="high" />
 		<CallTarget Targets="Cleanup" />
 		<CallTarget Targets="SetVersion" />
 		<CallTarget Targets="Build" />

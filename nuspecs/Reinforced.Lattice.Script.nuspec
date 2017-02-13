@@ -3,7 +3,7 @@
     <metadata>
         <id>Reinforced.Lattice.Script</id>
         <version>##Version##</version>
-        <title>Reinforced.Lattice client script and TypeScript typings</title>
+        <title>Reinforced.Lattice Script</title>
         <authors>Pavel B. Novikov</authors>
         <owners>Pavel B. Novikov</owners>
         <projectUrl>https://github.com/reinforced/Reinforced.Lattice</projectUrl>

@@ -2,7 +2,6 @@
 	<Import Project="C:\Program Files (x86)\MSBuild\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" />
 	<PropertyGroup>
 		<Bundle></Bundle>
-		<Version />
 		<PackageTempDir>build\package\Reinforced.Lattice.Bundle.$(Bundle)\</PackageTempDir>		        
 	</PropertyGroup>	
     <ItemGroup>

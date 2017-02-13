@@ -1,0 +1,19 @@
+<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="PushAll">
+    <Import Project="C:\Program Files (x86)\MSBuild\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" />
+    <Import Project="version.xml" />
+    <PropertyGroup>
+		<Key/>        
+	</PropertyGroup>
+    <Target Name="PushAll">
+        <Exec Command="nuget push -Source https://www.nuget.org/api/v2/package -ApiKey $(Key) Reinforced.Lattice.$(Version).nupkg" />
+        <Exec Command="nuget push -Source https://www.nuget.org/api/v2/package -ApiKey $(Key) Reinforced.Lattice.BootstrapTemplate.$(Version).nupkg" />
+        <Exec Command="nuget push -Source https://www.nuget.org/api/v2/package -ApiKey $(Key) Reinforced.Lattice.Bundle.Mvc4.$(Version).nupkg" />
+        <Exec Command="nuget push -Source https://www.nuget.org/api/v2/package -ApiKey $(Key) Reinforced.Lattice.Bundle.Mvc5.$(Version).nupkg" />
+        <Exec Command="nuget push -Source https://www.nuget.org/api/v2/package -ApiKey $(Key) Reinforced.Lattice.Mvc4.$(Version).nupkg" />
+        <Exec Command="nuget push -Source https://www.nuget.org/api/v2/package -ApiKey $(Key) Reinforced.Lattice.Mvc4.Razor.$(Version).nupkg" />
+        <Exec Command="nuget push -Source https://www.nuget.org/api/v2/package -ApiKey $(Key) Reinforced.Lattice.Mvc5.$(Version).nupkg" />
+        <Exec Command="nuget push -Source https://www.nuget.org/api/v2/package -ApiKey $(Key) Reinforced.Lattice.Mvc5.Razor.$(Version).nupkg" />
+        <Exec Command="nuget push -Source https://www.nuget.org/api/v2/package -ApiKey $(Key) Reinforced.Lattice.Templates.Mvc4.$(Version).nupkg" />
+        <Exec Command="nuget push -Source https://www.nuget.org/api/v2/package -ApiKey $(Key) Reinforced.Lattice.Templates.Mvc5.$(Version).nupkg" />
+    </Target>
+</Project>

@@ -3,7 +3,7 @@
     <metadata>
         <id>Reinforced.Lattice.Bundle.Mvc4</id>
         <version>##Version##</version>
-        <title>Reinforced.Lattice Bundle - ASP.NET MVC 4</title>
+        <title>Reinforced.Lattice.Bundle.Mvc4</title>
         <authors>Pavel B. Novikov</authors>
         <owners>Pavel B. Novikov</owners>
         <projectUrl>https://github.com/reinforced/Reinforced.Lattice</projectUrl>
