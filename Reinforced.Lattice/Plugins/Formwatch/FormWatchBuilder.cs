@@ -64,12 +64,23 @@ namespace Reinforced.Lattice.Plugins.Formwatch
         {
             if (t == typeof (string)) return false;
             if (t.IsArray) return true;
+
+#if NETCORE
+            
+            if (typeof(IEnumerable).GetTypeInfo().IsAssignableFrom(t)) return true;
+            if (t.GetTypeInfo().IsGenericType)
+            {
+                var tg = t.GetGenericTypeDefinition();
+                if (typeof(IEnumerable<>).GetTypeInfo().IsAssignableFrom(tg)) return true;
+            }
+#else
             if (typeof(IEnumerable).IsAssignableFrom(t)) return true;
             if (t.IsGenericType)
             {
                 var tg = t.GetGenericTypeDefinition();
                 if (typeof(IEnumerable<>).IsAssignableFrom(tg)) return true;
-            }
+            }    
+#endif
             return false;
         }
         private FormwatchFieldData DefaultConfig(PropertyInfo prop)
@@ -108,7 +119,12 @@ namespace Reinforced.Lattice.Plugins.Formwatch
         /// <returns>Fluent</returns>
         public FormWatchBuilder<TFormViewModel> WatchAllFields()
         {
-            var props = typeof(TFormViewModel).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+#if NETCORE
+            var props = typeof(TFormViewModel).GetTypeInfo().GetProperties(BindingFlags.Public | BindingFlags.Instance);
+#else
+            var props = typeof(TFormViewModel).GetProperties(BindingFlags.Public | BindingFlags.Instance);          
+#endif
             foreach (var propertyInfo in props)
             {
                 AssureFieldConfiguration(propertyInfo);

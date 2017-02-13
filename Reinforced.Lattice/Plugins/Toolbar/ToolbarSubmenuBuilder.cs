@@ -4,11 +4,12 @@ namespace Reinforced.Lattice.Plugins.Toolbar
 {
     public class ToolbarSubmenuBuilder
     {
-        private List<ToolbarButtonClientConfiguration> _buttons;
-        public IReadOnlyCollection<ToolbarButtonClientConfiguration> Buttons
-        {
-            get { return _innerBuilder.Buttons; }
-        }
+        private readonly List<ToolbarButtonClientConfiguration> _buttons;
+#if NET45
+        public IReadOnlyCollection<ToolbarButtonClientConfiguration> Buttons { get { return _innerBuilder.Buttons; }}
+#else
+        public IEnumerable<ToolbarButtonClientConfiguration> Buttons { get { return _innerBuilder.Buttons; } }
+#endif
         private readonly ToolbarBuilder _innerBuilder;
 
         public ToolbarSubmenuBuilder(List<ToolbarButtonClientConfiguration> buttons )

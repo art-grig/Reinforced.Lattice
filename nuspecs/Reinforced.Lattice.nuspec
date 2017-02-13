@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+    <metadata>
+        <id>Reinforced.Lattice</id>
+        <version>##Version##</version>
+        <title>Reinforced.Lattice</title>
+        <authors>Pavel B. Novikov</authors>
+        <owners>Pavel B. Novikov</owners>
+        <licenseUrl>https://github.com/reinforced/Reinforced.Lattice/blob/master/LICENSE.md</licenseUrl>
+        <projectUrl>https://github.com/reinforced/Reinforced.Lattice</projectUrl>
+        <iconUrl>https://raw.githubusercontent.com/reinforced/Reinforced.Lattice/master/icon.png</iconUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Reinforced.Lattice is ultimate remote data representation framework for ASP.NET with extended templating capabilities</description>
+        <summary>Ultimate remote data representation framework for ASP.NET with extended templating capabilities</summary>
+        <releaseNotes>
+ ##RelNotes##
+        </releaseNotes>
+        <copyright>(c) 2017 Pavel B. Novikov</copyright>
+        <language>en-US</language>
+        <tags>mvc, web, datagrid, paging, filtering, data loading, ui, fluent</tags>
+        <dependencies>
+            <group targetFramework=".NETFramework4.0">
+                <dependency id="Newtonsoft.Json" version="7.0.1" />
+            </group>
+            <group targetFramework=".NETFramework4.5">
+                <dependency id="Newtonsoft.Json" version="7.0.1" />
+            </group>
+        </dependencies>
+    </metadata>
+    <files />
+</package>

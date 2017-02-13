@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{18F26477-D446-45D4-868B-92D2CDC84FD2}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Reinforced.Lattice.Mvc4.Razor</RootNamespace>
+    <AssemblyName>Reinforced.Lattice.Mvc4.Razor</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\build\Reinforced.Lattice.Mvc4.Razor\net40\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;MVC4</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\build\Reinforced.Lattice.Mvc4.Razor\net40\</OutputPath>
+    <DefineConstants>TRACE;MVC4</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>..\build\Reinforced.Lattice.Mvc4.Razor\net40\Reinforced.Lattice.Mvc4.Razor.xml</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Reinforced.Lattice">
+      <HintPath>..\packages\Reinforced.Lattice.1.0.0\lib\net40\Reinforced.Lattice.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Mvc, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.4.0.20505.0\lib\net40\System.Web.Mvc.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.WebPages, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20505.0\lib\net40\System.Web.WebPages.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Reinforced.Lattice.Mvc5.Razor\HtmlStringExtensions.cs">
+      <Link>HtmlStringExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Mvc5.Razor\InitializationExtensions.cs">
+      <Link>InitializationExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Mvc5.Razor\RazorSwitchBuilder.cs">
+      <Link>RazorSwitchBuilder.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Mvc5.Razor\RazorTemplatesExtensions.cs">
+      <Link>RazorTemplatesExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Mvc5.Razor\SelectListExtensions.cs">
+      <Link>SelectListExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Mvc5.Razor\TemplateBooleanExtensions.cs">
+      <Link>TemplateBooleanExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Mvc5.Razor\TemplateEnumExtensions.cs">
+      <Link>TemplateEnumExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Mvc5.Razor\TemplateListExtensions.cs">
+      <Link>TemplateListExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Mvc5.Razor\TemplateSelectListExtensions.cs">
+      <Link>TemplateSelectListExtensions.cs</Link>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

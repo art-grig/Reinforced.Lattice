@@ -15,16 +15,19 @@ namespace Reinforced.Lattice.Plugins
     {
         private readonly Configurator<TSourceData, TTableData> _configurator;
         private readonly List<string> _colNames;
+#if NET45
         private readonly IReadOnlyCollection<string> _colNamesRo;
-
+#else
+        private readonly IEnumerable<string> _colNamesRo;
+#endif
         /// <summary>
         /// Required columns names
         /// </summary>
-        public IReadOnlyCollection<string> Names
-        {
-            get { return _colNamesRo; }
-        }
-
+#if NET45
+        public IReadOnlyCollection<string> Names { get { return _colNamesRo; } }
+#else
+        public IEnumerable<string> Names { get { return _colNamesRo; } }
+#endif
         /// <summary>
         /// Constructs new columns list helper builder
         /// </summary>

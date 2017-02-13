@@ -39,10 +39,11 @@ namespace Reinforced.Lattice.Plugins.Toolbar
         /// <summary>
         /// Existing toolbar buttons
         /// </summary>
-        public IReadOnlyCollection<ToolbarButtonClientConfiguration> Buttons
-        {
-            get { return _buttons; }
-        }
+#if NET45
+        public IReadOnlyCollection<ToolbarButtonClientConfiguration> Buttons { get { return _buttons; } }
+#else
+        public IEnumerable<ToolbarButtonClientConfiguration> Buttons { get { return _buttons; } }
+#endif
 
         /// <summary>
         /// Adds simple HTML button to toolbar

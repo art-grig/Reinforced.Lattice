@@ -22,8 +22,11 @@ namespace Reinforced.Lattice.Configuration
         /// <summary>
         /// Table coumn properties indexed by names
         /// </summary>
+#if NET45
         IReadOnlyDictionary<string, PropertyDescription> TableColumnsDictionary { get; }
-
+#else
+        Dictionary<string, PropertyDescription> TableColumnsDictionary { get; }
+#endif
         /// <summary>
         /// Wraps result object into existing array
         /// </summary>

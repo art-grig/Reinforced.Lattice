@@ -20,6 +20,7 @@ namespace Reinforced.Lattice.Processing
         /// <returns></returns>
         object HandleData(LatticeData data);
 
+#if ASYNC
         /// <summary>
         /// Async-friendly command handling method. Should take in account table data and return any ActionResult. 
         /// Beware here of ActionResults that require GET request. In this case set ForceDeferred to true.
@@ -27,7 +28,7 @@ namespace Reinforced.Lattice.Processing
         /// <param name="data">Data sets</param>
         /// <returns></returns>
         Task<object> HandleDataAsync(LatticeData data);
-
+#endif
         /// <summary>
         /// Query deferring control. 
         /// You should return true here when you command returns ActionResult that is not supposed to be processed 
@@ -47,17 +48,20 @@ namespace Reinforced.Lattice.Processing
     public abstract class CommandHandleBase<T> : ICommandHandler
     {
         protected abstract T Handle(LatticeData data);
+#if ASYNC
         protected abstract Task<T> HandleAsync(LatticeData data);
-
+#endif
         public object HandleData(LatticeData data)
         {
             return Handle(data);
         }
 
+#if ASYNC
         public async Task<object> HandleDataAsync(LatticeData data)
         {
             return await HandleAsync(data);
         }
+#endif
 
         public bool ForceDeferred { get; set; }
         public Type UnprocessedResultType { get { return typeof(T); } }

@@ -1,0 +1,48 @@
+<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deliver">
+	<Import Project="C:\Program Files (x86)\MSBuild\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" />
+	<PropertyGroup>
+		<ProjectName />
+		<Version />
+		<NugetBuildDir>build\$(ProjectName)\</NugetBuildDir>
+		<PackageTempDir>build\package\$(ProjectName)\</PackageTempDir>
+		<Build40>True</Build40>
+		<Build45>True</Build45>
+		<Title />
+	</PropertyGroup>
+	<Target Name="Cleanup">
+		<RemoveDir Directories="$(NugetBuildDir)">
+		</RemoveDir>
+		<RemoveDir Directories="$(PackageTempDir)">
+		</RemoveDir>
+	</Target>
+	<ItemGroup>
+		<net40_Files Include="$(NugetBuildDir)\net40\$(ProjectName).dll;$(NugetBuildDir)\net40\$(ProjectName).pdb;$(NugetBuildDir)\net40\$(ProjectName).xml;" />
+		<net45_Files Include="$(NugetBuildDir)\net45\$(ProjectName).dll;$(NugetBuildDir)\net45\$(ProjectName).pdb;$(NugetBuildDir)\net45\$(ProjectName).xml;" />
+	</ItemGroup>
+	<Target Name="Build">
+		<MSBuild Condition="$(Build40)!='False'" Projects="$(ProjectName)\$(ProjectName).NET40.csproj" Properties="Configuration=Release" BuildInParallel="True" >
+		</MSBuild>
+		<MSBuild Condition="$(Build45)!='False'" Projects="$(ProjectName)\$(ProjectName).NET45.csproj" Properties="Configuration=Release" BuildInParallel="True" >
+		</MSBuild>
+	</Target>
+	<Target Name="SetVersion">
+        <MSBuild.Community.Tasks.AssemblyInfo CodeLanguage="CS" OutputFile="$(ProjectName)\Properties\AssemblyInfo.cs" AssemblyVersion="$(Version)" />        
+    </Target>
+	<Target Name="Copy40">
+		<Copy SourceFiles="@(net40_Files)" DestinationFolder="$(PackageTempDir)\lib\net40" />		
+	</Target>
+    <Target Name="Copy45">
+		<Copy SourceFiles="@(net45_Files)" DestinationFolder="$(PackageTempDir)\lib\net45" />
+	</Target>
+	<Target Name="Package">
+        <MSBuild Projects="pack.xml" Properties="ProjectName=$(ProjectName);Version=$(Version)" />
+    </Target>
+	<Target Name="Deliver">
+		<CallTarget Targets="Cleanup" />
+		<CallTarget Targets="SetVersion" />
+		<CallTarget Targets="Build" />
+		<CallTarget Condition="$(Build40)!='False'" Targets="Copy40" />
+		<CallTarget Condition="$(Build45)!='False'" Targets="Copy45" />
+		<CallTarget Targets="Package" />
+	</Target>
+</Project>

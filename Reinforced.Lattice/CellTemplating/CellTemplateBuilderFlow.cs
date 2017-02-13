@@ -8,9 +8,11 @@ namespace Reinforced.Lattice.CellTemplating
         public string ObjectProperty { get { return _objectProperty; } }
 
         public string DefaultProperty { get { return _defaultProperty; } }
-
+#if NET45
         public IReadOnlyCollection<string> Lines { get { return _lines; } }
-
+#else
+        public IEnumerable<string> Lines { get { return _lines; } }
+#endif
         private readonly List<string> _lines = new List<string>();
         private string _result;
         internal readonly string _objectProperty;

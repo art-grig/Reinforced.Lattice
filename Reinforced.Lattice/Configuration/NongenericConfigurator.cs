@@ -26,8 +26,12 @@ namespace Reinforced.Lattice.Configuration
         private readonly Dictionary<string, IColumnFilter> _colFilters = new Dictionary<string, IColumnFilter>();
 
         public TableConfiguration TableConfiguration { get { return _tableConfiguration; } }
+#if NET45
         public IReadOnlyDictionary<string, PropertyDescription> TableColumnsDictionary { get { return _tableColumnsDictionary; } }
-        
+#else
+        public Dictionary<string, PropertyDescription> TableColumnsDictionary { get { return _tableColumnsDictionary; } }
+#endif
+
         public IEnumerable<PropertyDescription> TableColumns { get { return _tableColumns; } }
         internal HashSet<IResponseModifier> ResponseModifiers { get { return _responseModifiers; } }
         public Type SourceType { get; protected set; }
@@ -206,11 +210,19 @@ namespace Reinforced.Lattice.Configuration
             };
             if (columnConfiguration.IsNullable)
             {
+#if NETCORE
+                columnConfiguration.IsEnum = tableDataProperty.PropertyType.GetTypeInfo().GetGenericArguments()[0].GetTypeInfo().IsEnum;
+#else
                 columnConfiguration.IsEnum = tableDataProperty.PropertyType.GetGenericArguments()[0].IsEnum;
+#endif
             }
             else
             {
-                columnConfiguration.IsEnum = tableDataProperty.PropertyType.IsEnum;
+#if NETCORE
+                columnConfiguration.IsEnum = tableDataProperty.PropertyType.GetTypeInfo().IsEnum;
+#else
+                columnConfiguration.IsEnum = tableDataProperty.PropertyType.GetGenericArguments()[0].IsEnum;
+#endif
             }
             _columnsConfiguration[tableDataProperty] = columnConfiguration;
             _tableConfiguration.Columns.Add(columnConfiguration);
@@ -244,7 +256,7 @@ namespace Reinforced.Lattice.Configuration
             }
         }
 
-        #region Result operations
+#region Result operations
 
         /// <summary>
         /// Wraps result object into existing array at specified index
@@ -292,9 +304,9 @@ namespace Reinforced.Lattice.Configuration
             var results = resultRows.ToArray();
             return EncodeResults(results, results.Length);
         }
-        #endregion
+#endregion
 
-        #region Registrations
+#region Registrations
 
         /// <summary>
         /// Associates ordering expression with column
@@ -339,7 +351,7 @@ namespace Reinforced.Lattice.Configuration
             string json = JsonConvert.SerializeObject(tc, SerializationSettings.ResponseSerializationSettings);
             return json;
         }
-        #endregion
+#endregion
 
         internal IEnumerable<ITypedFilter<T>> GetFilters<T>()
         {

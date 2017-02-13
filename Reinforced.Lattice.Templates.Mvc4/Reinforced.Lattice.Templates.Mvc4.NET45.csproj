@@ -1,0 +1,277 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{697AB62A-26D8-4157-BA20-36B3626B4D18}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Reinforced.Lattice.Templates.Mvc4</RootNamespace>
+    <AssemblyName>Reinforced.Lattice.Templates.Mvc4</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\build\Reinforced.Lattice.Templates.Mvc4\net45\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\build\Reinforced.Lattice.Templates.Mvc4\net45\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>..\build\Reinforced.Lattice.Templates.Mvc4\net45\Reinforced.Lattice.Templates.Mvc4.xml</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Reinforced.Lattice, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Reinforced.Lattice.1.0.0\lib\net45\Reinforced.Lattice.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Mvc, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.4.0.20505.0\lib\net40\System.Web.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20505.0\lib\net40\System.Web.WebPages.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\AdditionalTemplatesScope.cs">
+      <Link>AdditionalTemplatesScope.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\BuiltIn\CellTemplateRegion.cs">
+      <Link>BuiltIn\CellTemplateRegion.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\BuiltIn\CellWrapperTemplateRegion.cs">
+      <Link>BuiltIn\CellWrapperTemplateRegion.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\BuiltIn\CommandConfirmationTemplateRegion.cs">
+      <Link>BuiltIn\CommandConfirmationTemplateRegion.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\BuiltIn\CommandDetailsTemplate.cs">
+      <Link>BuiltIn\CommandDetailsTemplate.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\BuiltIn\HeaderWrapperTemplateRegion.cs">
+      <Link>BuiltIn\HeaderWrapperTemplateRegion.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\BuiltIn\LayoutTemplateRegion.cs">
+      <Link>BuiltIn\LayoutTemplateRegion.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\BuiltIn\MessageWrapperTemplateRegion.cs">
+      <Link>BuiltIn\MessageWrapperTemplateRegion.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\BuiltIn\PartitionRowTemplateRegion.cs">
+      <Link>BuiltIn\PartitionRowTemplateRegion.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\BuiltIn\PluignWrapperTemplateRegion.cs">
+      <Link>BuiltIn\PluignWrapperTemplateRegion.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\BuiltIn\RowWrapperTemplateRegion.cs">
+      <Link>BuiltIn\RowWrapperTemplateRegion.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Compilation\ScopedWriter.cs">
+      <Link>Compilation\ScopedWriter.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\DeclaratorBase.cs">
+      <Link>DeclaratorBase.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Editing\CellEditorTemplateRegionBase.cs">
+      <Link>Editing\CellEditorTemplateRegionBase.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Editing\CellValidationMessagesTemplateRegion.cs">
+      <Link>Editing\CellValidationMessagesTemplateRegion.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Editing\Editors\Check\CheckEditorTemplateRegion.cs">
+      <Link>Editing\Editors\Check\CheckEditorTemplateRegion.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Editing\Editors\Display\DisplayEditorTemplateRegion.cs">
+      <Link>Editing\Editors\Display\DisplayEditorTemplateRegion.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Editing\Editors\Memo\MemoEditorTemplateRegion.cs">
+      <Link>Editing\Editors\Memo\MemoEditorTemplateRegion.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Editing\Editors\PlainText\PlainTextEditorTemplateRegion.cs">
+      <Link>Editing\Editors\PlainText\PlainTextEditorTemplateRegion.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Editing\Editors\SelectList\SelectListTemplateRegion.cs">
+      <Link>Editing\Editors\SelectList\SelectListTemplateRegion.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Editing\Form\EditFormTemplateRegion.cs">
+      <Link>Editing\Form\EditFormTemplateRegion.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Expressions\CodeBlock.cs">
+      <Link>Expressions\CodeBlock.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Expressions\IJsArray.cs">
+      <Link>Expressions\IJsArray.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Expressions\IJsDictionary.cs">
+      <Link>Expressions\IJsDictionary.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Expressions\JsExtensions.cs">
+      <Link>Expressions\JsExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Expressions\ParametrizedCodeBlock.cs">
+      <Link>Expressions\ParametrizedCodeBlock.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Expressions\Visiting\CustomMethodCallTransaltion.cs">
+      <Link>Expressions\Visiting\CustomMethodCallTransaltion.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Expressions\Visiting\JsBinaryExpression.cs">
+      <Link>Expressions\Visiting\JsBinaryExpression.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Expressions\Visiting\JsCallExpression.cs">
+      <Link>Expressions\Visiting\JsCallExpression.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Expressions\Visiting\JsExpression.cs">
+      <Link>Expressions\Visiting\JsExpression.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Expressions\Visiting\JsExpressionVisitor.cs">
+      <Link>Expressions\Visiting\JsExpressionVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Expressions\Visiting\JsIndexerExpression.cs">
+      <Link>Expressions\Visiting\JsIndexerExpression.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Expressions\Visiting\JsLiteralExpression.cs">
+      <Link>Expressions\Visiting\JsLiteralExpression.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Expressions\Visiting\JsMemberExpression.cs">
+      <Link>Expressions\Visiting\JsMemberExpression.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Expressions\Visiting\JsTernaryExpression.cs">
+      <Link>Expressions\Visiting\JsTernaryExpression.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Expressions\Visiting\JsUnaryExpression.cs">
+      <Link>Expressions\Visiting\JsUnaryExpression.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Expressions\Visiting\JsUnboundExpression.cs">
+      <Link>Expressions\Visiting\JsUnboundExpression.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Filters\Range\RangeFilterTemplateRegion.cs">
+      <Link>Filters\Range\RangeFilterTemplateRegion.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Filters\Select\SelectFilterTemplateRegion.cs">
+      <Link>Filters\Select\SelectFilterTemplateRegion.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Filters\Value\ValueFilterTemplateRegion.cs">
+      <Link>Filters\Value\ValueFilterTemplateRegion.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Interfaces.cs">
+      <Link>Interfaces.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\ITemplatesScope.cs">
+      <Link>ITemplatesScope.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\IViewPlugins.cs">
+      <Link>IViewPlugins.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\LatticeTemplatesViewModel.cs">
+      <Link>LatticeTemplatesViewModel.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\ModeledTemplateRegion.cs">
+      <Link>ModeledTemplateRegion.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\OverrideTplFieldNameAttribute.cs">
+      <Link>OverrideTplFieldNameAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\PluginsClassifier.cs">
+      <Link>PluginsClassifier.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Plugins\Checkboxify\CheckboxifyTemplateRegion.cs">
+      <Link>Plugins\Checkboxify\CheckboxifyTemplateRegion.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Plugins\Hideout\HideoutTemplateRegion.cs">
+      <Link>Plugins\Hideout\HideoutTemplateRegion.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Plugins\Limit\LimitPluginTemplateRegion.cs">
+      <Link>Plugins\Limit\LimitPluginTemplateRegion.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Plugins\LoadingOverlap\LoadingOverlapTemplatesRegion.cs">
+      <Link>Plugins\LoadingOverlap\LoadingOverlapTemplatesRegion.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Plugins\Loading\LoadingPluginTemplateRegion.cs">
+      <Link>Plugins\Loading\LoadingPluginTemplateRegion.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Plugins\MouseSelect\MouseSelectTemplateRegion.cs">
+      <Link>Plugins\MouseSelect\MouseSelectTemplateRegion.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Plugins\Ordering\OrderingPluginTemplateRegion.cs">
+      <Link>Plugins\Ordering\OrderingPluginTemplateRegion.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Plugins\Paging\PagingTemplateRegion.cs">
+      <Link>Plugins\Paging\PagingTemplateRegion.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Plugins\Reload\ReloadTemplateRegion.cs">
+      <Link>Plugins\Reload\ReloadTemplateRegion.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Plugins\ResponseInfo\ResponseInfoTemplateRegion.cs">
+      <Link>Plugins\ResponseInfo\ResponseInfoTemplateRegion.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Plugins\Scrollbar\ScrollbarPluginTemplateRegion.cs">
+      <Link>Plugins\Scrollbar\ScrollbarPluginTemplateRegion.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\Plugins\Toolbar\ToolbarTemplateRegion.cs">
+      <Link>Plugins\Toolbar\ToolbarTemplateRegion.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\PluginTemplateRegion.cs">
+      <Link>PluginTemplateRegion.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\RawExtensions.cs">
+      <Link>RawExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\ResharperAnnotations.cs">
+      <Link>ResharperAnnotations.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\TemplateControl.cs">
+      <Link>TemplateControl.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\TemplateRegion.cs">
+      <Link>TemplateRegion.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\TemplateRegionType.cs">
+      <Link>TemplateRegionType.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\TemplatesPageBase.cs">
+      <Link>TemplatesPageBase.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\TemplatingExtensions.cs">
+      <Link>TemplatingExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\TemplatingProcessExtensions.cs">
+      <Link>TemplatingProcessExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Reinforced.Lattice.Templates.Mvc5\VisualStateDescription.cs">
+      <Link>VisualStateDescription.cs</Link>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

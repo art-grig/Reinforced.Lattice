@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>Reinforced.Lattice.Templates.Mvc4</id>
+        <version>##Version##</version>
+        <title>Reinforced.Lattice core Razor templates for ASP.NET MVC 4</title>
+        <authors>Pavel B. Novikov</authors>
+        <owners>Pavel B. Novikov</owners>
+        <projectUrl>https://github.com/reinforced/Reinforced.Lattice</projectUrl>
+        <iconUrl>https://raw.githubusercontent.com/reinforced/Reinforced.Lattice/master/icon.png</iconUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Reinforced.Lattice Razor helpers for changing layout design templates built for ASP.NET MVC 4</description>
+        <summary>Reinforced.Lattice Razor helpers for changing layout design templates built for ASP.NET MVC 4</summary>
+        <copyright>© 2017 Pavel B. Novikov</copyright>
+        <language>en-US</language>
+        <tags>mvc, web, datagrid, paging, filtering, data loading, ui, fluent</tags>		
+        <licenseUrl>https://github.com/reinforced/Reinforced.Lattice/blob/master/LICENSE.md</licenseUrl>
+		<releaseNotes>
+ ##RelNotes##
+        </releaseNotes>
+        <dependencies>
+            <group targetFramework=".NETFramework4.0">
+                <dependency id="Reinforced.Lattice" version="##Version##" />
+                <dependency id="Newtonsoft.Json" version="7.0.1" />
+                <dependency id="Microsoft.AspNet.Mvc" version="4.0.20505.0" />
+                <dependency id="Microsoft.AspNet.Razor" version="2.0.20505.0" />
+                <dependency id="Microsoft.AspNet.WebPages" version="2.0.20505.0" />
+            </group>
+            <group targetFramework=".NETFramework4.5">
+                <dependency id="Reinforced.Lattice" version="##Version##" />
+                <dependency id="Newtonsoft.Json" version="7.0.1" />
+                <dependency id="Microsoft.AspNet.Mvc" version="4.0.20505.0" />
+                <dependency id="Microsoft.AspNet.Razor" version="2.0.20505.0" />
+                <dependency id="Microsoft.AspNet.WebPages" version="2.0.20505.0" />
+            </group>
+        </dependencies>
+    </metadata>
+</package>

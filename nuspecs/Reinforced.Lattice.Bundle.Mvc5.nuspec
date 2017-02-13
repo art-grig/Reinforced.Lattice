@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>Reinforced.Lattice.Bundle.Mvc5</id>
+        <version>##Version##</version>
+        <title>Reinforced.Lattice Bundle - ASP.NET MVC 5</title>
+        <authors>Pavel B. Novikov</authors>
+        <owners>Pavel B. Novikov</owners>
+        <projectUrl>https://github.com/reinforced/Reinforced.Lattice</projectUrl>
+        <iconUrl>https://raw.githubusercontent.com/reinforced/Reinforced.Lattice/master/icon.png</iconUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Reinforced.Lattice quick start bundle package for ASP.NET MVC 5. Includes everything - from core library to default template in single package</description>
+        <summary>Reinforced.Lattice quick start bundle package for ASP.NET MVC 5</summary>
+        <copyright>© 2017 Pavel B. Novikov</copyright>
+        <language>en-US</language>
+        <tags>mvc, web, datagrid, paging, filtering, data loading, ui, fluent</tags>		
+        <licenseUrl>https://github.com/reinforced/Reinforced.Lattice/blob/master/LICENSE.md</licenseUrl>
+		<releaseNotes>
+ ##RelNotes##
+        </releaseNotes>
+        <dependencies>
+            <group targetFramework=".NETFramework4.0">
+                <dependency id="Newtonsoft.Json" version="7.0.1" />
+                <dependency id="Microsoft.AspNet.Mvc" version="5.2.3" />
+                <dependency id="Microsoft.AspNet.Razor" version="3.2.3" />
+                <dependency id="Microsoft.AspNet.WebPages" version="3.2.3" />
+                <dependency id="Microsoft.Web.Infrastructure" version="1.0.0.0" />
+            </group>
+            <group targetFramework=".NETFramework4.5">
+                <dependency id="Newtonsoft.Json" version="7.0.1" />
+                <dependency id="Microsoft.AspNet.Mvc" version="5.2.3" />
+                <dependency id="Microsoft.AspNet.Razor" version="3.2.3" />
+                <dependency id="Microsoft.AspNet.WebPages" version="3.2.3" />
+                <dependency id="Microsoft.Web.Infrastructure" version="1.0.0.0" />
+            </group>
+        </dependencies>
+    </metadata>
+</package>

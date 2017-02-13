@@ -60,6 +60,7 @@ namespace Reinforced.Lattice.Processing
             return _handlerMethod(typedData);
         }
 
+#if ASYNC
         protected override async Task<TCommandResult> HandleAsync(LatticeData data)
         {
             LatticeData<TSourceData, TTargetData> typedData = new LatticeData<TSourceData, TTargetData>(data);
@@ -70,5 +71,6 @@ namespace Reinforced.Lattice.Processing
 
             return response;
         }
+#endif
     }
 }

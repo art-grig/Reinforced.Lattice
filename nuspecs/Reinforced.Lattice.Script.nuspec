@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>Reinforced.Lattice.Script</id>
+        <version>##Version##</version>
+        <title>Reinforced.Lattice client script and TypeScript typings</title>
+        <authors>Pavel B. Novikov</authors>
+        <owners>Pavel B. Novikov</owners>
+        <projectUrl>https://github.com/reinforced/Reinforced.Lattice</projectUrl>
+        <iconUrl>https://raw.githubusercontent.com/reinforced/Reinforced.Lattice/master/icon.png</iconUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Reinforced.Lattice client script and TypeScript typings</description>
+        <summary>Reinforced.Lattice client script and TypeScript typings</summary>
+        <copyright>© 2017 Pavel B. Novikov</copyright>
+        <language>en-US</language>
+        <tags>mvc, web, datagrid, paging, filtering, data loading, ui, fluent</tags>		
+        <licenseUrl>https://github.com/reinforced/Reinforced.Lattice/blob/master/LICENSE.md</licenseUrl>
+		<releaseNotes>
+- Initial NuGet publish
+		</releaseNotes>
+    </metadata>
+</package>

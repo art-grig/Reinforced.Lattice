@@ -18,13 +18,20 @@ namespace Reinforced.Lattice.Plugins.Total
         /// <summary>
         /// All calculators (delegates). Key = column, Value = calculation delegate
         /// </summary>
+#if NET45
         public IReadOnlyDictionary<string, Delegate> Calculators { get { return _calculators; } }
+#else
+        public Dictionary<string, Delegate> Calculators { get { return _calculators; } }
+#endif
 
+#if NET45
         /// <summary>
         /// Value formatting functions for table total
         /// </summary>
         public IReadOnlyDictionary<string, string> ValueFunctions { get { return _valueFunctions; } }
-
+#else
+        public Dictionary<string, string> ValueFunctions { get { return _valueFunctions; } }
+#endif
         /// <summary>
         /// Client calculator functions
         /// </summary>

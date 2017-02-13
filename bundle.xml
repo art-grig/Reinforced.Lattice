@@ -1,0 +1,32 @@
+<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deliver">
+	<Import Project="C:\Program Files (x86)\MSBuild\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" />
+	<PropertyGroup>
+		<Bundle></Bundle>
+		<Version />
+		<PackageTempDir>build\package\Reinforced.Lattice.Bundle.$(Bundle)\</PackageTempDir>		        
+	</PropertyGroup>	
+    <ItemGroup>
+        <Projects Include="Reinforced.Lattice"/>
+        <Projects Include="Reinforced.Lattice.$(Bundle)"/>
+        <Projects Include="Reinforced.Lattice.$(Bundle).Razor"/>
+        <Projects Include="Reinforced.Lattice.Templates.$(Bundle)"/>
+        <Script Include="Reinforced.Lattice.Script"/>
+        <Template Include="Reinforced.Lattice.BootstrapTemplate"/>
+    </ItemGroup>
+    <Target Name="Deliver">
+        <ItemGroup>
+            <Src Include="@(Projects -> 'build\package\%(Identity)\**\net*\*.*')" />
+            <Src Include="@(Script -> 'build\package\%(Identity)\**\conte*\**\*.*')" />
+            <Src Include="@(Template -> 'build\package\%(Identity)\**\conte*\**\*.*')" />
+        </ItemGroup>
+        <PropertyGroup>
+            <_ConcreteSrc>@(Src)</_ConcreteSrc>
+        </PropertyGroup>
+        <ItemGroup>
+            <ConcreteSrc Include="$(_ConcreteSrc)" />
+        </ItemGroup>
+        <Copy SourceFiles="@(ConcreteSrc)" DestinationFiles="@(ConcreteSrc -> '$(PackageTempDir)\%(RecursiveDir)%(Filename)%(Extension)')"/>
+        
+        <MSBuild Projects="pack.xml" Properties="ProjectName=Reinforced.Lattice.Bundle.$(Bundle);Version=$(Version)" />
+	</Target>
+</Project>

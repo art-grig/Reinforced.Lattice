@@ -90,6 +90,7 @@ namespace Reinforced.Lattice.Plugins.Hierarchy
 
         }
 
+#if ASYNC
         public static void AddAsyncChildrenRowHandler<TSourceData, TTargetData, TResponse>(
             this RequestHandlerBase<TSourceData, TTargetData, TResponse> handler,
             Func<LatticeData<TSourceData, TTargetData>, TTargetData, Task<IEnumerable<TTargetData>>> method)
@@ -117,5 +118,6 @@ namespace Reinforced.Lattice.Plugins.Hierarchy
             });
 
         }
+#endif
     }
 }

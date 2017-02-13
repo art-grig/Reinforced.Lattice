@@ -1,0 +1,35 @@
+<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="BuildAll">
+    <Import Project="C:\Program Files (x86)\MSBuild\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" />
+	<PropertyGroup>
+		<Version>1.0.0</Version>
+	</PropertyGroup>
+    <Target Name="BuildAll">
+      <CallTarget Targets="BuildLibraries"/>
+      <CallTarget Targets="BuildScript"/>  
+      <CallTarget Targets="BuildDefaultTemplate"/>  
+      <CallTarget Targets="Bundle"/>  
+    </Target>
+	<Target Name="BuildLibraries">
+        <MSBuild Projects="deliver.xml" Properties="ProjectName=Reinforced.Lattice;Version=$(Version)"></MSBuild>
+        <MSBuild Projects="deliver.xml" Properties="ProjectName=Reinforced.Lattice.Mvc4;Version=$(Version)"></MSBuild> 
+        <MSBuild Projects="deliver.xml" Properties="ProjectName=Reinforced.Lattice.Mvc4.Razor;Version=$(Version)"></MSBuild> 
+        <MSBuild Projects="deliver.xml" Properties="ProjectName=Reinforced.Lattice.Mvc5;Version=$(Version);Build40=False"></MSBuild> 
+        <MSBuild Projects="deliver.xml" Properties="ProjectName=Reinforced.Lattice.Mvc5.Razor;Version=$(Version);Build40=False"></MSBuild> 
+        <MSBuild Projects="deliver.xml" Properties="ProjectName=Reinforced.Lattice.Templates.Mvc4;Version=$(Version)"></MSBuild> 
+        <MSBuild Projects="deliver.xml" Properties="ProjectName=Reinforced.Lattice.Templates.Mvc5;Version=$(Version);Build40=False"></MSBuild> 
+	</Target>	
+    <Target Name="BuildScript">
+        <MSBuild Projects="Reinforced.Lattice.Script\pack.msbuild"></MSBuild>
+        <MSBuild Projects="pack.xml" Properties="ProjectName=Reinforced.Lattice.Script;Version=$(Version)" />
+    </Target>
+    <Target Name="BuildDefaultTemplate">
+        <Copy SourceFiles="Reinforced.Lattice.DebugSink\Views\Shared\Lattice_Templates.cshtml" DestinationFiles="build\package\Reinforced.Lattice.BootstrapTemplate\content\Views\Shared\Lattice_Templates_Bootstrap.cshtml" />        	
+        <MSBuild Projects="pack.xml" Properties="ProjectName=Reinforced.Lattice.BootstrapTemplate;Version=$(Version)" />        
+    </Target>
+    <Target Name="Bundle">
+        <MSBuild Projects="bundle.xml" Properties="Bundle=Mvc4;Version=$(Version)"></MSBuild>
+        <MSBuild Projects="bundle.xml" Properties="Bundle=Mvc5;Version=$(Version)"></MSBuild>
+    </Target>
+    
+    
+</Project>
