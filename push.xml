@@ -5,15 +5,16 @@
 		<Key/>        
 	</PropertyGroup>
     <Target Name="PushAll">
-        <Exec Command="nuget push -Source https://www.nuget.org/api/v2/package -ApiKey $(Key) Reinforced.Lattice.$(Version).nupkg" />
-        <Exec Command="nuget push -Source https://www.nuget.org/api/v2/package -ApiKey $(Key) Reinforced.Lattice.BootstrapTemplate.$(Version).nupkg" />
-        <Exec Command="nuget push -Source https://www.nuget.org/api/v2/package -ApiKey $(Key) Reinforced.Lattice.Bundle.Mvc4.$(Version).nupkg" />
-        <Exec Command="nuget push -Source https://www.nuget.org/api/v2/package -ApiKey $(Key) Reinforced.Lattice.Bundle.Mvc5.$(Version).nupkg" />
-        <Exec Command="nuget push -Source https://www.nuget.org/api/v2/package -ApiKey $(Key) Reinforced.Lattice.Mvc4.$(Version).nupkg" />
-        <Exec Command="nuget push -Source https://www.nuget.org/api/v2/package -ApiKey $(Key) Reinforced.Lattice.Mvc4.Razor.$(Version).nupkg" />
-        <Exec Command="nuget push -Source https://www.nuget.org/api/v2/package -ApiKey $(Key) Reinforced.Lattice.Mvc5.$(Version).nupkg" />
-        <Exec Command="nuget push -Source https://www.nuget.org/api/v2/package -ApiKey $(Key) Reinforced.Lattice.Mvc5.Razor.$(Version).nupkg" />
-        <Exec Command="nuget push -Source https://www.nuget.org/api/v2/package -ApiKey $(Key) Reinforced.Lattice.Templates.Mvc4.$(Version).nupkg" />
-        <Exec Command="nuget push -Source https://www.nuget.org/api/v2/package -ApiKey $(Key) Reinforced.Lattice.Templates.Mvc5.$(Version).nupkg" />
+        <Exec Command="nuget push -Source https://www.nuget.org/api/v2/package -ApiKey $(Key) Reinforced.Lattice.$(Version).nupkg" /> 
+        <Exec Command="nuget push -Source https://www.nuget.org/api/v2/package -ApiKey $(Key) Reinforced.Lattice.BootstrapTemplate.$(Version).nupkg" /> 
+        <Exec Command="nuget push -Source https://www.nuget.org/api/v2/package -ApiKey $(Key) Reinforced.Lattice.Bundle.Mvc4.$(Version).nupkg" /> 
+        <Exec Command="nuget push -Source https://www.nuget.org/api/v2/package -ApiKey $(Key) Reinforced.Lattice.Bundle.Mvc5.$(Version).nupkg" /> 
+        <Exec Command="nuget push -Source https://www.nuget.org/api/v2/package -ApiKey $(Key) Reinforced.Lattice.Mvc4.$(Version).nupkg" /> 
+        <Exec Command="nuget push -Source https://www.nuget.org/api/v2/package -ApiKey $(Key) Reinforced.Lattice.Mvc4.Razor.$(Version).nupkg" /> 
+        <Exec Command="nuget push -Source https://www.nuget.org/api/v2/package -ApiKey $(Key) Reinforced.Lattice.Mvc5.$(Version).nupkg" /> 
+        <Exec Command="nuget push -Source https://www.nuget.org/api/v2/package -ApiKey $(Key) Reinforced.Lattice.Mvc5.Razor.$(Version).nupkg" /> 
+        <Exec Command="nuget push -Source https://www.nuget.org/api/v2/package -ApiKey $(Key) Reinforced.Lattice.Templates.Mvc4.$(Version).nupkg" /> 
+        <Exec Command="nuget push -Source https://www.nuget.org/api/v2/package -ApiKey $(Key) Reinforced.Lattice.Templates.Mvc5.$(Version).nupkg" /> 
+        <Exec Command="nuget push -Source https://www.nuget.org/api/v2/package -ApiKey $(Key) Reinforced.Lattice.Script.$(Version).nupkg" />
     </Target>
 </Project>
