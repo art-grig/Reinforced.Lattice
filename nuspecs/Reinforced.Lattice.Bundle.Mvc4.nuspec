@@ -16,7 +16,21 @@
         <tags>mvc, web, datagrid, paging, filtering, data loading, ui, fluent</tags>		
         <licenseUrl>https://github.com/reinforced/Reinforced.Lattice/blob/master/LICENSE.md</licenseUrl>
 		<releaseNotes>
-- Initial NuGet publish
-		</releaseNotes>
+ ##RelNotes##
+        </releaseNotes>
+        <dependencies>
+            <group targetFramework=".NETFramework4.0">
+                <dependency id="Newtonsoft.Json" version="7.0.1" />
+                <dependency id="Microsoft.AspNet.Mvc" version="4.0.20505.0" />
+                <dependency id="Microsoft.AspNet.Razor" version="2.0.20505.0" />
+                <dependency id="Microsoft.AspNet.WebPages" version="2.0.20505.0" />
+            </group>
+            <group targetFramework=".NETFramework4.5">
+                <dependency id="Newtonsoft.Json" version="7.0.1" />
+                <dependency id="Microsoft.AspNet.Mvc" version="4.0.20505.0" />
+                <dependency id="Microsoft.AspNet.Razor" version="2.0.20505.0" />
+                <dependency id="Microsoft.AspNet.WebPages" version="2.0.20505.0" />
+            </group>
+        </dependencies>
     </metadata>
 </package>
