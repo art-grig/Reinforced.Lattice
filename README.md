@@ -1,5 +1,6 @@
 # Reinforced.Lattice
 Remote data representation framework for .NET
+Please post your questions to StackOverflow with tag **reinforced_lattice**. All issues without contribution will be removed immediately.
 
 ## Installation
 There are builds for .NET 4.0 and .NET 4.5 split by set of packages 
@@ -7,6 +8,7 @@ There are builds for .NET 4.0 and .NET 4.5 split by set of packages
 ### If you have full MVC application and want everything
 * For MVC4 ```PM> Install-Package Reinforced.Lattice.Bundle.Mvc4```
 * For MVC5 ```PM> Install-Package Reinforced.Lattice.Bundle.Mvc5```
+Yes, after installing that *you do not have to install anything else*. You will get all Reinforced.Lattice wihtout other package's dependencies. For more sharp work you are welcome to install one of other packages.
 
 ### Otherwise, if you want only core library: here it is
 * ```PM> Install-Package Reinforced.Lattice```
