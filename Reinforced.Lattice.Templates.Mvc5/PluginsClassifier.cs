@@ -9,7 +9,7 @@
             Scope = scope;
         }
         
-        public ITemplatesScope Scope { get; }
+        public ITemplatesScope Scope { get; private set; }
         public LatticeTemplatesViewModel Model { get { return _model; } }
     }
 }

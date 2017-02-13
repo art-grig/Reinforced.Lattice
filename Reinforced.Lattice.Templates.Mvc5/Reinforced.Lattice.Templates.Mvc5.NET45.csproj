@@ -7,8 +7,8 @@
     <ProjectGuid>{0DAF335B-7F19-4F48-9FE0-2EBDBD5FA9D2}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Reinforced.Lattice.Templates</RootNamespace>
-    <AssemblyName>Reinforced.Lattice.Templates</AssemblyName>
+    <RootNamespace>Reinforced.Lattice.Templates.Mvc5</RootNamespace>
+    <AssemblyName>Reinforced.Lattice.Templates.Mvc5</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />

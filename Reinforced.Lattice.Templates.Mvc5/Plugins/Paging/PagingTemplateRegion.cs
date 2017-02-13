@@ -39,7 +39,7 @@ namespace Reinforced.Lattice.Templates.Plugins.Paging
         }
 
         public string ExistingModel { get; private set; }
-        public TextWriter Writer { get; }
+        public TextWriter Writer { get; private set; }
     }
 
     public class PagingGotoPageTemplate : CodeBlock, IProvidesMarking, IProvidesEventsBinding, IProvidesVisualState
@@ -49,7 +49,7 @@ namespace Reinforced.Lattice.Templates.Plugins.Paging
         {
         }
 
-        public TextWriter Writer { get; }
+        public TextWriter Writer { get; private set; }
     }
 
     public interface IPagingViewModel

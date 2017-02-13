@@ -8,7 +8,7 @@ namespace Reinforced.Lattice.Templates.Plugins.Scrollbar
         {
         }
 
-        public string ExistingModel { get; }
+        public string ExistingModel { get; private set; }
     }
 
     public interface IScrollbarModel

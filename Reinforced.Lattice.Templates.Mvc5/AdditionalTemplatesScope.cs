@@ -6,7 +6,7 @@ namespace Reinforced.Lattice.Templates
 {
     public class AdditionalTemplatesScope : DeclaratorBase, ITemplatesScope, IDisposable
     {
-        public TemplateControl Flow { get; }
+        public TemplateControl Flow { get; private set; }
 
         public string TemplatesPrefix { get { return _prefix; } }
 

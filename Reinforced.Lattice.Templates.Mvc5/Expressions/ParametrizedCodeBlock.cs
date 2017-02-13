@@ -9,7 +9,7 @@ namespace Reinforced.Lattice.Templates.Expressions
             ExistingModel = existingModel;
         }
 
-        public TextWriter Writer { get; }
-        public virtual string ExistingModel { get; }
+        public TextWriter Writer { get; private set; }
+        public virtual string ExistingModel { get; private set; }
     }
 }
