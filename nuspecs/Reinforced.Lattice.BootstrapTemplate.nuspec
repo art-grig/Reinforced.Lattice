@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
-        <id>Reinforced.Lattice.Bundle.Mvc5</id>
+        <id>Reinforced.Lattice.BootstrapTemplate</id>
         <version>##Version##</version>
-        <title>Reinforced.Lattice Bundle - ASP.NET MVC 5</title>
+        <title>Out-of-box Reinforced.Lattice template for Twitter Bootstrap</title>
         <authors>Pavel B. Novikov</authors>
         <owners>Pavel B. Novikov</owners>
         <projectUrl>https://github.com/reinforced/Reinforced.Lattice</projectUrl>
         <iconUrl>https://raw.githubusercontent.com/reinforced/Reinforced.Lattice/master/icon.png</iconUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <description>Reinforced.Lattice quick start bundle package for ASP.NET MVC 5. Includes everything - from core library to default template in single package</description>
-        <summary>Reinforced.Lattice quick start bundle package for ASP.NET MVC 5</summary>
+        <description>Standard Reinforced.Lattice template for Twitter Bootstrap</description>
+        <summary>Standard Reinforced.Lattice template for Twitter Bootstrap</summary>
         <copyright>© 2017 Pavel B. Novikov</copyright>
         <language>en-US</language>
         <tags>mvc, web, datagrid, paging, filtering, data loading, ui, fluent</tags>		

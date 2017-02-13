@@ -26,9 +26,7 @@
 		</MSBuild>
 	</Target>
 	<Target Name="SetVersion">
-        <MSBuild.Community.Tasks.AssemblyInfo CodeLanguage="CS" OutputFile="$(ProjectName)\Properties\AssemblyInfo.cs" AssemblyVersion="$(Version)" />
-        <Copy SourceFiles="nuspecs\$(ProjectName).nuspec" DestinationFiles="$(PackageTempDir)\$(ProjectName).nuspec" />
-		<MSBuild.Community.Tasks.FileUpdate Files="$(PackageTempDir)\$(ProjectName).nuspec" Regex="##Version##" ReplacementText="$(Version)" />
+        <MSBuild.Community.Tasks.AssemblyInfo CodeLanguage="CS" OutputFile="$(ProjectName)\Properties\AssemblyInfo.cs" AssemblyVersion="$(Version)" />        
     </Target>
 	<Target Name="Copy40">
 		<Copy SourceFiles="@(net40_Files)" DestinationFolder="$(PackageTempDir)\lib\net40" />		
@@ -37,7 +35,7 @@
 		<Copy SourceFiles="@(net45_Files)" DestinationFolder="$(PackageTempDir)\lib\net45" />
 	</Target>
 	<Target Name="Package">
-        <Exec Command="nuget pack $(PackageTempDir)\$(ProjectName).nuspec -BasePath $(PackageTempDir)" />
+        <MSBuild Projects="pack.xml" Properties="ProjectName=$(ProjectName);Version=$(Version)" />
     </Target>
 	<Target Name="Deliver">
 		<CallTarget Targets="Cleanup" />
