@@ -1,4 +1,5 @@
-<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="BuildAll">
+    <Import Project="C:\Program Files (x86)\MSBuild\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" />
 	<PropertyGroup>
 		<Version>1.0.0</Version>
 	</PropertyGroup>
@@ -11,4 +12,14 @@
 		<MSBuild Projects="deliver.xml" Properties="ProjectName=Reinforced.Lattice.Templates.Mvc4;Version=$(Version)"></MSBuild>
 		<MSBuild Projects="deliver.xml" Properties="ProjectName=Reinforced.Lattice.Templates.Mvc5;Version=$(Version);Build40=False"></MSBuild>
 	</Target>	
+    <Target Name="BuildScript">
+        <MSBuild Projects="Reinforced.Lattice.Script\pack.msbuild"></MSBuild>
+        <Copy SourceFiles="nuspecs\Reinforced.Lattice.Script.nuspec" DestinationFiles="build\package\Reinforced.Lattice.Script\Reinforced.Lattice.Script.nuspec" />
+		<MSBuild.Community.Tasks.FileUpdate Files="build\package\Reinforced.Lattice.Script\Reinforced.Lattice.Script.nuspec" Regex="##Version##" ReplacementText="$(Version)" />
+        <Exec Command="nuget pack build\package\Reinforced.Lattice.Script\Reinforced.Lattice.Script.nuspec -BasePath build\package\Reinforced.Lattice.Script" />
+    </Target>
+    <Target Name="BuildAll">
+        <!-- <CallTarget Targets="BuildLibraries"/> -->
+        <CallTarget Targets="BuildScript"/>
+    </Target>
 </Project>
