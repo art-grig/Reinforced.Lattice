@@ -1,22 +1,32 @@
 <Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deliver">
+	<Import Project="C:\Program Files (x86)\MSBuild\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" />
 	<PropertyGroup>
-		<Bundle />
+		<Bundle></Bundle>
 		<Version />
-		<PackageTempDir>build\package\Reinforced.Lattice.Bundle.$(Bundle)\</PackageTempDir>
-		<Build40>True</Build40>
-		<Build45>True</Build45>
-		<ScriptRoot>build\package\Reinforced.Lattice.Script\content\Scripts\Reinforced.Lattice\</ScriptRoot>
-		<Lib40Root>build\package\Reinforced.Lattice\lib\net40</Lib40Root>
-		<Lib45Root>build\package\Reinforced.Lattice\lib\net40</Lib45Root>
-		<Mvc40Root>build\package\Reinforced.Lattice.$(Bundle)\lib\net40</Mvc40Root>
-		<Mvc45Root>build\package\Reinforced.Lattice.$(Bundle)\lib\net45</Mvc45Root>
-		<MvcRazor40Root>build\package\Reinforced.Lattice.$(Bundle).Razor\lib\net40</MvcRazor40Root>
-		<Property1></Property1>
-	</PropertyGroup>
-	<ItemGroup>
-		<Script Include="$(ScriptRoot)\reinforced.lattice.js" />
-		<Script Include="$(ScriptRoot)\reinforced.lattice.js.map" />
-		<Script Include="$(ScriptRoot)\reinforced.lattice.d.ts" />
-		<Core40 Include="" />
-	</ItemGroup>
+		<PackageTempDir>build\package\Reinforced.Lattice.Bundle.$(Bundle)\</PackageTempDir>		        
+	</PropertyGroup>	
+    <ItemGroup>
+        <Projects Include="Reinforced.Lattice"/>
+        <Projects Include="Reinforced.Lattice.$(Bundle)"/>
+        <Projects Include="Reinforced.Lattice.$(Bundle).Razor"/>
+        <Projects Include="Reinforced.Lattice.Templates.$(Bundle)"/>
+        <Script Include="Reinforced.Lattice.Script"/>
+        <Template Include="Reinforced.Lattice.BootstrapTemplate"/>
+    </ItemGroup>
+    <Target Name="Deliver">
+        <ItemGroup>
+            <Src Include="@(Projects -> 'build\package\%(Identity)\**\net*\*.*')" />
+            <Src Include="@(Script -> 'build\package\%(Identity)\**\conte*\**\*.*')" />
+            <Src Include="@(Template -> 'build\package\%(Identity)\**\conte*\**\*.*')" />
+        </ItemGroup>
+        <PropertyGroup>
+            <_ConcreteSrc>@(Src)</_ConcreteSrc>
+        </PropertyGroup>
+        <ItemGroup>
+            <ConcreteSrc Include="$(_ConcreteSrc)" />
+        </ItemGroup>
+        <Copy SourceFiles="@(ConcreteSrc)" DestinationFiles="@(ConcreteSrc -> '$(PackageTempDir)\%(RecursiveDir)%(Filename)%(Extension)')"/>
+        
+        <MSBuild Projects="pack.xml" Properties="ProjectName=Reinforced.Lattice.Bundle.$(Bundle);Version=$(Version)" />
+	</Target>
 </Project>
