@@ -12,7 +12,6 @@ namespace Reinforced.Lattice.CaseStudies.GettingItWorking.Data
     public class DataService<T>
     {
         private static List<T> _objects;
-        private static object _locker = new object();
 
         public DataService(string dataLocation)
         {
@@ -23,19 +22,14 @@ namespace Reinforced.Lattice.CaseStudies.GettingItWorking.Data
 
         public IQueryable<T> GetAllData()
         {
-            if (_objects == null)
-            {
-                lock (_locker)
-                {
-                    if (_objects == null)
-                    {
-                        _objects = JsonConvert.DeserializeObject<List<T>>(File.ReadAllText(DataLocation),
-                            new IsoDateTimeConverter());
-                    }
-                }
-                
-            }
             return _objects.AsQueryable();
+        }
+
+        public Type DataType { get { return typeof(T); } }
+
+        public static void SetData(IList data)
+        {
+            _objects = (List<T>) data;
         }
     }
 }
