@@ -75,15 +75,15 @@
       ]
     },
     {
-      "Id": "UserTable.cs",
+      "Id": "UsersTable.cs",
       "Title": "Configuration extension class",
       "Description": "Class holding our configuration extension method",
       "Files": [
         {
-          "Path": "/Models/UserTable.cs",
+          "Path": "/Models/UsersTable.cs",
           "Language": "csharp",
           "Comment": null,
-          "Title": "UserTable.cs"
+          "Title": "UsersTable.cs"
         }
       ]
     },
