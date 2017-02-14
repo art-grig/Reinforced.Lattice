@@ -56,13 +56,13 @@
       "Files": [
         {
           "Path": "/Models/User.cs",
-          "Language": "cs",
+          "Language": "csharp",
           "Comment": "Data from data source",
           "Title": "User.cs"
         },
         {
           "Path": "/Models/UserRow.cs",
-          "Language": "cs",
+          "Language": "csharp",
           "Comment": "ViewModel of table's row",
           "Title": "UserRow.cs"
         }
