@@ -38,14 +38,20 @@
     },
     {
       "Id": "Index.cshtml",
-      "Title": "Index.cshtml",
-      "Description": "MVC view for page containing our table",
+      "Title": "Index.cshtml and its ViewModel",
+      "Description": "MVC view for page containing our table and its ViewModel",
       "Files": [
         {
           "Path": "/Views/Home/Index.cshtml",
           "Language": "cshtml",
           "Comment": null,
           "Title": "Index.cshtml"
+        },
+        {
+          "Path": "/Models/HomeIndexViewModel.cs",
+          "Language": "csharp",
+          "Comment": null,
+          "Title": "HomeIndexViewModel.cs"
         }
       ]
     },

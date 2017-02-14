@@ -5,6 +5,7 @@ using System.Web;
 
 namespace Reinforced.Lattice.CaseStudies.GettingItWorking.Models
 {
+    // Our entity from Database
     public class User
     {
         public int Id { get; set; }
@@ -16,12 +17,10 @@ namespace Reinforced.Lattice.CaseStudies.GettingItWorking.Models
         public UserType UserType { get; set; }
     }
 
+    // Simple enumeration just for demonstration
     public enum UserType
     {
-        Admin,
-        Manager,
-        Employee,
-        Client
+        Admin, Manager, Employee, Client
     }
 
 }
