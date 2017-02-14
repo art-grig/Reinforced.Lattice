@@ -1,8 +1,17 @@
 {
     Id: "GettingItWorking",
     Title: "Getting It Working",
-    Subtitle: "For ones who've just started"
+    Subtitle: "For ones who've just started",
     Link: "https://github.com/reinforced/Reinforced.Lattice/tree/master/Samples/Reinforced.Lattice.CaseStudies.GettingItWorking",
+    Keywords: [],
+    Downloads : [
+        {
+            Url:"/App_Data/data.json",
+            Title:"Source data",
+            Description:"Source data file that is used in this sample",
+            IsRelative:true
+        }
+    ],
     LiveDemos :[
         {
             Id: "Basic",
