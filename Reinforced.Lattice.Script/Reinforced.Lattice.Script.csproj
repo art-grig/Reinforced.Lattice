@@ -137,9 +137,9 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
-    <TypeScriptOutFile>..\PowerTables.Mvc\Scripts\reinforced.lattice.js</TypeScriptOutFile>
+    <TypeScriptOutFile>..\Reinforced.Lattice.DebugSink\Scripts\reinforced.lattice.js</TypeScriptOutFile>
     <TypeScriptGeneratesDeclarations>True</TypeScriptGeneratesDeclarations>
-    <TypeScriptMapRoot>..\PowerTables.Mvc\Scripts\</TypeScriptMapRoot>
+    <TypeScriptMapRoot>..\Reinforced.Lattice.DebugSink\Scripts\</TypeScriptMapRoot>
     <TypeScriptTarget>ES5</TypeScriptTarget>
     <TypeScriptJSXEmit>None</TypeScriptJSXEmit>
     <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>
@@ -154,7 +154,7 @@
     <TypeScriptSourceMap>False</TypeScriptSourceMap>
     <TypeScriptGeneratesDeclarations>True</TypeScriptGeneratesDeclarations>
     <TypeScriptModuleKind>none</TypeScriptModuleKind>
-    <TypeScriptOutFile>../PowerTables.Mvc/Scripts/powertables.js</TypeScriptOutFile>
+    <TypeScriptOutFile>../Reinforced.Lattice.DebugSink/Scripts/powertables.js</TypeScriptOutFile>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
 </Project>
