@@ -24,9 +24,9 @@
     ],    
     CodePieces: [
         {
-            Id: "_Layout.cshtml"
-            Title: "_Layout.cshtml"
-            Description: "MVC Layout file for this test case"
+            Id: "_Layout.cshtml",
+            Title: "_Layout.cshtml",
+            Description: "MVC Layout file for this test case",
             Files: [
                 {
                     Link: "/Views/Shared/_Layout.cshtml",
@@ -37,9 +37,9 @@
             ]
         },
         {
-            Id: "Index.cshtml"
-            Title: "Index.cshtml"
-            Description: "MVC view for page containing our table"
+            Id: "Index.cshtml",
+            Title: "Index.cshtml",
+            Description: "MVC view for page containing our table",
             Files: [
                 {
                     Path: "/Views/Home/Index.cshtml",
@@ -50,9 +50,9 @@
             ]
         },
         {
-            Id: "DataClasses"
-            Title: "Data Classes"
-            Description: "Source "
+            Id: "DataClasses",
+            Title: "Data Classes",
+            Description: "Definition of source data and row viewmodel",
             Files: [
                 {
                     Path: "/Views/Home/Index.cshtml",
@@ -63,9 +63,9 @@
             ]
         },
         {
-            Id: "DataService.cs"
-            Title: "Data service implementation"
-            Description: "Sample implementation of data service"
+            Id: "DataService.cs",
+            Title: "Data service implementation",
+            Description: "Sample implementation of data service",
             Files: [
                 {
                     Path: "/Data/DataService.cs",
