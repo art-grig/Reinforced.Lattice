@@ -1,0 +1,1 @@
+* Critical nullable columns bugfix

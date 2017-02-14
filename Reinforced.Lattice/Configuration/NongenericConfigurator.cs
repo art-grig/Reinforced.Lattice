@@ -213,17 +213,10 @@ namespace Reinforced.Lattice.Configuration
 #if NETCORE
                 columnConfiguration.IsEnum = tableDataProperty.PropertyType.GetTypeInfo().GetGenericArguments()[0].GetTypeInfo().IsEnum;
 #else
-                columnConfiguration.IsEnum = tableDataProperty.PropertyType.GetGenericArguments()[0].IsEnum;
+                columnConfiguration.IsEnum = tableDataProperty.PropertyType.GetArg().IsEnum;
 #endif
             }
-            else
-            {
-#if NETCORE
-                columnConfiguration.IsEnum = tableDataProperty.PropertyType.GetTypeInfo().IsEnum;
-#else
-                columnConfiguration.IsEnum = tableDataProperty.PropertyType.GetGenericArguments()[0].IsEnum;
-#endif
-            }
+            
             _columnsConfiguration[tableDataProperty] = columnConfiguration;
             _tableConfiguration.Columns.Add(columnConfiguration);
             _tableColumnsDictionary[tableDataProperty.Name] = tableDataProperty;

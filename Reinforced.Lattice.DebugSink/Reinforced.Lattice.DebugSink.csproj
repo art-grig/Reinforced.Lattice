@@ -317,6 +317,10 @@
     <TypeScriptCompile Include="Scripts\typings\jquery\jquery.d.ts" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Reinforced.Lattice.Mvc5.Razor\Reinforced.Lattice.Mvc5.Razor.csproj">
+      <Project>{3c9ee093-4225-4767-acc3-2099affd852f}</Project>
+      <Name>Reinforced.Lattice.Mvc5.Razor</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Reinforced.Lattice\Reinforced.Lattice.csproj">
       <Project>{2E931FD3-EFE9-42D5-8D90-F3B659F06760}</Project>
       <Name>Reinforced.Lattice</Name>
