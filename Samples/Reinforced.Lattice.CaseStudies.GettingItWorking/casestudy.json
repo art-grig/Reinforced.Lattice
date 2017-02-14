@@ -29,7 +29,7 @@
             Description: "MVC Layout file for this test case",
             Files: [
                 {
-                    Link: "/Views/Shared/_Layout.cshtml",
+                    Path: "/Views/Shared/_Layout.cshtml",
                     Language: "cshtml",
                     Comment: null,
                     Title: "_Layout.cshtml",
