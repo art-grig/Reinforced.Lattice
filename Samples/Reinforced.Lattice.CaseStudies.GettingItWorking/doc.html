@@ -4,6 +4,7 @@
         You have heard about Reinforced.Lattice somewhere. Or your colleague told to you about that and you decided to try.
         Or your boss have directed you to embed it to the project because he has heard somewhere that it is
         cool and handy to use. However, you are here and want to start with Reinforced.Lattice. <br />
+        <i>Do not be afraid of complex manual - it will be significantly simplier in future! Initial setup is the most complex part.</i> <br/>
         Read carefully, follow the steps and here we go.
     </p>
     <h2>Solution</h2>
@@ -13,8 +14,8 @@
         ORM supporting LINQ and IQueryables. If you do not have database - you can use any other data source supplying IQueryable
         of some entitites you want to display. <br />
         I will provide examples using
-    <code>User</code> class as my source entity that I want to display and also <code>UserRow</code>
-    class acting like POCO ViewModel (<a href="#code_DataClasses" data-inpage>show</a>).
+        <code>User</code> class as my source entity stored in database and ORM that I want to display and also <code>UserRow</code>
+        class acting like POCO ViewModel (<a href="#code_DataClasses" data-inpage>show</a>).
         If you do not have ViewModel - create it just as you <span class="tip" data-tip="vm">regulary create ViewModels for MVC forms</span>.
         Of course, you can do it later.
         <br />
@@ -32,7 +33,7 @@
     <ul class="blogger-sans">
         <li><b>Reinforced.Lattice core library</b> itself</li>
         <li><b>Client script</b> to be used on your pages</li>
-        <li><b>Huge templates page</b> containing default datagrid template for Twitter Bootstrap made by me</li>
+        <li><b>Huge templates page</b> containing default datagrid template for Twitter Bootstrap</li>
         <li><b>Reinforced.Lattice.Mvc5</b> library that contains extensions for its requests handling via Mvc5</li>
         <li><b>Reinforced.Lattice.Mvc5.Razor</b> library with some handy extensions for Razor templating</li>
     </ul>
@@ -53,9 +54,31 @@
         it to follow <b>after</b> Reinforced.Lattice script connection.
     </p>
     <h3>Step 3 - Prepare your page ViewModel</h3>
-    <p>
-        Then we have to create ViewModel for your entity set of which you are going to display within datagrid.
-    </p>
+    <ol>
+        <li>Go to your page's ViewModel</li>
+        <li>Add <code>using</code> to <code>Reinforced.Lattice.Configuration</code> namespace</li>
+        <li><span class="tip" data-tip="parametrization">Put a property</span> of type <code>Configurator&lt;User,UserRow&gt;</code> called Table to your ViewModel</li>
+        <li>Verify with <a href="#code_Index_cshtml">my one</a> if you aren't sure</li>
+        <li>Create somewhere a <code>static</code> class - we will use it to store our table's configuration</li>
+        <li>
+            Navigate to static class created at previous step and create there static method consuming configurator as <code>this</code>-parameter and returning itself.
+            Put some code into it:
+            <pre class="language-cshtml wrap-code">
+<code>
+&lt;script type="text/javascript" src="~/Scripts/Reinforced.Lattice/reinforced.lattice.js"&gt;&lt;/script&gt; </code><br />
+<code>
+@RenderSection("scripts", required: false)
+</code>
+</pre>
+
+        </li>
+
+    </ol>
+    <h3>Step 4 - Prepare your page</h3>
+    <ol>
+        <li>Go to your page that you want to put table to</li>
+        <li>Pick a <code>&lt;div&gt;</code> or another tag to display table in</li>
+    </ol>
 </div>
 
 <div class="text tiptext" data-tiptext="vm" data-caption="About ViewModels">
@@ -64,5 +87,23 @@
         E.g. you do not have to put arrays of <code>SelectListItem</code>s to it. Also complex nested types are not allowed there.
         Optimal way is to keep you ViewModel for Lattice as <b>flat</b> and as plain-est as possible. Try to put actually all the fields
         that you are displaying to there. Of course, Lattice works with nested types, but it <i>may</i> reduce performance.
+    </p>
+</div>
+
+<div class="text tiptext" data-tiptext="parametrization" data-caption="About Configurator parametrization">
+
+    <b>NB! <code>Configurator&lt;,&gt;</code> type parameters. Learn them clearly.</b>
+    <ul>
+        <li>
+            <code>TSource</code> - first one. Is actually type of data from your ORM. It is safe to put entities from DataContext/DbContext here.
+            Also may be referred as "first", "left", "source", "from".
+        </li>
+        <li>
+            <code>TRow</code> - second one. Is actually type of your ViewModel for <i>single row in table</i>.
+            Also may be referred as "second", "right", "target", "to"
+        </li>
+    </ul>
+    <p>
+        Do not mess them - there 2 types are your best friends. It is important to understand what is applicable to <code>TSource</code> and what is applicable to <code>TRow</code>
     </p>
 </div>

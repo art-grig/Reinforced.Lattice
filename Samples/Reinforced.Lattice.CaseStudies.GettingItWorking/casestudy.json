@@ -75,6 +75,19 @@
       ]
     },
     {
+      "Id": "UserTable.cs",
+      "Title": "Configuration extension class",
+      "Description": "Class holding our configuration extension method",
+      "Files": [
+        {
+          "Path": "/Models/UserTable.cs",
+          "Language": "csharp",
+          "Comment": null,
+          "Title": "UserTable.cs"
+        }
+      ]
+    },
+    {
       "Id": "DataService.cs",
       "Title": "Data service implementation",
       "Description": "Sample implementation of data service",
