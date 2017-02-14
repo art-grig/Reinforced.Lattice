@@ -1,79 +1,85 @@
 {
-    Id: "GettingItWorking",
-    Title: "Getting It Working",
-    Subtitle: "For ones who've just started",
-    Link: "https://github.com/reinforced/Reinforced.Lattice/tree/master/Samples/Reinforced.Lattice.CaseStudies.GettingItWorking",
-    Keywords: [],
-    Downloads : [
+  "Id": "GettingItWorking",
+  "Title": "Getting It Working",
+  "Subtitle": "For ones who've just started",
+  "Link": "https://github.com/reinforced/Reinforced.Lattice/tree/master/Samples/Reinforced.Lattice.CaseStudies.GettingItWorking",
+  "Keywords": [],
+  "Downloads": [
+    {
+      "Url": "/App_Data/data.json",
+      "Title": "Source data",
+      "Description": "Source data file that is used in this sample",
+      "IsRelative": true
+    }
+  ],
+  "LiveDemos": [
+    {
+      "Id": "Basic",
+      "Title": "Basic",
+      "Description": "Basic datagrid setup demo",
+      "Controller": "HomeController",
+      "Action": "Index",
+      "View": "Index"
+    }
+  ],
+  "CodePieces": [
+    {
+      "Id": "_Layout.cshtml",
+      "Title": "_Layout.cshtml",
+      "Description": "MVC Layout file for this test case",
+      "Files": [
         {
-            Url:"/App_Data/data.json",
-            Title:"Source data",
-            Description:"Source data file that is used in this sample",
-            IsRelative:true
+          "Path": "/Views/Shared/_Layout.cshtml",
+          "Language": "cshtml",
+          "Comment": null,
+          "Title": "_Layout.cshtml"
         }
-    ],
-    LiveDemos :[
+      ]
+    },
+    {
+      "Id": "Index.cshtml",
+      "Title": "Index.cshtml",
+      "Description": "MVC view for page containing our table",
+      "Files": [
         {
-            Id: "Basic",
-            Title: "Basic",
-            Description: "Basic datagrid setup demo",
-            Controller: "HomeController",
-            Action: "Index",
-            View: "Index"
+          "Path": "/Views/Home/Index.cshtml",
+          "Language": "cshtml",
+          "Comment": null,
+          "Title": "Index.cshtml"
         }
-    ],    
-    CodePieces: [
+      ]
+    },
+    {
+      "Id": "DataClasses",
+      "Title": "Data Classes",
+      "Description": "Definitions of Source Data and row ViewModel",
+      "Files": [
         {
-            Id: "_Layout.cshtml",
-            Title: "_Layout.cshtml",
-            Description: "MVC Layout file for this test case",
-            Files: [
-                {
-                    Path: "/Views/Shared/_Layout.cshtml",
-                    Language: "cshtml",
-                    Comment: null,
-                    Title: "_Layout.cshtml",
-                }
-            ]
+          "Path": "/Models/User.cs",
+          "Language": "cs",
+          "Comment": "Data from data source",
+          "Title": "User.cs"
         },
         {
-            Id: "Index.cshtml",
-            Title: "Index.cshtml",
-            Description: "MVC view for page containing our table",
-            Files: [
-                {
-                    Path: "/Views/Home/Index.cshtml",
-                    Language: "cshtml",
-                    Comment: null,
-                    Title: "Index.cshtml",
-                }
-            ]
-        },
-        {
-            Id: "DataClasses",
-            Title: "Data Classes",
-            Description: "Definition of source data and row viewmodel",
-            Files: [
-                {
-                    Path: "/Views/Home/Index.cshtml",
-                    Language: "cshtml",
-                    Comment: null,
-                    Title: "Index.cshtml",
-                }
-            ]
-        },
-        {
-            Id: "DataService.cs",
-            Title: "Data service implementation",
-            Description: "Sample implementation of data service",
-            Files: [
-                {
-                    Path: "/Data/DataService.cs",
-                    Language: "csharp",
-                    Comment: null,
-                    Title: "DataService.cs",
-                }
-            ]
+          "Path": "/Models/UserRow.cs",
+          "Language": "cs",
+          "Comment": "ViewModel of table's row",
+          "Title": "UserRow.cs"
         }
-    ]
+      ]
+    },
+    {
+      "Id": "DataService.cs",
+      "Title": "Data service implementation",
+      "Description": "Sample implementation of data service",
+      "Files": [
+        {
+          "Path": "/Data/DataService.cs",
+          "Language": "csharp",
+          "Comment": null,
+          "Title": "DataService.cs"
+        }
+      ]
+    }
+  ]
 }

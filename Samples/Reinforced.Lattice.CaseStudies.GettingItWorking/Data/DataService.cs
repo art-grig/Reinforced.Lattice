@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Web;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace Reinforced.Lattice.CaseStudies.GettingItWorking.Data
 {
