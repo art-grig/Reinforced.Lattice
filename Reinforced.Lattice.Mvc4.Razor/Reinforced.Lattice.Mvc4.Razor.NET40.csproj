@@ -33,7 +33,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Reinforced.Lattice">
-      <HintPath>..\packages\Reinforced.Lattice.1.0.3\lib\net40\Reinforced.Lattice.dll</HintPath>
+      <HintPath>..\packages\Reinforced.Lattice.1.0.4\lib\net40\Reinforced.Lattice.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />

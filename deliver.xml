@@ -26,9 +26,10 @@
 	</Target>
 	<Target Name="SetVersion">
         <MSBuild.Community.Tasks.AssemblyInfo CodeLanguage="CS" OutputFile="$(ProjectName)\Properties\AssemblyInfo.Auto.cs" AssemblyVersion="$(Version)" />  
-        <MSBuild.Community.Tasks.FileUpdate Files="$(ProjectName)\$(ProjectName).NET40.csproj;" Regex="packages\\Reinforced.Lattice\.[0-9]*\.[0-9]*\.[0-9]*" ReplacementText="packages\Reinforced.Lattice.$(Version)" />  
-        <MSBuild.Community.Tasks.FileUpdate Files="$(ProjectName)\$(ProjectName).NET45.csproj;" Regex="packages\\Reinforced.Lattice\.[0-9]*\.[0-9]*\.[0-9]*" ReplacementText="packages\Reinforced.Lattice.$(Version)" />     
-        <MSBuild.Community.Tasks.FileUpdate Files="$(ProjectName)\packages.config" Regex="id=\&quot;Reinforced.Lattice\&quot; version=\&quot;[0-9]*\.[0-9]*\.[0-9]*\&quot;" ReplacementText="id=\&quot;Reinforced.Lattice\&quot; version=\&quot;$(Version)\&quot;" />  
+        <MSBuild.Community.Tasks.FileUpdate Condition="$(Build40)!='False'" Files="$(ProjectName)\$(ProjectName).NET40.csproj;" Regex="packages\\Reinforced.Lattice\.[0-9]*\.[0-9]*\.[0-9]*" ReplacementText="packages\Reinforced.Lattice.$(Version)" />  
+        <MSBuild.Community.Tasks.FileUpdate Condition="$(Build45)!='False'" Files="$(ProjectName)\$(ProjectName).NET45.csproj;" Regex="packages\\Reinforced.Lattice\.[0-9]*\.[0-9]*\.[0-9]*" ReplacementText="packages\Reinforced.Lattice.$(Version)" />     
+        <MSBuild.Community.Tasks.FileUpdate Files="$(ProjectName)\$(ProjectName).csproj;" Regex="packages\\Reinforced.Lattice\.[0-9]*\.[0-9]*\.[0-9]*" ReplacementText="packages\Reinforced.Lattice.$(Version)" /> 
+        <MSBuild.Community.Tasks.FileUpdate Files="$(ProjectName)\packages.config" Regex="id=\&quot;Reinforced.Lattice\&quot; version=\&quot;[0-9]*\.[0-9]*\.[0-9]*\&quot;" ReplacementText="id=&quot;Reinforced.Lattice&quot; version=&quot;$(Version)&quot;" />  
     </Target>
 	<Target Name="Copy40">
 		<Copy SourceFiles="@(net40_Files)" DestinationFolder="$(PackageTempDir)\lib\net40" />		

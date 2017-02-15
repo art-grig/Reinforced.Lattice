@@ -41,7 +41,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Reinforced.Lattice">
-      <HintPath>..\packages\Reinforced.Lattice.1.0.3\lib\net45\Reinforced.Lattice.dll</HintPath>
+      <HintPath>..\packages\Reinforced.Lattice.1.0.4\lib\net45\Reinforced.Lattice.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
