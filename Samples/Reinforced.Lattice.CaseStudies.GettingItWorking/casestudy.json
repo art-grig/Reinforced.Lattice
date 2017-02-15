@@ -88,6 +88,19 @@
       ]
     },
     {
+      "Id": "HomeController.cs",
+      "Title": "Controller",
+      "Description": "Implementation of MVC controller handling table on server side",
+      "Files": [
+        {
+          "Path": "/Controllers/HomeController.cs",
+          "Language": "csharp",
+          "Comment": null,
+          "Title": "HomeController.cs"
+        }
+      ]
+    },
+    {
       "Id": "DataService.cs",
       "Title": "Data service implementation",
       "Description": "Sample implementation of data service",

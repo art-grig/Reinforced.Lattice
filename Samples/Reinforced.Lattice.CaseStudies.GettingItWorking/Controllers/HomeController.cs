@@ -13,9 +13,6 @@ namespace Reinforced.Lattice.CaseStudies.GettingItWorking.Controllers
 {
     public class HomeController : Controller
     {
-        // Our data service. It supplies data as IQueryable<TSource>
-        // Usually it is conencted to DB
-        public DataService<User> DataService { get; private set; }
         
         // Our page index action. Returns Index.cshtml 
         // wrapped into _Layout.cshtml
@@ -55,6 +52,10 @@ namespace Reinforced.Lattice.CaseStudies.GettingItWorking.Controllers
             // Call handler.Handle - it will return necessary ActionResult
             return handler.Handle(q);
         }
+
+        // Our data service. It supplies data as IQueryable<TSource>
+        // Usually it is conencted to DB
+        public DataService<User> DataService { get; private set; }
 
         // Controller Initialize override that you shouldnt pay attention to
         // We just initialize our data service here 
