@@ -19,7 +19,8 @@
       "Description": "Basic datagrid setup demo",
       "Controller": "HomeController",
       "Action": "Index",
-      "View": "Index"
+      "View": "Index",
+      "Data": "data.json"
     }
   ],
   "CodePieces": [
