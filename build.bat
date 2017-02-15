@@ -1,1 +1,1 @@
-msbuild build.xml /v:m
+msbuild build-%1.xml /v:m

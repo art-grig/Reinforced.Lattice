@@ -1,1 +1,1 @@
-msbuild push.xml /p:Key=%1
+msbuild push-%1.xml /p:Key=%2
