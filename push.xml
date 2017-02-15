@@ -5,7 +5,7 @@
 		<Key/>        
 	</PropertyGroup>
     <Target Name="PushAll">
-        <Exec Command="nuget push -Source https://www.nuget.org/api/v2/package -ApiKey $(Key) Reinforced.Lattice.$(Version).nupkg" /> 
+        <!-- <Exec Command="nuget push -Source https://www.nuget.org/api/v2/package -ApiKey $(Key) Reinforced.Lattice.$(Version).nupkg" />  -->
         <Exec Command="nuget push -Source https://www.nuget.org/api/v2/package -ApiKey $(Key) Reinforced.Lattice.BootstrapTemplate.$(Version).nupkg" /> 
         <Exec Command="nuget push -Source https://www.nuget.org/api/v2/package -ApiKey $(Key) Reinforced.Lattice.Bundle.Mvc4.$(Version).nupkg" /> 
         <Exec Command="nuget push -Source https://www.nuget.org/api/v2/package -ApiKey $(Key) Reinforced.Lattice.Bundle.Mvc5.$(Version).nupkg" /> 
