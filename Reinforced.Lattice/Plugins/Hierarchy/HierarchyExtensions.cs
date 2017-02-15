@@ -61,6 +61,37 @@ namespace Reinforced.Lattice.Plugins.Hierarchy
             return conf;
         }
 
+        public static T BindHierarchyExpand<T>(this T conf, DOMEvent evt, string selector) where T : IConfigurator, new()
+        {
+            conf.SubscribeRowEvent(x => x.StreamEventToPlugin(evt, PluginId, "expandRow").Selector(selector));
+            return conf;
+        }
+
+        public static T BindHierarchyCollapse<T>(this T conf, DOMEvent evt, string selector) where T : IConfigurator, new()
+        {
+            conf.SubscribeRowEvent(x => x.StreamEventToPlugin(evt, PluginId, "collapseRow").Selector(selector));
+            return conf;
+        }
+
+        public static T BindHierarchyToggle<T>(this T conf, DOMEvent evt, string selector) where T : IConfigurator, new()
+        {
+            conf.SubscribeRowEvent(x => x.StreamEventToPlugin(evt, PluginId, "toggleRow").Selector(selector));
+            return conf;
+        }
+
+        public static T BindHierarchyLoad<T>(this T conf, DOMEvent evt, string selector) where T : IConfigurator, new()
+        {
+            conf.SubscribeRowEvent(x => x.StreamEventToPlugin(evt, PluginId, "expandLoadRow").Selector(selector));
+            return conf;
+        }
+
+        public static T BindHierarchyToggleLoad<T>(this T conf, DOMEvent evt, string selector) where T : IConfigurator, new()
+        {
+            conf.SubscribeRowEvent(x => x.StreamEventToPlugin(evt, PluginId, "toggleLoadRow").Selector(selector));
+            return conf;
+        }
+
+
 
         public static void AddChildrenRowHandler<TSourceData, TTargetData, TResponse>(
             this RequestHandlerBase<TSourceData, TTargetData, TResponse> handler,

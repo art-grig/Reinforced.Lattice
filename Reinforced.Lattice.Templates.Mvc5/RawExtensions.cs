@@ -33,6 +33,11 @@ namespace Reinforced.Lattice.Templates
             return r.Raw(string.Format(code, arg1, arg2, arg3));
         }
 
+        public static SpecialString RawHtml(this IRawProvider r, string html)
+        {
+            return r.Raw(Prettify(html));
+        }
+
         public static string Prettify(string str)
         {
             if (string.IsNullOrEmpty(str)) return String.Empty;
