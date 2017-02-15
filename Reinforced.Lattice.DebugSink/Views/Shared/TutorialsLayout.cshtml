@@ -49,9 +49,11 @@
         [data-track="h-Edit"] {
             width: 135px;
         }
+
         [data-track="h-IsPaid"] {
             width: 90px;
         }
+
         [data-track="h-_checkboxify"] {
             width: 10px;
         }
@@ -139,6 +141,16 @@
     @RenderSection("Scripts", required: false)
     @using (var t = this.LatticeAdditionalTemplates())
     {
+        using (var ce = t.Cell<Row>("someRow"))
+        {
+            <span>
+                @using (ce.For((r, i) => i < r.TDO.ItemsLeft, c => c.TDO.ItemsLeft + 4, (c, i) => i-1))
+                {
+                    <span>*</span>
+                }
+            </span>
+        }
+
         using (var editForm = t.Plugin.Edit_Form("simpleEditForm"))
         {
             <div class="modal-content" @t.Callback("showModal") @t.DestroyCallback("hideModal")>
@@ -149,7 +161,7 @@
                         {
                             <text>Create new object</text>
                             @editForm.Else()
-                            <text>Edit object #@editForm.Value(x=>x.DataObject["Id"])</text>
+                            <text>Edit object #@editForm.Value(x => x.DataObject["Id"])</text>
                         }
                     </h4>
                 </div>
@@ -302,7 +314,7 @@
         using (var conf1 = t.Plugin.Confirmation<Row>("commentsAndFeedback"))
         {
             <div class="modal-content" @t.Callback("showModal") @t.DestroyCallback("hideModal")>
-                <div class="modal-body" >
+                <div class="modal-body">
                     <fieldset class="form-horizontal">
                         @conf1.Editors()
                     </fieldset>

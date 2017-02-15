@@ -14,10 +14,12 @@ namespace Reinforced.Lattice.Templates.Expressions
     {
         public static string TraversePropertyLambda(LambdaExpression lambda, params string[] existing)
         {
-            if (existing == null || existing.Length == 0 || existing[0] == null)
+            if (existing == null || existing.Length == 0)
             {
                 existing = new[] { "o" };
             }
+            if (existing[0] == null) existing[0] = "o";
+
             var visitor = new JsExpressionVisitor();
             visitor.VisitAll(lambda);
             visitor.Bind(existing);
@@ -113,7 +115,7 @@ namespace Reinforced.Lattice.Templates.Expressions
         /// <returns></returns>
         public static ParametrizedCodeBlock<int> For<T>(this IModelProvider<T> t, Expression<Func<T, int, bool>> condition,
             Expression<Func<T, int>> start = null,
-            Expression<Action<T, int>> increment = null)
+            Expression<Func<T, int, int>> increment = null)
         {
             var iterator = t.Iterator();
 
@@ -126,7 +128,7 @@ namespace Reinforced.Lattice.Templates.Expressions
             var incrJs = iterator + "++";
             if (increment != null)
             {
-                incrJs = TraversePropertyLambda(increment, new[] { t.ExistingModel, iterator });
+                incrJs = iterator + " = " + TraversePropertyLambda(increment, new[] { t.ExistingModel, iterator });
             }
 
             var heading = string.Format("for(var {0}={1};{2};{3}){{ ", iterator, startJs, condJs, incrJs);
