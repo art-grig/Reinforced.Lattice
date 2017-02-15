@@ -25,7 +25,7 @@
 		</MSBuild>
 	</Target>
 	<Target Name="SetVersion">
-        <MSBuild.Community.Tasks.AssemblyInfo CodeLanguage="CS" OutputFile="$(ProjectName)\Properties\AssemblyInfo.cs" AssemblyVersion="$(Version)" />        
+        <MSBuild.Community.Tasks.AssemblyInfo CodeLanguage="CS" OutputFile="$(ProjectName)\Properties\AssemblyInfo.Auto.cs" AssemblyVersion="$(Version)" />        
     </Target>
 	<Target Name="Copy40">
 		<Copy SourceFiles="@(net40_Files)" DestinationFolder="$(PackageTempDir)\lib\net40" />		
