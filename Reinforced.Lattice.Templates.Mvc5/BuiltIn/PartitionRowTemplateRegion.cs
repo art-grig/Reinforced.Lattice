@@ -79,12 +79,12 @@ namespace Reinforced.Lattice.Templates.BuiltIn
             return new PartitionRowTemplateRegion(t.TemplatesPrefix, templateId, t);
         }
 
-        public static SpecialString BindLoadMore(this PartitionRowTemplateRegion t, DOMEvent evt)
+        public static Inline BindLoadMore(this PartitionRowTemplateRegion t, DOMEvent evt)
         {
             return t.BindEvent("loadMore", evt);
         }
 
-        public static SpecialString ThisIsAdditionalPagesInput(this PartitionRowTemplateRegion t)
+        public static Inline ThisIsAdditionalPagesInput(this PartitionRowTemplateRegion t)
         {
             return t.Mark("PagesInput");
         }

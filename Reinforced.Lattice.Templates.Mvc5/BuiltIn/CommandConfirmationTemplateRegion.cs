@@ -48,53 +48,53 @@ namespace Reinforced.Lattice.Templates.BuiltIn
             return new CommandConfirmationTemplateRegion<TRow, TConfirmation>(p, templateId);
         }
 
-        public static SpecialString BindDismiss<TConfirmation>(this  IConfirmationWindow<TConfirmation> p, string eventId)
+        public static Inline BindDismiss<TConfirmation>(this  IConfirmationWindow<TConfirmation> p, string eventId)
         {
             return p.BindEvent("dismiss", eventId);
         }
 
-        public static SpecialString BindConfirm<TConfirmation>(this  IConfirmationWindow<TConfirmation> p, string eventId)
+        public static Inline BindConfirm<TConfirmation>(this  IConfirmationWindow<TConfirmation> p, string eventId)
         {
             return p.BindEvent("confirm", eventId);
         }
 
-        public static SpecialString Editors<TConfirmation>(this  IConfirmationWindow<TConfirmation> p)
+        public static Inline Editors<TConfirmation>(this  IConfirmationWindow<TConfirmation> p)
         {
             return p._("o.Editors(p);");
         }
 
-        public static SpecialString EditorFor<TConfirmation, TData>(this  IConfirmationWindow<TConfirmation> p, Expression<Func<TConfirmation, TData>> field)
+        public static Inline EditorFor<TConfirmation, TData>(this  IConfirmationWindow<TConfirmation> p, Expression<Func<TConfirmation, TData>> field)
         {
             var name = LambdaHelpers.ParsePropertyLambda(field).Name;
             return EditorFor(p, name);
         }
 
-        public static SpecialString EditorFor<TConfirmation>(this IConfirmationWindow<TConfirmation> p, string fieldName)
+        public static Inline EditorFor<TConfirmation>(this IConfirmationWindow<TConfirmation> p, string fieldName)
         {
             return p._("o.Editor(p,'{0}');", fieldName);
         }
 
-        public static SpecialString ThisIsContentContainer<TConfirmation>(this IConfirmationWindow<TConfirmation> p)
+        public static Inline ThisIsContentContainer<TConfirmation>(this IConfirmationWindow<TConfirmation> p)
         {
             return p.Mark("ContentPlaceholder");
         }
 
-        public static SpecialString ThisIsDetailsContainer<TConfirmation>(this IConfirmationWindow<TConfirmation> p)
+        public static Inline ThisIsDetailsContainer<TConfirmation>(this IConfirmationWindow<TConfirmation> p)
         {
             return p.Mark("DetailsPlaceholder");
         }
 
-        public static SpecialString TemplatePiece<TConfirmation>(this IConfirmationWindow<TConfirmation> p, string pieceName)
+        public static Inline TemplatePiece<TConfirmation>(this IConfirmationWindow<TConfirmation> p, string pieceName)
         {
             return p._("w(o.TemplatePieces['{0}']);", pieceName);
         }
 
-        public static SpecialString WhenContentLoading<TConfirmation>(this IConfirmationWindow<TConfirmation> t, Action<VisualState> state)
+        public static Inline WhenContentLoading<TConfirmation>(this IConfirmationWindow<TConfirmation> t, Action<VisualState> state)
         {
             return t.State("contentLoading", state);
         }
 
-        public static SpecialString WhenDetailsLoading<TConfirmation>(this IConfirmationWindow<TConfirmation> t, Action<VisualState> state)
+        public static Inline WhenDetailsLoading<TConfirmation>(this IConfirmationWindow<TConfirmation> t, Action<VisualState> state)
         {
             return t.State("detailsLoading", state);
         }

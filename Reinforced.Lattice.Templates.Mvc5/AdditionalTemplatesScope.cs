@@ -12,7 +12,7 @@ namespace Reinforced.Lattice.Templates
 
         public IViewPlugins Plugin { get { return _classifier; } }
 
-        public SpecialString Raw(string tplCode)
+        public Inline Raw(string tplCode)
         {
             return _hook.CreateRaw(tplCode);
         }

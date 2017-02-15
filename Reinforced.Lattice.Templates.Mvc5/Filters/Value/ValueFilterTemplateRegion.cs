@@ -29,17 +29,17 @@ namespace Reinforced.Lattice.Templates.Filters.Value
             return new ValueFilterTemplateRegion(t, templateId);
         }
 
-        public static SpecialString BindValueChanged(this ValueFilterTemplateRegion t, string eventId)
+        public static Inline BindValueChanged(this ValueFilterTemplateRegion t, string eventId)
         {
             return t.BindEvent("handleValueChanged", eventId);
         }
 
-        public static SpecialString ThisIsFilterValueProvider(this ValueFilterTemplateRegion t)
+        public static Inline ThisIsFilterValueProvider(this ValueFilterTemplateRegion t)
         {
             return t.Mark("FilterValueProvider");
         }
 
-        public static SpecialString DatepickerCanBeHere(this ValueFilterTemplateRegion t)
+        public static Inline DatepickerCanBeHere(this ValueFilterTemplateRegion t)
         {
             return t.DatepickerIf(t.Property(c => c.AssociatedColumn.IsDateTime), t.Property(c => c.AssociatedColumn.Configuration.IsNullable));
         }

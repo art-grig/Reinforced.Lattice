@@ -50,7 +50,7 @@ namespace Reinforced.Lattice.Templates
             }
         }
 
-        public SpecialString Raw(string tplCode)
+        public Inline Raw(string tplCode)
         {
             return _hook.CreateRaw(tplCode);
         }

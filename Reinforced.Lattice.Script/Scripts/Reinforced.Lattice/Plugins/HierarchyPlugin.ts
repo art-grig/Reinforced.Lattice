@@ -256,7 +256,7 @@
                     increaseTail = -nskip;
                     nskip = 0;
                 }
-                head = ordered.slice(nskip, orIdx - 1);
+                head = ordered.slice(nskip, this.MasterTable.Partition.Skip);
             }
 
             if (increaseTail > 0) {

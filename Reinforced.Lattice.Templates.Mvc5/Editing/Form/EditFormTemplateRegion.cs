@@ -35,28 +35,28 @@ namespace Reinforced.Lattice.Templates.Editing.Form
             return new EditFormTemplateRegion<TRow>(p, templateId);
         }
 
-        public static SpecialString BindCommit<TRow>(this  EditFormTemplateRegion<TRow> p, string eventId)
+        public static Inline BindCommit<TRow>(this  EditFormTemplateRegion<TRow> p, string eventId)
         {
             return p.BindEvent("commit", eventId);
         }
 
-        public static SpecialString BindReject<TRow>(this  EditFormTemplateRegion<TRow> p, string eventId)
+        public static Inline BindReject<TRow>(this  EditFormTemplateRegion<TRow> p, string eventId)
         {
             return p.BindEvent("reject", eventId);
         }
 
-        public static SpecialString Editors<TRow>(this  EditFormTemplateRegion<TRow> p)
+        public static Inline Editors<TRow>(this  EditFormTemplateRegion<TRow> p)
         {
             return p._("o.Editors(p);");
         }
 
-        public static SpecialString EditorFor<TRow, TData>(this  EditFormTemplateRegion<TRow> p, Expression<Func<TRow, TData>> field)
+        public static Inline EditorFor<TRow, TData>(this  EditFormTemplateRegion<TRow> p, Expression<Func<TRow, TData>> field)
         {
             var name = LambdaHelpers.ParsePropertyLambda(field).Name;
             return EditorFor(p, name);
         }
 
-        public static SpecialString EditorFor<TRow>(this  EditFormTemplateRegion<TRow> p, string fieldName)
+        public static Inline EditorFor<TRow>(this  EditFormTemplateRegion<TRow> p, string fieldName)
         {
             return p._("o.Editors(p,'{0}');",fieldName);
         }

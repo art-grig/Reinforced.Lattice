@@ -40,7 +40,7 @@ namespace Reinforced.Lattice.Templates.Plugins.Reload
         /// <param name="t"></param>
         /// <param name="eventId">DOM Event ID</param>
         /// <returns></returns>
-        public static SpecialString BindTriggerReload(this ReloadTemplateRegion t, string eventId)
+        public static Inline BindTriggerReload(this ReloadTemplateRegion t, string eventId)
         {
             return t.BindEvent("triggerReload", eventId);
         }
@@ -51,7 +51,7 @@ namespace Reinforced.Lattice.Templates.Plugins.Reload
         /// <param name="t"></param>
         /// <param name="state"></param>
         /// <returns></returns>
-        public static SpecialString WhenLoading(this ReloadTemplateRegion t, Action<VisualState> state)
+        public static Inline WhenLoading(this ReloadTemplateRegion t, Action<VisualState> state)
         {
             return t.State("loading", state);
         }

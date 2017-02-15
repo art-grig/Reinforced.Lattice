@@ -24,7 +24,7 @@ namespace Reinforced.Lattice.Templates
             _writer.Write("p.u();});");
         }
 
-        public virtual SpecialString Raw(string tplCode)
+        public virtual Inline Raw(string tplCode)
         {
             return _writer.CreateRaw(tplCode);
         }

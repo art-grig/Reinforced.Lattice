@@ -40,12 +40,12 @@ namespace Reinforced.Lattice.Templates.Plugins.Checkboxify
             return new CheckboxifiedCellTemplateRegion(t.Scope.TemplatesPrefix, templateId, t.Scope);
         }
 
-        public static SpecialString BindSelectAll(this CheckboxifySelectAllTemplateRegion t, string eventId)
+        public static Inline BindSelectAll(this CheckboxifySelectAllTemplateRegion t, string eventId)
         {
             return t.BindEvent("selectAllEvent", eventId);
         }
 
-        public static SpecialString ThisWillTriggerSelection(this CheckboxifiedCellTemplateRegion t)
+        public static Inline ThisWillTriggerSelection(this CheckboxifiedCellTemplateRegion t)
         {
             return t._("w('data-checkboxify=\"true\"');");
         }

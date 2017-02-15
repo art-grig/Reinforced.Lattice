@@ -144,9 +144,29 @@
         using (var ce = t.Cell<Row>("someRow"))
         {
             <span>
-                @using (ce.For((r, i) => i < r.TDO.ItemsLeft, c => c.TDO.ItemsLeft + 4, (c, i) => i-1))
+                @using (var fr = ce.For((r, i) => i < r.TDO.ItemsLeft, c => c.TDO.ItemsLeft + 4, (c, i) => i-1))
+                {
+                    @ce.RawHtml("<div>") @fr.Value(c=>c)
+                }
+                
+                @using (ce.If(x => State.Arrived == x.TDO.State))
+                {
+                    <span>Arrived</span>
+                }
+            </span>
+        }
+
+        using (var ce = t.RowWrapper<Row>("someRow2"))
+        {
+            <span>
+                @using (ce.For((r, i) => i < r.DO.ItemsLeft, c => c.DO.ItemsLeft + 4, (c, i) => i - 1))
                 {
                     <span>*</span>
+                }
+
+                @using (ce.If(x => x.DO.State == State.Arrived))
+                {
+                    <span>Arrived</span>
                 }
             </span>
         }

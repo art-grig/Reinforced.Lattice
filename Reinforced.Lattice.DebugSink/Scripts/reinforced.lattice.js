@@ -9893,7 +9893,7 @@ var Reinforced;
                                 increaseTail = -nskip;
                                 nskip = 0;
                             }
-                            head = ordered.slice(nskip, orIdx - 1);
+                            head = ordered.slice(nskip, this.MasterTable.Partition.Skip);
                         }
                         if (increaseTail > 0) {
                             tail = ordered.slice(orIdx + 1 + stay.length, orIdx + 1 + displayedHidden + increaseTail + stay.length);

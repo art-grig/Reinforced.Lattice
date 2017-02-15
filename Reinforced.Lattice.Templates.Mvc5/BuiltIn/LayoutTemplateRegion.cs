@@ -26,7 +26,7 @@ namespace Reinforced.Lattice.Templates.BuiltIn
         /// </summary>
         /// <param name="position">Plugin position</param>
         /// <returns>Placeholder template entry</returns>
-        public static SpecialString Plugins(this LayoutTemplateRegion t, string position = null)
+        public static Inline Plugins(this LayoutTemplateRegion t, string position = null)
         {
             return t._("d.plugins(p,'{0}');", position ?? "null");
         }
@@ -34,7 +34,7 @@ namespace Reinforced.Lattice.Templates.BuiltIn
         /// <summary>
         /// Placeholder for table body (cells and rows)
         /// </summary>
-        public static SpecialString Body(this LayoutTemplateRegion t)
+        public static Inline Body(this LayoutTemplateRegion t)
         {
             return t._("d.body(p);");
         }
@@ -42,7 +42,7 @@ namespace Reinforced.Lattice.Templates.BuiltIn
         /// <summary>
         /// Placeholder for table headers
         /// </summary>
-        public static SpecialString Headers(this LayoutTemplateRegion t)
+        public static Inline Headers(this LayoutTemplateRegion t)
         {
             return t._("d.headers(p);");
         }
@@ -50,7 +50,7 @@ namespace Reinforced.Lattice.Templates.BuiltIn
         /// <summary>
         /// Placeholder for column filters
         /// </summary>
-        public static SpecialString Filters(this LayoutTemplateRegion t)
+        public static Inline Filters(this LayoutTemplateRegion t)
         {
             return t._("d.plugins(p,'filter');");
         }
@@ -60,7 +60,7 @@ namespace Reinforced.Lattice.Templates.BuiltIn
         /// </summary>
         /// <param name="columnName">Column name</param>
         /// <returns>Placeholder template entry</returns>
-        public static SpecialString Header(this LayoutTemplateRegion t, string columnName)
+        public static Inline Header(this LayoutTemplateRegion t, string columnName)
         {
             return t._("d.colHeader(p,'{0}');", columnName);
         }
@@ -70,7 +70,7 @@ namespace Reinforced.Lattice.Templates.BuiltIn
         /// </summary>
         /// <param name="columnName">Column name</param>
         /// <returns>Placeholder template entry</returns>
-        public static SpecialString Filter(this LayoutTemplateRegion t, string columnName)
+        public static Inline Filter(this LayoutTemplateRegion t, string columnName)
         {
             return t._("d.filter(p,'filter-{0}');", columnName);
         }

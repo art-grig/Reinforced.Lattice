@@ -34,12 +34,12 @@ namespace Reinforced.Lattice.Templates.Editing.Editors.SelectList
             return new SelectListTemplateRegion(t, templateId);
         }
 
-        public static SpecialString ThisIsList(this SelectListTemplateRegion t)
+        public static Inline ThisIsList(this SelectListTemplateRegion t)
         {
             return t.Mark("List");
         }
 
-        public static SpecialString WhenSelected(this SelectListTemplateRegion t, Action<SpecialVisualStateDescription<ISelectedStateViewModel>> action)
+        public static Inline WhenSelected(this SelectListTemplateRegion t, Action<SpecialVisualStateDescription<ISelectedStateViewModel>> action)
         {
             return t.State("selected", VisualState.FromSpecialDelegate(action));
         }

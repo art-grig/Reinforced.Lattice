@@ -281,6 +281,7 @@ namespace Reinforced.Lattice.Templates.Expressions.Visiting
                 var b = (bool)value;
                 return new JsLiteralExpression { Literal = b ? "true" : "false" };
             }
+
             return new JsLiteralExpression {Literal = value.ToString()};
         }
     }

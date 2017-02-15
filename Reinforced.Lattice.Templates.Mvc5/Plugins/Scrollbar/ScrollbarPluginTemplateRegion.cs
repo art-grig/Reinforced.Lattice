@@ -28,22 +28,22 @@ namespace Reinforced.Lattice.Templates.Plugins.Scrollbar
             return new ScrollbarPluginTemplateRegion(t, templateId);
         }
 
-        public static SpecialString ThisIsUpArrow(this ScrollbarPluginTemplateRegion t)
+        public static Inline ThisIsUpArrow(this ScrollbarPluginTemplateRegion t)
         {
             return t.Mark("UpArrow");
         }
 
-        public static SpecialString ThisIsDownArrow(this ScrollbarPluginTemplateRegion t)
+        public static Inline ThisIsDownArrow(this ScrollbarPluginTemplateRegion t)
         {
             return t.Mark("DownArrow");
         }
 
-        public static SpecialString ThisIsScroller(this ScrollbarPluginTemplateRegion t)
+        public static Inline ThisIsScroller(this ScrollbarPluginTemplateRegion t)
         {
             return t.Mark("Scroller");
         }
 
-        public static SpecialString ThisIsScrollerActiveArea(this ScrollbarPluginTemplateRegion t)
+        public static Inline ThisIsScrollerActiveArea(this ScrollbarPluginTemplateRegion t)
         {
             return t.Mark("ScrollerActiveArea");
         }

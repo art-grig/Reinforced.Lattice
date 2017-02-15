@@ -35,12 +35,12 @@ namespace Reinforced.Lattice.Templates.Editing.Editors.Display
         }
 
 
-        public static SpecialString Render<T>(this DisplayEditorTemplateRegion<T> c)
+        public static Inline Render<T>(this DisplayEditorTemplateRegion<T> c)
         {
             return c.Raw("o.Render(p);");
         }
 
-        public static SpecialString ThisIsContentParent<T>(this DisplayEditorTemplateRegion<T> c)
+        public static Inline ThisIsContentParent<T>(this DisplayEditorTemplateRegion<T> c)
         {
             return c.Mark("ContentElement");
         }

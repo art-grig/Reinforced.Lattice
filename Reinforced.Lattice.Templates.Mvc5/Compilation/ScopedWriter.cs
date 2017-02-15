@@ -7,11 +7,11 @@ using System.Web;
 
 namespace Reinforced.Lattice.Templates.Compilation
 {
-    public sealed class SpecialString : IHtmlString
+    public sealed class Inline : IHtmlString
     {
         private readonly string _internalString;
 
-        public SpecialString(string internalString)
+        public Inline(string internalString)
         {
             _internalString = internalString;
         }
@@ -26,19 +26,19 @@ namespace Reinforced.Lattice.Templates.Compilation
             return _internalString;
         }
 
-        public static SpecialString operator +(SpecialString x, SpecialString y)
+        public static Inline operator +(Inline x, Inline y)
         {
-            return new SpecialString(x._internalString + y._internalString);
+            return new Inline(x._internalString + y._internalString);
         }
 
-        public static SpecialString operator +(SpecialString x, string y)
+        public static Inline operator +(Inline x, string y)
         {
-            return new SpecialString(x._internalString + y);
+            return new Inline(x._internalString + y);
         }
 
-        public static SpecialString operator +(string x, SpecialString y)
+        public static Inline operator +(string x, Inline y)
         {
-            return new SpecialString(x + y._internalString);
+            return new Inline(x + y._internalString);
         }
     }
     internal sealed class ScopedWriter : TextWriter
@@ -51,12 +51,12 @@ namespace Reinforced.Lattice.Templates.Compilation
             _original = original;
             _scope = scope;
         }
-        private readonly List<string> _specialStrings = new List<string>();
+        private readonly List<string> _Inlines = new List<string>();
 
-        public SpecialString CreateRaw(string value)
+        public Inline CreateRaw(string value)
         {
-            _specialStrings.Add(value);
-            return new SpecialString(value);
+            _Inlines.Add(value);
+            return new Inline(value);
         }
 
         public void WriteRaw(string value)
@@ -68,13 +68,13 @@ namespace Reinforced.Lattice.Templates.Compilation
         {
             if (_scope.Flow.CrunchingTemplate)
             {
-                if (!_specialStrings.Contains(value))
+                if (!_Inlines.Contains(value))
                 {
                     value = RawExtensions.Prettify(value);
                 }
                 else
                 {
-                    _specialStrings.Remove(value);
+                    _Inlines.Remove(value);
                 }
             }
             _original.Write(value);
@@ -82,7 +82,7 @@ namespace Reinforced.Lattice.Templates.Compilation
 
         public override void Write(object value)
         {
-            if (value != null && value is SpecialString)
+            if (value != null && value is Inline)
             {
                 throw new Exception("Works");
             }

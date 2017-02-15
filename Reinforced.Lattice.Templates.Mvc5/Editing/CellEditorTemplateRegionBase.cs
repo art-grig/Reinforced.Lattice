@@ -50,37 +50,37 @@ namespace Reinforced.Lattice.Templates.Editing
     {
        
 
-        public static SpecialString WhenSaving<T>(this CellEditorTemplateRegionBase<T> t, Action<VisualState> state) where T : ICellEditorViewModel
+        public static Inline WhenSaving<T>(this CellEditorTemplateRegionBase<T> t, Action<VisualState> state) where T : ICellEditorViewModel
         {
             return t.State("saving", state);
         }
 
-        public static SpecialString WhenValidating<T>(this CellEditorTemplateRegionBase<T> t, Action<VisualState> state) where T : ICellEditorViewModel
+        public static Inline WhenValidating<T>(this CellEditorTemplateRegionBase<T> t, Action<VisualState> state) where T : ICellEditorViewModel
         {
             return t.State("validating", state);
         }
 
-        public static SpecialString Datepicker<T>(this CellEditorTemplateRegionBase<T> t) where T : ICellEditorViewModel
+        public static Inline Datepicker<T>(this CellEditorTemplateRegionBase<T> t) where T : ICellEditorViewModel
         {
             return t.DatepickerIf(t.Property(c => c.Column.IsDateTime), t.Property(c => c.Column.Configuration.IsNullable));
         }
 
-        public static SpecialString BindChanged<T>(this CellEditorTemplateRegionBase<T> t,string eventId) where T : ICellEditorViewModel
+        public static Inline BindChanged<T>(this CellEditorTemplateRegionBase<T> t,string eventId) where T : ICellEditorViewModel
         {
             return t.BindEvent("changedHandler", eventId);
         }
 
-        public static SpecialString BindCommit<T>(this CellEditorTemplateRegionBase<T> t, string eventId) where T : ICellEditorViewModel
+        public static Inline BindCommit<T>(this CellEditorTemplateRegionBase<T> t, string eventId) where T : ICellEditorViewModel
         {
             return t.BindEvent("commitHandler", eventId);
         }
 
-        public static SpecialString BindReject<T>(this CellEditorTemplateRegionBase<T> t, string eventId) where T : ICellEditorViewModel
+        public static Inline BindReject<T>(this CellEditorTemplateRegionBase<T> t, string eventId) where T : ICellEditorViewModel
         {
             return t.BindEvent("rejectHandler", eventId);
         }
 
-        public static SpecialString OriginalContent<T>(this CellEditorTemplateRegionBase<T> t) where T : ICellEditorViewModel
+        public static Inline OriginalContent<T>(this CellEditorTemplateRegionBase<T> t) where T : ICellEditorViewModel
         {
             return t.Raw("o.OriginalContent(p);");
         }

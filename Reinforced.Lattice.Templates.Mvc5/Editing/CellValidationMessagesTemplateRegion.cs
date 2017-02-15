@@ -40,7 +40,7 @@ namespace Reinforced.Lattice.Templates.Editing
 
     public static class CellValidationMessagesTemplateExtensions
     {
-        public static SpecialString WhenInvalid<T>(this CellEditorTemplateRegionBase<T> t, Action<SpecialVisualStateDescription<ISpecialInvalidStateViewModel>> state) where T : ICellEditorViewModel
+        public static Inline WhenInvalid<T>(this CellEditorTemplateRegionBase<T> t, Action<SpecialVisualStateDescription<ISpecialInvalidStateViewModel>> state) where T : ICellEditorViewModel
         {
             return t.State("invalid", VisualState.FromSpecialDelegate(state));
         }

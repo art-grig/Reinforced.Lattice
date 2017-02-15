@@ -65,7 +65,7 @@ namespace Reinforced.Lattice.Templates.Plugins.Toolbar
         /// <param name="m"></param>
         /// <param name="eventId">DOM event</param>
         /// <returns></returns>
-        public static SpecialString BindButton(this ButtonsSetTemplateRegion m, string eventId)
+        public static Inline BindButton(this ButtonsSetTemplateRegion m, string eventId)
         {
             var mark = m.Mark("AllButtons", m.Property(c => c.InternalId));
             var events = m.BindEvent("buttonHandleEvent", eventId, m.Property(c => c.InternalId));

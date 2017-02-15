@@ -16,7 +16,7 @@ namespace Reinforced.Lattice.Templates.Editing.Editors.PlainText
 
     public static class PlainTextEditorTemplateExtensions
     {
-        public static SpecialString ThisIsInput(this PlainTextEditorTemplateRegion t)
+        public static Inline ThisIsInput(this PlainTextEditorTemplateRegion t)
         {
             return t._(t.Mark("Input") + " " + t.Datepicker());
         }

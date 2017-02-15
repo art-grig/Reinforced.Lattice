@@ -11,7 +11,7 @@ namespace Reinforced.Lattice.Templates.Plugins.Loading
         /// element that will be shown when loading in progress
         /// </summary>
         /// <returns></returns>
-        public SpecialString ThisElementWillBlink()
+        public Inline ThisElementWillBlink()
         {
             return this.Mark("BlinkElement");
         }

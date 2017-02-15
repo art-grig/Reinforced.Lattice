@@ -66,14 +66,14 @@ namespace Reinforced.Lattice.DebugSink.Models.Tutorial
                                         .After(x => x.IconAndName()))
                             .Offset().Loading());
             }).BindHierarchyToggleLoad("click", "._treeToggle");
-
+            conf.BindHierarchyToggleLoad("click", "._fname");
             conf.Partition(x => x.Client().InitialSkipTake(take: 15));
             conf.Scrollbar(x => x.Vertical());
             return conf;
         }
         private static Template IconAndName(this Template tpl)
         {
-            tpl.Tag("span").Content("<img src='/Tutorial/GetIcon?path={FullPath}' /> {Name}");
+            tpl.Tag("span").Content("<img src='/Tutorial/GetIcon?path={FullPath}' /> <a href='javascript:void(0)' class='_fname'>{Name}</a>");
             return tpl;
         }
 

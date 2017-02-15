@@ -62,7 +62,7 @@ namespace Reinforced.Lattice.Templates.Plugins.Ordering
         /// <param name="p"></param>
         /// <param name="commaSeparatedEvents">DOM events</param>
         /// <returns></returns>
-        public static SpecialString BindSwitchOrdering(this OrderingPluginTemplateRegion p, string commaSeparatedEvents)
+        public static Inline BindSwitchOrdering(this OrderingPluginTemplateRegion p, string commaSeparatedEvents)
         {
             return p.BindEvent("switchOrdering", commaSeparatedEvents);
         }

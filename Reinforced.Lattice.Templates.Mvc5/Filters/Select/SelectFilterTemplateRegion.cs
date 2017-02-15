@@ -37,7 +37,7 @@ namespace Reinforced.Lattice.Templates.Filters.Select
         /// </summary>
         /// <param name="t"></param>
         /// <param name="eventId">DOM Event ID</param>
-        public static SpecialString BindValueChanged(this SelectFilterTemplateRegion t, string eventId)
+        public static Inline BindValueChanged(this SelectFilterTemplateRegion t, string eventId)
         {
             return t.BindEvent("handleValueChanged", eventId);
         }
@@ -47,7 +47,7 @@ namespace Reinforced.Lattice.Templates.Filters.Select
         /// It must have "value" property
         /// </summary>
         /// <param name="t"></param>
-        public static SpecialString ThisIsFilterValueProvider(this SelectFilterTemplateRegion t)
+        public static Inline ThisIsFilterValueProvider(this SelectFilterTemplateRegion t)
         {
             return t.Mark("FilterValueProvider");
         }

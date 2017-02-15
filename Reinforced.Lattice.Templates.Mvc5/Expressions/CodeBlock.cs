@@ -30,7 +30,7 @@ namespace Reinforced.Lattice.Templates.Expressions
             _raw.WriteRaw(_footer);
         }
 
-        SpecialString IRawProvider.Raw(string tplCode)
+        Inline IRawProvider.Raw(string tplCode)
         {
             return _raw.Raw(tplCode);
         }

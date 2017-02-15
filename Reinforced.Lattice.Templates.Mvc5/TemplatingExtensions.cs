@@ -50,7 +50,7 @@ namespace Reinforced.Lattice.Templates
         /// </summary>
         /// <param name="t">Content provider</param>
         /// <returns>Template placeholder for content</returns>
-        public static SpecialString Content(this IProvidesContent t)
+        public static Inline Content(this IProvidesContent t)
         {
             return t._("d.content(p);");
         }
@@ -61,7 +61,7 @@ namespace Reinforced.Lattice.Templates
         /// <param name="t">Content provider</param>
         /// <param name="columnName">Column name to output content for</param>
         /// <returns>Template placeholder for content</returns>
-        public static SpecialString Content(this IProvidesColumnContent t, string columnName)
+        public static Inline Content(this IProvidesColumnContent t, string columnName)
         {
             return t._("d.content(p,'{0}');", columnName);
         }

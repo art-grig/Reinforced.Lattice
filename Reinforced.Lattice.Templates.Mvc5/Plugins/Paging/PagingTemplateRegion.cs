@@ -126,44 +126,44 @@ namespace Reinforced.Lattice.Templates.Plugins.Paging
             return new PagingGotoPageTemplate(pr);
         }
 
-        public static SpecialString BindNextPage(this PagingTemplateRegion t, string eventId)
+        public static Inline BindNextPage(this PagingTemplateRegion t, string eventId)
         {
             return t.BindEvent("nextClick", eventId);
         }
 
-        public static SpecialString BindPreviousPage(this PagingTemplateRegion t, string eventId)
+        public static Inline BindPreviousPage(this PagingTemplateRegion t, string eventId)
         {
             return t.BindEvent("previousClick", eventId);
         }
 
-        public static SpecialString BindNavigateToPage(this PagingTemplateRegion t, string eventId, string pageNumber)
+        public static Inline BindNavigateToPage(this PagingTemplateRegion t, string eventId, string pageNumber)
         {
             return t.BindEvent("navigateToPage", eventId, pageNumber);
         }
 
-        public static SpecialString BindNavigateToPage<T>(this T t, string eventId)
+        public static Inline BindNavigateToPage<T>(this T t, string eventId)
             where T : IModelProvider<IPageViewModel>, IProvidesEventsBinding
         {
             return t.BindEvent<T, IPageViewModel, int>("navigateToPage", eventId, c => c.Page);
         }
 
 
-        public static SpecialString BindGotoPage(this PagingGotoPageTemplate t, string eventId)
+        public static Inline BindGotoPage(this PagingGotoPageTemplate t, string eventId)
         {
             return t.BindEvent("gotoPageClick", eventId);
         }
 
-        public static SpecialString BindValidateGotoPage(this PagingGotoPageTemplate t, string eventId)
+        public static Inline BindValidateGotoPage(this PagingGotoPageTemplate t, string eventId)
         {
             return t.BindEvent("validateGotopage", eventId);
         }
 
-        public static SpecialString WhenEnteredPageInvalid(this PagingGotoPageTemplate t, Action<VisualState> state)
+        public static Inline WhenEnteredPageInvalid(this PagingGotoPageTemplate t, Action<VisualState> state)
         {
             return t.State("invalid", state);
         }
 
-        public static SpecialString ThisIsGotopageInput (this PagingGotoPageTemplate t)
+        public static Inline ThisIsGotopageInput (this PagingGotoPageTemplate t)
         {
             return t.Mark("GotoInput");
         }

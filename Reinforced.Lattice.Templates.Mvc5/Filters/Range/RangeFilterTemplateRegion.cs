@@ -27,22 +27,22 @@ namespace Reinforced.Lattice.Templates.Filters.Range
             return new RangeFilterTemplateRegion(t,templateId);
         }
 
-        public static SpecialString BindValueChanged(this RangeFilterTemplateRegion t, string eventId)
+        public static Inline BindValueChanged(this RangeFilterTemplateRegion t, string eventId)
         {
             return t.BindEvent("handleValueChanged", eventId);
         }
 
-        public static SpecialString ThisIsFromField(this RangeFilterTemplateRegion t)
+        public static Inline ThisIsFromField(this RangeFilterTemplateRegion t)
         {
             return t.Mark("FromValueProvider");
         }
 
-        public static SpecialString ThisIsToField(this RangeFilterTemplateRegion t)
+        public static Inline ThisIsToField(this RangeFilterTemplateRegion t)
         {
             return t.Mark("ToValueProvider");
         }
 
-        public static SpecialString DatepickerCanBeHere(this RangeFilterTemplateRegion t)
+        public static Inline DatepickerCanBeHere(this RangeFilterTemplateRegion t)
         {
             return t.DatepickerIf(t.Property(c => c.AssociatedColumn.IsDateTime), t.Property(c => c.AssociatedColumn.Configuration.IsNullable));
         }

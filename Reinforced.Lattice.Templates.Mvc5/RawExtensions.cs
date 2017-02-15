@@ -6,34 +6,34 @@ namespace Reinforced.Lattice.Templates
 {
     public static class RawExtensions
     {
-        public static SpecialString _(this IRawProvider r, string code)
+        public static Inline _(this IRawProvider r, string code)
         {
             //r.Raw(code);
             return r.Raw(code);
         }
 
-        public static SpecialString _(this IRawProvider r, SpecialString code)
+        public static Inline _(this IRawProvider r, Inline code)
         {
             //r.Raw(code);
             return r.Raw(code.ToString());
         }
 
-        public static SpecialString _(this IRawProvider r, string code, object arg1)
+        public static Inline _(this IRawProvider r, string code, object arg1)
         {
             return r.Raw(string.Format(code, arg1));
         }
 
-        public static SpecialString _(this IRawProvider r, string code, object arg1, object arg2)
+        public static Inline _(this IRawProvider r, string code, object arg1, object arg2)
         {
             return r.Raw(string.Format(code, arg1, arg2));
         }
 
-        public static SpecialString _(this IRawProvider r, string code, object arg1, object arg2, object arg3)
+        public static Inline _(this IRawProvider r, string code, object arg1, object arg2, object arg3)
         {
             return r.Raw(string.Format(code, arg1, arg2, arg3));
         }
 
-        public static SpecialString RawHtml(this IRawProvider r, string html)
+        public static Inline RawHtml(this IRawProvider r, string html)
         {
             return r.Raw(Prettify(html));
         }

@@ -4,7 +4,7 @@ namespace Reinforced.Lattice.Templates
 {
     public interface IRawProvider : IDeclarator
     {
-        SpecialString Raw(string tplCode);
+        Inline Raw(string tplCode);
 
         void WriteRaw(string tplCode);
     }
