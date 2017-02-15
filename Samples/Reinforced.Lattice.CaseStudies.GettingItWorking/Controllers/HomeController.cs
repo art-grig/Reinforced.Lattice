@@ -57,13 +57,12 @@ namespace Reinforced.Lattice.CaseStudies.GettingItWorking.Controllers
         // Usually it is conencted to DB
         public DataService<User> DataService { get; private set; }
 
-        // Controller Initialize override that you shouldnt pay attention to
+        // Controller constructor that you shouldn't pay attention to
         // We just initialize our data service here 
-        protected override void Initialize(RequestContext requestContext)
+        public HomeController()
         {
-            base.Initialize(requestContext);
-
-            DataService = new DataService<User>(Server.MapPath("~/App_Data/data.json"));
+            DataService = new DataService<User>();
+            DataService.SetData(MvcApplication.Data);
         }
     }
 }

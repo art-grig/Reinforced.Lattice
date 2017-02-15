@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -23,8 +24,11 @@ namespace Reinforced.Lattice.CaseStudies.GettingItWorking
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
             var file = HttpContext.Current.Server.MapPath("~/App_Data/data.json");
-            DataService<User>.SetData(JsonConvert.DeserializeObject<List<User>>(File.ReadAllText(file),
-                            new IsoDateTimeConverter()));
+            Data = JsonConvert.DeserializeObject<List<User>>(File.ReadAllText(file),
+                new IsoDateTimeConverter());
         }
+
+        public static IList Data;
+
     }
 }
