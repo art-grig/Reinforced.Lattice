@@ -226,7 +226,9 @@
             this.stripNotRenderedEditors();
             for (var i = 0; i < this.ActiveEditors.length; i++) {
                 var k = this.ActiveEditors[i].FieldName;
+                this.ActiveEditors[i].IsInitialValueSetting = true;
                 this.ActiveEditors[i].setValue(this.DataObject[k]);
+                this.ActiveEditors[i].IsInitialValueSetting = false;
             }
 
             this.initFormWatchDatepickers(this.RootElement);

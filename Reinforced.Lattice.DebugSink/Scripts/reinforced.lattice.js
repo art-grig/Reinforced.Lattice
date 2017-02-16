@@ -1011,13 +1011,22 @@ var Reinforced;
                                         e.text = text;
                                         e.selected = true;
                                         this.List.add(e);
+                                        this.SelectedItem = {
+                                            Value: strvalue,
+                                            Disabled: false,
+                                            Selected: true,
+                                            Text: text
+                                        };
+                                        Reinforced.Lattice.Master.fireDomEvent('change', this.List);
                                     }
                                 }
                             }
-                            for (var i = 0; i < this.Items.length; i++) {
-                                if (this.Items[i].Value == strvalue) {
-                                    this.SelectedItem = this.Items[i];
-                                    break;
+                            if (isSet) {
+                                for (var i = 0; i < this.Items.length; i++) {
+                                    if (this.Items[i].Value == strvalue) {
+                                        this.SelectedItem = this.Items[i];
+                                        break;
+                                    }
                                 }
                             }
                             this.VisualStates.mixinState('selected');
@@ -6839,7 +6848,9 @@ var Reinforced;
                     this.stripNotRenderedEditors();
                     for (var i = 0; i < this.ActiveEditors.length; i++) {
                         var k = this.ActiveEditors[i].FieldName;
+                        this.ActiveEditors[i].IsInitialValueSetting = true;
                         this.ActiveEditors[i].setValue(this.DataObject[k]);
+                        this.ActiveEditors[i].IsInitialValueSetting = false;
                     }
                     this.initFormWatchDatepickers(this.RootElement);
                     this.loadContent();
