@@ -38,6 +38,7 @@
                 if ((<any>this.List.options.item(i)).value === strvalue) {
                     (<any>this.List.options.item(i)).selected = true;
                     isSet = true;
+                    if (this.IsInitialValueSetting) Reinforced.Lattice.Master.fireDomEvent('change', this.List);
                 }
             }
             if (this.IsInitialValueSetting) {
