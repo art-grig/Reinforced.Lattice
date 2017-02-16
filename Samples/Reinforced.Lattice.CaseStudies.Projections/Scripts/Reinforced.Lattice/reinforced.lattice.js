@@ -9806,7 +9806,7 @@ var Reinforced;
                         this.firePartitionChange();
                     };
                     HierarchyPlugin.prototype.appendNodes = function (newNodes, tail) {
-                        var beforeIdx = tail.length === 0 ? null : tail[0]['__i'];
+                        var beforeIdx = tail[0]['__i'];
                         var rows = this.MasterTable.Controller.produceRowsFromData(newNodes);
                         for (var j = 0; j < rows.length; j++) {
                             this.MasterTable.Renderer.Modifier.appendRow(rows[j], beforeIdx);
@@ -9893,7 +9893,7 @@ var Reinforced;
                                 increaseTail = -nskip;
                                 nskip = 0;
                             }
-                            head = ordered.slice(nskip, this.MasterTable.Partition.Skip);
+                            head = ordered.slice(nskip, orIdx - 1);
                         }
                         if (increaseTail > 0) {
                             tail = ordered.slice(orIdx + 1 + stay.length, orIdx + 1 + displayedHidden + increaseTail + stay.length);
@@ -11606,4 +11606,4 @@ var Reinforced;
         })(Plugins = Lattice.Plugins || (Lattice.Plugins = {}));
     })(Lattice = Reinforced.Lattice || (Reinforced.Lattice = {}));
 })(Reinforced || (Reinforced = {}));
-//# sourceMappingURL=../../../Reinforced.Lattice.DebugSink/Scripts/reinforced.lattice.js.map
+//# sourceMappingURL=../../../../../../../build/package/Reinforced.Lattice.Script/content/Scripts/Reinforced.Lattice/reinforced.lattice.js.map

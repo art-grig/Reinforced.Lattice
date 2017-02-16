@@ -158,7 +158,7 @@
 
         }
         private appendNodes(newNodes: any[], tail: any[]) {
-            var beforeIdx = tail[0]['__i'];
+            var beforeIdx = tail.length === 0?null:tail[0]['__i'];
             var rows = this.MasterTable.Controller.produceRowsFromData(newNodes);
             for (var j = 0; j < rows.length; j++) {
                 this.MasterTable.Renderer.Modifier.appendRow(rows[j], beforeIdx);
