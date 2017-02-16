@@ -228,8 +228,14 @@
 
                     if (this._hasPrimaryKey) {
                         obj['__key'] = this.PrimaryKeyFunction(obj);
-                        if (!this._pkDataCache[obj['__key']]) data.push(obj);
-                        this._pkDataCache[obj['__key']] = obj; // line that makes difference
+                        if (!this._pkDataCache[obj['__key']]) {
+                            data.push(obj);
+                            this._pkDataCache[obj['__key']] = obj; // line that makes difference
+                        } else {
+                            throw new Error(`Two objects with same primary key ${obj['__key']} received. 
+Table cannot distinguish two different records with same primary key.
+Please either remove primary key configuration or pass unique objects.`);
+                        }
                     } else {
                         data.push(obj);
                     }
