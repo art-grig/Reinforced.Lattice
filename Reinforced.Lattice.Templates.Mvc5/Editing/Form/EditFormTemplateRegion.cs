@@ -58,7 +58,7 @@ namespace Reinforced.Lattice.Templates.Editing.Form
 
         public static Inline EditorFor<TRow>(this  EditFormTemplateRegion<TRow> p, string fieldName)
         {
-            return p._("o.Editors(p,'{0}');",fieldName);
+            return p._("o.Editor(p,'{0}');",fieldName);
         }
     }
 }

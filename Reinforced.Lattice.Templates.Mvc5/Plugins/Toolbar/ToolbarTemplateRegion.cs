@@ -16,7 +16,6 @@ namespace Reinforced.Lattice.Templates.Plugins.Toolbar
 
     public class ButtonsSetTemplateRegion : ParametrizedCodeBlock<ToolbarButtonClientConfiguration>
         , IProvidesMarking
-        , IProvidesEventsBinding
     {
         public ButtonsSetTemplateRegion(IRawProvider writer)
             : base("for(var i=0;i<o.Configuration.Buttons.length;i++){var b=o.Configuration.Buttons[i];", "}", writer)
@@ -65,10 +64,11 @@ namespace Reinforced.Lattice.Templates.Plugins.Toolbar
         /// <param name="m"></param>
         /// <param name="eventId">DOM event</param>
         /// <returns></returns>
-        public static Inline BindButton(this ButtonsSetTemplateRegion m, string eventId)
+        public static Inline BindButton<T>(this T m, string eventId)  where T: IModelProvider<ToolbarButtonClientConfiguration>, IProvidesMarking, IProvidesEventsBinding
         {
             var mark = m.Mark("AllButtons", m.Property(c => c.InternalId));
-            var events = m.BindEvent("buttonHandleEvent", eventId, m.Property(c => c.InternalId));
+            var prop = m.Property(c => c.InternalId);
+            var events = m.BindEvent("buttonHandleEvent", eventId, prop);
             return m._(mark + " " + events);
         }
     }
