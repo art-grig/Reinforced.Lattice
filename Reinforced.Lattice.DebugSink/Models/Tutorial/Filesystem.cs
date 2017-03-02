@@ -13,7 +13,7 @@ namespace Reinforced.Lattice.DebugSink.Models.Tutorial
     public static partial class Tutorial
     {
         public static Configurator<FileSystemInfo, FileRow> Filesystem(
-            this Configurator<FileSystemInfo, FileRow> conf)
+            this Configurator<FileSystemInfo, FileRow> conf, string basePath)
         {
             conf.Hierarchy(x => x.ParentKey);
             conf.ProjectDataWith(c => c.Select(x =>
@@ -25,7 +25,7 @@ namespace Reinforced.Lattice.DebugSink.Models.Tutorial
                                     Directory.GetFileSystemEntries(x.FullName).Length : 0,
                     FullPath = x.FullName,
                     IsDirectory = (x.Attributes & FileAttributes.Directory) == FileAttributes.Directory,
-                    ParentKey = Path.GetDirectoryName(x.FullName) == "C:\\Program Files (x86)" ? null : Path.GetDirectoryName(x.FullName),
+                    ParentKey = Path.GetDirectoryName(x.FullName) == basePath ? null : Path.GetDirectoryName(x.FullName),
                     Name = x.Name,
                     CreationDate = x.CreationTime,
                     Size = (x.Attributes & FileAttributes.Directory) == FileAttributes.Directory ? (long?)null :

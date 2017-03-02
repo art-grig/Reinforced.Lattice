@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Collections;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Web.Mvc;
@@ -15,17 +16,19 @@ namespace Reinforced.Lattice.DebugSink.Controllers
     public partial class TutorialController
     {
         [Tutorial("Filesystem")]
-        public ActionResult Filesystem()
+        public ActionResult Filesystem(string path)
         {
-            var t = new Configurator<FileSystemInfo, FileRow>().Filesystem().Url(Url.Action("FilesystemHandle"));
+            var defaultPath = "C:\\Program Files (x86)";
+            var finalPath = Directory.Exists(path) ? path : defaultPath;
+            var t = new Configurator<FileSystemInfo, FileRow>().Filesystem(finalPath).Url(Url.Action("FilesystemHandle",new { path = finalPath}));
             return View("BaseTutorial", t);
         }
 
-        public ActionResult FilesystemHandle()
+        public ActionResult FilesystemHandle(string path)
         {
-            var di = new DirectoryInfo(@"C:\\Program Files (x86)");
+            var di = new DirectoryInfo(path);
             var infos = di.EnumerateFileSystemInfos().Where(c => (c.Attributes & FileAttributes.Hidden) != FileAttributes.Hidden);
-            var t = new Configurator<FileSystemInfo, FileRow>().Filesystem();
+            var t = new Configurator<FileSystemInfo, FileRow>().Filesystem(path);
             var handler = t.CreateMvcHandler(ControllerContext);
             handler.AddChildrenHandler(Children);
             return handler.Handle(infos.AsQueryable());
@@ -83,7 +86,7 @@ namespace Reinforced.Lattice.DebugSink.Controllers
         static Icon()
         {
             SHFILEINFO shinfo = new SHFILEINFO();
-            Win32.SHGetFileInfo("D:\\file", 0, ref shinfo, (uint)Marshal.SizeOf(shinfo), Win32.SHGFI_ICON | Win32.SHGFI_SMALLICON); ;
+            Win32.SHGetFileInfo("", 0, ref shinfo, (uint)Marshal.SizeOf(shinfo), Win32.SHGFI_ICON | Win32.SHGFI_SMALLICON); ;
             System.Drawing.Icon fileIcon = System.Drawing.Icon.FromHandle(shinfo.hIcon);
             FileIcon = ToPngBytes(fileIcon);
 
